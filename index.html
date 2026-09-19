@@ -1,0 +1,220 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="HYDRA recruiter technical proof strip: ingest, normalize, contract, trace, validate, defect, resolution, output." />
+  <title>HYDRA | Recruiter Technical Proof Strip</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <main class="page-shell">
+    <section class="proof-strip" id="technical-proof" aria-labelledby="proof-title">
+      <div class="section-kicker">TECHNICAL PROOF / 30-90 SECOND PATH</div>
+      <div class="proof-heading-grid">
+        <div>
+          <h1 id="proof-title">Correctness is part of the pipeline.</h1>
+          <p class="lede">
+            HYDRA turns fragmented market inputs into controlled, traceable structures, then forces each handoff through explicit contracts and evidence gates. A failed seam is not painted green: prove the defect, repair only what is justified, rerun, or block when authority is missing.
+          </p>
+        </div>
+        <aside class="scope-box" aria-label="Evidence scope">
+          <span class="scope-label">EVIDENCE SCOPE</span>
+          <strong>Real-data canonicalization + synthetic/shadow integration proof</strong>
+          <p>Scope is labeled per card. No production-ML claim is implied.</p>
+        </aside>
+      </div>
+
+      <nav class="proof-route" aria-label="Engineering proof route">
+        <span>01 INGEST</span><i aria-hidden="true"></i>
+        <span>02 NORMALIZE</span><i aria-hidden="true"></i>
+        <span>03 CONTRACT</span><i aria-hidden="true"></i>
+        <span>04 TRACE</span><i aria-hidden="true"></i>
+        <span>05 VALIDATE</span><i aria-hidden="true"></i>
+        <span>06 DEFECT</span><i aria-hidden="true"></i>
+        <span>07 RESOLUTION</span><i aria-hidden="true"></i>
+        <span>08 OUTPUT</span>
+      </nav>
+
+      <div class="proof-grid">
+        <article class="proof-card" data-step="01">
+          <div class="card-topline">
+            <span class="step">01 / INGEST</span>
+            <span class="scope-tag real">REAL DATA</span>
+          </div>
+          <h2>Start with fragmented source files.</h2>
+          <p>Full Q1 options-chain run discovered and loaded thousands of source files into a controlled ingestion pass.</p>
+          <div class="mini-flow" aria-label="Raw source flow">
+            <span>*_option_chain.txt</span>
+            <span>*_option_chain.csv</span>
+            <b>→</b>
+            <span>canonicalizer</span>
+          </div>
+          <pre><code>source_records_discovered = 3,353
+source_records_loaded     = 3,353
+source_records_error      = 0
+rows_in_total             = 17,766,662</code></pre>
+          <footer>Artifact: options chain canonicalizer v0.2.2</footer>
+        </article>
+
+        <article class="proof-card" data-step="02">
+          <div class="card-topline">
+            <span class="step">02 / NORMALIZE</span>
+            <span class="scope-tag real">REAL DATA</span>
+          </div>
+          <h2>Convert sources into a controlled internal layer.</h2>
+          <p>The canonicalizer emits a canonical table plus a source manifest and quality summary, keeping source accounting next to transformed output.</p>
+          <div class="before-after">
+            <div>
+              <span>RAW</span>
+              <code>3,353 source files</code>
+            </div>
+            <b>→</b>
+            <div>
+              <span>CANONICAL</span>
+              <code>17,766,662 rows</code>
+            </div>
+          </div>
+          <pre><code>canonical_status        = OPTIONS_CHAIN_CANONICAL_COMPLETE
+canonical_rows_written  = 17,766,662
+manifest                = ...source_manifest_v0_2_2.csv
+quality_notes            = ok</code></pre>
+          <footer>Transformation remains accountable to a manifest.</footer>
+        </article>
+
+        <article class="proof-card" data-step="03">
+          <div class="card-topline">
+            <span class="step">03 / CONTRACT</span>
+            <span class="scope-tag shadow">INTEGRATION CONTRACT</span>
+          </div>
+          <h2>Handoffs have required fields, not vibes.</h2>
+          <p>A native T5 → T6 contract pins the graph fields that must exist before downstream admission.</p>
+          <pre class="schema"><code>{
+  "upstream_object_id": "required",
+  "object_type": "required",
+  "subject_entity_id": "required",
+  "as_of": "required",
+  "confidence": "required",
+  "evidence_ids": "required",
+  "payload": "required"
+}</code></pre>
+          <footer>Contract pin: native T5 input contract</footer>
+        </article>
+
+        <article class="proof-card" data-step="04">
+          <div class="card-topline">
+            <span class="step">04 / TRACE</span>
+            <span class="scope-tag shadow">SYNTHETIC / SHADOW</span>
+          </div>
+          <h2>Make lineage reversible.</h2>
+          <p>Integrated seam testing checks that downstream behavior can be traced backward and explained without mutating the sealed baseline.</p>
+          <div class="lineage-rail" aria-label="Lineage path">
+            <span>T3 replay</span><b>→</b><span>T4 trace</span><b>→</b><span>T5 gate</span>
+          </div>
+          <pre><code>T3_LINEAGE_DIGEST_STABLE   = True
+T4_REVERSE_TRACE_COMPLETE  = True
+T4_WHY_TRACE_COMPLETE      = True
+SEALED_BATCH60_MUTATED     = NO</code></pre>
+          <footer>Proof: CI-TEST-005 behavioral cross-thread seam</footer>
+        </article>
+
+        <article class="proof-card" data-step="05">
+          <div class="card-topline">
+            <span class="step">05 / VALIDATE</span>
+            <span class="scope-tag pass">PASS</span>
+          </div>
+          <h2>Test the seam, not just the modules.</h2>
+          <p>Replay, reverse tracing, fault localization, gate behavior, and semantic-family coherence are checked together.</p>
+          <div class="status-card pass-card">
+            <span>CI-TEST-005</span>
+            <strong>PASS_FIRST_BEHAVIORAL_CROSS_THREAD_SEAM</strong>
+          </div>
+          <pre><code>T3_ORACLE_PASS             = True
+T4_ORACLE_PASS             = True
+T5_ORACLE_PASS             = True
+FAILURE_COUNT              = 0</code></pre>
+          <footer>Bounded integration proof, not a production claim.</footer>
+        </article>
+
+        <article class="proof-card defect-card" data-step="06">
+          <div class="card-topline">
+            <span class="step">06 / DEFECT</span>
+            <span class="scope-tag fail">FAIL WITH DEFECT</span>
+          </div>
+          <h2>Name the failure precisely.</h2>
+          <p>CI-008 found 12 eligible T5 objects that could not satisfy the native T6 contract because five required fields were absent.</p>
+          <div class="status-card fail-card">
+            <span>CI-TEST-008-DEFECT-002-V005</span>
+            <strong>T5 native materialization fields absent</strong>
+          </div>
+          <pre><code>missing: object_type
+         subject_entity_id
+         as_of
+         confidence
+         evidence_ids
+semantic_values_invented = false</code></pre>
+          <footer>The defect stayed visible instead of being papered over.</footer>
+        </article>
+
+        <article class="proof-card resolution-card" data-step="07">
+          <div class="card-topline">
+            <span class="step">07 / RESOLUTION</span>
+            <span class="scope-tag rule">REPAIR OR BLOCK</span>
+          </div>
+          <h2>Only two honest exits.</h2>
+          <div class="resolution-paths">
+            <div>
+              <span class="resolution-label">PROVEN REPAIR</span>
+              <strong>minimum repair → rerun → PASS</strong>
+              <code>OVERALL = PASS_REPAIRED_CI_TEST_004</code>
+              <code>CANONICAL_BASELINE_MUTATED = NO</code>
+            </div>
+            <div>
+              <span class="resolution-label">MISSING AUTHORITY</span>
+              <strong>refuse fabrication → BLOCK</strong>
+              <code>AUTHORITY_SOURCE_STATUS = MISSING</code>
+              <code>SEMANTIC_VALUES_INVENTED = False</code>
+            </div>
+          </div>
+          <footer>Green is earned. A truthful blocker is an acceptable system result.</footer>
+        </article>
+
+        <article class="proof-card output-card" data-step="08">
+          <div class="card-topline">
+            <span class="step">08 / OUTPUT</span>
+            <span class="scope-tag representative">REPRESENTATIVE</span>
+          </div>
+          <h2>Return intelligence with its evidence still attached.</h2>
+          <p>The final constraint layer is designed as additive enrichment around an existing canonical Constraint, preserving identity, provenance, uncertainty, rationale, and reason codes.</p>
+          <pre class="schema"><code>{
+  "constraint_ref": "existing canonical identity",
+  "classification": "shortage | bottleneck | ...",
+  "scope": "local | systemic | unknown",
+  "timing": "current | emerging | unknown",
+  "provenance": ["source evidence", "upstream constraint"],
+  "rationale": "explainable classification basis",
+  "reason_code": "governed reason",
+  "authority_status": "preserved"
+}</code></pre>
+          <footer>Representative structure. Not labeled as live production output.</footer>
+        </article>
+      </div>
+
+      <div class="proof-close">
+        <div>
+          <span class="close-label">WHAT THIS PROVES</span>
+          <strong>HYDRA treats data correctness, authority, and lineage as engineering concerns rather than cleanup performed after the fact.</strong>
+        </div>
+        <div class="close-chips" aria-label="Proof themes">
+          <span>source accounting</span>
+          <span>contract gates</span>
+          <span>reverse trace</span>
+          <span>named defects</span>
+          <span>minimum repair</span>
+          <span>fail closed</span>
+        </div>
+      </div>
+    </section>
+  </main>
+</body>
+</html>

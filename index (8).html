@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="HYDRA recruiter case study showing how fragmented market evidence becomes a traceable constraint without fabricating authority." />
+  <title>HYDRA | Constraint Case Study V2</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+<main class="case-study" id="constraint-case-study">
+  <header class="hero">
+    <div>
+      <div class="kicker">CASE STUDY / MARKET CONSTRAINT</div>
+      <h1>From fragmented evidence to a bounded conclusion.</h1>
+      <p class="lede">HYDRA does not jump from “something looks scarce” to “the market has a shortage.” This case shows the data-engineering path from source records to a traceable, authority-bounded constraint result.</p>
+    </div>
+    <aside class="scope-card">
+      <span class="eyebrow">PUBLIC EVIDENCE SCOPE</span>
+      <strong>Real ingestion proof + representative/non-live constraint interpretation</strong>
+      <p>The data-platform behavior shown here is grounded in HYDRA receipts. The market case itself is deliberately representative so the site does not mislabel synthetic/shadow evidence as live production intelligence.</p>
+    </aside>
+  </header>
+
+  <div class="case-banner">
+    <div>
+      <strong>Case question: does the available evidence establish a broad shortage, or only a narrower bottleneck?</strong><br />
+      <span>Answer must preserve uncertainty, source authority, identity, and history.</span>
+    </div>
+    <span class="badge">REPRESENTATIVE / NON-LIVE</span>
+  </div>
+
+  <div class="pipeline" aria-label="Constraint case study path">
+    <div class="node"><b>01</b><span>Fragmented evidence</span></div>
+    <div class="node"><b>02</b><span>Source normalization</span></div>
+    <div class="node"><b>03</b><span>Identity resolution</span></div>
+    <div class="node"><b>04</b><span>Contract + authority</span></div>
+    <div class="node"><b>05</b><span>Provenance + history</span></div>
+    <div class="node"><b>06</b><span>Constraint interpretation</span></div>
+    <div class="node"><b>07</b><span>Auditable result</span></div>
+  </div>
+
+  <section class="stage-grid">
+    <article class="stage span-2">
+      <div class="stage-head"><span class="step">01 / FRAGMENTED MARKET EVIDENCE</span><span class="tag real">REAL PLATFORM PROOF + REPRESENTATIVE CASE</span></div>
+      <h2>Begin with source diversity, not a pre-written conclusion.</h2>
+      <p>HYDRA has already demonstrated full options-chain canonicalization across thousands of source files. For this public case, the semantic evidence below is representative, but the ingestion pattern mirrors the same source-first discipline.</p>
+      <div class="source-cards">
+        <div class="source-card"><b>SOURCE A / AVAILABILITY</b><code>physical_availability = present<br>qualified_availability = partial<br>scope = venue_segment</code></div>
+        <div class="source-card"><b>SOURCE B / PRICE</b><code>pricing_pressure = observed<br>scarcity_cause = unresolved<br>scope = same_segment</code></div>
+        <div class="source-card"><b>SOURCE C / HISTORY</b><code>condition = intermittent<br>broader_market_match = not_established<br>time_scope = recent_window</code></div>
+      </div>
+      <pre><code>REAL INGEST RECEIPT
+source_records_discovered = 3,353
+source_records_loaded     = 3,353
+source_records_error      = 0
+canonical_rows_written    = 17,766,662</code></pre>
+    </article>
+
+    <article class="stage">
+      <div class="stage-head"><span class="step">02 / SOURCE NORMALIZATION</span><span class="tag real">REAL DATA ENGINEERING PATTERN</span></div>
+      <h2>Normalize structure without erasing source meaning.</h2>
+      <p>Each observation becomes a controlled record with explicit source, subject, scope, temporal state, and evidence payload. Raw differences are retained as provenance rather than flattened into one anonymous fact.</p>
+      <pre><code>{
+  "evidence_id": "ev_rep_002",
+  "source_ref": "SRC-B",
+  "subject_ref": "segment:demo-01",
+  "observation": "pricing_pressure",
+  "scope": "venue_segment",
+  "time_state": "current_window",
+  "authority": "observational"
+}</code></pre>
+    </article>
+
+    <article class="stage">
+      <div class="stage-head"><span class="step">03 / IDENTITY RESOLUTION</span><span class="tag rep">REPRESENTATIVE STRUCTURE</span></div>
+      <h2>Resolve names before joining claims.</h2>
+      <p>Evidence cannot be safely combined until multiple labels are proven to refer to the same governed subject. Identity is resolved upstream; the classifier is not allowed to mint a new canonical object because two strings look similar.</p>
+      <div class="identity">
+        <div class="raw-names"><strong>RAW REFERENCES</strong><code>"Demo segment"<br>"Venue-A segment"<br>"SEG-DEMO-01"</code></div>
+        <div class="arrow">→</div>
+        <div class="canonical"><strong>CANONICAL REFERENCE</strong><code>subject_ref = segment:demo-01<br>identity_state = established_upstream<br>classifier_minted = false</code></div>
+      </div>
+    </article>
+
+    <article class="stage span-2">
+      <div class="stage-head"><span class="step">04 / CONTRACT + AUTHORITY CHECK</span><span class="tag gate">FAIL-CLOSED RULES</span></div>
+      <h2>Ask what the evidence is authorized to prove.</h2>
+      <p>The important gate is semantic, not cosmetic. HYDRA separates “evidence exists” from “the evidence authorizes this conclusion.” A classifier can enrich an existing Constraint, but it cannot create canonical existence, identity, or a stronger scope than the evidence supports.</p>
+      <div class="rulebox">
+        <div class="rule"><strong>IDENTITY RULE</strong><span>Classification may refine an existing Constraint. It may not create one or promote a candidate occurrence into canonical identity.</span></div>
+        <div class="rule"><strong>SCOPE RULE</strong><span>Multiple sources discussing the same phenomenon do not, by themselves, authorize a SYSTEMIC classification.</span></div>
+        <div class="rule"><strong>SCARCITY RULE</strong><span>Pricing pressure alone does not authorize a PHYSICAL SHORTAGE conclusion.</span></div>
+        <div class="rule"><strong>AVAILABILITY RULE</strong><span>Physical availability and qualified availability remain distinct concepts.</span></div>
+      </div>
+    </article>
+
+    <article class="stage span-2">
+      <div class="stage-head"><span class="step">05 / PROVENANCE + HISTORY</span><span class="tag real">INTEGRATION PROOF</span></div>
+      <h2>Keep the answer reversible.</h2>
+      <p>The public story should let an engineer move backward from the conclusion to the supporting evidence and transformation path. HYDRA seam testing already verifies stable lineage digests, reverse tracing, why-tracing, and baseline immutability.</p>
+      <div class="lineage">
+        <div><b>SOURCE</b><span>source/version identity</span></div>
+        <div><b>NORMALIZED</b><span>controlled evidence record</span></div>
+        <div><b>IDENTITY</b><span>canonical subject reference</span></div>
+        <div><b>HISTORY</b><span>retained temporal/provenance links</span></div>
+        <div><b>RESULT</b><span>reasoned constraint state</span></div>
+      </div>
+      <pre><code>T3_LINEAGE_DIGEST_STABLE  = True
+T4_REVERSE_TRACE_COMPLETE = True
+T4_WHY_TRACE_COMPLETE     = True
+SEALED_BASELINE_MUTATED   = NO</code></pre>
+    </article>
+
+    <article class="stage span-2">
+      <div class="stage-head"><span class="step">06 / CONSTRAINT INTERPRETATION</span><span class="tag gate">BOUNDED SEMANTICS</span></div>
+      <h2>The system chooses the narrowest conclusion the evidence can defend.</h2>
+      <div class="decision">
+        <div class="decision-card accept">
+          <span class="label">SUPPORTED</span>
+          <strong>LOCAL BOTTLENECK</strong>
+          <p>Evidence supports a constrained, venue/segment-specific limitation with partial qualified availability and observed pricing pressure.</p>
+        </div>
+        <div class="decision-card reject">
+          <span class="label">NOT AUTHORIZED</span>
+          <strong>SYSTEMIC SHORTAGE</strong>
+          <p>Broader scarcity is not established. Price pressure does not prove physical scarcity, and narrow source coverage does not prove systemic scope.</p>
+        </div>
+      </div>
+    </article>
+
+    <article class="stage span-2">
+      <div class="stage-head"><span class="step">07 / AUDITABLE RESULT</span><span class="tag rep">REPRESENTATIVE OUTPUT</span></div>
+      <h2>Return the conclusion and the boundaries together.</h2>
+      <div class="output">
+        <div class="verdict">
+          <span class="tiny">FINAL REPRESENTATIVE STATE</span>
+          <h3>LOCAL BOTTLENECK</h3>
+          <p>Strong enough to state narrowly. Not strong enough to promote into systemic shortage.</p>
+        </div>
+        <pre><code>{
+  "constraint_ref": "constraint:demo-01",
+  "subject_ref": "segment:demo-01",
+  "classification": "bottleneck",
+  "scope": "local",
+  "timing": "current",
+  "availability": {
+    "physical": "present",
+    "qualified": "partial"
+  },
+  "systemic_shortage": "not_established",
+  "provenance_refs": ["SRC-A", "SRC-B", "SRC-C"],
+  "uncertainty": "preserved",
+  "promotion_blocked": true,
+  "reason": "evidence does not authorize broader scope"
+}</code></pre>
+      </div>
+      <div class="proof-foot">
+        <div class="proof-box"><b>WHY THIS IS A DATA-ENGINEERING STORY</b><p>The value is not the label “bottleneck.” The value is the controlled path that makes the label inspectable: source accounting, normalized records, stable identity, contract gates, provenance, history, and an explicit refusal to overstate evidence.</p></div>
+        <div class="proof-box"><b>WHAT HYDRA DOES WHEN AUTHORITY IS MISSING</b><p>Integrated CI-008 evidence demonstrates the same policy mechanically: when required handoff fields cannot be supplied from authoritative case data, semantic values stay uninvented and the lane blocks instead of manufacturing a green result.</p></div>
+      </div>
+    </article>
+  </section>
+
+  <footer class="close">
+    <span>RECRUITER TAKEAWAY</span>
+    <strong>HYDRA turns market evidence into traceable intelligence by controlling identity, authority, provenance, and scope before a conclusion is allowed to travel downstream.</strong>
+  </footer>
+</main>
+</body>
+</html>

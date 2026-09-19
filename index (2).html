@@ -1,0 +1,76 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="description" content="HYDRA recruiter technical proof and representative constraint case study"><title>HYDRA | Technical Proof</title><link rel="stylesheet" href="assets/hydra-proof.css"></head><body><header class="topbar"><div class="shell"><a class="brand" href="index.html"><span class="brand-mark">H</span><span>HYDRA</span></a><nav class="nav"><a href="#proof">Proof strip</a><a href="#case">Case study</a><a href="#receipts">Receipts</a></nav></div></header><main><section class="hero"><div class="shell"><div class="eyebrow">MARKET INTELLIGENCE DATA PLATFORM</div><h1>Correctness is part of the data product.</h1><p>HYDRA turns fragmented evidence into traceable intelligence through controlled normalization, identity resolution, contract-bound handoffs, provenance, history, and fail-closed validation.</p><div class="hero-badges"><span class="pill">Multi-source ingestion</span><span class="pill">Contract-bound handoffs</span><span class="pill">Lineage + release gates</span><span class="pill rep">Representative market walkthrough</span></div></div></section><section id="proof" class="section"><div class="shell"><div class="section-head"><div><div class="kicker">RECRUITER_TECHNICAL_PROOF_STRIP</div><h2>The engineering loop in under 90 seconds.</h2><p class="section-desc">The tiny artifacts below make the path visible without asking a recruiter to decode internal version history.</p></div><div class="outcome">HYDRA treats data correctness, authority, and lineage as engineering concerns, not cleanup performed after the fact.</div></div><div class="proof-strip"><article class="proof-step"><div class="step-num">01</div><h3 class="step-title">INGEST</h3><div class="step-copy">Fragmented inputs enter without pretending they already agree.</div><div class="mini-code">supplier_note:
+  lead_time_days: 42
+filing_extract:
+  capacity: constrained
+market_signal:
+  price: rising</div><div class="source-tag">REPRESENTATIVE INPUT SHAPE</div></article><article class="proof-step"><div class="step-num">02</div><h3 class="step-title">NORMALIZE</h3><div class="step-copy">Source-specific fragments become a controlled evidence record.</div><div class="mini-code">evidence_id: ev_0184
+entity_ref: ent_supplier_a
+claim_type: capacity_limit
+observed_at: <source time>
+source_ref: src_003</div><div class="source-tag">REPRESENTATIVE STRUCTURE</div></article><article class="proof-step"><div class="step-num">03</div><h3 class="step-title">CONTRACT</h3><div class="step-copy">Downstream fields must be owned or derivable under an actual contract.</div><div class="mini-code">required:
+  object_type
+  subject_entity_id
+  as_of
+  confidence
+  evidence_ids</div><div class="source-tag">CI-TEST-008 NATIVE HANDOFF</div></article><article class="proof-step"><div class="step-num">04</div><h3 class="step-title">TRACE</h3><div class="step-copy">Forward lineage and reverse references are validated across governed handoffs.</div><div class="mini-code">T4_LINEAGE_PRESERVED=PASS
+T5_LINEAGE_PRESERVED=PASS
+REVERSE_REFERENCE_VERIFICATION=PASS</div><div class="source-tag">CI-TEST-006 RECEIPT</div></article><article class="proof-step"><div class="step-num">05</div><h3 class="step-title">VALIDATE</h3><div class="step-copy">The seam is executed and the result is machine-checkable.</div><div class="mini-code">OVERALL=PASS_REPAIRED_CI_TEST_004
+FAILURE_COUNT=0
+BATCH60_IMMUTABILITY_PIN=PASS</div><div class="source-tag">CI-TEST-004 V004</div></article><article class="proof-step"><div class="step-num">06</div><h3 class="step-title">DEFECT</h3><div class="step-copy">A failing seam becomes a named defect, not a hand-wave.</div><div class="mini-code">ticket_id:
+  CI-TEST-004-DEFECT-001
+repair_version: V004
+canonical_baseline_mutated: false</div><div class="source-tag">REAL DEFECT WORKFLOW</div></article><article class="proof-step"><div class="step-num">07</div><h3 class="step-title">RESOLUTION</h3><div class="step-copy">HYDRA either repairs narrowly and reruns, or refuses to invent missing authority.</div><div class="mini-code">repair → rerun → PASS
+
+OR
+
+authority missing → BLOCK
+semantic_values_invented=false</div><div class="source-tag">REAL PASS + REAL BLOCK</div></article><article class="proof-step"><div class="step-num">08</div><h3 class="step-title">OUTPUT</h3><div class="step-copy">Only evidence-supported scope survives into the representative constraint object.</div><div class="mini-code">classification: local_bottleneck
+identity: preserved
+provenance: linked
+broader_shortage_claim:
+  NOT_PROMOTED</div><div class="source-tag">REPRESENTATIVE OUTPUT</div></article></div></div></section><section id="case" class="section"><div class="shell"><div class="section-head"><div><div class="kicker">CONSTRAINT CASE STUDY V2</div><h2>From fragmented evidence to a bounded, auditable conclusion.</h2><p class="section-desc">This walkthrough is representative, not a live trading signal. The system-control receipts shown around it are genuine HYDRA test artifacts.</p></div></div><div class="case-grid"><article class="flow-card"><div class="flow-title"><h3>Representative market-constraint walkthrough</h3><span class="status">REPRESENTATIVE / NON-LIVE</span></div><div class="flow"><div class="flow-row"><div class="flow-index">01</div><div class="flow-body"><div class="flow-label"><strong>FRAGMENTED MARKET EVIDENCE</strong><span>Representative, non-live</span></div><p>Three source families disagree in shape and granularity. HYDRA retains the fragments separately instead of collapsing them into one convenient story.</p><pre>source_A: { supplier: "Apex Components", lead_time_days: 42 }
+source_B: { issuer_alias: "Apex Comp.", capacity_note: "line constrained" }
+source_C: { symbol: "APX", spot_move: "+11%", window: "5d" }</pre></div></div><div class="flow-row"><div class="flow-index">02</div><div class="flow-body"><div class="flow-label"><strong>SOURCE NORMALIZATION</strong><span>Controlled internal form</span></div><p>Normalization standardizes fields without erasing source identity, time, or raw provenance.</p><pre>evidence_id: ev_0184
+source_ref: src_supplier_note_07
+entity_alias: "Apex Components"
+claim_type: "capacity_limit"
+value: 42
+unit: "days"
+raw_ref: raw/07#lead_time</pre></div></div><div class="flow-row"><div class="flow-index">03</div><div class="flow-body"><div class="flow-label"><strong>IDENTITY RESOLUTION</strong><span>Canonical identity + aliases</span></div><p>Aliases converge only when identity rules support the match. The canonical entity survives source-specific naming differences.</p><pre>raw aliases
+  "Apex Components"
+  "Apex Comp."
+  "APX"
+        ↓
+canonical_entity_id: ent_apex_001
+identity_status: RESOLVED_REPRESENTATIVE</pre></div></div><div class="flow-row"><div class="flow-index">04</div><div class="flow-body"><div class="flow-label"><strong>CONTRACT / AUTHORITY CHECK</strong><span>Fail closed on missing ownership</span></div><p>Required downstream semantics are checked against native authority. Missing authority is a blocker, not an invitation to manufacture values.</p><pre>CI-TEST-008
+overall: BLOCKED_V011_EXACT_AUTHORITATIVE_CASE_SOURCE_REQUIRED
+required_fields: [object_type, subject_entity_id, as_of, confidence, evidence_ids]
+semantic_values_invented: false</pre></div></div><div class="flow-row"><div class="flow-index">05</div><div class="flow-body"><div class="flow-label"><strong>PROVENANCE + HISTORY</strong><span>Forward edges + reverse reference</span></div><p>Evidence remains traceable through later stages. History can be replayed without overwriting the original source context.</p><pre>src_supplier_note_07
+   ↓ evidence: ev_0184
+   ↓ entity: ent_apex_001
+   ↓ constraint_candidate: cn_0042
+   ↺ reverse refs preserved
+   ↺ source + lineage preserved</pre></div></div><div class="flow-row"><div class="flow-index">06</div><div class="flow-body"><div class="flow-label"><strong>CONSTRAINT INTERPRETATION</strong><span>Scope is narrower than the tempting headline</span></div><p>The representative evidence supports a local bottleneck pattern, while the broader market-shortage claim remains unproven.</p><pre>supported_scope: LOCAL
+classification: BOTTLENECK
+mechanism: CAPACITY / LEAD_TIME
+broader_shortage_claim: NOT_PROMOTED
+reason: evidence does not justify systemic scope</pre></div></div><div class="flow-row"><div class="flow-index">07</div><div class="flow-body"><div class="flow-label"><strong>AUDITABLE RESULT</strong><span>Representative output, not live signal</span></div><p>The final object carries its evidence boundary with it, including what HYDRA declined to conclude.</p><pre>constraint_id: cn_0042
+entity_id: ent_apex_001
+classification: local_bottleneck
+provenance_refs: [ev_0184, ev_0187]
+history_linked: true
+unsupported_claims: [systemic_shortage]
+status: REPRESENTATIVE_WALKTHROUGH</pre></div></div></div></article><aside class="aside-stack"><section class="aside-card"><h3>What the recruiter should notice</h3><div class="rule-list"><div class="rule">Raw source differences survive ingestion.</div><div class="rule">Identity is resolved separately from semantic interpretation.</div><div class="rule">Contracts define what downstream stages may consume.</div><div class="rule">Missing authority blocks promotion instead of triggering fabrication.</div><div class="rule">Lineage and history stay attached to the final object.</div></div></section><section class="aside-card"><h3>Proof posture</h3><div class="metric-grid"><div class="metric"><b class="good">PASS</b><span>CI-004 repaired rerun</span></div><div class="metric"><b class="good">PASS</b><span>CI-006 quarantine path</span></div><div class="metric"><b class="warn">BLOCK</b><span>CI-008 missing authority</span></div><div class="metric"><b class="cyan">NO</b><span>semantic values invented</span></div></div></section><section class="aside-card"><h3>Interpretation boundary</h3><p>The representative scenario resolves to a <strong>local bottleneck</strong>. A broader systemic shortage is deliberately not promoted because the example evidence does not justify that scope.</p></section></aside></div><div class="boundary"><strong>Public-claim boundary:</strong> the market evidence and final constraint object on this page are representative structures. CI-004, CI-006, and CI-008 statuses are grounded in real HYDRA receipts. No production-data validation, live signal, or canonical promotion is claimed here.</div></div></section><section id="receipts" class="section"><div class="shell"><div class="section-head"><div><div class="kicker">ACTUAL CONTROL RECEIPTS</div><h2>One repaired seam. One quarantine path. One truthful block.</h2></div></div><div class="receipt"><div class="receipt-top"><span>PUBLIC-SAFE EXCERPTS</span><span>system controls / not live market output</span></div><div class="receipt-grid"><div class="receipt-col"><h4>Repair path</h4><pre><span class="cyan">CI-TEST-004-DEFECT-001</span>
+canonical_baseline_mutated: false
+
+OVERALL=<span class="good">PASS_REPAIRED_CI_TEST_004</span>
+FAILURE_COUNT=0
+BATCH60_IMMUTABILITY_PIN=PASS
+ZERO_FABRICATED_MAPPING_CLAIMS=PASS</pre></div><div class="receipt-col" data-tab-group><div class="tabbar"><button class="tab active" data-tab="quarantine">Quarantine proof</button><button class="tab" data-tab="authority">Authority block</button></div><div class="tabpanel active" data-panel="quarantine"><pre>EXPECTED_ACTION=QUARANTINE
+T2_TO_T4_QUARANTINE_PATH=<span class="good">PASS</span>
+T4_TO_T5_RELEASE_BLOCK_PATH=<span class="good">PASS</span>
+T4_LINEAGE_PRESERVED=<span class="good">PASS</span>
+T5_LINEAGE_PRESERVED=<span class="good">PASS</span></pre></div><div class="tabpanel" data-panel="authority"><pre>OVERALL=<span class="warn">BLOCKED_V011_EXACT_AUTHORITATIVE_CASE_SOURCE_REQUIRED</span>
+AUTHORITY_SOURCE_STATUS=MISSING
+SEMANTIC_VALUES_INVENTED=<span class="good">False</span>
+CANONICAL_PROMOTION=NONE</pre></div></div></div></div></div></section></main><footer><div class="shell"><span>HYDRA / recruiter technical proof</span><span>Representative case + genuine control receipts</span></div></footer><script src="assets/hydra-proof.js"></script></body></html>
