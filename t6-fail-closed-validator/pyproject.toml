@@ -1,0 +1,12 @@
+[project]
+name = "hydra-t6-failclosed-validator"
+version = "0.1.1"
+description = "Dormant fail-closed T6 candidate-handoff validator"
+requires-python = ">=3.11"
+dependencies = []
+
+[tool.hydra]
+activation = "prohibited"
+external-effects = false
+canonical-promotion = false
+candidate-ranking = false
