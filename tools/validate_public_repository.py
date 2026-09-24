@@ -11,6 +11,7 @@ from urllib.parse import unquote, urlsplit
 
 ROOT = Path(__file__).resolve().parents[1]
 COMPONENT = ROOT / "t6-fail-closed-validator"
+PIPELINE = ROOT / "market-data-pipeline-sample"
 
 REQUIRED_PATHS = (
     "README.md",
@@ -32,6 +33,22 @@ REQUIRED_PATHS = (
     "t6-fail-closed-validator/tests/test_documents.py",
     "t6-fail-closed-validator/tests/test_dormant_adapter.py",
     "t6-fail-closed-validator/tests/test_receipt.py",
+    ".github/workflows/market-data-pipeline.yml",
+    "market-data-pipeline-sample/README.md",
+    "market-data-pipeline-sample/pyproject.toml",
+    "market-data-pipeline-sample/config/symbol_aliases.json",
+    "market-data-pipeline-sample/contracts/input_contract.json",
+    "market-data-pipeline-sample/contracts/normalized_event.schema.json",
+    "market-data-pipeline-sample/contracts/quarantine_record.schema.json",
+    "market-data-pipeline-sample/data/raw/synthetic_market_events.csv",
+    "market-data-pipeline-sample/src/hydra_market_pipeline/__init__.py",
+    "market-data-pipeline-sample/src/hydra_market_pipeline/__main__.py",
+    "market-data-pipeline-sample/src/hydra_market_pipeline/cli.py",
+    "market-data-pipeline-sample/src/hydra_market_pipeline/hashing.py",
+    "market-data-pipeline-sample/src/hydra_market_pipeline/models.py",
+    "market-data-pipeline-sample/src/hydra_market_pipeline/pipeline.py",
+    "market-data-pipeline-sample/src/hydra_market_pipeline/writers.py",
+    "market-data-pipeline-sample/tests/test_pipeline.py",
 )
 
 FORBIDDEN_ACTIVE_PATHS = (
@@ -92,6 +109,9 @@ def active_public_text_files() -> list[Path]:
     files = [ROOT / "README.md", COMPONENT / "README.md", COMPONENT / "pyproject.toml"]
     files.extend((COMPONENT / "src").rglob("*.py"))
     files.extend((COMPONENT / "tests").rglob("*.py"))
+    files.extend([PIPELINE / "README.md", PIPELINE / "pyproject.toml"])
+    files.extend((PIPELINE / "src").rglob("*.py"))
+    files.extend((PIPELINE / "tests").rglob("*.py"))
     return sorted(path for path in files if path.is_file())
 
 
@@ -150,15 +170,31 @@ def validate_safety_contract(errors: list[str]) -> None:
 
 
 def validate_ci_contract(errors: list[str]) -> None:
-    workflow = (ROOT / ".github/workflows/t6-validator.yml").read_text(encoding="utf-8-sig")
-    required_fragments = (
+    validator_workflow = (ROOT / ".github/workflows/t6-validator.yml").read_text(
+        encoding="utf-8-sig"
+    )
+    validator_fragments = (
         'python-version: "3.11"',
         "python -m unittest discover -s tests -t . -v",
         "working-directory: t6-fail-closed-validator",
     )
-    for fragment in required_fragments:
-        if fragment not in workflow:
+    for fragment in validator_fragments:
+        if fragment not in validator_workflow:
             errors.append(f"validator CI contract missing: {fragment}")
+
+    pipeline_workflow = (ROOT / ".github/workflows/market-data-pipeline.yml").read_text(
+        encoding="utf-8-sig"
+    )
+    pipeline_fragments = (
+        'python-version: "3.11"',
+        "python -m pip install -e ./market-data-pipeline-sample",
+        "python -m unittest discover -s tests -t . -v",
+        "--output-dir build/demo",
+        "actions/upload-artifact@v4",
+    )
+    for fragment in pipeline_fragments:
+        if fragment not in pipeline_workflow:
+            errors.append(f"market-pipeline CI contract missing: {fragment}")
 
 
 def main() -> int:
@@ -182,6 +218,7 @@ def main() -> int:
     print("FAIL_CLOSED_CONTRACT=PASS")
     print("MARKDOWN_LINKS=PASS")
     print("VALIDATOR_CI_CONTRACT=PASS")
+    print("MARKET_PIPELINE_CI_CONTRACT=PASS")
     return 0
 
 

@@ -1,0 +1,16 @@
+[build-system]
+requires = ["setuptools>=69"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "hydra-market-data-pipeline-sample"
+version = "0.1.0"
+description = "Synthetic market-data ingestion, normalization, provenance, quarantine, and Parquet sample"
+requires-python = ">=3.11"
+dependencies = ["pyarrow>=15"]
+
+[project.scripts]
+hydra-market-pipeline = "hydra_market_pipeline.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
