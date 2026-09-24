@@ -48,6 +48,7 @@ REQUIRED_PATHS = (
     "market-data-pipeline-sample/src/hydra_market_pipeline/models.py",
     "market-data-pipeline-sample/src/hydra_market_pipeline/pipeline.py",
     "market-data-pipeline-sample/src/hydra_market_pipeline/writers.py",
+    "market-data-pipeline-sample/tests/test_contract_files.py",
     "market-data-pipeline-sample/tests/test_pipeline.py",
 )
 
