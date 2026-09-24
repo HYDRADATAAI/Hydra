@@ -1,0 +1,61 @@
+name: Market data pipeline sample
+
+on:
+  pull_request:
+    paths:
+      - "market-data-pipeline-sample/**"
+      - ".github/workflows/market-data-pipeline.yml"
+  push:
+    branches:
+      - main
+    paths:
+      - "market-data-pipeline-sample/**"
+      - ".github/workflows/market-data-pipeline.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  test-and-build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install sample
+        run: python -m pip install -e ./market-data-pipeline-sample
+
+      - name: Run tests
+        working-directory: market-data-pipeline-sample
+        run: python -m unittest discover -s tests -t . -v
+
+      - name: Build deterministic synthetic outputs
+        working-directory: market-data-pipeline-sample
+        run: |
+          python -m hydra_market_pipeline             --input data/raw/synthetic_market_events.csv             --aliases config/symbol_aliases.json             --output-dir build/demo
+
+      - name: Verify expected manifest counts
+        working-directory: market-data-pipeline-sample
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          manifest = json.loads(Path("build/demo/manifest.json").read_text(encoding="utf-8"))
+          assert manifest["accepted_rows"] == 3, manifest
+          assert manifest["quarantined_rows"] == 3, manifest
+          assert manifest["schema_version"] == "hydra-market-pipeline-manifest/v1", manifest
+          print("SAMPLE_MANIFEST=PASS")
+          PY
+
+      - name: Publish synthetic pipeline outputs
+        uses: actions/upload-artifact@v4
+        with:
+          name: hydra-market-data-pipeline-sample
+          path: market-data-pipeline-sample/build/demo/
+          if-no-files-found: error
