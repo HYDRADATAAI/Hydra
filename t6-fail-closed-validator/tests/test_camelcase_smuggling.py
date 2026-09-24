@@ -20,6 +20,9 @@ class CamelCaseAuthoritySmugglingTests(unittest.TestCase):
 
     def test_authority_field_spelling_variants_are_rejected(self):
         fullwidth = "".join(chr(ord(character) + 0xFEE0) for character in "canonicalTruthSelected")
+        dense_confusables = "canonicaltruthselected".translate(str.maketrans({
+            "a": "\u0430", "c": "\u0441", "e": "\u0435", "i": "\u0456", "o": "\u043e",
+        }))
         attacks = [
             {"canonicalTruthSelected": True},
             {"CanonicalTruthSelected": True},
@@ -28,6 +31,7 @@ class CamelCaseAuthoritySmugglingTests(unittest.TestCase):
             {"canonical.Truth-Selected": True},
             {"canon\u00edcalTruthSelected": True},
             {"canon\u0456calTruthSelected": True},
+            {dense_confusables: True},
             {fullwidth: True},
             {"canonicalStoreMutationAuthorized": True},
             {"promotionAuthorized": True},
@@ -38,12 +42,16 @@ class CamelCaseAuthoritySmugglingTests(unittest.TestCase):
 
     def test_authority_value_spelling_variants_are_rejected(self):
         fullwidth = "".join(chr(ord(character) + 0xFEE0) for character in "canonicalTruth")
+        dense_confusables = "canonicaltruth".translate(str.maketrans({
+            "a": "\u03b1", "c": "\u03f2", "i": "\u03b9", "o": "\u03bf",
+        }))
         attacks = [
             {"contextId": "canonicalTruth"},
             {"contextId": "CANONICALTruth"},
             {"contextId": "canonicaltruth"},
             {"contextId": "canon\u00edcalTruth"},
             {"contextId": "canon\u0456calTruth"},
+            {"contextId": dense_confusables},
             {"contextId": fullwidth},
         ]
         for attack in attacks:

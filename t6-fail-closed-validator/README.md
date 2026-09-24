@@ -9,7 +9,7 @@ integration behavior without enabling canonical promotion or external effects.
 
 Its authority-smuggling scanner recognizes camelCase, PascalCase,
 mixed-acronym, separator-delimited, punctuation-delimited, compacted, Unicode
-compatibility, and mixed-script confusable forms of forbidden markers.
+compatibility, and common mixed-script confusable forms of forbidden markers.
 
 ## What this sample demonstrates
 
