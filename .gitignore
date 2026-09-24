@@ -205,3 +205,19 @@ cython_debug/
 marimo/_static/
 marimo/_lsp/
 __marimo__/
+
+
+# THREAD 4 public-root hygiene
+# Build-transfer artifacts belong under archive/ or GitHub Releases, not at repository root.
+/*.zip
+/*.zip.sha256
+/EXTRACT_*.ps1
+/* (1).*
+/* (2).*
+/* (3).*
+/* (4).*
+/* (5).*
+/* (6).*
+/* (7).*
+/* (8).*
+/* (9).*

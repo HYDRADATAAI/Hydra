@@ -1,6 +1,6 @@
-﻿# HYDRA
+# HYDRA
 
-**Market Intelligence Data Platform**
+**Market Intelligence & Data Engineering System**
 
 > Turn fragmented market data into traceable intelligence.
 
@@ -9,9 +9,9 @@
 
 ## What HYDRA is
 
-HYDRA is a data-engineering platform built to turn fragmented market and reference data into governed, traceable analytical evidence.
+HYDRA is a data-engineering system built to turn fragmented market and reference data into governed, traceable analytical evidence.
 
-The engineering focus is not â€œgenerate a signal and hope.â€ It is the machinery underneath reliable analytical systems:
+The engineering focus is not “generate a signal and hope.” It is the machinery underneath reliable analytical systems:
 
 - multi-source ingestion and normalization;
 - deterministic identity and canonicalization;
@@ -29,7 +29,7 @@ The project uses market intelligence as the domain, but the core problems are ge
 
 Market data rarely arrives as one clean, authoritative table.
 
-Different sources may disagree on identity, timestamps, field semantics, coverage, or ownership. A downstream component can appear to â€œworkâ€ while quietly receiving information that no upstream producer actually had authority to provide.
+Different sources may disagree on identity, timestamps, field semantics, coverage, or ownership. A downstream component can appear to “work” while quietly receiving information that no upstream producer actually had authority to provide.
 
 HYDRA treats that as an engineering defect.
 
@@ -79,17 +79,17 @@ A truthful blocker is preferable to an output that looks complete but cannot be 
 
 ```text
 fragmented sources
-        â†“
+        ↓
 ingestion / normalization
-        â†“
+        ↓
 identity + schema contracts
-        â†“
+        ↓
 source-authority / provenance gates
-        â†“
+        ↓
 context + constraint processing
-        â†“
+        ↓
 validation / quarantine / release gates
-        â†“
+        ↓
 traceable research and analytical outputs
 ```
 
@@ -126,7 +126,7 @@ If you have 60 seconds:
 
 1. Start with the **HYDRA project site**: https://hydradataai.github.io/Hydra-Website/
 2. Open the **architecture** view for the end-to-end data flow.
-3. Review the **case study** for a source â†’ identity â†’ authority â†’ lineage â†’ constraint walkthrough.
+3. Review the **case study** for a source → identity → authority → lineage → constraint walkthrough.
 4. Open the **proof** section for validation, failure semantics, and engineering receipts.
 
 ## Current scope
