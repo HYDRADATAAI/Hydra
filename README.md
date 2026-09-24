@@ -172,3 +172,7 @@ Future cloud and ML work stays in the roadmap until it is implemented and inspec
 - **Website repository:** https://github.com/HYDRADATAAI/Hydra-Website
 - **Core repository:** https://github.com/HYDRADATAAI/Hydra
 
+
+## Maintenance guard
+
+The public core repository is protected by deterministic CI. [Public repository validation](https://github.com/HYDRADATAAI/Hydra/actions/workflows/public-repository-validation.yml) checks required source/test paths, README links, public terminology, the validator's fail-closed `pyproject.toml` contract, and the Python 3.11 test-workflow contract.
