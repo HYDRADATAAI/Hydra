@@ -28,8 +28,11 @@ src/hydra_t6_failclosed/
   service.py           pure fail-closed orchestration
   dormant_adapter.py   integration boundary that refuses activation
 tests/
+  test_authority.py
   test_camelcase_smuggling.py
+  test_documents.py
   test_dormant_adapter.py
+  test_receipt.py
 ```
 
 ## Safety boundary
@@ -59,5 +62,7 @@ python -m unittest discover -s tests -t . -v
 ```
 
 The same command runs in GitHub Actions on Python 3.11.
+
+The public tests cover strict document parsing, signed authority envelopes, authority expiry/signature failure, authority-smuggling detection, deterministic inert receipts, and the dormant integration boundary.
 
 [View validator CI →](https://github.com/HYDRADATAAI/Hydra/actions/workflows/t6-validator.yml)
