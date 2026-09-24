@@ -111,6 +111,17 @@ The run:
 
 That behavior is intentional: missing provenance is not converted into invented data merely to make a pipeline appear green.
 
+## Inspectable code
+
+A focused public implementation example lives in [`t6-fail-closed-validator/`](t6-fail-closed-validator/). The component is explicitly **source-only, dormant, and not activated**; its public contract is fail-closed and returns only `ABSTAIN` or `QUARANTINE`.
+
+- [`authority.py`](t6-fail-closed-validator/src/hydra_t6_failclosed/authority.py) validates the authority envelope, exact scope and digest bindings, time validity, revocation/supersession state, and signature trust.
+- [`handoff.py`](t6-fail-closed-validator/src/hydra_t6_failclosed/handoff.py) validates candidate-only T5→T6 handoff semantics and rejects authority smuggling, including camelCase/PascalCase variants.
+- [`receipt.py`](t6-fail-closed-validator/src/hydra_t6_failclosed/receipt.py) constructs deterministic inert receipts that keep canonical selection, canonical mutation, ML training, trading authorization, and external actions disabled.
+- [`test_camelcase_smuggling.py`](t6-fail-closed-validator/tests/test_camelcase_smuggling.py) provides the focused regression covering forbidden authority markers and allowed non-authority camelCase metadata.
+
+This is inspectable code evidence, **not** a claim that the validator is activated in a live production runtime.
+
 ## Engineering principles
 
 - **Fail closed.** Missing authority produces a blocker, not a fabricated value.
