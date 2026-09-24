@@ -4,6 +4,8 @@
 
 > Turn fragmented market data into traceable intelligence.
 
+[![T6 fail-closed validator](https://github.com/HYDRADATAAI/Hydra/actions/workflows/t6-validator.yml/badge.svg)](https://github.com/HYDRADATAAI/Hydra/actions/workflows/t6-validator.yml)
+
 **Project site:** https://hydradataai.github.io/Hydra-Website/  
 **Technical site repository:** https://github.com/HYDRADATAAI/Hydra-Website
 
@@ -121,6 +123,17 @@ A focused public implementation example lives in [`t6-fail-closed-validator/`](t
 - [`test_camelcase_smuggling.py`](t6-fail-closed-validator/tests/test_camelcase_smuggling.py) provides the focused regression covering forbidden authority markers and allowed non-authority camelCase metadata.
 
 This is inspectable code evidence, **not** a claim that the validator is activated in a live production runtime.
+
+### Reproduce the validator check
+
+GitHub Actions runs the validator tests on Python 3.11 whenever the component or its workflow changes. From the component directory:
+
+```powershell
+$env:PYTHONPATH=(Resolve-Path '.\\src').Path
+python -m unittest discover -s tests -t . -v
+```
+
+[View the validator CI workflow →](https://github.com/HYDRADATAAI/Hydra/actions/workflows/t6-validator.yml)
 
 ## Engineering principles
 
