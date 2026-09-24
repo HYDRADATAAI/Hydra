@@ -1,0 +1,32 @@
+name: T6 fail-closed validator
+
+on:
+  pull_request:
+    paths:
+      - "t6-fail-closed-validator/**"
+      - ".github/workflows/t6-validator.yml"
+  push:
+    branches:
+      - main
+    paths:
+      - "t6-fail-closed-validator/**"
+      - ".github/workflows/t6-validator.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: t6-fail-closed-validator
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Run validator tests
+        env:
+          PYTHONPATH: src
+        run: python -m unittest discover -s tests -t . -v
