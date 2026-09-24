@@ -5,6 +5,7 @@
 > Turn fragmented market data into traceable intelligence.
 
 [![T6 fail-closed validator](https://github.com/HYDRADATAAI/Hydra/actions/workflows/t6-validator.yml/badge.svg)](https://github.com/HYDRADATAAI/Hydra/actions/workflows/t6-validator.yml)
+[![Market data pipeline sample](https://github.com/HYDRADATAAI/Hydra/actions/workflows/market-data-pipeline.yml/badge.svg)](https://github.com/HYDRADATAAI/Hydra/actions/workflows/market-data-pipeline.yml)
 
 **Project site:** https://hydradataai.github.io/Hydra-Website/  
 **Technical site repository:** https://github.com/HYDRADATAAI/Hydra-Website
@@ -105,7 +106,7 @@ The run:
 
 - passed 42 containment regressions;
 - passed 5 streaming/native-source tests;
-- examined 1,212 T5 objects;
+- examined 1,212 upstream candidate objects;
 - verified the native contract pin;
 - performed no HYDRA writes;
 - executed no native handoff when producer authority could not be proven;
@@ -113,14 +114,42 @@ The run:
 
 That behavior is intentional: missing provenance is not converted into invented data merely to make a pipeline appear green.
 
-## Inspectable code
+## Public data-engineering pipeline sample
+
+A second runnable public example lives in [`market-data-pipeline-sample/`](market-data-pipeline-sample/). It uses **synthetic, non-live** records to demonstrate a compact end-to-end data pipeline:
+
+`CSV → contract check → normalization → deterministic identity → provenance → quarantine → JSONL / Parquet → manifest`
+
+The sample intentionally distinguishes **file-level contract drift** from **row-level data-quality defects**: incompatible file schemas fail the run, while malformed or duplicate rows are quarantined with machine-readable reason codes.
+
+Key evidence:
+
+- [`pipeline.py`](market-data-pipeline-sample/src/hydra_market_pipeline/pipeline.py) performs strict contract checks, normalization, deterministic event identity, provenance hashing, and quarantine decisions.
+- [`writers.py`](market-data-pipeline-sample/src/hydra_market_pipeline/writers.py) emits deterministic JSONL, typed Parquet, and a deterministic run manifest.
+- [`test_pipeline.py`](market-data-pipeline-sample/tests/test_pipeline.py) verifies expected accept/quarantine counts, deterministic reruns, Parquet equivalence, provenance, and file-level contract failure.
+- [Market data pipeline CI](https://github.com/HYDRADATAAI/Hydra/actions/workflows/market-data-pipeline.yml) runs the tests, executes the synthetic fixture, verifies the manifest, and publishes the generated outputs as a workflow artifact.
+
+From the sample directory:
+
+```powershell
+python -m pip install -e .
+python -m unittest discover -s tests -t . -v
+python -m hydra_market_pipeline `
+  --input data/raw/synthetic_market_events.csv `
+  --aliases config/symbol_aliases.json `
+  --output-dir build/demo
+```
+
+This is inspectable data-engineering evidence, **not** a claim of a live market-data runtime.
+
+## Fail-closed validator sample
 
 A focused public implementation example lives in [`t6-fail-closed-validator/`](t6-fail-closed-validator/). The component is explicitly **source-only, dormant, and not activated**; its public contract is fail-closed and returns only `ABSTAIN` or `QUARANTINE`.
 
 - [`authority.py`](t6-fail-closed-validator/src/hydra_t6_failclosed/authority.py) validates the authority envelope, exact scope and digest bindings, time validity, revocation/supersession state, and signature trust.
-- [`handoff.py`](t6-fail-closed-validator/src/hydra_t6_failclosed/handoff.py) validates candidate-only T5→T6 handoff semantics and rejects authority smuggling, including camelCase/PascalCase variants.
+- [`handoff.py`](t6-fail-closed-validator/src/hydra_t6_failclosed/handoff.py) validates candidate-only handoff semantics and rejects authority smuggling, including camelCase/PascalCase variants.
 - [`receipt.py`](t6-fail-closed-validator/src/hydra_t6_failclosed/receipt.py) constructs deterministic inert receipts that keep canonical selection, canonical mutation, ML training, trading authorization, and external actions disabled.
-- [`test_camelcase_smuggling.py`](t6-fail-closed-validator/tests/test_camelcase_smuggling.py) provides the focused regression covering forbidden authority markers and allowed non-authority camelCase metadata.
+- [`tests/`](t6-fail-closed-validator/tests/) covers signed authority envelopes, deterministic document handling, inert receipts, dormant integration, and authority-smuggling variants.
 
 This is inspectable code evidence, **not** a claim that the validator is activated in a live production runtime.
 
@@ -152,6 +181,7 @@ If you have 60 seconds:
 2. Open the **architecture** view for the end-to-end data flow.
 3. Review the **case study** for a source → identity → authority → lineage → constraint walkthrough.
 4. Open the **proof** section for validation, failure semantics, and engineering receipts.
+5. Inspect [`market-data-pipeline-sample/`](market-data-pipeline-sample/) for a runnable ingestion → normalization → provenance → quarantine → Parquet path.
 
 ## Current scope
 
@@ -175,4 +205,4 @@ Future cloud and ML work stays in the roadmap until it is implemented and inspec
 
 ## Maintenance guard
 
-The public core repository is protected by deterministic CI. [Public repository validation](https://github.com/HYDRADATAAI/Hydra/actions/workflows/public-repository-validation.yml) checks required source/test paths, README links, public terminology, the validator's fail-closed `pyproject.toml` contract, and the Python 3.11 test-workflow contract.
+The public core repository is protected by deterministic CI. [Public repository validation](https://github.com/HYDRADATAAI/Hydra/actions/workflows/public-repository-validation.yml) checks required source/test paths, README links, public terminology, the validator's fail-closed `pyproject.toml` contract, and both Python 3.11 public-sample workflow contracts.
