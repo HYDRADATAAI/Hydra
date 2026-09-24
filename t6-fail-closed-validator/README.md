@@ -7,12 +7,16 @@ fail-closed candidate-handoff boundary. The component validates authority,
 candidate-only handoff semantics, deterministic receipts, and dormant
 integration behavior without enabling canonical promotion or external effects.
 
+Its authority-smuggling scanner recognizes camelCase, PascalCase,
+mixed-acronym, separator-delimited, punctuation-delimited, compacted, Unicode
+compatibility, and mixed-script confusable forms of forbidden markers.
+
 ## What this sample demonstrates
 
 - strict JSON parsing with deterministic canonical encoding;
 - authority-envelope validation with explicit digest/scope bindings;
 - candidate-only handoff validation;
-- rejection of authority smuggling, including camelCase and PascalCase forms;
+- rejection of compacted, mixed-case, and Unicode authority smuggling;
 - deterministic `ABSTAIN` / `QUARANTINE` receipts;
 - an integration adapter that remains explicitly dormant;
 - focused unit tests and GitHub Actions CI.

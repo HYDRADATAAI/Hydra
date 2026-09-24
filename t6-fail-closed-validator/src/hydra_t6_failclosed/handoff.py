@@ -3,7 +3,8 @@
 from __future__ import annotations
 
 import re
-from collections.abc import Mapping
+import unicodedata
+from collections.abc import Iterator, Mapping
 from copy import deepcopy
 from dataclasses import dataclass
 from datetime import datetime
@@ -37,6 +38,22 @@ FORBIDDEN_VALUE_MARKERS = {
     "model_training_directive", "planner_action", "production_activation", "runtime_binding",
     "selected_beneficiary", "trade_permission", "trading_authorized", "truth_selected", "winner",
 }
+FORBIDDEN_FIELDS_BY_COMPACT = {marker.replace("_", ""): marker for marker in FORBIDDEN_FIELDS}
+FORBIDDEN_FIELDS_ORDERED = tuple(sorted(FORBIDDEN_FIELDS))
+FORBIDDEN_VALUE_MARKERS_ORDERED = tuple(
+    sorted(FORBIDDEN_VALUE_MARKERS, key=lambda marker: (-len(marker.replace("_", "")), marker))
+)
+_CONFUSABLE_TRIGRAM_INDEX: dict[str, list[tuple[str, int]]] = {}
+for _marker in sorted(FORBIDDEN_FIELDS | FORBIDDEN_VALUE_MARKERS):
+    _compact_marker = _marker.replace("_", "")
+    for _offset in range(len(_compact_marker) - 2):
+        _CONFUSABLE_TRIGRAM_INDEX.setdefault(_compact_marker[_offset:_offset + 3], []).append((_marker, _offset))
+_CONFUSABLE_TRIGRAM_PATTERN = re.compile(
+    "(?=(" + "|".join(re.escape(trigram) for trigram in sorted(_CONFUSABLE_TRIGRAM_INDEX)) + "))"
+)
+_MAX_FORBIDDEN_MARKER_LENGTH = max(
+    len(marker.replace("_", "")) for marker in FORBIDDEN_FIELDS | FORBIDDEN_VALUE_MARKERS
+)
 INACTIVE_EVIDENCE_FLAGS = {"quarantined", "retracted", "stale", "superseded", "withdrawn"}
 
 
@@ -164,20 +181,17 @@ def _scan_authority_smuggling(value: Any, *, path: str, candidate_id: str) -> li
     issues: list[Issue] = []
     if isinstance(value, Mapping):
         for key, nested in value.items():
-            normalized_key = _normalize_token(str(key))
             child_path = f"{path}.{key}"
-            if normalized_key in FORBIDDEN_FIELDS:
+            if _forbidden_field_marker(str(key)) is not None:
                 issues.append(Issue("candidate_authority_smuggling", f"forbidden authority field {key!r}", child_path, candidate_id))
             issues.extend(_scan_authority_smuggling(nested, path=child_path, candidate_id=candidate_id))
     elif isinstance(value, list):
         for index, nested in enumerate(value):
             issues.extend(_scan_authority_smuggling(nested, path=f"{path}[{index}]", candidate_id=candidate_id))
     elif isinstance(value, str):
-        normalized_value = _normalize_token(value)
-        for marker in FORBIDDEN_VALUE_MARKERS:
-            if marker in normalized_value:
-                issues.append(Issue("candidate_authority_smuggling", f"forbidden authority marker {marker!r}", path, candidate_id))
-                break
+        marker = _forbidden_value_marker(value)
+        if marker is not None:
+            issues.append(Issue("candidate_authority_smuggling", f"forbidden authority marker {marker!r}", path, candidate_id))
     return issues
 
 
@@ -194,9 +208,90 @@ def _has_nonempty_unresolved(value: Any) -> bool:
 
 
 def _normalize_token(value: str) -> str:
-    with_camel_boundaries = re.sub(r"(?<=[a-z0-9])(?=[A-Z])", "_", value)
+    decomposed = unicodedata.normalize("NFKD", value)
+    compatible = "".join(character for character in decomposed if not unicodedata.combining(character))
+    with_acronym_boundaries = re.sub(r"(?<=[A-Z])(?=[A-Z][a-z])", "_", compatible)
+    with_camel_boundaries = re.sub(r"(?<=[a-z0-9])(?=[A-Z])", "_", with_acronym_boundaries)
     separated = re.sub(r"[^0-9A-Za-z]+", "_", with_camel_boundaries)
     return "_".join(separated.casefold().split("_"))
+
+
+def _forbidden_field_marker(value: str) -> str | None:
+    normalized = _normalize_token(value)
+    if normalized in FORBIDDEN_FIELDS:
+        return normalized
+    marker = FORBIDDEN_FIELDS_BY_COMPACT.get(normalized.replace("_", ""))
+    return marker if marker is not None else _confusable_marker(value, FORBIDDEN_FIELDS_ORDERED)
+
+
+def _forbidden_value_marker(value: str) -> str | None:
+    normalized = _normalize_token(value)
+    compact = normalized.replace("_", "")
+    for marker in FORBIDDEN_VALUE_MARKERS_ORDERED:
+        if marker in normalized or marker.replace("_", "") in compact:
+            return marker
+    return _confusable_marker(value, FORBIDDEN_VALUE_MARKERS_ORDERED)
+
+
+def _confusable_marker(value: str, markers: tuple[str, ...]) -> str | None:
+    skeleton = _identifier_skeleton(value)
+    if "?" not in skeleton:
+        return None
+    allowed_markers = set(markers)
+    examined: set[tuple[str, int]] = set()
+    for region_start, region_end in _confusable_regions(skeleton):
+        region = skeleton[region_start:region_end]
+        for match in _CONFUSABLE_TRIGRAM_PATTERN.finditer(region):
+            trigram = match.group(1)
+            trigram_start = region_start + match.start()
+            for marker, offset in _CONFUSABLE_TRIGRAM_INDEX[trigram]:
+                if marker not in allowed_markers:
+                    continue
+                start = trigram_start - offset
+                identity = (marker, start)
+                if identity in examined:
+                    continue
+                examined.add(identity)
+                compact_marker = marker.replace("_", "")
+                if start < 0 or start + len(compact_marker) > len(skeleton):
+                    continue
+                window = skeleton[start:start + len(compact_marker)]
+                unknown_characters = window.count("?")
+                if unknown_characters == 0 or unknown_characters * 4 > len(compact_marker):
+                    continue
+                if all(actual == expected or actual == "?" for actual, expected in zip(window, compact_marker)):
+                    return marker
+    return None
+
+
+def _confusable_regions(skeleton: str) -> Iterator[tuple[int, int]]:
+    region_start: int | None = None
+    region_end = 0
+    for match in re.finditer(r"\?+", skeleton):
+        start = max(0, match.start() - _MAX_FORBIDDEN_MARKER_LENGTH + 1)
+        end = min(len(skeleton), match.end() + _MAX_FORBIDDEN_MARKER_LENGTH - 1)
+        if region_start is None:
+            region_start, region_end = start, end
+        elif start <= region_end:
+            region_end = max(region_end, end)
+        else:
+            yield region_start, region_end
+            region_start, region_end = start, end
+    if region_start is not None:
+        yield region_start, region_end
+
+
+def _identifier_skeleton(value: str) -> str:
+    skeleton: list[str] = []
+    for character in unicodedata.normalize("NFKD", value):
+        if unicodedata.combining(character):
+            continue
+        folded = character.casefold()
+        if folded and all(item.isascii() and item.isalnum() for item in folded):
+            skeleton.extend(folded)
+        elif character.isalnum():
+            skeleton.append("?")
+    return "".join(skeleton)
 
 
 def _is_zoned_time(value: Any) -> bool:
