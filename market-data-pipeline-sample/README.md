@@ -38,7 +38,8 @@ production runtime is represented here.
 - row-level quarantine with machine-readable reason codes;
 - deterministic JSONL outputs and run manifest;
 - typed Parquet output through PyArrow;
-- unit tests and GitHub Actions CI.
+- unit tests and GitHub Actions CI;
+- committed JSON contract files are regression-tested against the runtime CSV requirements and emitted record shapes.
 
 ## Failure semantics
 
@@ -132,6 +133,7 @@ src/hydra_market_pipeline/
   pipeline.py
   writers.py
 tests/
+  test_contract_files.py
   test_pipeline.py
 ```
 
