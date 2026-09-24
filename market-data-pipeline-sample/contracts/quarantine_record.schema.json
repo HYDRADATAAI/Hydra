@@ -1,0 +1,19 @@
+{
+  "$id": "hydra-market-quarantine-record/v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "quarantine_id",
+    "source_row_number",
+    "raw_record_sha256",
+    "errors",
+    "raw_record"
+  ],
+  "properties": {
+    "quarantine_id": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "source_row_number": {"type": "integer", "minimum": 2},
+    "raw_record_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "errors": {"type": "array", "items": {"type": "string"}, "minItems": 1},
+    "raw_record": {"type": "object"}
+  }
+}

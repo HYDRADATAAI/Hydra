@@ -1,0 +1,25 @@
+{
+  "schema_version": "hydra-market-input-contract/v1",
+  "format": "csv",
+  "required_columns": [
+    "source_system",
+    "source_record_id",
+    "symbol",
+    "event_time",
+    "price",
+    "volume",
+    "currency",
+    "venue"
+  ],
+  "additional_columns_allowed": false,
+  "row_rules": {
+    "source_system": "non-empty string",
+    "source_record_id": "non-empty string",
+    "symbol": "normalized through the public alias map; A-Z / 0-9 / dot / dash only",
+    "event_time": "timezone-aware ISO-8601 timestamp",
+    "price": "finite decimal > 0 with at most 6 fractional digits",
+    "volume": "integer >= 0",
+    "currency": "three alphabetic characters",
+    "venue": "non-empty A-Z / 0-9 / dot / dash identifier"
+  }
+}

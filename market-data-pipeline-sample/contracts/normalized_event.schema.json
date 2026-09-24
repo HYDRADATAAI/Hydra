@@ -1,0 +1,35 @@
+{
+  "$id": "hydra-market-normalized-event/v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "event_id",
+    "source_system",
+    "source_record_id",
+    "symbol",
+    "event_time_utc",
+    "price",
+    "volume",
+    "currency",
+    "venue",
+    "source_file_sha256",
+    "raw_record_sha256",
+    "source_row_number",
+    "transform_version"
+  ],
+  "properties": {
+    "event_id": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "source_system": {"type": "string"},
+    "source_record_id": {"type": "string"},
+    "symbol": {"type": "string"},
+    "event_time_utc": {"type": "string"},
+    "price": {"type": "string"},
+    "volume": {"type": "integer", "minimum": 0},
+    "currency": {"type": "string"},
+    "venue": {"type": "string"},
+    "source_file_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "raw_record_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "source_row_number": {"type": "integer", "minimum": 2},
+    "transform_version": {"const": "hydra-market-normalizer/v1"}
+  }
+}
