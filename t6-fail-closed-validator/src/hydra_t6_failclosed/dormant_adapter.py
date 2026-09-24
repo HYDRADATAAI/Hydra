@@ -1,4 +1,4 @@
-"""Dormant adapter shape for a future validation-only Thread F harness."""
+"""Dormant adapter for future validation-only integration."""
 
 from __future__ import annotations
 
@@ -10,21 +10,28 @@ from .service import FailClosedValidator
 
 @dataclass(frozen=True)
 class DormantAdapterResult:
+    """Result returned while runtime execution remains intentionally disabled."""
+
     accepted: bool
     output: Mapping[str, Any] = field(default_factory=dict)
     error: str | None = None
 
 
-class DormantThreadFAdapter:
-    """Never self-registers; execution stays locked until a later shadow-proof gate."""
+class DormantValidationAdapter:
+    """Keeps the validator unregistered and refuses runtime execution."""
 
     def __init__(self, validator: FailClosedValidator) -> None:
         self._validator = validator
 
     def prepare(self, binding: Any) -> None:
+        """Require an explicitly dormant binding before any integration step."""
         if getattr(binding, "readiness", None) != "dormant":
-            raise PermissionError("T6 adapter requires readiness=dormant")
+            raise PermissionError("validator adapter requires readiness=dormant")
 
     def execute(self, binding: Any, payload: Mapping[str, Any]) -> DormantAdapterResult:
+        """Reject execution until a separate activation authority exists."""
         del binding, payload
-        return DormantAdapterResult(False, error="T6 shadow execution is not authorized by implementation authority")
+        return DormantAdapterResult(
+            False,
+            error="shadow execution is not authorized by implementation authority",
+        )
