@@ -12,6 +12,7 @@ from urllib.parse import unquote, urlsplit
 ROOT = Path(__file__).resolve().parents[1]
 COMPONENT = ROOT / "t6-fail-closed-validator"
 PIPELINE = ROOT / "market-data-pipeline-sample"
+SQL_SAMPLE = ROOT / "sql-data-quality-sample"
 
 REQUIRED_PATHS = (
     "README.md",
@@ -34,6 +35,15 @@ REQUIRED_PATHS = (
     "t6-fail-closed-validator/tests/test_dormant_adapter.py",
     "t6-fail-closed-validator/tests/test_receipt.py",
     ".github/workflows/market-data-pipeline.yml",
+    ".github/workflows/sql-data-quality-sample.yml",
+    "sql-data-quality-sample/README.md",
+    "sql-data-quality-sample/fixtures/synthetic_market_events.csv",
+    "sql-data-quality-sample/sql/01_schema.sql",
+    "sql-data-quality-sample/sql/02_quality.sql",
+    "sql-data-quality-sample/sql/03_analytics.sql",
+    "sql-data-quality-sample/run_demo.py",
+    "sql-data-quality-sample/tests/__init__.py",
+    "sql-data-quality-sample/tests/test_sql_sample.py",
     "market-data-pipeline-sample/README.md",
     "market-data-pipeline-sample/pyproject.toml",
     "market-data-pipeline-sample/config/symbol_aliases.json",
@@ -113,6 +123,9 @@ def active_public_text_files() -> list[Path]:
     files.extend([PIPELINE / "README.md", PIPELINE / "pyproject.toml"])
     files.extend((PIPELINE / "src").rglob("*.py"))
     files.extend((PIPELINE / "tests").rglob("*.py"))
+    files.extend([SQL_SAMPLE / "README.md", SQL_SAMPLE / "run_demo.py"])
+    files.extend((SQL_SAMPLE / "tests").rglob("*.py"))
+    files.extend((SQL_SAMPLE / "sql").rglob("*.sql"))
     return sorted(path for path in files if path.is_file())
 
 
@@ -197,6 +210,19 @@ def validate_ci_contract(errors: list[str]) -> None:
         if fragment not in pipeline_workflow:
             errors.append(f"market-pipeline CI contract missing: {fragment}")
 
+    sql_workflow = (ROOT / ".github/workflows/sql-data-quality-sample.yml").read_text(
+        encoding="utf-8-sig"
+    )
+    sql_fragments = (
+        'python-version: "3.11"',
+        "python -m unittest discover -s tests -v",
+        "python run_demo.py",
+        "SQL_SAMPLE_SUMMARY=PASS",
+    )
+    for fragment in sql_fragments:
+        if fragment not in sql_workflow:
+            errors.append(f"sql-sample CI contract missing: {fragment}")
+
 
 def main() -> int:
     errors: list[str] = []
@@ -220,6 +246,7 @@ def main() -> int:
     print("MARKDOWN_LINKS=PASS")
     print("VALIDATOR_CI_CONTRACT=PASS")
     print("MARKET_PIPELINE_CI_CONTRACT=PASS")
+    print("SQL_SAMPLE_CI_CONTRACT=PASS")
     return 0
 
 
