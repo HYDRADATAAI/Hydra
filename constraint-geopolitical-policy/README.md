@@ -8,7 +8,7 @@ This component models historical policy/geopolitical evidence for Constraint wit
 
 Repository inspection on 2026-09-25 found the public HYDRA root README and its documented authority/provenance/fail-closed contracts. GitHub reported the repository code-search index unavailable, so absence of search hits was **not** treated as proof that private/local Constraint implementations do not exist. Root-level `src/`, `constraint/`, `tests/`, and `docs/` paths were not present on the public default branch.
 
-Accordingly this pass does **not** replace or claim authority over the full Constraint runtime. It creates a bounded component that is designed to bind to the existing canonical entity/provenance/history systems when those are present in the integration workspace.
+Accordingly this pass does **not** replace or claim authority over the full Constraint runtime. On the stacked integration branch it binds directly to the current historical physical-dependency package and historical replay package while preserving their ownership of physical IDs and replay evidence semantics.
 
 Reuse contract:
 - canonical entity IDs remain owned by existing HYDRA entity resolution;
@@ -65,12 +65,14 @@ python -m unittest discover -s tests -t . -v
 
 The tests exercise point-in-time cutoff, clock separation, provenance, causal/motive quarantine, relationship evidence, warning-sign replay, deterministic hashing, sourced-evidence digest integrity, source-availability cutoffs, canonical physical binding, downstream structural traversal, and replay-evidence emission.
 
-## Physical dependency integration
+## Physical dependency and replay integration
 
-This PR is stacked on the historical physical dependency foundation. Physical `Relation.entity_id` references are resolved through `DependencyGraph.resolve_reference(...)` rather than by reading graph internals or copying its schema.
+This PR is stacked on the historical physical dependency foundation and also merges the historical replay foundation for integration testing. Physical `Relation.entity_id` references are resolved through `DependencyGraph.resolve_reference(...)` rather than by reading graph internals or copying its schema.
 
 `physical_adapter.py` enforces point-in-time resolution and type compatibility for resource, infrastructure, strategic-asset, dependency, and bottleneck/constraint references. A policy event can then traverse the real physical graph structurally through `trace_event_downstream()`.
 
 The binding uses the event's `KNOWN_AT` as the knowledge cutoff while physical validity defaults to `EFFECTIVE_AT` (then `OBSERVED_AT`, then `KNOWN_AT`). This lets an already-announced future-effective action bind to evidence that was genuinely known at announcement time without importing later evidence.
 
-The policy↔physical integration is executable for the current sourced case set. The component remains **THIN in historical breadth** because four bounded cases do not constitute broad geopolitical/resource/infrastructure coverage. The remaining gap is evidence population at scale, not an unresolved cross-layer API.
+`to_replay_evidence()` emits `hydra_constraint_replay.models.Evidence` directly; there is no duplicate replay-evidence dataclass in the policy package. Cross-package CI installs and tests the physical, replay, and policy packages together.
+
+The policy → physical → replay integration is executable for the current sourced case set. The component remains **THIN in historical breadth** because four bounded cases do not constitute broad geopolitical/resource/infrastructure coverage. The remaining gap is evidence population at scale, not an unresolved cross-layer API.
