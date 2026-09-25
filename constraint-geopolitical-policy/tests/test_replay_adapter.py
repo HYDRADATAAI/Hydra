@@ -1,6 +1,7 @@
 import unittest
 from datetime import datetime, timezone
 
+from hydra_constraint_replay.models import Evidence
 from hydra_constraint_policy.model import EventType, HistoricalEvent, Provenance, Relation, TemporalFacts
 from hydra_constraint_policy.replay_adapter import to_replay_evidence
 
@@ -17,8 +18,9 @@ class ReplayAdapterTests(unittest.TestCase):
             metadata=metadata or {"source_uris":{"doc-1":"https://example.invalid/official"}}
         )
 
-    def test_maps_to_replay_contract(self):
+    def test_maps_to_authoritative_replay_model(self):
         r=to_replay_evidence(self.sample())[0]
+        self.assertIsInstance(r,Evidence)
         self.assertEqual("evt-1:doc-1:1",r.evidence_id)
         self.assertEqual("sha256:abc",r.source_hash)
         self.assertEqual("constraint:x",r.payload["relations"][0]["entity_id"])
