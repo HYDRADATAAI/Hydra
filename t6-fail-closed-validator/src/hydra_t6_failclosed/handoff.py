@@ -89,7 +89,7 @@ def validate_handoff(value: Mapping[str, Any] | None) -> tuple[tuple[str, ...], 
         issues.append(Issue("handoff_extra_field", f"handoff field {field!r} is unsupported", f"$.handoff.{field}"))
     if value.get("schema") != HANDOFF_SCHEMA:
         issues.append(Issue("handoff_schema_unsupported", "handoff schema is unsupported", "$.handoff.schema"))
-    if not isinstance(value.get("handoff_id"), str) or not value.get("handoff_id"):
+    if not _is_nonempty_text(value.get("handoff_id")):
         issues.append(Issue("handoff_id_invalid", "handoff_id must be a non-empty string", "$.handoff.handoff_id"))
     if value.get("contract") != HANDOFF_CONTRACT:
         issues.append(Issue("handoff_contract_invalid", "handoff contract does not preserve candidate-only semantics", "$.handoff.contract"))
@@ -117,7 +117,8 @@ def validate_handoff(value: Mapping[str, Any] | None) -> tuple[tuple[str, ...], 
         if not isinstance(candidate, Mapping):
             issues.append(Issue("candidate_not_object", "candidate must be an object", path))
             continue
-        candidate_id = candidate.get("candidate_id") if isinstance(candidate.get("candidate_id"), str) else ""
+        candidate_id_value = candidate.get("candidate_id")
+        candidate_id = candidate_id_value if _is_nonempty_text(candidate_id_value) else ""
         if candidate_id:
             candidate_ids.append(candidate_id)
         issues.extend(_validate_candidate(candidate, path=path, candidate_id=candidate_id))
@@ -145,19 +146,28 @@ def _validate_candidate(candidate: Mapping[str, Any], *, path: str, candidate_id
         issues.append(Issue("candidate_canonicality_escalation", "candidate canonicality must be candidate_only", f"{path}.canonicality", candidate_id))
     if candidate.get("lifecycle_state") != "handed_off":
         issues.append(Issue("candidate_lifecycle_invalid", "candidate lifecycle_state must be handed_off", f"{path}.lifecycle_state", candidate_id))
+    if not _is_nonempty_text(candidate.get("statement")):
+        issues.append(Issue("candidate_statement_invalid", "candidate statement must be a non-empty string", f"{path}.statement", candidate_id))
 
     lifecycle = candidate.get("lifecycle")
-    if not isinstance(lifecycle, list) or not lifecycle or not isinstance(lifecycle[-1], Mapping) or lifecycle[-1].get("state") != candidate.get("lifecycle_state"):
+    if not isinstance(lifecycle, list) or not lifecycle or any(not isinstance(event, Mapping) or not _is_nonempty_text(event.get("state")) for event in lifecycle):
+        issues.append(Issue("candidate_lifecycle_history_invalid", "lifecycle must contain events with non-empty states", f"{path}.lifecycle", candidate_id))
+    elif lifecycle[-1].get("state") != candidate.get("lifecycle_state"):
         issues.append(Issue("candidate_lifecycle_history_invalid", "final lifecycle event must match lifecycle_state", f"{path}.lifecycle", candidate_id))
     evidence = candidate.get("evidence")
     if not isinstance(evidence, list) or not evidence:
         issues.append(Issue("candidate_evidence_missing", "candidate requires at least one evidence record", f"{path}.evidence", candidate_id))
     else:
+        evidence_ids: set[str] = set()
         for evidence_index, record in enumerate(evidence):
             evidence_path = f"{path}.evidence[{evidence_index}]"
-            if not isinstance(record, Mapping) or not isinstance(record.get("id"), str) or not record.get("id"):
+            if not isinstance(record, Mapping) or not _is_nonempty_text(record.get("id")):
                 issues.append(Issue("candidate_evidence_id_invalid", "evidence record requires a non-empty id", evidence_path, candidate_id))
                 continue
+            evidence_id = record["id"]
+            if evidence_id in evidence_ids:
+                issues.append(Issue("candidate_evidence_id_duplicate", "evidence ids must be unique within a candidate", f"{evidence_path}.id", candidate_id))
+            evidence_ids.add(evidence_id)
             active = record.get("active_context")
             if "active_context" in record and not isinstance(active, Mapping):
                 issues.append(Issue("candidate_evidence_context_invalid", "evidence active_context must be an object", f"{evidence_path}.active_context", candidate_id))
@@ -166,9 +176,12 @@ def _validate_candidate(candidate: Mapping[str, Any], *, path: str, candidate_id
             elif isinstance(active, Mapping) and any(active.get(flag) is True for flag in INACTIVE_EVIDENCE_FLAGS):
                 issues.append(Issue("candidate_evidence_inactive", "candidate evidence contains an inactive state", f"{evidence_path}.active_context", candidate_id))
 
-    for field in ("provenance", "trust", "uncertainty"):
+    for field in ("provenance", "temporal", "trust", "uncertainty"):
         if not isinstance(candidate.get(field), Mapping):
             issues.append(Issue("candidate_context_invalid", f"candidate {field} must be an object", f"{path}.{field}", candidate_id))
+    for field in ("beneficiaries", "forced_expenditures", "relations"):
+        if not isinstance(candidate.get(field), list):
+            issues.append(Issue("candidate_collection_invalid", f"candidate {field} must be an array", f"{path}.{field}", candidate_id))
     trust = candidate.get("trust")
     if isinstance(trust, Mapping):
         conflicts = trust.get("conflicts")
@@ -314,6 +327,10 @@ def _identifier_skeleton(value: str) -> str:
         elif character.isalnum():
             skeleton.append("?")
     return "".join(skeleton)
+
+
+def _is_nonempty_text(value: Any) -> bool:
+    return isinstance(value, str) and bool(value.strip())
 
 
 def _is_zoned_time(value: Any) -> bool:

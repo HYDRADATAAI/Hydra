@@ -69,6 +69,69 @@ class HandoffContextTests(unittest.TestCase):
 
                 self.assertIn(expected_code, _codes(issues))
 
+    def test_blank_identifiers_and_statement_are_rejected(self) -> None:
+        candidate = _candidate()
+        candidate["candidate_id"] = "   "
+        candidate_ids, issues = validate_handoff(_handoff(candidate))
+        self.assertEqual(candidate_ids, ())
+        self.assertIn("candidate_id_invalid", _codes(issues))
+
+        candidate = _candidate()
+        candidate["statement"] = "\t"
+        _, issues = validate_handoff(_handoff(candidate))
+        self.assertIn("candidate_statement_invalid", _codes(issues))
+
+        candidate = _candidate()
+        candidate["evidence"] = [{"id": "\n", "active_context": {}}]
+        _, issues = validate_handoff(_handoff(candidate))
+        self.assertIn("candidate_evidence_id_invalid", _codes(issues))
+
+        handoff = _handoff(_candidate())
+        handoff["handoff_id"] = " "
+        _, issues = validate_handoff(handoff)
+        self.assertIn("handoff_id_invalid", _codes(issues))
+
+    def test_candidate_collections_require_arrays(self) -> None:
+        for field in ("beneficiaries", "forced_expenditures", "relations"):
+            with self.subTest(field=field):
+                candidate = _candidate()
+                candidate[field] = {}
+                _, issues = validate_handoff(_handoff(candidate))
+
+                self.assertIn("candidate_collection_invalid", _codes(issues))
+
+    def test_temporal_context_requires_an_object(self) -> None:
+        candidate = _candidate()
+        candidate["temporal"] = []
+        _, issues = validate_handoff(_handoff(candidate))
+
+        self.assertIn("candidate_context_invalid", _codes(issues))
+
+    def test_every_lifecycle_event_requires_a_nonempty_state(self) -> None:
+        cases = [
+            ["created", {"state": "handed_off"}],
+            [{"state": 1}, {"state": "handed_off"}],
+            [{"state": " "}, {"state": "handed_off"}],
+        ]
+
+        for lifecycle in cases:
+            with self.subTest(lifecycle=lifecycle):
+                candidate = _candidate()
+                candidate["lifecycle"] = lifecycle
+                _, issues = validate_handoff(_handoff(candidate))
+
+                self.assertIn("candidate_lifecycle_history_invalid", _codes(issues))
+
+    def test_duplicate_evidence_ids_are_rejected(self) -> None:
+        candidate = _candidate()
+        candidate["evidence"] = [
+            {"id": "evidence-001", "active_context": {}},
+            {"id": "evidence-001", "active_context": {}},
+        ]
+        _, issues = validate_handoff(_handoff(candidate))
+
+        self.assertIn("candidate_evidence_id_duplicate", _codes(issues))
+
 
 def _handoff(candidate: dict[str, object]) -> dict[str, object]:
     return {
