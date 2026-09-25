@@ -217,3 +217,8 @@ __marimo__/
 /* (7).*
 /* (8).*
 /* (9).*
+
+# Keep the committed public synthetic fixture visible while bulk/private data stays ignored.
+!market-data-pipeline-sample/data/
+!market-data-pipeline-sample/data/raw/
+!market-data-pipeline-sample/data/raw/synthetic_market_events.csv
