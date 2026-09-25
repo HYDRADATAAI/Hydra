@@ -1,7 +1,7 @@
 {
   "schema_version": "1.0",
   "evidence_digest_scope": "sha256(normalized_evidence UTF-8)",
-  "binding_policy": "Physical hints are descriptive only until canonical physical entity IDs exist in the authoritative graph.",
+  "binding_policy": "Canonical physical relation IDs are bound only to the minimal sourced subgraph in the authoritative physical dependency package; no unsupported supply-chain links are inferred.",
   "sources": [
     {
       "source_id": "bis-2022-10-07-export-controls",
@@ -70,7 +70,7 @@
   "cases": [
     {
       "case_id": "bis-semiconductor-controls-2022",
-      "binding_status": "PENDING_CANONICAL_PHYSICAL_ENTITY_POPULATION",
+      "binding_status": "BOUND_MINIMAL_CANONICAL_SUBGRAPH",
       "physical_hints": [
         "advanced computing chips",
         "semiconductor manufacturing equipment",
@@ -86,7 +86,14 @@
           "source_ids": [
             "bis-2022-10-07-export-controls"
           ],
-          "statement": "Semiconductor-manufacturing-item restrictions announced by BIS took effect on 2022-10-07."
+          "statement": "Semiconductor-manufacturing-item restrictions announced by BIS took effect on 2022-10-07.",
+          "relations": [
+            {
+              "kind": "DEPENDENCY",
+              "entity_id": "product:semiconductor-manufacturing-items",
+              "confidence": 1
+            }
+          ]
         },
         {
           "event_id": "bis-us-person-support-controls-2022-10-12",
@@ -97,7 +104,14 @@
           "source_ids": [
             "bis-2022-10-07-export-controls"
           ],
-          "statement": "Restrictions on specified U.S.-person support for certain PRC semiconductor fabrication activities took effect on 2022-10-12."
+          "statement": "Restrictions on specified U.S.-person support for certain PRC semiconductor fabrication activities took effect on 2022-10-12.",
+          "relations": [
+            {
+              "kind": "STRATEGIC_ASSET",
+              "entity_id": "manufacturing:prc-semiconductor-fabrication",
+              "confidence": 1
+            }
+          ]
         },
         {
           "event_id": "bis-advanced-computing-controls-2022-10-21",
@@ -108,14 +122,21 @@
           "source_ids": [
             "bis-2022-10-07-export-controls"
           ],
-          "statement": "Advanced-computing and supercomputer controls announced by BIS took effect on 2022-10-21."
+          "statement": "Advanced-computing and supercomputer controls announced by BIS took effect on 2022-10-21.",
+          "relations": [
+            {
+              "kind": "DEPENDENCY",
+              "entity_id": "product:advanced-computing-items",
+              "confidence": 1
+            }
+          ]
         }
       ],
       "observations": []
     },
     {
       "case_id": "eu-russian-oil-import-restrictions-2022",
-      "binding_status": "PENDING_CANONICAL_PHYSICAL_ENTITY_POPULATION",
+      "binding_status": "BOUND_MINIMAL_CANONICAL_SUBGRAPH",
       "physical_hints": [
         "Russian-origin crude oil",
         "Russian-origin petroleum products",
@@ -131,7 +152,14 @@
           "source_ids": [
             "eu-2022-879"
           ],
-          "statement": "Council Regulation (EU) 2022/879 established the relevant prohibition with a transitional period for CN 2709 00 ending 2022-12-05, subject to specified exceptions and derogations."
+          "statement": "Council Regulation (EU) 2022/879 established the relevant prohibition with a transitional period for CN 2709 00 ending 2022-12-05, subject to specified exceptions and derogations.",
+          "relations": [
+            {
+              "kind": "RESOURCE",
+              "entity_id": "resource:russian-origin-crude-oil",
+              "confidence": 1
+            }
+          ]
         },
         {
           "event_id": "eu-petroleum-products-transition-2023-02-05",
@@ -142,14 +170,21 @@
           "source_ids": [
             "eu-2022-879"
           ],
-          "statement": "Council Regulation (EU) 2022/879 established the relevant prohibition with a transitional period for CN 2710 ending 2023-02-05, subject to specified exceptions and derogations."
+          "statement": "Council Regulation (EU) 2022/879 established the relevant prohibition with a transitional period for CN 2710 ending 2023-02-05, subject to specified exceptions and derogations.",
+          "relations": [
+            {
+              "kind": "RESOURCE",
+              "entity_id": "resource:russian-origin-petroleum-products",
+              "confidence": 1
+            }
+          ]
         }
       ],
       "observations": []
     },
     {
       "case_id": "suez-ever-given-2021",
-      "binding_status": "PENDING_CANONICAL_PHYSICAL_ENTITY_POPULATION",
+      "binding_status": "BOUND_MINIMAL_CANONICAL_SUBGRAPH",
       "physical_hints": [
         "Suez Canal",
         "container shipping corridor"
@@ -165,7 +200,19 @@
           "source_ids": [
             "sca-2021-03-26-grounding"
           ],
-          "statement": "By 2021-03-26, the Suez Canal Authority publicly confirmed an ongoing grounding-related disruption and active refloating efforts."
+          "statement": "By 2021-03-26, the Suez Canal Authority publicly confirmed an ongoing grounding-related disruption and active refloating efforts.",
+          "relations": [
+            {
+              "kind": "INFRASTRUCTURE",
+              "entity_id": "infrastructure:suez-canal",
+              "confidence": 1
+            },
+            {
+              "kind": "CONSTRAINT",
+              "entity_id": "bottleneck:suez-canal-grounding-2021",
+              "confidence": 1
+            }
+          ]
         }
       ],
       "observations": [
@@ -191,7 +238,7 @@
     },
     {
       "case_id": "us-chips-act-2022",
-      "binding_status": "PENDING_CANONICAL_PHYSICAL_ENTITY_POPULATION",
+      "binding_status": "BOUND_MINIMAL_CANONICAL_SUBGRAPH",
       "physical_hints": [
         "U.S. semiconductor manufacturing capacity",
         "semiconductor R&D"
@@ -206,7 +253,14 @@
           "source_ids": [
             "commerce-2022-08-09-chips-signed"
           ],
-          "statement": "The CHIPS and Science Act of 2022 was signed into law on 2022-08-09."
+          "statement": "The CHIPS and Science Act of 2022 was signed into law on 2022-08-09.",
+          "relations": [
+            {
+              "kind": "STRATEGIC_ASSET",
+              "entity_id": "manufacturing:us-semiconductor-manufacturing",
+              "confidence": 1
+            }
+          ]
         }
       ],
       "observations": [
