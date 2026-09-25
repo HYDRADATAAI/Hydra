@@ -159,7 +159,11 @@ def _validate_candidate(candidate: Mapping[str, Any], *, path: str, candidate_id
                 issues.append(Issue("candidate_evidence_id_invalid", "evidence record requires a non-empty id", evidence_path, candidate_id))
                 continue
             active = record.get("active_context")
-            if isinstance(active, Mapping) and any(active.get(flag) is True for flag in INACTIVE_EVIDENCE_FLAGS):
+            if "active_context" in record and not isinstance(active, Mapping):
+                issues.append(Issue("candidate_evidence_context_invalid", "evidence active_context must be an object", f"{evidence_path}.active_context", candidate_id))
+            elif isinstance(active, Mapping) and any(flag in active and not isinstance(active[flag], bool) for flag in INACTIVE_EVIDENCE_FLAGS):
+                issues.append(Issue("candidate_evidence_context_invalid", "evidence activity flags must be boolean", f"{evidence_path}.active_context", candidate_id))
+            elif isinstance(active, Mapping) and any(active.get(flag) is True for flag in INACTIVE_EVIDENCE_FLAGS):
                 issues.append(Issue("candidate_evidence_inactive", "candidate evidence contains an inactive state", f"{evidence_path}.active_context", candidate_id))
 
     for field in ("provenance", "trust", "uncertainty"):
@@ -168,10 +172,19 @@ def _validate_candidate(candidate: Mapping[str, Any], *, path: str, candidate_id
     trust = candidate.get("trust")
     if isinstance(trust, Mapping):
         conflicts = trust.get("conflicts")
-        if isinstance(conflicts, list) and conflicts:
+        if "conflicts" in trust and not isinstance(conflicts, list):
+            issues.append(Issue("candidate_trust_context_invalid", "trust conflicts must be an array", f"{path}.trust.conflicts", candidate_id))
+        elif isinstance(conflicts, list) and conflicts:
             issues.append(Issue("candidate_trust_conflict", "candidate contains unresolved trust conflicts", f"{path}.trust.conflicts", candidate_id))
-        if _has_nonempty_unresolved(trust.get("contradiction_context")):
-            issues.append(Issue("candidate_contradiction_unresolved", "candidate contains unresolved contradictions", f"{path}.trust.contradiction_context", candidate_id))
+        contradiction_context = trust.get("contradiction_context")
+        if "contradiction_context" in trust and not isinstance(contradiction_context, Mapping):
+            issues.append(Issue("candidate_trust_context_invalid", "trust contradiction_context must be an object", f"{path}.trust.contradiction_context", candidate_id))
+        elif isinstance(contradiction_context, Mapping):
+            unresolved, invalid = _unresolved_state(contradiction_context)
+            if invalid:
+                issues.append(Issue("candidate_trust_context_invalid", "trust unresolved fields must be arrays", f"{path}.trust.contradiction_context", candidate_id))
+            elif unresolved:
+                issues.append(Issue("candidate_contradiction_unresolved", "candidate contains unresolved contradictions", f"{path}.trust.contradiction_context", candidate_id))
 
     issues.extend(_scan_authority_smuggling(candidate, path=path, candidate_id=candidate_id))
     return issues
@@ -195,16 +208,25 @@ def _scan_authority_smuggling(value: Any, *, path: str, candidate_id: str) -> li
     return issues
 
 
-def _has_nonempty_unresolved(value: Any) -> bool:
+def _unresolved_state(value: Any) -> tuple[bool, bool]:
+    unresolved = False
+    invalid = False
     if isinstance(value, Mapping):
         for key, nested in value.items():
-            if key == "unresolved" and isinstance(nested, list) and nested:
-                return True
-            if _has_nonempty_unresolved(nested):
-                return True
+            if key == "unresolved":
+                if not isinstance(nested, list):
+                    invalid = True
+                elif nested:
+                    unresolved = True
+            child_unresolved, child_invalid = _unresolved_state(nested)
+            unresolved = unresolved or child_unresolved
+            invalid = invalid or child_invalid
     elif isinstance(value, list):
-        return any(_has_nonempty_unresolved(item) for item in value)
-    return False
+        for item in value:
+            child_unresolved, child_invalid = _unresolved_state(item)
+            unresolved = unresolved or child_unresolved
+            invalid = invalid or child_invalid
+    return unresolved, invalid
 
 
 def _normalize_token(value: str) -> str:
