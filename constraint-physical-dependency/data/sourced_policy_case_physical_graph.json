@@ -1,0 +1,192 @@
+{
+  "schema_version": "1.0",
+  "evidence_digest_scope": "sha256(normalized_evidence UTF-8)",
+  "sources": [
+    {
+      "source_id": "bis-2022-10-07-export-controls",
+      "source_url": "https://www.bis.gov/node/20292",
+      "publisher": "U.S. Department of Commerce, Bureau of Industry and Security",
+      "retrieved_at": "2026-09-25",
+      "known_at": "2022-10-07",
+      "published_at": "2022-10-07",
+      "normalized_evidence": "On 2022-10-07, the U.S. Bureau of Industry and Security announced export controls affecting advanced computing and semiconductor manufacturing items involving the PRC. BIS stated semiconductor-manufacturing-item restrictions took effect on 2022-10-07, U.S.-person support restrictions on 2022-10-12, and advanced-computing/supercomputer controls on 2022-10-21.",
+      "evidence_hash": "sha256:755b175a5214522be7664388ee5b224692fa2b543d52e0169fe988d54206094e"
+    },
+    {
+      "source_id": "eu-2022-879",
+      "source_url": "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX%3A32022R0879",
+      "publisher": "Council of the European Union / EUR-Lex",
+      "retrieved_at": "2026-09-25",
+      "known_at": "2022-06-03",
+      "published_at": "2022-06-03",
+      "normalized_evidence": "Council Regulation (EU) 2022/879, dated 2022-06-03, amended Regulation (EU) No 833/2014 to prohibit purchase, import, or transfer of specified Russian-origin crude oil and petroleum products, with transitional periods ending 2022-12-05 for CN 2709 00 and 2023-02-05 for CN 2710, subject to stated exceptions and derogations.",
+      "evidence_hash": "sha256:06a876705c1e188f5fcde3c3dc58830ee56f02c019f084d0067e88936f109f81"
+    },
+    {
+      "source_id": "sca-2021-03-26-grounding",
+      "source_url": "https://www.suezcanal.gov.eg/English/MediaCenter/News/Pages/navigation-26-03-2021.aspx",
+      "publisher": "Suez Canal Authority",
+      "retrieved_at": "2026-09-25",
+      "known_at": "2021-03-26",
+      "published_at": "2021-03-26",
+      "normalized_evidence": "On 2021-03-26, the Suez Canal Authority publicly confirmed ongoing efforts to refloat a grounded container vessel in the Suez Canal and stated its aim to restore regular global maritime traffic as soon as possible.",
+      "evidence_hash": "sha256:a8d237ff09989d15426defa427373a244acf0d39d3f46ceaecc750cfc42faf3d"
+    },
+    {
+      "source_id": "commerce-2022-08-09-chips-signed",
+      "source_url": "https://www.commerce.gov/news/press-releases/2022/08/statement-us-secretary-commerce-gina-raimondo-signing-chips-and-science",
+      "publisher": "U.S. Department of Commerce",
+      "retrieved_at": "2026-09-25",
+      "known_at": "2022-08-09",
+      "published_at": "2022-08-09",
+      "normalized_evidence": "On 2022-08-09, the U.S. Department of Commerce stated that the CHIPS and Science Act of 2022 had been signed into law and described it as an investment intended to support domestic semiconductor manufacturing and research and development.",
+      "evidence_hash": "sha256:322909ddd7478e8387a62f117babb8eae8969984c8d37965eaad5d27393eaf84"
+    }
+  ],
+  "nodes": [
+    {
+      "node_id": "manufacturing:prc-semiconductor-fabrication",
+      "kind": "manufacturing",
+      "name": "PRC semiconductor fabrication facilities",
+      "country_code": "CN",
+      "valid_from": "2022-10-07",
+      "known_at": "2022-10-07",
+      "source_ids": [
+        "bis-2022-10-07-export-controls"
+      ]
+    },
+    {
+      "node_id": "product:semiconductor-manufacturing-items",
+      "kind": "product_technology",
+      "name": "Semiconductor manufacturing items",
+      "valid_from": "2022-10-07",
+      "known_at": "2022-10-07",
+      "source_ids": [
+        "bis-2022-10-07-export-controls"
+      ]
+    },
+    {
+      "node_id": "resource:russian-origin-crude-oil",
+      "kind": "resource",
+      "name": "Russian-origin crude oil covered by EU Regulation 2022/879",
+      "country_code": "RU",
+      "valid_from": "2022-06-03",
+      "known_at": "2022-06-03",
+      "source_ids": [
+        "eu-2022-879"
+      ]
+    },
+    {
+      "node_id": "resource:russian-origin-petroleum-products",
+      "kind": "resource",
+      "name": "Russian-origin petroleum products covered by EU Regulation 2022/879",
+      "country_code": "RU",
+      "valid_from": "2022-06-03",
+      "known_at": "2022-06-03",
+      "source_ids": [
+        "eu-2022-879"
+      ]
+    },
+    {
+      "node_id": "infrastructure:suez-canal",
+      "kind": "infrastructure",
+      "name": "Suez Canal",
+      "country_code": "EG",
+      "valid_from": "2021-03-26",
+      "known_at": "2021-03-26",
+      "source_ids": [
+        "sca-2021-03-26-grounding"
+      ]
+    },
+    {
+      "node_id": "bottleneck:suez-canal-grounding-2021",
+      "kind": "bottleneck",
+      "name": "2021 Suez Canal grounding disruption",
+      "country_code": "EG",
+      "valid_from": "2021-03-26",
+      "valid_to": "2021-04-01",
+      "known_at": "2021-03-26",
+      "source_ids": [
+        "sca-2021-03-26-grounding"
+      ]
+    },
+    {
+      "node_id": "transport:maritime-traffic-via-suez",
+      "kind": "transport",
+      "name": "Maritime traffic through the Suez Canal",
+      "valid_from": "2021-03-26",
+      "known_at": "2021-03-26",
+      "source_ids": [
+        "sca-2021-03-26-grounding"
+      ]
+    },
+    {
+      "node_id": "manufacturing:us-semiconductor-manufacturing",
+      "kind": "manufacturing",
+      "name": "U.S. semiconductor manufacturing",
+      "country_code": "US",
+      "valid_from": "2022-08-09",
+      "known_at": "2022-08-09",
+      "source_ids": [
+        "commerce-2022-08-09-chips-signed"
+      ]
+    },
+    {
+      "node_id": "product:semiconductors",
+      "kind": "product_technology",
+      "name": "Semiconductors",
+      "valid_from": "2022-08-09",
+      "known_at": "2022-08-09",
+      "source_ids": [
+        "commerce-2022-08-09-chips-signed"
+      ]
+    }
+  ],
+  "edges": [
+    {
+      "edge_id": "edge:semiconductor-manufacturing-items-used-in-prc-fabrication",
+      "source_id": "product:semiconductor-manufacturing-items",
+      "target_id": "manufacturing:prc-semiconductor-fabrication",
+      "relation": "used_in",
+      "valid_from": "2022-10-07",
+      "known_at": "2022-10-07",
+      "source_ids": [
+        "bis-2022-10-07-export-controls"
+      ]
+    },
+    {
+      "edge_id": "edge:suez-grounding-constrains-canal",
+      "source_id": "bottleneck:suez-canal-grounding-2021",
+      "target_id": "infrastructure:suez-canal",
+      "relation": "constrains",
+      "valid_from": "2021-03-26",
+      "valid_to": "2021-04-01",
+      "known_at": "2021-03-26",
+      "source_ids": [
+        "sca-2021-03-26-grounding"
+      ]
+    },
+    {
+      "edge_id": "edge:suez-canal-supplies-maritime-traffic",
+      "source_id": "infrastructure:suez-canal",
+      "target_id": "transport:maritime-traffic-via-suez",
+      "relation": "supplies",
+      "valid_from": "2021-03-26",
+      "known_at": "2021-03-26",
+      "source_ids": [
+        "sca-2021-03-26-grounding"
+      ]
+    },
+    {
+      "edge_id": "edge:us-semiconductor-manufacturing-manufactures-semiconductors",
+      "source_id": "manufacturing:us-semiconductor-manufacturing",
+      "target_id": "product:semiconductors",
+      "relation": "manufactures",
+      "valid_from": "2022-08-09",
+      "known_at": "2022-08-09",
+      "source_ids": [
+        "commerce-2022-08-09-chips-signed"
+      ]
+    }
+  ]
+}
