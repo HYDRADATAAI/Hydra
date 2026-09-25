@@ -13,12 +13,43 @@ class DependencyGraph:
         nodes = []
         for n in self.nodes.values():
             snaps = tuple(s for s in n.snapshots if s.active_as_of(when, knowledge_cutoff))
-            if snaps or not n.snapshots:
-                nodes.append(Node(n.node_id,n.kind,n.name,n.country_code,snaps,n.provenance))
+            if n.snapshots:
+                if snaps:
+                    nodes.append(Node(n.node_id,n.kind,n.name,n.country_code,snaps,n.provenance))
+                continue
+
+            # Identity-only nodes have no validity interval. When provenance
+            # exists, do not expose the identity before any evidence for it
+            # was historically knowable.
+            if knowledge_cutoff is not None and n.provenance:
+                if min(p.known_at for p in n.provenance) > knowledge_cutoff:
+                    continue
+            nodes.append(n)
+
         ids={n.node_id for n in nodes}
         edges=[e for e in self.edges.values()
                if e.source_id in ids and e.target_id in ids and e.active_as_of(when,knowledge_cutoff)]
         return DependencyGraph(nodes,edges)
+
+    def resolve_reference(
+        self,
+        entity_id: str,
+        when: date | None = None,
+        knowledge_cutoff: date | None = None,
+    ) -> tuple[str, Node | Edge] | None:
+        """Resolve a canonical physical node/edge ID, optionally point-in-time.
+
+        Cross-domain consumers should use this boundary rather than reach
+        directly into the graph's internal node/edge dictionaries.
+        """
+        if knowledge_cutoff is not None and when is None:
+            raise ValueError("knowledge_cutoff requires when")
+        view = self if when is None else self.as_of(when, knowledge_cutoff)
+        if entity_id in view.nodes:
+            return ("node", view.nodes[entity_id])
+        if entity_id in view.edges:
+            return ("edge", view.edges[entity_id])
+        return None
 
     def trace(self, start_id: str, max_depth: int = 12) -> list[list[Edge]]:
         outgoing=defaultdict(list)
