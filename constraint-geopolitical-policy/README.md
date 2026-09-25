@@ -52,7 +52,7 @@ The sourced bundle currently covers four different mechanisms:
 
 Every source record carries a publication/availability timestamp plus a SHA-256 digest over the committed normalized evidence capsule. Event records may not cite evidence whose `available_at` is after the event's `known_at`.
 
-These cases deliberately remain `PENDING_CANONICAL_PHYSICAL_ENTITY_POPULATION`. Descriptive physical hints are not silently promoted into canonical graph IDs. The binding becomes active only after the corresponding real resource/infrastructure/dependency entities are populated in the physical graph.
+These four cases are now `BOUND_MINIMAL_CANONICAL_SUBGRAPH`. Their event relations point only to physical IDs present in the sourced physical subgraph owned by the physical-dependency package. The bindings are deliberately minimal: descriptive hints are not promoted into additional supply-chain links unless the evidence supports them.
 
 ## Tests
 
@@ -63,7 +63,7 @@ $env:PYTHONPATH=(Resolve-Path '.\\src').Path
 python -m unittest discover -s tests -t . -v
 ```
 
-The tests exercise point-in-time cutoff, clock separation, provenance, causal/motive quarantine, relationship evidence, warning-sign replay, and determinism.
+The tests exercise point-in-time cutoff, clock separation, provenance, causal/motive quarantine, relationship evidence, warning-sign replay, deterministic hashing, sourced-evidence digest integrity, source-availability cutoffs, canonical physical binding, downstream structural traversal, and replay-evidence emission.
 
 ## Physical dependency integration
 
@@ -73,4 +73,4 @@ This PR is stacked on the historical physical dependency foundation. Physical `R
 
 The binding uses the event's `KNOWN_AT` as the knowledge cutoff while physical validity defaults to `EFFECTIVE_AT` (then `OBSERVED_AT`, then `KNOWN_AT`). This lets an already-announced future-effective action bind to evidence that was genuinely known at announcement time without importing later evidence.
 
-The component remains **THIN in historical domain coverage** until sourced geopolitical case records are populated. That is a data-coverage gap, not an unresolved policy↔physical API gap.
+The policy↔physical integration is executable for the current sourced case set. The component remains **THIN in historical breadth** because four bounded cases do not constitute broad geopolitical/resource/infrastructure coverage. The remaining gap is evidence population at scale, not an unresolved cross-layer API.
