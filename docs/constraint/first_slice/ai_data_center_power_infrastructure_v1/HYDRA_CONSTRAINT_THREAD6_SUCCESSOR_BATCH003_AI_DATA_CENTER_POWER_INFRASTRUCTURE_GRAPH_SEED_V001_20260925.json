@@ -1,0 +1,223 @@
+{
+  "schema_version": "hydra-constraint-first-slice-graph-seed/v1",
+  "record_id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH003_AI_DATA_CENTER_POWER_INFRASTRUCTURE_GRAPH_SEED_V001",
+  "as_of": "2026-09-25",
+  "slice_id": "AI_DATA_CENTER_POWER_INFRASTRUCTURE_V1",
+  "graph_status": "EVIDENCE_BACKED_SEED_PARTIAL",
+  "nodes": [
+    {
+      "node_id": "N-AI-COMPUTE-DEMAND",
+      "node_type": "DEMAND_DRIVER",
+      "label": "AI / compute demand"
+    },
+    {
+      "node_id": "N-DATA-CENTER-FACILITIES",
+      "node_type": "FACILITY_CLASS",
+      "label": "Data-center facilities"
+    },
+    {
+      "node_id": "N-ELECTRICITY-DEMAND",
+      "node_type": "RESOURCE_DEMAND",
+      "label": "Electricity demand"
+    },
+    {
+      "node_id": "N-GENERATION-PIPELINE",
+      "node_type": "INFRASTRUCTURE_CAPACITY",
+      "label": "Generation resource pipeline"
+    },
+    {
+      "node_id": "N-TRANSMISSION",
+      "node_type": "INFRASTRUCTURE",
+      "label": "Transmission system"
+    },
+    {
+      "node_id": "N-INTERCONNECTION",
+      "node_type": "PROCESS",
+      "label": "Generator / large-load interconnection"
+    },
+    {
+      "node_id": "N-LARGE-POWER-TRANSFORMERS",
+      "node_type": "EQUIPMENT_CLASS",
+      "label": "Large power transformers"
+    },
+    {
+      "node_id": "N-DISTRIBUTION-TRANSFORMERS",
+      "node_type": "EQUIPMENT_CLASS",
+      "label": "Distribution transformers"
+    },
+    {
+      "node_id": "N-WATER-COOLING",
+      "node_type": "RESOURCE_INFRASTRUCTURE",
+      "label": "Water / cooling"
+    },
+    {
+      "node_id": "N-PJM-LOAD",
+      "node_type": "GEOGRAPHIC_DEMAND",
+      "label": "PJM large-load demand"
+    },
+    {
+      "node_id": "N-ERCOT-LOAD",
+      "node_type": "GEOGRAPHIC_DEMAND",
+      "label": "ERCOT large-load demand"
+    },
+    {
+      "node_id": "N-LAND-PERMITTING",
+      "node_type": "POLICY_INFRASTRUCTURE",
+      "label": "Land / permitting"
+    },
+    {
+      "node_id": "N-FIBER-CONNECTIVITY",
+      "node_type": "INFRASTRUCTURE",
+      "label": "Fiber / connectivity"
+    },
+    {
+      "node_id": "N-SWITCHGEAR",
+      "node_type": "EQUIPMENT_CLASS",
+      "label": "Switchgear"
+    }
+  ],
+  "edges": [
+    {
+      "edge_id": "E001",
+      "from": "N-AI-COMPUTE-DEMAND",
+      "relation": "CONTRIBUTES_TO",
+      "to": "N-DATA-CENTER-FACILITIES",
+      "evidence_ids": [
+        "EV-DC-ENERGY-2030-RANGE",
+        "EV-NERC-DATA-CENTER-LOAD-PLANNING"
+      ],
+      "status": "SUPPORTED_SEED"
+    },
+    {
+      "edge_id": "E002",
+      "from": "N-DATA-CENTER-FACILITIES",
+      "relation": "INCREASES_DEMAND_FOR",
+      "to": "N-ELECTRICITY-DEMAND",
+      "evidence_ids": [
+        "EV-EIA-DATA-CENTER-LOAD-GROWTH",
+        "EV-NERC-DATA-CENTER-LOAD-PLANNING"
+      ],
+      "status": "SUPPORTED_SEED"
+    },
+    {
+      "edge_id": "E003",
+      "from": "N-ELECTRICITY-DEMAND",
+      "relation": "REQUIRES_CAPACITY_FROM",
+      "to": "N-GENERATION-PIPELINE",
+      "evidence_ids": [
+        "EV-EIA-DATA-CENTER-LOAD-GROWTH"
+      ],
+      "status": "SUPPORTED_SEED"
+    },
+    {
+      "edge_id": "E004",
+      "from": "N-GENERATION-PIPELINE",
+      "relation": "REQUIRES",
+      "to": "N-INTERCONNECTION",
+      "evidence_ids": [
+        "EV-LBNL-QUEUE-2024",
+        "EV-FERC-ORDER2023-QUEUE-REFORM"
+      ],
+      "status": "SUPPORTED_SEED"
+    },
+    {
+      "edge_id": "E005",
+      "from": "N-INTERCONNECTION",
+      "relation": "CAN_DELAY",
+      "to": "N-GENERATION-PIPELINE",
+      "evidence_ids": [
+        "EV-LBNL-QUEUE-2024",
+        "EV-FERC-ORDER2023-QUEUE-REFORM"
+      ],
+      "status": "SUPPORTED_SEED"
+    },
+    {
+      "edge_id": "E006",
+      "from": "N-TRANSMISSION",
+      "relation": "REQUIRES",
+      "to": "N-LARGE-POWER-TRANSFORMERS",
+      "evidence_ids": [
+        "EV-DOE-LPT-SUPPLY"
+      ],
+      "status": "SUPPORTED_SEED"
+    },
+    {
+      "edge_id": "E007",
+      "from": "N-LARGE-POWER-TRANSFORMERS",
+      "relation": "HAS_SUPPLY_LEAD_TIME_CONSTRAINT",
+      "to": "N-TRANSMISSION",
+      "evidence_ids": [
+        "EV-DOE-LPT-SUPPLY",
+        "EV-DOE-TRANSFORMER-LEAD-TIMES"
+      ],
+      "status": "SUPPORTED_SEED"
+    },
+    {
+      "edge_id": "E008",
+      "from": "N-DISTRIBUTION-TRANSFORMERS",
+      "relation": "HAS_SUPPLY_LEAD_TIME_CONSTRAINT",
+      "to": "N-DATA-CENTER-FACILITIES",
+      "evidence_ids": [
+        "EV-DOE-TRANSFORMER-LEAD-TIMES"
+      ],
+      "status": "SUPPORTED_SEED"
+    },
+    {
+      "edge_id": "E009",
+      "from": "N-DATA-CENTER-FACILITIES",
+      "relation": "REQUIRES",
+      "to": "N-WATER-COOLING",
+      "evidence_ids": [
+        "EV-LBNL-WATER-DETERMINANTS"
+      ],
+      "status": "SUPPORTED_SEED"
+    },
+    {
+      "edge_id": "E010",
+      "from": "N-PJM-LOAD",
+      "relation": "IS_DRIVEN_PRIMARILY_BY",
+      "to": "N-DATA-CENTER-FACILITIES",
+      "evidence_ids": [
+        "EV-PJM-DATA-CENTER-LOAD",
+        "EV-NERC-DATA-CENTER-LOAD-PLANNING"
+      ],
+      "status": "SUPPORTED_SEED"
+    },
+    {
+      "edge_id": "E011",
+      "from": "N-ERCOT-LOAD",
+      "relation": "IS_DRIVEN_IN_PART_BY",
+      "to": "N-DATA-CENTER-FACILITIES",
+      "evidence_ids": [
+        "EV-EIA-DATA-CENTER-LOAD-GROWTH",
+        "EV-NERC-DATA-CENTER-LOAD-PLANNING"
+      ],
+      "status": "SUPPORTED_SEED"
+    },
+    {
+      "edge_id": "E012",
+      "from": "N-LAND-PERMITTING",
+      "relation": "POTENTIAL_CONSTRAINT_ON",
+      "to": "N-DATA-CENTER-FACILITIES",
+      "evidence_ids": [],
+      "status": "UNPOPULATED_SOURCE_GAP"
+    },
+    {
+      "edge_id": "E013",
+      "from": "N-FIBER-CONNECTIVITY",
+      "relation": "REQUIRED_BY",
+      "to": "N-DATA-CENTER-FACILITIES",
+      "evidence_ids": [],
+      "status": "UNPOPULATED_SOURCE_GAP"
+    },
+    {
+      "edge_id": "E014",
+      "from": "N-SWITCHGEAR",
+      "relation": "REQUIRED_BY",
+      "to": "N-DATA-CENTER-FACILITIES",
+      "evidence_ids": [],
+      "status": "UNPOPULATED_SOURCE_GAP"
+    }
+  ],
+  "rule": "NO_SUPPORTED_EDGE_WITHOUT_AT_LEAST_ONE_EVIDENCE_ID"
+}

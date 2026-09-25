@@ -1,0 +1,256 @@
+{
+  "schema_version": "hydra-constraint-first-slice-field-matrix/v1",
+  "record_id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH003_AI_DATA_CENTER_POWER_INFRASTRUCTURE_FIELD_MATRIX_V001",
+  "as_of": "2026-09-25",
+  "slice_id": "AI_DATA_CENTER_POWER_INFRASTRUCTURE_V1",
+  "field_count": 24,
+  "fields": [
+    {
+      "field_id": "source_id",
+      "data_type": "string",
+      "priority": "REQUIRED_NOW",
+      "domain": "PROVENANCE",
+      "source_ids": [
+        "ALL"
+      ],
+      "status": "SOURCE_READY"
+    },
+    {
+      "field_id": "source_version_id",
+      "data_type": "string",
+      "priority": "REQUIRED_NOW",
+      "domain": "PROVENANCE",
+      "source_ids": [
+        "ALL"
+      ],
+      "status": "SOURCE_READY"
+    },
+    {
+      "field_id": "artifact_sha256",
+      "data_type": "sha256",
+      "priority": "REQUIRED_NOW",
+      "domain": "PROVENANCE",
+      "source_ids": [
+        "ALL"
+      ],
+      "status": "SOURCE_READY"
+    },
+    {
+      "field_id": "published_at",
+      "data_type": "timestamp_or_partial_date",
+      "priority": "REQUIRED_NOW",
+      "domain": "TIME",
+      "source_ids": [
+        "ALL"
+      ],
+      "status": "PARTIAL_EXACTNESS"
+    },
+    {
+      "field_id": "acquired_at",
+      "data_type": "timestamp",
+      "priority": "REQUIRED_NOW",
+      "domain": "TIME",
+      "source_ids": [
+        "ALL"
+      ],
+      "status": "NOT_CAPTURED_MANUAL_SEED"
+    },
+    {
+      "field_id": "available_at",
+      "data_type": "timestamp",
+      "priority": "REQUIRED_NOW",
+      "domain": "TIME",
+      "source_ids": [
+        "ALL"
+      ],
+      "status": "BLOCKED_FOR_STRICT_REPLAY"
+    },
+    {
+      "field_id": "effective_start",
+      "data_type": "timestamp_or_date",
+      "priority": "REQUIRED_NOW",
+      "domain": "TIME",
+      "source_ids": [
+        "ALL"
+      ],
+      "status": "SOURCE_DEPENDENT"
+    },
+    {
+      "field_id": "entity_id",
+      "data_type": "string",
+      "priority": "REQUIRED_NOW",
+      "domain": "ENTITY",
+      "source_ids": [
+        "ALL"
+      ],
+      "status": "READY_FOR_RESOLUTION"
+    },
+    {
+      "field_id": "entity_type",
+      "data_type": "enum",
+      "priority": "REQUIRED_NOW",
+      "domain": "ENTITY",
+      "source_ids": [
+        "ALL"
+      ],
+      "status": "READY"
+    },
+    {
+      "field_id": "geography_id",
+      "data_type": "string",
+      "priority": "REQUIRED_NOW",
+      "domain": "GEOGRAPHY",
+      "source_ids": [
+        "SRC-EIA-DC-DEMAND-2026-03-12",
+        "SRC-NERC-LTRA-2025",
+        "SRC-PJM-2025-YEAR-IN-REVIEW-2026-01-08"
+      ],
+      "status": "SOURCE_READY"
+    },
+    {
+      "field_id": "data_center_electricity_twh",
+      "data_type": "number",
+      "priority": "REQUIRED_NOW",
+      "domain": "DEMAND",
+      "source_ids": [
+        "SRC-LBNL-DC-ENERGY-2025-UPDATE"
+      ],
+      "status": "SOURCE_READY"
+    },
+    {
+      "field_id": "data_center_share_us_electricity_pct",
+      "data_type": "number_or_range",
+      "priority": "REQUIRED_NOW",
+      "domain": "DEMAND",
+      "source_ids": [
+        "SRC-LBNL-DC-ENERGY-2025-UPDATE"
+      ],
+      "status": "SOURCE_READY"
+    },
+    {
+      "field_id": "regional_load_growth_pct",
+      "data_type": "number",
+      "priority": "USEFUL_SOON",
+      "domain": "DEMAND",
+      "source_ids": [
+        "SRC-EIA-DC-DEMAND-2026-03-12"
+      ],
+      "status": "SOURCE_READY"
+    },
+    {
+      "field_id": "regional_peak_demand_mw",
+      "data_type": "number",
+      "priority": "REQUIRED_NOW",
+      "domain": "DEMAND",
+      "source_ids": [
+        "SRC-NERC-LTRA-2025",
+        "SRC-PJM-2025-YEAR-IN-REVIEW-2026-01-08"
+      ],
+      "status": "SOURCE_READY"
+    },
+    {
+      "field_id": "interconnection_active_project_count",
+      "data_type": "integer",
+      "priority": "REQUIRED_NOW",
+      "domain": "INTERCONNECTION",
+      "source_ids": [
+        "SRC-LBNL-QUEUED-UP-2025"
+      ],
+      "status": "SOURCE_READY"
+    },
+    {
+      "field_id": "interconnection_generation_gw",
+      "data_type": "number",
+      "priority": "REQUIRED_NOW",
+      "domain": "INTERCONNECTION",
+      "source_ids": [
+        "SRC-LBNL-QUEUED-UP-2025"
+      ],
+      "status": "SOURCE_READY"
+    },
+    {
+      "field_id": "interconnection_storage_gw",
+      "data_type": "number",
+      "priority": "USEFUL_SOON",
+      "domain": "INTERCONNECTION",
+      "source_ids": [
+        "SRC-LBNL-QUEUED-UP-2025"
+      ],
+      "status": "SOURCE_READY"
+    },
+    {
+      "field_id": "interconnection_queue_duration_years",
+      "data_type": "number",
+      "priority": "REQUIRED_NOW",
+      "domain": "INTERCONNECTION",
+      "source_ids": [
+        "SRC-LBNL-QUEUED-UP-2025"
+      ],
+      "status": "SOURCE_READY"
+    },
+    {
+      "field_id": "transformer_lead_time_years",
+      "data_type": "number_or_range",
+      "priority": "REQUIRED_NOW",
+      "domain": "GRID_EQUIPMENT",
+      "source_ids": [
+        "SRC-DOE-DISTRIBUTION-TRANSFORMER-WEBINAR-2026",
+        "SRC-DOE-LPT-RESILIENCE-2024"
+      ],
+      "status": "SOURCE_READY"
+    },
+    {
+      "field_id": "transformer_import_share_pct",
+      "data_type": "number",
+      "priority": "USEFUL_SOON",
+      "domain": "GRID_EQUIPMENT",
+      "source_ids": [
+        "SRC-DOE-LPT-RESILIENCE-2024"
+      ],
+      "status": "SOURCE_READY"
+    },
+    {
+      "field_id": "water_cooling_dependency_profile",
+      "data_type": "structured",
+      "priority": "REQUIRED_NOW",
+      "domain": "WATER_COOLING",
+      "source_ids": [
+        "SRC-LBNL-DATA-CENTER-WATER-2025"
+      ],
+      "status": "SOURCE_READY"
+    },
+    {
+      "field_id": "switchgear_lead_time_days",
+      "data_type": "number",
+      "priority": "REQUIRED_NOW",
+      "domain": "GRID_EQUIPMENT",
+      "source_ids": [],
+      "status": "SOURCE_GAP"
+    },
+    {
+      "field_id": "land_permitting_status",
+      "data_type": "structured",
+      "priority": "REQUIRED_NOW",
+      "domain": "LAND_PERMITTING",
+      "source_ids": [],
+      "status": "SOURCE_GAP"
+    },
+    {
+      "field_id": "fiber_connectivity_capacity",
+      "data_type": "structured",
+      "priority": "REQUIRED_NOW",
+      "domain": "FIBER_CONNECTIVITY",
+      "source_ids": [],
+      "status": "SOURCE_GAP"
+    }
+  ],
+  "source_gap_fields": [
+    "switchgear_lead_time_days",
+    "land_permitting_status",
+    "fiber_connectivity_capacity"
+  ],
+  "strict_replay_blocking_fields": [
+    "available_at",
+    "acquired_at"
+  ]
+}

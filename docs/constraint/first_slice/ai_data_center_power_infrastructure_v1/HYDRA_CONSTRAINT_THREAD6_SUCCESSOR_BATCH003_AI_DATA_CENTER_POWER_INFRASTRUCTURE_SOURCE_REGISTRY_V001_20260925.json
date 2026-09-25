@@ -1,0 +1,158 @@
+{
+  "schema_version": "hydra-constraint-first-slice-source-registry/v1",
+  "record_id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH003_AI_DATA_CENTER_POWER_INFRASTRUCTURE_SOURCE_REGISTRY_V001",
+  "as_of": "2026-09-25",
+  "slice_id": "AI_DATA_CENTER_POWER_INFRASTRUCTURE_V1",
+  "ingestion_mode": "MANUAL_REVIEWED_PUBLIC_SOURCE_SEED",
+  "live_source_authority_used": false,
+  "rule": "SOURCE_REGISTRATION_DOES_NOT_IMPLY_STRICT_REPLAY_ADMISSIBILITY",
+  "sources": [
+    {
+      "source_id": "SRC-LBNL-DC-ENERGY-2025-UPDATE",
+      "publisher": "Lawrence Berkeley National Laboratory",
+      "title": "United States Data Center Energy Usage Report: 2025 Update",
+      "url": "https://eta-publications.lbl.gov/publications/united-states-data-center-energy-2025",
+      "publication_date": "2026-06",
+      "publication_date_precision": "MONTH",
+      "source_type": "DOE_NATIONAL_LAB_REPORT",
+      "roles": [
+        "DATA_CENTER_ELECTRICITY_DEMAND",
+        "AI_SERVER_SENSITIVITY",
+        "ENERGY_FORECAST"
+      ],
+      "strict_original_as_of_eligible": false,
+      "replay_blocker": "EXACT_AVAILABLE_AT_NOT_YET_CAPTURED"
+    },
+    {
+      "source_id": "SRC-EIA-DC-DEMAND-2026-03-12",
+      "publisher": "U.S. Energy Information Administration",
+      "title": "Fossil generation could rise with faster-than-expected growth in data center power demand",
+      "url": "https://www.eia.gov/todayinenergy/detail.php?id=67344",
+      "publication_date": "2026-03-12",
+      "publication_date_precision": "DAY",
+      "source_type": "FEDERAL_STATISTICAL_ANALYSIS",
+      "roles": [
+        "DATA_CENTER_LOAD_GROWTH",
+        "REGIONAL_LOAD_FORECAST",
+        "GENERATION_RESPONSE"
+      ],
+      "strict_original_as_of_eligible": false,
+      "replay_blocker": "EXACT_TIME_OF_DAY_AVAILABLE_AT_NOT_YET_CAPTURED"
+    },
+    {
+      "source_id": "SRC-LBNL-QUEUED-UP-2025",
+      "publisher": "Lawrence Berkeley National Laboratory",
+      "title": "Queued Up: 2025 Edition, Characteristics of Power Plants Seeking Transmission Interconnection As of the End of 2024",
+      "url": "https://emp.lbl.gov/publications/queued-2025-edition-characteristics",
+      "publication_date": "2025-12",
+      "publication_date_precision": "MONTH",
+      "source_type": "DOE_NATIONAL_LAB_DATABASE_REPORT",
+      "roles": [
+        "INTERCONNECTION_QUEUE",
+        "GENERATION_PIPELINE",
+        "QUEUE_DURATION"
+      ],
+      "strict_original_as_of_eligible": false,
+      "replay_blocker": "EXACT_AVAILABLE_AT_NOT_YET_CAPTURED"
+    },
+    {
+      "source_id": "SRC-FERC-ORDER-2023-FACT-SHEET",
+      "publisher": "Federal Energy Regulatory Commission",
+      "title": "Fact Sheet | Improvements to Generator Interconnection Procedures and Agreements",
+      "url": "https://www.ferc.gov/news-events/news/fact-sheet-improvements-generator-interconnection-procedures-and-agreements",
+      "publication_date": "2023-07-27",
+      "publication_date_precision": "DAY",
+      "source_type": "FEDERAL_REGULATORY_FACT_SHEET",
+      "roles": [
+        "INTERCONNECTION_POLICY",
+        "CLUSTER_STUDY",
+        "QUEUE_PROCESS"
+      ],
+      "strict_original_as_of_eligible": false,
+      "replay_blocker": "EXACT_TIME_OF_DAY_AVAILABLE_AT_NOT_YET_CAPTURED"
+    },
+    {
+      "source_id": "SRC-DOE-LPT-RESILIENCE-2024",
+      "publisher": "U.S. Department of Energy",
+      "title": "Large Power Transformer Resilience Report to Congress",
+      "url": "https://www.energy.gov/sites/default/files/2024-10/EXEC-2022-001242%20-%20Large%20Power%20Transformer%20Resilience%20Report%20signed%20by%20Secretary%20Granholm%20on%207-10-24.pdf",
+      "publication_date": "2024-07",
+      "publication_date_precision": "MONTH",
+      "source_type": "FEDERAL_REPORT_TO_CONGRESS",
+      "roles": [
+        "LARGE_POWER_TRANSFORMER_SUPPLY",
+        "IMPORT_DEPENDENCE",
+        "TRANSFORMER_DEMAND",
+        "GRID_EXPANSION"
+      ],
+      "strict_original_as_of_eligible": false,
+      "replay_blocker": "EXACT_AVAILABLE_AT_NOT_YET_CAPTURED"
+    },
+    {
+      "source_id": "SRC-DOE-DISTRIBUTION-TRANSFORMER-WEBINAR-2026",
+      "publisher": "U.S. Department of Energy",
+      "title": "Distribution Transformer Webinar Text Alternative",
+      "url": "https://www.energy.gov/oe/distribution-transformer-webinar-text-alternative",
+      "publication_date": "2026",
+      "publication_date_precision": "YEAR",
+      "source_type": "FEDERAL_TECHNICAL_WEBINAR_TRANSCRIPT",
+      "roles": [
+        "DISTRIBUTION_TRANSFORMER_LEAD_TIME",
+        "LARGE_TRANSFORMER_LEAD_TIME",
+        "GRID_COMPONENT_SUPPLY_CHAIN"
+      ],
+      "strict_original_as_of_eligible": false,
+      "replay_blocker": "EXACT_PUBLICATION_DATE_AND_AVAILABLE_AT_NOT_YET_CAPTURED"
+    },
+    {
+      "source_id": "SRC-LBNL-DATA-CENTER-WATER-2025",
+      "publisher": "Lawrence Berkeley National Laboratory",
+      "title": "The water use of data center workloads: A review and assessment of key determinants",
+      "url": "https://eta-publications.lbl.gov/publications/water-use-data-center-workloads",
+      "publication_date": "2025-06",
+      "publication_date_precision": "MONTH",
+      "source_type": "DOE_NATIONAL_LAB_JOURNAL_METADATA",
+      "roles": [
+        "WATER_USE",
+        "COOLING",
+        "CLIMATE_DEPENDENCE",
+        "GRID_WATER_FACTOR"
+      ],
+      "strict_original_as_of_eligible": false,
+      "replay_blocker": "EXACT_AVAILABLE_AT_NOT_YET_CAPTURED"
+    },
+    {
+      "source_id": "SRC-NERC-LTRA-2025",
+      "publisher": "North American Electric Reliability Corporation",
+      "title": "2025 Long-Term Reliability Assessment",
+      "url": "https://www.nerc.com/globalassets/our-work/assessments/nerc_ltra_2025.pdf",
+      "publication_date": "2025",
+      "publication_date_precision": "YEAR",
+      "source_type": "RELIABILITY_ASSESSMENT",
+      "roles": [
+        "DATA_CENTER_LOAD_GROWTH",
+        "RESOURCE_ADEQUACY",
+        "TRANSMISSION",
+        "REGIONAL_LARGE_LOAD_FORECAST"
+      ],
+      "strict_original_as_of_eligible": false,
+      "replay_blocker": "EXACT_PUBLICATION_DATE_AND_AVAILABLE_AT_NOT_YET_CAPTURED"
+    },
+    {
+      "source_id": "SRC-PJM-2025-YEAR-IN-REVIEW-2026-01-08",
+      "publisher": "PJM Interconnection",
+      "title": "2025 Year in Review: Planning Prepares for Burgeoning Electricity Demand",
+      "url": "https://insidelines.pjm.com/2025-year-in-review-planning-prepares-for-burgeoning-electricity-demand/",
+      "publication_date": "2026-01-08",
+      "publication_date_precision": "DAY",
+      "source_type": "RTO_PLANNING_SUMMARY",
+      "roles": [
+        "PJM_DATA_CENTER_LOAD",
+        "PJM_PEAK_DEMAND",
+        "REGIONAL_PLANNING"
+      ],
+      "strict_original_as_of_eligible": false,
+      "replay_blocker": "EXACT_TIME_OF_DAY_AVAILABLE_AT_NOT_YET_CAPTURED"
+    }
+  ]
+}
