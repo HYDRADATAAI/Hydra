@@ -36,9 +36,23 @@ They are independent semantic clocks. Replay eligibility is governed by evidence
 
 Claims are classified as documented action, documented effect, attributed explanation, analytical inference, or unknown. Motive/explanatory claims require attribution. Causal edges require explicit evidence IDs.
 
-## Historical fixtures
+## Historical case studies
 
-`data/historical_case_studies.json` intentionally contains **case shapes only**, not invented geopolitical facts. Factual population belongs in a sourced ingestion pass.
+Two data surfaces are intentionally separate:
+
+- `data/historical_case_studies.json` is the mechanism-coverage template.
+- `data/sourced_historical_cases.json` contains the first provenance-bearing point-in-time cases.
+
+The sourced bundle currently covers four different mechanisms:
+
+1. 2022 U.S. semiconductor export controls.
+2. 2022 EU restrictions on specified Russian-origin oil imports.
+3. the 2021 Suez Canal / Ever Given shipping disruption and later observed freight-rate effect.
+4. 2022 U.S. CHIPS industrial policy and an initial implementation observation.
+
+Every source record carries a publication/availability timestamp plus a SHA-256 digest over the committed normalized evidence capsule. Event records may not cite evidence whose `available_at` is after the event's `known_at`.
+
+These cases deliberately remain `PENDING_CANONICAL_PHYSICAL_ENTITY_POPULATION`. Descriptive physical hints are not silently promoted into canonical graph IDs. The binding becomes active only after the corresponding real resource/infrastructure/dependency entities are populated in the physical graph.
 
 ## Tests
 
