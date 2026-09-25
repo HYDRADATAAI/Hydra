@@ -39,3 +39,19 @@ def test_hhi():
     g=fixture()
     g.edges["e5"]=Edge("e5","s","p","feeds",date(2019,1,1),share=.3,provenance=(p,))
     assert round(g.hhi("p","feeds"),2)==.58
+
+def test_point_in_time_reference_resolver():
+    g=fixture()
+    assert g.resolve_reference("e1", date(2019,1,15), date(2019,1,15)) is None
+    kind,obj=g.resolve_reference("e1", date(2019,3,1), date(2019,3,1))
+    assert kind=="edge" and obj.edge_id=="e1"
+
+def test_identity_only_node_respects_provenance_knowledge_cutoff():
+    future_p=Provenance(
+        "future-fixture","https://example.invalid/future","fixture",
+        date(2026,9,25),date(2025,1,1)
+    )
+    g=DependencyGraph([Node("future","infrastructure","Future asset",provenance=(future_p,))],[])
+    assert g.resolve_reference("future",date(2020,1,1),date(2020,1,1)) is None
+    kind,obj=g.resolve_reference("future",date(2026,1,1),date(2026,1,1))
+    assert kind=="node" and obj.node_id=="future"
