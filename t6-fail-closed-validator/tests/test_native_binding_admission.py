@@ -94,12 +94,15 @@ class NativeT5T6AdmissionTests(unittest.TestCase):
         receipt["signature"] = sign_native_binding_admission(receipt, key=self.key)
         return receipt
 
-    def validate(self, manifest, receipt):
+    def resign(self, receipt: dict[str, object]) -> None:
+        receipt["signature"] = sign_native_binding_admission(receipt, key=self.key)
+
+    def validate(self, manifest, receipt, *, verifier=None, now=None):
         return validate_native_binding_admission(
             implementation_manifest=manifest,
             admission_receipt=receipt,
-            verifier=self.verifier,
-            now=self.now,
+            verifier=self.verifier if verifier is None else verifier,
+            now=self.now if now is None else now,
         )
 
     def test_missing_admission_receipt_fails_closed(self) -> None:
@@ -151,6 +154,114 @@ class NativeT5T6AdmissionTests(unittest.TestCase):
         result = self.validate(manifest, None)
         self.assertFalse(result.admitted)
         self.assertIn("implementation_manifest_consumer_invalid", {issue.code for issue in result.issues})
+
+    def test_empty_admission_id_is_rejected(self) -> None:
+        manifest = self.manifest()
+        receipt = self.receipt(manifest)
+        receipt["admission_id"] = ""
+        self.resign(receipt)
+        result = self.validate(manifest, receipt)
+        self.assertFalse(result.admitted)
+        self.assertIn("admission_receipt_identity_invalid", {issue.code for issue in result.issues})
+
+    def test_expired_admission_receipt_is_rejected(self) -> None:
+        manifest = self.manifest()
+        receipt = self.receipt(manifest)
+        receipt["expires_at"] = (self.now - timedelta(minutes=1)).isoformat()
+        self.resign(receipt)
+        result = self.validate(manifest, receipt)
+        self.assertFalse(result.admitted)
+        self.assertIn("admission_expired", {issue.code for issue in result.issues})
+
+    def test_revoked_admission_receipt_is_rejected(self) -> None:
+        manifest = self.manifest()
+        receipt = self.receipt(manifest)
+        receipt["revocation"]["status"] = "revoked"  # type: ignore[index]
+        self.resign(receipt)
+        result = self.validate(manifest, receipt)
+        self.assertFalse(result.admitted)
+        self.assertIn("admission_revoked_or_ambiguous", {issue.code for issue in result.issues})
+
+    def test_stale_revocation_evidence_is_rejected(self) -> None:
+        manifest = self.manifest()
+        receipt = self.receipt(manifest)
+        receipt["issued_at"] = (self.now - timedelta(hours=26)).isoformat()
+        receipt["expires_at"] = (self.now + timedelta(hours=1)).isoformat()
+        receipt["revocation"]["checked_at"] = (self.now - timedelta(hours=25)).isoformat()  # type: ignore[index]
+        self.resign(receipt)
+        result = self.validate(manifest, receipt)
+        self.assertFalse(result.admitted)
+        self.assertIn("admission_revocation_stale", {issue.code for issue in result.issues})
+
+    def test_revocation_evidence_cannot_predate_receipt_issue(self) -> None:
+        manifest = self.manifest()
+        receipt = self.receipt(manifest)
+        receipt["revocation"]["checked_at"] = (self.now - timedelta(minutes=20)).isoformat()  # type: ignore[index]
+        self.resign(receipt)
+        result = self.validate(manifest, receipt)
+        self.assertFalse(result.admitted)
+        self.assertIn("admission_revocation_predates_issue", {issue.code for issue in result.issues})
+
+    def test_supersession_chain_cannot_contain_current_admission_id(self) -> None:
+        manifest = self.manifest()
+        receipt = self.receipt(manifest)
+        admission_id = receipt["admission_id"]
+        receipt["supersession"]["predecessor_id"] = admission_id  # type: ignore[index]
+        receipt["supersession"]["chain"] = [admission_id]  # type: ignore[index]
+        self.resign(receipt)
+        result = self.validate(manifest, receipt)
+        self.assertFalse(result.admitted)
+        self.assertIn("admission_supersession_cycle", {issue.code for issue in result.issues})
+
+    def test_missing_verifier_is_rejected(self) -> None:
+        manifest = self.manifest()
+        receipt = self.receipt(manifest)
+        result = validate_native_binding_admission(
+            implementation_manifest=manifest,
+            admission_receipt=receipt,
+            verifier=None,
+            now=self.now,
+        )
+        self.assertFalse(result.admitted)
+        self.assertIn("admission_verifier_missing", {issue.code for issue in result.issues})
+
+    def test_invalid_signature_is_rejected(self) -> None:
+        manifest = self.manifest()
+        receipt = self.receipt(manifest)
+        receipt["signature"] = "0" * 64
+        result = self.validate(manifest, receipt)
+        self.assertFalse(result.admitted)
+        self.assertIn("admission_signature_invalid", {issue.code for issue in result.issues})
+
+    def test_resigned_binding_tamper_is_still_rejected(self) -> None:
+        manifest = self.manifest()
+        receipt = self.receipt(manifest)
+        receipt["bindings"]["artifact_sha256"] = "c" * 64  # type: ignore[index]
+        self.resign(receipt)
+        result = self.validate(manifest, receipt)
+        self.assertFalse(result.admitted)
+        self.assertIn("admission_receipt_binding_mismatch", {issue.code for issue in result.issues})
+
+    def test_extra_receipt_claim_is_rejected(self) -> None:
+        manifest = self.manifest()
+        receipt = self.receipt(manifest)
+        receipt["runtime_activation_authorized"] = True
+        self.resign(receipt)
+        result = self.validate(manifest, receipt)
+        self.assertFalse(result.admitted)
+        self.assertIn("admission_receipt_extra_field", {issue.code for issue in result.issues})
+
+    def test_naive_now_is_rejected(self) -> None:
+        manifest = self.manifest()
+        receipt = self.receipt(manifest)
+        result = validate_native_binding_admission(
+            implementation_manifest=manifest,
+            admission_receipt=receipt,
+            verifier=self.verifier,
+            now=self.now.replace(tzinfo=None),
+        )
+        self.assertFalse(result.admitted)
+        self.assertIn("admission_now_naive", {issue.code for issue in result.issues})
 
 
 if __name__ == "__main__":
