@@ -17,7 +17,8 @@ compatibility, common mixed-script confusable forms, and embedded strong-marker 
 - strict JSON parsing with deterministic canonical encoding and bounded structural depth;
 - authority-envelope validation with explicit digest/scope bindings;
 - candidate-only handoff validation;
-- an artifact-pinned native T5→T6 implementation-admission gate;
+- an artifact-pinned native T5→T6 implementation-admission gate with explicit
+  identity, binding, freshness, revocation, supersession, and signature checks;
 - admission receipts that cannot grant runtime activation, canonical promotion,
   live sources, model training, or trading;
 - rejection of compacted, mixed-case, and Unicode authority smuggling;
