@@ -52,6 +52,21 @@ class DocumentContractTests(unittest.TestCase):
         self.assertIsNone(document.value)
         self.assertIn("document_too_large", {issue.code for issue in document.issues})
 
+    def test_excessive_structural_depth_is_rejected_before_downstream_recursion(self) -> None:
+        payload = '{"a":' * 140 + '0' + '}' * 140
+        document = parse_json_document(payload, label="$.document")
+        self.assertIsNone(document.value)
+        self.assertIn("document_too_deep", {issue.code for issue in document.issues})
+
+    def test_extreme_json_nesting_fails_closed_instead_of_raising_recursion_error(self) -> None:
+        payload = '{"a":' * 2000 + '0' + '}' * 2000
+        document = parse_json_document(payload, label="$.document")
+        self.assertIsNone(document.value)
+        self.assertTrue(
+            {"document_json_invalid", "document_too_deep"} &
+            {issue.code for issue in document.issues}
+        )
+
 
 if __name__ == "__main__":
     unittest.main()
