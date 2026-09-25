@@ -113,17 +113,7 @@
           "relations": [
             {
               "kind": "RESOURCE",
-              "entity_id": "resource:fluorinated-polyimide-japan-korea-2019",
-              "confidence": 1
-            },
-            {
-              "kind": "RESOURCE",
-              "entity_id": "resource:resist-polymers-japan-korea-2019",
-              "confidence": 1
-            },
-            {
-              "kind": "RESOURCE",
-              "entity_id": "resource:hydrogen-fluoride-japan-korea-2019",
+              "entity_id": "resource:japan-korea-controlled-tech-materials-2019",
               "confidence": 1
             },
             {
