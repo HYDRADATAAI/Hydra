@@ -1,0 +1,323 @@
+{
+  "schema_version": "1.0",
+  "batch_id": "HYDRA_CONSTRAINT_PHYSICAL_POLICY_CASE_GRAPH_BATCH004_20260925",
+  "evidence_digest_scope": "sha256(normalized_evidence UTF-8)",
+  "sources": [
+    {
+      "source_id": "wto-ds590-2019-09-16",
+      "source_url": "https://www.wto.org/english/news_e/news19_e/ds590rfc_16sep19_e.htm",
+      "publisher": "World Trade Organization",
+      "retrieved_at": "2026-09-25",
+      "known_at": "2019-09-16",
+      "published_at": "2019-09-16",
+      "normalized_evidence": "On 16 September 2019, the WTO reported Korea's request for consultations concerning Japanese licensing policies and procedures affecting fluorinated polyimide, resist polymers and hydrogen fluoride, and related technologies, noting that those products are used primarily in smartphone and television displays and semiconductors.",
+      "evidence_hash": "sha256:fbe39b6b2a00538cb96eda9aaac1772d461f975417a4f81579d6a37cf7e7a9e7"
+    },
+    {
+      "source_id": "consilium-2019-11-11-eastmed-framework",
+      "source_url": "https://www.consilium.europa.eu/en/press/press-releases/2019/11/11/turkey-s-illegal-drilling-activities-in-the-eastern-mediterranean-council-adopts-framework-for-sanctions/",
+      "publisher": "Council of the European Union",
+      "retrieved_at": "2026-09-25",
+      "known_at": "2019-11-11",
+      "published_at": "2019-11-11",
+      "normalized_evidence": "On 11 November 2019, the Council of the European Union adopted a framework for restrictive measures concerning what it described as unauthorised drilling activities related to hydrocarbon exploration and production in the Eastern Mediterranean, including activities connected with areas claimed by Cyprus.",
+      "evidence_hash": "sha256:802566582b3510701feabe97bab4f3b224d6e425da531030754cd90a17f83f39"
+    },
+    {
+      "source_id": "bnetza-2021-11-16-nordstream2-suspension",
+      "source_url": "https://www.bundesnetzagentur.de/SharedDocs/Pressemitteilungen/EN/2021/20211116_NOS2.html",
+      "publisher": "Bundesnetzagentur",
+      "retrieved_at": "2026-09-25",
+      "known_at": "2021-11-16",
+      "published_at": "2021-11-16",
+      "normalized_evidence": "On 16 November 2021, Germany's Federal Network Agency suspended the procedure to certify Nord Stream 2 AG as an independent transmission operator, stating that certification would require the operator for the German part of the pipeline to be organised under German law and that the procedure would remain suspended until specified assets, personnel and documentation were transferred and resubmitted.",
+      "evidence_hash": "sha256:4e29456b6890730daa0460e2492f8b06789eded217f4ab1ab4e6faee87a8989c"
+    },
+    {
+      "source_id": "bmwk-2022-02-22-nordstream2-halt",
+      "source_url": "https://www.bmwk.de/Redaktion/EN/Pressemitteilungen/2022/02/20220222-minister-habeck-comments-on-the-situation-in-eastern-ukraine-and-the-discontinuation-of-the-certification-procedure-for-nord-stream-2.html",
+      "publisher": "German Federal Ministry for Economic Affairs and Climate Action",
+      "retrieved_at": "2026-09-25",
+      "known_at": "2022-02-22",
+      "published_at": "2022-02-22",
+      "normalized_evidence": "On 22 February 2022, Germany's Federal Ministry for Economic Affairs and Climate Action announced that the Federal Government had withdrawn the prior Security of Supply Report for Nord Stream 2 and halted the certification procedure pending a reassessment, stating that a positive certification decision could not be issued while the report remained withdrawn.",
+      "evidence_hash": "sha256:eeceedbbd2141e47138fc3134b599ef192ed9bed2836c8e06e1d93b5828d3ab2"
+    },
+    {
+      "source_id": "govinfo-2022-08-16-pl117-169-45x",
+      "source_url": "https://www.govinfo.gov/content/pkg/PLAW-117publ169/html/PLAW-117publ169.htm",
+      "publisher": "U.S. Government Publishing Office",
+      "retrieved_at": "2026-09-25",
+      "known_at": "2022-08-16",
+      "published_at": "2022-08-16",
+      "normalized_evidence": "Public Law 117-169, enacted on 16 August 2022, created Internal Revenue Code section 45X, the Advanced Manufacturing Production Credit, and provided that the amendments apply to eligible components produced and sold after 31 December 2022.",
+      "evidence_hash": "sha256:b5d77f98ae83f736c5e337ce601a57b1666345329390cbb4474ded01bc289079"
+    },
+    {
+      "source_id": "bmwk-2022-12-17-wilhelmshaven-opening",
+      "source_url": "https://www.bmwk.de/Redaktion/EN/Pressemitteilungen/2022/12/20221217-first-german-lng-terminal-inaugurated-in-wilhelmshaven.html",
+      "publisher": "German Federal Ministry for Economic Affairs and Climate Action",
+      "retrieved_at": "2026-09-25",
+      "known_at": "2022-12-17",
+      "published_at": "2022-12-17",
+      "normalized_evidence": "On 17 December 2022, Germany's Federal Ministry for Economic Affairs and Climate Action announced the official opening of the first German floating LNG import terminal at Wilhelmshaven, stating that the Hoegh Esperanza FSRU would begin first regasification within days and would provide around 5 billion cubic metres per year of regasification capacity from January.",
+      "evidence_hash": "sha256:53b693aff81e79b422a2ed04ccf9bf7eb5ed799b2ff898f1ceccb0a67286bc40"
+    }
+  ],
+  "nodes": [
+    {
+      "node_id": "resource:fluorinated-polyimide-japan-korea-2019",
+      "kind": "resource",
+      "name": "Fluorinated polyimide covered by the Japan-Korea export-licensing dispute",
+      "country_code": "JP",
+      "valid_from": "2019-09-16",
+      "known_at": "2019-09-16",
+      "source_ids": [
+        "wto-ds590-2019-09-16"
+      ]
+    },
+    {
+      "node_id": "resource:resist-polymers-japan-korea-2019",
+      "kind": "resource",
+      "name": "Resist polymers covered by the Japan-Korea export-licensing dispute",
+      "country_code": "JP",
+      "valid_from": "2019-09-16",
+      "known_at": "2019-09-16",
+      "source_ids": [
+        "wto-ds590-2019-09-16"
+      ]
+    },
+    {
+      "node_id": "resource:hydrogen-fluoride-japan-korea-2019",
+      "kind": "resource",
+      "name": "Hydrogen fluoride covered by the Japan-Korea export-licensing dispute",
+      "country_code": "JP",
+      "valid_from": "2019-09-16",
+      "known_at": "2019-09-16",
+      "source_ids": [
+        "wto-ds590-2019-09-16"
+      ]
+    },
+    {
+      "node_id": "manufacturing:korea-semiconductor-display-production-2019",
+      "kind": "manufacturing",
+      "name": "Korean semiconductor and display production using the disputed inputs",
+      "country_code": "KR",
+      "valid_from": "2019-09-16",
+      "known_at": "2019-09-16",
+      "source_ids": [
+        "wto-ds590-2019-09-16"
+      ]
+    },
+    {
+      "node_id": "resource:eastern-mediterranean-hydrocarbons-eu-framework-2019",
+      "kind": "resource",
+      "name": "Hydrocarbon exploration/production resources within the EU Eastern Mediterranean restrictive-measures framework",
+      "valid_from": "2019-11-11",
+      "known_at": "2019-11-11",
+      "source_ids": [
+        "consilium-2019-11-11-eastmed-framework"
+      ]
+    },
+    {
+      "node_id": "extraction:eastern-mediterranean-offshore-drilling-eu-framework-2019",
+      "kind": "extraction",
+      "name": "Offshore hydrocarbon drilling activities within the EU Eastern Mediterranean framework",
+      "valid_from": "2019-11-11",
+      "known_at": "2019-11-11",
+      "source_ids": [
+        "consilium-2019-11-11-eastmed-framework"
+      ]
+    },
+    {
+      "node_id": "country:cyprus-eastmed-framework-2019",
+      "kind": "country",
+      "name": "Cyprus as referenced by the EU Eastern Mediterranean restrictive-measures framework",
+      "country_code": "CY",
+      "valid_from": "2019-11-11",
+      "known_at": "2019-11-11",
+      "source_ids": [
+        "consilium-2019-11-11-eastmed-framework"
+      ]
+    },
+    {
+      "node_id": "infrastructure:nord-stream-2-pipeline",
+      "kind": "infrastructure",
+      "name": "Nord Stream 2 pipeline within the German certification procedure",
+      "valid_from": "2021-11-16",
+      "known_at": "2021-11-16",
+      "source_ids": [
+        "bnetza-2021-11-16-nordstream2-suspension"
+      ]
+    },
+    {
+      "node_id": "transport:nord-stream-2-gas-transport",
+      "kind": "transport",
+      "name": "Potential gas transport through Nord Stream 2 subject to German certification",
+      "valid_from": "2021-11-16",
+      "known_at": "2021-11-16",
+      "source_ids": [
+        "bnetza-2021-11-16-nordstream2-suspension"
+      ]
+    },
+    {
+      "node_id": "company:nord-stream-2-ag",
+      "kind": "company",
+      "name": "Nord Stream 2 AG",
+      "valid_from": "2021-11-16",
+      "known_at": "2021-11-16",
+      "source_ids": [
+        "bnetza-2021-11-16-nordstream2-suspension"
+      ]
+    },
+    {
+      "node_id": "manufacturing:us-section45x-eligible-production",
+      "kind": "manufacturing",
+      "name": "U.S. production eligible for the section 45X Advanced Manufacturing Production Credit",
+      "country_code": "US",
+      "valid_from": "2023-01-01",
+      "known_at": "2022-08-16",
+      "source_ids": [
+        "govinfo-2022-08-16-pl117-169-45x"
+      ]
+    },
+    {
+      "node_id": "product:section45x-eligible-components",
+      "kind": "product_technology",
+      "name": "Eligible components under section 45X",
+      "country_code": "US",
+      "valid_from": "2023-01-01",
+      "known_at": "2022-08-16",
+      "source_ids": [
+        "govinfo-2022-08-16-pl117-169-45x"
+      ]
+    },
+    {
+      "node_id": "resource:section45x-applicable-critical-minerals",
+      "kind": "resource",
+      "name": "Applicable critical minerals eligible under section 45X",
+      "country_code": "US",
+      "valid_from": "2023-01-01",
+      "known_at": "2022-08-16",
+      "source_ids": [
+        "govinfo-2022-08-16-pl117-169-45x"
+      ]
+    },
+    {
+      "node_id": "infrastructure:wilhelmshaven-lng-fsru-esperanza",
+      "kind": "infrastructure",
+      "name": "Wilhelmshaven LNG FSRU Hoegh Esperanza",
+      "country_code": "DE",
+      "valid_from": "2023-01-01",
+      "known_at": "2022-12-17",
+      "capacity_nameplate": 5,
+      "capacity_unit": "bcm/year",
+      "source_ids": [
+        "bmwk-2022-12-17-wilhelmshaven-opening"
+      ]
+    },
+    {
+      "node_id": "transport:germany-direct-lng-imports-wilhelmshaven",
+      "kind": "transport",
+      "name": "Direct LNG import flow into Germany via Wilhelmshaven",
+      "country_code": "DE",
+      "valid_from": "2023-01-01",
+      "known_at": "2022-12-17",
+      "source_ids": [
+        "bmwk-2022-12-17-wilhelmshaven-opening"
+      ]
+    }
+  ],
+  "edges": [
+    {
+      "edge_id": "edge:fluorinated-polyimide-used-in-korea-tech-production",
+      "source_id": "resource:fluorinated-polyimide-japan-korea-2019",
+      "target_id": "manufacturing:korea-semiconductor-display-production-2019",
+      "relation": "used_in",
+      "valid_from": "2019-09-16",
+      "known_at": "2019-09-16",
+      "source_ids": [
+        "wto-ds590-2019-09-16"
+      ]
+    },
+    {
+      "edge_id": "edge:resist-polymers-used-in-korea-tech-production",
+      "source_id": "resource:resist-polymers-japan-korea-2019",
+      "target_id": "manufacturing:korea-semiconductor-display-production-2019",
+      "relation": "used_in",
+      "valid_from": "2019-09-16",
+      "known_at": "2019-09-16",
+      "source_ids": [
+        "wto-ds590-2019-09-16"
+      ]
+    },
+    {
+      "edge_id": "edge:hydrogen-fluoride-used-in-korea-tech-production",
+      "source_id": "resource:hydrogen-fluoride-japan-korea-2019",
+      "target_id": "manufacturing:korea-semiconductor-display-production-2019",
+      "relation": "used_in",
+      "valid_from": "2019-09-16",
+      "known_at": "2019-09-16",
+      "source_ids": [
+        "wto-ds590-2019-09-16"
+      ]
+    },
+    {
+      "edge_id": "edge:eastmed-hydrocarbons-extracted-by-offshore-drilling",
+      "source_id": "resource:eastern-mediterranean-hydrocarbons-eu-framework-2019",
+      "target_id": "extraction:eastern-mediterranean-offshore-drilling-eu-framework-2019",
+      "relation": "extracted_by",
+      "valid_from": "2019-11-11",
+      "known_at": "2019-11-11",
+      "source_ids": [
+        "consilium-2019-11-11-eastmed-framework"
+      ]
+    },
+    {
+      "edge_id": "edge:eastmed-offshore-drilling-located-at-cyprus-framework",
+      "source_id": "extraction:eastern-mediterranean-offshore-drilling-eu-framework-2019",
+      "target_id": "country:cyprus-eastmed-framework-2019",
+      "relation": "located_at",
+      "valid_from": "2019-11-11",
+      "known_at": "2019-11-11",
+      "source_ids": [
+        "consilium-2019-11-11-eastmed-framework"
+      ]
+    },
+    {
+      "edge_id": "edge:nord-stream-2-pipeline-supplies-gas-transport",
+      "source_id": "infrastructure:nord-stream-2-pipeline",
+      "target_id": "transport:nord-stream-2-gas-transport",
+      "relation": "supplies",
+      "valid_from": "2021-11-16",
+      "known_at": "2021-11-16",
+      "source_ids": [
+        "bnetza-2021-11-16-nordstream2-suspension"
+      ]
+    },
+    {
+      "edge_id": "edge:section45x-manufacturing-produces-eligible-components",
+      "source_id": "manufacturing:us-section45x-eligible-production",
+      "target_id": "product:section45x-eligible-components",
+      "relation": "manufactures",
+      "valid_from": "2023-01-01",
+      "known_at": "2022-08-16",
+      "source_ids": [
+        "govinfo-2022-08-16-pl117-169-45x"
+      ]
+    },
+    {
+      "edge_id": "edge:wilhelmshaven-fsru-supplies-direct-lng-imports",
+      "source_id": "infrastructure:wilhelmshaven-lng-fsru-esperanza",
+      "target_id": "transport:germany-direct-lng-imports-wilhelmshaven",
+      "relation": "supplies",
+      "valid_from": "2023-01-01",
+      "known_at": "2022-12-17",
+      "capacity": 5,
+      "capacity_unit": "bcm/year",
+      "source_ids": [
+        "bmwk-2022-12-17-wilhelmshaven-opening"
+      ]
+    }
+  ]
+}
