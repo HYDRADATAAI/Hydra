@@ -1,0 +1,318 @@
+{
+  "schema_version": "1.0",
+  "batch_id": "HYDRA_CONSTRAINT_GEOPOLITICAL_POLICY_BATCH002_20260925",
+  "evidence_digest_scope": "sha256(normalized_evidence UTF-8)",
+  "binding_policy": "Batch 002 events bind only to source-supported canonical physical nodes/edges added by the same successor pass; no inferred downstream economic effects are encoded.",
+  "sources": [
+    {
+      "source_id": "federal-register-2018-03-15-steel-9705",
+      "publisher": "Office of the Federal Register / Executive Office of the President",
+      "url": "https://www.federalregister.gov/documents/2018/03/15/2018-05478/adjusting-imports-of-steel-into-the-united-states",
+      "published_at": "2018-03-15T23:59:59Z",
+      "available_at": "2018-03-15T23:59:59Z",
+      "normalized_evidence": "Federal Register publication of Proclamation 9705 stated that a 25 percent ad valorem tariff would apply to covered steel articles, generally effective for goods entered or withdrawn for consumption on or after 12:01 a.m. EDT on 23 March 2018, with Canada and Mexico exempted at that time.",
+      "evidence_digest": "sha256:91adabcf41ca49fe855fe1c3364f2170594dc6b32d770bf8af8c587d3711449f"
+    },
+    {
+      "source_id": "mofcom-2023-07-03-gallium-germanium",
+      "publisher": "Ministry of Commerce of the People's Republic of China / General Administration of Customs",
+      "url": "https://aqygzj.mofcom.gov.cn/qdml/art/2023/art_c2ae3d2061e14e97ba608de1ed565f78.html",
+      "published_at": "2023-07-03T10:00:00Z",
+      "available_at": "2023-07-03T10:00:00Z",
+      "normalized_evidence": "On 3 July 2023, China's Ministry of Commerce and General Administration of Customs announced export controls on specified gallium- and germanium-related items and stated that the measures would take effect on 1 August 2023.",
+      "evidence_digest": "sha256:d11cdf066fc17ef61707a97b896fb3c654421875e606f47d5dc2356e9436365f"
+    },
+    {
+      "source_id": "treasury-2019-01-28-pdvsa",
+      "publisher": "U.S. Department of the Treasury",
+      "url": "https://home.treasury.gov/news/press-releases/sm594",
+      "published_at": "2019-01-28T23:59:59Z",
+      "available_at": "2019-01-28T23:59:59Z",
+      "normalized_evidence": "On 28 January 2019, the U.S. Department of the Treasury's Office of Foreign Assets Control designated Petroleos de Venezuela, S.A. pursuant to Executive Order 13850 for operating in Venezuela's oil sector.",
+      "evidence_digest": "sha256:f40425ceca25e5db8a2f810f4803032dafd43ff771eb707704f1bd454ecc7648"
+    },
+    {
+      "source_id": "imo-2016-10-28-sulphur-2020",
+      "publisher": "International Maritime Organization",
+      "url": "https://www.imo.org/en/mediacentre/pressbriefings/pages/mepc-70-2020sulphur.aspx",
+      "published_at": "2016-10-28T23:59:59Z",
+      "available_at": "2016-10-28T23:59:59Z",
+      "normalized_evidence": "On 28 October 2016, the International Maritime Organization announced that 1 January 2020 was set as the implementation date for a global 0.50 percent sulphur limit in fuel oil used by ships.",
+      "evidence_digest": "sha256:ab2328150784d4fa9f8bca45f464af5eb5f28079ac84e1f9afec680964afaf76"
+    },
+    {
+      "source_id": "bmwk-2022-09-21-uniper-99",
+      "publisher": "German Federal Ministry for Economic Affairs and Climate Action",
+      "url": "https://www.bmwk.de/Redaktion/EN/Pressemitteilungen/2022/09/20220921-federal-government-agrees-on-adaptation-of-the-stabilisation-package-for-uniper-federation-takes-over-99-of-uniper.html",
+      "published_at": "2022-09-21T23:59:59Z",
+      "available_at": "2022-09-21T23:59:59Z",
+      "normalized_evidence": "On 21 September 2022, Germany's Federal Ministry for Economic Affairs and Climate Action announced an amended stabilisation package under which the Federal Government would take over approximately 99 percent of Uniper.",
+      "evidence_digest": "sha256:4bf1731efe5daa1d0759ec713aa623c1a1dd867bcfbc2257be728d72cf8ec936"
+    },
+    {
+      "source_id": "bmwk-2022-12-22-uniper-complete",
+      "publisher": "German Federal Ministry for Economic Affairs and Climate Action",
+      "url": "https://www.bundeswirtschaftsministerium.de/Redaktion/DE/Pressemitteilungen/2022/12/20221222-einstieg-des-bundes-bei-energieversorger-uniper-se-vollzogen.html",
+      "published_at": "2022-12-22T23:59:59Z",
+      "available_at": "2022-12-22T23:59:59Z",
+      "normalized_evidence": "On 22 December 2022, Germany's Federal Ministry for Economic Affairs and Climate Action announced that the Federal Government's participation in Uniper had been completed and that the state held around 99 percent of the company.",
+      "evidence_digest": "sha256:3f8226312cce69a58808c3f2abac0c37a1e7760c7aa9a0c1916a56c9b51cbcee"
+    },
+    {
+      "source_id": "ec-2023-08-17-cbam",
+      "publisher": "European Commission, Directorate-General for Taxation and Customs Union",
+      "url": "https://taxation-customs.ec.europa.eu/news/commission-adopts-detailed-reporting-rules-carbon-border-adjustment-mechanisms-transitional-phase-2023-08-17_en",
+      "published_at": "2023-08-17T23:59:59Z",
+      "available_at": "2023-08-17T23:59:59Z",
+      "normalized_evidence": "On 17 August 2023, the European Commission announced detailed reporting rules for the Carbon Border Adjustment Mechanism transitional phase, stating that the transitional phase would start on 1 October 2023 and run through the end of 2025.",
+      "evidence_digest": "sha256:e602ffcdbe3f5c8037ef4d9407d5b0d80ecf90367eadd82219fad87b4932eacb"
+    },
+    {
+      "source_id": "un-2022-07-22-black-sea-grain",
+      "publisher": "United Nations",
+      "url": "https://ukraine.un.org/en/191926-note-correspondents-today%E2%80%99s-agreements-istanbul",
+      "published_at": "2022-07-22T23:59:59Z",
+      "available_at": "2022-07-22T23:59:59Z",
+      "normalized_evidence": "On 22 July 2022, the United Nations documented the signing of the Black Sea Grain Initiative, establishing a mechanism for safe transportation of grain, related foodstuffs and fertilizer from Ukrainian ports to global markets amid the ongoing war.",
+      "evidence_digest": "sha256:f1e4c4a4d8de4435856e86981729e84708c560345d6c06c93bb59f4d84161e8d"
+    },
+    {
+      "source_id": "un-2022-08-03-black-sea-first-shipment",
+      "publisher": "United Nations",
+      "url": "https://ukraine.un.org/en/193210-inspection-first-commercial-vessel-under-black-sea-grain-initiative-completed",
+      "published_at": "2022-08-03T23:59:59Z",
+      "available_at": "2022-08-03T23:59:59Z",
+      "normalized_evidence": "On 3 August 2022, the United Nations reported that the first shipment under the Black Sea Grain Initiative, carrying more than 26,000 tons of Ukrainian food, completed inspection and was cleared to proceed.",
+      "evidence_digest": "sha256:5c19f4b136a16f6af96bfffc86473d6bbfb96852a852ba8ea93bb9aeb03cdfd3"
+    }
+  ],
+  "cases": [
+    {
+      "case_id": "us-section232-steel-tariff-2018",
+      "binding_status": "BOUND_MINIMAL_CANONICAL_SUBGRAPH",
+      "events": [
+        {
+          "event_id": "us-steel-tariff-proclamation-9705-2018",
+          "event_type": "TARIFF",
+          "known_at": "2018-03-15T23:59:59Z",
+          "effective_at": "2018-03-23T04:00:00Z",
+          "claim_kind": "DOCUMENTED_ACTION",
+          "source_ids": [
+            "federal-register-2018-03-15-steel-9705"
+          ],
+          "statement": "Federal Register publication of Proclamation 9705 documented an additional 25 percent tariff on covered steel articles, generally effective 23 March 2018, with Canada and Mexico exempted at that time.",
+          "relations": [
+            {
+              "kind": "DEPENDENCY",
+              "entity_id": "product:steel-articles-section232-2018",
+              "confidence": 1
+            },
+            {
+              "kind": "STRATEGIC_ASSET",
+              "entity_id": "manufacturing:us-steel-production",
+              "confidence": 1
+            }
+          ]
+        }
+      ],
+      "observations": []
+    },
+    {
+      "case_id": "china-gallium-germanium-controls-2023",
+      "binding_status": "BOUND_MINIMAL_CANONICAL_SUBGRAPH",
+      "events": [
+        {
+          "event_id": "china-gallium-germanium-export-controls-2023",
+          "event_type": "EXPORT_CONTROL",
+          "known_at": "2023-07-03T10:00:00Z",
+          "effective_at": "2023-08-01T00:00:00Z",
+          "claim_kind": "DOCUMENTED_ACTION",
+          "source_ids": [
+            "mofcom-2023-07-03-gallium-germanium"
+          ],
+          "statement": "MOFCOM and the General Administration of Customs announced licensing-based export controls on specified gallium- and germanium-related items, effective 1 August 2023.",
+          "relations": [
+            {
+              "kind": "RESOURCE",
+              "entity_id": "resource:gallium-related-controlled-items-2023",
+              "confidence": 1
+            },
+            {
+              "kind": "RESOURCE",
+              "entity_id": "resource:germanium-related-controlled-items-2023",
+              "confidence": 1
+            }
+          ]
+        }
+      ],
+      "observations": []
+    },
+    {
+      "case_id": "us-pdvsa-sanctions-2019",
+      "binding_status": "BOUND_MINIMAL_CANONICAL_SUBGRAPH",
+      "events": [
+        {
+          "event_id": "us-ofac-pdvsa-designation-2019",
+          "event_type": "SANCTION",
+          "known_at": "2019-01-28T23:59:59Z",
+          "effective_at": "2019-01-28T23:59:59Z",
+          "claim_kind": "DOCUMENTED_ACTION",
+          "source_ids": [
+            "treasury-2019-01-28-pdvsa"
+          ],
+          "statement": "OFAC designated Petroleos de Venezuela, S.A. pursuant to Executive Order 13850 for operating in Venezuela's oil sector.",
+          "relations": [
+            {
+              "kind": "DEPENDENCY",
+              "entity_id": "company:pdvsa",
+              "confidence": 1
+            }
+          ]
+        }
+      ],
+      "observations": []
+    },
+    {
+      "case_id": "imo-sulphur-2020-regulation",
+      "binding_status": "BOUND_MINIMAL_CANONICAL_SUBGRAPH",
+      "events": [
+        {
+          "event_id": "imo-global-sulphur-limit-2020",
+          "event_type": "REGULATORY_CHANGE",
+          "known_at": "2016-10-28T23:59:59Z",
+          "effective_at": "2020-01-01T00:00:00Z",
+          "claim_kind": "DOCUMENTED_ACTION",
+          "source_ids": [
+            "imo-2016-10-28-sulphur-2020"
+          ],
+          "statement": "IMO set 1 January 2020 as the implementation date for the global 0.50 percent sulphur limit in fuel oil used by ships.",
+          "relations": [
+            {
+              "kind": "RESOURCE",
+              "entity_id": "resource:ship-fuel-oil",
+              "confidence": 1
+            },
+            {
+              "kind": "DEPENDENCY",
+              "entity_id": "transport:global-maritime-shipping",
+              "confidence": 1
+            }
+          ]
+        }
+      ],
+      "observations": []
+    },
+    {
+      "case_id": "germany-uniper-nationalization-2022",
+      "binding_status": "BOUND_MINIMAL_CANONICAL_SUBGRAPH",
+      "events": [
+        {
+          "event_id": "germany-uniper-takeover-announced-2022-09-21",
+          "event_type": "NATIONALIZATION",
+          "known_at": "2022-09-21T23:59:59Z",
+          "claim_kind": "DOCUMENTED_ACTION",
+          "source_ids": [
+            "bmwk-2022-09-21-uniper-99"
+          ],
+          "statement": "Germany's Federal Government announced an amended stabilisation package under which it would take over approximately 99 percent of Uniper.",
+          "relations": [
+            {
+              "kind": "DEPENDENCY",
+              "entity_id": "company:uniper",
+              "confidence": 1
+            }
+          ]
+        },
+        {
+          "event_id": "germany-uniper-state-participation-completed-2022-12-22",
+          "event_type": "NATIONALIZATION",
+          "known_at": "2022-12-22T23:59:59Z",
+          "effective_at": "2022-12-22T23:59:59Z",
+          "claim_kind": "DOCUMENTED_ACTION",
+          "source_ids": [
+            "bmwk-2022-12-22-uniper-complete"
+          ],
+          "statement": "The German Federal Government announced completion of its participation in Uniper, with the state holding around 99 percent of the company.",
+          "relations": [
+            {
+              "kind": "DEPENDENCY",
+              "entity_id": "company:uniper",
+              "confidence": 1
+            },
+            {
+              "kind": "DEPENDENCY",
+              "entity_id": "edge:uniper-controlled-by-germany-2022",
+              "confidence": 1
+            }
+          ]
+        }
+      ],
+      "observations": []
+    },
+    {
+      "case_id": "eu-cbam-transitional-phase-2023",
+      "binding_status": "BOUND_MINIMAL_CANONICAL_SUBGRAPH",
+      "events": [
+        {
+          "event_id": "eu-cbam-reporting-rules-2023",
+          "event_type": "REGULATORY_CHANGE",
+          "known_at": "2023-08-17T23:59:59Z",
+          "effective_at": "2023-10-01T00:00:00Z",
+          "claim_kind": "DOCUMENTED_ACTION",
+          "source_ids": [
+            "ec-2023-08-17-cbam"
+          ],
+          "statement": "The European Commission adopted detailed CBAM transitional reporting rules for a phase beginning 1 October 2023.",
+          "relations": [
+            {
+              "kind": "DEPENDENCY",
+              "entity_id": "product:eu-cbam-covered-goods-2023",
+              "confidence": 1
+            }
+          ]
+        }
+      ],
+      "observations": []
+    },
+    {
+      "case_id": "black-sea-grain-corridor-2022",
+      "binding_status": "BOUND_MINIMAL_CANONICAL_SUBGRAPH",
+      "events": [
+        {
+          "event_id": "black-sea-grain-safe-transport-mechanism-2022",
+          "event_type": "SHIPPING_DISRUPTION",
+          "known_at": "2022-07-22T23:59:59Z",
+          "effective_at": "2022-07-22T23:59:59Z",
+          "claim_kind": "DOCUMENTED_ACTION",
+          "source_ids": [
+            "un-2022-07-22-black-sea-grain"
+          ],
+          "statement": "The United Nations documented a mechanism for safe transportation of grain, related foodstuffs and fertilizer from Ukrainian ports to global markets amid the ongoing war.",
+          "relations": [
+            {
+              "kind": "RESOURCE",
+              "entity_id": "resource:ukrainian-grain-foodstuffs",
+              "confidence": 1
+            },
+            {
+              "kind": "INFRASTRUCTURE",
+              "entity_id": "transport:black-sea-grain-export-corridor-2022",
+              "confidence": 1
+            }
+          ]
+        }
+      ],
+      "observations": [
+        {
+          "observation_id": "black-sea-first-shipment-cleared-2022-08-03",
+          "known_at": "2022-08-03T23:59:59Z",
+          "observed_at": "2022-08-03T23:59:59Z",
+          "source_ids": [
+            "un-2022-08-03-black-sea-first-shipment"
+          ],
+          "statement": "The United Nations reported the first shipment under the Initiative completed inspection and was cleared to proceed."
+        }
+      ]
+    }
+  ]
+}

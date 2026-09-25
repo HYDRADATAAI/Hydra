@@ -1,0 +1,350 @@
+{
+  "schema_version": "1.0",
+  "batch_id": "HYDRA_CONSTRAINT_PHYSICAL_POLICY_CASE_GRAPH_BATCH002_20260925",
+  "evidence_digest_scope": "sha256(normalized_evidence UTF-8)",
+  "sources": [
+    {
+      "source_id": "federal-register-2018-03-15-steel-9705",
+      "source_url": "https://www.federalregister.gov/documents/2018/03/15/2018-05478/adjusting-imports-of-steel-into-the-united-states",
+      "publisher": "Office of the Federal Register / Executive Office of the President",
+      "retrieved_at": "2026-09-25",
+      "known_at": "2018-03-15",
+      "published_at": "2018-03-15",
+      "normalized_evidence": "Federal Register publication of Proclamation 9705 stated that a 25 percent ad valorem tariff would apply to covered steel articles, generally effective for goods entered or withdrawn for consumption on or after 12:01 a.m. EDT on 23 March 2018, with Canada and Mexico exempted at that time.",
+      "evidence_hash": "sha256:91adabcf41ca49fe855fe1c3364f2170594dc6b32d770bf8af8c587d3711449f"
+    },
+    {
+      "source_id": "mofcom-2023-07-03-gallium-germanium",
+      "source_url": "https://aqygzj.mofcom.gov.cn/qdml/art/2023/art_c2ae3d2061e14e97ba608de1ed565f78.html",
+      "publisher": "Ministry of Commerce of the People's Republic of China / General Administration of Customs",
+      "retrieved_at": "2026-09-25",
+      "known_at": "2023-07-03",
+      "published_at": "2023-07-03",
+      "normalized_evidence": "On 3 July 2023, China's Ministry of Commerce and General Administration of Customs announced export controls on specified gallium- and germanium-related items and stated that the measures would take effect on 1 August 2023.",
+      "evidence_hash": "sha256:d11cdf066fc17ef61707a97b896fb3c654421875e606f47d5dc2356e9436365f"
+    },
+    {
+      "source_id": "treasury-2019-01-28-pdvsa",
+      "source_url": "https://home.treasury.gov/news/press-releases/sm594",
+      "publisher": "U.S. Department of the Treasury",
+      "retrieved_at": "2026-09-25",
+      "known_at": "2019-01-28",
+      "published_at": "2019-01-28",
+      "normalized_evidence": "On 28 January 2019, the U.S. Department of the Treasury's Office of Foreign Assets Control designated Petroleos de Venezuela, S.A. pursuant to Executive Order 13850 for operating in Venezuela's oil sector.",
+      "evidence_hash": "sha256:f40425ceca25e5db8a2f810f4803032dafd43ff771eb707704f1bd454ecc7648"
+    },
+    {
+      "source_id": "imo-2016-10-28-sulphur-2020",
+      "source_url": "https://www.imo.org/en/mediacentre/pressbriefings/pages/mepc-70-2020sulphur.aspx",
+      "publisher": "International Maritime Organization",
+      "retrieved_at": "2026-09-25",
+      "known_at": "2016-10-28",
+      "published_at": "2016-10-28",
+      "normalized_evidence": "On 28 October 2016, the International Maritime Organization announced that 1 January 2020 was set as the implementation date for a global 0.50 percent sulphur limit in fuel oil used by ships.",
+      "evidence_hash": "sha256:ab2328150784d4fa9f8bca45f464af5eb5f28079ac84e1f9afec680964afaf76"
+    },
+    {
+      "source_id": "bmwk-2022-09-21-uniper-99",
+      "source_url": "https://www.bmwk.de/Redaktion/EN/Pressemitteilungen/2022/09/20220921-federal-government-agrees-on-adaptation-of-the-stabilisation-package-for-uniper-federation-takes-over-99-of-uniper.html",
+      "publisher": "German Federal Ministry for Economic Affairs and Climate Action",
+      "retrieved_at": "2026-09-25",
+      "known_at": "2022-09-21",
+      "published_at": "2022-09-21",
+      "normalized_evidence": "On 21 September 2022, Germany's Federal Ministry for Economic Affairs and Climate Action announced an amended stabilisation package under which the Federal Government would take over approximately 99 percent of Uniper.",
+      "evidence_hash": "sha256:4bf1731efe5daa1d0759ec713aa623c1a1dd867bcfbc2257be728d72cf8ec936"
+    },
+    {
+      "source_id": "bmwk-2022-12-22-uniper-complete",
+      "source_url": "https://www.bundeswirtschaftsministerium.de/Redaktion/DE/Pressemitteilungen/2022/12/20221222-einstieg-des-bundes-bei-energieversorger-uniper-se-vollzogen.html",
+      "publisher": "German Federal Ministry for Economic Affairs and Climate Action",
+      "retrieved_at": "2026-09-25",
+      "known_at": "2022-12-22",
+      "published_at": "2022-12-22",
+      "normalized_evidence": "On 22 December 2022, Germany's Federal Ministry for Economic Affairs and Climate Action announced that the Federal Government's participation in Uniper had been completed and that the state held around 99 percent of the company.",
+      "evidence_hash": "sha256:3f8226312cce69a58808c3f2abac0c37a1e7760c7aa9a0c1916a56c9b51cbcee"
+    },
+    {
+      "source_id": "ec-2023-08-17-cbam",
+      "source_url": "https://taxation-customs.ec.europa.eu/news/commission-adopts-detailed-reporting-rules-carbon-border-adjustment-mechanisms-transitional-phase-2023-08-17_en",
+      "publisher": "European Commission, Directorate-General for Taxation and Customs Union",
+      "retrieved_at": "2026-09-25",
+      "known_at": "2023-08-17",
+      "published_at": "2023-08-17",
+      "normalized_evidence": "On 17 August 2023, the European Commission announced detailed reporting rules for the Carbon Border Adjustment Mechanism transitional phase, stating that the transitional phase would start on 1 October 2023 and run through the end of 2025.",
+      "evidence_hash": "sha256:e602ffcdbe3f5c8037ef4d9407d5b0d80ecf90367eadd82219fad87b4932eacb"
+    },
+    {
+      "source_id": "un-2022-07-22-black-sea-grain",
+      "source_url": "https://ukraine.un.org/en/191926-note-correspondents-today%E2%80%99s-agreements-istanbul",
+      "publisher": "United Nations",
+      "retrieved_at": "2026-09-25",
+      "known_at": "2022-07-22",
+      "published_at": "2022-07-22",
+      "normalized_evidence": "On 22 July 2022, the United Nations documented the signing of the Black Sea Grain Initiative, establishing a mechanism for safe transportation of grain, related foodstuffs and fertilizer from Ukrainian ports to global markets amid the ongoing war.",
+      "evidence_hash": "sha256:f1e4c4a4d8de4435856e86981729e84708c560345d6c06c93bb59f4d84161e8d"
+    }
+  ],
+  "nodes": [
+    {
+      "node_id": "product:steel-articles-section232-2018",
+      "kind": "product_technology",
+      "name": "Steel articles covered by Proclamation 9705",
+      "valid_from": "2018-03-15",
+      "known_at": "2018-03-15",
+      "source_ids": [
+        "federal-register-2018-03-15-steel-9705"
+      ]
+    },
+    {
+      "node_id": "manufacturing:us-steel-production",
+      "kind": "manufacturing",
+      "name": "U.S. steel production capacity referenced by Proclamation 9705",
+      "country_code": "US",
+      "valid_from": "2018-03-15",
+      "known_at": "2018-03-15",
+      "source_ids": [
+        "federal-register-2018-03-15-steel-9705"
+      ]
+    },
+    {
+      "node_id": "resource:gallium-related-controlled-items-2023",
+      "kind": "resource",
+      "name": "Gallium-related items controlled under MOFCOM/GACC Announcement No. 23 of 2023",
+      "country_code": "CN",
+      "valid_from": "2023-07-03",
+      "known_at": "2023-07-03",
+      "source_ids": [
+        "mofcom-2023-07-03-gallium-germanium"
+      ]
+    },
+    {
+      "node_id": "resource:germanium-related-controlled-items-2023",
+      "kind": "resource",
+      "name": "Germanium-related items controlled under MOFCOM/GACC Announcement No. 23 of 2023",
+      "country_code": "CN",
+      "valid_from": "2023-07-03",
+      "known_at": "2023-07-03",
+      "source_ids": [
+        "mofcom-2023-07-03-gallium-germanium"
+      ]
+    },
+    {
+      "node_id": "company:pdvsa",
+      "kind": "company",
+      "name": "Petroleos de Venezuela, S.A.",
+      "country_code": "VE",
+      "valid_from": "2019-01-28",
+      "known_at": "2019-01-28",
+      "source_ids": [
+        "treasury-2019-01-28-pdvsa"
+      ]
+    },
+    {
+      "node_id": "country:venezuela",
+      "kind": "country",
+      "name": "Venezuela",
+      "country_code": "VE",
+      "valid_from": "2019-01-28",
+      "known_at": "2019-01-28",
+      "source_ids": [
+        "treasury-2019-01-28-pdvsa"
+      ]
+    },
+    {
+      "node_id": "resource:ship-fuel-oil",
+      "kind": "resource",
+      "name": "Fuel oil used by ships under the IMO global sulphur limit",
+      "valid_from": "2016-10-28",
+      "known_at": "2016-10-28",
+      "source_ids": [
+        "imo-2016-10-28-sulphur-2020"
+      ]
+    },
+    {
+      "node_id": "transport:global-maritime-shipping",
+      "kind": "transport",
+      "name": "Global maritime shipping subject to the IMO sulphur limit",
+      "valid_from": "2016-10-28",
+      "known_at": "2016-10-28",
+      "source_ids": [
+        "imo-2016-10-28-sulphur-2020"
+      ]
+    },
+    {
+      "node_id": "company:uniper",
+      "kind": "company",
+      "name": "Uniper SE",
+      "country_code": "DE",
+      "valid_from": "2022-09-21",
+      "known_at": "2022-09-21",
+      "source_ids": [
+        "bmwk-2022-09-21-uniper-99"
+      ]
+    },
+    {
+      "node_id": "country:germany",
+      "kind": "country",
+      "name": "Germany",
+      "country_code": "DE",
+      "valid_from": "2022-09-21",
+      "known_at": "2022-09-21",
+      "source_ids": [
+        "bmwk-2022-09-21-uniper-99"
+      ]
+    },
+    {
+      "node_id": "product:eu-cbam-covered-goods-2023",
+      "kind": "product_technology",
+      "name": "Goods covered by the EU CBAM transitional reporting phase",
+      "valid_from": "2023-08-17",
+      "known_at": "2023-08-17",
+      "source_ids": [
+        "ec-2023-08-17-cbam"
+      ]
+    },
+    {
+      "node_id": "resource:ukrainian-grain-foodstuffs",
+      "kind": "resource",
+      "name": "Ukrainian grain and related foodstuffs covered by the Black Sea Grain Initiative",
+      "country_code": "UA",
+      "valid_from": "2022-07-22",
+      "known_at": "2022-07-22",
+      "source_ids": [
+        "un-2022-07-22-black-sea-grain"
+      ]
+    },
+    {
+      "node_id": "transport:black-sea-grain-export-corridor-2022",
+      "kind": "transport",
+      "name": "Black Sea Grain Initiative safe-transport mechanism",
+      "valid_from": "2022-07-22",
+      "known_at": "2022-07-22",
+      "source_ids": [
+        "un-2022-07-22-black-sea-grain"
+      ]
+    },
+    {
+      "node_id": "infrastructure:port-odesa",
+      "kind": "infrastructure",
+      "name": "Port of Odesa",
+      "country_code": "UA",
+      "valid_from": "2022-07-22",
+      "known_at": "2022-07-22",
+      "source_ids": [
+        "un-2022-07-22-black-sea-grain"
+      ]
+    },
+    {
+      "node_id": "infrastructure:port-chornomorsk",
+      "kind": "infrastructure",
+      "name": "Port of Chornomorsk",
+      "country_code": "UA",
+      "valid_from": "2022-07-22",
+      "known_at": "2022-07-22",
+      "source_ids": [
+        "un-2022-07-22-black-sea-grain"
+      ]
+    },
+    {
+      "node_id": "infrastructure:port-yuzhny-pivdennyi",
+      "kind": "infrastructure",
+      "name": "Port of Yuzhny/Pivdennyi",
+      "country_code": "UA",
+      "valid_from": "2022-07-22",
+      "known_at": "2022-07-22",
+      "source_ids": [
+        "un-2022-07-22-black-sea-grain"
+      ]
+    }
+  ],
+  "edges": [
+    {
+      "edge_id": "edge:us-steel-production-manufactures-section232-steel",
+      "source_id": "manufacturing:us-steel-production",
+      "target_id": "product:steel-articles-section232-2018",
+      "relation": "manufactures",
+      "valid_from": "2018-03-15",
+      "known_at": "2018-03-15",
+      "source_ids": [
+        "federal-register-2018-03-15-steel-9705"
+      ]
+    },
+    {
+      "edge_id": "edge:pdvsa-controlled-by-venezuela",
+      "source_id": "company:pdvsa",
+      "target_id": "country:venezuela",
+      "relation": "controlled_by",
+      "valid_from": "2019-01-28",
+      "known_at": "2019-01-28",
+      "source_ids": [
+        "treasury-2019-01-28-pdvsa"
+      ]
+    },
+    {
+      "edge_id": "edge:global-shipping-requires-ship-fuel-oil",
+      "source_id": "transport:global-maritime-shipping",
+      "target_id": "resource:ship-fuel-oil",
+      "relation": "requires",
+      "valid_from": "2016-10-28",
+      "known_at": "2016-10-28",
+      "source_ids": [
+        "imo-2016-10-28-sulphur-2020"
+      ]
+    },
+    {
+      "edge_id": "edge:uniper-controlled-by-germany-2022",
+      "source_id": "company:uniper",
+      "target_id": "country:germany",
+      "relation": "controlled_by",
+      "valid_from": "2022-12-22",
+      "known_at": "2022-12-22",
+      "source_ids": [
+        "bmwk-2022-12-22-uniper-complete"
+      ]
+    },
+    {
+      "edge_id": "edge:ukrainian-grain-transported-via-black-sea-corridor",
+      "source_id": "resource:ukrainian-grain-foodstuffs",
+      "target_id": "transport:black-sea-grain-export-corridor-2022",
+      "relation": "transported_via",
+      "valid_from": "2022-07-22",
+      "known_at": "2022-07-22",
+      "source_ids": [
+        "un-2022-07-22-black-sea-grain"
+      ]
+    },
+    {
+      "edge_id": "edge:black-sea-corridor-requires-odesa",
+      "source_id": "transport:black-sea-grain-export-corridor-2022",
+      "target_id": "infrastructure:port-odesa",
+      "relation": "requires",
+      "valid_from": "2022-07-22",
+      "known_at": "2022-07-22",
+      "source_ids": [
+        "un-2022-07-22-black-sea-grain"
+      ]
+    },
+    {
+      "edge_id": "edge:black-sea-corridor-requires-chornomorsk",
+      "source_id": "transport:black-sea-grain-export-corridor-2022",
+      "target_id": "infrastructure:port-chornomorsk",
+      "relation": "requires",
+      "valid_from": "2022-07-22",
+      "known_at": "2022-07-22",
+      "source_ids": [
+        "un-2022-07-22-black-sea-grain"
+      ]
+    },
+    {
+      "edge_id": "edge:black-sea-corridor-requires-yuzhny-pivdennyi",
+      "source_id": "transport:black-sea-grain-export-corridor-2022",
+      "target_id": "infrastructure:port-yuzhny-pivdennyi",
+      "relation": "requires",
+      "valid_from": "2022-07-22",
+      "known_at": "2022-07-22",
+      "source_ids": [
+        "un-2022-07-22-black-sea-grain"
+      ]
+    }
+  ]
+}
