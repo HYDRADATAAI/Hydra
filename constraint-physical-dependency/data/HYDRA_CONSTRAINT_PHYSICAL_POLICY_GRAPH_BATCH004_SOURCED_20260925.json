@@ -80,7 +80,7 @@
       "kind": "resource",
       "name": "Japanese technology-production materials affected by the July 2019 Korea export-licensing change",
       "country_code": "JP",
-      "valid_from": "2019-07-10",
+      "valid_from": "2019-07-04",
       "known_at": "2019-07-10",
       "source_ids": [
         "wto-2019-07-10-japan-korea-goods-council"
@@ -91,7 +91,7 @@
       "kind": "manufacturing",
       "name": "Korean semiconductor and display manufacturing referenced by the July 2019 WTO discussion",
       "country_code": "KR",
-      "valid_from": "2019-07-10",
+      "valid_from": "2019-07-04",
       "known_at": "2019-07-10",
       "source_ids": [
         "wto-2019-07-10-japan-korea-goods-council"
@@ -222,7 +222,7 @@
       "source_id": "resource:japan-korea-controlled-tech-materials-2019",
       "target_id": "manufacturing:korea-semiconductor-display-production-2019",
       "relation": "used_in",
-      "valid_from": "2019-07-10",
+      "valid_from": "2019-07-04",
       "known_at": "2019-07-10",
       "source_ids": [
         "wto-2019-07-10-japan-korea-goods-council"
