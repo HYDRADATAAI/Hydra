@@ -60,7 +60,7 @@ class AdversarialParserFuzzTests(unittest.TestCase):
             "canonicalReviewer": "Rene",
             "winnerSourceLabel": "historical-column-name",
             "truthConfidence": "high",
-            "runtimeBindingNotes": "descriptive prose only",
+            "executionWindowNotes": "descriptive prose only",
         }
         issues = self._issues_for(benign)
         self.assertEqual(issues, [])
