@@ -282,12 +282,12 @@
           "event_id": "wilhelmshaven-lng-terminal-opened-2022-12-17",
           "event_type": "INFRASTRUCTURE_POLICY",
           "known_at": "2022-12-17T23:59:59Z",
-          "effective_at": "2022-12-17T23:59:59Z",
+          "effective_at": "2023-01-01T00:00:00Z",
           "claim_kind": "DOCUMENTED_ACTION",
           "source_ids": [
             "bmwk-2022-12-17-wilhelmshaven-opening"
           ],
-          "statement": "Germany's first floating LNG import terminal at Wilhelmshaven was officially opened, with the Hoegh Esperanza FSRU expected to begin regasification within days and provide around 5 bcm/year of regasification capacity from January.",
+          "statement": "Germany's first floating LNG import terminal at Wilhelmshaven was officially opened on 17 December 2022; the source stated the Hoegh Esperanza FSRU would begin regasification within days and provide around 5 bcm/year of regasification capacity from January, so this event uses 1 January 2023 as the sourced capacity-validity boundary.",
           "relations": [
             {
               "kind": "INFRASTRUCTURE",
