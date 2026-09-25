@@ -1,0 +1,35 @@
+{
+  "schema_version": "hydra-constraint-first-slice-pit-status/v1",
+  "record_id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH004_AI_DATA_CENTER_POWER_INFRASTRUCTURE_PIT_STATUS_V001",
+  "as_of": "2026-09-25",
+  "predecessor_batch": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH003",
+  "slice_id": "AI_DATA_CENTER_POWER_INFRASTRUCTURE_V1",
+  "blocker_decomposition": {
+    "PIT-001-EXACT-ACQUIRED-AT-AND-AVAILABLE-AT-CAPTURE": {
+      "state": "DECOMPOSED_BY_BATCH004",
+      "children": [
+        "PIT-001A-EXACT-ACQUIRED-AT-CAPTURE",
+        "PIT-001B-EXACT-AVAILABLE-AT-HISTORICAL-PROOF"
+      ]
+    },
+    "PIT-001A-EXACT-ACQUIRED-AT-CAPTURE": {
+      "state": "CLOSED_BY_BATCH004",
+      "evidence": "Batch004 PIT acquisition capture ledger covers all 9 Batch003 registered sources with exact UTC acquisition timestamp."
+    },
+    "PIT-001B-EXACT-AVAILABLE-AT-HISTORICAL-PROOF": {
+      "state": "OPEN_BLOCKING_STRICT_REPLAY",
+      "reason": "Current reachability and publication dates do not prove exact historical available_at timestamps."
+    }
+  },
+  "results": {
+    "REGISTERED_SOURCES_PRESERVED": 9,
+    "ACQUIRED_AT_CAPTURE_READY": "YES",
+    "AVAILABLE_AT_CAPTURE_READY": "NO",
+    "STRICT_ORIGINAL_AS_OF_READY": "NO",
+    "RUNTIME_LIVE_SOURCE_USED": "NO",
+    "SOURCE_CONTENT_PUBLISHED": "NO",
+    "FIRST_SERIOUS_CONSTRAINT_RUN": "BLOCKED"
+  },
+  "next_population_blocker": "PIT-001B-EXACT-AVAILABLE-AT-HISTORICAL-PROOF",
+  "parallel_architecture_added": false
+}
