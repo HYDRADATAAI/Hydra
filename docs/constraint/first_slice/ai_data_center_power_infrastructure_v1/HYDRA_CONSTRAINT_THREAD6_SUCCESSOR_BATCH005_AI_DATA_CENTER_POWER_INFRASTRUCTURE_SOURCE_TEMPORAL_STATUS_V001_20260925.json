@@ -1,0 +1,35 @@
+{
+  "schema_version": "hydra-constraint-first-slice-source-temporal-status/v1",
+  "record_id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH005_AI_DATA_CENTER_POWER_INFRASTRUCTURE_SOURCE_TEMPORAL_STATUS_V001",
+  "as_of": "2026-09-25",
+  "predecessor_batch": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH004",
+  "slice_id": "AI_DATA_CENTER_POWER_INFRASTRUCTURE_V1",
+  "counts": {
+    "sources_audited": 9,
+    "confirmed_publication_metadata": 6,
+    "narrowed_date_semantics": 1,
+    "event_date_only_publication_unresolved": 1,
+    "successor_corrections": 1,
+    "exact_available_at_proven": 0
+  },
+  "corrections": {
+    "SRC-NERC-LTRA-2025": {
+      "predecessor_publication_date": "2025",
+      "current_publication_date": "2026-01",
+      "current_publication_date_precision": "MONTH",
+      "assessment_year": "2025",
+      "state": "CORRECTED_BY_BATCH005_OVERLAY"
+    }
+  },
+  "results": {
+    "SOURCE_TEMPORAL_METADATA_AUDITED": "YES",
+    "NERC_ASSESSMENT_YEAR_PUBLICATION_MONTH_SEPARATED": "YES",
+    "DOE_LPT_DOCUMENT_DATE_NOT_AVAILABLE_AT": "YES",
+    "DOE_WEBINAR_EVENT_DATE_NOT_PUBLICATION_TIME": "YES",
+    "EXACT_AVAILABLE_AT_READY": "NO",
+    "STRICT_ORIGINAL_AS_OF_READY": "NO",
+    "FIRST_SERIOUS_CONSTRAINT_RUN": "BLOCKED"
+  },
+  "next_population_blocker": "PIT-001B-EXACT-AVAILABLE-AT-HISTORICAL-PROOF",
+  "predecessor_artifacts_rewritten": false
+}
