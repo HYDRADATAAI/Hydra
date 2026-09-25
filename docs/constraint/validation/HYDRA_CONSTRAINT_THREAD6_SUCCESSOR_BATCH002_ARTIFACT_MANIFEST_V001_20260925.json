@@ -1,0 +1,69 @@
+{
+  "schema_version": "hydra-constraint-thread6-successor-manifest/v1",
+  "record_id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH002_ARTIFACT_MANIFEST_V001",
+  "as_of": "2026-09-25",
+  "repository": "HYDRADATAAI/Hydra",
+  "base_head": "8dc22b7df1288d6a788459fdafd88d0ea5b131e2",
+  "predecessor_batch": {
+    "id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH001",
+    "commit": "088cd108ce680623820e77f6ed1e85dd16aca2a8",
+    "preservation": "IMMUTABLE_NOT_REWRITTEN"
+  },
+  "blocker_transition": {
+    "parent": "CI-TEST-008-BLOCKER-001-NATIVE-T5-T6-AUTHORITY-ABSENT",
+    "closed_subblocker": "CI-TEST-008-BLOCKER-001A-NATIVE-T5-T6-ADMISSION-GATE-MISSING",
+    "open_subblocker": "CI-TEST-008-BLOCKER-001B-NATIVE-T5-T6-SIGNED-ADMISSION-RECEIPT-ABSENT"
+  },
+  "artifacts": [
+    {
+      "path": "t6-fail-closed-validator/src/hydra_t6_failclosed/native_binding_admission.py",
+      "git_blob_sha": "db51023d6437c97599be28cfe31cef41057289c5"
+    },
+    {
+      "path": "t6-fail-closed-validator/tests/test_native_binding_admission.py",
+      "git_blob_sha": "13574761cb5a77711f8a8eb102337d8e2c1c0ea4"
+    },
+    {
+      "path": "t6-fail-closed-validator/src/hydra_t6_failclosed/__init__.py",
+      "git_blob_sha": "ad63e132d0e44f90ee12424d85949724f58dac56"
+    },
+    {
+      "path": "t6-fail-closed-validator/README.md",
+      "git_blob_sha": "2e587704e854ac7d6c16a9bc3edcc9b0fbf84953"
+    },
+    {
+      "path": "t6-fail-closed-validator/pyproject.toml",
+      "git_blob_sha": "de0200b451f26354aef04e42d5766b62eaa8df08"
+    },
+    {
+      "path": "docs/constraint/implementation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH002_NATIVE_T5_T6_ADMISSION_CONTRACT_V001_20260925.json",
+      "git_blob_sha": "79a1926c35f97a7c342a6cff5e9010af1c5db5d3"
+    },
+    {
+      "path": "docs/constraint/validation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH002_NATIVE_T5_T6_ADMISSION_STATUS_V001_20260925.json",
+      "git_blob_sha": "855cd6a7d4776143b5b4e92009fc946154171972"
+    },
+    {
+      "path": "docs/constraint/architecture/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH002_MASTER_STATUS_V001_20260925.json",
+      "git_blob_sha": "4b008069479a20e366020f8c477c84de5fb0ccfd"
+    },
+    {
+      "path": "docs/constraint/validation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH002_NATIVE_T5_T6_ADMISSION_REPORT_V001_20260925.md",
+      "git_blob_sha": "1ba848fed4fc6090c789b1b94601f8f7ab838d5a"
+    }
+  ],
+  "authority_rule": "NO_ADMISSION_WITHOUT_EXACT_SIGNED_IMPLEMENTATION_CONTRACT_RECEIPT",
+  "non_grants": [
+    "RUNTIME_ACTIVATION",
+    "CANONICAL_PROMOTION",
+    "LIVE_SOURCE_AUTHORITY",
+    "MODEL_TRAINING",
+    "TRADING"
+  ],
+  "expected": {
+    "batch_result": "PASS_WITH_RUN_BLOCKED",
+    "implementation_admission_gate_ready": "YES",
+    "implementation_admitted": "NO",
+    "next_blocker": "CI-TEST-008-BLOCKER-001B-NATIVE-T5-T6-SIGNED-ADMISSION-RECEIPT-ABSENT"
+  }
+}
