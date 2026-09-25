@@ -37,6 +37,9 @@ results/
 # private/bulk HYDRA data
 data/
 raw/
+!market-data-pipeline-sample/data/
+!market-data-pipeline-sample/data/raw/
+!market-data-pipeline-sample/data/raw/synthetic_market_events.csv
 canonical/
 vendor/
 vendors/
