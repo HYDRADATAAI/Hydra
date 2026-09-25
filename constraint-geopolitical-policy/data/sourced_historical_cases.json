@@ -1,0 +1,225 @@
+{
+  "schema_version": "1.0",
+  "evidence_digest_scope": "sha256(normalized_evidence UTF-8)",
+  "binding_policy": "Physical hints are descriptive only until canonical physical entity IDs exist in the authoritative graph.",
+  "sources": [
+    {
+      "source_id": "bis-2022-10-07-export-controls",
+      "publisher": "U.S. Department of Commerce, Bureau of Industry and Security",
+      "url": "https://www.bis.gov/node/20292",
+      "published_at": "2022-10-07T00:00:00Z",
+      "available_at": "2022-10-07T00:00:00Z",
+      "normalized_evidence": "On 2022-10-07, the U.S. Bureau of Industry and Security announced export controls affecting advanced computing and semiconductor manufacturing items involving the PRC. BIS stated semiconductor-manufacturing-item restrictions took effect on 2022-10-07, U.S.-person support restrictions on 2022-10-12, and advanced-computing/supercomputer controls on 2022-10-21.",
+      "evidence_digest": "sha256:755b175a5214522be7664388ee5b224692fa2b543d52e0169fe988d54206094e"
+    },
+    {
+      "source_id": "eu-2022-879",
+      "publisher": "Council of the European Union / EUR-Lex",
+      "url": "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX%3A32022R0879",
+      "published_at": "2022-06-03T00:00:00Z",
+      "available_at": "2022-06-03T00:00:00Z",
+      "normalized_evidence": "Council Regulation (EU) 2022/879, dated 2022-06-03, amended Regulation (EU) No 833/2014 to prohibit purchase, import, or transfer of specified Russian-origin crude oil and petroleum products, with transitional periods ending 2022-12-05 for CN 2709 00 and 2023-02-05 for CN 2710, subject to stated exceptions and derogations.",
+      "evidence_digest": "sha256:06a876705c1e188f5fcde3c3dc58830ee56f02c019f084d0067e88936f109f81"
+    },
+    {
+      "source_id": "sca-2021-03-26-grounding",
+      "publisher": "Suez Canal Authority",
+      "url": "https://www.suezcanal.gov.eg/English/MediaCenter/News/Pages/navigation-26-03-2021.aspx",
+      "published_at": "2021-03-26T00:00:00Z",
+      "available_at": "2021-03-26T00:00:00Z",
+      "normalized_evidence": "On 2021-03-26, the Suez Canal Authority publicly confirmed ongoing efforts to refloat a grounded container vessel in the Suez Canal and stated its aim to restore regular global maritime traffic as soon as possible.",
+      "evidence_digest": "sha256:a8d237ff09989d15426defa427373a244acf0d39d3f46ceaecc750cfc42faf3d"
+    },
+    {
+      "source_id": "sca-2021-03-31-navigation-restored",
+      "publisher": "Suez Canal Authority",
+      "url": "https://www.suezcanal.gov.eg/English/MediaCenter/News/Pages/31-3-2021.aspx",
+      "published_at": "2021-03-31T00:00:00Z",
+      "available_at": "2021-03-31T00:00:00Z",
+      "normalized_evidence": "On 2021-03-31, the Suez Canal Authority stated that navigation in the Suez Canal was back in both directions and that the canal was operating at full capacity around the clock after the Ever Given was refloated.",
+      "evidence_digest": "sha256:dbf339a4786b20d2d7c187bd5a0542c9d9a1c4390d44cb5c45bfe79f09e02906"
+    },
+    {
+      "source_id": "unctad-2021-04-23-container-rates",
+      "publisher": "UN Trade and Development (UNCTAD)",
+      "url": "https://unctad.org/news/shipping-during-covid-19-why-container-freight-rates-have-surged",
+      "published_at": "2021-04-23T00:00:00Z",
+      "available_at": "2021-04-23T00:00:00Z",
+      "normalized_evidence": "On 2021-04-23, UNCTAD reported that the Ever Given blockage of the Suez Canal for almost a week in March triggered a new surge in container spot freight rates.",
+      "evidence_digest": "sha256:d91c2d9997bacd131c9515270024a25d7078e5e37618bf8a110a8f23573fe1bb"
+    },
+    {
+      "source_id": "commerce-2022-08-09-chips-signed",
+      "publisher": "U.S. Department of Commerce",
+      "url": "https://www.commerce.gov/news/press-releases/2022/08/statement-us-secretary-commerce-gina-raimondo-signing-chips-and-science",
+      "published_at": "2022-08-09T00:00:00Z",
+      "available_at": "2022-08-09T00:00:00Z",
+      "normalized_evidence": "On 2022-08-09, the U.S. Department of Commerce stated that the CHIPS and Science Act of 2022 had been signed into law and described it as an investment intended to support domestic semiconductor manufacturing and research and development.",
+      "evidence_digest": "sha256:322909ddd7478e8387a62f117babb8eae8969984c8d37965eaad5d27393eaf84"
+    },
+    {
+      "source_id": "commerce-2022-08-25-chips-implementation",
+      "publisher": "U.S. Department of Commerce",
+      "url": "https://www.commerce.gov/news/press-releases/2022/08/commerce-department-launches-chipsgov-chips-program-implementation",
+      "published_at": "2022-08-25T00:00:00Z",
+      "available_at": "2022-08-25T00:00:00Z",
+      "normalized_evidence": "On 2022-08-25, the U.S. Department of Commerce announced the launch of CHIPS.gov as an initial implementation step for CHIPS funding and program communications.",
+      "evidence_digest": "sha256:82dbffda0379c64f8b984e6103ad24cd00c1531049fed1624c54008c87a364c1"
+    }
+  ],
+  "cases": [
+    {
+      "case_id": "bis-semiconductor-controls-2022",
+      "binding_status": "PENDING_CANONICAL_PHYSICAL_ENTITY_POPULATION",
+      "physical_hints": [
+        "advanced computing chips",
+        "semiconductor manufacturing equipment",
+        "PRC semiconductor fabrication facilities"
+      ],
+      "events": [
+        {
+          "event_id": "bis-sme-controls-2022-10-07",
+          "event_type": "EXPORT_CONTROL",
+          "known_at": "2022-10-07T00:00:00Z",
+          "effective_at": "2022-10-07T00:00:00Z",
+          "claim_kind": "DOCUMENTED_ACTION",
+          "source_ids": [
+            "bis-2022-10-07-export-controls"
+          ],
+          "statement": "Semiconductor-manufacturing-item restrictions announced by BIS took effect on 2022-10-07."
+        },
+        {
+          "event_id": "bis-us-person-support-controls-2022-10-12",
+          "event_type": "EXPORT_CONTROL",
+          "known_at": "2022-10-07T00:00:00Z",
+          "effective_at": "2022-10-12T00:00:00Z",
+          "claim_kind": "DOCUMENTED_ACTION",
+          "source_ids": [
+            "bis-2022-10-07-export-controls"
+          ],
+          "statement": "Restrictions on specified U.S.-person support for certain PRC semiconductor fabrication activities took effect on 2022-10-12."
+        },
+        {
+          "event_id": "bis-advanced-computing-controls-2022-10-21",
+          "event_type": "EXPORT_CONTROL",
+          "known_at": "2022-10-07T00:00:00Z",
+          "effective_at": "2022-10-21T00:00:00Z",
+          "claim_kind": "DOCUMENTED_ACTION",
+          "source_ids": [
+            "bis-2022-10-07-export-controls"
+          ],
+          "statement": "Advanced-computing and supercomputer controls announced by BIS took effect on 2022-10-21."
+        }
+      ],
+      "observations": []
+    },
+    {
+      "case_id": "eu-russian-oil-import-restrictions-2022",
+      "binding_status": "PENDING_CANONICAL_PHYSICAL_ENTITY_POPULATION",
+      "physical_hints": [
+        "Russian-origin crude oil",
+        "Russian-origin petroleum products",
+        "EU import flows"
+      ],
+      "events": [
+        {
+          "event_id": "eu-crude-oil-transition-2022-12-05",
+          "event_type": "IMPORT_RESTRICTION",
+          "known_at": "2022-06-03T00:00:00Z",
+          "effective_at": "2022-12-05T00:00:00Z",
+          "claim_kind": "DOCUMENTED_ACTION",
+          "source_ids": [
+            "eu-2022-879"
+          ],
+          "statement": "Council Regulation (EU) 2022/879 established the relevant prohibition with a transitional period for CN 2709 00 ending 2022-12-05, subject to specified exceptions and derogations."
+        },
+        {
+          "event_id": "eu-petroleum-products-transition-2023-02-05",
+          "event_type": "IMPORT_RESTRICTION",
+          "known_at": "2022-06-03T00:00:00Z",
+          "effective_at": "2023-02-05T00:00:00Z",
+          "claim_kind": "DOCUMENTED_ACTION",
+          "source_ids": [
+            "eu-2022-879"
+          ],
+          "statement": "Council Regulation (EU) 2022/879 established the relevant prohibition with a transitional period for CN 2710 ending 2023-02-05, subject to specified exceptions and derogations."
+        }
+      ],
+      "observations": []
+    },
+    {
+      "case_id": "suez-ever-given-2021",
+      "binding_status": "PENDING_CANONICAL_PHYSICAL_ENTITY_POPULATION",
+      "physical_hints": [
+        "Suez Canal",
+        "container shipping corridor"
+      ],
+      "events": [
+        {
+          "event_id": "suez-grounding-disruption-known-2021-03-26",
+          "event_type": "SHIPPING_DISRUPTION",
+          "known_at": "2021-03-26T00:00:00Z",
+          "effective_at": "2021-03-26T00:00:00Z",
+          "resolved_at": "2021-03-31T00:00:00Z",
+          "claim_kind": "DOCUMENTED_ACTION",
+          "source_ids": [
+            "sca-2021-03-26-grounding"
+          ],
+          "statement": "By 2021-03-26, the Suez Canal Authority publicly confirmed an ongoing grounding-related disruption and active refloating efforts."
+        }
+      ],
+      "observations": [
+        {
+          "observation_id": "suez-navigation-restored-2021-03-31",
+          "known_at": "2021-03-31T00:00:00Z",
+          "observed_at": "2021-03-31T00:00:00Z",
+          "source_ids": [
+            "sca-2021-03-31-navigation-restored"
+          ],
+          "statement": "The Suez Canal Authority reported navigation restored in both directions and full-capacity operations."
+        },
+        {
+          "observation_id": "suez-container-rate-effect-2021-04-23",
+          "known_at": "2021-04-23T00:00:00Z",
+          "observed_at": "2021-04-23T00:00:00Z",
+          "source_ids": [
+            "unctad-2021-04-23-container-rates"
+          ],
+          "statement": "UNCTAD reported a new surge in container spot freight rates following the blockage."
+        }
+      ]
+    },
+    {
+      "case_id": "us-chips-act-2022",
+      "binding_status": "PENDING_CANONICAL_PHYSICAL_ENTITY_POPULATION",
+      "physical_hints": [
+        "U.S. semiconductor manufacturing capacity",
+        "semiconductor R&D"
+      ],
+      "events": [
+        {
+          "event_id": "us-chips-act-signed-2022-08-09",
+          "event_type": "INDUSTRIAL_POLICY",
+          "known_at": "2022-08-09T00:00:00Z",
+          "effective_at": "2022-08-09T00:00:00Z",
+          "claim_kind": "DOCUMENTED_ACTION",
+          "source_ids": [
+            "commerce-2022-08-09-chips-signed"
+          ],
+          "statement": "The CHIPS and Science Act of 2022 was signed into law on 2022-08-09."
+        }
+      ],
+      "observations": [
+        {
+          "observation_id": "chips-program-implementation-launch-2022-08-25",
+          "known_at": "2022-08-25T00:00:00Z",
+          "observed_at": "2022-08-25T00:00:00Z",
+          "source_ids": [
+            "commerce-2022-08-25-chips-implementation"
+          ],
+          "statement": "Commerce announced CHIPS.gov as an initial implementation step for the CHIPS program."
+        }
+      ]
+    }
+  ]
+}
