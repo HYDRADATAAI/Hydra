@@ -17,6 +17,7 @@ class Evidence:
     source_hash: str
     payload: dict
     effective_at: Optional[datetime] = None
+    resolved_at: Optional[datetime] = None
 
 @dataclass(frozen=True)
 class Hypothesis:
