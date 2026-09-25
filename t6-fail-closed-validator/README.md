@@ -10,11 +10,11 @@ enabling canonical promotion or external effects.
 
 Its authority-smuggling scanner recognizes camelCase, PascalCase,
 mixed-acronym, separator-delimited, punctuation-delimited, compacted, Unicode
-compatibility, and common mixed-script confusable forms of forbidden markers.
+compatibility, common mixed-script confusable forms, and embedded strong-marker wrappers.
 
 ## What this sample demonstrates
 
-- strict JSON parsing with deterministic canonical encoding;
+- strict JSON parsing with deterministic canonical encoding and bounded structural depth;
 - authority-envelope validation with explicit digest/scope bindings;
 - candidate-only handoff validation;
 - an artifact-pinned native T5→T6 implementation-admission gate;
@@ -37,6 +37,7 @@ src/hydra_t6_failclosed/
   service.py                    pure fail-closed orchestration
   dormant_adapter.py            integration boundary that refuses activation
 tests/
+  test_adversarial_parser_fuzz.py
   test_authority.py
   test_camelcase_smuggling.py
   test_documents.py

@@ -61,6 +61,12 @@ FORBIDDEN_VALUE_MARKERS = {
 }
 FORBIDDEN_FIELDS_BY_COMPACT = {marker.replace("_", ""): marker for marker in FORBIDDEN_FIELDS}
 FORBIDDEN_FIELDS_ORDERED = tuple(sorted(FORBIDDEN_FIELDS))
+FORBIDDEN_EMBEDDED_FIELDS_ORDERED = tuple(
+    sorted(
+        (marker for marker in FORBIDDEN_FIELDS if "_" in marker),
+        key=lambda marker: (-len(marker.replace("_", "")), marker),
+    )
+)
 FORBIDDEN_VALUE_MARKERS_ORDERED = tuple(
     sorted(FORBIDDEN_VALUE_MARKERS, key=lambda marker: (-len(marker.replace("_", "")), marker))
 )
@@ -247,7 +253,12 @@ def _forbidden_field_marker(value: str) -> str | None:
     if not compact:
         return None
     marker = FORBIDDEN_FIELDS_BY_COMPACT.get(compact)
-    return marker if marker is not None else _confusable_marker(value, FORBIDDEN_FIELDS_ORDERED)
+    if marker is not None:
+        return marker
+    for embedded_marker in FORBIDDEN_EMBEDDED_FIELDS_ORDERED:
+        if embedded_marker.replace("_", "") in compact:
+            return embedded_marker
+    return _confusable_marker(value, FORBIDDEN_FIELDS_ORDERED)
 
 
 def _forbidden_value_marker(value: str) -> str | None:

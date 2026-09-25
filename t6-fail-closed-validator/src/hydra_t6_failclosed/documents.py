@@ -13,6 +13,7 @@ from .models import Issue
 
 
 MAX_DOCUMENT_BYTES = 4 * 1024 * 1024
+MAX_DOCUMENT_DEPTH = 128
 
 
 class DuplicateKeyError(ValueError):
@@ -63,7 +64,7 @@ def parse_json_document(
 ) -> JSONDocument:
     try:
         raw = coerce_document_bytes(value)
-    except (TypeError, ValueError) as exc:
+    except (TypeError, ValueError, RecursionError) as exc:
         raw = b""
         return JSONDocument(raw, sha256_hex(raw), None, (Issue("document_type_invalid", str(exc), label),))
     digest = sha256_hex(raw)
@@ -83,11 +84,35 @@ def parse_json_document(
             object_pairs_hook=_object_without_duplicates,
             parse_constant=_reject_nonfinite,
         )
-    except (UnicodeDecodeError, json.JSONDecodeError, DuplicateKeyError, ValueError) as exc:
+    except (UnicodeDecodeError, json.JSONDecodeError, DuplicateKeyError, ValueError, RecursionError) as exc:
         return JSONDocument(raw, digest, None, (Issue("document_json_invalid", f"{label} is invalid JSON: {exc}", label),))
     if not isinstance(parsed, Mapping):
         return JSONDocument(raw, digest, None, (Issue("document_root_invalid", f"{label} root must be an object", label),))
-    return JSONDocument(raw, digest, deepcopy(dict(parsed)), ())
+    if _document_depth_exceeds(parsed, max_depth=MAX_DOCUMENT_DEPTH):
+        return JSONDocument(
+            raw,
+            digest,
+            None,
+            (Issue("document_too_deep", f"{label} exceeds maximum nesting depth {MAX_DOCUMENT_DEPTH}", label),),
+        )
+    try:
+        normalized = deepcopy(dict(parsed))
+    except RecursionError as exc:
+        return JSONDocument(raw, digest, None, (Issue("document_json_invalid", f"{label} is too deeply nested: {exc}", label),))
+    return JSONDocument(raw, digest, normalized, ())
+
+
+def _document_depth_exceeds(value: Any, *, max_depth: int) -> bool:
+    stack: list[tuple[Any, int]] = [(value, 1)]
+    while stack:
+        current, depth = stack.pop()
+        if depth > max_depth:
+            return True
+        if isinstance(current, Mapping):
+            stack.extend((nested, depth + 1) for nested in current.values())
+        elif isinstance(current, list):
+            stack.extend((nested, depth + 1) for nested in current)
+    return False
 
 
 def _object_without_duplicates(pairs: list[tuple[str, Any]]) -> dict[str, Any]:
