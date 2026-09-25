@@ -1,0 +1,50 @@
+name: SQL data quality sample
+
+on:
+  pull_request:
+    paths:
+      - "sql-data-quality-sample/**"
+      - ".github/workflows/sql-data-quality-sample.yml"
+  push:
+    branches:
+      - main
+    paths:
+      - "sql-data-quality-sample/**"
+      - ".github/workflows/sql-data-quality-sample.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Run SQL sample tests
+        working-directory: sql-data-quality-sample
+        run: python -m unittest discover -s tests -v
+
+      - name: Run SQL sample
+        working-directory: sql-data-quality-sample
+        run: python run_demo.py
+
+      - name: Verify summary
+        working-directory: sql-data-quality-sample
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          summary = json.loads(Path("build/quality_summary.json").read_text(encoding="utf-8"))
+          assert summary["accepted"] == 5, summary
+          assert summary["duplicate_normalized_event"] == 1, summary
+          assert summary["invalid_timestamp"] == 1, summary
+          assert summary["non_positive_price"] == 1, summary
+          print("SQL_SAMPLE_SUMMARY=PASS")
+          PY
