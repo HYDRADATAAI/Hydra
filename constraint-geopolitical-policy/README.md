@@ -51,6 +51,12 @@ python -m unittest discover -s tests -t . -v
 
 The tests exercise point-in-time cutoff, clock separation, provenance, causal/motive quarantine, relationship evidence, warning-sign replay, and determinism.
 
-## Integration gap
+## Physical dependency integration
 
-This public repository does not expose enough of the authoritative full Constraint runtime to truthfully wire canonical geography/resource/infrastructure IDs here. The next integration pass should adapt `Relation.entity_id` to those authoritative registries and run these tests alongside the existing replay/provenance suite. Until then this component is **THIN**, not FULL.
+This PR is stacked on the historical physical dependency foundation. Physical `Relation.entity_id` references are resolved through `DependencyGraph.resolve_reference(...)` rather than by reading graph internals or copying its schema.
+
+`physical_adapter.py` enforces point-in-time resolution and type compatibility for resource, infrastructure, strategic-asset, dependency, and bottleneck/constraint references. A policy event can then traverse the real physical graph structurally through `trace_event_downstream()`.
+
+The binding uses the event's `KNOWN_AT` as the knowledge cutoff while physical validity defaults to `EFFECTIVE_AT` (then `OBSERVED_AT`, then `KNOWN_AT`). This lets an already-announced future-effective action bind to evidence that was genuinely known at announcement time without importing later evidence.
+
+The component remains **THIN in historical domain coverage** until sourced geopolitical case records are populated. That is a data-coverage gap, not an unresolved policy↔physical API gap.
