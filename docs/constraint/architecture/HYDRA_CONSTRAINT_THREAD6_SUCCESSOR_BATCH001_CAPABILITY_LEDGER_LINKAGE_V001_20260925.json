@@ -1,0 +1,81 @@
+{
+  "schema_version": "hydra-constraint-capability-ledger-linkage/v1",
+  "record_id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH001_CAPABILITY_LEDGER_LINKAGE_V001",
+  "as_of": "2026-09-25",
+  "public_github_absence_means_missing": false,
+  "capabilities": {
+    "entity_resolution": "FULL",
+    "provenance": "FULL",
+    "geography": "THIN",
+    "strategic_geography": "THIN",
+    "resources_materials": "THIN",
+    "infrastructure": "THIN",
+    "policy_geopolitics": "THIN",
+    "ownership": "THIN",
+    "dependencies": "THIN",
+    "substitutions": "THIN",
+    "historical_states_replay": "THIN",
+    "confidence_contradictions": "THIN",
+    "chains": "THIN",
+    "beneficiaries": "THIN",
+    "evaluation": "THIN",
+    "historical_outcomes": "EMPTY"
+  },
+  "missing": [],
+  "expansion_lanes": [
+    {
+      "lane": "HISTORICAL_GEOGRAPHY_STRATEGIC_ASSETS",
+      "mode": "DEEPEN_EXISTING",
+      "attaches_to": [
+        "ENTITY",
+        "GEOGRAPHY",
+        "RELATIONSHIP",
+        "PROVENANCE",
+        "TIME"
+      ]
+    },
+    {
+      "lane": "RESOURCES_MATERIALS",
+      "mode": "DEEPEN_EXISTING",
+      "attaches_to": [
+        "GEOLOGICAL_RESOURCE",
+        "CAPACITY",
+        "ENTITY",
+        "RELATIONSHIP"
+      ]
+    },
+    {
+      "lane": "INFRASTRUCTURE",
+      "mode": "DEEPEN_EXISTING",
+      "attaches_to": [
+        "FACILITY",
+        "LOGISTICS",
+        "POWER",
+        "WATER",
+        "TELECOM",
+        "CAPACITY"
+      ]
+    },
+    {
+      "lane": "POLICY_GEOPOLITICAL_EVENTS",
+      "mode": "DEEPEN_EXISTING",
+      "attaches_to": [
+        "EVENT",
+        "POLICY",
+        "PROVENANCE",
+        "TIME"
+      ]
+    },
+    {
+      "lane": "HISTORICAL_OUTCOMES_REPLAY",
+      "mode": "DEEPEN_EXISTING",
+      "attaches_to": [
+        "HISTORICAL_STATE",
+        "ORIGINAL_AS_OF",
+        "NO_LOOKAHEAD",
+        "OUTCOME_CAPTURE",
+        "EVALUATION"
+      ]
+    }
+  ]
+}

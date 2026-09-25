@@ -1,0 +1,89 @@
+{
+  "schema_version": "hydra-constraint-run-readiness-matrix/v1",
+  "record_id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH001_RUN_READINESS_MATRIX_V001",
+  "as_of": "2026-09-25",
+  "overall": "BLOCKED",
+  "dimensions": {
+    "AUTHORITY_CURRENT": {
+      "state": "READY",
+      "blockers": []
+    },
+    "SCHEMA_COMPATIBLE": {
+      "state": "READY_WITH_NONBLOCKING_GAPS",
+      "blockers": [],
+      "gaps": [
+        "FIRST_SLICE_RUNTIME_PAYLOAD_COMPATIBILITY_TEST"
+      ]
+    },
+    "IMPLEMENTATION_ADMITTED": {
+      "state": "BLOCKED",
+      "blockers": [
+        "CI-TEST-008-BLOCKER-001-NATIVE-T5-T6-AUTHORITY-ABSENT"
+      ]
+    },
+    "PROVENANCE_READY": {
+      "state": "BLOCKED",
+      "blockers": [
+        "FIRST_SLICE_SOURCE_VERSION_ARTIFACT_ACQUISITION_POPULATION_AND_ADMISSION"
+      ]
+    },
+    "ENTITY_RESOLUTION_READY": {
+      "state": "READY_WITH_NONBLOCKING_GAPS",
+      "blockers": [],
+      "gaps": [
+        "FIRST_SLICE_ENTITY_FACILITY_ACCEPTANCE"
+      ]
+    },
+    "GRAPH_PATH_READY": {
+      "state": "BLOCKED",
+      "blockers": [
+        "POPULATED_FIRST_SLICE_GRAPH_NOT_ACCEPTED"
+      ]
+    },
+    "CONTRADICTION_READY": {
+      "state": "READY_WITH_NONBLOCKING_GAPS",
+      "blockers": [],
+      "gaps": [
+        "FIRST_SLICE_REAL_EVIDENCE_CONTRADICTION_CASES"
+      ]
+    },
+    "CONFIDENCE_READY": {
+      "state": "READY_WITH_NONBLOCKING_GAPS",
+      "blockers": [],
+      "gaps": [
+        "FIRST_SLICE_CONFIDENCE_CALIBRATION"
+      ]
+    },
+    "HISTORICAL_AS_OF_READY": {
+      "state": "BLOCKED",
+      "blockers": [
+        "REAL_HISTORICAL_BACKFILL_WITH_AVAILABILITY_AND_REVISION_TIMESTAMPS"
+      ]
+    },
+    "NO_LOOKAHEAD_READY": {
+      "state": "BLOCKED",
+      "blockers": [
+        "IMPLEMENTATION_HARNESS_AND_POPULATED_REPLAY_PROOF"
+      ]
+    },
+    "OUTCOME_LABELS_READY": {
+      "state": "BLOCKED",
+      "blockers": [
+        "HISTORICAL_OUTCOME_CAPTURE_LAYER"
+      ]
+    },
+    "REPLAY_READY": {
+      "state": "BLOCKED",
+      "blockers": [
+        "POINT_IN_TIME_FIRST_SLICE_REPLAY_NOT_PROVEN"
+      ]
+    },
+    "EVALUATION_READY": {
+      "state": "BLOCKED",
+      "blockers": [
+        "CONSTRAINT_SPECIFIC_OUTCOME_EVALUATION"
+      ]
+    }
+  },
+  "next_blocker": "CI-TEST-008-BLOCKER-001-NATIVE-T5-T6-AUTHORITY-ABSENT"
+}
