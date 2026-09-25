@@ -22,6 +22,10 @@ Snapshots distinguish nameplate from usable capacity. Edges can carry dependency
 
 Substitution is a first-class edge with `substitution_time_days`. This prevents "a substitute exists" from being treated as equivalent to "a substitute can replace lost capacity immediately."
 
+## Cross-domain reference contract
+
+`DependencyGraph.resolve_reference(entity_id, when, knowledge_cutoff)` is the canonical boundary for other Constraint domains to resolve physical node/edge IDs. When a historical cutoff is supplied, future-known nodes and edges are unavailable rather than silently resolved.
+
 ## Failure propagation
 
 `loss_impact(node_id)` returns downstream graph reachability after a physical node is removed. It is structural exposure, not a forecast.
