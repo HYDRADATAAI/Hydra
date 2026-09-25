@@ -238,6 +238,11 @@
               "kind": "DEPENDENCY",
               "entity_id": "company:uniper",
               "confidence": 1
+            },
+            {
+              "kind": "DEPENDENCY",
+              "entity_id": "edge:uniper-controlled-by-germany-2022",
+              "confidence": 1
             }
           ]
         }
