@@ -233,6 +233,9 @@ def _validate_receipt(
 
     if value.get("schema_version") != ADMISSION_RECEIPT_SCHEMA:
         issues.append(Issue("admission_receipt_schema_unsupported", "admission receipt schema is unsupported", "$.admission_receipt.schema_version"))
+    admission_id = value.get("admission_id")
+    if not isinstance(admission_id, str) or not admission_id.strip():
+        issues.append(Issue("admission_receipt_identity_invalid", "admission_id must be a non-empty string", "$.admission_receipt.admission_id"))
     if value.get("authority_role") != ADMISSION_AUTHORITY_ROLE:
         issues.append(Issue("admission_receipt_role_invalid", "authority_role must be IMPLEMENTATION_CONTRACT", "$.admission_receipt.authority_role"))
     if value.get("decision") != ADMISSION_DECISION:
@@ -285,6 +288,8 @@ def _validate_receipt(
         if revocation.get("status") != "not_revoked":
             issues.append(Issue("admission_revoked_or_ambiguous", "admission must be explicitly not_revoked", "$.admission_receipt.revocation.status"))
         checked_at = _parse_time(revocation.get("checked_at"), "$.admission_receipt.revocation.checked_at", issues)
+        if checked_at and issued_at and checked_at < issued_at:
+            issues.append(Issue("admission_revocation_predates_issue", "revocation evidence predates the admission receipt", "$.admission_receipt.revocation.checked_at"))
         if checked_at and now.tzinfo is not None:
             if checked_at > now:
                 issues.append(Issue("admission_revocation_future", "revocation check is in the future", "$.admission_receipt.revocation.checked_at"))
@@ -304,6 +309,8 @@ def _validate_receipt(
             issues.append(Issue("admission_superseded", "only an explicitly current admission receipt may admit an implementation", "$.admission_receipt.supersession"))
         if not isinstance(chain, list) or any(not isinstance(item, str) or not item for item in chain) or len(chain) != len(set(chain)):
             issues.append(Issue("admission_supersession_chain_invalid", "supersession chain must be an acyclic list of identifiers", "$.admission_receipt.supersession.chain"))
+        elif isinstance(admission_id, str) and admission_id in chain:
+            issues.append(Issue("admission_supersession_cycle", "supersession chain may not contain the current admission_id", "$.admission_receipt.supersession.chain"))
         predecessor_id = supersession.get("predecessor_id")
         if predecessor_id is None and chain:
             issues.append(Issue("admission_supersession_chain_ambiguous", "a non-empty chain requires predecessor_id", "$.admission_receipt.supersession"))
