@@ -188,7 +188,7 @@ def validate_ci_contract(errors: list[str]) -> None:
     )
     pipeline_fragments = (
         'python-version: "3.11"',
-        "python -m pip install -e ./market-data-pipeline-sample",
+        "PYTHONPATH: src",
         "python -m unittest discover -s tests -t . -v",
         "--output-dir build/demo",
         "actions/upload-artifact@v4",

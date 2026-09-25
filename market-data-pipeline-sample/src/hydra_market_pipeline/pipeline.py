@@ -17,6 +17,8 @@ from .models import NormalizedEvent, PipelineResult, QuarantineRecord
 
 TRANSFORM_VERSION = "hydra-market-normalizer/v1"
 RUN_SCHEMA = "hydra-market-pipeline-run/v1"
+ROW_VALIDATION_STAGE = "row_validation"
+ALLOWED_SOURCE_SYSTEMS = frozenset({"SYNTH_A", "SYNTH_B", "SYNTH_VENDOR"})
 REQUIRED_COLUMNS = (
     "source_system",
     "source_record_id",
@@ -30,6 +32,28 @@ REQUIRED_COLUMNS = (
 SYMBOL_PATTERN = re.compile(r"^[A-Z][A-Z0-9.-]{0,15}$")
 VENUE_PATTERN = re.compile(r"^[A-Z0-9][A-Z0-9.-]{0,15}$")
 SIX_PLACES = Decimal("0.000001")
+ERROR_MESSAGES = {
+    "currency_invalid": "currency must be exactly three alphabetic characters",
+    "duplicate_normalized_event": "normalized symbol, UTC timestamp, and venue already appeared earlier in the file",
+    "event_time_invalid": "event_time must be a valid ISO-8601 timestamp",
+    "event_time_missing": "event_time is required",
+    "event_time_timezone_missing": "event_time must include a timezone offset",
+    "price_invalid": "price must be a decimal value",
+    "price_missing": "price is required",
+    "price_non_finite": "price must be finite",
+    "price_non_positive": "price must be greater than zero",
+    "price_scale_exceeds_6": "price may not have more than six fractional digits",
+    "row_extra_values": "row contains values beyond the required CSV columns",
+    "source_record_id_missing": "source_record_id is required",
+    "source_system_invalid": "source_system is not in the allowed public synthetic source list",
+    "source_system_missing": "source_system is required",
+    "symbol_invalid": "symbol must normalize to an allowed uppercase market symbol",
+    "symbol_missing": "symbol is required",
+    "venue_invalid": "venue must be a non-empty uppercase venue identifier",
+    "volume_invalid": "volume must be an integer",
+    "volume_missing": "volume is required",
+    "volume_negative": "volume must be greater than or equal to zero",
+}
 
 
 class ContractError(ValueError):
@@ -104,6 +128,8 @@ def run_pipeline(
         source_record_id = raw_record["source_record_id"].strip()
         if not source_system:
             errors.append("source_system_missing")
+        elif source_system not in ALLOWED_SOURCE_SYSTEMS:
+            errors.append("source_system_invalid")
         if not source_record_id:
             errors.append("source_record_id_missing")
 
@@ -271,9 +297,11 @@ def _quarantine(
     )
     return QuarantineRecord(
         quarantine_id=quarantine_id,
+        stage=ROW_VALIDATION_STAGE,
         source_row_number=source_row_number,
         raw_record_sha256=raw_record_sha256,
         errors=sorted_errors,
+        validation_messages=tuple(ERROR_MESSAGES[error] for error in sorted_errors),
         raw_record=dict(raw_record),
     )
 

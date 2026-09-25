@@ -13,7 +13,7 @@
   ],
   "additional_columns_allowed": false,
   "row_rules": {
-    "source_system": "non-empty string",
+    "source_system": "one of SYNTH_A, SYNTH_B, SYNTH_VENDOR",
     "source_record_id": "non-empty string",
     "symbol": "normalized through the public alias map; A-Z / 0-9 / dot / dash only",
     "event_time": "timezone-aware ISO-8601 timestamp",

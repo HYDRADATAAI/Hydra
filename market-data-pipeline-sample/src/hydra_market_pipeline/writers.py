@@ -1,34 +1,30 @@
-"""Deterministic JSONL/manifest output and typed Parquet output."""
+"""Deterministic JSONL, CSV, quarantine, and manifest output."""
 
 from __future__ import annotations
 
+import csv
 import json
 from pathlib import Path
 from typing import Iterable, Mapping
-
-import pyarrow as pa
-import pyarrow.parquet as pq
 
 from .hashing import canonical_json_bytes, sha256_hex
 from .models import PipelineResult
 
 
-PARQUET_SCHEMA = pa.schema(
-    [
-        pa.field("currency", pa.string(), nullable=False),
-        pa.field("event_id", pa.string(), nullable=False),
-        pa.field("event_time_utc", pa.timestamp("us", tz="UTC"), nullable=False),
-        pa.field("price", pa.decimal128(18, 6), nullable=False),
-        pa.field("raw_record_sha256", pa.string(), nullable=False),
-        pa.field("source_file_sha256", pa.string(), nullable=False),
-        pa.field("source_record_id", pa.string(), nullable=False),
-        pa.field("source_row_number", pa.int64(), nullable=False),
-        pa.field("source_system", pa.string(), nullable=False),
-        pa.field("symbol", pa.string(), nullable=False),
-        pa.field("transform_version", pa.string(), nullable=False),
-        pa.field("venue", pa.string(), nullable=False),
-        pa.field("volume", pa.int64(), nullable=False),
-    ]
+NORMALIZED_CSV_COLUMNS = (
+    "event_id",
+    "source_system",
+    "source_record_id",
+    "symbol",
+    "event_time_utc",
+    "price",
+    "volume",
+    "currency",
+    "venue",
+    "source_file_sha256",
+    "raw_record_sha256",
+    "source_row_number",
+    "transform_version",
 )
 
 
@@ -37,24 +33,13 @@ def write_outputs(result: PipelineResult, *, output_dir: str | Path) -> dict[str
     directory.mkdir(parents=True, exist_ok=True)
 
     normalized_jsonl = directory / "normalized_events.jsonl"
+    normalized_csv = directory / "normalized_events.csv"
     quarantine_jsonl = directory / "quarantine_records.jsonl"
-    normalized_parquet = directory / "normalized_events.parquet"
     manifest_path = directory / "manifest.json"
 
     _write_jsonl(normalized_jsonl, (event.json_record() for event in result.accepted))
+    _write_csv(normalized_csv, (event.json_record() for event in result.accepted))
     _write_jsonl(quarantine_jsonl, (record.json_record() for record in result.quarantined))
-
-    table = pa.Table.from_pylist(
-        [event.parquet_record() for event in result.accepted],
-        schema=PARQUET_SCHEMA,
-    )
-    pq.write_table(
-        table,
-        normalized_parquet,
-        compression="zstd",
-        use_dictionary=False,
-        write_statistics=True,
-    )
 
     manifest = {
         "accepted_rows": len(result.accepted),
@@ -64,10 +49,10 @@ def write_outputs(result: PipelineResult, *, output_dir: str | Path) -> dict[str
                 "file": normalized_jsonl.name,
                 "sha256": sha256_hex(normalized_jsonl.read_bytes()),
             },
-            "normalized_events_parquet": {
-                "file": normalized_parquet.name,
-                "rows": table.num_rows,
-                "schema": [field.name for field in PARQUET_SCHEMA],
+            "normalized_events_csv": {
+                "file": normalized_csv.name,
+                "schema": list(NORMALIZED_CSV_COLUMNS),
+                "sha256": sha256_hex(normalized_csv.read_bytes()),
             },
             "quarantine_records_jsonl": {
                 "file": quarantine_jsonl.name,
@@ -92,8 +77,8 @@ def write_outputs(result: PipelineResult, *, output_dir: str | Path) -> dict[str
 
     return {
         "manifest": manifest_path,
+        "normalized_csv": normalized_csv,
         "normalized_jsonl": normalized_jsonl,
-        "normalized_parquet": normalized_parquet,
         "quarantine_jsonl": quarantine_jsonl,
     }
 
@@ -103,3 +88,15 @@ def _write_jsonl(path: Path, records: Iterable[Mapping[str, object]]) -> None:
         for record in records:
             handle.write(canonical_json_bytes(record))
             handle.write(b"\n")
+
+
+def _write_csv(path: Path, records: Iterable[Mapping[str, object]]) -> None:
+    with path.open("w", newline="", encoding="utf-8") as handle:
+        writer = csv.DictWriter(
+            handle,
+            fieldnames=NORMALIZED_CSV_COLUMNS,
+            lineterminator="\n",
+        )
+        writer.writeheader()
+        for record in records:
+            writer.writerow({column: record[column] for column in NORMALIZED_CSV_COLUMNS})

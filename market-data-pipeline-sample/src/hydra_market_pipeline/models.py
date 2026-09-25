@@ -41,20 +41,15 @@ class NormalizedEvent:
             "volume": self.volume,
         }
 
-    def parquet_record(self) -> dict[str, object]:
-        return {
-            **self.json_record(),
-            "event_time_utc": self.event_time_utc.astimezone(UTC),
-            "price": self.price,
-        }
-
 
 @dataclass(frozen=True)
 class QuarantineRecord:
     quarantine_id: str
+    stage: str
     source_row_number: int
     raw_record_sha256: str
     errors: tuple[str, ...]
+    validation_messages: tuple[str, ...]
     raw_record: Mapping[str, str]
 
     def json_record(self) -> dict[str, object]:
@@ -64,6 +59,8 @@ class QuarantineRecord:
             "raw_record": dict(self.raw_record),
             "raw_record_sha256": self.raw_record_sha256,
             "source_row_number": self.source_row_number,
+            "stage": self.stage,
+            "validation_messages": list(self.validation_messages),
         }
 
 
