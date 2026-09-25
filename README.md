@@ -6,6 +6,7 @@
 
 [![T6 fail-closed validator](https://github.com/HYDRADATAAI/Hydra/actions/workflows/t6-validator.yml/badge.svg)](https://github.com/HYDRADATAAI/Hydra/actions/workflows/t6-validator.yml)
 [![Market data pipeline sample](https://github.com/HYDRADATAAI/Hydra/actions/workflows/market-data-pipeline.yml/badge.svg)](https://github.com/HYDRADATAAI/Hydra/actions/workflows/market-data-pipeline.yml)
+[![SQL data quality sample](https://github.com/HYDRADATAAI/Hydra/actions/workflows/sql-data-quality-sample.yml/badge.svg)](https://github.com/HYDRADATAAI/Hydra/actions/workflows/sql-data-quality-sample.yml)
 
 **Project site:** https://hydradataai.github.io/Hydra-Website/  
 **Technical site repository:** https://github.com/HYDRADATAAI/Hydra-Website
@@ -142,6 +143,14 @@ python -m hydra_market_pipeline `
 
 This is inspectable data-engineering evidence, **not** a claim of a live market-data runtime.
 
+## Public SQL data-quality sample
+
+A bounded SQL example lives in [`sql-data-quality-sample/`](sql-data-quality-sample/). It uses **synthetic, non-live** records and SQLite to demonstrate relational data-engineering fundamentals:
+
+`raw table → alias join → normalized view → CTE/window quality checks → accepted/quarantine views → analytical summary`
+
+The sample includes joins, CTEs, `ROW_NUMBER`, `LAG`, windowed averages, grouped quality summaries, and Python-driven regression tests. It is intended as inspectable SQL/data-quality evidence, not as a production database or warehouse.
+
 ## Fail-closed validator sample
 
 A focused public implementation example lives in [`t6-fail-closed-validator/`](t6-fail-closed-validator/). The component is explicitly **source-only, dormant, and not activated**; its public contract is fail-closed and returns only `ABSTAIN` or `QUARANTINE`.
@@ -182,6 +191,7 @@ If you have 60 seconds:
 3. Review the **case study** for a source → identity → authority → lineage → constraint walkthrough.
 4. Open the **proof** section for validation, failure semantics, and engineering receipts.
 5. Inspect [`market-data-pipeline-sample/`](market-data-pipeline-sample/) for a runnable ingestion → normalization → provenance → quarantine → deterministic artifact path.
+6. Inspect [`sql-data-quality-sample/`](sql-data-quality-sample/) for relational SQL, quality classification, joins, CTEs, and window functions.
 
 ## Current scope
 
