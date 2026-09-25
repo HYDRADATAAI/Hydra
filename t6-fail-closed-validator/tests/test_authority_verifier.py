@@ -1,12 +1,13 @@
 from __future__ import annotations
 
 import unittest
-from datetime import UTC, datetime, timedelta
+from datetime import UTC, datetime, timedelta, tzinfo
 from typing import Any
 
 from hydra_t6_failclosed.authority import (
     AUTHORITY_SCHEMA,
     DECISION,
+    HMACSHA256Verifier,
     OPERATION,
     REQUIRED_SCOPE,
     sign_hmac_sha256,
@@ -24,6 +25,26 @@ class TruthyNonBooleanVerifier:
     def verify(self, **kwargs: Any) -> Any:
         del kwargs
         return "verified"
+
+
+class NoOffsetTimezone(tzinfo):
+    def utcoffset(self, value: datetime | None) -> None:
+        del value
+        return None
+
+    def dst(self, value: datetime | None) -> None:
+        del value
+        return None
+
+
+class RaisingTimezone(tzinfo):
+    def utcoffset(self, value: datetime | None) -> timedelta:
+        del value
+        raise RuntimeError("clock timezone unavailable")
+
+    def dst(self, value: datetime | None) -> None:
+        del value
+        return None
 
 
 class AuthorityVerifierFailureTests(unittest.TestCase):
@@ -76,6 +97,14 @@ class AuthorityVerifierFailureTests(unittest.TestCase):
             **self.digests,
         )
 
+    def _validate_at(self, now: Any):
+        return validate_authority(
+            self._envelope(),
+            verifier=HMACSHA256Verifier({"test-key": self.key}),
+            now=now,
+            **self.digests,
+        )
+
     def test_verifier_exception_is_rejected_fail_closed(self) -> None:
         result = self._validate(RaisingVerifier())
 
@@ -89,6 +118,24 @@ class AuthorityVerifierFailureTests(unittest.TestCase):
         self.assertFalse(result.valid)
         self.assertEqual(result.reason, "AUTHORITY_INVALID")
         self.assertEqual({issue.code for issue in result.issues}, {"authority_signature_invalid"})
+
+    def test_non_datetime_clock_is_rejected(self) -> None:
+        result = self._validate_at("2026-09-24T18:00:00+00:00")
+
+        self.assertFalse(result.valid)
+        self.assertEqual({issue.code for issue in result.issues}, {"authority_now_invalid"})
+
+    def test_timezone_without_offset_is_rejected_as_naive(self) -> None:
+        result = self._validate_at(datetime(2026, 9, 24, 18, 0, tzinfo=NoOffsetTimezone()))
+
+        self.assertFalse(result.valid)
+        self.assertEqual({issue.code for issue in result.issues}, {"authority_now_naive"})
+
+    def test_timezone_failure_is_rejected_fail_closed(self) -> None:
+        result = self._validate_at(datetime(2026, 9, 24, 18, 0, tzinfo=RaisingTimezone()))
+
+        self.assertFalse(result.valid)
+        self.assertEqual({issue.code for issue in result.issues}, {"authority_now_invalid"})
 
 
 if __name__ == "__main__":

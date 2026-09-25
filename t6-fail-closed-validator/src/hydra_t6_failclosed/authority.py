@@ -57,9 +57,16 @@ def validate_authority(
     oracle_sha256: str,
 ) -> AuthorityResult:
     issues: list[Issue] = []
+    if not isinstance(now, datetime):
+        return AuthorityResult(False, "AUTHORITY_INVALID", (Issue("authority_now_invalid", "explicit now must be a datetime", "$.now"),))
     if now.tzinfo is None:
         return AuthorityResult(False, "AUTHORITY_INVALID", (Issue("authority_now_naive", "explicit now must include a timezone", "$.now"),))
-    now = now.astimezone(UTC)
+    try:
+        if now.utcoffset() is None:
+            return AuthorityResult(False, "AUTHORITY_INVALID", (Issue("authority_now_naive", "explicit now must include a timezone", "$.now"),))
+        now = now.astimezone(UTC)
+    except Exception:
+        return AuthorityResult(False, "AUTHORITY_INVALID", (Issue("authority_now_invalid", "explicit now has invalid timezone information", "$.now"),))
     if envelope is None:
         return AuthorityResult(False, "AUTHORITY_INVALID", (Issue("authority_missing", "authority envelope is absent", "$.authority"),))
 
