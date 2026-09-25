@@ -118,21 +118,21 @@ That behavior is intentional: missing provenance is not converted into invented 
 
 A second runnable public example lives in [`market-data-pipeline-sample/`](market-data-pipeline-sample/). It uses **synthetic, non-live** records to demonstrate a compact end-to-end data pipeline:
 
-`CSV → contract check → normalization → deterministic identity → provenance → quarantine → JSONL / Parquet → manifest`
+`CSV → contract check → normalization → deterministic identity → provenance → quarantine → JSONL / CSV → manifest`
 
 The sample intentionally distinguishes **file-level contract drift** from **row-level data-quality defects**: incompatible file schemas fail the run, while malformed or duplicate rows are quarantined with machine-readable reason codes.
 
 Key evidence:
 
 - [`pipeline.py`](market-data-pipeline-sample/src/hydra_market_pipeline/pipeline.py) performs strict contract checks, normalization, deterministic event identity, provenance hashing, and quarantine decisions.
-- [`writers.py`](market-data-pipeline-sample/src/hydra_market_pipeline/writers.py) emits deterministic JSONL, typed Parquet, and a deterministic run manifest.
-- [`test_pipeline.py`](market-data-pipeline-sample/tests/test_pipeline.py) verifies expected accept/quarantine counts, deterministic reruns, Parquet equivalence, provenance, and file-level contract failure.
+- [`writers.py`](market-data-pipeline-sample/src/hydra_market_pipeline/writers.py) emits deterministic JSONL, CSV, quarantine, and run-manifest artifacts.
+- [`test_pipeline.py`](market-data-pipeline-sample/tests/test_pipeline.py) verifies expected accept/quarantine counts, deterministic reruns, CSV/JSONL equivalence, provenance, no silent data loss, and file-level contract failure.
 - [Market data pipeline CI](https://github.com/HYDRADATAAI/Hydra/actions/workflows/market-data-pipeline.yml) runs the tests, executes the synthetic fixture, verifies the manifest, and publishes the generated outputs as a workflow artifact.
 
 From the sample directory:
 
 ```powershell
-python -m pip install -e .
+$env:PYTHONPATH=(Resolve-Path '.\src').Path
 python -m unittest discover -s tests -t . -v
 python -m hydra_market_pipeline `
   --input data/raw/synthetic_market_events.csv `
@@ -181,7 +181,7 @@ If you have 60 seconds:
 2. Open the **architecture** view for the end-to-end data flow.
 3. Review the **case study** for a source → identity → authority → lineage → constraint walkthrough.
 4. Open the **proof** section for validation, failure semantics, and engineering receipts.
-5. Inspect [`market-data-pipeline-sample/`](market-data-pipeline-sample/) for a runnable ingestion → normalization → provenance → quarantine → Parquet path.
+5. Inspect [`market-data-pipeline-sample/`](market-data-pipeline-sample/) for a runnable ingestion → normalization → provenance → quarantine → deterministic artifact path.
 
 ## Current scope
 

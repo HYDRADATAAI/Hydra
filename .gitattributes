@@ -1,0 +1,5 @@
+# Keep deterministic public sample inputs byte-stable across platforms.
+.gitattributes text eol=lf
+market-data-pipeline-sample/data/raw/*.csv text eol=lf
+market-data-pipeline-sample/config/*.json text eol=lf
+market-data-pipeline-sample/contracts/*.json text eol=lf

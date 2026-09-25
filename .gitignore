@@ -44,6 +44,9 @@ archives/
 archive/
 backups/
 backup/
+!market-data-pipeline-sample/data/
+!market-data-pipeline-sample/data/raw/
+!market-data-pipeline-sample/data/raw/synthetic_market_events.csv
 # Byte-compiled / optimized / DLL files
 *.py[codz]
 *$py.class

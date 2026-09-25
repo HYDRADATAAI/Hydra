@@ -4,8 +4,11 @@ on:
   pull_request:
     paths:
       - "README.md"
+      - ".gitignore"
+      - "market-data-pipeline-sample/**"
       - "t6-fail-closed-validator/**"
       - "tools/validate_public_repository.py"
+      - ".github/workflows/market-data-pipeline.yml"
       - ".github/workflows/public-repository-validation.yml"
       - ".github/workflows/t6-validator.yml"
   push:
@@ -13,8 +16,11 @@ on:
       - main
     paths:
       - "README.md"
+      - ".gitignore"
+      - "market-data-pipeline-sample/**"
       - "t6-fail-closed-validator/**"
       - "tools/validate_public_repository.py"
+      - ".github/workflows/market-data-pipeline.yml"
       - ".github/workflows/public-repository-validation.yml"
       - ".github/workflows/t6-validator.yml"
 
