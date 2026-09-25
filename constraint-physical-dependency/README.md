@@ -36,11 +36,11 @@ Edges require provenance. Provenance includes publisher, URL, retrieval date, hi
 
 ## Historical datasets
 
-`data/historical_physical_dependency.schema.json` is the ingestion contract for sourced historical capacity/dependency records. This commit intentionally does **not** fabricate historical observations merely to populate the schema. Real records should enter only with attributable evidence and historical knowledge dates.
+`data/historical_physical_dependency.schema.json` is the general ingestion contract for sourced historical capacity/dependency records. `data/sourced_policy_case_physical_graph.json` adds a deliberately small provenance-bearing subgraph for the first policy-history integration cases: PRC semiconductor fabrication/controlled item categories, Russian-origin oil categories covered by the cited EU regulation, the Suez Canal disruption chain, and U.S. semiconductor manufacturing. The loader validates normalized-evidence digests, source availability dates, graph integrity, and point-in-time visibility. No unsourced records are added merely to increase coverage.
 
 ## Coverage gaps
 
-Current implementation is a graph/evidence foundation, not complete domain coverage. Still required before a serious Constraint run:
+Current implementation now includes a small sourced integration subgraph, but it is not complete domain coverage. Still required before a serious Constraint run:
 
 - sourced historical critical-mineral extraction/refining series;
 - oil/gas/refining and pipeline/LNG capacity histories;
