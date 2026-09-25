@@ -66,6 +66,16 @@
       ]
     },
     {
+      "node_id": "product:advanced-computing-items",
+      "kind": "product_technology",
+      "name": "Advanced computing items covered by the 2022 BIS controls",
+      "valid_from": "2022-10-07",
+      "known_at": "2022-10-07",
+      "source_ids": [
+        "bis-2022-10-07-export-controls"
+      ]
+    },
+    {
       "node_id": "resource:russian-origin-crude-oil",
       "kind": "resource",
       "name": "Russian-origin crude oil covered by EU Regulation 2022/879",
