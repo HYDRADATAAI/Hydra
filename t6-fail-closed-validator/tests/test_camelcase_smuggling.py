@@ -95,7 +95,7 @@ class CamelCaseAuthoritySmugglingTests(unittest.TestCase):
             with self.subTest(marker=marker, spelling=spelling):
                 self.assert_smuggling_rejected({"contextId": spelling})
 
-def test_non_authority_camel_case_metadata_is_allowed(self):
+    def test_non_authority_camel_case_metadata_is_allowed(self):
         issues = _scan_authority_smuggling(
             {
                 "provenance": {
