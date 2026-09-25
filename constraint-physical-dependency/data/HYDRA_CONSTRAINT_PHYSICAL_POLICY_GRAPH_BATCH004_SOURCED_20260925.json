@@ -4,6 +4,16 @@
   "evidence_digest_scope": "sha256(normalized_evidence UTF-8)",
   "sources": [
     {
+      "source_id": "wto-2019-07-10-japan-korea-goods-council",
+      "source_url": "https://www.wto.org/english/news_e/news19_e/good_10jul19_e.htm",
+      "publisher": "World Trade Organization",
+      "retrieved_at": "2026-09-25",
+      "known_at": "2019-07-10",
+      "published_at": "2019-07-10",
+      "normalized_evidence": "On 10 July 2019, the WTO reported that Korea told the Goods Council that Japan had issued an export-control measure on 1 July, effective 4 July, requiring individual licences for shipments to Korea, while Japan stated that the measure was an operational review of its export-control procedures rather than a trade embargo.",
+      "evidence_hash": "sha256:dedc873ad5dca8e46b0f0d7902377adbc36c948c1f05be6a24afedf37146d7b8"
+    },
+    {
       "source_id": "wto-ds590-2019-09-16",
       "source_url": "https://www.wto.org/english/news_e/news19_e/ds590rfc_16sep19_e.htm",
       "publisher": "World Trade Organization",
@@ -66,47 +76,25 @@
   ],
   "nodes": [
     {
-      "node_id": "resource:fluorinated-polyimide-japan-korea-2019",
+      "node_id": "resource:japan-korea-controlled-tech-materials-2019",
       "kind": "resource",
-      "name": "Fluorinated polyimide covered by the Japan-Korea export-licensing dispute",
+      "name": "Japanese technology-production materials affected by the July 2019 Korea export-licensing change",
       "country_code": "JP",
-      "valid_from": "2019-09-16",
-      "known_at": "2019-09-16",
+      "valid_from": "2019-07-10",
+      "known_at": "2019-07-10",
       "source_ids": [
-        "wto-ds590-2019-09-16"
-      ]
-    },
-    {
-      "node_id": "resource:resist-polymers-japan-korea-2019",
-      "kind": "resource",
-      "name": "Resist polymers covered by the Japan-Korea export-licensing dispute",
-      "country_code": "JP",
-      "valid_from": "2019-09-16",
-      "known_at": "2019-09-16",
-      "source_ids": [
-        "wto-ds590-2019-09-16"
-      ]
-    },
-    {
-      "node_id": "resource:hydrogen-fluoride-japan-korea-2019",
-      "kind": "resource",
-      "name": "Hydrogen fluoride covered by the Japan-Korea export-licensing dispute",
-      "country_code": "JP",
-      "valid_from": "2019-09-16",
-      "known_at": "2019-09-16",
-      "source_ids": [
-        "wto-ds590-2019-09-16"
+        "wto-2019-07-10-japan-korea-goods-council"
       ]
     },
     {
       "node_id": "manufacturing:korea-semiconductor-display-production-2019",
       "kind": "manufacturing",
-      "name": "Korean semiconductor and display production using the disputed inputs",
+      "name": "Korean semiconductor and display manufacturing referenced by the July 2019 WTO discussion",
       "country_code": "KR",
-      "valid_from": "2019-09-16",
-      "known_at": "2019-09-16",
+      "valid_from": "2019-07-10",
+      "known_at": "2019-07-10",
       "source_ids": [
-        "wto-ds590-2019-09-16"
+        "wto-2019-07-10-japan-korea-goods-council"
       ]
     },
     {
@@ -230,36 +218,14 @@
   ],
   "edges": [
     {
-      "edge_id": "edge:fluorinated-polyimide-used-in-korea-tech-production",
-      "source_id": "resource:fluorinated-polyimide-japan-korea-2019",
+      "edge_id": "edge:japan-korea-controlled-materials-used-in-tech-production",
+      "source_id": "resource:japan-korea-controlled-tech-materials-2019",
       "target_id": "manufacturing:korea-semiconductor-display-production-2019",
       "relation": "used_in",
-      "valid_from": "2019-09-16",
-      "known_at": "2019-09-16",
+      "valid_from": "2019-07-10",
+      "known_at": "2019-07-10",
       "source_ids": [
-        "wto-ds590-2019-09-16"
-      ]
-    },
-    {
-      "edge_id": "edge:resist-polymers-used-in-korea-tech-production",
-      "source_id": "resource:resist-polymers-japan-korea-2019",
-      "target_id": "manufacturing:korea-semiconductor-display-production-2019",
-      "relation": "used_in",
-      "valid_from": "2019-09-16",
-      "known_at": "2019-09-16",
-      "source_ids": [
-        "wto-ds590-2019-09-16"
-      ]
-    },
-    {
-      "edge_id": "edge:hydrogen-fluoride-used-in-korea-tech-production",
-      "source_id": "resource:hydrogen-fluoride-japan-korea-2019",
-      "target_id": "manufacturing:korea-semiconductor-display-production-2019",
-      "relation": "used_in",
-      "valid_from": "2019-09-16",
-      "known_at": "2019-09-16",
-      "source_ids": [
-        "wto-ds590-2019-09-16"
+        "wto-2019-07-10-japan-korea-goods-council"
       ]
     },
     {
