@@ -27,6 +27,31 @@ class DocumentContractTests(unittest.TestCase):
         self.assertIsNone(document.value)
         self.assertIn("document_root_invalid", {issue.code for issue in document.issues})
 
+    def test_malformed_json_is_rejected(self) -> None:
+        document = parse_json_document('{"a":', label="$.document")
+        self.assertIsNone(document.value)
+        self.assertIn("document_json_invalid", {issue.code for issue in document.issues})
+
+    def test_invalid_utf8_is_rejected(self) -> None:
+        document = parse_json_document(b"\xff", label="$.document")
+        self.assertIsNone(document.value)
+        self.assertIn("document_json_invalid", {issue.code for issue in document.issues})
+
+    def test_missing_document_is_rejected(self) -> None:
+        document = parse_json_document(None, label="$.document")
+        self.assertIsNone(document.value)
+        self.assertIn("document_missing", {issue.code for issue in document.issues})
+
+    def test_unsupported_document_type_is_rejected(self) -> None:
+        document = parse_json_document([], label="$.document")  # type: ignore[arg-type]
+        self.assertIsNone(document.value)
+        self.assertIn("document_type_invalid", {issue.code for issue in document.issues})
+
+    def test_oversized_document_is_rejected_before_parsing(self) -> None:
+        document = parse_json_document('{"a":1}', label="$.document", max_bytes=2)
+        self.assertIsNone(document.value)
+        self.assertIn("document_too_large", {issue.code for issue in document.issues})
+
 
 if __name__ == "__main__":
     unittest.main()
