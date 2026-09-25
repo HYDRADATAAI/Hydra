@@ -1,0 +1,326 @@
+{
+  "schema_version": "1.0",
+  "batch_id": "HYDRA_CONSTRAINT_PHYSICAL_POLICY_CASE_GRAPH_BATCH003_20260925",
+  "evidence_digest_scope": "sha256(normalized_evidence UTF-8)",
+  "sources": [
+    {
+      "source_id": "russia-government-2014-08-07-food-embargo",
+      "source_url": "https://government.ru/news/14199/",
+      "publisher": "Government of the Russian Federation",
+      "retrieved_at": "2026-09-25",
+      "known_at": "2014-08-07",
+      "published_at": "2014-08-07",
+      "normalized_evidence": "On 7 August 2014, the Russian Government announced a one-year full ban on imports of specified categories of beef, pork, fruit and vegetables, poultry, fish, cheese, milk and dairy products from the European Union, United States, Australia, Canada and Norway.",
+      "evidence_hash": "sha256:3579d78d1af3c136769c27d273c2a384b038e8a111e008f026afecc2c38cd1c6"
+    },
+    {
+      "source_id": "ec-2022-04-08-fifth-restrictive-package",
+      "source_url": "https://finance.ec.europa.eu/news/eu-agrees-fifth-package-restrictive-measures-against-russia-2022-04-08_en",
+      "publisher": "European Commission, Directorate-General for Financial Stability, Financial Services and Capital Markets Union",
+      "retrieved_at": "2026-09-25",
+      "known_at": "2022-04-08",
+      "published_at": "2022-04-08",
+      "normalized_evidence": "On 8 April 2022, the European Commission described the EU's fifth package of restrictive measures as including an import ban on all forms of Russian coal and an entry ban on Russian-flagged vessels to EU ports, subject to stated exemptions.",
+      "evidence_hash": "sha256:9fe5e754b7e421b34f2b32fe18a74fe1f21509bc810f6cc65e9aa09dd9c5adc6"
+    },
+    {
+      "source_id": "ec-2019-12-10-battery-ipcei",
+      "source_url": "https://poland.representation.ec.europa.eu/aktualnosci-i-wydarzenia/aktualnosci/ekosystem-baterii-2019-12-10_pl",
+      "publisher": "European Commission Representation in Poland",
+      "retrieved_at": "2026-09-25",
+      "known_at": "2019-12-10",
+      "published_at": "2019-12-10",
+      "normalized_evidence": "On 9 December 2019, the European Commission approved the first battery Important Project of Common European Interest, under which seven Member States planned to provide up to EUR 3.2 billion in state aid across the battery value chain, with 17 participating companies.",
+      "evidence_hash": "sha256:9e2689a37fb81b3b5bbece8ede38a882af060d0bb83b3901489aed2668e5cbf4"
+    },
+    {
+      "source_id": "panama-canal-a48-2023",
+      "source_url": "https://pancanal.com/wp-content/uploads/2023/01/ADV48-2023-Reduction-in-Transits-Due-to-the-Ongoing-Deficit-in-Precipitation-in-the-Canal-Watershed.pdf",
+      "publisher": "Panama Canal Authority",
+      "retrieved_at": "2026-09-25",
+      "known_at": "2023-10-30",
+      "published_at": "2023-10-30",
+      "normalized_evidence": "On 30 October 2023, Panama Canal Advisory to Shipping A-48-2023 stated that drought and a precipitation deficit had already reduced transit capacity to approximately 32 vessels per day and announced further staged reductions in available daily transit slots beginning 1 November 2023.",
+      "evidence_hash": "sha256:2a4fa03f501a311b130c8a5b7ab50d3358ab0f87bed3e9b59f11e6735bb05544"
+    },
+    {
+      "source_id": "panama-canal-a54-2023",
+      "source_url": "https://pancanal.com/wp-content/uploads/2023/01/ADV54-2023-Increase-in-the-Number-of-Booking-Slots-in-the-Panamax-and-Neopanamax-Locks-and-Other-Modifications-to-the-Transit-Reservation-System.pdf",
+      "publisher": "Panama Canal Authority",
+      "retrieved_at": "2026-09-25",
+      "known_at": "2023-12-15",
+      "published_at": "2023-12-15",
+      "normalized_evidence": "On 15 December 2023, Panama Canal Advisory to Shipping A-54-2023 announced an adjustment to booking slots that would raise total daily transit slots to 24 for transit dates beginning 16 January 2024, while stating that the Canal remained in an ongoing water crisis.",
+      "evidence_hash": "sha256:6253dcfdd57a31658c627372912d47959037c9750b476866e63b19af321aba3f"
+    },
+    {
+      "source_id": "ustr-2018-06-15-section301-list1",
+      "source_url": "https://ustr.gov/about-us/policy-offices/press-office/press-releases/2018/june/ustr-issues-tariffs-chinese-products",
+      "publisher": "Office of the United States Trade Representative",
+      "retrieved_at": "2026-09-25",
+      "known_at": "2018-06-15",
+      "published_at": "2018-06-15",
+      "normalized_evidence": "On 15 June 2018, USTR announced a Section 301 tariff action covering approximately USD 50 billion of Chinese imports in two sets, with the first set of 818 tariff lines, valued at approximately USD 34 billion, subject to an additional 25 percent duty beginning 6 July 2018.",
+      "evidence_hash": "sha256:288233a9a8640e090777834999ddf9a08b20d06d559c0b7dbb7b7dbea8b06259"
+    },
+    {
+      "source_id": "ustr-2018-08-07-section301-list2",
+      "source_url": "https://ustr.gov/about-us/policy-offices/press-office/press-releases/2018/august/ustr-finalizes-second-tranche",
+      "publisher": "Office of the United States Trade Representative",
+      "retrieved_at": "2026-09-25",
+      "known_at": "2018-08-07",
+      "published_at": "2018-08-07",
+      "normalized_evidence": "On 7 August 2018, USTR finalized a second Section 301 tranche covering approximately USD 16 billion of imports from China at an additional 25 percent duty, with collection beginning 23 August 2018.",
+      "evidence_hash": "sha256:54fd194fd31cd6f1b59308ec346368fe7f33fc0a88641f83adf340c33cb54f94"
+    },
+    {
+      "source_id": "ustr-2018-09-18-section301-list3",
+      "source_url": "https://ustr.gov/about-us/policy-offices/press-office/press-releases/2018/september/ustr-finalizes-tariffs-200",
+      "publisher": "Office of the United States Trade Representative",
+      "retrieved_at": "2026-09-25",
+      "known_at": "2018-09-18",
+      "published_at": "2018-09-18",
+      "normalized_evidence": "On 18 September 2018, USTR finalized a further Section 301 action covering approximately USD 200 billion of Chinese imports, with an additional 10 percent duty effective 24 September 2018 and a then-announced increase to 25 percent scheduled for 1 January 2019.",
+      "evidence_hash": "sha256:13bffc09a59dd56204fa679857237185646f90ea1b191c84832d4f09ed84d710"
+    },
+    {
+      "source_id": "wto-2014-08-29-rare-earths-dsb-adoption",
+      "source_url": "https://www.wto.org/english/news_e/news14_e/dsb_29aug14_e.htm",
+      "publisher": "World Trade Organization",
+      "retrieved_at": "2026-09-25",
+      "known_at": "2014-08-29",
+      "published_at": "2014-08-29",
+      "normalized_evidence": "On 29 August 2014, the WTO Dispute Settlement Body adopted the Panel and Appellate Body reports in DS431, DS432 and DS433 concerning China's export restrictions on rare earths, tungsten and molybdenum; the WTO Secretariat summary recorded the parties' positions and the adopted findings.",
+      "evidence_hash": "sha256:7d8f421c864e64fc993757ab7b2ad403d2edc19eb0b3f91b83ec3d6555d70a47"
+    }
+  ],
+  "nodes": [
+    {
+      "node_id": "product:russia-food-embargo-covered-goods-2014",
+      "kind": "product_technology",
+      "name": "Food categories covered by Russia's 7 August 2014 import embargo",
+      "valid_from": "2014-08-07",
+      "known_at": "2014-08-07",
+      "source_ids": [
+        "russia-government-2014-08-07-food-embargo"
+      ]
+    },
+    {
+      "node_id": "resource:russian-coal-eu-ban-2022",
+      "kind": "resource",
+      "name": "Russian coal covered by the EU fifth-package import ban",
+      "country_code": "RU",
+      "valid_from": "2022-04-08",
+      "known_at": "2022-04-08",
+      "source_ids": [
+        "ec-2022-04-08-fifth-restrictive-package"
+      ]
+    },
+    {
+      "node_id": "infrastructure:eu-ports-restrictive-measures-2022",
+      "kind": "infrastructure",
+      "name": "EU ports within scope of the fifth-package Russian-vessel entry restriction",
+      "valid_from": "2022-04-08",
+      "known_at": "2022-04-08",
+      "source_ids": [
+        "ec-2022-04-08-fifth-restrictive-package"
+      ]
+    },
+    {
+      "node_id": "transport:russian-flagged-vessels-2022",
+      "kind": "transport",
+      "name": "Russian-flagged vessels within scope of the EU port-entry restriction",
+      "valid_from": "2022-04-08",
+      "known_at": "2022-04-08",
+      "source_ids": [
+        "ec-2022-04-08-fifth-restrictive-package"
+      ]
+    },
+    {
+      "node_id": "manufacturing:eu-battery-ipcei-participants-2019",
+      "kind": "manufacturing",
+      "name": "Battery IPCEI participating industrial and research projects",
+      "valid_from": "2019-12-10",
+      "known_at": "2019-12-10",
+      "source_ids": [
+        "ec-2019-12-10-battery-ipcei"
+      ]
+    },
+    {
+      "node_id": "product:eu-battery-value-chain-ipcei-2019",
+      "kind": "product_technology",
+      "name": "Pan-European battery value-chain research and innovation scope",
+      "valid_from": "2019-12-10",
+      "known_at": "2019-12-10",
+      "source_ids": [
+        "ec-2019-12-10-battery-ipcei"
+      ]
+    },
+    {
+      "node_id": "resource:gatun-lake-water-storage",
+      "kind": "resource",
+      "name": "Gatun Lake water storage supporting Panama Canal operations",
+      "country_code": "PA",
+      "valid_from": "2023-10-30",
+      "known_at": "2023-10-30",
+      "source_ids": [
+        "panama-canal-a48-2023"
+      ]
+    },
+    {
+      "node_id": "infrastructure:panama-canal",
+      "kind": "infrastructure",
+      "name": "Panama Canal",
+      "country_code": "PA",
+      "valid_from": "2023-10-30",
+      "known_at": "2023-10-30",
+      "source_ids": [
+        "panama-canal-a48-2023"
+      ]
+    },
+    {
+      "node_id": "bottleneck:panama-canal-water-deficit-2023",
+      "kind": "bottleneck",
+      "name": "2023 Panama Canal precipitation and water-availability constraint",
+      "country_code": "PA",
+      "valid_from": "2023-10-30",
+      "known_at": "2023-10-30",
+      "source_ids": [
+        "panama-canal-a48-2023"
+      ]
+    },
+    {
+      "node_id": "transport:panama-canal-transit",
+      "kind": "transport",
+      "name": "Vessel transit through the Panama Canal",
+      "valid_from": "2023-10-30",
+      "known_at": "2023-10-30",
+      "source_ids": [
+        "panama-canal-a48-2023"
+      ]
+    },
+    {
+      "node_id": "product:section301-list1-chinese-imports-2018",
+      "kind": "product_technology",
+      "name": "Chinese imports covered by U.S. Section 301 List 1 action",
+      "country_code": "CN",
+      "valid_from": "2018-06-15",
+      "known_at": "2018-06-15",
+      "source_ids": [
+        "ustr-2018-06-15-section301-list1"
+      ]
+    },
+    {
+      "node_id": "product:section301-list2-chinese-imports-2018",
+      "kind": "product_technology",
+      "name": "Chinese imports covered by U.S. Section 301 List 2 action",
+      "country_code": "CN",
+      "valid_from": "2018-08-07",
+      "known_at": "2018-08-07",
+      "source_ids": [
+        "ustr-2018-08-07-section301-list2"
+      ]
+    },
+    {
+      "node_id": "product:section301-list3-chinese-imports-2018",
+      "kind": "product_technology",
+      "name": "Chinese imports covered by U.S. Section 301 List 3 action",
+      "country_code": "CN",
+      "valid_from": "2018-09-18",
+      "known_at": "2018-09-18",
+      "source_ids": [
+        "ustr-2018-09-18-section301-list3"
+      ]
+    },
+    {
+      "node_id": "resource:rare-earths-wto-dispute-2014",
+      "kind": "resource",
+      "name": "Rare earths in WTO DS431/DS432/DS433",
+      "country_code": "CN",
+      "valid_from": "2014-08-29",
+      "known_at": "2014-08-29",
+      "source_ids": [
+        "wto-2014-08-29-rare-earths-dsb-adoption"
+      ]
+    },
+    {
+      "node_id": "resource:tungsten-wto-dispute-2014",
+      "kind": "resource",
+      "name": "Tungsten in WTO DS431/DS432/DS433",
+      "country_code": "CN",
+      "valid_from": "2014-08-29",
+      "known_at": "2014-08-29",
+      "source_ids": [
+        "wto-2014-08-29-rare-earths-dsb-adoption"
+      ]
+    },
+    {
+      "node_id": "resource:molybdenum-wto-dispute-2014",
+      "kind": "resource",
+      "name": "Molybdenum in WTO DS431/DS432/DS433",
+      "country_code": "CN",
+      "valid_from": "2014-08-29",
+      "known_at": "2014-08-29",
+      "source_ids": [
+        "wto-2014-08-29-rare-earths-dsb-adoption"
+      ]
+    }
+  ],
+  "edges": [
+    {
+      "edge_id": "edge:russian-flagged-vessels-use-eu-ports",
+      "source_id": "transport:russian-flagged-vessels-2022",
+      "target_id": "infrastructure:eu-ports-restrictive-measures-2022",
+      "relation": "transported_via",
+      "valid_from": "2022-04-08",
+      "known_at": "2022-04-08",
+      "source_ids": [
+        "ec-2022-04-08-fifth-restrictive-package"
+      ]
+    },
+    {
+      "edge_id": "edge:eu-battery-ipcei-manufactures-battery-value-chain",
+      "source_id": "manufacturing:eu-battery-ipcei-participants-2019",
+      "target_id": "product:eu-battery-value-chain-ipcei-2019",
+      "relation": "manufactures",
+      "valid_from": "2019-12-10",
+      "known_at": "2019-12-10",
+      "source_ids": [
+        "ec-2019-12-10-battery-ipcei"
+      ]
+    },
+    {
+      "edge_id": "edge:panama-canal-requires-gatun-water",
+      "source_id": "infrastructure:panama-canal",
+      "target_id": "resource:gatun-lake-water-storage",
+      "relation": "requires",
+      "valid_from": "2023-10-30",
+      "known_at": "2023-10-30",
+      "source_ids": [
+        "panama-canal-a48-2023"
+      ]
+    },
+    {
+      "edge_id": "edge:panama-water-deficit-constrains-canal",
+      "source_id": "bottleneck:panama-canal-water-deficit-2023",
+      "target_id": "infrastructure:panama-canal",
+      "relation": "constrains",
+      "valid_from": "2023-10-30",
+      "known_at": "2023-10-30",
+      "source_ids": [
+        "panama-canal-a48-2023"
+      ]
+    },
+    {
+      "edge_id": "edge:panama-canal-supplies-transit",
+      "source_id": "infrastructure:panama-canal",
+      "target_id": "transport:panama-canal-transit",
+      "relation": "supplies",
+      "valid_from": "2023-10-30",
+      "known_at": "2023-10-30",
+      "source_ids": [
+        "panama-canal-a48-2023"
+      ]
+    }
+  ]
+}
