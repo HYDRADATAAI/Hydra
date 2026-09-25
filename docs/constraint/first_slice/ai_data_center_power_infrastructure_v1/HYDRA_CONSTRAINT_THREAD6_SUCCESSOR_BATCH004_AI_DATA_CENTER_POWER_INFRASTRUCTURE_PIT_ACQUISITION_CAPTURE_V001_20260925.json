@@ -1,0 +1,107 @@
+{
+  "schema_version": "hydra-constraint-first-slice-pit-acquisition-capture/v1",
+  "record_id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH004_AI_DATA_CENTER_POWER_INFRASTRUCTURE_PIT_ACQUISITION_CAPTURE_V001",
+  "as_of": "2026-09-25",
+  "predecessor_batch": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH003",
+  "slice_id": "AI_DATA_CENTER_POWER_INFRASTRUCTURE_V1",
+  "mode": "MANUAL_REVIEWED_PUBLIC_SOURCE_CAPTURE",
+  "runtime_live_source_authority_used": false,
+  "manual_public_retrieval_performed": true,
+  "capture_started_at": "2026-09-25T23:51:43.401154Z",
+  "capture_completed_at": "2026-09-25T23:52:01.573251Z",
+  "acquired_at_semantics": "Governed batch-completion timestamp recorded immediately after all nine registered public source URLs resolved successfully. This is Hydra acquisition time, not historical public availability time.",
+  "available_at_semantics": "Exact historical public availability is not inferred from publication date, current reachability, crawl time, or acquisition time.",
+  "source_content_persisted": false,
+  "records": [
+    {
+      "source_id": "SRC-LBNL-DC-ENERGY-2025-UPDATE",
+      "url": "https://eta-publications.lbl.gov/publications/united-states-data-center-energy-2025",
+      "content_type": "text/html",
+      "acquisition_result": "RESOLVED_PUBLIC_SOURCE",
+      "acquired_at": "2026-09-25T23:52:01.573251Z",
+      "available_at": null,
+      "available_at_status": "UNRESOLVED_EXACT_HISTORICAL_AVAILABILITY",
+      "strict_original_as_of_eligible": false
+    },
+    {
+      "source_id": "SRC-EIA-DC-DEMAND-2026-03-12",
+      "url": "https://www.eia.gov/todayinenergy/detail.php?id=67344",
+      "content_type": "text/html",
+      "acquisition_result": "RESOLVED_PUBLIC_SOURCE",
+      "acquired_at": "2026-09-25T23:52:01.573251Z",
+      "available_at": null,
+      "available_at_status": "UNRESOLVED_EXACT_HISTORICAL_AVAILABILITY",
+      "strict_original_as_of_eligible": false
+    },
+    {
+      "source_id": "SRC-LBNL-QUEUED-UP-2025",
+      "url": "https://emp.lbl.gov/publications/queued-2025-edition-characteristics",
+      "content_type": "text/html",
+      "acquisition_result": "RESOLVED_PUBLIC_SOURCE",
+      "acquired_at": "2026-09-25T23:52:01.573251Z",
+      "available_at": null,
+      "available_at_status": "UNRESOLVED_EXACT_HISTORICAL_AVAILABILITY",
+      "strict_original_as_of_eligible": false
+    },
+    {
+      "source_id": "SRC-FERC-ORDER-2023-FACT-SHEET",
+      "url": "https://www.ferc.gov/news-events/news/fact-sheet-improvements-generator-interconnection-procedures-and-agreements",
+      "content_type": "text/html",
+      "acquisition_result": "RESOLVED_PUBLIC_SOURCE",
+      "acquired_at": "2026-09-25T23:52:01.573251Z",
+      "available_at": null,
+      "available_at_status": "UNRESOLVED_EXACT_HISTORICAL_AVAILABILITY",
+      "strict_original_as_of_eligible": false
+    },
+    {
+      "source_id": "SRC-DOE-LPT-RESILIENCE-2024",
+      "url": "https://www.energy.gov/sites/default/files/2024-10/EXEC-2022-001242%20-%20Large%20Power%20Transformer%20Resilience%20Report%20signed%20by%20Secretary%20Granholm%20on%207-10-24.pdf",
+      "content_type": "application/pdf",
+      "acquisition_result": "RESOLVED_PUBLIC_SOURCE",
+      "acquired_at": "2026-09-25T23:52:01.573251Z",
+      "available_at": null,
+      "available_at_status": "UNRESOLVED_EXACT_HISTORICAL_AVAILABILITY",
+      "strict_original_as_of_eligible": false
+    },
+    {
+      "source_id": "SRC-DOE-DISTRIBUTION-TRANSFORMER-WEBINAR-2026",
+      "url": "https://www.energy.gov/oe/distribution-transformer-webinar-text-alternative",
+      "content_type": "text/html",
+      "acquisition_result": "RESOLVED_PUBLIC_SOURCE",
+      "acquired_at": "2026-09-25T23:52:01.573251Z",
+      "available_at": null,
+      "available_at_status": "UNRESOLVED_EXACT_HISTORICAL_AVAILABILITY",
+      "strict_original_as_of_eligible": false
+    },
+    {
+      "source_id": "SRC-LBNL-DATA-CENTER-WATER-2025",
+      "url": "https://eta-publications.lbl.gov/publications/water-use-data-center-workloads",
+      "content_type": "text/html",
+      "acquisition_result": "RESOLVED_PUBLIC_SOURCE",
+      "acquired_at": "2026-09-25T23:52:01.573251Z",
+      "available_at": null,
+      "available_at_status": "UNRESOLVED_EXACT_HISTORICAL_AVAILABILITY",
+      "strict_original_as_of_eligible": false
+    },
+    {
+      "source_id": "SRC-NERC-LTRA-2025",
+      "url": "https://www.nerc.com/globalassets/our-work/assessments/nerc_ltra_2025.pdf",
+      "content_type": "application/pdf",
+      "acquisition_result": "RESOLVED_PUBLIC_SOURCE",
+      "acquired_at": "2026-09-25T23:52:01.573251Z",
+      "available_at": null,
+      "available_at_status": "UNRESOLVED_EXACT_HISTORICAL_AVAILABILITY",
+      "strict_original_as_of_eligible": false
+    },
+    {
+      "source_id": "SRC-PJM-2025-YEAR-IN-REVIEW-2026-01-08",
+      "url": "https://insidelines.pjm.com/2025-year-in-review-planning-prepares-for-burgeoning-electricity-demand/",
+      "content_type": "text/html",
+      "acquisition_result": "RESOLVED_PUBLIC_SOURCE",
+      "acquired_at": "2026-09-25T23:52:01.573251Z",
+      "available_at": null,
+      "available_at_status": "UNRESOLVED_EXACT_HISTORICAL_AVAILABILITY",
+      "strict_original_as_of_eligible": false
+    }
+  ]
+}
