@@ -1,0 +1,328 @@
+{
+  "schema_version": "1.0",
+  "batch_id": "HYDRA_CONSTRAINT_GEOPOLITICAL_POLICY_BATCH004_20260925",
+  "evidence_digest_scope": "sha256(normalized_evidence UTF-8)",
+  "binding_policy": "Batch 004 separates source-attributed diplomatic/legal characterizations from documented actions, binds only to source-supported physical entities, and preserves commissioning/certification state transitions without hindsight promotion.",
+  "sources": [
+    {
+      "source_id": "wto-2019-07-10-japan-korea-goods-council",
+      "publisher": "World Trade Organization",
+      "url": "https://www.wto.org/english/news_e/news19_e/good_10jul19_e.htm",
+      "published_at": "2019-07-10T23:59:59Z",
+      "available_at": "2019-07-10T23:59:59Z",
+      "normalized_evidence": "On 10 July 2019, the WTO reported that Korea told the Goods Council that Japan had issued an export-control measure on 1 July, effective 4 July, requiring individual licences for shipments to Korea, while Japan stated that the measure was an operational review of its export-control procedures rather than a trade embargo.",
+      "evidence_digest": "sha256:dedc873ad5dca8e46b0f0d7902377adbc36c948c1f05be6a24afedf37146d7b8"
+    },
+    {
+      "source_id": "wto-ds590-2019-09-16",
+      "publisher": "World Trade Organization",
+      "url": "https://www.wto.org/english/news_e/news19_e/ds590rfc_16sep19_e.htm",
+      "published_at": "2019-09-16T23:59:59Z",
+      "available_at": "2019-09-16T23:59:59Z",
+      "normalized_evidence": "On 16 September 2019, the WTO reported Korea's request for consultations concerning Japanese licensing policies and procedures affecting fluorinated polyimide, resist polymers and hydrogen fluoride, and related technologies, noting that those products are used primarily in smartphone and television displays and semiconductors.",
+      "evidence_digest": "sha256:fbe39b6b2a00538cb96eda9aaac1772d461f975417a4f81579d6a37cf7e7a9e7"
+    },
+    {
+      "source_id": "consilium-2019-11-11-eastmed-framework",
+      "publisher": "Council of the European Union",
+      "url": "https://www.consilium.europa.eu/en/press/press-releases/2019/11/11/turkey-s-illegal-drilling-activities-in-the-eastern-mediterranean-council-adopts-framework-for-sanctions/",
+      "published_at": "2019-11-11T23:59:59Z",
+      "available_at": "2019-11-11T23:59:59Z",
+      "normalized_evidence": "On 11 November 2019, the Council of the European Union adopted a framework for restrictive measures concerning what it described as unauthorised drilling activities related to hydrocarbon exploration and production in the Eastern Mediterranean, including activities connected with areas claimed by Cyprus.",
+      "evidence_digest": "sha256:802566582b3510701feabe97bab4f3b224d6e425da531030754cd90a17f83f39"
+    },
+    {
+      "source_id": "consilium-2020-02-27-eastmed-listings",
+      "publisher": "Council of the European Union",
+      "url": "https://www.consilium.europa.eu/en/press/press-releases/2020/02/27/turkey-s-illegal-drilling-activities-in-the-eastern-mediterranean-eu-puts-two-persons-on-sanctions-list/",
+      "published_at": "2020-02-27T23:59:59Z",
+      "available_at": "2020-02-27T23:59:59Z",
+      "normalized_evidence": "On 27 February 2020, the Council of the European Union placed two persons under restrictive measures in relation to what it described as unauthorised offshore hydrocarbon exploration activities in the Eastern Mediterranean.",
+      "evidence_digest": "sha256:dc41ea5e721b08983476efb706d0d3a52f87c6d165d4a4e499dea7c7a5c5b08e"
+    },
+    {
+      "source_id": "bnetza-2021-11-16-nordstream2-suspension",
+      "publisher": "Bundesnetzagentur",
+      "url": "https://www.bundesnetzagentur.de/SharedDocs/Pressemitteilungen/EN/2021/20211116_NOS2.html",
+      "published_at": "2021-11-16T23:59:59Z",
+      "available_at": "2021-11-16T23:59:59Z",
+      "normalized_evidence": "On 16 November 2021, Germany's Federal Network Agency suspended the procedure to certify Nord Stream 2 AG as an independent transmission operator, stating that certification would require the operator for the German part of the pipeline to be organised under German law and that the procedure would remain suspended until specified assets, personnel and documentation were transferred and resubmitted.",
+      "evidence_digest": "sha256:4e29456b6890730daa0460e2492f8b06789eded217f4ab1ab4e6faee87a8989c"
+    },
+    {
+      "source_id": "bmwk-2022-02-22-nordstream2-halt",
+      "publisher": "German Federal Ministry for Economic Affairs and Climate Action",
+      "url": "https://www.bmwk.de/Redaktion/EN/Pressemitteilungen/2022/02/20220222-minister-habeck-comments-on-the-situation-in-eastern-ukraine-and-the-discontinuation-of-the-certification-procedure-for-nord-stream-2.html",
+      "published_at": "2022-02-22T23:59:59Z",
+      "available_at": "2022-02-22T23:59:59Z",
+      "normalized_evidence": "On 22 February 2022, Germany's Federal Ministry for Economic Affairs and Climate Action announced that the Federal Government had withdrawn the prior Security of Supply Report for Nord Stream 2 and halted the certification procedure pending a reassessment, stating that a positive certification decision could not be issued while the report remained withdrawn.",
+      "evidence_digest": "sha256:eeceedbbd2141e47138fc3134b599ef192ed9bed2836c8e06e1d93b5828d3ab2"
+    },
+    {
+      "source_id": "govinfo-2022-08-16-pl117-169-45x",
+      "publisher": "U.S. Government Publishing Office",
+      "url": "https://www.govinfo.gov/content/pkg/PLAW-117publ169/html/PLAW-117publ169.htm",
+      "published_at": "2022-08-16T23:59:59Z",
+      "available_at": "2022-08-16T23:59:59Z",
+      "normalized_evidence": "Public Law 117-169, enacted on 16 August 2022, created Internal Revenue Code section 45X, the Advanced Manufacturing Production Credit, and provided that the amendments apply to eligible components produced and sold after 31 December 2022.",
+      "evidence_digest": "sha256:b5d77f98ae83f736c5e337ce601a57b1666345329390cbb4474ded01bc289079"
+    },
+    {
+      "source_id": "treasury-2023-12-14-45x-proposed-guidance",
+      "publisher": "U.S. Department of the Treasury",
+      "url": "https://home.treasury.gov/news/press-releases/jy1989",
+      "published_at": "2023-12-14T23:59:59Z",
+      "available_at": "2023-12-14T23:59:59Z",
+      "normalized_evidence": "On 14 December 2023, the U.S. Treasury Department and IRS released proposed guidance for section 45X, describing eligible components including solar and wind components, inverters, qualifying battery components and applicable critical minerals, and proposing rules for claiming the production credit.",
+      "evidence_digest": "sha256:4a9d5afe47849446e23907295908e6d38a051c637c87482539a0416282161a78"
+    },
+    {
+      "source_id": "bmwk-2022-12-17-wilhelmshaven-opening",
+      "publisher": "German Federal Ministry for Economic Affairs and Climate Action",
+      "url": "https://www.bmwk.de/Redaktion/EN/Pressemitteilungen/2022/12/20221217-first-german-lng-terminal-inaugurated-in-wilhelmshaven.html",
+      "published_at": "2022-12-17T23:59:59Z",
+      "available_at": "2022-12-17T23:59:59Z",
+      "normalized_evidence": "On 17 December 2022, Germany's Federal Ministry for Economic Affairs and Climate Action announced the official opening of the first German floating LNG import terminal at Wilhelmshaven, stating that the Hoegh Esperanza FSRU would begin first regasification within days and would provide around 5 billion cubic metres per year of regasification capacity from January.",
+      "evidence_digest": "sha256:53b693aff81e79b422a2ed04ccf9bf7eb5ed799b2ff898f1ceccb0a67286bc40"
+    },
+    {
+      "source_id": "uniper-2023-03-01-wilhelmshaven-operations",
+      "publisher": "Uniper",
+      "url": "https://www.uniper.energy/news/final-acceptance-audit-of-wilhelmshaven-lng-terminal-successful",
+      "published_at": "2023-03-01T23:59:59Z",
+      "available_at": "2023-03-01T23:59:59Z",
+      "normalized_evidence": "On 1 March 2023, Uniper reported that the Wilhelmshaven LNG terminal had started operations on 21 December 2022 in trial operation, began commercial operation on 15 January 2023 and entered regular operations on 1 March 2023 after final acceptance.",
+      "evidence_digest": "sha256:dd7c011b1c47e12b6db8b7f43cee4f0c554331ff88e1a20ff6394171febe2261"
+    }
+  ],
+  "cases": [
+    {
+      "case_id": "japan-korea-export-control-relations-2019",
+      "binding_status": "BOUND_MINIMAL_CANONICAL_SUBGRAPH",
+      "events": [
+        {
+          "event_id": "japan-korea-export-licensing-change-2019-07",
+          "event_type": "ECONOMICALLY_RELEVANT_DIPLOMATIC_CHANGE",
+          "known_at": "2019-07-10T23:59:59Z",
+          "effective_at": "2019-07-04T00:00:00Z",
+          "claim_kind": "DOCUMENTED_ACTION",
+          "source_ids": [
+            "wto-2019-07-10-japan-korea-goods-council"
+          ],
+          "statement": "The WTO recorded Korea's statement that Japan's 1 July export-control measure became effective on 4 July and Japan's statement that the change was an operational export-control review rather than a trade embargo.",
+          "relations": [
+            {
+              "kind": "RESOURCE",
+              "entity_id": "resource:fluorinated-polyimide-japan-korea-2019",
+              "confidence": 1
+            },
+            {
+              "kind": "RESOURCE",
+              "entity_id": "resource:resist-polymers-japan-korea-2019",
+              "confidence": 1
+            },
+            {
+              "kind": "RESOURCE",
+              "entity_id": "resource:hydrogen-fluoride-japan-korea-2019",
+              "confidence": 1
+            },
+            {
+              "kind": "STRATEGIC_ASSET",
+              "entity_id": "manufacturing:korea-semiconductor-display-production-2019",
+              "confidence": 1
+            }
+          ]
+        }
+      ],
+      "observations": [
+        {
+          "observation_id": "japan-korea-wto-consultations-request-2019-09-16",
+          "known_at": "2019-09-16T23:59:59Z",
+          "observed_at": "2019-09-16T23:59:59Z",
+          "source_ids": [
+            "wto-ds590-2019-09-16"
+          ],
+          "statement": "The WTO reported Korea's request for consultations concerning the licensing measures affecting fluorinated polyimide, resist polymers and hydrogen fluoride and related technologies."
+        }
+      ]
+    },
+    {
+      "case_id": "eastern-mediterranean-offshore-drilling-dispute-2019-2020",
+      "binding_status": "BOUND_MINIMAL_CANONICAL_SUBGRAPH",
+      "events": [
+        {
+          "event_id": "eu-eastern-mediterranean-drilling-framework-2019-11-11",
+          "event_type": "TERRITORIAL_DISPUTE",
+          "known_at": "2019-11-11T23:59:59Z",
+          "effective_at": "2019-11-11T23:59:59Z",
+          "claim_kind": "DOCUMENTED_ACTION",
+          "source_ids": [
+            "consilium-2019-11-11-eastmed-framework"
+          ],
+          "statement": "The Council of the EU adopted a restrictive-measures framework concerning offshore hydrocarbon drilling activities in the Eastern Mediterranean that the Council characterised as unauthorised; HYDRA stores that characterization as source-attributed rather than resolving the underlying sovereignty dispute.",
+          "relations": [
+            {
+              "kind": "RESOURCE",
+              "entity_id": "resource:eastern-mediterranean-hydrocarbons-eu-framework-2019",
+              "confidence": 1
+            },
+            {
+              "kind": "STRATEGIC_ASSET",
+              "entity_id": "extraction:eastern-mediterranean-offshore-drilling-eu-framework-2019",
+              "confidence": 1
+            }
+          ]
+        }
+      ],
+      "observations": [
+        {
+          "observation_id": "eu-eastern-mediterranean-two-person-listings-2020-02-27",
+          "known_at": "2020-02-27T23:59:59Z",
+          "observed_at": "2020-02-27T23:59:59Z",
+          "source_ids": [
+            "consilium-2020-02-27-eastmed-listings"
+          ],
+          "statement": "The Council later placed two persons under the restrictive-measures regime in relation to the offshore hydrocarbon exploration activities."
+        }
+      ]
+    },
+    {
+      "case_id": "nord-stream-2-certification-state-2021-2022",
+      "binding_status": "BOUND_MINIMAL_CANONICAL_SUBGRAPH",
+      "events": [
+        {
+          "event_id": "nord-stream-2-certification-suspended-2021-11-16",
+          "event_type": "REGULATORY_CHANGE",
+          "known_at": "2021-11-16T23:59:59Z",
+          "effective_at": "2021-11-16T23:59:59Z",
+          "claim_kind": "DOCUMENTED_ACTION",
+          "source_ids": [
+            "bnetza-2021-11-16-nordstream2-suspension"
+          ],
+          "statement": "The Bundesnetzagentur suspended the Nord Stream 2 certification procedure pending formation and documentation of a German-law operator for the German part of the pipeline.",
+          "relations": [
+            {
+              "kind": "INFRASTRUCTURE",
+              "entity_id": "infrastructure:nord-stream-2-pipeline",
+              "confidence": 1
+            },
+            {
+              "kind": "DEPENDENCY",
+              "entity_id": "company:nord-stream-2-ag",
+              "confidence": 1
+            }
+          ]
+        },
+        {
+          "event_id": "nord-stream-2-certification-halted-2022-02-22",
+          "event_type": "INFRASTRUCTURE_POLICY",
+          "known_at": "2022-02-22T23:59:59Z",
+          "effective_at": "2022-02-22T23:59:59Z",
+          "claim_kind": "DOCUMENTED_ACTION",
+          "source_ids": [
+            "bmwk-2022-02-22-nordstream2-halt"
+          ],
+          "statement": "The German Federal Government withdrew the prior Nord Stream 2 security-of-supply report and halted the certification procedure pending reassessment.",
+          "relations": [
+            {
+              "kind": "INFRASTRUCTURE",
+              "entity_id": "infrastructure:nord-stream-2-pipeline",
+              "confidence": 1
+            },
+            {
+              "kind": "DEPENDENCY",
+              "entity_id": "transport:nord-stream-2-gas-transport",
+              "confidence": 1
+            }
+          ]
+        }
+      ],
+      "observations": []
+    },
+    {
+      "case_id": "us-section45x-advanced-manufacturing-incentive-2022",
+      "binding_status": "BOUND_MINIMAL_CANONICAL_SUBGRAPH",
+      "events": [
+        {
+          "event_id": "us-section45x-advanced-manufacturing-credit-enacted-2022",
+          "event_type": "INCENTIVE",
+          "known_at": "2022-08-16T23:59:59Z",
+          "effective_at": "2023-01-01T00:00:00Z",
+          "claim_kind": "DOCUMENTED_ACTION",
+          "source_ids": [
+            "govinfo-2022-08-16-pl117-169-45x"
+          ],
+          "statement": "Public Law 117-169 established the section 45X Advanced Manufacturing Production Credit for eligible components produced and sold after 31 December 2022.",
+          "relations": [
+            {
+              "kind": "STRATEGIC_ASSET",
+              "entity_id": "manufacturing:us-section45x-eligible-production",
+              "confidence": 1
+            },
+            {
+              "kind": "DEPENDENCY",
+              "entity_id": "product:section45x-eligible-components",
+              "confidence": 1
+            },
+            {
+              "kind": "RESOURCE",
+              "entity_id": "resource:section45x-applicable-critical-minerals",
+              "confidence": 1
+            }
+          ]
+        }
+      ],
+      "observations": [
+        {
+          "observation_id": "us-section45x-proposed-guidance-2023-12-14",
+          "known_at": "2023-12-14T23:59:59Z",
+          "observed_at": "2023-12-14T23:59:59Z",
+          "source_ids": [
+            "treasury-2023-12-14-45x-proposed-guidance"
+          ],
+          "statement": "Treasury and the IRS later released proposed section 45X guidance describing eligible components and proposed claiming rules."
+        }
+      ]
+    },
+    {
+      "case_id": "germany-wilhelmshaven-lng-commissioning-2022-2023",
+      "binding_status": "BOUND_MINIMAL_CANONICAL_SUBGRAPH",
+      "events": [
+        {
+          "event_id": "wilhelmshaven-lng-terminal-opened-2022-12-17",
+          "event_type": "INFRASTRUCTURE_POLICY",
+          "known_at": "2022-12-17T23:59:59Z",
+          "effective_at": "2022-12-17T23:59:59Z",
+          "claim_kind": "DOCUMENTED_ACTION",
+          "source_ids": [
+            "bmwk-2022-12-17-wilhelmshaven-opening"
+          ],
+          "statement": "Germany's first floating LNG import terminal at Wilhelmshaven was officially opened, with the Hoegh Esperanza FSRU expected to begin regasification within days and provide around 5 bcm/year of regasification capacity from January.",
+          "relations": [
+            {
+              "kind": "INFRASTRUCTURE",
+              "entity_id": "infrastructure:wilhelmshaven-lng-fsru-esperanza",
+              "confidence": 1
+            },
+            {
+              "kind": "DEPENDENCY",
+              "entity_id": "transport:germany-direct-lng-imports-wilhelmshaven",
+              "confidence": 1
+            }
+          ]
+        }
+      ],
+      "observations": [
+        {
+          "observation_id": "wilhelmshaven-lng-regular-operations-2023-03-01",
+          "known_at": "2023-03-01T23:59:59Z",
+          "observed_at": "2023-03-01T23:59:59Z",
+          "source_ids": [
+            "uniper-2023-03-01-wilhelmshaven-operations"
+          ],
+          "statement": "The terminal operator later reported trial operations beginning 21 December 2022, commercial operation from 15 January 2023 and regular operations from 1 March 2023 after final acceptance."
+        }
+      ]
+    }
+  ]
+}
