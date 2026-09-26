@@ -1,0 +1,35 @@
+{
+  "schema_version": "hydra-constraint-first-slice-beneficiary-prequalification-overlay/v1",
+  "record_id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH013_AI_DATA_CENTER_POWER_INFRASTRUCTURE_EATON_TRANSFORMER_PREQUALIFICATION_OVERLAY_V001",
+  "as_of": "2026-09-25",
+  "predecessor_relationship": "BEN-AIDC-EATON-TRANSFORMER-001",
+  "slice_id": "AI_DATA_CENTER_POWER_INFRASTRUCTURE_V1",
+  "relationship_id": "BEN-AIDC-EATON-TRANSFORMER-001",
+  "predecessor_qualification_state": "INELIGIBLE_TO_EVALUATE",
+  "successor_semantic_evidence_state": "SHADOW_PREQUALIFICATION_INPUTS_SUPPORTED",
+  "canonical_qualification_state": "BLOCKED",
+  "canonical_constraint_id": null,
+  "ordinary_t6_eligible": false,
+  "evidence_roles": {
+    "constraint_support": [
+      "EV-DOE-LPT-SUPPLY",
+      "EV-DOE-TRANSFORMER-LEAD-TIMES"
+    ],
+    "entity_connection": [
+      "CLM-AIDC-005"
+    ],
+    "operational_capacity": [
+      "CLM-AIDC-005"
+    ],
+    "customer_geography": [
+      "CLM-AIDC-005"
+    ],
+    "economic_capture": [],
+    "disconfirming_or_limiting": [
+      "FIRST_SHIPMENT_IN_SOURCE_IS_VOLTAGE_REGULATOR_NOT_THREE_PHASE_TRANSFORMER_QUALIFICATION",
+      "NO_CONSTRAINT_DRIVEN_CAPTURE_EVIDENCE",
+      "PARENT_CONSTRAINT_NOT_ORDINARY_T6_ELIGIBLE"
+    ]
+  },
+  "fail_closed_rule": "SEMANTIC_INPUT_COMPLETENESS_MAY_ADVANCE_WITHOUT_MINTING_A_QUALIFIED_BENEFICIARY"
+}
