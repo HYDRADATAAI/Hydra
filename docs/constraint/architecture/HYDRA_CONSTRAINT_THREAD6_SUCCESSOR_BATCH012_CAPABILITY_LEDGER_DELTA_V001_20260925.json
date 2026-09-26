@@ -1,0 +1,36 @@
+{
+  "schema_version": "hydra-constraint-capability-ledger-delta/v1",
+  "record_id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH012_CAPABILITY_LEDGER_DELTA_V001",
+  "as_of": "2026-09-25",
+  "predecessor": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH011_CAPABILITY_LEDGER_DELTA_V001",
+  "slice_id": "AI_DATA_CENTER_POWER_INFRASTRUCTURE_V1",
+  "rule": "DO_NOT_UPGRADE_FOR_SCHEMA_ONLY",
+  "updates": [
+    {
+      "capability": "confidence_contradictions",
+      "prior_status": "THIN",
+      "successor_status": "PARTIALLY_POPULATED",
+      "basis": [
+        "Real corporate-plan vs regulatory-state case preserved without consensus fabrication"
+      ]
+    }
+  ],
+  "unchanged": [
+    {
+      "capability": "historical_outcomes",
+      "status": "THIN",
+      "reason": "TWO_REAL_OUTCOMES_ARE_STILL_SMALL_COVERAGE"
+    },
+    {
+      "capability": "historical_states_replay",
+      "status": "THIN",
+      "reason": "NEW_HISTORICAL_CASES_LACK_EXACT_HYDRA_AVAILABLE_AT_AND_RAW_ARTIFACT_LINEAGE"
+    },
+    {
+      "capability": "evaluation",
+      "status": "THIN",
+      "reason": "REQUIRED_CASE_2_REMAINS_GAP_AND_CASE_1_CASE_6_REMAIN_PARTIAL"
+    }
+  ],
+  "update_count": 1
+}

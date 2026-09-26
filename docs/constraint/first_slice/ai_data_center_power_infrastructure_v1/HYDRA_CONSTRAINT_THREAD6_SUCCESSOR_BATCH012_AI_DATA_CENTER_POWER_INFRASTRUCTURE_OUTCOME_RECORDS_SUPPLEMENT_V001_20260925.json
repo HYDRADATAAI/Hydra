@@ -1,0 +1,33 @@
+{
+  "schema_version": "hydra-constraint-first-slice-outcome-records-supplement/v1",
+  "record_id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH012_AI_DATA_CENTER_POWER_INFRASTRUCTURE_OUTCOME_RECORDS_SUPPLEMENT_V001",
+  "as_of": "2026-09-25",
+  "predecessor_outcome_record": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH011_AI_DATA_CENTER_POWER_INFRASTRUCTURE_OUTCOME_RECORDS_V001",
+  "slice_id": "AI_DATA_CENTER_POWER_INFRASTRUCTURE_V1",
+  "records": [
+    {
+      "outcome_id": "OUT-AIDC-CALVERT-AWS-PROJECT-CANCELLED-001",
+      "outcome_label": "PROJECT_CANCELLED",
+      "entity_name": "Amazon Data Services Inc.",
+      "project": "Calvert Technology Center Conceptual Site Development Plan",
+      "geography": "Calvert County, Maryland",
+      "source_id": "SRC-CALVERT-COUNTY-AWS-WITHDRAWAL-2026-08-04",
+      "evidence_id": "EV-CALVERT-AWS-PROJECT-WITHDRAWAL-2026",
+      "real_world_effective_time": "2026-08-04",
+      "publication_time": null,
+      "hydra_available_at": null,
+      "observed_at": null,
+      "temporal_status": "HISTORICAL_EVENT_DATE_KNOWN_HYDRA_EXACT_AVAILABLE_AT_NOT_PERSISTED",
+      "mapping_note": "Formal withdrawal of the specific proposed site-development application maps to PROJECT_CANCELLED only at this project/application scope.",
+      "semantic_limits": [
+        "Earlier application and review history remain preserved.",
+        "Current expected demand impact for this specific Calvert project is removed.",
+        "No conclusion is made about other AWS projects or aggregate regional demand."
+      ],
+      "ordinary_replay_eligible": false
+    }
+  ],
+  "current_slice_outcome_count_after": 2,
+  "constraint_resolutions_total": 0,
+  "beneficiary_capture_confirmed_total": 0
+}

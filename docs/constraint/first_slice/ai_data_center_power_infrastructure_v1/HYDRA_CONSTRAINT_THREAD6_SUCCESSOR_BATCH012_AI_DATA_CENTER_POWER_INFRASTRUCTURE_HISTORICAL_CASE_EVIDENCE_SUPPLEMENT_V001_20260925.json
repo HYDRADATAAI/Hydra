@@ -1,0 +1,66 @@
+{
+  "schema_version": "hydra-constraint-first-slice-evidence-supplement/v1",
+  "record_id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH012_AI_DATA_CENTER_POWER_INFRASTRUCTURE_HISTORICAL_CASE_EVIDENCE_SUPPLEMENT_V001",
+  "as_of": "2026-09-25",
+  "predecessor_batch": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH011",
+  "slice_id": "AI_DATA_CENTER_POWER_INFRASTRUCTURE_V1",
+  "observations": [
+    {
+      "evidence_id": "EV-DOMINION-EASTERN-LOUDOUN-TRANSMISSION-CONSTRAINT-2022",
+      "source_id": "SRC-DOMINION-LREG-LOUDOUN-TRANSMISSION-CONSTRAINT-2022-08-17",
+      "evidence_role": "TRUE_CONSTRAINT_SUPPORT",
+      "proposition": "Dominion described a transmission constraint concentrated on high-energy-use customers in eastern Loudoun County that affected future development of additional data centers, and stated that additional infrastructure was needed to relieve the constraint.",
+      "scope": "EASTERN_LOUDOUN_VIRGINIA_DATA_CENTER_LOAD_2022",
+      "semantic_limits": [
+        "Does not identify a named data-center project that missed a planned energization date.",
+        "Does not imply all Northern Virginia data centers were constrained.",
+        "Does not prove the constraint persisted after later reinforcement."
+      ],
+      "strict_original_as_of_eligible": false
+    },
+    {
+      "evidence_id": "EV-TALEN-AWS-CAMPUS-960MW-DEVELOPMENT-MILESTONES-2024",
+      "source_id": "SRC-TALEN-CUMULUS-AWS-960MW-MILESTONES-2024-08-26",
+      "evidence_role": "CONTRADICTION_CORPORATE_PLAN_SIDE",
+      "proposition": "Talen stated that development-planning milestones had been completed that allowed development of the AWS Cumulus campus to 960 MW of power consumption.",
+      "scope": "CUMULUS_AWS_SUSQUEHANNA_CAMPUS_2024",
+      "semantic_limits": [
+        "Development-planning milestones are not equivalent to FERC or PJM approval of interconnection-service treatment.",
+        "The 960 MW figure must not be relabelled as operational load or approved co-located load."
+      ],
+      "strict_original_as_of_eligible": false
+    },
+    {
+      "evidence_id": "EV-FERC-SUSQUEHANNA-480MW-AMENDED-ISA-REJECTED-2024",
+      "source_id": "SRC-FERC-ER24-2172-ORDER-2024-11-01",
+      "evidence_role": "CONTRADICTION_REGULATORY_STATE_SIDE",
+      "proposition": "FERC rejected an amended interconnection service agreement that would have increased co-located load from 300 MW to 480 MW; the order also records PJM's position that load above 480 MW would require resolution of generation-deliverability violations and system upgrades.",
+      "scope": "PJM_SUSQUEHANNA_COLOCATED_LOAD_DOCKET_ER24_2172_2024",
+      "semantic_limits": [
+        "The order concerns the amended ISA and does not itself cancel the entire AWS campus.",
+        "The 300/480 MW interconnection-service state and the 960 MW campus development plan are different scopes and must remain separate."
+      ],
+      "strict_original_as_of_eligible": false
+    },
+    {
+      "evidence_id": "EV-CALVERT-AWS-SITE-APPLICATION-HISTORY-2026",
+      "source_id": "SRC-CALVERT-COUNTY-AWS-WITHDRAWAL-2026-08-04",
+      "evidence_role": "CANCELLED_PROJECT_PRIOR_STATE",
+      "proposition": "Calvert County records show that AWS submitted the Calvert Technology Center conceptual site plan application on May 4, 2026, it was accepted for processing on May 27, and agencies completed first-round review on July 13.",
+      "scope": "CALVERT_TECHNOLOGY_CENTER_MARYLAND_2026",
+      "strict_original_as_of_eligible": false
+    },
+    {
+      "evidence_id": "EV-CALVERT-AWS-PROJECT-WITHDRAWAL-2026",
+      "source_id": "SRC-CALVERT-COUNTY-AWS-WITHDRAWAL-2026-08-04",
+      "evidence_role": "PROJECT_CANCELLED_OUTCOME",
+      "proposition": "Calvert County announced on August 4, 2026 that Amazon Data Services formally withdrew its application for the Calvert Technology Center Conceptual Site Development Plan.",
+      "scope": "CALVERT_TECHNOLOGY_CENTER_MARYLAND_2026",
+      "semantic_limits": [
+        "Withdrawal removes this specific project/application from the expected local development path.",
+        "It does not imply AWS cancelled all Maryland, PJM, or U.S. data-center demand."
+      ],
+      "strict_original_as_of_eligible": false
+    }
+  ]
+}

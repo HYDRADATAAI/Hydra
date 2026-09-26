@@ -1,0 +1,55 @@
+{
+  "schema_version": "hydra-constraint-first-slice-historical-case-registry/v1",
+  "record_id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH012_AI_DATA_CENTER_POWER_INFRASTRUCTURE_HISTORICAL_CASE_REGISTRY_V001",
+  "as_of": "2026-09-25",
+  "predecessor_batch": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH011",
+  "slice_id": "AI_DATA_CENTER_POWER_INFRASTRUCTURE_V1",
+  "case_mode": "REVIEWED_HISTORICAL_CASES_NOT_ORDINARY_ORIGINAL_AS_OF_REPLAY",
+  "records": [
+    {
+      "historical_case_id": "HC-AIDC-CASE01-EASTERN-LOUDOUN-TRANSMISSION-CONSTRAINT-2022",
+      "required_case_id": 1,
+      "required_case_name": "TRUE_CAPACITY_CONSTRAINT",
+      "status": "PARTIAL_STRENGTHENED_REAL_LOCALIZED_CONSTRAINT",
+      "limiting_mechanism": "TRANSMISSION_CAPACITY",
+      "evidence_ids": [
+        "EV-DOMINION-EASTERN-LOUDOUN-TRANSMISSION-CONSTRAINT-2022"
+      ],
+      "governed_result": "CONSTRAINT_CANDIDATE_SUPPORTED_AT_LOCALIZED_SYSTEM_SCOPE",
+      "unresolved_requirement": "NO_NAMED_PROJECT_WITH_PLANNED_ENERGIZATION_FAILURE_CAUSALLY_TIED_TO_THIS_CONSTRAINT",
+      "overpromotion_prohibited": true
+    },
+    {
+      "historical_case_id": "HC-AIDC-CASE04-SUSQUEHANNA-COLOCATION-STATE-CONTRADICTION-2024",
+      "required_case_id": 4,
+      "required_case_name": "CONTRADICTION",
+      "status": "COVERED_REVIEWED_SHADOW",
+      "evidence_ids": [
+        "EV-TALEN-AWS-CAMPUS-960MW-DEVELOPMENT-MILESTONES-2024",
+        "EV-FERC-SUSQUEHANNA-480MW-AMENDED-ISA-REJECTED-2024"
+      ],
+      "contradiction_state": "PRESERVE_BOTH_SCOPE_STATES_NO_FABRICATED_CONSENSUS",
+      "corporate_state": "DEVELOPMENT_PLANNING_MILESTONES_ALLOW_CAMPUS_DEVELOPMENT_TO_960MW",
+      "regulatory_state": "AMENDED_ISA_300MW_TO_480MW_REJECTED",
+      "semantic_resolution": "DEVELOPMENT_PLAN_CAPACITY_IS_NOT_APPROVED_INTERCONNECTION_SERVICE_CAPACITY",
+      "later_evidence_policy": "POST_2024_REVISED_ARRANGEMENTS_MUST_BE_INVISIBLE_TO_2024_ORIGINAL_AS_OF_VIEW_UNLESS_SEPARATELY_AVAILABLE",
+      "ordinary_replay_eligible": false
+    },
+    {
+      "historical_case_id": "HC-AIDC-CASE10-CALVERT-AWS-WITHDRAWAL-2026",
+      "required_case_id": 10,
+      "required_case_name": "CANCELLED_PROJECT",
+      "status": "COVERED_REVIEWED_SHADOW",
+      "evidence_ids": [
+        "EV-CALVERT-AWS-SITE-APPLICATION-HISTORY-2026",
+        "EV-CALVERT-AWS-PROJECT-WITHDRAWAL-2026"
+      ],
+      "prior_state_preserved": true,
+      "successor_state": "PROJECT_CANCELLED_AT_SITE_APPLICATION_SCOPE",
+      "demand_path_effect": "REMOVE_THIS_SPECIFIC_CALVERT_PROJECT_FROM_CURRENT_EXPECTED_DEVELOPMENT_PATH",
+      "historical_rewrite": false,
+      "semantic_limit": "DO_NOT_GENERALIZE_WITHDRAWAL_TO_AWS_REGIONAL_OR_NATIONAL_DEMAND",
+      "ordinary_replay_eligible": false
+    }
+  ]
+}

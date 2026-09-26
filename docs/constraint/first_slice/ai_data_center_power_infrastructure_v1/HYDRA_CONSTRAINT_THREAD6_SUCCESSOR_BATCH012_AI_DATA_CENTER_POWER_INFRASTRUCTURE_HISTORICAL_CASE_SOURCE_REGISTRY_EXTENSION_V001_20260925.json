@@ -1,0 +1,104 @@
+{
+  "schema_version": "hydra-constraint-first-slice-source-registry-extension/v1",
+  "record_id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH012_AI_DATA_CENTER_POWER_INFRASTRUCTURE_HISTORICAL_CASE_SOURCE_REGISTRY_EXTENSION_V001",
+  "as_of": "2026-09-25",
+  "predecessor_batch": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH011",
+  "slice_id": "AI_DATA_CENTER_POWER_INFRASTRUCTURE_V1",
+  "ingestion_mode": "CURRENT_REVIEWED_PRIMARY_SOURCE_HISTORICAL_CASES",
+  "runtime_live_source_authority_used": false,
+  "source_content_persisted": false,
+  "exact_hydra_acquisition_timestamp_persisted": false,
+  "rule": "HISTORICAL_EVENT_OR_PUBLICATION_DATE_DOES_NOT_IMPLY_HYDRA_AVAILABLE_AT",
+  "sources": [
+    {
+      "source_id": "SRC-DOMINION-LREG-LOUDOUN-TRANSMISSION-CONSTRAINT-2022-08-17",
+      "publisher": "Dominion Energy Virginia",
+      "title": "Loudoun Reliability Engagement Group — Second Meeting Executive Summary Report",
+      "url": "https://www.dominionenergy.com/-/media/content/about/power-line-projects/nova/pdfs/community-meeting-summarys/lreg-meeting-02-summary.pdf",
+      "source_type": "UTILITY_COMMUNITY_ENGAGEMENT_REPORT",
+      "authority_class": "PRIMARY_UTILITY_SOURCE_FOR_OWN_GRID_CONSTRAINT_DESCRIPTION",
+      "document_event_date": "2022-08-17",
+      "publication_date": null,
+      "acquired_at": null,
+      "available_at": null,
+      "historical_backdating_authorized": false,
+      "ordinary_raw_lineage_eligible": false,
+      "roles": [
+        "TRANSMISSION_CONSTRAINT",
+        "DATA_CENTER_LOAD",
+        "CONSTRAINT_RELIEF_INFRASTRUCTURE"
+      ],
+      "known_weaknesses": [
+        "NO_NAMED_PROJECT_ENERGIZATION_DATE",
+        "EXACT_HYDRA_HISTORICAL_AVAILABILITY_NOT_PROVEN"
+      ]
+    },
+    {
+      "source_id": "SRC-TALEN-CUMULUS-AWS-960MW-MILESTONES-2024-08-26",
+      "publisher": "Talen Energy Corporation",
+      "title": "Talen Energy Announces Receipt of Escrowed Funds for Cumulus Data Center Campus Transaction",
+      "url": "https://ir.talenenergy.com/news-releases/news-release-details/talen-energy-announces-receipt-escrowed-funds-cumulus-data",
+      "source_type": "PRIMARY_CORPORATE_RELEASE",
+      "authority_class": "PRIMARY_ENTITY_SOURCE_FOR_OWN_TRANSACTION_AND_DEVELOPMENT_PLAN",
+      "publication_date": "2024-08-26",
+      "acquired_at": null,
+      "available_at": null,
+      "historical_backdating_authorized": false,
+      "ordinary_raw_lineage_eligible": false,
+      "roles": [
+        "PROJECT_DEVELOPMENT_PLAN",
+        "POWER_CONSUMPTION_PLAN",
+        "CONTRADICTION_SIDE_A"
+      ],
+      "known_weaknesses": [
+        "FORWARD_LOOKING_DEVELOPMENT_PLAN",
+        "NOT_REGULATORY_INTERCONNECTION_APPROVAL",
+        "EXACT_HYDRA_HISTORICAL_AVAILABILITY_NOT_PROVEN"
+      ]
+    },
+    {
+      "source_id": "SRC-FERC-ER24-2172-ORDER-2024-11-01",
+      "publisher": "Federal Energy Regulatory Commission",
+      "title": "189 FERC ¶ 61,078 — Order Rejecting Amendments to Interconnection Service Agreement",
+      "url": "https://www.ferc.gov/sites/default/files/2024-11/20241101-3061_ER24-2172-000.pdf",
+      "source_type": "FEDERAL_REGULATORY_ORDER",
+      "authority_class": "PRIMARY_REGULATORY_ORDER",
+      "issued_date": "2024-11-01",
+      "acquired_at": null,
+      "available_at": null,
+      "historical_backdating_authorized": false,
+      "ordinary_raw_lineage_eligible": false,
+      "roles": [
+        "INTERCONNECTION_REGULATORY_STATE",
+        "COLOCATED_LOAD_LIMIT",
+        "CONTRADICTION_SIDE_B"
+      ],
+      "known_weaknesses": [
+        "ORDER_ADDRESSES_AMENDED_ISA_NOT_TOTAL_CAMPUS_ZONING_OR_SITE_PLAN",
+        "EXACT_HYDRA_HISTORICAL_AVAILABILITY_NOT_PROVEN"
+      ]
+    },
+    {
+      "source_id": "SRC-CALVERT-COUNTY-AWS-WITHDRAWAL-2026-08-04",
+      "publisher": "Calvert County Government, Maryland",
+      "title": "Amazon Web Services — AWS Withdraws Proposed Calvert County Data Center Project",
+      "url": "https://www.calvertcountymd.gov/4059/Amazon-Web-Services",
+      "source_type": "LOCAL_GOVERNMENT_PROJECT_RECORD",
+      "authority_class": "PRIMARY_LOCAL_GOVERNMENT_PROJECT_APPLICATION_STATUS",
+      "event_date": "2026-08-04",
+      "acquired_at": null,
+      "available_at": null,
+      "historical_backdating_authorized": false,
+      "ordinary_raw_lineage_eligible": false,
+      "roles": [
+        "PROJECT_APPLICATION_HISTORY",
+        "PROJECT_WITHDRAWAL",
+        "CANCELLED_PROJECT_CASE"
+      ],
+      "known_weaknesses": [
+        "WITHDRAWAL_APPLIES_TO_CALVERT_TECHNOLOGY_CENTER_SITE_APPLICATION_NOT_ALL_AWS_REGIONAL_DEMAND",
+        "EXACT_HYDRA_HISTORICAL_AVAILABILITY_NOT_PROVEN"
+      ]
+    }
+  ]
+}
