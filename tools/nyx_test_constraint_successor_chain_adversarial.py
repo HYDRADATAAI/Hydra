@@ -489,6 +489,23 @@ def case_batch012_invents_available_at(root: Path) -> None:
     )
 
 
+def case_batch016_in_memory_release_authority(root: Path) -> None:
+    relative = (
+        "docs/constraint/implementation/"
+        "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH016_T1_T2_PERSISTED_CHAIN_OF_CUSTODY_CONTRACT_V001_20260925.json"
+    )
+
+    def mutate(doc: dict) -> None:
+        doc["authority_semantics"]["caller_supplied_in_memory_release_manifest_authoritative"] = True
+
+    mutate_json(
+        root,
+        relative,
+        mutate,
+        manifest_name=manifest_name_for_batch(16),
+    )
+
+
 def case_latest_master_falsely_ready(root: Path) -> None:
     batch, master_path = latest_master()
     relative = master_path.relative_to(ROOT).as_posix()
@@ -525,6 +542,7 @@ def main() -> int:
         ("batch012_cancelled_scope_generalized", case_batch012_cancelled_scope_generalized, "Batch012 cancelled-project scope was generalized"),
         ("batch012_true_case_falsely_closed", case_batch012_true_case_falsely_closed, "Batch012 case1 overlay falsely closed true-project case"),
         ("batch012_invents_available_at", case_batch012_invents_available_at, "Batch012 invented exact HYDRA available_at"),
+        ("batch016_in_memory_release_authority", case_batch016_in_memory_release_authority, "Batch016 in-memory release authority unexpectedly enabled"),
         ("latest_master_falsely_ready", case_latest_master_falsely_ready, "falsely claims full-run readiness"),
     ]
     for name, mutator, expected in cases:
