@@ -1,0 +1,58 @@
+{
+  "schema_version": "hydra-constraint-capability-ledger-delta/v1",
+  "record_id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH018_SEMICONDUCTOR_CAPABILITY_LEDGER_DELTA_V001",
+  "as_of": "2026-09-26",
+  "slice_id": "SEMICONDUCTOR_ADVANCED_PACKAGING_CRITICAL_MATERIALS_V1",
+  "predecessor_global_batch": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH017",
+  "changes": [
+    {
+      "capability": "source_authority_registry",
+      "prior": "EMPTY",
+      "current": "POPULATED_REVIEWED_SHADOW",
+      "basis": "10 primary-source authority records; no T1 custody claimed"
+    },
+    {
+      "capability": "semiconductor_entities_products",
+      "prior": "EMPTY_PUBLIC_REPO",
+      "current": "FIRST_POPULATION_PARTIAL",
+      "basis": "Company, product, facility, geography and policy seed"
+    },
+    {
+      "capability": "dependency_graph",
+      "prior": "EMPTY",
+      "current": "PARTIAL_REVIEWED_SHADOW",
+      "basis": "24 evidence-backed seed edges"
+    },
+    {
+      "capability": "cross_slice_ai_semiconductor",
+      "prior": "REQUIRED_NOT_BUILT",
+      "current": "PARTIAL_REVIEWED_SHADOW",
+      "basis": "AI compute demand -> H200 -> HBM3E -> producer seed path"
+    },
+    {
+      "capability": "critical_materials",
+      "prior": "EMPTY",
+      "current": "EMPTY",
+      "basis": "No semiconductor-grade material record admitted without stronger primary-source chain"
+    },
+    {
+      "capability": "historical_replay",
+      "prior": "EMPTY",
+      "current": "BLOCKED",
+      "basis": "No T1 raw source versions/acquired_at/available_at"
+    },
+    {
+      "capability": "historical_outcomes",
+      "prior": "EMPTY",
+      "current": "EMPTY",
+      "basis": "No outcome object admitted in Batch018"
+    },
+    {
+      "capability": "required_case_matrix",
+      "prior": "0_OF_14",
+      "current": "0_OF_14",
+      "basis": "Population seed does not claim replay/functional case coverage"
+    }
+  ],
+  "maturity_rule": "SHADOW_POPULATION_DOES_NOT_PROMOTE_ORDINARY_PIPELINE_OR_REPLAY_READINESS"
+}
