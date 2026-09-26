@@ -36,7 +36,12 @@ class Snapshot:
         valid = self.valid_from <= when and (self.valid_to is None or when < self.valid_to)
         if not valid:
             return False
-        return knowledge_cutoff is None or self.known_at is None or self.known_at <= knowledge_cutoff
+        if knowledge_cutoff is None:
+            return True
+        # Point-in-time replay is fail-closed: a state with no historical
+        # knowledge timestamp cannot be treated as knowable merely because its
+        # world-time validity interval includes the query date.
+        return self.known_at is not None and self.known_at <= knowledge_cutoff
 
 @dataclass(frozen=True)
 class Node:
@@ -67,4 +72,7 @@ class Edge:
         valid = self.valid_from <= when and (self.valid_to is None or when < self.valid_to)
         if not valid:
             return False
-        return knowledge_cutoff is None or self.known_at is None or self.known_at <= knowledge_cutoff
+        if knowledge_cutoff is None:
+            return True
+        # Missing knowledge time is UNKNOWN, never implicitly historical.
+        return self.known_at is not None and self.known_at <= knowledge_cutoff
