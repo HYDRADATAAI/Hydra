@@ -50,6 +50,7 @@ from .outcome_mapping import (
     load_outcome_mapping_bundle,
     map_positive_constraint_outcome,
 )
+from .end_to_end import EndToEndReplayError, run_classified_replay_e2e
 from .classified_gold import (
     CLASSIFIED_GOLD_TIER,
     NO_NUMERIC_CONFIDENCE,
@@ -75,6 +76,7 @@ __all__ = [
     "OutcomeMappingDecision","OutcomeMappingError","OutcomeMappingInputs",
     "POSITIVE_CONSTRAINT_RULESET_V1","load_outcome_mapping_bundle",
     "map_positive_constraint_outcome",
+    "EndToEndReplayError","run_classified_replay_e2e",
     "CLASSIFIED_GOLD_TIER","NO_NUMERIC_CONFIDENCE","ClassifiedGoldError",
     "ClassifiedGoldRecord","load_classified_gold_corpus","summarize_classified_gold",
 ]
