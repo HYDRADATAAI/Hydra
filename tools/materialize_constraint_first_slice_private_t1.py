@@ -72,8 +72,12 @@ def _validate_body(raw: bytes, *, content_type: str, source_id: str) -> None:
             raise MaterializationError(f"{source_id}: staged body looks like an error/interstitial page")
 
 
-def _source_version_id(raw: bytes) -> str:
-    return "SV-" + hashlib.sha256(raw).hexdigest()[:24]
+def _source_version_id(raw: bytes, *, source_id: str) -> str:
+    # Release manifests require source_version_id uniqueness. Bind the version
+    # identifier to both source identity and exact content bytes so two sources
+    # with byte-identical captures cannot collide.
+    digest = hashlib.sha256(source_id.encode("utf-8") + b"\0" + raw).hexdigest()
+    return "SV-" + digest[:24]
 
 
 def _receipt_path(private_root: Path, source_id: str, source_version_id: str) -> Path:
@@ -88,7 +92,7 @@ def _load_or_persist(
     acquired_at: str,
 ) -> dict[str, Any]:
     source_id = str(source["source_id"])
-    version_id = _source_version_id(raw)
+    version_id = _source_version_id(raw, source_id=source_id)
     receipt_path = _receipt_path(store.root, source_id, version_id)
     if receipt_path.is_file():
         receipt = _load_json(receipt_path)
