@@ -57,7 +57,7 @@ A record may enter this tier only when it has:
 
 Numeric confidence is **not** required for this tier. As a result, lead time and outcome-class counts are valid, while calibration metrics such as Brier score are disabled.
 
-Batch 008 currently contains three classified-gold cases, all conservatively mapped to `PARTIAL_REALIZATION`.
+Batch 009 expands the classified-gold corpus to six cases while preserving the three Batch 008 records unchanged. All six are currently conservatively mapped to `PARTIAL_REALIZATION`.
 
 ### Scored gold, calibrated
 
@@ -143,6 +143,24 @@ For the three enriched cases, the rules conservatively produce `PARTIAL_REALIZAT
 The updated promotion audit therefore leaves only the two calibration blockers:
 - `NO_PRECOMMITTED_CONFIDENCE_SOURCE`
 - `NO_SOURCE_GROUNDED_CONFIDENCE_VALUE`
+
+## Classified-gold expansion
+
+`corpus/HYDRA_CONSTRAINT_CLASSIFIED_GOLD_UNCALIBRATED_BATCH009_20260926.jsonl` adds:
+
+- U.S. Section 232 steel tariffs;
+- EU Russian-oil import restrictions;
+- Panama Canal drought/transit restrictions.
+
+The expansion reuses the existing confidence and outcome-mapping governance unchanged.
+
+Current classified-gold state:
+
+- 6 uncalibrated classified cases;
+- 0 calibrated scored-gold cases;
+- Brier score disabled.
+
+The predecessor Batch 008 records are regression-protected from semantic rewriting.
 
 ## Run
 
