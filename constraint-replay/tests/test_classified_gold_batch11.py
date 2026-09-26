@@ -25,12 +25,12 @@ from hydra_constraint_replay.promotion import (
 
 
 ROOT=Path(__file__).resolve().parents[2]
-OLD=ROOT/"constraint-replay"/"corpus"/"HYDRA_CONSTRAINT_CLASSIFIED_GOLD_UNCALIBRATED_BATCH008_20260926.jsonl"
-NEW=ROOT/"constraint-replay"/"corpus"/"HYDRA_CONSTRAINT_CLASSIFIED_GOLD_UNCALIBRATED_BATCH009_20260926.jsonl"
-ENRICH=ROOT/"constraint-replay"/"corpus"/"HYDRA_CONSTRAINT_REPLAY_OUTCOME_ENRICHMENT_BATCH009_20260926.json"
-CONF=ROOT/"constraint-replay"/"corpus"/"HYDRA_CONSTRAINT_REPLAY_CONFIDENCE_ADMISSIBILITY_BATCH009_20260926.json"
-MAP=ROOT/"constraint-replay"/"corpus"/"HYDRA_CONSTRAINT_REPLAY_OUTCOME_MAPPING_BATCH009_20260926.json"
-AUDIT=ROOT/"constraint-replay"/"corpus"/"HYDRA_CONSTRAINT_REPLAY_PROMOTION_AUDIT_BATCH009_20260926.json"
+OLD=ROOT/"constraint-replay"/"corpus"/"HYDRA_CONSTRAINT_CLASSIFIED_GOLD_UNCALIBRATED_BATCH010_20260926.jsonl"
+NEW=ROOT/"constraint-replay"/"corpus"/"HYDRA_CONSTRAINT_CLASSIFIED_GOLD_UNCALIBRATED_BATCH011_20260926.jsonl"
+ENRICH=ROOT/"constraint-replay"/"corpus"/"HYDRA_CONSTRAINT_REPLAY_OUTCOME_ENRICHMENT_BATCH011_20260926.json"
+CONF=ROOT/"constraint-replay"/"corpus"/"HYDRA_CONSTRAINT_REPLAY_CONFIDENCE_ADMISSIBILITY_BATCH011_20260926.json"
+MAP=ROOT/"constraint-replay"/"corpus"/"HYDRA_CONSTRAINT_REPLAY_OUTCOME_MAPPING_BATCH011_20260926.json"
+AUDIT=ROOT/"constraint-replay"/"corpus"/"HYDRA_CONSTRAINT_REPLAY_PROMOTION_AUDIT_BATCH011_20260926.json"
 REPLAY_READY=ROOT/"constraint-replay"/"corpus"/"HYDRA_CONSTRAINT_REPLAY_READY_CORPUS_BATCH005_20260925.jsonl"
 
 
@@ -39,7 +39,7 @@ def git_blob_sha(path: Path) -> str:
     return hashlib.sha1(f"blob {len(payload)}\0".encode()+payload).hexdigest()
 
 
-class ClassifiedGoldBatch009ExpansionTests(unittest.TestCase):
+class ClassifiedGoldBatch011ExpansionTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.old=load_classified_gold_corpus(OLD)
@@ -50,68 +50,44 @@ class ClassifiedGoldBatch009ExpansionTests(unittest.TestCase):
         cls.audits=load_promotion_audits(AUDIT)
         cls.replay_ready=load_replay_ready_corpus(REPLAY_READY)
 
-    def test_expands_from_three_to_six_without_rewriting_predecessors(self):
-        self.assertEqual(3,len(self.old))
-        self.assertEqual(6,len(self.new))
+    def test_expands_from_nine_to_twelve_without_rewriting_predecessors(self):
+        self.assertEqual(9,len(self.old))
+        self.assertEqual(12,len(self.new))
         old_by={r.case_id:r for r in self.old}
         new_by={r.case_id:r for r in self.new}
         for case_id,record in old_by.items():
             with self.subTest(case=case_id):
                 self.assertEqual(record,new_by[case_id])
 
-    def test_batch9_source_pins_match_checked_out_bytes(self):
-        new_ids={
-            "us-section232-steel-tariff-2018",
-            "eu-russian-oil-import-restrictions-2022",
-            "panama-canal-drought-transit-policy-2023",
-        }
-        for record in self.new:
-            if record.case_id not in new_ids:
-                continue
-            for path,sha in record.source_artifact_pins:
-                with self.subTest(case=record.case_id,path=path):
-                    self.assertEqual(sha,git_blob_sha(ROOT/path))
+    def test_new_case_set_is_exact(self):
+        old_ids={r.case_id for r in self.old}
+        new_ids={r.case_id for r in self.new}-old_ids
+        self.assertEqual(
+            {
+                "us-pdvsa-sanctions-2019",
+                "germany-uniper-nationalization-2022",
+                "us-chips-act-2022",
+            },
+            new_ids,
+        )
 
     def test_new_cases_already_exist_in_replay_ready_corpus(self):
         replay_ids={r["case_id"] for r in self.replay_ready}
         new_ids={r.case_id for r in self.new}-{r.case_id for r in self.old}
         self.assertTrue(new_ids <= replay_ids)
 
-    def test_mapping_evidence_equals_admitted_enrichment_sources(self):
-        enrich={e.case_id:e for e in self.enrichments}
-        mappings={m.case_id:m for m in self.mapping_inputs}
-        for case_id,enrichment in enrich.items():
-            admitted=set(enrichment.historical_hypothesis_source_ids)
-            admitted.update(enrichment.outcome_source_ids)
-            with self.subTest(case=case_id):
-                self.assertEqual(admitted,set(mappings[case_id].evidence_source_ids))
+    def test_mapping_classes_preserve_open_horizon_discipline(self):
+        decisions={m.case_id:map_positive_constraint_outcome(m) for m in self.mapping_inputs}
+        self.assertEqual("PARTIAL_REALIZATION",decisions["us-pdvsa-sanctions-2019"].outcome_class)
+        self.assertEqual("PARTIAL_REALIZATION",decisions["germany-uniper-nationalization-2022"].outcome_class)
+        self.assertEqual("UNEVALUABLE",decisions["us-chips-act-2022"].outcome_class)
 
-    def test_new_case_set_is_exact(self):
-        old_ids={r.case_id for r in self.old}
-        new_ids={r.case_id for r in self.new}-old_ids
-        self.assertEqual(
-            {
-                "us-section232-steel-tariff-2018",
-                "eu-russian-oil-import-restrictions-2022",
-                "panama-canal-drought-transit-policy-2023",
-            },
-            new_ids,
-        )
-
-    def test_all_new_mappings_are_partial_realization(self):
-        decisions={
-            m.case_id:map_positive_constraint_outcome(m)
-            for m in self.mapping_inputs
-        }
-        self.assertEqual(
-            {
-                "us-section232-steel-tariff-2018",
-                "eu-russian-oil-import-restrictions-2022",
-                "panama-canal-drought-transit-policy-2023",
-            },
-            set(decisions),
-        )
-        self.assertTrue(all(d.outcome_class=="PARTIAL_REALIZATION" for d in decisions.values()))
+    def test_chips_horizon_is_explicit_and_still_open(self):
+        chips=next(m for m in self.mapping_inputs if m.case_id=="us-chips-act-2022")
+        self.assertTrue(chips.explicit_horizon_defined)
+        self.assertIsNone(chips.horizon_met)
+        self.assertFalse(chips.outcome_observation_complete)
+        self.assertEqual("UNEVALUABLE",map_positive_constraint_outcome(chips).outcome_class)
 
     def test_new_confidence_evidence_is_nonprobabilistic(self):
         self.assertEqual(3,len(self.confidence))
@@ -120,7 +96,7 @@ class ClassifiedGoldBatch009ExpansionTests(unittest.TestCase):
             for e in self.confidence
         ))
 
-    def test_new_enrichment_publishers_are_independent(self):
+    def test_hypothesis_outcome_publishers_are_independent(self):
         for enrichment in self.enrichments:
             hp={self.sources[s].publisher for s in enrichment.historical_hypothesis_source_ids}
             op={self.sources[s].publisher for s in enrichment.outcome_source_ids}
@@ -131,21 +107,39 @@ class ClassifiedGoldBatch009ExpansionTests(unittest.TestCase):
                     min(self.sources[s].available_at for s in enrichment.outcome_source_ids),
                 )
 
-    def test_batch9_promotion_summary_is_six_classified_zero_calibrated(self):
+    def test_mapping_evidence_equals_admitted_enrichment_sources(self):
+        enrich={e.case_id:e for e in self.enrichments}
+        mappings={m.case_id:m for m in self.mapping_inputs}
+        for case_id,enrichment in enrich.items():
+            admitted=set(enrichment.historical_hypothesis_source_ids)
+            admitted.update(enrichment.outcome_source_ids)
+            with self.subTest(case=case_id):
+                self.assertEqual(admitted,set(mappings[case_id].evidence_source_ids))
+
+    def test_batch11_source_pins_match_checked_out_bytes(self):
+        new_ids={r.case_id for r in self.new}-{r.case_id for r in self.old}
+        for record in self.new:
+            if record.case_id not in new_ids:
+                continue
+            for path,sha in record.source_artifact_pins:
+                with self.subTest(case=record.case_id,path=path):
+                    self.assertEqual(sha,git_blob_sha(ROOT/path))
+
+    def test_promotion_summary_is_twelve_classified_zero_calibrated(self):
         summary=summarize_promotion(self.audits)
         self.assertEqual(22,summary["case_count"])
-        self.assertEqual(6,summary["classified_gold_uncalibrated_count"])
-        self.assertEqual(6,summary["outcome_class_supported_count"])
-        self.assertEqual(6,summary["independent_hypothesis_present_count"])
+        self.assertEqual(12,summary["classified_gold_uncalibrated_count"])
+        self.assertEqual(12,summary["outcome_class_supported_count"])
+        self.assertEqual(12,summary["independent_hypothesis_present_count"])
         self.assertEqual(0,summary["confidence_source_present_count"])
         self.assertEqual(0,summary["score_ready_count"])
 
     def test_new_cases_have_only_calibration_blockers(self):
         audits={a.case_id:a for a in self.audits}
         for case_id in {
-            "us-section232-steel-tariff-2018",
-            "eu-russian-oil-import-restrictions-2022",
-            "panama-canal-drought-transit-policy-2023",
+            "us-pdvsa-sanctions-2019",
+            "germany-uniper-nationalization-2022",
+            "us-chips-act-2022",
         }:
             decision=evaluate_promotion(audits[case_id])
             with self.subTest(case=case_id):
@@ -161,10 +155,13 @@ class ClassifiedGoldBatch009ExpansionTests(unittest.TestCase):
                     set(decision.calibration_blockers),
                 )
 
-    def test_six_case_summary_remains_uncalibrated(self):
+    def test_twelve_case_summary_remains_uncalibrated(self):
         summary=summarize_classified_gold(self.new)
-        self.assertEqual(6,summary["case_count"])
-        self.assertEqual({"PARTIAL_REALIZATION":6},summary["outcome_class_counts"])
+        self.assertEqual(12,summary["case_count"])
+        self.assertEqual(
+            {"PARTIAL_REALIZATION":11,"UNEVALUABLE":1},
+            summary["outcome_class_counts"],
+        )
         self.assertEqual(0,summary["calibrated_case_count"])
         self.assertIsNone(summary["brier_score"])
 

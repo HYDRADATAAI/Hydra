@@ -1,0 +1,243 @@
+{
+  "schema_version": "1.0",
+  "batch_id": "HYDRA_CONSTRAINT_REPLAY_OUTCOME_ENRICHMENT_BATCH011_20260926",
+  "evidence_digest_scope": "sha256(normalized_evidence UTF-8)",
+  "policy": "Batch 011 expands the existing uncalibrated classified-gold path to PDVSA sanctions, Uniper nationalization/recapitalisation, and CHIPS industrial policy. It reuses existing publisher-independence, confidence-admissibility, and outcome-mapping governance without adding case-specific rules.",
+  "sources": [
+    {
+      "source_id": "pdvsa-eia-2019-05-20-hypothesis",
+      "role": "HISTORICAL_HYPOTHESIS",
+      "publisher": "U.S. Energy Information Administration",
+      "url": "https://www.eia.gov/todayinenergy/detail.php?id=39532",
+      "published_at": "2019-05-20T23:59:59Z",
+      "available_at": "2019-05-20T23:59:59Z",
+      "normalized_evidence": "On 20 May 2019, the U.S. Energy Information Administration reported that Venezuela's crude oil production had fallen to 830,000 barrels per day in April from 1.2 million barrels per day at the beginning of the year, and stated that it expected production to continue decreasing in 2019, with declines potentially accelerating as sanctions-related deadlines passed; EIA also identified power outages, industry mismanagement and worker/service-company losses as additional contributors.",
+      "evidence_digest": "sha256:482c66dd6d02e30b6adf4a0b2a1437f13bb76f3a5c9c89c4e11ccf35af51bcb2"
+    },
+    {
+      "source_id": "pdvsa-opec-2019-12-11-outcome",
+      "role": "OUTCOME",
+      "publisher": "Organization of the Petroleum Exporting Countries",
+      "url": "https://www.opec.org/opec_web/static_files_project/images/content/publications/OPEC_MOMR_December_2019.pdf",
+      "published_at": "2019-12-11T23:59:59Z",
+      "available_at": "2019-12-11T23:59:59Z",
+      "observed_at": "2019-12-11T23:59:59Z",
+      "normalized_evidence": "In its December 2019 Monthly Oil Market Report, OPEC reported Venezuela crude oil production from secondary sources at 975 thousand barrels per day in the first quarter of 2019, 776 thousand in the second quarter, 714 thousand in the third quarter, 644 thousand in September, 685 thousand in October and 697 thousand in November 2019.",
+      "evidence_digest": "sha256:4bd44273bb164e9716285029e702c41fbabb15ab8c856c73eb7002aa3849d0f8"
+    },
+    {
+      "source_id": "uniper-ec-2022-12-21-hypothesis",
+      "role": "HISTORICAL_HYPOTHESIS",
+      "publisher": "European Commission",
+      "url": "https://germany.representation.ec.europa.eu/nachrichten-und-veranstaltungen/pressemitteilungen/eu-kommission-genehmigt-deutsche-milliardenbeihilfen-fur-uniper-und-sefe-2022-12-21_de",
+      "published_at": "2022-12-21T23:59:59Z",
+      "available_at": "2022-12-21T23:59:59Z",
+      "normalized_evidence": "On 21 December 2022, the European Commission approved German recapitalisation aid of up to EUR 34.5 billion for Uniper and stated that the measure would allow Uniper to continue serving customers, help avert serious disruption in the German natural-gas market, and restore Uniper's financial position and liquidity while limiting competition distortions.",
+      "evidence_digest": "sha256:d5037a6869d8bffad40dd754378aa2cf1cc050b93be38b76588ee4b0c2fc8d0e"
+    },
+    {
+      "source_id": "uniper-2024-02-28-outcome",
+      "role": "OUTCOME",
+      "publisher": "Uniper",
+      "url": "https://www.uniper.energy/news/unipers-2023-financial-year-exceptionally-successful",
+      "published_at": "2024-02-28T06:30:00Z",
+      "available_at": "2024-02-28T06:30:00Z",
+      "observed_at": "2024-02-28T06:30:00Z",
+      "normalized_evidence": "On 28 February 2024, Uniper reported adjusted EBIT of EUR 6.367 billion and adjusted net income of EUR 4.432 billion for 2023, compared with adjusted EBIT of negative EUR 10.877 billion and adjusted net income of negative EUR 7.401 billion in 2022; it also reported IFRS net income of EUR 6.336 billion versus a EUR 19.144 billion net loss in 2022.",
+      "evidence_digest": "sha256:ae1bdfdecc7ea25aff80e16b72d4cd26b96a35156632ccc3a4f535b79b374680"
+    },
+    {
+      "source_id": "chips-bcg-2021-04-01-hypothesis",
+      "role": "HISTORICAL_HYPOTHESIS",
+      "publisher": "Boston Consulting Group",
+      "url": "https://www.bcg.com/publications/2021/strengthening-the-global-semiconductor-supply-chain",
+      "published_at": "2021-04-01T23:59:59Z",
+      "available_at": "2021-04-01T23:59:59Z",
+      "normalized_evidence": "On 1 April 2021, Boston Consulting Group, with Semiconductor Industry Association participation, reported that a 50 billion dollar U.S. semiconductor manufacturing incentive program could enable construction of 19 advanced logic, memory and analog fabs over ten years, roughly double the number expected without action, and could help diversify semiconductor manufacturing capacity.",
+      "evidence_digest": "sha256:4e76def4eea73056dcb0a58e69a5e03bf04382ac4f4352befa19111c615655f7"
+    },
+    {
+      "source_id": "chips-commerce-2024-08-09-outcome",
+      "role": "OUTCOME",
+      "publisher": "U.S. Department of Commerce",
+      "url": "https://www.commerce.gov/news/blog/2024/08/two-years-later-funding-chips-and-science-act-creating-quality-jobs-growing-local",
+      "published_at": "2024-08-09T23:59:59Z",
+      "available_at": "2024-08-09T23:59:59Z",
+      "observed_at": "2024-08-09T23:59:59Z",
+      "normalized_evidence": "On 9 August 2024, the U.S. Department of Commerce reported that CHIPS implementation had produced more than 30 billion dollars in proposed CHIPS private-sector investments spanning 23 projects in 15 states, including 16 new semiconductor manufacturing facilities, with those projects expected to create more than 115,000 manufacturing and construction jobs.",
+      "evidence_digest": "sha256:13dfe4529bbcb12e7c65c5e614d710f4a113aa4cb52b60865b455ff391286d16"
+    }
+  ],
+  "cases": [
+    {
+      "case_id": "us-pdvsa-sanctions-2019",
+      "historical_hypothesis_source_ids": [
+        "pdvsa-eia-2019-05-20-hypothesis"
+      ],
+      "outcome_source_ids": [
+        "pdvsa-opec-2019-12-11-outcome"
+      ],
+      "hypothesis_available_at": "2019-05-20T23:59:59Z",
+      "hypothesis_statement": "EIA expected Venezuelan crude production to continue declining through 2019, with sanctions-related deadlines potentially accelerating the decline alongside power, infrastructure, staffing and management constraints.",
+      "hypothesis_independence_basis": "EIA is distinct from OPEC, whose later Monthly Oil Market Report supplied the admitted production outcome series.",
+      "metrics": [
+        {
+          "metric_id": "pdvsa-venezuela-q1-2019-production",
+          "source_id": "pdvsa-opec-2019-12-11-outcome",
+          "observed_at": "2019-12-11T23:59:59Z",
+          "metric": "venezuela_crude_production_q1_2019",
+          "value": 975,
+          "unit": "thousand_bpd"
+        },
+        {
+          "metric_id": "pdvsa-venezuela-q2-2019-production",
+          "source_id": "pdvsa-opec-2019-12-11-outcome",
+          "observed_at": "2019-12-11T23:59:59Z",
+          "metric": "venezuela_crude_production_q2_2019",
+          "value": 776,
+          "unit": "thousand_bpd"
+        },
+        {
+          "metric_id": "pdvsa-venezuela-q3-2019-production",
+          "source_id": "pdvsa-opec-2019-12-11-outcome",
+          "observed_at": "2019-12-11T23:59:59Z",
+          "metric": "venezuela_crude_production_q3_2019",
+          "value": 714,
+          "unit": "thousand_bpd"
+        },
+        {
+          "metric_id": "pdvsa-venezuela-sep-2019-production",
+          "source_id": "pdvsa-opec-2019-12-11-outcome",
+          "observed_at": "2019-12-11T23:59:59Z",
+          "metric": "venezuela_crude_production_sep_2019",
+          "value": 644,
+          "unit": "thousand_bpd"
+        },
+        {
+          "metric_id": "pdvsa-venezuela-nov-2019-production",
+          "source_id": "pdvsa-opec-2019-12-11-outcome",
+          "observed_at": "2019-12-11T23:59:59Z",
+          "metric": "venezuela_crude_production_nov_2019",
+          "value": 697,
+          "unit": "thousand_bpd"
+        }
+      ]
+    },
+    {
+      "case_id": "germany-uniper-nationalization-2022",
+      "historical_hypothesis_source_ids": [
+        "uniper-ec-2022-12-21-hypothesis"
+      ],
+      "outcome_source_ids": [
+        "uniper-2024-02-28-outcome"
+      ],
+      "hypothesis_available_at": "2022-12-21T23:59:59Z",
+      "hypothesis_statement": "The European Commission expected the recapitalisation to permit Uniper to continue serving customers, avoid severe disruption in the German gas market, and restore the company's financial position and liquidity.",
+      "hypothesis_independence_basis": "The European Commission is distinct from Uniper, which later reported the admitted financial outcome metrics.",
+      "metrics": [
+        {
+          "metric_id": "uniper-2023-adjusted-ebit",
+          "source_id": "uniper-2024-02-28-outcome",
+          "observed_at": "2024-02-28T06:30:00Z",
+          "metric": "adjusted_ebit_2023",
+          "value": 6.367,
+          "unit": "billion_EUR"
+        },
+        {
+          "metric_id": "uniper-2022-adjusted-ebit",
+          "source_id": "uniper-2024-02-28-outcome",
+          "observed_at": "2024-02-28T06:30:00Z",
+          "metric": "adjusted_ebit_2022",
+          "value": -10.877,
+          "unit": "billion_EUR"
+        },
+        {
+          "metric_id": "uniper-2023-adjusted-net-income",
+          "source_id": "uniper-2024-02-28-outcome",
+          "observed_at": "2024-02-28T06:30:00Z",
+          "metric": "adjusted_net_income_2023",
+          "value": 4.432,
+          "unit": "billion_EUR"
+        },
+        {
+          "metric_id": "uniper-2022-adjusted-net-income",
+          "source_id": "uniper-2024-02-28-outcome",
+          "observed_at": "2024-02-28T06:30:00Z",
+          "metric": "adjusted_net_income_2022",
+          "value": -7.401,
+          "unit": "billion_EUR"
+        },
+        {
+          "metric_id": "uniper-2023-ifrs-net-income",
+          "source_id": "uniper-2024-02-28-outcome",
+          "observed_at": "2024-02-28T06:30:00Z",
+          "metric": "ifrs_net_income_2023",
+          "value": 6.336,
+          "unit": "billion_EUR"
+        },
+        {
+          "metric_id": "uniper-2022-ifrs-net-income",
+          "source_id": "uniper-2024-02-28-outcome",
+          "observed_at": "2024-02-28T06:30:00Z",
+          "metric": "ifrs_net_income_2022",
+          "value": -19.144,
+          "unit": "billion_EUR"
+        }
+      ]
+    },
+    {
+      "case_id": "us-chips-act-2022",
+      "historical_hypothesis_source_ids": [
+        "chips-bcg-2021-04-01-hypothesis"
+      ],
+      "outcome_source_ids": [
+        "chips-commerce-2024-08-09-outcome"
+      ],
+      "hypothesis_available_at": "2021-04-01T23:59:59Z",
+      "hypothesis_statement": "BCG/SIA analysis projected that a roughly 50 billion dollar U.S. semiconductor manufacturing incentive program could roughly double expected advanced-fab construction over ten years and diversify manufacturing capacity.",
+      "hypothesis_independence_basis": "Boston Consulting Group is distinct from the U.S. Department of Commerce, whose later program implementation figures supply the admitted outcome evidence.",
+      "metrics": [
+        {
+          "metric_id": "chips-2024-proposed-investment",
+          "source_id": "chips-commerce-2024-08-09-outcome",
+          "observed_at": "2024-08-09T23:59:59Z",
+          "metric": "proposed_chips_private_sector_investment",
+          "value": 30,
+          "unit": "billion_USD_minimum"
+        },
+        {
+          "metric_id": "chips-2024-project-count",
+          "source_id": "chips-commerce-2024-08-09-outcome",
+          "observed_at": "2024-08-09T23:59:59Z",
+          "metric": "proposed_project_count",
+          "value": 23,
+          "unit": "projects"
+        },
+        {
+          "metric_id": "chips-2024-state-count",
+          "source_id": "chips-commerce-2024-08-09-outcome",
+          "observed_at": "2024-08-09T23:59:59Z",
+          "metric": "states_with_proposed_projects",
+          "value": 15,
+          "unit": "states"
+        },
+        {
+          "metric_id": "chips-2024-new-facility-count",
+          "source_id": "chips-commerce-2024-08-09-outcome",
+          "observed_at": "2024-08-09T23:59:59Z",
+          "metric": "new_semiconductor_manufacturing_facilities",
+          "value": 16,
+          "unit": "facilities"
+        },
+        {
+          "metric_id": "chips-2024-expected-jobs",
+          "source_id": "chips-commerce-2024-08-09-outcome",
+          "observed_at": "2024-08-09T23:59:59Z",
+          "metric": "expected_manufacturing_and_construction_jobs",
+          "value": 115000,
+          "unit": "jobs_minimum"
+        }
+      ]
+    }
+  ]
+}
