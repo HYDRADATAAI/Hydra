@@ -57,7 +57,7 @@ A record may enter this tier only when it has:
 
 Numeric confidence is **not** required for this tier. As a result, lead time and outcome-class counts are valid, while calibration metrics such as Brier score are disabled.
 
-Batch 013 expands the classified-gold corpus to eighteen cases while preserving predecessor records unchanged. Sixteen are `PARTIAL_REALIZATION`; CHIPS and the contested rare-earths implementation case are `UNEVALUABLE`.
+Batch 014 closes classification coverage across all 22 replay-ready cases while preserving predecessor records unchanged. Seventeen are `PARTIAL_REALIZATION`; five are `UNEVALUABLE` because of open horizons, contested states, unresolved disputes, or incomplete outcome windows.
 
 ### Scored gold, calibrated
 
@@ -156,13 +156,28 @@ The expansion reuses the existing confidence and outcome-mapping governance unch
 
 Current classified-gold state:
 
-- 18 uncalibrated classified cases;
+- 22 uncalibrated classified cases;
 - 0 calibrated scored-gold cases;
-- 16 PARTIAL_REALIZATION;
-- 2 UNEVALUABLE cases (one open horizon, one open compliance contradiction);
+- 17 PARTIAL_REALIZATION;
+- 5 UNEVALUABLE cases (open horizon, contested compliance/normalization, unresolved dispute, or incomplete modeled outcome window);
 - Brier score disabled.
 
 The predecessor Batch 008 records are regression-protected from semantic rewriting.
+
+## Full classification closure
+
+`corpus/HYDRA_CONSTRAINT_CLASSIFIED_GOLD_UNCALIBRATED_BATCH014_20260926.jsonl` now contains a governed classification record for **every one of the 22 replay-ready historical cases**.
+
+Classification coverage is therefore complete for the current corpus.
+
+Current state:
+- 22 classified uncalibrated cases;
+- 17 PARTIAL_REALIZATION;
+- 5 UNEVALUABLE;
+- 0 calibrated cases;
+- Brier score disabled.
+
+No further classification batch should be created unless new historical cases are intentionally added or a predecessor record requires evidence-backed correction.
 
 ## Run
 
