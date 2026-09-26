@@ -1,0 +1,34 @@
+{
+  "schema_version": "hydra-constraint-batch017-resumable-private-staging-status/v1",
+  "record_id": "HYDRA_CONSTRAINT_BATCH017_RESUMABLE_PRIVATE_STAGING_STATUS_V001_20260926",
+  "as_of": "2026-09-26",
+  "pull_request": 65,
+  "slice_id": "AI_DATA_CENTER_POWER_INFRASTRUCTURE_V1",
+  "scope": "PRIVATE_NON_AUTHORITATIVE_STAGING_RESUME_ONLY",
+  "results": {
+    "PRIVATE_CAPTURE_JOURNAL_READY": "YES",
+    "JOURNAL_SCHEMA": "hydra-constraint-private-capture-journal/v1",
+    "JOURNAL_AUTHORITATIVE": "NO",
+    "PER_SOURCE_ACQUIRED_AT_PERSISTED": "YES",
+    "PER_SOURCE_SHA256_PERSISTED": "YES",
+    "PER_SOURCE_SOURCE_VERSION_ID_PERSISTED": "YES",
+    "RESUME_REVALIDATES_HASH_AND_LENGTH": "YES",
+    "RESUME_REVALIDATES_LOCATOR_AND_CONTENT_TYPE": "YES",
+    "RESUME_PRESERVES_ORIGINAL_ACQUIRED_AT": "YES",
+    "RESUME_PRESERVES_ORIGINAL_SOURCE_VERSION_ID": "YES",
+    "COMPLETE_NINE_SOURCE_SET_REQUIRED_BEFORE_CAPTURE_PLAN": "YES",
+    "COMPLETE_T1_RELEASE_REQUIRED_FOR_AUTHORITY": "YES",
+    "PRIOR_SIX_UNJOURNALED_STAGED_FILES_RETRO_ADOPTABLE": "NO",
+    "ORDINARY_REPLAY_PROMOTED": "NO",
+    "CANONICAL_ADMISSION_PROMOTED": "NO"
+  },
+  "current_capture_state": {
+    "prior_staged_exact_bodies": 6,
+    "prior_staged_files_have_resume_journal": false,
+    "three_har_responses_missing": true,
+    "capture_plan_written": false,
+    "t1_release_written": false
+  },
+  "next_action": "FRESH_JOURNAL_ENABLED_RUN_AFTER_THREE_SANITIZED_HARS_ARE_AVAILABLE",
+  "readiness": "READY_FOR_RESUMABLE_FUTURE_RUN_NOT_RETROACTIVE"
+}
