@@ -119,3 +119,9 @@ jobs:
         run: python tools/validate_constraint_second_slice_batch025_continuous_graph.py
       - name: Run Batch025 hostile matrix
         run: python tools/test_constraint_second_slice_batch025_continuous_graph_adversarial.py
+      - name: Validate Batch026 private T1 execution packet
+        run: python tools/validate_constraint_second_slice_batch026_private_t1_packet.py
+      - name: Run Batch026 hostile matrix
+        run: python tools/test_constraint_second_slice_batch026_private_t1_packet_adversarial.py
+      - name: Compile Batch026 local materializer and verifier
+        run: python -m py_compile tools/materialize_constraint_second_slice_batch026_private_t1.py tools/verify_constraint_second_slice_batch026_private_t1.py
