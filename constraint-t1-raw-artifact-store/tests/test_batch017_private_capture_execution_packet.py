@@ -53,13 +53,31 @@ class Batch017PrivateCaptureExecutionPacketTests(unittest.TestCase):
         self.assertIn("--private-root $PrivateRawRoot", self.text)
         self.assertIn("--attestation-output $AttestationPath", self.text)
 
-    def test_script_supports_reviewed_sanitized_har_only_for_lbnl_queued_up(self):
+    def test_script_supports_reviewed_sanitized_har_for_exact_three_403_sources(self):
         self.assertIn("[string]$LbnlQueuedUpSanitizedHarPath", self.text)
-        self.assertIn('$SourceId -eq "SRC-LBNL-QUEUED-UP-2025"', self.text)
+        self.assertIn("[string]$FercOrder2023SanitizedHarPath", self.text)
+        self.assertIn("[string]$Pjm2025YearInReviewSanitizedHarPath", self.text)
+        self.assertIn('"SRC-LBNL-QUEUED-UP-2025" = @{', self.text)
+        self.assertIn('"SRC-FERC-ORDER-2023-FACT-SHEET" = @{', self.text)
+        self.assertIn('"SRC-PJM-2025-YEAR-IN-REVIEW-2026-01-08" = @{', self.text)
+        self.assertIn('ExpectedText = "Queued Up: 2025 Edition"', self.text)
+        self.assertIn(
+            'ExpectedText = "Fact Sheet | Improvements to Generator Interconnection Procedures and Agreements"',
+            self.text,
+        )
+        self.assertIn(
+            'ExpectedText = "2025 Year in Review: Planning Prepares for Burgeoning Electricity Demand"',
+            self.text,
+        )
         self.assertIn("hydra_constraint_t1_raw.browser_response_capture", self.text)
-        self.assertIn('--exact-url $Uri', self.text)
-        self.assertIn('--expected-text "Queued Up: 2025 Edition"', self.text)
-        self.assertIn("Do not bypass Cloudflare or substitute the linked PDF", self.text)
+        self.assertIn("--exact-url $Uri", self.text)
+        self.assertIn("--expected-text $ExpectedText", self.text)
+
+    def test_script_har_fallback_is_allowlisted_not_generic_for_all_sources(self):
+        self.assertIn("$Fallback = $BrowserHarFallbacks[$SourceId]", self.text)
+        self.assertIn("if ($null -ne $Fallback -and $Fallback.HarPath)", self.text)
+        self.assertIn("if ($null -ne $Fallback)", self.text)
+        self.assertNotIn("SanitizedHarPathBySourceId", self.text)
 
     def test_script_does_not_replay_browser_cookies_or_copy_curl(self):
         self.assertNotIn("cf_clearance", self.text)
