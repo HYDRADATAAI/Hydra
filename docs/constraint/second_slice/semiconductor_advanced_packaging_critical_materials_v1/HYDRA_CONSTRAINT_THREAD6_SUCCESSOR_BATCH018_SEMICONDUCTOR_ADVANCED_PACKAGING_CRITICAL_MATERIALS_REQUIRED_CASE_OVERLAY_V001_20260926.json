@@ -1,0 +1,43 @@
+{
+  "schema_version": "hydra-constraint-second-slice-required-case-overlay/v1",
+  "record_id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH018_SEMICONDUCTOR_ADVANCED_PACKAGING_CRITICAL_MATERIALS_REQUIRED_CASE_OVERLAY_V001",
+  "as_of": "2026-09-26",
+  "slice_id": "SEMICONDUCTOR_ADVANCED_PACKAGING_CRITICAL_MATERIALS_V1",
+  "predecessor_matrix": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH017_SEMICONDUCTOR_ADVANCED_PACKAGING_CRITICAL_MATERIALS_REQUIRED_CASE_MATRIX_V001",
+  "updates": [
+    {
+      "case_id": 1,
+      "predecessor_status": "GAP",
+      "successor_status": "COVERED_REVIEWED_SHADOW_REAL_PRIMARY_BOUNDED",
+      "evidence_ids": [
+        "EV-SEMI-TSMC-COWOS-FULLY-LOADED-2025"
+      ],
+      "note": "Real TSMC CoWoS packaging-capacity constraint; supplier/technology scoped."
+    },
+    {
+      "case_id": 2,
+      "predecessor_status": "GAP",
+      "successor_status": "COVERED_REVIEWED_SHADOW_REAL_PRIMARY_BOUNDED",
+      "evidence_ids": [
+        "EV-SEMI-TSMC-COWOS-FULLY-LOADED-2025",
+        "EV-SEMI-TSMC-COWOS-2026-BALANCE-EXPECTATION"
+      ],
+      "note": "Capacity expansion/expected balancing does not retroactively resolve the 2025 fully-loaded state."
+    }
+  ],
+  "covered_case_count_after": 2,
+  "remaining_gap_case_ids": [
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14
+  ]
+}
