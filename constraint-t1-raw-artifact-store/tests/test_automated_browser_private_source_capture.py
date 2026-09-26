@@ -49,7 +49,7 @@ class AutomatedBrowserPrivateSourceCaptureTests(unittest.TestCase):
         parser = capture.build_parser()
         args = parser.parse_args([])
         self.assertFalse(args.authorized_public_acquisition)
-        self.assertEqual(args.private_root, r"D:\\HYDRA_PRIVATE\\constraint")
+        self.assertEqual(args.private_root, r"D:\HYDRA\_PRIVATE\constraint")
 
         with self.assertRaisesRegex(capture.CaptureError, "explicit --authorized-public-acquisition"):
             capture.run(args)
