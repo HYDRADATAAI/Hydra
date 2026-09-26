@@ -8,6 +8,7 @@ on:
       - "t6-fail-closed-validator/**"
       - "tools/validate_constraint_first_slice_successor.py"
       - "tools/validate_constraint_lily_owner_seams.py"
+      - "tools/validate_constraint_ai_infra_pass002.py"
       - "tools/test_constraint_first_slice_adversarial.py"
       - ".github/workflows/constraint-first-slice-integration.yml"
   push:
@@ -19,6 +20,7 @@ on:
       - "t6-fail-closed-validator/**"
       - "tools/validate_constraint_first_slice_successor.py"
       - "tools/validate_constraint_lily_owner_seams.py"
+      - "tools/validate_constraint_ai_infra_pass002.py"
       - "tools/test_constraint_first_slice_adversarial.py"
       - ".github/workflows/constraint-first-slice-integration.yml"
 
@@ -45,3 +47,6 @@ jobs:
 
       - name: Run hostile mutation matrix
         run: python tools/test_constraint_first_slice_adversarial.py
+
+      - name: Verify AI infrastructure lineage replay repair
+        run: python tools/validate_constraint_ai_infra_pass002.py
