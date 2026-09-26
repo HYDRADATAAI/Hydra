@@ -59,6 +59,58 @@ class AutomatedBrowserPrivateSourceCaptureTests(unittest.TestCase):
         args = parser.parse_args(["--authorized-public-acquisition"])
         self.assertTrue(args.authorized_public_acquisition)
 
+    def test_target_closed_errors_are_classified_for_browser_restart(self) -> None:
+        self.assertTrue(
+            capture._is_target_closed_error(
+                RuntimeError("Target page, context or browser has been closed")
+            )
+        )
+        self.assertTrue(
+            capture._is_target_closed_error(
+                RuntimeError("TargetClosedError: browser has been closed")
+            )
+        )
+        self.assertFalse(
+            capture._is_target_closed_error(
+                RuntimeError("response MIME type did not match")
+            )
+        )
+
+    def test_parser_defaults_two_browser_restart_retries(self) -> None:
+        parser = capture.build_parser()
+        args = parser.parse_args([])
+        self.assertEqual(args.browser_restart_retries, 2)
+
+    def test_capture_metadata_contains_private_body_path_only_for_private_journal(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            row = capture.CapturedDocument(
+                source_id="SRC-X",
+                source_locator="https://example.com/x",
+                source_version_id="SV-X-1",
+                acquired_at="2026-09-26T20:00:00Z",
+                status=200,
+                content_type="text/html",
+                byte_length=1234,
+                artifact_sha256="a" * 64,
+                body_path=Path(tmp) / "x.html",
+                capture_method="PLAYWRIGHT_INSTALLED_BROWSER_MAIN_DOCUMENT",
+                browser_channel="chrome",
+                redirect_chain=("https://example.com/x",),
+            )
+            metadata = capture._capture_metadata(row)
+            self.assertEqual(metadata["body_path"], str(row.body_path))
+            self.assertEqual(metadata["source_id"], "SRC-X")
+            self.assertEqual(metadata["http_status"], 200)
+
+    def test_runner_wires_post_capture_status_into_final_validation(self) -> None:
+        text = TOOL.read_text(encoding="utf-8")
+        self.assertIn(
+            "_validate_post_outputs(attestation_path, replay_path, post_capture_status_path)",
+            text,
+        )
+        self.assertIn("CAPTURE_JOURNAL_SCHEMA", text)
+        self.assertIn("t1_release_written", text)
+
     def test_registry_requires_exact_nine_unique_source_ids_and_locators(self) -> None:
         rows = nine_sources()
         self.assertEqual(len(capture.validate_registry(registry(rows))), 9)
