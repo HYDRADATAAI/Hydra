@@ -10,6 +10,8 @@ on:
       - "tools/test_constraint_first_slice_adversarial.py"
       - "tools/validate_constraint_first_slice_acceptance_gate.py"
       - "tools/test_constraint_first_slice_acceptance_gate_adversarial.py"
+      - "tools/validate_constraint_first_slice_confidence_evaluation.py"
+      - "tools/test_constraint_first_slice_confidence_evaluation_adversarial.py"
       - ".github/workflows/constraint-first-slice-integration.yml"
   push:
     branches:
@@ -22,6 +24,8 @@ on:
       - "tools/test_constraint_first_slice_adversarial.py"
       - "tools/validate_constraint_first_slice_acceptance_gate.py"
       - "tools/test_constraint_first_slice_acceptance_gate_adversarial.py"
+      - "tools/validate_constraint_first_slice_confidence_evaluation.py"
+      - "tools/test_constraint_first_slice_confidence_evaluation_adversarial.py"
       - ".github/workflows/constraint-first-slice-integration.yml"
 
 permissions:
@@ -50,3 +54,9 @@ jobs:
 
       - name: Run strict acceptance hostile matrix
         run: python tools/test_constraint_first_slice_acceptance_gate_adversarial.py
+
+      - name: Validate typed confidence and evaluation readiness
+        run: python tools/validate_constraint_first_slice_confidence_evaluation.py
+
+      - name: Run typed confidence hostile matrix
+        run: python tools/test_constraint_first_slice_confidence_evaluation_adversarial.py

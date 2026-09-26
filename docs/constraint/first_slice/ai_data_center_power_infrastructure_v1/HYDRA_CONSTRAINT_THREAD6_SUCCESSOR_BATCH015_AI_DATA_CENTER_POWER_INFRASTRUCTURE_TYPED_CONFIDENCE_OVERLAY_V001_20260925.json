@@ -1,0 +1,102 @@
+{
+  "schema_version": "hydra-constraint-first-slice-typed-confidence-overlay/v1",
+  "record_id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH015_AI_DATA_CENTER_POWER_INFRASTRUCTURE_TYPED_CONFIDENCE_OVERLAY_V001",
+  "as_of": "2026-09-26",
+  "predecessor_batch": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH014",
+  "slice_id": "AI_DATA_CENTER_POWER_INFRASTRUCTURE_V1",
+  "authority_basis": [
+    "THREAD1_DECISION97_T5_FORMATION_CONFIDENCE_TYPED_NOT_TRUTH_PROBABILITY",
+    "THREAD1_DECISION122_BENEFICIARY_CONFIDENCE_INDEPENDENT_FROM_CONSTRAINT_CONFIDENCE",
+    "THREAD1_DECISION195_FORMATION_CONFIDENCE_IF_MEASURED_OR_EXPLICIT_UNKNOWN",
+    "THREAD4_CROSS_THREAD_RECONCILIATION_TYPED_CONFIDENCE_REQUIRED"
+  ],
+  "rules": [
+    "UNKNOWN_CONFIDENCE_IS_NOT_ZERO",
+    "UNKNOWN_CONFIDENCE_IS_NOT_NEGATIVE_QUALIFICATION",
+    "NO_NUMERIC_CONFIDENCE_IS_INVENTED",
+    "FORMATION_CONFIDENCE_DOES_NOT_MEAN_CONSTRAINT_TRUTH_PROBABILITY",
+    "BENEFICIARY_CONFIDENCE_DOES_NOT_INHERIT_CONSTRAINT_CONFIDENCE"
+  ],
+  "candidate_confidence": [
+    {
+      "constraint_candidate_id": "T5C-AIDC-US-INTERCONNECTION-THROUGHPUT-001",
+      "confidence_type": "FORMATION_CONFIDENCE",
+      "semantic_owner_id": "PIPELINE_T5_CONSTRAINT_FORMATION",
+      "measurement_state": "UNKNOWN_NOT_MEASURED",
+      "value": null,
+      "unit": null,
+      "meaning": "Confidence that governed evidence satisfies the T5 formation rule; not probability the real-world constraint is true.",
+      "reason": "No admitted T5 formation execution/policy receipt has measured this candidate.",
+      "ordinary_t6_eligibility_effect": "EXPLICIT_UNKNOWN_SATISFIES_CONFIDENCE_FIELD_SEMANTICS_ONLY; OTHER_ELIGIBILITY_GATES_REMAIN_BLOCKED"
+    },
+    {
+      "constraint_candidate_id": "T5C-AIDC-US-TRANSFORMER-SUPPLY-001",
+      "confidence_type": "FORMATION_CONFIDENCE",
+      "semantic_owner_id": "PIPELINE_T5_CONSTRAINT_FORMATION",
+      "measurement_state": "UNKNOWN_NOT_MEASURED",
+      "value": null,
+      "unit": null,
+      "meaning": "Confidence that governed evidence satisfies the T5 formation rule; not probability the real-world constraint is true.",
+      "reason": "No admitted T5 formation execution/policy receipt has measured this candidate.",
+      "ordinary_t6_eligibility_effect": "EXPLICIT_UNKNOWN_SATISFIES_CONFIDENCE_FIELD_SEMANTICS_ONLY; OTHER_ELIGIBILITY_GATES_REMAIN_BLOCKED"
+    },
+    {
+      "constraint_candidate_id": "T5C-AIDC-AMER-SWITCHGEAR-LEADTIME-001",
+      "confidence_type": "FORMATION_CONFIDENCE",
+      "semantic_owner_id": "PIPELINE_T5_CONSTRAINT_FORMATION",
+      "measurement_state": "UNKNOWN_NOT_MEASURED",
+      "value": null,
+      "unit": null,
+      "meaning": "Confidence that governed evidence satisfies the T5 formation rule; not probability the real-world constraint is true.",
+      "reason": "No admitted T5 formation execution/policy receipt has measured this candidate.",
+      "ordinary_t6_eligibility_effect": "EXPLICIT_UNKNOWN_SATISFIES_CONFIDENCE_FIELD_SEMANTICS_ONLY; OTHER_ELIGIBILITY_GATES_REMAIN_BLOCKED"
+    }
+  ],
+  "beneficiary_confidence": [
+    {
+      "beneficiary_relationship_id": "BEN-AIDC-EATON-TRANSFORMER-001",
+      "confidence_type": "BENEFICIARY_CONFIDENCE",
+      "semantic_owner_id": "PIPELINE_T6_CANONICAL_CANDIDATE_GOVERNANCE",
+      "measurement_state": "UNKNOWN_INELIGIBLE_TO_EVALUATE",
+      "value": null,
+      "unit": null,
+      "meaning": "Confidence in the entity-specific beneficiary transmission/capture relationship; independent from constraint confidence.",
+      "reason": "Relationship is INELIGIBLE_TO_EVALUATE until parent lineage and native T5→T6 admission are ordinary-eligible.",
+      "qualification_state": "INELIGIBLE_TO_EVALUATE"
+    },
+    {
+      "beneficiary_relationship_id": "BEN-AIDC-EATON-SWITCHGEAR-001",
+      "confidence_type": "BENEFICIARY_CONFIDENCE",
+      "semantic_owner_id": "PIPELINE_T6_CANONICAL_CANDIDATE_GOVERNANCE",
+      "measurement_state": "UNKNOWN_INELIGIBLE_TO_EVALUATE",
+      "value": null,
+      "unit": null,
+      "meaning": "Confidence in the entity-specific beneficiary transmission/capture relationship; independent from constraint confidence.",
+      "reason": "Relationship is INELIGIBLE_TO_EVALUATE and economic capture/current incremental capacity remain unproven.",
+      "qualification_state": "INELIGIBLE_TO_EVALUATE"
+    },
+    {
+      "beneficiary_relationship_id": "BEN-AIDC-GEV-SWITCHGEAR-001",
+      "confidence_type": "BENEFICIARY_CONFIDENCE",
+      "semantic_owner_id": "PIPELINE_T6_CANONICAL_CANDIDATE_GOVERNANCE",
+      "measurement_state": "UNKNOWN_INELIGIBLE_TO_EVALUATE",
+      "value": null,
+      "unit": null,
+      "meaning": "Confidence in the entity-specific beneficiary transmission/capture relationship; independent from constraint confidence.",
+      "reason": "Relationship is INELIGIBLE_TO_EVALUATE and present spare qualified capacity/economic capture remain unproven.",
+      "qualification_state": "INELIGIBLE_TO_EVALUATE"
+    },
+    {
+      "beneficiary_relationship_id": "BEN-AIDC-VERTIV-POWER-RELIEF-001",
+      "confidence_type": "BENEFICIARY_CONFIDENCE",
+      "semantic_owner_id": "PIPELINE_T6_CANONICAL_CANDIDATE_GOVERNANCE",
+      "measurement_state": "UNKNOWN_INELIGIBLE_TO_EVALUATE",
+      "value": null,
+      "unit": null,
+      "meaning": "Confidence in the entity-specific beneficiary transmission/capture relationship; independent from constraint confidence.",
+      "reason": "Relationship is INELIGIBLE_TO_EVALUATE and adoption/available capacity/economic capture remain unproven.",
+      "qualification_state": "INELIGIBLE_TO_EVALUATE"
+    }
+  ],
+  "numeric_confidence_values_invented": 0
+}
