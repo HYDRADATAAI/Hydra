@@ -1,0 +1,35 @@
+{
+  "schema_version": "1.0",
+  "batch_id": "HYDRA_CONSTRAINT_REPLAY_CONFIDENCE_ADMISSIBILITY_BATCH010_20260926",
+  "policy": "Batch 010 reuses the Batch 008 confidence semantics unchanged. Directional expectations, risk language, regulatory targets, tariff percentages, emission-limit percentages, and observed outcome percentages do not become historical replay probabilities.",
+  "ordinal_mappings": [],
+  "evidence": [
+    {
+      "evidence_id": "confidence-audit-section301-fed-2018-09-12",
+      "case_id": "us-china-section301-multi-stage-trade-dispute-2018",
+      "source_id": "section301-fed-beige-book-2018-09-12",
+      "known_at": "2018-09-12T23:59:59Z",
+      "semantics": "QUALITATIVE_EXPECTATION",
+      "statement": "Federal Reserve contacts reported tariff-driven input-cost pressure and anticipated or already-observed price hikes and supply disruptions as trade restrictions expanded.",
+      "notes": "Anticipated price hikes and disruptions are directional expectations, not explicit numeric probability evidence."
+    },
+    {
+      "evidence_id": "confidence-audit-gagermanium-iea-2023-07-11",
+      "case_id": "china-gallium-germanium-controls-2023",
+      "source_id": "gagermanium-iea-2023-07-11-hypothesis",
+      "known_at": "2023-07-11T23:59:59Z",
+      "semantics": "QUALITATIVE_RISK",
+      "statement": "The IEA stated that concentrated niche-mineral supply chains may be disrupted when consumers rely on a small group of suppliers.",
+      "notes": "May-disrupt language identifies risk but supplies no probability/range or predeclared ordinal confidence mapping."
+    },
+    {
+      "evidence_id": "confidence-audit-imo2020-epa-2019-12-11",
+      "case_id": "imo-sulphur-2020-regulation",
+      "source_id": "imo2020-epa-2019-12-11-hypothesis",
+      "known_at": "2019-12-11T23:59:59Z",
+      "semantics": "QUALITATIVE_EXPECTATION",
+      "statement": "EPA expected the global marine-fuel sulfur reduction to produce significant health and welfare benefits.",
+      "notes": "The sulfur-limit percentages describe regulatory thresholds, not the probability that benefits would occur."
+    }
+  ]
+}
