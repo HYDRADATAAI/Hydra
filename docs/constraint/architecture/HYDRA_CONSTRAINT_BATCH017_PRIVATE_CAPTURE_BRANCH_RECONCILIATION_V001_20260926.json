@@ -18,9 +18,13 @@
     "raw_source_publication": false,
     "historical_available_at_backdating": false,
     "canonical_t5_t6_promotion": false,
-    "explicit_operator_authorization_required": true
+    "explicit_operator_authorization_required": true,
+    "python_bootstrap_is_normal_workflow": true,
+    "powershell_required": false,
+    "validated_partial_resume": true,
+    "auto_resume_latest_incomplete_journal": true
   },
-  "canonical_one_command": "powershell -ExecutionPolicy Bypass -File .\\\\tools\\\\private\\\\Invoke-HYDRAConstraintFirstSliceAutomatedBrowserCapture_V001_20260926.ps1 -AuthorizedPublicAcquisition",
+  "canonical_one_command": "python .\\\\tools\\\\private\\\\HYDRA_CONSTRAINT_T1_WINDOWS_PYTHON_BROWSER_CAPTURE_BOOTSTRAP_V001_20260926.py --authorized-public-acquisition",
   "remaining_runtime_dependency": "EXECUTE_REAL_WINDOWS_BROWSER_CAPTURE_AGAINST_PRIVATE_ROOT",
-  "private_root": "D:\\HYDRA_PRIVATE\\constraint"
+  "private_root": "D:\\HYDRA\\_PRIVATE\\constraint"
 }
