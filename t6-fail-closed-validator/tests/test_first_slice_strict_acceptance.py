@@ -19,9 +19,10 @@ class FirstSliceStrictAcceptanceTests(unittest.TestCase):
 
     def test_strict_gate_counts_and_overall_blocked(self):
         vals=[row["strict_gate_result"] for row in self.gates["gates"].values()]
-        self.assertEqual(8,vals.count("PASS"))
+        self.assertEqual(9,vals.count("PASS"))
         self.assertEqual(7,vals.count("FAIL"))
         self.assertEqual("BLOCKED",self.gates["overall_result"])
+        self.assertEqual("PASS",self.gates["gates"]["PERSISTED_T1_CHAIN_OF_CUSTODY"]["strict_gate_result"])
 
     def test_shadow_replay_cannot_satisfy_strict_replay_gates(self):
         self.assertEqual("PASS",self.gates["shadow_results"]["NO_LOOKAHEAD"])
@@ -56,6 +57,8 @@ class FirstSliceStrictAcceptanceTests(unittest.TestCase):
         self.assertIn("MATERIALIZE_THE_NINE_ORIGINAL_FIRST_SLICE_SOURCE_BODIES",self.final["next_recommended_action"])
         self.assertTrue(self.master["hard_stop_second_ecosystem"])
         self.assertEqual("BLOCKED",self.master["acceptance_state"]["overall"])
+        self.assertEqual("YES",self.master["readiness"]["T1_T2_PERSISTED_CHAIN_OF_CUSTODY_READY"]["status"])
+        self.assertEqual("BLOCKED",self.master["first_serious_constraint_run"])
 
 if __name__=="__main__":
     unittest.main()
