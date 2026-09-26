@@ -67,6 +67,27 @@ Replay-ready records explicitly carry promotion blockers. Current common blocker
 
 Promotion requires evidence that resolves the applicable blockers; deleting the blocker strings is not sufficient.
 
+## Scored-gold promotion audit
+
+`corpus/HYDRA_CONSTRAINT_REPLAY_PROMOTION_AUDIT_BATCH006_20260925.json` evaluates every replay-ready case against explicit promotion requirements.
+
+Current audited state:
+
+- 22 replay-ready cases;
+- 8 cases with later observation evidence;
+- 3 outcome-side enrichment candidates;
+- 0 cases with independent historical hypothesis provenance;
+- 0 cases with historical confidence provenance;
+- 0 scored-gold eligible cases.
+
+The gate refuses confidence values that lack a historical confidence source and refuses outcome classes without explicit outcome support.
+
+The targeted evidence queue is:
+
+`corpus/HYDRA_CONSTRAINT_REPLAY_PROMOTION_QUEUE_BATCH006_20260925.json`
+
+It narrows the next outcome-evidence pass to Suez, Black Sea grain and Wilhelmshaven rather than enriching every case indiscriminately.
+
 ## Run
 
 ```bash
