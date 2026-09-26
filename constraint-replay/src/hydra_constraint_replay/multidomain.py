@@ -172,6 +172,40 @@ class ConstraintMultiDomainQueryService:
         if _git_blob_sha(self._root / relative) != expected_sha:
             raise MultiDomainQueryError("Batch 016 replay-query manifest pin mismatch")
 
+        implementation = self._manifest.get("implementation")
+        if not isinstance(implementation, Mapping):
+            raise MultiDomainQueryError("Batch 017 implementation pins are missing")
+        for key in ("module", "cli", "package_export"):
+            item = implementation.get(key)
+            if not isinstance(item, Mapping):
+                raise MultiDomainQueryError(f"Batch 017 implementation pin missing: {key}")
+            relative = item.get("path")
+            expected_sha = item.get("git_blob_sha")
+            if not isinstance(relative, str) or not isinstance(expected_sha, str):
+                raise MultiDomainQueryError(f"Batch 017 implementation pin incomplete: {key}")
+            if _git_blob_sha(self._root / relative) != expected_sha:
+                raise MultiDomainQueryError(
+                    f"Batch 017 implementation Git blob pin mismatch: {relative}"
+                )
+
+        contracts = self._manifest.get("contracts")
+        if not isinstance(contracts, list) or len(contracts) != 2:
+            raise MultiDomainQueryError("Batch 017 contract pins are incomplete")
+        for item in contracts:
+            if not isinstance(item, Mapping):
+                raise MultiDomainQueryError("Batch 017 contract pin is invalid")
+            relative = item.get("path")
+            expected_sha = item.get("git_blob_sha")
+            if not isinstance(relative, str) or not isinstance(expected_sha, str):
+                raise MultiDomainQueryError("Batch 017 contract pin is incomplete")
+            if _git_blob_sha(self._root / relative) != expected_sha:
+                raise MultiDomainQueryError(
+                    f"Batch 017 contract Git blob pin mismatch: {relative}"
+                )
+
+        if self._manifest.get("read_only_capabilities") != READ_ONLY_CAPABILITIES:
+            raise MultiDomainQueryError("Batch 017 read-only capabilities mismatch")
+
         t6 = self._manifest.get("t6_boundary")
         if not isinstance(t6, Mapping):
             raise MultiDomainQueryError("Batch 017 T6 boundary is missing")
@@ -179,6 +213,8 @@ class ConstraintMultiDomainQueryService:
             raise MultiDomainQueryError("Batch 017 cannot activate T6")
         if t6.get("runtime_binding_created") is not False:
             raise MultiDomainQueryError("Batch 017 cannot create a T6 runtime binding")
+        if t6.get("activation_authority_granted") is not False:
+            raise MultiDomainQueryError("Batch 017 has no T6 activation authority")
 
     def _load_domains(self) -> None:
         (
@@ -256,9 +292,35 @@ class ConstraintMultiDomainQueryService:
                 f"expected 31 executable events, found {event_count}"
             )
 
+        observation_count = sum(
+            len(raw_case.get("observations", []))
+            for raw_case in self._case_records.values()
+        )
+        expected = self._manifest.get("expected")
+        if not isinstance(expected, Mapping):
+            raise MultiDomainQueryError("Batch 017 expected-count contract is missing")
+        actual_expected = {
+            "case_count": len(policy_ids),
+            "policy_event_count": event_count,
+            "policy_observation_count": observation_count,
+            "physical_binding_count": binding_count,
+            "unique_bound_entity_count": len(unique_entities),
+            "source_pair_count": len(SOURCE_PAIRS),
+            "replay_cut_count": self._replay.summary()["result"]["coverage"]["replay_cut_count"],
+            "partial_realization_count": self._replay.summary()["result"]["outcomes"]["class_counts"].get("PARTIAL_REALIZATION", 0),
+            "unevaluable_count": self._replay.summary()["result"]["outcomes"]["class_counts"].get("UNEVALUABLE", 0),
+            "calibrated_case_count": self._replay.summary()["result"]["coverage"]["calibrated_case_count"],
+        }
+        for key, actual in actual_expected.items():
+            if expected.get(key) != actual:
+                raise MultiDomainQueryError(
+                    f"Batch 017 expected {key}={expected.get(key)!r}, found {actual!r}"
+                )
+
         self._join_integrity = {
             "case_count": len(policy_ids),
             "event_count": event_count,
+            "observation_count": observation_count,
             "physical_binding_count": binding_count,
             "unique_bound_entity_count": len(unique_entities),
             "replay_policy_case_sets_equal": True,
