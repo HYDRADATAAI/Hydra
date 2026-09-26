@@ -121,13 +121,18 @@ def validate_registry(registry: Mapping[str, Any]) -> list[dict[str, Any]]:
             raise CaptureError(f"{source_id}: exact HTTPS source locator required")
         if locator in locators:
             raise CaptureError(f"duplicate exact source locator: {locator}")
+        expected_content_type(locator, raw.get("expected_content_type"))
         source_ids.add(source_id)
         locators.add(locator)
         normalized.append(dict(raw))
     return normalized
 
 
-def expected_content_type(locator: str) -> str:
+def expected_content_type(locator: str, declared: Any = None) -> str:
+    if declared is not None:
+        if declared not in ("application/pdf", "text/html"):
+            raise CaptureError("registry expected_content_type must be application/pdf or text/html")
+        return declared
     return "application/pdf" if locator.lower().endswith(".pdf") else "text/html"
 
 
@@ -140,6 +145,7 @@ def validate_main_document(
     status: int,
     observed_content_type: str | None,
     body: bytes,
+    declared_content_type: str | None = None,
 ) -> str:
     if response_url != exact_locator:
         raise CaptureError(
@@ -154,7 +160,7 @@ def validate_main_document(
     if status != 200:
         raise CaptureError(f"{source_id}: HTTP status {status} is not acceptable")
 
-    expected = expected_content_type(exact_locator)
+    expected = expected_content_type(exact_locator, declared_content_type)
     observed = (observed_content_type or "").strip().lower()
     if not observed.startswith(expected):
         raise CaptureError(
@@ -243,7 +249,7 @@ def capture_source(
 ) -> CapturedDocument:
     source_id = str(source["source_id"])
     locator = str(source["url"])
-    expected = expected_content_type(locator)
+    expected = expected_content_type(locator, source.get("expected_content_type"))
     suffix = ".pdf" if expected == "application/pdf" else ".html"
     body_path = capture_dir / f"{source_id}{suffix}"
 
@@ -291,6 +297,7 @@ def capture_source(
                         status=int(response.status),
                         observed_content_type=content_type,
                         body=body,
+                        declared_content_type=source.get("expected_content_type"),
                     )
                 except CaptureError as exc:
                     last_rejection = str(exc)
@@ -394,7 +401,7 @@ def _resume_entry_to_capture(
         raise CaptureError(f"{source_id}: resume journal HTTP status is not 200")
 
     content_type = entry.get("content_type")
-    expected_type = expected_content_type(locator)
+    expected_type = expected_content_type(locator, source.get("expected_content_type"))
     if content_type != expected_type:
         raise CaptureError(f"{source_id}: resume journal content type mismatch")
 
@@ -448,6 +455,7 @@ def _resume_entry_to_capture(
         status=200,
         observed_content_type=content_type,
         body=body,
+        declared_content_type=source.get("expected_content_type"),
     )
 
     capture_method = entry.get("capture_method")

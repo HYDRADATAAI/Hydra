@@ -1,0 +1,20 @@
+{
+  "pass": "SEMICONDUCTOR_PASS008",
+  "base_commit": "0ef8dfb1a0be9c78a7fde88d523b65b08671404e",
+  "runtime_admitted": false,
+  "actual_source_bodies_captured": 0,
+  "artifacts": [
+    {
+      "path": "tools/private/HYDRA_CONSTRAINT_T1_AUTOMATED_BROWSER_FIRST_SLICE_CAPTURE_V001_20260926.py",
+      "sha256": "102f7361cd871396d48a30631f20220e0ee0f6737e10816c6b66d015a8c94ede"
+    },
+    {
+      "path": "constraint-t1-raw-artifact-store/tests/test_semiconductor_pass008_declared_capture_mime.py",
+      "sha256": "00a127382bc46bc4fa18b3e4cb6d76a3577d446e92ba8c6e981a3ce1662116cb"
+    },
+    {
+      "path": "docs/constraint/validation/HYDRA_CONSTRAINT_SEMICONDUCTOR_PASS008_CAPTURE_MIME_SUPPORT_20260926.md",
+      "sha256": "6ca72f49a9c63c2fb363677efccdd9bb92372c5ffdcfe11da60ac64f69eeea8f"
+    }
+  ]
+}
