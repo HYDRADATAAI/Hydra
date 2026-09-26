@@ -69,6 +69,9 @@ FILES = {
     "batch012_outcomes": SLICE / "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH012_AI_DATA_CENTER_POWER_INFRASTRUCTURE_OUTCOME_RECORDS_SUPPLEMENT_V001_20260925.json",
     "batch012_overlay": SLICE / "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH012_AI_DATA_CENTER_POWER_INFRASTRUCTURE_REQUIRED_CASES_HISTORICAL_CLOSURE_OVERLAY_V001_20260925.json",
     "batch012_master": ARCH / "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH012_MASTER_STATUS_V001_20260925.json",
+    "batch015_custody_contract": IMPL / "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH015_T1_T2_PERSISTED_CHAIN_OF_CUSTODY_CONTRACT_V001_20260925.json",
+    "batch015_custody_status": VALIDATION / "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH015_T1_T2_CHAIN_OF_CUSTODY_STATUS_V001_20260925.json",
+    "batch015_master": ARCH / "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH015_MASTER_STATUS_V001_20260925.json",
 }
 
 
@@ -259,6 +262,10 @@ def main() -> int:
     outcomes12 = docs["batch012_outcomes"]
     overlay12 = docs["batch012_overlay"]
     batch012_master = docs["batch012_master"]
+
+    custody15 = docs["batch015_custody_contract"]
+    custody_status15 = docs["batch015_custody_status"]
+    batch015_master = docs["batch015_master"]
 
     # Stable first-slice identity across domain artifacts.
     for name, doc in (
@@ -869,6 +876,67 @@ def main() -> int:
     require(batch010_master.get("first_serious_constraint_run") == "BLOCKED", "Batch010 master falsely claims serious-run readiness")
     require(batch010_master.get("next_repo_executable_lane") == BATCH010_NEXT, "Batch010 master next lane drifted")
 
+    # Batch015 hardens T1->T2 persisted chain of custody without claiming raw materialization.
+    custody_required15 = set(custody15.get("ordinary_t2_eligibility_requires", []))
+    require(
+        custody_required15
+        == {
+            "VALID_RAW_ARTIFACT_BYTES",
+            "MATCHING_ARTIFACT_SHA256",
+            "SOURCE_ID",
+            "SOURCE_VERSION_ID",
+            "ACQUIRED_AT",
+            "AVAILABLE_AT",
+            "ELIGIBLE_PROCESSING_DISPOSITION",
+            "EXACT_PERSISTED_SOURCE_VERSION_RECEIPT",
+            "EXACT_PERSISTED_RELEASE_MANIFEST",
+            "EXACT_RELEASE_MEMBERSHIP",
+        },
+        f"Batch015 persisted custody requirement set drifted: {sorted(custody_required15)}",
+    )
+    custody_semantics15 = custody15.get("authority_semantics")
+    require(isinstance(custody_semantics15, dict), "Batch015 custody semantics missing")
+    require(
+        custody_semantics15.get("caller_supplied_in_memory_receipt_authoritative") is False,
+        "Batch015 in-memory receipt authority unexpectedly enabled",
+    )
+    require(
+        custody_semantics15.get("caller_supplied_in_memory_release_manifest_authoritative") is False,
+        "Batch015 in-memory release authority unexpectedly enabled",
+    )
+    require(
+        custody_semantics15.get("self_consistent_recomputed_digest_sufficient") is False,
+        "Batch015 recomputed digest unexpectedly sufficient for authority",
+    )
+    require(
+        custody_semantics15.get("persisted_record_identity_required") is True,
+        "Batch015 persisted identity requirement removed",
+    )
+
+    custody_results15 = custody_status15.get("results")
+    require(isinstance(custody_results15, dict), "Batch015 custody status missing")
+    require(custody_results15.get("PERSISTED_RECEIPT_IDENTITY_REQUIRED") == "YES", "Batch015 persisted receipt identity not required")
+    require(custody_results15.get("PERSISTED_RELEASE_IDENTITY_REQUIRED") == "YES", "Batch015 persisted release identity not required")
+    require(custody_results15.get("FORGED_IN_MEMORY_RELEASE_AUTHORITY") == "NO", "Batch015 forged release became authority")
+    require(custody_results15.get("FORGED_RECEIPT_DISPOSITION_UPGRADE") == "BLOCKED", "Batch015 forged disposition upgrade not blocked")
+    require(custody_results15.get("FIRST_SLICE_REAL_RAW_ARTIFACTS_MATERIALIZED") == "NO", "Batch015 falsely materializes raw source bodies")
+    require(custody_results15.get("IMPLEMENTATION_ADMITTED") == "NO", "Batch015 falsely admits implementation")
+    require(custody_results15.get("FULL_CONSTRAINT_RUN_READY") == "NO", "Batch015 falsely claims full-run readiness")
+    require(custody_results15.get("FIRST_SERIOUS_CONSTRAINT_RUN") == "BLOCKED", "Batch015 falsely claims serious-run readiness")
+
+    r15 = batch015_master.get("readiness")
+    require(isinstance(r15, dict), "Batch015 master readiness missing")
+    require(r15["T1_T2_PERSISTED_CHAIN_OF_CUSTODY_READY"].get("status") == "YES", "Batch015 master lost custody readiness")
+    require(r15["FIRST_SLICE_RAW_ARTIFACTS_MATERIALIZED"].get("status") == "NO", "Batch015 master falsely materializes raw artifacts")
+    require(r15["IMPLEMENTATION_ADMITTED"].get("status") == "NO", "Batch015 master falsely admits implementation")
+    require(r15["FULL_CONSTRAINT_RUN_READY"].get("status") == "NO", "Batch015 master falsely claims full-run readiness")
+    require(batch015_master.get("first_serious_constraint_run") == "BLOCKED", "Batch015 master falsely claims serious-run readiness")
+    require(
+        batch015_master.get("next_repo_executable_lane")
+        == "FIRST-SLICE-TYPED-CONFIDENCE-AND-EVALUATION-READINESS-CLOSURE",
+        "Batch015 next repo-executable lane drifted",
+    )
+
     # Manifest discovery is dynamic so a new Lily successor batch cannot silently
     # bypass the guard or break it merely because the list was hard-coded.
     manifests = discover_current_manifests()
@@ -916,6 +984,7 @@ def main() -> int:
     print("IMPLEMENTATION_ADMITTED=NO")
     print("REAL_NINE_SOURCE_MATERIALIZATION=NO")
     print("QUALIFIED_BENEFICIARIES=0")
+    print("T1_T2_PERSISTED_CHAIN_OF_CUSTODY_READY=YES")
     print("FIRST_SERIOUS_CONSTRAINT_RUN=BLOCKED")
     print(f"LATEST_NEXT_REPO_EXECUTABLE_LANE={latest_master.get('next_repo_executable_lane')}")
     return 0
