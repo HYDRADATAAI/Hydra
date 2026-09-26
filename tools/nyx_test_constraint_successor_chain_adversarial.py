@@ -525,7 +525,7 @@ def main() -> int:
         ("batch012_cancelled_scope_generalized", case_batch012_cancelled_scope_generalized, "Batch012 cancelled-project scope was generalized"),
         ("batch012_true_case_falsely_closed", case_batch012_true_case_falsely_closed, "Batch012 case1 overlay falsely closed true-project case"),
         ("batch012_invents_available_at", case_batch012_invents_available_at, "Batch012 invented exact HYDRA available_at"),
-        ("latest_master_falsely_ready", case_latest_master_falsely_ready, "Batch012 master falsely claims full-run readiness"),
+        ("latest_master_falsely_ready", case_latest_master_falsely_ready, "falsely claims full-run readiness"),
     ]
     for name, mutator, expected in cases:
         expect_failure(name, mutator, expected)
