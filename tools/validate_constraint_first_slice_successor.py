@@ -419,9 +419,9 @@ def main() -> int:
 
     # Batch014 is the strict acceptance gate: shadow success must never be relabelled ordinary acceptance.
     gate_rows14 = gates14.get("gates")
-    require(isinstance(gate_rows14, dict) and len(gate_rows14) == 15, "Batch014 strict gate set drifted")
+    require(isinstance(gate_rows14, dict) and len(gate_rows14) == 16, "Batch014 strict gate set drifted")
     strict_values14 = [row.get("strict_gate_result") for row in gate_rows14.values()]
-    require(strict_values14.count("PASS") == 8, "Batch014 PASS gate count drifted")
+    require(strict_values14.count("PASS") == 9, "Batch014 PASS gate count drifted")
     require(strict_values14.count("FAIL") == 7, "Batch014 FAIL gate count drifted")
     require(gates14.get("overall_result") == "BLOCKED", "Batch014 falsely passes slice")
     require(gates14.get("shadow_results", {}).get("NO_LOOKAHEAD") == "PASS", "Batch014 shadow no-lookahead receipt drifted")
@@ -429,6 +429,7 @@ def main() -> int:
     require(gate_rows14["NO_LOOKAHEAD"].get("strict_gate_result") == "FAIL", "Batch014 shadow no-lookahead smuggled into strict PASS")
     require(gate_rows14["DETERMINISTIC_REPLAY"].get("strict_gate_result") == "FAIL", "Batch014 shadow determinism smuggled into strict PASS")
     require(gate_rows14["RAW_PROVENANCE"].get("strict_gate_result") == "FAIL", "Batch014 raw provenance falsely passes")
+    require(gate_rows14["PERSISTED_T1_CHAIN_OF_CUSTODY"].get("strict_gate_result") == "PASS", "Batch014 persisted custody gate did not pass")
     require(gate_rows14["LINEAGE"].get("strict_gate_result") == "FAIL", "Batch014 lineage falsely passes")
     require(gate_rows14["CONSTRAINT_FORMATION"].get("canonical_constraint_count") == 0, "Batch014 canonical constraint count drifted")
     require(gate_rows14["BENEFICIARY_QUALIFICATION"].get("qualified_relationship_count") == 0, "Batch014 qualified beneficiary count drifted")
@@ -449,6 +450,8 @@ def main() -> int:
     require(master14.get("acceptance_state", {}).get("overall") == "BLOCKED", "Batch014 master falsely passes acceptance")
     require(master14.get("hard_stop_second_ecosystem") is True, "Batch014 hard stop removed")
     require(master14.get("readiness", {}).get("FULL_CONSTRAINT_RUN_READY", {}).get("status") == "NO", "Batch014 falsely claims full-run readiness")
+    require(master14.get("readiness", {}).get("T1_T2_PERSISTED_CHAIN_OF_CUSTODY_READY", {}).get("status") == "YES", "Batch014 lost persisted custody readiness")
+    require(master14.get("first_serious_constraint_run") == "BLOCKED", "Batch014 master falsely claims serious-run readiness")
 
     # Raw-store contract must remain private and require the full ordinary T2 lineage envelope.
     boundary = raw_contract.get("public_repository_boundary")
@@ -496,12 +499,13 @@ def main() -> int:
     print("CANONICAL_CONSTRAINTS_MINTED=0")
     print("QUALIFIED_BENEFICIARIES_MINTED=0")
     print("STRICT_FIRST_SLICE_ACCEPTANCE=BLOCKED")
-    print("STRICT_GATE_PASS_COUNT=8")
+    print("STRICT_GATE_PASS_COUNT=9")
     print("STRICT_GATE_FAIL_COUNT=7")
     print("SHADOW_NO_LOOKAHEAD=PASS")
     print("SHADOW_DETERMINISM=PASS")
     print("ORDINARY_HISTORICAL_REPLAY=BLOCKED")
     print("HARD_STOP_SECOND_ECOSYSTEM=YES")
+    print("T1_T2_PERSISTED_CHAIN_OF_CUSTODY_READY=YES")
     print("NEXT_RECOMMENDED_ACTION=MATERIALIZE_NINE_ORIGINAL_FIRST_SLICE_SOURCE_BODIES_IN_PRIVATE_T1_STORE")
     return 0
 
