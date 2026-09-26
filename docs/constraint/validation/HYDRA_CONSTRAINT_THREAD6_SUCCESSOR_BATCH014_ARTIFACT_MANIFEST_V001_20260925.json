@@ -1,0 +1,69 @@
+{
+  "schema_version": "hydra-constraint-thread6-successor-manifest/v1",
+  "record_id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH014_ARTIFACT_MANIFEST_V001",
+  "as_of": "2026-09-25",
+  "repository": "HYDRADATAAI/Hydra",
+  "base_head": "5549d7b335439914c88e4552c4829ad0b6d0d089",
+  "predecessor_batch": {
+    "id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH013",
+    "commit": "5549d7b335439914c88e4552c4829ad0b6d0d089",
+    "preservation": "IMMUTABLE_NOT_REWRITTEN"
+  },
+  "slice_id": "AI_DATA_CENTER_POWER_INFRASTRUCTURE_V1",
+  "purpose": "STRICT_ACCEPTANCE_GATE_AND_FINAL_RETURN",
+  "semantic_boundary": {
+    "shadow_no_lookahead_promoted_to_strict_pass": false,
+    "shadow_determinism_promoted_to_strict_pass": false,
+    "canonical_constraint_fabricated": false,
+    "qualified_beneficiary_fabricated": false,
+    "raw_lineage_fabricated": false,
+    "second_ecosystem_opened": false
+  },
+  "artifacts": [
+    {
+      "path": "docs/constraint/first_slice/ai_data_center_power_infrastructure_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH014_AI_DATA_CENTER_POWER_INFRASTRUCTURE_STRICT_ACCEPTANCE_GATE_V001_20260925.json",
+      "git_blob_sha": "6a33b43c021a845f74a8c0d2d75917f1a7f7b060"
+    },
+    {
+      "path": "docs/constraint/first_slice/ai_data_center_power_infrastructure_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH014_AI_DATA_CENTER_POWER_INFRASTRUCTURE_FINAL_RETURN_V001_20260925.json",
+      "git_blob_sha": "aea894c742dde14b3e2762061f5281538080b4b5"
+    },
+    {
+      "path": "docs/constraint/architecture/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH014_AI_DATA_CENTER_POWER_INFRASTRUCTURE_CAPABILITY_LEDGER_CURRENT_SUMMARY_V001_20260925.json",
+      "git_blob_sha": "fd8620e0ae606cacdf46544f59f25a36c59f26e6"
+    },
+    {
+      "path": "docs/constraint/architecture/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH014_MASTER_STATUS_V001_20260925.json",
+      "git_blob_sha": "e1a78a7502cd75b398ddbdeba7d157b645c9fbc4"
+    },
+    {
+      "path": "docs/constraint/validation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH014_AI_DATA_CENTER_POWER_INFRASTRUCTURE_STRICT_ACCEPTANCE_REPORT_V001_20260925.md",
+      "git_blob_sha": "b1c481a8522cf99c4502b96cd3735158a41be2bb"
+    },
+    {
+      "path": "t6-fail-closed-validator/tests/test_first_slice_strict_acceptance.py",
+      "git_blob_sha": "cae21e08001c672cd0a8c252bcb75a50158fe5d9"
+    },
+    {
+      "path": "tools/validate_constraint_first_slice_successor.py",
+      "git_blob_sha": "3e664825b4ab0bf4cc14e329913bddb340bea002"
+    }
+  ],
+  "expected": {
+    "strict_result": "BLOCKED",
+    "strict_gate_pass_count": 8,
+    "strict_gate_fail_count": 7,
+    "real_source_data_used": "YES",
+    "historical_replay": "BLOCKED",
+    "strict_no_lookahead": "FAIL",
+    "strict_deterministic_replay": "FAIL",
+    "shadow_no_lookahead": "PASS",
+    "shadow_deterministic_replay": "PASS",
+    "constraints_formed": 0,
+    "beneficiary_candidates": 4,
+    "qualified_beneficiaries": 0,
+    "outcomes_captured": 2,
+    "capability_ledger_updates": 4,
+    "hard_stop_second_ecosystem": true
+  }
+}

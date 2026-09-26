@@ -49,6 +49,9 @@ FILES = {
     "batch013_case_matrix": SLICE / "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH013_AI_DATA_CENTER_POWER_INFRASTRUCTURE_REQUIRED_CASE_MATRIX_V001_20260925.json",
     "batch013_beneficiary_overlay": SLICE / "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH013_AI_DATA_CENTER_POWER_INFRASTRUCTURE_EATON_TRANSFORMER_PREQUALIFICATION_OVERLAY_V001_20260925.json",
     "batch013_master": ARCH / "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH013_MASTER_STATUS_V001_20260925.json",
+    "batch014_gates": SLICE / "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH014_AI_DATA_CENTER_POWER_INFRASTRUCTURE_STRICT_ACCEPTANCE_GATE_V001_20260925.json",
+    "batch014_final": SLICE / "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH014_AI_DATA_CENTER_POWER_INFRASTRUCTURE_FINAL_RETURN_V001_20260925.json",
+    "batch014_master": ARCH / "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH014_MASTER_STATUS_V001_20260925.json",
 }
 
 MANIFESTS = [
@@ -155,6 +158,9 @@ def main() -> int:
     matrix13 = docs["batch013_case_matrix"]
     beneficiary13 = docs["batch013_beneficiary_overlay"]
     master13 = docs["batch013_master"]
+    gates14 = docs["batch014_gates"]
+    final14 = docs["batch014_final"]
+    master14 = docs["batch014_master"]
 
     # First-slice identity must remain stable across the domain artifacts.
     for name, doc in (
@@ -411,6 +417,39 @@ def main() -> int:
     require(readiness13["LINEAGE_COMPLETE"].get("status") == "NO", "Batch013 master falsely claims lineage complete")
     require(master13.get("first_serious_constraint_run") == "BLOCKED", "Batch013 falsely claims serious-run readiness")
 
+    # Batch014 is the strict acceptance gate: shadow success must never be relabelled ordinary acceptance.
+    gate_rows14 = gates14.get("gates")
+    require(isinstance(gate_rows14, dict) and len(gate_rows14) == 15, "Batch014 strict gate set drifted")
+    strict_values14 = [row.get("strict_gate_result") for row in gate_rows14.values()]
+    require(strict_values14.count("PASS") == 8, "Batch014 PASS gate count drifted")
+    require(strict_values14.count("FAIL") == 7, "Batch014 FAIL gate count drifted")
+    require(gates14.get("overall_result") == "BLOCKED", "Batch014 falsely passes slice")
+    require(gates14.get("shadow_results", {}).get("NO_LOOKAHEAD") == "PASS", "Batch014 shadow no-lookahead receipt drifted")
+    require(gates14.get("shadow_results", {}).get("DETERMINISTIC_REPLAY") == "PASS", "Batch014 shadow determinism receipt drifted")
+    require(gate_rows14["NO_LOOKAHEAD"].get("strict_gate_result") == "FAIL", "Batch014 shadow no-lookahead smuggled into strict PASS")
+    require(gate_rows14["DETERMINISTIC_REPLAY"].get("strict_gate_result") == "FAIL", "Batch014 shadow determinism smuggled into strict PASS")
+    require(gate_rows14["RAW_PROVENANCE"].get("strict_gate_result") == "FAIL", "Batch014 raw provenance falsely passes")
+    require(gate_rows14["LINEAGE"].get("strict_gate_result") == "FAIL", "Batch014 lineage falsely passes")
+    require(gate_rows14["CONSTRAINT_FORMATION"].get("canonical_constraint_count") == 0, "Batch014 canonical constraint count drifted")
+    require(gate_rows14["BENEFICIARY_QUALIFICATION"].get("qualified_relationship_count") == 0, "Batch014 qualified beneficiary count drifted")
+
+    require(final14.get("AI_DATA_CENTER_POWER_SLICE") == "BLOCKED", "Batch014 final slice result drifted")
+    require(final14.get("REAL_SOURCE_DATA_USED") == "YES", "Batch014 real-source flag drifted")
+    require(final14.get("HISTORICAL_REPLAY") == "BLOCKED", "Batch014 historical replay falsely passes")
+    require(final14.get("NO_LOOKAHEAD") == "FAIL", "Batch014 strict no-lookahead final return drifted")
+    require(final14.get("DETERMINISTIC_REPLAY") == "FAIL", "Batch014 strict deterministic final return drifted")
+    require(final14.get("CONSTRAINTS_FORMED") == 0, "Batch014 canonical constraints falsely formed")
+    require(final14.get("CONSTRAINTS_INVALIDATED") == 0, "Batch014 invalidated constraint count drifted")
+    require(final14.get("BENEFICIARY_CANDIDATES") == 4, "Batch014 beneficiary candidate count drifted")
+    require(final14.get("OUTCOMES_CAPTURED") == 2, "Batch014 outcome count drifted")
+    require(final14.get("CAPABILITY_LEDGER_UPDATES") == 4, "Batch014 capability update count drifted")
+    require(final14.get("clarifications", {}).get("SHADOW_CONSTRAINT_CANDIDATES") == 3, "Batch014 shadow constraint count drifted")
+    require(final14.get("clarifications", {}).get("QUALIFIED_BENEFICIARIES") == 0, "Batch014 qualified beneficiary clarification drifted")
+
+    require(master14.get("acceptance_state", {}).get("overall") == "BLOCKED", "Batch014 master falsely passes acceptance")
+    require(master14.get("hard_stop_second_ecosystem") is True, "Batch014 hard stop removed")
+    require(master14.get("readiness", {}).get("FULL_CONSTRAINT_RUN_READY", {}).get("status") == "NO", "Batch014 falsely claims full-run readiness")
+
     # Raw-store contract must remain private and require the full ordinary T2 lineage envelope.
     boundary = raw_contract.get("public_repository_boundary")
     contract = raw_contract.get("artifact_contract")
@@ -456,8 +495,14 @@ def main() -> int:
     print("REQUIRED_FUNCTIONAL_CASES_COVERED=10")
     print("CANONICAL_CONSTRAINTS_MINTED=0")
     print("QUALIFIED_BENEFICIARIES_MINTED=0")
-    print("FIRST_SERIOUS_CONSTRAINT_RUN=BLOCKED")
-    print("NEXT_REPO_EXECUTABLE_LANE=FIRST-SLICE-STRICT-ACCEPTANCE-GATE-AND-BLOCKER-REPORT")
+    print("STRICT_FIRST_SLICE_ACCEPTANCE=BLOCKED")
+    print("STRICT_GATE_PASS_COUNT=8")
+    print("STRICT_GATE_FAIL_COUNT=7")
+    print("SHADOW_NO_LOOKAHEAD=PASS")
+    print("SHADOW_DETERMINISM=PASS")
+    print("ORDINARY_HISTORICAL_REPLAY=BLOCKED")
+    print("HARD_STOP_SECOND_ECOSYSTEM=YES")
+    print("NEXT_RECOMMENDED_ACTION=MATERIALIZE_NINE_ORIGINAL_FIRST_SLICE_SOURCE_BODIES_IN_PRIVATE_T1_STORE")
     return 0
 
 

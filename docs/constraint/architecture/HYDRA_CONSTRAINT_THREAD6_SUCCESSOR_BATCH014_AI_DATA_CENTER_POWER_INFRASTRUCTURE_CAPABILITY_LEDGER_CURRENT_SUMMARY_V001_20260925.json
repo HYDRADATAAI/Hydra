@@ -1,0 +1,56 @@
+{
+  "schema_version": "hydra-constraint-capability-ledger-current-summary/v1",
+  "record_id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH014_AI_DATA_CENTER_POWER_INFRASTRUCTURE_CAPABILITY_LEDGER_CURRENT_SUMMARY_V001",
+  "as_of": "2026-09-25",
+  "slice_id": "AI_DATA_CENTER_POWER_INFRASTRUCTURE_V1",
+  "evidence_rule": "STATUS_REQUIRES_POPULATED_CONNECTED_USAGE_NOT_SCHEMA_ONLY",
+  "cumulative_successor_updates": [
+    {
+      "capability": "historical_outcomes",
+      "from": "EMPTY",
+      "to": "THIN",
+      "source_batch": "BATCH011"
+    },
+    {
+      "capability": "confidence_contradictions",
+      "from": "THIN",
+      "to": "PARTIALLY_POPULATED",
+      "source_batch": "BATCH012"
+    },
+    {
+      "capability": "beneficiaries",
+      "from": "THIN",
+      "to": "PARTIALLY_POPULATED",
+      "source_batch": "BATCH013"
+    },
+    {
+      "capability": "evaluation",
+      "from": "THIN",
+      "to": "PARTIALLY_POPULATED",
+      "source_batch": "BATCH013"
+    }
+  ],
+  "cumulative_update_count": 4,
+  "important_nonupgrades": [
+    {
+      "capability": "historical_states_replay",
+      "status": "THIN",
+      "reason": "ORDINARY_RAW_SOURCE_REPLAY_NOT_ADMITTED"
+    },
+    {
+      "capability": "chains",
+      "status": "THIN",
+      "reason": "SHADOW_CONSTRAINT_CANDIDATES_NOT_CANONICAL"
+    },
+    {
+      "capability": "historical_outcomes",
+      "status": "THIN",
+      "reason": "ONLY_TWO_REAL_OUTCOMES"
+    },
+    {
+      "capability": "evaluation",
+      "status": "PARTIALLY_POPULATED",
+      "reason": "FUNCTIONAL_CASE_MATRIX_COMPLETE_BUT_ORDINARY_REPLAY_AND_ADMISSION_BLOCKED"
+    }
+  ]
+}

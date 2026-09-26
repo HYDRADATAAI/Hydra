@@ -1,0 +1,99 @@
+{
+  "schema_version": "hydra-constraint-first-slice-strict-acceptance-gate/v1",
+  "record_id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH014_AI_DATA_CENTER_POWER_INFRASTRUCTURE_STRICT_ACCEPTANCE_GATE_V001",
+  "as_of": "2026-09-25",
+  "predecessor_batch": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH013",
+  "slice_id": "AI_DATA_CENTER_POWER_INFRASTRUCTURE_V1",
+  "rule": "STRICT_GATE_PASS_REQUIRES_ORDINARY_GOVERNED_CAPABILITY_WHERE_THE_SPEC_REQUIRES_REPLAY_ADMISSION_OR_CANONICAL_PROMOTION; SHADOW_PASS_IS_RECORDED_SEPARATELY",
+  "gates": {
+    "AUTHORITY_CURRENT": {
+      "strict_gate_result": "PASS",
+      "observed_state": "CURRENT_AUTHORITY_RECONCILED_AND_SUCCESSOR_CHAIN_GUARDED",
+      "evidence": [
+        "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH001_AUTHORITY_MAP_V001",
+        "NYX_CONSTRAINT_SUCCESSOR_CHAIN_GUARD_CI"
+      ]
+    },
+    "SOURCE_MAP": {
+      "strict_gate_result": "PASS",
+      "observed_state": "SOURCE_REGISTRY_FIELD_MATRIX_AND_SUCCESSOR_GAP_CLOSURES_PRESENT",
+      "evidence": [
+        "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH003_AI_DATA_CENTER_POWER_INFRASTRUCTURE_SOURCE_REGISTRY_V001",
+        "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH009_AI_DATA_CENTER_POWER_INFRASTRUCTURE_SOURCE_GAP_STATUS_V001"
+      ]
+    },
+    "RAW_PROVENANCE": {
+      "strict_gate_result": "FAIL",
+      "observed_state": "PRIVATE_STORE_IMPLEMENTED_BUT_FIRST_SLICE_RAW_SOURCE_BODIES_NOT_MATERIALIZED",
+      "blocker": "PIT-002B-FIRST-SLICE-NINE-SOURCE-RAW-CAPTURE-MATERIALIZATION"
+    },
+    "NORMALIZATION": {
+      "strict_gate_result": "PASS",
+      "observed_state": "REVIEWED_NORMALIZED_EVIDENCE_AND_OVERLAYS_PRESENT_WITH_GOVERNED_MISSINGNESS"
+    },
+    "ENTITY_RESOLUTION": {
+      "strict_gate_result": "PASS",
+      "observed_state": "SLICE_RECORDS_USE_EXISTING_AUTHORITY_AND_STABLE_ENTITY_REFERENCES_NO_PARALLEL_IDENTITY_SYSTEM"
+    },
+    "GRAPH_REFERENTIAL_INTEGRITY": {
+      "strict_gate_result": "PASS",
+      "observed_state": "CROSS_BATCH_VALIDATOR_AND_SLICE_TESTS_PASS_REFERENCES_WITHIN_REVIEWED_SHADOW_GRAPH"
+    },
+    "CONTRADICTION_PRESERVATION": {
+      "strict_gate_result": "PASS",
+      "observed_state": "TALEN_960MW_DEVELOPMENT_PLAN_AND_FERC_300_TO_480MW_REJECTION_PRESERVED_WITHOUT_CONSENSUS_FABRICATION"
+    },
+    "CONSTRAINT_FORMATION": {
+      "strict_gate_result": "FAIL",
+      "observed_state": "THREE_SHADOW_T5_CANDIDATES_ZERO_CANONICAL_CONSTRAINTS",
+      "shadow_candidate_count": 3,
+      "canonical_constraint_count": 0,
+      "blocker": "CANONICAL-T5-T6-CONSTRAINT-AND-BENEFICIARY-ADMISSION-NOT-AUTHORIZED"
+    },
+    "INVALIDATOR_HANDLING": {
+      "strict_gate_result": "PASS",
+      "observed_state": "SHADOW_RELIEF_INVALIDATOR_PATHS_AND_FALSE_PROMOTION_FIREWALL_EXERCISED"
+    },
+    "BENEFICIARY_QUALIFICATION": {
+      "strict_gate_result": "FAIL",
+      "observed_state": "FOUR_BLOCKED_EVALUATIONS_ONE_SHADOW_PREQUALIFICATION_PATTERN_ZERO_QUALIFIED_RELATIONSHIPS",
+      "beneficiary_candidate_count": 4,
+      "qualified_relationship_count": 0,
+      "blocker": "CI-TEST-008-BLOCKER-001B-NATIVE-T5-T6-SIGNED-ADMISSION-RECEIPT-ABSENT"
+    },
+    "POINT_IN_TIME_RECONSTRUCTION": {
+      "strict_gate_result": "FAIL",
+      "observed_state": "SHADOW_NORMALIZED_FIXTURE_EXISTS_ORDINARY_RAW_SOURCE_REPLAY_NOT_READY",
+      "blocker": "ORDINARY-POINT-IN-TIME-REPLAY-SOURCE-VERSION-HASHES-INCOMPLETE"
+    },
+    "NO_LOOKAHEAD": {
+      "strict_gate_result": "FAIL",
+      "observed_state": "SHADOW_FIXTURE_PASS_BUT_ORDINARY_SOURCE_AVAILABILITY_REPLAY_NOT_ADMISSIBLE",
+      "shadow_result": "PASS"
+    },
+    "DETERMINISTIC_REPLAY": {
+      "strict_gate_result": "FAIL",
+      "observed_state": "SHADOW_NORMALIZED_REPLAY_DETERMINISTIC_BUT_ORDINARY_PINNED_RAW_REPLAY_NOT_PROVEN",
+      "shadow_result": "PASS"
+    },
+    "OUTCOME_CAPTURE": {
+      "strict_gate_result": "PASS",
+      "observed_state": "TWO_REAL_REVIEWED_OUTCOMES_CAPTURED_CAPACITY_ADDED_AND_PROJECT_CANCELLED",
+      "outcome_count": 2,
+      "coverage_strength": "THIN"
+    },
+    "LINEAGE": {
+      "strict_gate_result": "FAIL",
+      "observed_state": "SOURCE_VERSION_RAW_HASH_CHAIN_INCOMPLETE_FOR_ORDINARY_REPLAY",
+      "blocker": "PIT-002B-FIRST-SLICE-NINE-SOURCE-RAW-CAPTURE-MATERIALIZATION"
+    }
+  },
+  "pass_count": 8,
+  "fail_count": 7,
+  "overall_result": "BLOCKED",
+  "shadow_results": {
+    "NO_LOOKAHEAD": "PASS",
+    "DETERMINISTIC_REPLAY": "PASS",
+    "REPLAY_MODE": "SHADOW_NORMALIZED_FIXTURE"
+  }
+}
