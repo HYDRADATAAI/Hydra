@@ -41,7 +41,7 @@ def master_batch(path: Path) -> int:
 def current_manifest_paths() -> list[Path]:
     grouped: dict[int, list[tuple[int, Path]]] = {}
     for path in VALIDATION_DIR.glob(
-        "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH*_ARTIFACT_MANIFEST_V*_20260925.json"
+        "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH*_ARTIFACT_MANIFEST_V*_*.json"
     ):
         batch, revision = manifest_identity(path)
         if batch >= 3:
@@ -66,7 +66,7 @@ def manifest_name_for_batch(batch: int) -> str:
 def latest_master() -> tuple[int, Path]:
     paths = list(
         ARCH_DIR.glob(
-            "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH*_MASTER_STATUS_V001_20260925.json"
+            "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH*_MASTER_STATUS_V001_*.json"
         )
     )
     if not paths:

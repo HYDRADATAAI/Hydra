@@ -141,7 +141,7 @@ def discover_current_manifests() -> list[Path]:
 
     grouped: dict[int, list[tuple[int, Path]]] = {}
     for path in VALIDATION.glob(
-        "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH*_ARTIFACT_MANIFEST_V*_20260925.json"
+        "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH*_ARTIFACT_MANIFEST_V*_*.json"
     ):
         batch, revision = manifest_identity(path)
         if batch >= 3:
@@ -173,7 +173,7 @@ def discover_current_manifests() -> list[Path]:
 def discover_latest_master() -> tuple[int, Path, dict[str, Any]]:
     paths = list(
         ARCH.glob(
-            "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH*_MASTER_STATUS_V001_20260925.json"
+            "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH*_MASTER_STATUS_V001_*.json"
         )
     )
     require(paths, "no successor master status discovered")

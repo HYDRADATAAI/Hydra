@@ -1,0 +1,161 @@
+{
+  "schema_version": "hydra-constraint-second-slice-semantic-reuse-audit/v1",
+  "record_id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH017_SEMICONDUCTOR_ADVANCED_PACKAGING_CRITICAL_MATERIALS_SEMANTIC_REUSE_AUDIT_V001",
+  "as_of": "2026-09-26",
+  "slice_id": "SEMICONDUCTOR_ADVANCED_PACKAGING_CRITICAL_MATERIALS_V1",
+  "classifications": [
+    "REUSE",
+    "EXTEND",
+    "POPULATE",
+    "STALE",
+    "DUPLICATE",
+    "GAP"
+  ],
+  "repository_semiconductor_specific_population_found": false,
+  "rows": [
+    {
+      "capability": "canonical actor/company/entity identity",
+      "classification": "REUSE",
+      "rationale": "Existing Constraint identity authority; semiconductor names are population only."
+    },
+    {
+      "capability": "facility identity and ownership",
+      "classification": "REUSE",
+      "rationale": "Use existing facility/asset identity and ownership relationships; populate fabs, packaging plants, memory plants and equipment factories."
+    },
+    {
+      "capability": "geography and strategic assets",
+      "classification": "REUSE",
+      "rationale": "Use existing geography/strategic-asset lane; no semiconductor geography subsystem."
+    },
+    {
+      "capability": "provenance/source/source-version/raw artifact",
+      "classification": "REUSE",
+      "rationale": "Thread-1 provenance semantics and private raw-artifact store remain authoritative."
+    },
+    {
+      "capability": "available_at/effective_at/observed_at/revision",
+      "classification": "REUSE",
+      "rationale": "Existing temporal truth/no-lookahead semantics are binding."
+    },
+    {
+      "capability": "contradiction/dedupe/evidence independence",
+      "classification": "REUSE",
+      "rationale": "Existing T4 governance semantics apply; duplicated articles cannot multiply evidence."
+    },
+    {
+      "capability": "constraint classes and specific mechanisms",
+      "classification": "REUSE",
+      "rationale": "Reuse Thread-2 classes and specific constraining_mechanism separation."
+    },
+    {
+      "capability": "T5 candidate/T6 canonical ownership",
+      "classification": "REUSE",
+      "rationale": "T5 forms candidates; T6 owns canonical identities."
+    },
+    {
+      "capability": "beneficiary relationship semantics",
+      "classification": "REUSE",
+      "rationale": "Constraint truth and beneficiary truth remain separate; use identity-bearing relationships."
+    },
+    {
+      "capability": "historical replay/no-lookahead/determinism",
+      "classification": "REUSE",
+      "rationale": "Reuse first-slice replay semantics and ORIGINAL_AS_OF firewall."
+    },
+    {
+      "capability": "outcome object semantics",
+      "classification": "REUSE",
+      "rationale": "Reuse observed-outcome object model; add semiconductor-specific labels only as slice-scoped bindings."
+    },
+    {
+      "capability": "capacity lifecycle/state accounting",
+      "classification": "EXTEND",
+      "rationale": "Need explicit semiconductor applicability across PLANNED/ANNOUNCED/FUNDED/CONSTRUCTION/INSTALLATION/COMMISSIONING/QUALIFYING/RAMPING/OPERATIONAL/AVAILABLE/EFFECTIVE/RESERVED/BOOKED."
+    },
+    {
+      "capability": "yield",
+      "classification": "EXTEND",
+      "rationale": "Must be represented independently from installed/nameplate capacity and utilization; do not infer good output from capacity."
+    },
+    {
+      "capability": "qualification",
+      "classification": "EXTEND",
+      "rationale": "Need typed process/equipment/material/customer/product/supplier qualification states under existing provenance/temporal governance."
+    },
+    {
+      "capability": "constraint migration",
+      "classification": "EXTEND",
+      "rationale": "Need explicit old-constraint→relief-event→new-dominant-constraint causal transition without implying system-wide resolution."
+    },
+    {
+      "capability": "semiconductor historical outcome labels",
+      "classification": "EXTEND",
+      "rationale": "Need CAPACITY_RAMP/YIELD/QUALIFICATION/SUBSTITUTE/CONSTRAINT_MIGRATED label bindings while preserving existing outcome semantics."
+    },
+    {
+      "capability": "semiconductor manufacturers/designers",
+      "classification": "POPULATE",
+      "rationale": "No semiconductor-specific entity population found in current public repo."
+    },
+    {
+      "capability": "foundries/fabs/process nodes",
+      "classification": "POPULATE",
+      "rationale": "No bounded fab/process-node population found in current public repo."
+    },
+    {
+      "capability": "advanced packaging/OSAT/substrates",
+      "classification": "POPULATE",
+      "rationale": "No bounded advanced-packaging population found in current public repo."
+    },
+    {
+      "capability": "HBM/DRAM memory supply chain",
+      "classification": "POPULATE",
+      "rationale": "No bounded HBM/memory population found in current public repo."
+    },
+    {
+      "capability": "semiconductor equipment suppliers/tools",
+      "classification": "POPULATE",
+      "rationale": "No bounded equipment/tool population found in current public repo."
+    },
+    {
+      "capability": "critical materials and semiconductor-grade processing",
+      "classification": "POPULATE",
+      "rationale": "No bounded semiconductor-grade material chain population found in current public repo."
+    },
+    {
+      "capability": "policy/export-control semiconductor events",
+      "classification": "POPULATE",
+      "rationale": "Generic policy/event architecture exists; semiconductor-specific event population is absent."
+    },
+    {
+      "capability": "cross-slice AI→semiconductor→power graph",
+      "classification": "GAP",
+      "rationale": "Required graph does not yet exist."
+    },
+    {
+      "capability": "ordinary historical replay for slice 2",
+      "classification": "GAP",
+      "rationale": "No slice-2 raw source versions, hashes, frozen replay packets or ordinary replay receipts exist."
+    },
+    {
+      "capability": "slice-2 outcome corpus",
+      "classification": "GAP",
+      "rationale": "No semiconductor outcome records exist."
+    },
+    {
+      "capability": "slice-2 acceptance evidence",
+      "classification": "GAP",
+      "rationale": "No semiconductor acceptance run exists."
+    }
+  ],
+  "summary": {
+    "REUSE": 11,
+    "EXTEND": 5,
+    "POPULATE": 7,
+    "STALE": 0,
+    "DUPLICATE": 0,
+    "GAP": 4
+  },
+  "semantic_duplication_created": false
+}

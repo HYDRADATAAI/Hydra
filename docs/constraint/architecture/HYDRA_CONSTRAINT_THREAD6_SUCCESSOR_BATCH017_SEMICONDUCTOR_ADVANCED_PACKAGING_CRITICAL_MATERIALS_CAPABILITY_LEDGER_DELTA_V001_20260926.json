@@ -1,0 +1,72 @@
+{
+  "schema_version": "hydra-constraint-capability-ledger-delta/v1",
+  "record_id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH017_SEMICONDUCTOR_ADVANCED_PACKAGING_CRITICAL_MATERIALS_CAPABILITY_LEDGER_DELTA_V001",
+  "as_of": "2026-09-26",
+  "slice_id": "SEMICONDUCTOR_ADVANCED_PACKAGING_CRITICAL_MATERIALS_V1",
+  "predecessor_global_batch": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH016",
+  "changes": [
+    {
+      "capability": "semiconductor_vertical_scope",
+      "prior": "UNASSESSED",
+      "current": "SCOPE_FROZEN",
+      "basis": "Batch017 scope manifest"
+    },
+    {
+      "capability": "semantic_reuse",
+      "prior": "UNASSESSED",
+      "current": "PASS",
+      "basis": "Batch017 reuse audit"
+    },
+    {
+      "capability": "capacity_state_separation",
+      "prior": "GENERIC_THIN",
+      "current": "EXTENSION_REQUIRED",
+      "basis": "Semiconductor V1 field/firewall audit"
+    },
+    {
+      "capability": "yield_modeling",
+      "prior": "THIN_OR_UNPOPULATED",
+      "current": "EXTENSION_REQUIRED",
+      "basis": "Yield independent from installed capacity"
+    },
+    {
+      "capability": "qualification_modeling",
+      "prior": "THIN",
+      "current": "EXTENSION_REQUIRED",
+      "basis": "Typed qualification stages required"
+    },
+    {
+      "capability": "constraint_migration",
+      "prior": "THIN",
+      "current": "EXTENSION_REQUIRED",
+      "basis": "Required Case 11"
+    },
+    {
+      "capability": "semiconductor_entities_facilities",
+      "prior": "EMPTY_PUBLIC_REPO",
+      "current": "EMPTY_PUBLIC_REPO",
+      "basis": "No population added in Batch017"
+    },
+    {
+      "capability": "semiconductor_historical_outcomes",
+      "prior": "EMPTY",
+      "current": "EMPTY",
+      "basis": "No outcome population added in Batch017"
+    },
+    {
+      "capability": "semiconductor_historical_replay",
+      "prior": "EMPTY",
+      "current": "EMPTY",
+      "basis": "No replay packet added in Batch017"
+    },
+    {
+      "capability": "cross_slice_ai_semiconductor_power",
+      "prior": "EMPTY",
+      "current": "REQUIRED_NOT_BUILT",
+      "basis": "Cross-slice path frozen"
+    }
+  ],
+  "maturity_upgrade_count": 2,
+  "population_upgrade_count": 0,
+  "rule": "AUDIT_OR_SCOPE_FREEZE_DOES_NOT_IMPLY_DOMAIN_POPULATION_MATURITY"
+}
