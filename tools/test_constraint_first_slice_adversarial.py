@@ -18,7 +18,10 @@ VALIDATION_DIR = ROOT / "docs/constraint/validation"
 
 MANIFEST_NAMES = [
     f"HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH{n:03d}_ARTIFACT_MANIFEST_V001_20260925.json"
-    for n in range(3, 12)
+    for n in range(3, 10)
+] + [
+    "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH010_ARTIFACT_MANIFEST_V002_20260925.json",
+    "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH011_ARTIFACT_MANIFEST_V001_20260925.json",
 ]
 
 
@@ -242,7 +245,7 @@ def case_candidate_mints_canonical(root: Path) -> None:
         root,
         relative,
         mutate,
-        manifest_name="HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH010_ARTIFACT_MANIFEST_V001_20260925.json",
+        manifest_name="HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH010_ARTIFACT_MANIFEST_V002_20260925.json",
     )
 
 
@@ -261,7 +264,7 @@ def case_beneficiary_falsely_qualified(root: Path) -> None:
         root,
         relative,
         mutate,
-        manifest_name="HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH010_ARTIFACT_MANIFEST_V001_20260925.json",
+        manifest_name="HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH010_ARTIFACT_MANIFEST_V002_20260925.json",
     )
 
 
