@@ -1,0 +1,30 @@
+{
+  "schema_version": "hydra-constraint-capability-ledger-delta/v1",
+  "record_id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH011_CAPABILITY_LEDGER_DELTA_V001",
+  "as_of": "2026-09-25",
+  "predecessor": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH001_CAPABILITY_LEDGER_LINKAGE_V001",
+  "slice_id": "AI_DATA_CENTER_POWER_INFRASTRUCTURE_V1",
+  "updates": [
+    {
+      "capability": "historical_outcomes",
+      "prior_status": "EMPTY",
+      "successor_status": "THIN",
+      "basis": [
+        "1 real observed CAPACITY_ADDED outcome with separated effective/publication/Hydra-available times"
+      ]
+    }
+  ],
+  "unchanged": [
+    {
+      "capability": "historical_states_replay",
+      "status": "THIN",
+      "reason": "SHADOW_NORMALIZED_FIXTURE_PASSES_BUT_ORDINARY_RAW_LINEAGE_REPLAY_IS_BLOCKED"
+    },
+    {
+      "capability": "evaluation",
+      "status": "THIN",
+      "reason": "ONE_OUTCOME_AND_ONE_SHADOW_FIXTURE_ARE_INSUFFICIENT_FOR_STRONG_EVALUATION"
+    }
+  ],
+  "update_count": 1
+}

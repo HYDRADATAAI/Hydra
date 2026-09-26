@@ -25,7 +25,7 @@ def build_parser() -> argparse.ArgumentParser:
         "--output-dir",
         required=True,
         type=Path,
-        help="Directory for JSONL, Parquet, quarantine, and manifest outputs.",
+        help="Directory for JSONL, CSV, quarantine, and manifest outputs.",
     )
     return parser
 
@@ -45,7 +45,7 @@ def main(argv: list[str] | None = None) -> int:
     print(f"ACCEPTED_ROWS={len(result.accepted)}")
     print(f"QUARANTINED_ROWS={len(result.quarantined)}")
     print(f"MANIFEST={outputs['manifest']}")
-    print(f"PARQUET={outputs['normalized_parquet']}")
+    print(f"NORMALIZED_CSV={outputs['normalized_csv']}")
     return 0
 
 

@@ -14,6 +14,27 @@ from .documents import JSONDocument, canonical_json_bytes, parse_json_document, 
 from .models import Issue, sorted_issues
 
 
+# Dependency-free subset of common Greek and Cyrillic Latin lookalikes used in identifiers.
+_CONFUSABLE_TO_ASCII = str.maketrans({
+    "\u0391": "A", "\u03b1": "a", "\u0392": "B", "\u03b2": "b",
+    "\u03f9": "C", "\u03f2": "c", "\u0395": "E", "\u03b5": "e",
+    "\u0397": "H", "\u03b7": "n", "\u0399": "I", "\u03b9": "i",
+    "\u039a": "K", "\u03ba": "k", "\u039c": "M", "\u03bc": "m",
+    "\u039d": "N", "\u039f": "O", "\u03bf": "o", "\u03a1": "P",
+    "\u03c1": "p", "\u03a4": "T", "\u03c4": "t", "\u03a5": "Y",
+    "\u03a7": "X", "\u03c7": "x", "\u0410": "A", "\u0430": "a",
+    "\u0412": "B", "\u0432": "b", "\u0421": "C", "\u0441": "c",
+    "\u0415": "E", "\u0435": "e", "\u041d": "H", "\u043d": "h",
+    "\u0406": "I", "\u0456": "i", "\u0408": "J", "\u0458": "j",
+    "\u041a": "K", "\u043a": "k", "\u041c": "M", "\u043c": "m",
+    "\u041e": "O", "\u043e": "o", "\u0420": "P", "\u0440": "p",
+    "\u0405": "S", "\u0455": "s", "\u0422": "T", "\u0425": "X",
+    "\u0445": "x", "\u0423": "Y", "\u0443": "y", "\u04ba": "H",
+    "\u04bb": "h", "\u04c0": "I", "\u04cf": "l", "\u0500": "D",
+    "\u0501": "d", "\u0131": "i", "\u0251": "a", "\u0261": "g",
+})
+
+
 HANDOFF_SCHEMA = "t6-candidate-handoff.v1"
 CANDIDATE_SCHEMA = "constraint-candidate.v2"
 HANDOFF_CONTRACT = "T6 receives candidates for downstream adjudication; none are canonical truth."
@@ -40,6 +61,12 @@ FORBIDDEN_VALUE_MARKERS = {
 }
 FORBIDDEN_FIELDS_BY_COMPACT = {marker.replace("_", ""): marker for marker in FORBIDDEN_FIELDS}
 FORBIDDEN_FIELDS_ORDERED = tuple(sorted(FORBIDDEN_FIELDS))
+FORBIDDEN_EMBEDDED_FIELDS_ORDERED = tuple(
+    sorted(
+        (marker for marker in FORBIDDEN_FIELDS if "_" in marker),
+        key=lambda marker: (-len(marker.replace("_", "")), marker),
+    )
+)
 FORBIDDEN_VALUE_MARKERS_ORDERED = tuple(
     sorted(FORBIDDEN_VALUE_MARKERS, key=lambda marker: (-len(marker.replace("_", "")), marker))
 )
@@ -209,24 +236,36 @@ def _has_nonempty_unresolved(value: Any) -> bool:
 
 def _normalize_token(value: str) -> str:
     decomposed = unicodedata.normalize("NFKD", value)
-    compatible = "".join(character for character in decomposed if not unicodedata.combining(character))
+    compatible = "".join(
+        character for character in decomposed if not unicodedata.combining(character)
+    ).translate(_CONFUSABLE_TO_ASCII)
     with_acronym_boundaries = re.sub(r"(?<=[A-Z])(?=[A-Z][a-z])", "_", compatible)
     with_camel_boundaries = re.sub(r"(?<=[a-z0-9])(?=[A-Z])", "_", with_acronym_boundaries)
     separated = re.sub(r"[^0-9A-Za-z]+", "_", with_camel_boundaries)
-    return "_".join(separated.casefold().split("_"))
+    return "_".join(part for part in separated.casefold().split("_") if part)
 
 
 def _forbidden_field_marker(value: str) -> str | None:
     normalized = _normalize_token(value)
     if normalized in FORBIDDEN_FIELDS:
         return normalized
-    marker = FORBIDDEN_FIELDS_BY_COMPACT.get(normalized.replace("_", ""))
-    return marker if marker is not None else _confusable_marker(value, FORBIDDEN_FIELDS_ORDERED)
+    compact = normalized.replace("_", "")
+    if not compact:
+        return None
+    marker = FORBIDDEN_FIELDS_BY_COMPACT.get(compact)
+    if marker is not None:
+        return marker
+    for embedded_marker in FORBIDDEN_EMBEDDED_FIELDS_ORDERED:
+        if embedded_marker.replace("_", "") in compact:
+            return embedded_marker
+    return _confusable_marker(value, FORBIDDEN_FIELDS_ORDERED)
 
 
 def _forbidden_value_marker(value: str) -> str | None:
     normalized = _normalize_token(value)
     compact = normalized.replace("_", "")
+    if not compact:
+        return None
     for marker in FORBIDDEN_VALUE_MARKERS_ORDERED:
         if marker in normalized or marker.replace("_", "") in compact:
             return marker
@@ -286,7 +325,7 @@ def _identifier_skeleton(value: str) -> str:
     for character in unicodedata.normalize("NFKD", value):
         if unicodedata.combining(character):
             continue
-        folded = character.casefold()
+        folded = character.translate(_CONFUSABLE_TO_ASCII).casefold()
         if folded and all(item.isascii() and item.isalnum() for item in folded):
             skeleton.extend(folded)
         elif character.isalnum():

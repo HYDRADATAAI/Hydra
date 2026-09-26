@@ -1,0 +1,59 @@
+{
+  "schema_version": "hydra-constraint-thread6-stale-superseded-register/v1",
+  "record_id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH001_STALE_SUPERSEDED_REGISTER_V001",
+  "as_of": "2026-09-25",
+  "rule": "SUPERSEDE_CURRENT_VIEW_ASSERTION_ONLY_PRESERVE_PREDECESSOR_HISTORY",
+  "records": [
+    {
+      "stale": "BATCH008_THREAD2_FIVE_OPEN_POLICY_ITEMS",
+      "historical": "VALID_AS_OF_BATCH008",
+      "current": "SUPERSEDED_CLOSED",
+      "evidence": {
+        "artifact": "LILY_THREAD_2_BATCH_06_FINAL_CLOSURE.zip",
+        "sha256": "a0faf1074ff7aaa5db6546d16076bfff0acf024548be21bd0eacc558ea5ce38e"
+      }
+    },
+    {
+      "stale": "BATCH008_THREAD3_CANONICAL_BENEFICIARY_OPEN",
+      "historical": "VALID_AS_OF_BATCH008",
+      "current": "SUPERSEDED_CLOSED",
+      "evidence": {
+        "artifact": "LILY_THREAD_3_MASTER_CLOSURE_BUNDLE.zip",
+        "sha256": "ab7e4c05c9210a90256b8cdea89eeb9f3bb551453dfe13ebfe44616f750cb366"
+      }
+    },
+    {
+      "stale": "BATCH008_THREAD5_SOURCE_DESIGN_OPEN",
+      "historical": "VALID_AS_OF_BATCH008",
+      "current": "SUPERSEDED_CLOSED_DESIGN_ONLY",
+      "live_gate": "NOT_AUTHORIZED",
+      "evidence": {
+        "artifact": "LILY_THREAD_5_BATCH_6_FINAL_CLOSURE.zip",
+        "sha256": "1156c76a5de2115a65edba187622135359fdb2a9b59d425679fc7fd381ab06ba"
+      }
+    },
+    {
+      "stale": "TRUST_GOVERNANCE_V805_CURRENT_PIN",
+      "historical": "VALID_HISTORICAL_PIN",
+      "current": "SUPERSEDED_AS_CURRENT_PIN",
+      "evidence": {
+        "artifact": "HYDRA_THREAD4_TRUST_GOVERNANCE_BATCH_V816_V825.zip",
+        "sha256": "c9bf395aadad1f45f6468cb9c19efdb5aa6a1ec6805c01ebf8b8ee63e09e0a44",
+        "version": "V825"
+      }
+    },
+    {
+      "stale": "BATCH008_GLOBAL_BLOCKER_SUMMARY",
+      "historical": "VALID_AS_OF_BATCH008",
+      "current": "SUPERSEDED_BY_DIMENSIONAL_CURRENT_REGISTER"
+    }
+  ],
+  "preserved": [
+    "THREAD1_T1_T6_SEAM_MEANINGS",
+    "THREAD2_ROOT_TRUTH_CONDITIONS",
+    "THREAD3_OWNER_SEMANTICS",
+    "THREAD4_NO_LOOKAHEAD_SEMANTICS",
+    "THREAD5_NO_LIVE_GUARDRAIL",
+    "V825_DOMAIN_BOUNDARIES"
+  ]
+}

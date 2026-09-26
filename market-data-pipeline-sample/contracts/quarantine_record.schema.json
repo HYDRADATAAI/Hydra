@@ -4,16 +4,20 @@
   "additionalProperties": false,
   "required": [
     "quarantine_id",
+    "stage",
     "source_row_number",
     "raw_record_sha256",
     "errors",
+    "validation_messages",
     "raw_record"
   ],
   "properties": {
     "quarantine_id": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "stage": {"const": "row_validation"},
     "source_row_number": {"type": "integer", "minimum": 2},
     "raw_record_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
     "errors": {"type": "array", "items": {"type": "string"}, "minItems": 1},
+    "validation_messages": {"type": "array", "items": {"type": "string"}, "minItems": 1},
     "raw_record": {"type": "object"}
   }
 }

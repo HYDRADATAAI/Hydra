@@ -1,0 +1,38 @@
+name: Constraint AI power owner integration
+
+on:
+  pull_request:
+    paths:
+      - 'constraint-physical-dependency/**'
+      - 'constraint-geopolitical-policy/**'
+      - 'constraint-replay/**'
+      - 'constraint-t1-raw-artifact-store/**'
+      - 't6-fail-closed-validator/**'
+      - 'docs/constraint/**'
+      - 'tools/*constraint*'
+      - '.github/workflows/constraint-ai-power-owner-integration.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  integrated-owners:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install test runner
+        run: python -m pip install pytest
+      - name: Exercise all existing owners together
+        env:
+          PYTHONPATH: constraint-physical-dependency/src:constraint-geopolitical-policy/src:constraint-replay/src:constraint-t1-raw-artifact-store/src:t6-fail-closed-validator/src
+        run: python -m pytest --import-mode=importlib constraint-physical-dependency/tests constraint-geopolitical-policy/tests constraint-replay/tests constraint-t1-raw-artifact-store/tests t6-fail-closed-validator/tests -q
+      - name: Verify authority, lineage and blocked admission
+        run: |
+          python tools/validate_constraint_first_slice_successor.py
+          python tools/validate_constraint_lily_owner_seams.py
+          python tools/validate_constraint_first_slice_acceptance_gate.py
+          python tools/validate_constraint_first_slice_confidence_evaluation.py
+          python tools/nyx_validate_constraint_successor_chain.py

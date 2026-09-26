@@ -1,0 +1,90 @@
+{
+  "schema_version": "hydra-constraint-first-slice-strict-blocker-register/v1",
+  "record_id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH014_AI_DATA_CENTER_POWER_INFRASTRUCTURE_BLOCKER_REGISTER_V001",
+  "as_of": "2026-09-26",
+  "slice_id": "AI_DATA_CENTER_POWER_INFRASTRUCTURE_V1",
+  "overall_status": "BLOCKED",
+  "blocking_items": [
+    {
+      "blocker_id": "CI-TEST-008-BLOCKER-001B-NATIVE-T5-T6-SIGNED-ADMISSION-RECEIPT-ABSENT",
+      "dimension": "IMPLEMENTATION_ADMITTED",
+      "owner": "IMPLEMENTATION_CONTRACT",
+      "closure_kind": "EXTERNAL_AUTHORITY_RECEIPT",
+      "repo_executable": false
+    },
+    {
+      "blocker_id": "PIT-002B-FIRST-SLICE-NINE-SOURCE-RAW-CAPTURE-MATERIALIZATION",
+      "dimension": "PROVENANCE_READY",
+      "owner": "PIPELINE_T1_SOURCE_ACQUISITION",
+      "closure_kind": "PRIVATE_DATA_MATERIALIZATION",
+      "repo_executable": false
+    },
+    {
+      "blocker_id": "ORDINARY-POINT-IN-TIME-REPLAY-SOURCE-VERSION-HASHES-INCOMPLETE",
+      "dimension": "HISTORICAL_AS_OF_READY",
+      "owner": "PIPELINE_T1_SOURCE_ACQUISITION",
+      "closure_kind": "DERIVED_FROM_RAW_MATERIALIZATION",
+      "repo_executable": false,
+      "depends_on": [
+        "PIT-002B-FIRST-SLICE-NINE-SOURCE-RAW-CAPTURE-MATERIALIZATION"
+      ]
+    },
+    {
+      "blocker_id": "CANONICAL-T5-T6-CONSTRAINT-AND-BENEFICIARY-ADMISSION-NOT-AUTHORIZED",
+      "dimension": "IMPLEMENTATION_ADMITTED",
+      "owner": "IMPLEMENTATION_CONTRACT",
+      "closure_kind": "DERIVED_FROM_NATIVE_ADMISSION",
+      "repo_executable": false,
+      "depends_on": [
+        "CI-TEST-008-BLOCKER-001B-NATIVE-T5-T6-SIGNED-ADMISSION-RECEIPT-ABSENT"
+      ]
+    },
+    {
+      "blocker_id": "ACCEPT-014-CONF-001-TYPED-FORMATION-CONFIDENCE-NOT-POPULATED",
+      "dimension": "CONFIDENCE_READY",
+      "owner": "PIPELINE_T5_CONSTRAINT_FORMATION",
+      "closure_kind": "REPO_POLICY_BOUND_POPULATION",
+      "repo_executable": true
+    },
+    {
+      "blocker_id": "ACCEPT-014-CONF-002-BENEFICIARY-CONFIDENCE-VALUES-NULL",
+      "dimension": "CONFIDENCE_READY",
+      "owner": "PIPELINE_T6_CANONICAL_CANDIDATE_GOVERNANCE",
+      "closure_kind": "REPO_POLICY_BOUND_POPULATION",
+      "repo_executable": true
+    },
+    {
+      "blocker_id": "ACCEPT-014-EVAL-001-REAL-OUTCOME-COVERAGE-THIN",
+      "dimension": "EVALUATION_READY",
+      "owner": "LILY_THREAD_6_ARCHITECTURE_REGISTER",
+      "closure_kind": "DATA_COVERAGE_EXPANSION",
+      "repo_executable": true
+    },
+    {
+      "blocker_id": "ACCEPT-014-EVAL-002-NO-ORDINARY-CANONICAL-OUTPUTS-TO-EVALUATE",
+      "dimension": "EVALUATION_READY",
+      "owner": "PIPELINE_T6_CANONICAL_CANDIDATE_GOVERNANCE",
+      "closure_kind": "DERIVED_FROM_ADMISSION",
+      "repo_executable": false,
+      "depends_on": [
+        "CANONICAL-T5-T6-CONSTRAINT-AND-BENEFICIARY-ADMISSION-NOT-AUTHORIZED"
+      ]
+    },
+    {
+      "blocker_id": "ACCEPT-014-EVAL-003-ORDINARY-REPLAY-NOT-READY",
+      "dimension": "EVALUATION_READY",
+      "owner": "LILY_THREAD_6_ARCHITECTURE_REGISTER",
+      "closure_kind": "DERIVED_FROM_PROVENANCE",
+      "repo_executable": false,
+      "depends_on": [
+        "PIT-002B-FIRST-SLICE-NINE-SOURCE-RAW-CAPTURE-MATERIALIZATION"
+      ]
+    }
+  ],
+  "repo_executable_blockers": [
+    "ACCEPT-014-CONF-001-TYPED-FORMATION-CONFIDENCE-NOT-POPULATED",
+    "ACCEPT-014-CONF-002-BENEFICIARY-CONFIDENCE-VALUES-NULL",
+    "ACCEPT-014-EVAL-001-REAL-OUTCOME-COVERAGE-THIN"
+  ],
+  "next_repo_executable_lane": "FIRST-SLICE-TYPED-CONFIDENCE-AND-EVALUATION-READINESS-CLOSURE"
+}

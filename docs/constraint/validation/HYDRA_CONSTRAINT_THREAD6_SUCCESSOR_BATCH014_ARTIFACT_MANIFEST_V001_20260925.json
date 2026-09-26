@@ -1,0 +1,52 @@
+{
+  "schema_version": "hydra-constraint-thread6-successor-manifest/v1",
+  "record_id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH014_ARTIFACT_MANIFEST_V001",
+  "as_of": "2026-09-26",
+  "repository": "HYDRADATAAI/Hydra",
+  "base_head": "5549d7b335439914c88e4552c4829ad0b6d0d089",
+  "predecessor_batch": {
+    "id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH013",
+    "commit": "5549d7b335439914c88e4552c4829ad0b6d0d089",
+    "preservation": "IMMUTABLE_NOT_REWRITTEN"
+  },
+  "slice_id": "AI_DATA_CENTER_POWER_INFRASTRUCTURE_V1",
+  "result": "STRICT_ACCEPTANCE_GATE_BLOCKED",
+  "artifacts": [
+    {
+      "path": "docs/constraint/first_slice/ai_data_center_power_infrastructure_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH014_AI_DATA_CENTER_POWER_INFRASTRUCTURE_STRICT_ACCEPTANCE_GATE_V001_20260925.json",
+      "git_blob_sha": "044cf523064c84a34fea9382a11d2ec4e9ec165a"
+    },
+    {
+      "path": "docs/constraint/first_slice/ai_data_center_power_infrastructure_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH014_AI_DATA_CENTER_POWER_INFRASTRUCTURE_BLOCKER_REGISTER_V001_20260925.json",
+      "git_blob_sha": "e6f0cf085ec2cab426def209eeaf8f5d1e6c50fb"
+    },
+    {
+      "path": "docs/constraint/architecture/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH014_MASTER_STATUS_V001_20260925.json",
+      "git_blob_sha": "816533d4f8aeb725afa1720e7683ae3e2cbdc3b8"
+    },
+    {
+      "path": "docs/constraint/validation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH014_STRICT_ACCEPTANCE_GATE_REPORT_V001_20260925.md",
+      "git_blob_sha": "a0fa1f598fa3bf334a7dd15d5b37d0f25ac306fc"
+    }
+  ],
+  "excluded_operational_tools": [
+    {
+      "path": "tools/validate_constraint_first_slice_acceptance_gate.py",
+      "reason": "operational validator may evolve without creating manifest self-reference"
+    },
+    {
+      "path": "tools/test_constraint_first_slice_acceptance_gate_adversarial.py",
+      "reason": "hostile-test harness may evolve without creating manifest self-reference"
+    },
+    {
+      "path": ".github/workflows/constraint-first-slice-integration.yml",
+      "reason": "CI orchestration is operational rather than domain authority content"
+    }
+  ],
+  "expected": {
+    "overall_status": "BLOCKED",
+    "full_constraint_run_allowed": false,
+    "first_serious_constraint_run": "BLOCKED",
+    "next_repo_executable_lane": "FIRST-SLICE-TYPED-CONFIDENCE-AND-EVALUATION-READINESS-CLOSURE"
+  }
+}

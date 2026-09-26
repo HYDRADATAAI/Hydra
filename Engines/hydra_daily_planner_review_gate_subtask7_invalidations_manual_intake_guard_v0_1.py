@@ -1,0 +1,292 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""HYDRA Subtask 7 Invalidations Manual Intake Guard v0.1."""
+
+from __future__ import annotations
+import argparse
+import csv
+import datetime as dt
+import json
+import os
+import re
+import shutil
+from pathlib import Path
+from typing import Any, Dict, List, Optional, Tuple
+
+GUARDRAILS = [
+    "no market-data scan",
+    "no recursive scan",
+    "no multi-file scan",
+    "no planner/market join",
+    "no level-distance calculation",
+    "no price-reaction measurement",
+    "no MFE/MAE calculation",
+    "no outcome measurement",
+    "no trade signals",
+    "no queue mutation",
+    "no ML labels",
+    "no simulation",
+    "no execution",
+    "no external API calls",
+    "no Asana mutation",
+]
+BLOCKED_FLAGS = {
+    "planner_market_join_allowed": False,
+    "simulation_allowed": False,
+    "ml_labeling_allowed": False,
+    "trade_signal_generation_allowed": False,
+}
+PLACEHOLDER_VALUES = {
+    "", "fill_value_here", "todo", "tbd", "none", "null", "nan", "n/a", "na", "missing", "blank",
+    "<fill>", "<todo>", "placeholder", "not provided", "not_provided", "no context", "no context confirmed",
+    "unavailable", "not available",
+}
+ACCEPTED_CONFIDENCE = {"high", "moderate", "low", "unknown", "conflicting", "scaffold-smoke"}
+FORBIDDEN_CONTENT_PATTERNS = [
+    r"\bplanner/market\s+join\b",
+    r"\bmarket[- ]data\s+join\b",
+    r"\blevel[- ]distance\b",
+    r"\bprice[- ]reaction\b",
+    r"\bmfe\b",
+    r"\bmae\b",
+    r"\boutcome\s+measurement\b",
+    r"\btrade\s+signal(?:s)?\b",
+    r"\bgo\s+long\b",
+    r"\bgo\s+short\b",
+    r"\bbuy\s+(?:here|now|signal)\b",
+    r"\bsell\s+(?:here|now|signal)\b",
+    r"\bqueue\s+mutation\b",
+    r"\bml\s+label(?:s|ing)?\b",
+    r"\bsimulation\b",
+    r"\bexecution\b",
+]
+
+def utc_now_iso() -> str:
+    return dt.datetime.now(dt.timezone.utc).replace(microsecond=0).isoformat().replace("+00:00", "Z")
+
+def normalize_hydra_root(path_text: str) -> Path:
+    return Path(path_text).expanduser().resolve()
+
+def ensure_dir(path: Path) -> None:
+    path.mkdir(parents=True, exist_ok=True)
+
+def atomic_write_text(path: Path, text: str) -> None:
+    ensure_dir(path.parent)
+    tmp = path.with_suffix(path.suffix + ".tmp")
+    with open(tmp, "w", encoding="utf-8", newline="\n") as f:
+        f.write(text)
+        if not text.endswith("\n"):
+            f.write("\n")
+    os.replace(tmp, path)
+
+def atomic_write_json(path: Path, obj: Any) -> None:
+    atomic_write_text(path, json.dumps(obj, indent=2, sort_keys=False) + "\n")
+
+def atomic_write_csv(path: Path, rows: List[Dict[str, Any]], fieldnames: List[str]) -> None:
+    ensure_dir(path.parent)
+    tmp = path.with_suffix(path.suffix + ".tmp")
+    with open(tmp, "w", encoding="utf-8", newline="") as f:
+        writer = csv.DictWriter(f, fieldnames=fieldnames, extrasaction="ignore")
+        writer.writeheader()
+        for row in rows:
+            writer.writerow(row)
+    os.replace(tmp, path)
+
+def read_json(path: Path) -> Optional[Dict[str, Any]]:
+    if not path.exists():
+        return None
+    with open(path, "r", encoding="utf-8") as f:
+        return json.load(f)
+
+def as_text(value: Any) -> str:
+    if value is None:
+        return ""
+    if isinstance(value, str):
+        return value.strip()
+    if isinstance(value, (list, tuple, set)):
+        return ",".join(str(x).strip() for x in value if str(x).strip())
+    if isinstance(value, dict):
+        return json.dumps(value, sort_keys=True)
+    return str(value).strip()
+
+def lower_text(value: Any) -> str:
+    return as_text(value).lower().strip()
+
+def is_missing(value: Any, field_key: str = "") -> bool:
+    txt = lower_text(value)
+    if txt in PLACEHOLDER_VALUES:
+        return True
+    if field_key.endswith("confidence") and txt not in ACCEPTED_CONFIDENCE:
+        return True
+    if txt == "unknown" and not field_key.endswith("confidence"):
+        return True
+    return False
+
+def recursive_find_key(obj: Any, target_key: str) -> Optional[Any]:
+    target_norm = target_key.lower()
+    if isinstance(obj, dict):
+        for k, v in obj.items():
+            if str(k).lower() == target_norm:
+                return v
+        for v in obj.values():
+            found = recursive_find_key(v, target_key)
+            if found is not None:
+                return found
+    elif isinstance(obj, list):
+        for v in obj:
+            found = recursive_find_key(v, target_key)
+            if found is not None:
+                return found
+    return None
+
+def bool_from_any(value: Any) -> bool:
+    if isinstance(value, bool):
+        return value
+    return lower_text(value) in {"true", "1", "yes", "y", "accepted", "pass"}
+
+def read_manual_json(path: Optional[Path], required_fields: List[str]) -> Dict[str, str]:
+    if not path:
+        return {}
+    data = read_json(path)
+    if not data:
+        raise FileNotFoundError(f"manual_json not found or empty: {path}")
+    values: Dict[str, str] = {}
+    for field in required_fields:
+        found = recursive_find_key(data, field)
+        if found is not None:
+            values[field] = as_text(found)
+    def scan_rows(obj: Any) -> None:
+        if isinstance(obj, list):
+            for item in obj:
+                if isinstance(item, dict):
+                    key = item.get("field_key") or item.get("field") or item.get("key")
+                    if key in required_fields:
+                        val = item.get("value")
+                        if val is None:
+                            val = item.get("fill_value_here")
+                        if val is None:
+                            val = item.get("field_value")
+                        values[str(key)] = as_text(val)
+                    scan_rows(item)
+        elif isinstance(obj, dict):
+            for v in obj.values():
+                scan_rows(v)
+    scan_rows(data)
+    return values
+
+def read_manual_template_csv(path: Path) -> Tuple[List[Dict[str, str]], str]:
+    if not path.exists():
+        raise FileNotFoundError(str(path))
+    with open(path, "r", encoding="utf-8", newline="") as f:
+        rows = list(csv.DictReader(f))
+    fill_col = "fill_value_here" if rows and "fill_value_here" in rows[0] else "value"
+    return rows, fill_col
+
+def extract_values_from_template(rows: List[Dict[str, str]], fill_col: str) -> Dict[str, str]:
+    values = {}
+    for row in rows:
+        key = as_text(row.get("field_key") or row.get("field") or row.get("key"))
+        if key:
+            values[key] = as_text(row.get(fill_col, ""))
+    return values
+
+def forbidden_hits(values: Dict[str, Any], allowed_blocked_field: str = "not_allowed_inferences") -> List[str]:
+    hits = []
+    for field, value in values.items():
+        if field == allowed_blocked_field:
+            continue
+        txt = as_text(value).lower()
+        for pat in FORBIDDEN_CONTENT_PATTERNS:
+            if re.search(pat, txt, flags=re.IGNORECASE):
+                hits.append(f"{field}:{pat}")
+    return hits
+
+def print_header(engine_id: str, version: str, hydra_root: Path, mode: str) -> None:
+    print(f"[HYDRA] engine_id={engine_id}")
+    print(f"[HYDRA] version={version}")
+    print(f"[HYDRA] hydra_root={hydra_root}")
+    print(f"[HYDRA] mode={mode}")
+    print("[HYDRA] guardrails: " + ", ".join(GUARDRAILS))
+
+ENGINE_ID = "hydra_daily_planner_review_gate_subtask7_invalidations_manual_intake_guard_v0_1"
+VERSION = "v0.1"
+MODE = "NON_MUTATING_DAILY_PLANNER_REVIEW_GATE_SUBTASK7_INVALIDATIONS_MANUAL_INTAKE_GUARD"
+REQUIRED_FIELDS = ['review_date', 'instruments', 'sources', 'invalidation_source', 'primary_invalidation_condition', 'bullish_invalidation', 'bearish_invalidation', 'range_rotation_invalidation', 'level_invalidation', 'scenario_invalidation', 'confirmation_failure_invalidation', 'conflict_unknowns', 'invalidation_confidence', 'allowed_inferences', 'not_allowed_inferences']
+FIELD_DESCRIPTIONS = {'review_date': 'Trading/review date for this Review Gate packet.', 'instruments': 'Instrument list covered by this invalidations review, e.g. ES,NQ.', 'sources': 'Reviewed source(s) used to populate the invalidations section.', 'invalidation_source': 'Where invalidation requirements came from: planner text, screenshots, manual notes, scaffold-smoke, etc.', 'primary_invalidation_condition': 'Main condition that invalidates the primary scenario or planner read. No execution instruction.', 'bullish_invalidation': 'Condition that invalidates a bullish lean/scenario, if applicable.', 'bearish_invalidation': 'Condition that invalidates a bearish lean/scenario, if applicable.', 'range_rotation_invalidation': 'Condition that invalidates a range/rotation expectation, if applicable.', 'level_invalidation': 'Condition that invalidates a key-level read without calculating level distance.', 'scenario_invalidation': 'Condition that invalidates a scenario map or makes it unusable.', 'confirmation_failure_invalidation': 'Condition showing confirmation failed or is absent, without creating a signal.', 'conflict_unknowns': 'Known conflicts, missing items, or unknowns that limit invalidation confidence.', 'invalidation_confidence': 'High, moderate, low, unknown, conflicting, or scaffold-smoke.', 'allowed_inferences': 'What Hydra may infer from this invalidations section without measuring outcomes or issuing signals.', 'not_allowed_inferences': 'What Hydra may not infer yet: no joins, level-distance calculations, reactions, MFE/MAE, signals, simulation, ML labels, execution.'}
+TEMPLATE_PATH_PARTS = ["data","canonical","daily_planner_review_gate_subtask7_invalidations_v0_1","HYDRA_daily_planner_review_gate_subtask7_invalidations_manual_input_template_v0_1.csv"]
+OUT_PARENT = Path("data") / "canonical" / "daily_planner_review_gate_subtask7_invalidations_manual_intake_guard_v0_1"
+
+def parse_args(argv=None):
+    p = argparse.ArgumentParser(description=f"{ENGINE_ID} {VERSION}")
+    p.add_argument("--hydra-root", required=True)
+    return p.parse_args(argv)
+
+def main(argv=None):
+    args = parse_args(argv); hydra_root = normalize_hydra_root(args.hydra_root)
+    print_header(ENGINE_ID, VERSION, hydra_root, MODE)
+    input_csv = hydra_root.joinpath(*TEMPLATE_PATH_PARTS)
+    print(f"[HYDRA] input_csv={input_csv}")
+    rows, fill_col = read_manual_template_csv(input_csv)
+    values = extract_values_from_template(rows, fill_col)
+    checks=[]; fail=0; passed=0
+    for field in REQUIRED_FIELDS:
+        val = values.get(field, "")
+        missing = is_missing(val, field)
+        if missing: fail += 1
+        else: passed += 1
+        checks.append({"field_key": field, "required": True, "value": val, "status": "PASS" if not missing else "FAIL_REQUIRED", "description": FIELD_DESCRIPTIONS.get(field, "")})
+    hits = forbidden_hits(values)
+    for hit in hits:
+        fail += 1; checks.append({"field_key": "blocked_capability_language", "required": True, "value": hit, "status": "FAIL_REQUIRED", "description": "Forbidden capability language outside not_allowed_inferences."})
+    populated = sum(1 for f in REQUIRED_FIELDS if not is_missing(values.get(f,""), f))
+    missing = len(REQUIRED_FIELDS)-populated
+    ready = fail == 0 and missing == 0
+    overall = "SUBTASK7_INVALIDATIONS_MANUAL_INPUT_READY" if ready else "SUBTASK7_INVALIDATIONS_MANUAL_INPUT_BLOCKED"
+    out_dir = hydra_root / OUT_PARENT; ensure_dir(out_dir)
+    draft_json = out_dir / "HYDRA_daily_planner_review_gate_subtask7_invalidations_manual_input_draft_v0_1.json"
+    ready_json = out_dir / "HYDRA_daily_planner_review_gate_subtask7_invalidations_manual_input_ready_v0_1.json"
+    result_json = out_dir / "HYDRA_daily_planner_review_gate_subtask7_invalidations_manual_intake_guard_result_v0_1.json"
+    checks_csv = out_dir / "HYDRA_daily_planner_review_gate_subtask7_invalidations_manual_intake_guard_checks_v0_1.csv"
+    fields_csv = out_dir / "HYDRA_daily_planner_review_gate_subtask7_invalidations_manual_intake_guard_fields_v0_1.csv"
+    manifest_json = out_dir / "HYDRA_daily_planner_review_gate_subtask7_invalidations_manual_intake_guard_manifest_v0_1.json"
+    checkpoint_md = hydra_root / "docs" / "HYDRA_DAILY_PLANNER_REVIEW_GATE_SUBTASK7_INVALIDATIONS_MANUAL_INTAKE_GUARD_CHECKPOINT_V0_1.md"
+    report_md = hydra_root / "docs" / "HYDRA_DAILY_PLANNER_REVIEW_GATE_SUBTASK7_INVALIDATIONS_MANUAL_INTAKE_GUARD_REPORT_V0_1.md"
+    next_commands_txt = out_dir / "HYDRA_daily_planner_review_gate_subtask7_invalidations_manual_intake_guard_next_commands_v0_1.txt"
+    open_commands_txt = out_dir / "HYDRA_daily_planner_review_gate_subtask7_invalidations_manual_intake_guard_open_commands_v0_1.txt"
+    draft = {"engine_id": ENGINE_ID, "version": VERSION, "values": values, "checks": checks}
+    result = {"engine_id": ENGINE_ID, "version": VERSION, "overall_status": overall, "ready_for_materializer": ready, "required_fields_count": len(REQUIRED_FIELDS), "populated_required_count": populated, "missing_required_count": missing, "pass_count": passed, "fail_required_count": fail, "critical_fail_count": 0, "warning_count": 0, **BLOCKED_FLAGS}
+    atomic_write_json(draft_json, draft)
+    if ready: atomic_write_json(ready_json, {"engine_id": ENGINE_ID, "version": VERSION, "overall_status": overall, "ready_for_materializer": True, "fields": values, **values})
+    atomic_write_json(result_json, result)
+    atomic_write_csv(checks_csv, checks, ["field_key","required","value","status","description"])
+    atomic_write_csv(fields_csv, [{"field_key": k, "value": v} for k,v in values.items()], ["field_key","value"])
+    atomic_write_json(manifest_json, {"engine_id": ENGINE_ID, "version": VERSION, "overall_status": overall, "ready_manual_json": str(ready_json) if ready else ""})
+    report = "# HYDRA Daily Planner Review Gate — Subtask 7 Invalidations Manual Intake Guard Report v0.1\n\n" + "\n".join(f"- {k}: `{v}`" for k,v in result.items()) + "\n"
+    atomic_write_text(checkpoint_md, report); atomic_write_text(report_md, report)
+    next_cmd = f'python "{hydra_root / "engines" / "hydra_daily_planner_review_gate_subtask7_invalidations_materializer_v0_1.py"}" --hydra-root "{hydra_root}" --manual-json "{ready_json}"\n'
+    atomic_write_text(next_commands_txt, next_cmd if ready else "Fill/fix required manual fields, then rerun this guard.\n")
+    atomic_write_text(open_commands_txt, f'notepad "{report_md}"\nnotepad "{checks_csv}"\n')
+    print("HYDRA DAILY PLANNER REVIEW GATE SUBTASK 7 INVALIDATIONS MANUAL INTAKE GUARD COMPLETE")
+    print(f"overall_status: {overall}")
+    print(f"ready_for_materializer: {ready}")
+    print(f"required_fields_count: {len(REQUIRED_FIELDS)}")
+    print(f"populated_required_count: {populated}")
+    print(f"missing_required_count: {missing}")
+    print(f"pass_count: {passed}")
+    print(f"fail_required_count: {fail}")
+    print("critical_fail_count: 0")
+    print("warning_count: 0")
+    for key, value in BLOCKED_FLAGS.items(): print(f"{key}: {value}")
+    print(f"draft_json: {draft_json}")
+    if ready: print(f"ready_manual_json: {ready_json}")
+    print(f"result_json: {result_json}")
+    print(f"checks_csv: {checks_csv}")
+    print(f"fields_csv: {fields_csv}")
+    print(f"manifest_json: {manifest_json}")
+    print(f"checkpoint_md: {checkpoint_md}")
+    print(f"report_md: {report_md}")
+    print(f"next_commands_txt: {next_commands_txt}")
+    print(f"open_commands_txt: {open_commands_txt}")
+    print("next_valid_action: " + ("Rerun Subtask 7 materializer with the emitted manual JSON, then run/build the Subtask 7 acceptance gate." if ready else "Fill missing/failed manual fields, rerun this guard, then rerun Subtask 7 materializer only when READY."))
+    return 0
+if __name__ == "__main__": raise SystemExit(main())

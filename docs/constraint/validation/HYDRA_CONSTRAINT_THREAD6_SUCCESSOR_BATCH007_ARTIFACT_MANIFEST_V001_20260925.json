@@ -1,0 +1,47 @@
+{
+  "schema_version": "hydra-constraint-thread6-successor-manifest/v1",
+  "record_id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH007_ARTIFACT_MANIFEST_V001",
+  "as_of": "2026-09-25",
+  "repository": "HYDRADATAAI/Hydra",
+  "base_head": "b705740b729833bf0134f2cc8658be9bba363891",
+  "predecessor_batch": {
+    "id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH006",
+    "commit": "b705740b729833bf0134f2cc8658be9bba363891",
+    "preservation": "IMMUTABLE_NOT_REWRITTEN"
+  },
+  "authority_rule": "THREAD1_DECISION145_CONSERVATIVE_AVAILABLE_AT_EQUALS_FIRST_DEFENSIBLE_HYDRA_ACQUISITION_WHEN_EARLIER_AVAILABILITY_UNPROVEN",
+  "current_capture_available_from": "2026-09-25T23:52:01.573251Z",
+  "artifacts": [
+    {
+      "path": "docs/constraint/first_slice/ai_data_center_power_infrastructure_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH007_AI_DATA_CENTER_POWER_INFRASTRUCTURE_CONSERVATIVE_AVAILABILITY_OVERLAY_V001_20260925.json",
+      "git_blob_sha": "e3b6fdbbf408a75f4c8b97f2ce6bde9cc47335ad"
+    },
+    {
+      "path": "docs/constraint/first_slice/ai_data_center_power_infrastructure_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH007_AI_DATA_CENTER_POWER_INFRASTRUCTURE_PIT_STATUS_V001_20260925.json",
+      "git_blob_sha": "27906dd192c0abb8269dc6d51ec5465ac4a7eca5"
+    },
+    {
+      "path": "docs/constraint/architecture/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH007_MASTER_STATUS_V001_20260925.json",
+      "git_blob_sha": "b939cf69f5b327daec182be9e0871cfbbdc832cc"
+    },
+    {
+      "path": "docs/constraint/validation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH007_CONSERVATIVE_AVAILABILITY_REPORT_V001_20260925.md",
+      "git_blob_sha": "2292e4436c3ea336a1c4381a1a6e83452818246b"
+    },
+    {
+      "path": "t6-fail-closed-validator/src/hydra_t6_failclosed/pit_conservative_availability.py",
+      "git_blob_sha": "ab0ca489b8f851e147a7a8d411217f7f05b034c1"
+    },
+    {
+      "path": "t6-fail-closed-validator/tests/test_pit_conservative_availability.py",
+      "git_blob_sha": "3d3b3681bc20bb57cd1493abef578a189a8703cd"
+    }
+  ],
+  "expected": {
+    "conservative_available_at_ready": "YES",
+    "historical_backdating_ready": "NO",
+    "ordinary_raw_lineage_ready": "NO",
+    "first_serious_constraint_run": "BLOCKED",
+    "next_population_blocker": "PIT-002-IMMUTABLE-RAW-SOURCE-ARTIFACT-PERSISTENCE"
+  }
+}

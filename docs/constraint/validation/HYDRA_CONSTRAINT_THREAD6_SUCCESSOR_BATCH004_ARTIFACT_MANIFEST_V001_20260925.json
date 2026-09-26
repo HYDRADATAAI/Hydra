@@ -1,0 +1,42 @@
+{
+  "schema_version": "hydra-constraint-thread6-successor-manifest/v1",
+  "record_id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH004_ARTIFACT_MANIFEST_V001",
+  "as_of": "2026-09-25",
+  "repository": "HYDRADATAAI/Hydra",
+  "base_head": "89bfc91721dc701abd47f7e1a9dac732dc7984c6",
+  "predecessor_batch": {
+    "id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH003",
+    "commit": "6226d60d3c52802d26aa0a1469327142c53e1d8a",
+    "preservation": "IMMUTABLE_NOT_REWRITTEN"
+  },
+  "slice_id": "AI_DATA_CENTER_POWER_INFRASTRUCTURE_V1",
+  "mode": "MANUAL_REVIEWED_PUBLIC_SOURCE_PIT_CAPTURE",
+  "runtime_live_source_authority_used": false,
+  "source_content_persisted": false,
+  "artifacts": [
+    {
+      "path": "docs/constraint/first_slice/ai_data_center_power_infrastructure_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH004_AI_DATA_CENTER_POWER_INFRASTRUCTURE_PIT_ACQUISITION_CAPTURE_V001_20260925.json",
+      "git_blob_sha": "bc45f9ac6285f474e8d45464728b9dec7b35e721"
+    },
+    {
+      "path": "docs/constraint/first_slice/ai_data_center_power_infrastructure_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH004_AI_DATA_CENTER_POWER_INFRASTRUCTURE_PIT_STATUS_V001_20260925.json",
+      "git_blob_sha": "bc0e8f7019ce11721eef8de74c16b7d57e65a991"
+    },
+    {
+      "path": "docs/constraint/validation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH004_AI_DATA_CENTER_POWER_INFRASTRUCTURE_PIT_CAPTURE_REPORT_V001_20260925.md",
+      "git_blob_sha": "e5db1d210bf706497212f56d457f36290d529040"
+    },
+    {
+      "path": "t6-fail-closed-validator/tests/test_first_slice_pit_capture.py",
+      "git_blob_sha": "229c7dcd4dc116158e9da35da2f3fa999f7dc373"
+    }
+  ],
+  "expected": {
+    "registered_sources_preserved": 9,
+    "acquired_at_capture_ready": "YES",
+    "available_at_capture_ready": "NO",
+    "strict_original_as_of_ready": "NO",
+    "first_serious_constraint_run": "BLOCKED",
+    "next_population_blocker": "PIT-001B-EXACT-AVAILABLE-AT-HISTORICAL-PROOF"
+  }
+}

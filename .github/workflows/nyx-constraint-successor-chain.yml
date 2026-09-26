@@ -1,0 +1,42 @@
+name: NYX Constraint successor-chain guard
+
+on:
+  pull_request:
+    paths:
+      - "docs/constraint/**"
+      - "constraint-t1-raw-artifact-store/**"
+      - "t6-fail-closed-validator/**"
+      - "tools/nyx_validate_constraint_successor_chain.py"
+      - "tools/nyx_test_constraint_successor_chain_adversarial.py"
+      - ".github/workflows/nyx-constraint-successor-chain.yml"
+  push:
+    branches:
+      - main
+    paths:
+      - "docs/constraint/**"
+      - "constraint-t1-raw-artifact-store/**"
+      - "t6-fail-closed-validator/**"
+      - "tools/nyx_validate_constraint_successor_chain.py"
+      - "tools/nyx_test_constraint_successor_chain_adversarial.py"
+      - ".github/workflows/nyx-constraint-successor-chain.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Validate successor-chain invariants
+        run: python tools/nyx_validate_constraint_successor_chain.py
+
+      - name: Run hostile successor-chain mutation matrix
+        run: python tools/nyx_test_constraint_successor_chain_adversarial.py

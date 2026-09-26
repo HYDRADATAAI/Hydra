@@ -1,0 +1,32 @@
+name: Constraint T1 raw artifact store
+
+on:
+  pull_request:
+    paths:
+      - "constraint-t1-raw-artifact-store/**"
+      - ".github/workflows/constraint-t1-raw-artifact-store.yml"
+  push:
+    branches:
+      - main
+    paths:
+      - "constraint-t1-raw-artifact-store/**"
+      - ".github/workflows/constraint-t1-raw-artifact-store.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Test immutable private raw store
+        working-directory: constraint-t1-raw-artifact-store
+        run: |
+          export PYTHONPATH="$PWD/src"
+          python -m unittest discover -s tests -t . -v

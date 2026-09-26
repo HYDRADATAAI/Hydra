@@ -1,0 +1,119 @@
+{
+  "schema_version": "hydra-constraint-first-slice-source-temporal-audit/v1",
+  "record_id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH005_AI_DATA_CENTER_POWER_INFRASTRUCTURE_SOURCE_TEMPORAL_AUDIT_V001",
+  "as_of": "2026-09-25",
+  "predecessor_batch": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH004",
+  "source_registry_predecessor": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH003_AI_DATA_CENTER_POWER_INFRASTRUCTURE_SOURCE_REGISTRY_V001",
+  "slice_id": "AI_DATA_CENTER_POWER_INFRASTRUCTURE_V1",
+  "rule": "ASSESSMENT_YEAR_EVENT_DATE_DOCUMENT_DATE_AND_PUBLICATION_DATE_ARE_DISTINCT_FROM_AVAILABLE_AT",
+  "runtime_live_source_authority_used": false,
+  "records": [
+    {
+      "source_id": "SRC-LBNL-DC-ENERGY-2025-UPDATE",
+      "batch003_publication_date": "2026-06",
+      "batch003_precision": "MONTH",
+      "observed_public_date": "2026-06",
+      "observed_date_type": "PUBLISHER_DATE_PUBLISHED",
+      "observed_precision": "MONTH",
+      "metadata_disposition": "CONFIRMED",
+      "available_at": null
+    },
+    {
+      "source_id": "SRC-EIA-DC-DEMAND-2026-03-12",
+      "batch003_publication_date": "2026-03-12",
+      "batch003_precision": "DAY",
+      "observed_public_date": "2026-03-12",
+      "observed_date_type": "PUBLISHER_ARTICLE_DATE",
+      "observed_precision": "DAY",
+      "metadata_disposition": "CONFIRMED",
+      "available_at": null
+    },
+    {
+      "source_id": "SRC-LBNL-QUEUED-UP-2025",
+      "batch003_publication_date": "2025-12",
+      "batch003_precision": "MONTH",
+      "observed_public_date": "2025-12",
+      "observed_date_type": "PUBLISHER_DATE_PUBLISHED",
+      "observed_precision": "MONTH",
+      "metadata_disposition": "CONFIRMED",
+      "available_at": null
+    },
+    {
+      "source_id": "SRC-FERC-ORDER-2023-FACT-SHEET",
+      "batch003_publication_date": "2023-07-27",
+      "batch003_precision": "DAY",
+      "observed_public_date": "2023-07-27",
+      "observed_date_type": "PUBLISHER_FACT_SHEET_DATE",
+      "observed_precision": "DAY",
+      "metadata_disposition": "CONFIRMED",
+      "available_at": null
+    },
+    {
+      "source_id": "SRC-DOE-LPT-RESILIENCE-2024",
+      "batch003_publication_date": "2024-07",
+      "batch003_precision": "MONTH",
+      "observed_public_date": "2024-07",
+      "observed_date_type": "DOCUMENT_COVER_DATE",
+      "observed_precision": "MONTH",
+      "metadata_disposition": "DATE_VALUE_CONFIRMED_SEMANTICS_NARROWED",
+      "semantic_note": "July 2024 is the report/document date. It is not treated as proof of website publication time or public availability.",
+      "available_at": null
+    },
+    {
+      "source_id": "SRC-DOE-DISTRIBUTION-TRANSFORMER-WEBINAR-2026",
+      "batch003_publication_date": "2026",
+      "batch003_precision": "YEAR",
+      "observed_public_date": "2026-03-05",
+      "observed_date_type": "EVENT_DATE",
+      "observed_precision": "DAY",
+      "metadata_disposition": "PUBLICATION_DATE_UNRESOLVED_EVENT_DATE_CAPTURED",
+      "semantic_note": "March 5, 2026 is the webinar event date. It is not promoted to page publication time or available_at.",
+      "available_at": null
+    },
+    {
+      "source_id": "SRC-LBNL-DATA-CENTER-WATER-2025",
+      "batch003_publication_date": "2025-06",
+      "batch003_precision": "MONTH",
+      "observed_public_date": "2025-06",
+      "observed_date_type": "PUBLISHER_DATE_PUBLISHED",
+      "observed_precision": "MONTH",
+      "metadata_disposition": "CONFIRMED",
+      "available_at": null
+    },
+    {
+      "source_id": "SRC-NERC-LTRA-2025",
+      "batch003_publication_date": "2025",
+      "batch003_precision": "YEAR",
+      "observed_public_date": "2026-01",
+      "observed_date_type": "REPORT_DATE_AND_RELEASE_MONTH",
+      "observed_precision": "MONTH",
+      "assessment_year": "2025",
+      "metadata_disposition": "SUCCESSOR_CORRECTION_REQUIRED",
+      "semantic_note": "The report is the 2025 Long-Term Reliability Assessment, but the report cover and release references place publication/release in January 2026.",
+      "available_at": null
+    },
+    {
+      "source_id": "SRC-PJM-2025-YEAR-IN-REVIEW-2026-01-08",
+      "batch003_publication_date": "2026-01-08",
+      "batch003_precision": "DAY",
+      "observed_public_date": "2026-01-08",
+      "observed_date_type": "PUBLISHER_ARTICLE_DATE",
+      "observed_precision": "DAY",
+      "metadata_disposition": "CONFIRMED",
+      "available_at": null
+    }
+  ],
+  "successor_overrides": [
+    {
+      "source_id": "SRC-NERC-LTRA-2025",
+      "field": "publication_date",
+      "predecessor_value": "2025",
+      "successor_value": "2026-01",
+      "successor_precision": "MONTH",
+      "assessment_year": "2025",
+      "reason": "Separate assessment year from report publication/release month."
+    }
+  ],
+  "available_at_proven_count": 0,
+  "strict_original_as_of_ready": false
+}

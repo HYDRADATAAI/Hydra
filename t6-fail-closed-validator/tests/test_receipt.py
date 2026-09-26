@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import unittest
+from copy import deepcopy
 
 from hydra_t6_failclosed.models import Issue
 from hydra_t6_failclosed.receipt import (
@@ -11,6 +12,7 @@ from hydra_t6_failclosed.receipt import (
     ReceiptSchemaError,
     build_receipt,
     receipt_digest,
+    validate_receipt_schema_contract,
 )
 
 
@@ -96,6 +98,53 @@ class ReceiptContractTests(unittest.TestCase):
                 issues=[],
                 schema=public_test_schema(),
             )
+
+    def test_schema_contract_rejects_relaxed_effect_guards(self) -> None:
+        for field in (
+            "canonical_store_mutation_authorized",
+            "canonical_truth_selected",
+            "gamma_unfrozen",
+            "ml_training_authorized",
+            "trading_authorized",
+        ):
+            schema = deepcopy(public_test_schema())
+            schema["properties"][field]["const"] = True
+            with self.subTest(field=field), self.assertRaises(ReceiptSchemaError):
+                validate_receipt_schema_contract(schema)
+
+        for field in ("external_actions", "ranked_candidate_ids"):
+            schema = deepcopy(public_test_schema())
+            schema["properties"][field]["maxItems"] = 1
+            with self.subTest(field=field), self.assertRaises(ReceiptSchemaError):
+                validate_receipt_schema_contract(schema)
+
+    def test_schema_contract_rejects_relaxed_outcomes_and_reasons(self) -> None:
+        schema = deepcopy(public_test_schema())
+        schema["properties"]["outcome"]["enum"] = sorted(ALLOWED_OUTCOMES | {"PROMOTE"})
+        with self.assertRaises(ReceiptSchemaError):
+            validate_receipt_schema_contract(schema)
+
+        schema = deepcopy(public_test_schema())
+        schema["properties"]["reason"]["enum"] = sorted(ALLOWED_REASONS | {"RANKED"})
+        with self.assertRaises(ReceiptSchemaError):
+            validate_receipt_schema_contract(schema)
+
+    def test_receipt_digest_detects_payload_change(self) -> None:
+        schema = public_test_schema()
+        receipt = build_receipt(
+            implementation_status="AUTHORIZED_FAIL_CLOSED_VALIDATOR",
+            policy_sha256="2" * 64,
+            authority_envelope_sha256="3" * 64,
+            input_sha256="1" * 64,
+            outcome="ABSTAIN",
+            reason="NO_RANKING_AUTHORITY",
+            candidate_ids=["candidate-a"],
+            issues=[],
+            schema=schema,
+        )
+        original = receipt["receipt_sha256"]
+        receipt["candidate_ids"] = ["candidate-b"]
+        self.assertNotEqual(original, receipt_digest(receipt))
 
 
 if __name__ == "__main__":

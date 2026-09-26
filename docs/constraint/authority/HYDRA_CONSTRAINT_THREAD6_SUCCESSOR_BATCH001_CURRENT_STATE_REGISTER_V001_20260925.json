@@ -1,0 +1,56 @@
+{
+  "schema_version": "hydra-constraint-thread6-current-state/v1",
+  "record_id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH001_CURRENT_STATE_REGISTER_V001",
+  "as_of": "2026-09-25",
+  "predecessor": {
+    "artifact": "LILY_THREAD_6_BATCH_008_FINAL_CLOSURE_DELTA.zip",
+    "sha256": "8ded0061f63dc79a7e74cf6ff0a5d2c179e5c52b057939283786ab80377699ba",
+    "preserved": true
+  },
+  "reconciliation": "PASS",
+  "register_state": "CURRENT",
+  "global_ready_boolean": "PROHIBITED",
+  "current": {
+    "THREAD1": "FROZEN_FOR_CONFORMANCE",
+    "THREAD2": "SEMANTIC_CORE_CLOSED",
+    "THREAD3": "SEMANTIC_CONTRACT_CLOSED_FOR_NYX_CONFORMANCE",
+    "THREAD4_BABY_ML_CORE": "SEMANTIC_CLOSED",
+    "TRUST_GOVERNANCE": "V825_DOMAIN_SCOPED_CURRENT",
+    "THREAD5_SOURCE_DESIGN": "CLOSED_V1_DESIGN_FROZEN_V1",
+    "LIVE_SOURCE": "NOT_AUTHORIZED",
+    "THREAD6_SUCCESSOR": "CURRENT",
+    "SERIOUS_END_TO_END_RUN": "BLOCKED"
+  },
+  "removed_from_current_blockers": [
+    "BATCH008_THREAD2_FIVE_OPEN_POLICY_ITEMS",
+    "BATCH008_THREAD3_CANONICAL_BENEFICIARY_OPEN",
+    "BATCH008_THREAD5_SOURCE_DESIGN_OPEN",
+    "TRUST_GOVERNANCE_V805_CURRENT_PIN"
+  ],
+  "blockers": [
+    {
+      "id": "CI-TEST-008-BLOCKER-001-NATIVE-T5-T6-AUTHORITY-ABSENT",
+      "dimension": "IMPLEMENTATION_ADMITTED"
+    },
+    {
+      "id": "LIVE-SOURCE-001",
+      "dimension": "LIVE_SOURCE_READY"
+    },
+    {
+      "id": "DOMAIN-POPULATION-001",
+      "dimension": "DOMAIN_DATA_POPULATED"
+    },
+    {
+      "id": "HISTORICAL-OUTCOME-001",
+      "dimension": "OUTCOME_EVALUATION_READY"
+    },
+    {
+      "id": "REPLAY-001",
+      "dimension": "POINT_IN_TIME_REPLAY_READY"
+    }
+  ],
+  "semantic_precedence": {
+    "resurrection": "RETIREMENT_ALONE_INSUFFICIENT",
+    "requires": "PROVEN_PRIOR_NON_BINDING_OR_RESOLUTION_PLUS_RENEWED_BINDING_AND_IDENTITY_CONTINUITY"
+  }
+}

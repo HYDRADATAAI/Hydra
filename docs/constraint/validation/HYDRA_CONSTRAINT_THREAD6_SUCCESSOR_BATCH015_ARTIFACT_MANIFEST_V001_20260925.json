@@ -1,0 +1,61 @@
+{
+  "schema_version": "hydra-constraint-thread6-successor-manifest/v1",
+  "record_id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH015_ARTIFACT_MANIFEST_V001",
+  "as_of": "2026-09-26",
+  "repository": "HYDRADATAAI/Hydra",
+  "base_head": "eb193a76c0ecb0e04190581be628506421e1c2e8",
+  "predecessor_batch": {
+    "id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH014",
+    "commit": "eb193a76c0ecb0e04190581be628506421e1c2e8",
+    "preservation": "IMMUTABLE_NOT_REWRITTEN"
+  },
+  "slice_id": "AI_DATA_CENTER_POWER_INFRASTRUCTURE_V1",
+  "result": "PASS_CONFIDENCE_SEMANTICS_CLOSED_ACCEPTANCE_STILL_BLOCKED",
+  "artifacts": [
+    {
+      "path": "docs/constraint/first_slice/ai_data_center_power_infrastructure_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH015_AI_DATA_CENTER_POWER_INFRASTRUCTURE_TYPED_CONFIDENCE_OVERLAY_V001_20260925.json",
+      "git_blob_sha": "012f6a2536d23ff4007186f79f28d2ce6519bfad"
+    },
+    {
+      "path": "docs/constraint/first_slice/ai_data_center_power_infrastructure_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH015_AI_DATA_CENTER_POWER_INFRASTRUCTURE_EVALUATION_PROTOCOL_V001_20260925.json",
+      "git_blob_sha": "51be18103926b1b3cb5ac58ddaf0bef476d39b71"
+    },
+    {
+      "path": "docs/constraint/first_slice/ai_data_center_power_infrastructure_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH015_AI_DATA_CENTER_POWER_INFRASTRUCTURE_STRICT_ACCEPTANCE_GATE_V001_20260925.json",
+      "git_blob_sha": "124deff5c5375e861761c808505fd82ac5607fd1"
+    },
+    {
+      "path": "docs/constraint/first_slice/ai_data_center_power_infrastructure_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH015_AI_DATA_CENTER_POWER_INFRASTRUCTURE_BLOCKER_REGISTER_V001_20260925.json",
+      "git_blob_sha": "a962d4e511456299f302207e94fb0e92a2e651d0"
+    },
+    {
+      "path": "docs/constraint/architecture/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH015_MASTER_STATUS_V001_20260925.json",
+      "git_blob_sha": "b59ec4e4b23c598763b25b940118a5c1a37d8e96"
+    },
+    {
+      "path": "docs/constraint/validation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH015_TYPED_CONFIDENCE_EVALUATION_READINESS_REPORT_V001_20260925.md",
+      "git_blob_sha": "857498caec614c3ea1b95bdb622b9981636bccec"
+    }
+  ],
+  "excluded_operational_tools": [
+    {
+      "path": "tools/validate_constraint_first_slice_confidence_evaluation.py",
+      "reason": "operational validator may evolve without creating manifest self-reference"
+    },
+    {
+      "path": "tools/test_constraint_first_slice_confidence_evaluation_adversarial.py",
+      "reason": "hostile-test harness may evolve without creating manifest self-reference"
+    },
+    {
+      "path": ".github/workflows/constraint-first-slice-integration.yml",
+      "reason": "CI orchestration is operational rather than domain authority content"
+    }
+  ],
+  "expected": {
+    "confidence_ready": "READY_WITH_NONBLOCKING_GAPS",
+    "evaluation_ready": "BLOCKED",
+    "full_constraint_run_allowed": false,
+    "first_serious_constraint_run": "BLOCKED",
+    "next_repo_executable_lane": "FIRST-SLICE-REAL-OUTCOME-COVERAGE-EXPANSION"
+  }
+}

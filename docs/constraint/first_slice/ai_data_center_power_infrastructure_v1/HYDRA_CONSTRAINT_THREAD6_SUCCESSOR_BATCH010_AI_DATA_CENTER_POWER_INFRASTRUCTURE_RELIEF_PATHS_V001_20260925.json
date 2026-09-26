@@ -1,0 +1,64 @@
+{
+  "schema_version": "hydra-constraint-first-slice-relief-path-registry/v1",
+  "record_id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH010_AI_DATA_CENTER_POWER_INFRASTRUCTURE_RELIEF_PATHS_V001",
+  "as_of": "2026-09-25",
+  "slice_id": "AI_DATA_CENTER_POWER_INFRASTRUCTURE_V1",
+  "relief_paths": [
+    {
+      "relief_path_id": "REL-AIDC-001",
+      "constraint_candidate_id": "T5C-AIDC-US-INTERCONNECTION-THROUGHPUT-001",
+      "mechanism": "FERC interconnection-process reform using cluster studies, deadlines, readiness rules and penalties.",
+      "support_evidence_ids": [
+        "EV-FERC-ORDER2023-QUEUE-REFORM"
+      ],
+      "status": "ACTIVE_POLICY_RELIEF_NOT_PROVEN_RESOLUTION",
+      "invalidates_constraint": false
+    },
+    {
+      "relief_path_id": "REL-AIDC-002",
+      "constraint_candidate_id": "T5C-AIDC-US-INTERCONNECTION-THROUGHPUT-001",
+      "mechanism": "Grid-independent/on-site generation with modular electrical systems can reduce dependence on completed grid interconnection for initial data-center deployment.",
+      "support_claim_ids": [
+        "CLM-AIDC-009"
+      ],
+      "status": "SUBSTITUTION_RELIEF_CANDIDATE",
+      "invalidates_constraint": false,
+      "limitations": [
+        "Does not prove universal feasibility",
+        "Does not eliminate fuel, permitting, emissions, equipment, or eventual grid-connection constraints"
+      ]
+    },
+    {
+      "relief_path_id": "REL-AIDC-003",
+      "constraint_candidate_id": "T5C-AIDC-US-INTERCONNECTION-THROUGHPUT-001",
+      "mechanism": "Bring-your-own power and cooling infrastructure may accelerate deployment in constrained power markets.",
+      "support_claim_ids": [
+        "CLM-AIDC-010"
+      ],
+      "status": "SUBSTITUTION_RELIEF_CANDIDATE",
+      "invalidates_constraint": false
+    },
+    {
+      "relief_path_id": "REL-AIDC-004",
+      "constraint_candidate_id": "T5C-AIDC-US-TRANSFORMER-SUPPLY-001",
+      "mechanism": "Eaton U.S. transformer-capacity expansions increase domestic equipment supply.",
+      "support_claim_ids": [
+        "CLM-AIDC-005",
+        "CLM-AIDC-006"
+      ],
+      "status": "CAPACITY_RELIEF_IN_PROGRESS",
+      "invalidates_constraint": false
+    },
+    {
+      "relief_path_id": "REL-AIDC-005",
+      "constraint_candidate_id": "T5C-AIDC-AMER-SWITCHGEAR-LEADTIME-001",
+      "mechanism": "Eaton and GE Vernova manufacturing expansions increase switchgear/grid-equipment capacity and aim to reduce lead times.",
+      "support_claim_ids": [
+        "CLM-AIDC-007",
+        "CLM-AIDC-008"
+      ],
+      "status": "CAPACITY_RELIEF_IN_PROGRESS",
+      "invalidates_constraint": false
+    }
+  ]
+}

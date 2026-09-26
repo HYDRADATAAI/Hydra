@@ -1,0 +1,69 @@
+{
+  "schema_version": "hydra-constraint-first-slice-evidence-supplement/v1",
+  "record_id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH006_AI_DATA_CENTER_POWER_INFRASTRUCTURE_EVIDENCE_SUPPLEMENT_V001",
+  "as_of": "2026-09-25",
+  "predecessor_batch": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH005",
+  "slice_id": "AI_DATA_CENTER_POWER_INFRASTRUCTURE_V1",
+  "observations": [
+    {
+      "evidence_id": "EV-DOE-AI-LANDS-16-SITES-FAST-TRACK-PERMITTING",
+      "source_id": "SRC-DOE-AI-LANDS-IDENTIFICATION-2025-04-03",
+      "claim_type": "BOUNDED_POLICY_INFRASTRUCTURE_STATUS",
+      "scope": "U.S._DOE_FEDERAL_LANDS",
+      "observation": {
+        "candidate_site_count": 16,
+        "site_characteristic": "rapid data center construction",
+        "energy_infrastructure": "in-place",
+        "permitting_characteristic": "ability to fast-track permitting for new energy generation"
+      },
+      "limitations": [
+        "Applies to DOE-identified federal sites, not all U.S. commercial data-center projects.",
+        "Does not establish exact project permit completion dates."
+      ]
+    },
+    {
+      "evidence_id": "EV-DOE-AI-LANDS-4-SITES-SELECTED",
+      "source_id": "SRC-DOE-AI-LANDS-SITE-SELECTION-2025-07-24",
+      "claim_type": "BOUNDED_SITE_SELECTION_STATUS",
+      "scope": "U.S._DOE_FEDERAL_LANDS",
+      "observation": {
+        "selected_site_count": 4,
+        "selected_sites": [
+          "Idaho National Laboratory",
+          "Oak Ridge Reservation",
+          "Paducah Gaseous Diffusion Plant",
+          "Savannah River Site"
+        ],
+        "stage": "selected to move forward toward private-sector solicitation",
+        "consultation_context": [
+          "states",
+          "local governments",
+          "federally recognized tribes"
+        ]
+      },
+      "limitations": [
+        "Selection to move forward is not a completed land-use or construction permit.",
+        "Status is bounded to the DOE federal-land initiative."
+      ]
+    },
+    {
+      "evidence_id": "EV-JLL-AMER-SWITCHGEAR-LEADTIME-2026",
+      "source_id": "SRC-JLL-GLOBAL-DATA-CENTER-OUTLOOK-2026",
+      "claim_type": "REGIONAL_DATA_CENTER_EQUIPMENT_LEAD_TIME",
+      "scope": "AMER_DATA_CENTER_MARKET_2026",
+      "observation": {
+        "equipment": "switchgear",
+        "source_reported_unit": "weeks",
+        "source_reported_value_approx": 43,
+        "normalized_unit": "days",
+        "normalized_value_approx": 301,
+        "normalization": "43 weeks × 7 days/week",
+        "measurement_basis": "approximate chart read from JLL 2026 regional lead-time graphic"
+      },
+      "limitations": [
+        "Regional market benchmark, not a supplier quote or guaranteed project lead time.",
+        "Chart-derived value is approximate."
+      ]
+    }
+  ]
+}

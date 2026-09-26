@@ -1,0 +1,67 @@
+name: Constraint first-slice integration
+
+on:
+  pull_request:
+    paths:
+      - "docs/constraint/**"
+      - "constraint-t1-raw-artifact-store/**"
+      - "t6-fail-closed-validator/**"
+      - "tools/validate_constraint_first_slice_successor.py"
+      - "tools/validate_constraint_lily_owner_seams.py"
+      - "tools/test_constraint_first_slice_adversarial.py"
+      - "tools/validate_constraint_first_slice_acceptance_gate.py"
+      - "tools/test_constraint_first_slice_acceptance_gate_adversarial.py"
+      - "tools/validate_constraint_first_slice_confidence_evaluation.py"
+      - "tools/test_constraint_first_slice_confidence_evaluation_adversarial.py"
+      - ".github/workflows/constraint-first-slice-integration.yml"
+  push:
+    branches:
+      - main
+    paths:
+      - "docs/constraint/**"
+      - "constraint-t1-raw-artifact-store/**"
+      - "t6-fail-closed-validator/**"
+      - "tools/validate_constraint_first_slice_successor.py"
+      - "tools/validate_constraint_lily_owner_seams.py"
+      - "tools/test_constraint_first_slice_adversarial.py"
+      - "tools/validate_constraint_first_slice_acceptance_gate.py"
+      - "tools/test_constraint_first_slice_acceptance_gate_adversarial.py"
+      - "tools/validate_constraint_first_slice_confidence_evaluation.py"
+      - "tools/test_constraint_first_slice_confidence_evaluation_adversarial.py"
+      - ".github/workflows/constraint-first-slice-integration.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Validate successor first-slice integration
+        run: python tools/validate_constraint_first_slice_successor.py
+
+      - name: Run hostile mutation matrix
+        run: python tools/test_constraint_first_slice_adversarial.py
+
+      - name: Validate strict first-slice acceptance gate
+        run: python tools/validate_constraint_first_slice_acceptance_gate.py
+
+      - name: Run strict acceptance hostile matrix
+        run: python tools/test_constraint_first_slice_acceptance_gate_adversarial.py
+
+      - name: Validate typed confidence and evaluation readiness
+        run: python tools/validate_constraint_first_slice_confidence_evaluation.py
+
+      - name: Run typed confidence hostile matrix
+        run: python tools/test_constraint_first_slice_confidence_evaluation_adversarial.py
+
+      - name: Validate integrated Lily T5/T6 owner seams
+        run: python tools/validate_constraint_lily_owner_seams.py

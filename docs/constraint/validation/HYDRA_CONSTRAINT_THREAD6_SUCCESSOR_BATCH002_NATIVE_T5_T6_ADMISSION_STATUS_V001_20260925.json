@@ -1,0 +1,27 @@
+{
+  "schema_version": "hydra-constraint-thread6-native-t5-t6-admission-status/v1",
+  "record_id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH002_NATIVE_T5_T6_ADMISSION_STATUS_V001",
+  "as_of": "2026-09-25",
+  "predecessor_batch": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH001",
+  "predecessor_commit": "088cd108ce680623820e77f6ed1e85dd16aca2a8",
+  "blocker_parent": "CI-TEST-008-BLOCKER-001-NATIVE-T5-T6-AUTHORITY-ABSENT",
+  "decomposition": {
+    "CI-TEST-008-BLOCKER-001A-NATIVE-T5-T6-ADMISSION-GATE-MISSING": {
+      "state": "CLOSED_BY_BATCH002",
+      "evidence": "native_binding_admission.py + CI tests"
+    },
+    "CI-TEST-008-BLOCKER-001B-NATIVE-T5-T6-SIGNED-ADMISSION-RECEIPT-ABSENT": {
+      "state": "OPEN_BLOCKING",
+      "reason": "No artifact-pinned signed IMPLEMENTATION_CONTRACT admission receipt was found in repository or retrieved project authority history."
+    }
+  },
+  "native_binding_gate": "IMPLEMENTED_FAIL_CLOSED",
+  "exact_native_runtime_artifact": "NOT_PRESENTED_FOR_ADMISSION",
+  "signed_admission_receipt": "ABSENT",
+  "implementation_admitted": "NO",
+  "runtime_activation_authorized": "NO",
+  "canonical_promotion_authorized": "NO",
+  "live_source_authorized": "NO",
+  "first_serious_constraint_run": "BLOCKED",
+  "next_blocker": "CI-TEST-008-BLOCKER-001B-NATIVE-T5-T6-SIGNED-ADMISSION-RECEIPT-ABSENT"
+}

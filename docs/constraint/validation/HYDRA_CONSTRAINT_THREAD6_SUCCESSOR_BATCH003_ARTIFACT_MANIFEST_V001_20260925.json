@@ -1,0 +1,54 @@
+{
+  "schema_version": "hydra-constraint-thread6-successor-manifest/v1",
+  "record_id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH003_ARTIFACT_MANIFEST_V001",
+  "as_of": "2026-09-25",
+  "repository": "HYDRADATAAI/Hydra",
+  "base_head": "51431f101f3565901a8df15a2544ebe6be7fef2c",
+  "predecessor_batch": {
+    "id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH002",
+    "commit": "9bc0870faf967979151d6421a318b5068b008d63",
+    "preservation": "IMMUTABLE_NOT_REWRITTEN"
+  },
+  "slice_id": "AI_DATA_CENTER_POWER_INFRASTRUCTURE_V1",
+  "mode": "MANUAL_REVIEWED_PUBLIC_SOURCE_SEED",
+  "live_source_authority_used": false,
+  "artifacts": [
+    {
+      "path": "docs/constraint/first_slice/ai_data_center_power_infrastructure_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH003_AI_DATA_CENTER_POWER_INFRASTRUCTURE_SOURCE_REGISTRY_V001_20260925.json",
+      "git_blob_sha": "0e1105387f6da84fc35a870a8d5c313c71e8afc6"
+    },
+    {
+      "path": "docs/constraint/first_slice/ai_data_center_power_infrastructure_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH003_AI_DATA_CENTER_POWER_INFRASTRUCTURE_FIELD_MATRIX_V001_20260925.json",
+      "git_blob_sha": "fa3930762379d8b706f114a692392c1369067879"
+    },
+    {
+      "path": "docs/constraint/first_slice/ai_data_center_power_infrastructure_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH003_AI_DATA_CENTER_POWER_INFRASTRUCTURE_EVIDENCE_SEED_V001_20260925.json",
+      "git_blob_sha": "fd9ff0fa7c7cf49989bdf1ddb2023bd0a3180457"
+    },
+    {
+      "path": "docs/constraint/first_slice/ai_data_center_power_infrastructure_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH003_AI_DATA_CENTER_POWER_INFRASTRUCTURE_GRAPH_SEED_V001_20260925.json",
+      "git_blob_sha": "546acb88ae6ff95226bf4da707ca8a4177eaee3d"
+    },
+    {
+      "path": "docs/constraint/first_slice/ai_data_center_power_infrastructure_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH003_AI_DATA_CENTER_POWER_INFRASTRUCTURE_POPULATION_STATUS_V001_20260925.json",
+      "git_blob_sha": "8f3e927b985daa0af6fa56715cb1b8c3add61dd6"
+    },
+    {
+      "path": "docs/constraint/validation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH003_AI_DATA_CENTER_POWER_INFRASTRUCTURE_POPULATION_REPORT_V001_20260925.md",
+      "git_blob_sha": "eecebc81a3c779e1431871cafdffe87df0aa8a2e"
+    },
+    {
+      "path": "t6-fail-closed-validator/tests/test_first_slice_population_seed.py",
+      "git_blob_sha": "6547f56b62508396af163c5afeeeaa7dc8a4ec72"
+    }
+  ],
+  "expected": {
+    "source_registry_ready": "YES",
+    "first_24_fields_frozen": "YES",
+    "evidence_seed_ready": "YES",
+    "graph_seed_ready": "YES_PARTIAL",
+    "strict_original_as_of_ready": "NO",
+    "first_serious_constraint_run": "BLOCKED",
+    "next_population_blocker": "PIT-001-EXACT-ACQUIRED-AT-AND-AVAILABLE-AT-CAPTURE"
+  }
+}

@@ -1,0 +1,48 @@
+{
+  "schema_version": "hydra-constraint-first-slice-field-population-overlay/v1",
+  "record_id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH006_AI_DATA_CENTER_POWER_INFRASTRUCTURE_FIELD_POPULATION_OVERLAY_V001",
+  "as_of": "2026-09-25",
+  "predecessor_batch": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH005",
+  "slice_id": "AI_DATA_CENTER_POWER_INFRASTRUCTURE_V1",
+  "field_updates": [
+    {
+      "field_name": "switchgear_lead_time_days",
+      "predecessor_status": "SOURCE_GAP",
+      "successor_status": "POPULATED_APPROXIMATE_REGIONAL",
+      "value": 301,
+      "unit": "days",
+      "evidence_ids": [
+        "EV-JLL-AMER-SWITCHGEAR-LEADTIME-2026"
+      ],
+      "scope": "AMER_DATA_CENTER_MARKET_2026",
+      "uncertainty": "APPROXIMATE_CHART_DERIVATION"
+    },
+    {
+      "field_name": "land_permitting_status",
+      "predecessor_status": "SOURCE_GAP",
+      "successor_status": "POPULATED_BOUNDED_FEDERAL_SCOPE",
+      "value": {
+        "scope": "U.S._DOE_FEDERAL_LANDS",
+        "candidate_sites_identified": 16,
+        "sites_selected_to_move_forward": 4,
+        "permitting_path_characteristic": "fast-track permitting for new energy generation is an identified site advantage",
+        "project_stage": "site selection / solicitation preparation"
+      },
+      "evidence_ids": [
+        "EV-DOE-AI-LANDS-16-SITES-FAST-TRACK-PERMITTING",
+        "EV-DOE-AI-LANDS-4-SITES-SELECTED"
+      ],
+      "uncertainty": "NOT_GENERALIZABLE_TO_ALL_U.S._DATA_CENTER_SITES"
+    },
+    {
+      "field_name": "fiber_connectivity_capacity",
+      "predecessor_status": "SOURCE_GAP",
+      "successor_status": "SOURCE_GAP",
+      "value": null,
+      "evidence_ids": [],
+      "blocker": "No source reviewed in Batch006 proves site-specific or market-specific data-center fiber capacity under the frozen field semantics."
+    }
+  ],
+  "source_gap_count_before": 3,
+  "source_gap_count_after": 1
+}

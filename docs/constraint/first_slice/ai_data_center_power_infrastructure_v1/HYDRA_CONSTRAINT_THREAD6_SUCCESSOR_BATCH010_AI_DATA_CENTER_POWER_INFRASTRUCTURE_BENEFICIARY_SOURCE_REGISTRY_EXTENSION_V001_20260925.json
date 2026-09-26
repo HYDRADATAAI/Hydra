@@ -1,0 +1,114 @@
+{
+  "schema_version": "hydra-constraint-first-slice-source-registry-extension/v1",
+  "record_id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH010_AI_DATA_CENTER_POWER_INFRASTRUCTURE_BENEFICIARY_SOURCE_REGISTRY_EXTENSION_V001",
+  "as_of": "2026-09-25",
+  "predecessor_batch": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH009",
+  "slice_id": "AI_DATA_CENTER_POWER_INFRASTRUCTURE_V1",
+  "runtime_live_source_authority_used": false,
+  "source_content_persisted": false,
+  "acquisition_note": "Current reviewed web evidence only; exact raw source bodies are not materialized in the private T1 store by this batch.",
+  "sources": [
+    {
+      "source_id": "SRC-EATON-TEXAS-TRANSFORMER-CAPACITY-2025-10-08",
+      "publisher": "Eaton",
+      "title": "Eaton begins production at newly expanded Texas manufacturing facility, helping utilities accelerate critical grid modernization projects",
+      "url": "https://www.eaton.com/us/en-us/company/news-insights/news-releases/2025/eaton-begins-production-at-newly-expanded-texas-manufacturing-facility.html",
+      "publication_date": "2025-10-08",
+      "acquired_at": "2026-09-26T01:57:00Z",
+      "available_at": "2026-09-26T01:57:00Z",
+      "availability_basis": "HYDRA_CURRENT_REVIEW_OBSERVATION",
+      "historical_backdating_authorized": false,
+      "roles": [
+        "TRANSFORMER_CAPACITY",
+        "ENTITY_CAPABILITY",
+        "BENEFICIARY_EVIDENCE"
+      ],
+      "ordinary_raw_lineage_eligible": false
+    },
+    {
+      "source_id": "SRC-EATON-SC-TRANSFORMER-EXPANSION-2025-02-12",
+      "publisher": "Eaton",
+      "title": "Eaton invests in new South Carolina transformer manufacturing site to power data centers, grid modernization, electrification and industrialization",
+      "url": "https://www.eaton.com/us/en-us/company/news-insights/news-releases/2025/eaton-invests-in-new-south-carolina-transformer-manufacturing.html",
+      "publication_date": "2025-02-12",
+      "acquired_at": "2026-09-26T01:57:00Z",
+      "available_at": "2026-09-26T01:57:00Z",
+      "availability_basis": "HYDRA_CURRENT_REVIEW_OBSERVATION",
+      "historical_backdating_authorized": false,
+      "roles": [
+        "TRANSFORMER_SHORTAGE",
+        "CAPACITY_EXPANSION",
+        "BENEFICIARY_EVIDENCE"
+      ],
+      "ordinary_raw_lineage_eligible": false
+    },
+    {
+      "source_id": "SRC-EATON-OMAHA-SWITCHGEAR-2026-04-08",
+      "publisher": "Eaton",
+      "title": "Eaton expands operations in Nebraska with new manufacturing facility to meet increasing switchgear demand driven by AI data center boom",
+      "url": "https://www.eaton.com/us/en-us/company/news-insights/news-releases/2026/eaton-expands-operations-in-nebraska-with-new-manufacturing-facility.html",
+      "publication_date": "2026-04-08",
+      "acquired_at": "2026-09-26T01:57:00Z",
+      "available_at": "2026-09-26T01:57:00Z",
+      "availability_basis": "HYDRA_CURRENT_REVIEW_OBSERVATION",
+      "historical_backdating_authorized": false,
+      "roles": [
+        "SWITCHGEAR_CAPACITY",
+        "DATA_CENTER_DEMAND",
+        "BENEFICIARY_EVIDENCE"
+      ],
+      "ordinary_raw_lineage_eligible": false
+    },
+    {
+      "source_id": "SRC-GEV-CHARLEROI-SWITCHGEAR-2026-07-30",
+      "publisher": "GE Vernova",
+      "title": "GE Vernova expands Pennsylvania manufacturing facility to strengthen U.S. grid supply chain",
+      "url": "https://www.gevernova.com/news/press-releases/ge-vernova-expands-pennsylvania-manufacturing-facility-strengthen-us-grid-supply-chain",
+      "publication_date": "2026-07-30",
+      "acquired_at": "2026-09-26T01:57:00Z",
+      "available_at": "2026-09-26T01:57:00Z",
+      "availability_basis": "HYDRA_CURRENT_REVIEW_OBSERVATION",
+      "historical_backdating_authorized": false,
+      "roles": [
+        "SWITCHGEAR_CAPACITY",
+        "GRID_EQUIPMENT_LEAD_TIME",
+        "BENEFICIARY_EVIDENCE"
+      ],
+      "ordinary_raw_lineage_eligible": false
+    },
+    {
+      "source_id": "SRC-EATON-SIEMENS-ONSITE-POWER-2025-06-03",
+      "publisher": "Eaton / Siemens Energy",
+      "title": "Eaton and Siemens Energy join forces to provide power and technology to accelerate the delivery of new data center capacity",
+      "url": "https://www.eaton.com/ae/en-gb/company/news-insights/news-releases/2025/eaton-and-siemens-energy-join-forces-to-provide-power-and-technology.html",
+      "publication_date": "2025-06-03",
+      "acquired_at": "2026-09-26T01:57:00Z",
+      "available_at": "2026-09-26T01:57:00Z",
+      "availability_basis": "HYDRA_CURRENT_REVIEW_OBSERVATION",
+      "historical_backdating_authorized": false,
+      "roles": [
+        "INTERCONNECTION_RELIEF",
+        "ONSITE_GENERATION",
+        "SUBSTITUTION_PATH"
+      ],
+      "ordinary_raw_lineage_eligible": false
+    },
+    {
+      "source_id": "SRC-VERTIV-GENERATE-BYOPC-2026-03-04",
+      "publisher": "Vertiv / Generate Capital",
+      "title": "Vertiv and Generate Capital Collaborate to Accelerate Data Center Capacity with Complete Power and Cooling Infrastructure",
+      "url": "https://investors.vertiv.com/news/news-details/2026/Vertiv-and-Generate-Capital-Collaborate-to-Accelerate-Data-Center-Capacity-with-Complete-Power-and-Cooling-Infrastructure/",
+      "publication_date": "2026-03-04",
+      "acquired_at": "2026-09-26T01:57:00Z",
+      "available_at": "2026-09-26T01:57:00Z",
+      "availability_basis": "HYDRA_CURRENT_REVIEW_OBSERVATION",
+      "historical_backdating_authorized": false,
+      "roles": [
+        "POWER_CONSTRAINT_RELIEF",
+        "DATA_CENTER_DEPLOYMENT",
+        "BENEFICIARY_HYPOTHESIS"
+      ],
+      "ordinary_raw_lineage_eligible": false
+    }
+  ]
+}

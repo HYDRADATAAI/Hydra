@@ -1,0 +1,83 @@
+{
+  "schema_version": "hydra-constraint-thread6-successor-manifest/v1",
+  "record_id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH001_ARTIFACT_MANIFEST_V001",
+  "created_for": "THREAD6_SUCCESSOR_MASTER_RECONCILIATION",
+  "as_of": "2026-09-25",
+  "repository": "HYDRADATAAI/Hydra",
+  "base_head": "572bf3268d7ca85c6acdbc85c12cc465a29b2966",
+  "predecessor": {
+    "artifact": "LILY_THREAD_6_BATCH_008_FINAL_CLOSURE_DELTA.zip",
+    "sha256": "8ded0061f63dc79a7e74cf6ff0a5d2c179e5c52b057939283786ab80377699ba",
+    "preservation": "IMMUTABLE_NOT_REWRITTEN"
+  },
+  "source_authority_pins": [
+    {
+      "artifact": "LILY_THREAD_2_BATCH_06_FINAL_CLOSURE.zip",
+      "sha256": "a0faf1074ff7aaa5db6546d16076bfff0acf024548be21bd0eacc558ea5ce38e"
+    },
+    {
+      "artifact": "LILY_THREAD_2_POST_CLOSURE_SEAM_AUDIT_01.zip",
+      "sha256": "056dbe3bcbe10e6ff1638e9842e04e240ebb4603d9ab83e7a7cee9f9224af180"
+    },
+    {
+      "artifact": "LILY_THREAD_3_MASTER_CLOSURE_BUNDLE.zip",
+      "sha256": "ab7e4c05c9210a90256b8cdea89eeb9f3bb551453dfe13ebfe44616f750cb366"
+    },
+    {
+      "artifact": "LILY_THREAD_4_BATCH_10_FOSO_SIDECAR_AND_51_FEATURE_IDENTITY.md",
+      "sha256": "d21491012913b780a95014b2b8fda70a3c0691333d0754bf66f37e89142f9b54"
+    },
+    {
+      "artifact": "LILY_THREAD_5_BATCH_6_FINAL_CLOSURE.zip",
+      "sha256": "1156c76a5de2115a65edba187622135359fdb2a9b59d425679fc7fd381ab06ba"
+    },
+    {
+      "artifact": "HYDRA_THREAD4_TRUST_GOVERNANCE_BATCH_V816_V825.zip",
+      "sha256": "c9bf395aadad1f45f6468cb9c19efdb5aa6a1ec6805c01ebf8b8ee63e09e0a44"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "docs/constraint/authority/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH001_AUTHORITY_MAP_V001_20260925.json",
+      "git_blob_sha": "3dc819fcd3332fab31a5830dc5b545237276f1f6"
+    },
+    {
+      "path": "docs/constraint/authority/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH001_CURRENT_STATE_REGISTER_V001_20260925.json",
+      "git_blob_sha": "d8e8b8ebf0888c47b731de392f1118c0d07dfdcb"
+    },
+    {
+      "path": "docs/constraint/authority/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH001_STALE_SUPERSEDED_REGISTER_V001_20260925.json",
+      "git_blob_sha": "d007d0124c257287074b2c84b23aad670adc312a"
+    },
+    {
+      "path": "docs/constraint/architecture/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH001_CAPABILITY_LEDGER_LINKAGE_V001_20260925.json",
+      "git_blob_sha": "66b013cad49b7aba363423abfa94f4aca502bc30"
+    },
+    {
+      "path": "docs/constraint/architecture/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH001_FIRST_SLICE_AI_DATA_CENTER_POWER_INFRASTRUCTURE_V1_20260925.json",
+      "git_blob_sha": "f6f0d3974c53fb731952ba0f2dd0147fb1514c5a"
+    },
+    {
+      "path": "docs/constraint/architecture/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH001_MASTER_STATUS_V001_20260925.json",
+      "git_blob_sha": "a8da2172547fad6d0c82be6ae1d998d43dc7bb8a"
+    },
+    {
+      "path": "docs/constraint/validation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH001_RUN_READINESS_MATRIX_V001_20260925.json",
+      "git_blob_sha": "9b50be54e4f5be0da14974b354f8d1990b1afdd4"
+    },
+    {
+      "path": "docs/constraint/validation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH001_RECONCILIATION_REPORT_V001_20260925.md",
+      "git_blob_sha": "1d90e6092bf15b5acb8788aef023ff552bdc8083"
+    },
+    {
+      "path": "t6-fail-closed-validator/tests/test_thread6_successor_reconciliation.py",
+      "git_blob_sha": "57f5fb67118f303f4e1aa62fc82650ccdd56b4ae"
+    }
+  ],
+  "validation": {
+    "test_path": "t6-fail-closed-validator/tests/test_thread6_successor_reconciliation.py",
+    "expected_reconciliation": "PASS",
+    "expected_run_gate": "BLOCKED",
+    "expected_next_blocker": "CI-TEST-008-BLOCKER-001-NATIVE-T5-T6-AUTHORITY-ABSENT"
+  }
+}

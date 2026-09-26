@@ -1,0 +1,100 @@
+{
+  "schema_version": "hydra-constraint-first-slice-evidence-seed/v1",
+  "record_id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH003_AI_DATA_CENTER_POWER_INFRASTRUCTURE_EVIDENCE_SEED_V001",
+  "as_of": "2026-09-25",
+  "slice_id": "AI_DATA_CENTER_POWER_INFRASTRUCTURE_V1",
+  "evidence_mode": "MANUAL_REVIEWED_PUBLIC_SOURCE_SEED",
+  "strict_original_as_of_ready": false,
+  "observations": [
+    {
+      "evidence_id": "EV-DC-ENERGY-2030-RANGE",
+      "source_id": "SRC-LBNL-DC-ENERGY-2025-UPDATE",
+      "proposition": "U.S. data centers are estimated to consume 521-843 TWh in 2030, corresponding to 9.5%-15.3% of total U.S. electricity use; the report reference case is 649 TWh / 11.8%.",
+      "evidence_role": "DEMAND_DRIVER",
+      "source_locator": "report abstract / publication page",
+      "effective_scope": "US_2030_FORECAST",
+      "contradiction_state": "UNASSESSED_IN_SEED",
+      "admissibility": "REVIEWED_SEED_NOT_STRICT_REPLAY_READY"
+    },
+    {
+      "evidence_id": "EV-EIA-DATA-CENTER-LOAD-GROWTH",
+      "source_id": "SRC-EIA-DC-DEMAND-2026-03-12",
+      "proposition": "EIA states electricity use by data centers is driving U.S. electricity demand growth and expects particularly fast near-term load growth in ERCOT and PJM.",
+      "evidence_role": "DEMAND_DRIVER",
+      "source_locator": "lines 60-70",
+      "effective_scope": "US_NEAR_TERM_2026_2027",
+      "contradiction_state": "UNASSESSED_IN_SEED",
+      "admissibility": "REVIEWED_SEED_NOT_STRICT_REPLAY_READY"
+    },
+    {
+      "evidence_id": "EV-LBNL-QUEUE-2024",
+      "source_id": "SRC-LBNL-QUEUED-UP-2025",
+      "proposition": "At the end of 2024, roughly 10,300 projects were actively seeking U.S. transmission interconnection, representing about 1,400 GW of generation and 890 GW of storage; built projects from 2018-2024 had median interconnection-request-to-COD durations above four years in regions with data.",
+      "evidence_role": "INTERCONNECTION_CONSTRAINT",
+      "source_locator": "publication page lines 19-25",
+      "effective_scope": "US_INTERCONNECTION_END_2024",
+      "contradiction_state": "UNASSESSED_IN_SEED",
+      "admissibility": "REVIEWED_SEED_NOT_STRICT_REPLAY_READY"
+    },
+    {
+      "evidence_id": "EV-FERC-ORDER2023-QUEUE-REFORM",
+      "source_id": "SRC-FERC-ORDER-2023-FACT-SHEET",
+      "proposition": "FERC Order No. 2023 reforms generator interconnection around cluster studies, readiness requirements, study deadlines, penalties, and affected-system procedures to address queue backlogs and improve processing.",
+      "evidence_role": "POLICY_RELIEF_MECHANISM",
+      "source_locator": "fact sheet, July 27 2023",
+      "effective_scope": "FERC_JURISDICTIONAL_INTERCONNECTION",
+      "contradiction_state": "NOT_APPLICABLE_POLICY_FACT",
+      "admissibility": "REVIEWED_SEED_NOT_STRICT_REPLAY_READY"
+    },
+    {
+      "evidence_id": "EV-DOE-LPT-SUPPLY",
+      "source_id": "SRC-DOE-LPT-RESILIENCE-2024",
+      "proposition": "DOE reports 2019 U.S. demand for new transformers above 60 MVA at about 750 units, with over 80% imported, and cites expected domestic demand rising to about 900 units annually by 2027; transmission expansion is identified as a primary demand driver.",
+      "evidence_role": "GRID_EQUIPMENT_CONSTRAINT",
+      "source_locator": "PDF page 18 / report page 13",
+      "effective_scope": "US_LARGE_POWER_TRANSFORMERS",
+      "contradiction_state": "UNASSESSED_IN_SEED",
+      "admissibility": "REVIEWED_SEED_NOT_STRICT_REPLAY_READY"
+    },
+    {
+      "evidence_id": "EV-DOE-TRANSFORMER-LEAD-TIMES",
+      "source_id": "SRC-DOE-DISTRIBUTION-TRANSFORMER-WEBINAR-2026",
+      "proposition": "DOE webinar material reports distribution-transformer lead times increasing from roughly 3-6 months in 2019 to 1-2 years or longer in 2024, with large transformers for substations and generators reaching roughly 3-4 years.",
+      "evidence_role": "GRID_EQUIPMENT_LEAD_TIME",
+      "source_locator": "webinar transcript around 00:03",
+      "effective_scope": "US_TRANSFORMER_SUPPLY_CHAIN",
+      "contradiction_state": "UNASSESSED_IN_SEED",
+      "admissibility": "REVIEWED_SEED_NOT_STRICT_REPLAY_READY"
+    },
+    {
+      "evidence_id": "EV-LBNL-WATER-DETERMINANTS",
+      "source_id": "SRC-LBNL-DATA-CENTER-WATER-2025",
+      "proposition": "LBNL research finds data-center workload water use varies dramatically and is strongly affected by server efficiency, grid water factors, utilization, cooling system type, infrastructure efficiency, and climate zone.",
+      "evidence_role": "WATER_COOLING_DEPENDENCY",
+      "source_locator": "publication abstract",
+      "effective_scope": "DATA_CENTER_WATER_USE_GENERAL",
+      "contradiction_state": "UNASSESSED_IN_SEED",
+      "admissibility": "REVIEWED_SEED_NOT_STRICT_REPLAY_READY"
+    },
+    {
+      "evidence_id": "EV-NERC-DATA-CENTER-LOAD-PLANNING",
+      "source_id": "SRC-NERC-LTRA-2025",
+      "proposition": "NERC states new data centers for AI and the digital economy account for most projected North American electricity-demand growth over the next decade and present significant forecasting and planning challenges; Texas, PJM, and WECC report steep demand increases.",
+      "evidence_role": "SYSTEM_DEMAND_AND_RELIABILITY",
+      "source_locator": "PDF page 26-27 / report page 27",
+      "effective_scope": "NORTH_AMERICA_10_YEAR",
+      "contradiction_state": "UNASSESSED_IN_SEED",
+      "admissibility": "REVIEWED_SEED_NOT_STRICT_REPLAY_READY"
+    },
+    {
+      "evidence_id": "EV-PJM-DATA-CENTER-LOAD",
+      "source_id": "SRC-PJM-2025-YEAR-IN-REVIEW-2026-01-08",
+      "proposition": "PJM reports unprecedented demand growth driven primarily by data centers; its 2025 planning forecast projected summer peak usage increasing by about 70 GW to 220 GW over 15 years, while later large-load evaluation indicated data-center growth up to roughly 30 GW between 2025 and 2030.",
+      "evidence_role": "REGIONAL_LOAD_GROWTH",
+      "source_locator": "2025 Year in Review",
+      "effective_scope": "PJM_2025_2040",
+      "contradiction_state": "UNASSESSED_IN_SEED",
+      "admissibility": "REVIEWED_SEED_NOT_STRICT_REPLAY_READY"
+    }
+  ]
+}

@@ -1,0 +1,65 @@
+{
+  "schema_version": "hydra-constraint-first-slice-required-case-matrix/v1",
+  "record_id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH013_AI_DATA_CENTER_POWER_INFRASTRUCTURE_REQUIRED_CASE_MATRIX_V001",
+  "as_of": "2026-09-25",
+  "predecessor_batch": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH012",
+  "slice_id": "AI_DATA_CENTER_POWER_INFRASTRUCTURE_V1",
+  "cases": [
+    {
+      "case_id": 1,
+      "status": "COVERED_REVIEWED_SHADOW_NAMED_PROJECT_CAPACITY_LIMIT",
+      "evidence_class": "REAL_PRIMARY"
+    },
+    {
+      "case_id": 2,
+      "status": "COVERED_SYNTHETIC_NEGATIVE_CONTROL_WITH_REAL_PRIMARY_COUNTEREVIDENCE",
+      "evidence_class": "SYNTHETIC_ASSERTION_REAL_PRIMARY_COUNTEREVIDENCE"
+    },
+    {
+      "case_id": 3,
+      "status": "COVERED",
+      "evidence_class": "REAL_REVIEWED"
+    },
+    {
+      "case_id": 4,
+      "status": "COVERED_REVIEWED_SHADOW",
+      "evidence_class": "REAL_PRIMARY"
+    },
+    {
+      "case_id": 5,
+      "status": "COVERED",
+      "evidence_class": "REAL_REVIEWED_PLUS_FAIL_CLOSED_EVALUATION"
+    },
+    {
+      "case_id": 6,
+      "status": "COVERED_SHADOW_PREQUALIFICATION_INPUT_PATTERN",
+      "evidence_class": "REAL_REVIEWED_INPUTS_NOT_CANONICAL_QUALIFICATION"
+    },
+    {
+      "case_id": 7,
+      "status": "COVERED_BOUNDED_CAPACITY_RELIEF_OUTCOME",
+      "evidence_class": "REAL_PRIMARY"
+    },
+    {
+      "case_id": 8,
+      "status": "COVERED_SHADOW_NORMALIZED_FIXTURE_ONLY",
+      "evidence_class": "DETERMINISTIC_NORMALIZED_FIXTURE"
+    },
+    {
+      "case_id": 9,
+      "status": "COVERED",
+      "evidence_class": "GOVERNED_MISSINGNESS"
+    },
+    {
+      "case_id": 10,
+      "status": "COVERED_REVIEWED_SHADOW",
+      "evidence_class": "REAL_PRIMARY"
+    }
+  ],
+  "functional_case_coverage_count": 10,
+  "ordinary_replay_admitted_case_count": 0,
+  "real_or_real_counterevidence_case_count": 8,
+  "synthetic_negative_control_case_count": 1,
+  "normalized_replay_fixture_case_count": 1,
+  "caveat": "FUNCTIONAL_CASE_COVERAGE_DOES_NOT_EQUAL_ACCEPTANCE_GATE_PASS"
+}

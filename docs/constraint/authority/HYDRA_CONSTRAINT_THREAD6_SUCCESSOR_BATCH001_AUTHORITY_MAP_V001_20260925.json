@@ -1,0 +1,145 @@
+{
+  "schema_version": "hydra-constraint-thread6-authority-map/v1",
+  "record_id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH001_AUTHORITY_MAP_V001",
+  "as_of": "2026-09-25",
+  "authority_resolution": "EXPLICIT_SUCCESSOR_RELATIONSHIP_OR_RECEIPT_ONLY",
+  "latest_wins": "PROHIBITED",
+  "predecessor": {
+    "artifact": "LILY_THREAD_6_BATCH_008_FINAL_CLOSURE_DELTA.zip",
+    "sha256": "8ded0061f63dc79a7e74cf6ff0a5d2c179e5c52b057939283786ab80377699ba",
+    "state": "IMMUTABLE_HISTORICAL_PREDECESSOR",
+    "mutation_allowed": false
+  },
+  "owners": [
+    {
+      "owner": "THREAD1",
+      "artifact": "11_LILY_THREAD1_BATCH11_POST_CLOSURE_OWNER_DELTA_RECONCILIATION.md",
+      "version": "BATCH11",
+      "sha256": null,
+      "semantic_status": "FROZEN_FOR_CONFORMANCE",
+      "implementation_status": "SEPARATE",
+      "admission_status": "NOT_GRANTED",
+      "live_data_status": "NONE",
+      "historical_data_status": "SEMANTICS_ONLY",
+      "nyx_status": "SEALED_TARGET",
+      "blockers": [],
+      "successor": "POST_CLOSURE_OWNER_DELTA"
+    },
+    {
+      "owner": "THREAD2",
+      "artifact": "LILY_THREAD_2_BATCH_06_FINAL_CLOSURE.zip",
+      "version": "BATCH06",
+      "sha256": "a0faf1074ff7aaa5db6546d16076bfff0acf024548be21bd0eacc558ea5ce38e",
+      "semantic_status": "SEMANTIC_CORE_CLOSED",
+      "implementation_status": "SEPARATE",
+      "admission_status": "NOT_IMPLIED",
+      "live_data_status": "NOT_GRANTED",
+      "historical_data_status": "SEMANTICS_PRESENT_DATA_SEPARATE",
+      "nyx_status": "FULL_SEMANTIC_CONFORMANCE_ELIGIBLE",
+      "blockers": [],
+      "successor": "CLOSES_BATCH008_THREAD2_OPEN_ITEMS",
+      "overlay": {
+        "artifact": "LILY_THREAD_2_POST_CLOSURE_SEAM_AUDIT_01.zip",
+        "sha256": "056dbe3bcbe10e6ff1638e9842e04e240ebb4603d9ab83e7a7cee9f9224af180"
+      }
+    },
+    {
+      "owner": "THREAD3",
+      "artifact": "LILY_THREAD_3_MASTER_CLOSURE_BUNDLE.zip",
+      "version": "MASTER_CLOSURE",
+      "sha256": "ab7e4c05c9210a90256b8cdea89eeb9f3bb551453dfe13ebfe44616f750cb366",
+      "semantic_status": "SEMANTIC_CONTRACT_CLOSED_FOR_NYX_CONFORMANCE",
+      "implementation_status": "MATURE_ARTIFACT_SPECIFIC",
+      "admission_status": "RECEIPT_SCOPED",
+      "live_data_status": "NOT_GRANTED",
+      "historical_data_status": "SEMANTICS_PRESENT_DATA_SEPARATE",
+      "nyx_status": "FULL_SEMANTIC_CONFORMANCE_ELIGIBLE_WITH_SEAM_MAPPINGS",
+      "blockers": [
+        "RUNTIME_ARTIFACT_ADMISSION_REQUIRES_EXPLICIT_RECEIPT"
+      ],
+      "successor": "CLOSES_OLD_CANONICAL_BENEFICIARY_OPEN_STATE",
+      "required_mappings": [
+        "ADR152_DIMENSIONAL_MAPPING",
+        "SEMANTIC_TEMPORAL_STATE_VS_LIFECYCLE_STATUS",
+        "CONSTRAINT_CLASS_VS_CAUSAL_MECHANISM"
+      ]
+    },
+    {
+      "owner": "THREAD4_BABY_ML",
+      "artifact": "LILY_THREAD_4_BATCH_10_FOSO_SIDECAR_AND_51_FEATURE_IDENTITY.md",
+      "version": "BATCH10",
+      "sha256": "d21491012913b780a95014b2b8fda70a3c0691333d0754bf66f37e89142f9b54",
+      "semantic_status": "CORE_OBSERVATION_NO_LOOKAHEAD_CLOSED",
+      "implementation_status": "HARNESS_VALIDATION_SEPARATE",
+      "admission_status": "EXPLICIT_FEATURE_ADMISSION_ONLY",
+      "live_data_status": "NOT_GRANTED",
+      "historical_data_status": "LEGACY_MIGRATION_SCOPED",
+      "nyx_status": "CORE_SEMANTIC_TESTABLE",
+      "blockers": [
+        "LEGACY_MIGRATION_PROOF_WHERE_REQUIRED",
+        "EXPLICIT_FEATURE_ADMISSION",
+        "IMPLEMENTATION_HARNESS_VALIDATION"
+      ],
+      "successor": "DOES_NOT_REOPEN_CONSTRAINT_CORE"
+    },
+    {
+      "owner": "PIPELINE_T4_TRUST_GOVERNANCE",
+      "artifact": "HYDRA_THREAD4_TRUST_GOVERNANCE_BATCH_V816_V825.zip",
+      "version": "V825",
+      "sha256": "c9bf395aadad1f45f6468cb9c19efdb5aa6a1ec6805c01ebf8b8ee63e09e0a44",
+      "semantic_status": "DOMAIN_SCOPE_PRESERVED",
+      "implementation_status": "RECEIPT_SCOPED",
+      "admission_status": "EXPLICIT_RECEIPT_ONLY",
+      "live_data_status": "LIVE_HYDRA_DATA_USED_NONE",
+      "historical_data_status": "NO_COVERAGE_GRANT",
+      "nyx_status": "DOMAIN_SCOPED_CONFORMANCE_ELIGIBLE",
+      "blockers": [],
+      "successor": "V825_SUPERSEDES_V805_AS_CURRENT_PIN_ONLY",
+      "cannot_grant": [
+        "CANONICAL_PROMOTION",
+        "MODEL_AUTHORITY",
+        "LIVE_SOURCE_AUTHORITY"
+      ]
+    },
+    {
+      "owner": "THREAD5",
+      "artifact": "LILY_THREAD_5_BATCH_6_FINAL_CLOSURE.zip",
+      "version": "BATCH06",
+      "sha256": "1156c76a5de2115a65edba187622135359fdb2a9b59d425679fc7fd381ab06ba",
+      "semantic_status": "CLOSED_V1_DESIGN_FROZEN_V1",
+      "implementation_status": "ADAPTER_IMPLEMENTATION_SEPARATE",
+      "admission_status": "LIVE_NOT_GRANTED",
+      "live_data_status": "NOT_AUTHORIZED",
+      "historical_data_status": "BACKFILL_SEPARATE",
+      "nyx_status": "SOURCE_DESIGN_CONFORMANCE_ELIGIBLE",
+      "blockers": [
+        "LIVE_ACQUISITION_AUTHORIZATION_AND_INTEGRATION"
+      ],
+      "successor": "CLOSES_BATCH008_SOURCE_DESIGN_OPEN_WITHOUT_OPENING_LIVE_GATE"
+    },
+    {
+      "owner": "THREAD6",
+      "artifact": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH001_CURRENT_STATE_REGISTER_V001_20260925.json",
+      "version": "SUCCESSOR_BATCH001_V001",
+      "sha256": null,
+      "semantic_status": "CURRENT_AUTHORITY_RECONCILED",
+      "implementation_status": "NOT_FULLY_ADMITTED",
+      "admission_status": "BLOCKED",
+      "live_data_status": "NOT_READY",
+      "historical_data_status": "NOT_READY_FOR_SERIOUS_REPLAY",
+      "nyx_status": "CURRENT_AUTHORITY_ENVELOPE_READY",
+      "blockers": [
+        "CI-TEST-008-BLOCKER-001-NATIVE-T5-T6-AUTHORITY-ABSENT",
+        "FIRST_SLICE_GRAPH_NOT_POPULATED",
+        "HISTORICAL_OUTCOME_LAYER_NOT_READY",
+        "POINT_IN_TIME_REPLAY_NOT_PROVEN",
+        "EVALUATION_NOT_READY"
+      ],
+      "successor": {
+        "predecessor_artifact": "LILY_THREAD_6_BATCH_008_FINAL_CLOSURE_DELTA.zip",
+        "predecessor_sha256": "8ded0061f63dc79a7e74cf6ff0a5d2c179e5c52b057939283786ab80377699ba",
+        "rewrites_predecessor": false
+      }
+    }
+  ]
+}

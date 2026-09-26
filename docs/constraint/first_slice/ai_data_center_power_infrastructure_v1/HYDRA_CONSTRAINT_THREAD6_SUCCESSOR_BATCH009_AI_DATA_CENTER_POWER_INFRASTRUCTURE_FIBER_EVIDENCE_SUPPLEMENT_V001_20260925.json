@@ -1,0 +1,29 @@
+{
+  "schema_version": "hydra-constraint-first-slice-evidence-supplement/v1",
+  "record_id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH009_AI_DATA_CENTER_POWER_INFRASTRUCTURE_FIBER_EVIDENCE_SUPPLEMENT_V001",
+  "as_of": "2026-09-25",
+  "predecessor_batch": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH008",
+  "slice_id": "AI_DATA_CENTER_POWER_INFRASTRUCTURE_V1",
+  "observations": [
+    {
+      "evidence_id": "EV-DOE-PADUCAH-EXISTING-FIBER-CONNECTIVITY-2026",
+      "source_id": "SRC-DOE-PADUCAH-AI-ENERGY-PARTNERSHIP-2026-07-29",
+      "proposition": "DOE states that the Paducah Site has existing transmission capacity, water infrastructure, fiber connectivity, and available land and is positioned to support large-scale AI infrastructure.",
+      "evidence_role": "SITE_FIBER_ACCESS",
+      "source_locator": "DOE announcement paragraph describing existing site infrastructure",
+      "scope": "DOE_PADUCAH_SITE_KENTUCKY",
+      "semantic_limit": "PROVES_EXISTING_FIBER_CONNECTIVITY_AT_THIS_SITE; DOES_NOT_QUANTIFY_SITE_PORT_OR_ROUTE_CAPACITY",
+      "admissibility": "CURRENT_REVIEWED_SEED_NOT_ORDINARY_RAW_REPLAY_READY"
+    },
+    {
+      "evidence_id": "EV-LUMEN-RAPIDROUTES-100G-400G-CAPACITY-2025",
+      "source_id": "SRC-LUMEN-RAPIDROUTES-2025-09-09",
+      "proposition": "Lumen announced predefined high-demand wavelength routes delivering 100G and up to 400G connections, with expansion to 100,000 wavelength route miles, new capacity at more than 300 locations across 25 metro markets, and connectivity to more than 125 cloud on-ramps.",
+      "evidence_role": "PROVIDER_FIBER_CAPACITY_PROFILE",
+      "source_locator": "Lumen release sections on RapidRoutes and expanding 400G reach",
+      "scope": "LUMEN_U.S._RAPIDROUTES_PROVIDER_FOOTPRINT_2025",
+      "semantic_limit": "PROVIDER_SPECIFIC_COMMERCIAL_FOOTPRINT; NOT A UNIVERSAL_DATA_CENTER_SITE_CAPACITY CLAIM",
+      "admissibility": "CURRENT_REVIEWED_SEED_NOT_ORDINARY_RAW_REPLAY_READY"
+    }
+  ]
+}

@@ -1,0 +1,33 @@
+{
+  "schema_version": "hydra-constraint-first-slice-population-status/v1",
+  "record_id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH003_AI_DATA_CENTER_POWER_INFRASTRUCTURE_POPULATION_STATUS_V001",
+  "as_of": "2026-09-25",
+  "predecessor_batch": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH002",
+  "slice_id": "AI_DATA_CENTER_POWER_INFRASTRUCTURE_V1",
+  "results": {
+    "SOURCE_REGISTRY_READY": "YES",
+    "FIRST_24_FIELDS_FROZEN": "YES",
+    "EVIDENCE_SEED_READY": "YES",
+    "GRAPH_SEED_READY": "YES_PARTIAL",
+    "LIVE_SOURCE_USED": "NO",
+    "STRICT_ORIGINAL_AS_OF_READY": "NO",
+    "ACQUIRED_AT_CAPTURE_READY": "NO",
+    "AVAILABLE_AT_CAPTURE_READY": "NO",
+    "SWITCHGEAR_POPULATED": "NO",
+    "LAND_PERMITTING_POPULATED": "NO",
+    "FIBER_CONNECTIVITY_POPULATED": "NO",
+    "BENEFICIARY_LAYER_POPULATED": "NO",
+    "FIRST_SERIOUS_CONSTRAINT_RUN": "BLOCKED"
+  },
+  "counts": {
+    "sources": 9,
+    "fields": 24,
+    "evidence_observations": 9,
+    "graph_nodes": 14,
+    "graph_edges": 14,
+    "supported_graph_edges": 11,
+    "source_gap_edges": 3
+  },
+  "next_population_blocker": "PIT-001-EXACT-ACQUIRED-AT-AND-AVAILABLE-AT-CAPTURE",
+  "parallel_architecture_added": false
+}

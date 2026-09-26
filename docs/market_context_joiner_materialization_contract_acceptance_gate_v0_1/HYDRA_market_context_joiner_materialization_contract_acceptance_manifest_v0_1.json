@@ -1,0 +1,26 @@
+﻿{
+  "artifact": "HYDRA Market Context Joiner Materialization Contract Acceptance Gate v0.1",
+  "created_at": "2026-05-26T00:31:25.511084+00:00",
+  "status": "MARKET_CONTEXT_JOINER_MATERIALIZATION_CONTRACT_ACCEPTED_WITH_WARNINGS",
+  "clean_accepted_allowed": false,
+  "rejected": false,
+  "authorizes_executable": false,
+  "authorizes_materializer_creation": false,
+  "authorizes_materialization_run": false,
+  "authorizes_joined_csv": false,
+  "authorizes_quick_test": false,
+  "authorizes_sim": false,
+  "authorizes_ml": false,
+  "authorizes_candidate_discovery": false,
+  "authorizes_queue_mutation": false,
+  "next_legal_branch": "MARKET_CONTEXT_JOINER_MATERIALIZATION_CREATION_GATE_v0.1",
+  "warnings": [
+    "Gamma 2025Q2 thin",
+    "Planner canonical table missing",
+    "Gamma proxy aliases not accepted",
+    "DWM/date materialization not accepted",
+    "Session/date conversion diagnostic-only",
+    "RTH/ETH not accepted",
+    "Holiday/early-close not accepted"
+  ]
+}

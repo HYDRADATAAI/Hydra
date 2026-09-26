@@ -4,19 +4,39 @@ on:
   pull_request:
     paths:
       - "README.md"
+      - ".gitignore"
+      - "market-data-pipeline-sample/**"
+      - "sql-data-quality-sample/**"
       - "t6-fail-closed-validator/**"
+      - "market-data-pipeline-sample/**"
+      - "sql-data-quality-sample/**"
       - "tools/validate_public_repository.py"
+      - ".github/workflows/market-data-pipeline.yml"
+      - ".github/workflows/sql-data-quality-sample.yml"
       - ".github/workflows/public-repository-validation.yml"
       - ".github/workflows/t6-validator.yml"
+      - ".github/workflows/market-data-pipeline.yml"
+      - ".github/workflows/sql-data-quality-sample.yml"
+      - ".gitignore"
   push:
     branches:
       - main
     paths:
       - "README.md"
+      - ".gitignore"
+      - "market-data-pipeline-sample/**"
+      - "sql-data-quality-sample/**"
       - "t6-fail-closed-validator/**"
+      - "market-data-pipeline-sample/**"
+      - "sql-data-quality-sample/**"
       - "tools/validate_public_repository.py"
+      - ".github/workflows/market-data-pipeline.yml"
+      - ".github/workflows/sql-data-quality-sample.yml"
       - ".github/workflows/public-repository-validation.yml"
       - ".github/workflows/t6-validator.yml"
+      - ".github/workflows/market-data-pipeline.yml"
+      - ".github/workflows/sql-data-quality-sample.yml"
+      - ".gitignore"
 
 permissions:
   contents: read

@@ -1,0 +1,48 @@
+{
+  "schema_version": "hydra-constraint-first-slice-source-registry-extension/v1",
+  "record_id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH009_AI_DATA_CENTER_POWER_INFRASTRUCTURE_SOURCE_REGISTRY_EXTENSION_V001",
+  "as_of": "2026-09-25",
+  "predecessor_batch": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH008",
+  "slice_id": "AI_DATA_CENTER_POWER_INFRASTRUCTURE_V1",
+  "runtime_live_source_authority_used": false,
+  "source_content_persisted": false,
+  "sources": [
+    {
+      "source_id": "SRC-DOE-PADUCAH-AI-ENERGY-PARTNERSHIP-2026-07-29",
+      "publisher": "U.S. Department of Energy",
+      "title": "Energy Department Announces Partnership to Expand Reliable, Affordable Energy Access and Power America’s AI Future in Western Kentucky",
+      "url": "https://www.energy.gov/articles/energy-department-announces-partnership-expand-reliable-affordable-energy-access-and-power",
+      "publication_date": "2026-07-29",
+      "publication_date_precision": "DAY",
+      "acquired_at": "2026-09-26T01:58:56Z",
+      "available_at": "2026-09-26T01:58:56Z",
+      "availability_basis": "HYDRA_FIRST_DEFENSIBLE_ACQUISITION_OBSERVATION",
+      "historical_backdating_authorized": false,
+      "source_type": "FEDERAL_SITE_DEVELOPMENT_ANNOUNCEMENT",
+      "roles": [
+        "FIBER_SITE_ACCESS",
+        "AI_DATA_CENTER_SITE_INFRASTRUCTURE"
+      ],
+      "ordinary_raw_lineage_eligible": false
+    },
+    {
+      "source_id": "SRC-LUMEN-RAPIDROUTES-2025-09-09",
+      "publisher": "Lumen Technologies",
+      "title": "Lumen Sets a New Standard for Enterprise Connectivity Speed with RapidRoutes",
+      "url": "https://ir.lumen.com/news/news-details/2025/Lumen-Sets-a-New-Standard-for-Enterprise-Connectivity-Speed-with-RapidRoutes/default.aspx",
+      "publication_date": "2025-09-09",
+      "publication_date_precision": "DAY",
+      "acquired_at": "2026-09-26T01:58:56Z",
+      "available_at": "2026-09-26T01:58:56Z",
+      "availability_basis": "HYDRA_FIRST_DEFENSIBLE_ACQUISITION_OBSERVATION",
+      "historical_backdating_authorized": false,
+      "source_type": "PROVIDER_CAPACITY_ANNOUNCEMENT",
+      "roles": [
+        "FIBER_CAPACITY_PROFILE",
+        "DATA_CENTER_CONNECTIVITY",
+        "WAVELENGTH_SERVICE"
+      ],
+      "ordinary_raw_lineage_eligible": false
+    }
+  ]
+}

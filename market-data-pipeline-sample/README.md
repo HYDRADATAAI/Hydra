@@ -20,7 +20,7 @@ provenance hashes
   ↓
 duplicate / defect quarantine
   ↓
-JSONL + Parquet + deterministic manifest
+JSONL + CSV + deterministic manifest
 ```
 
 No live market feed, broker connection, trading action, private source data, or
@@ -35,9 +35,9 @@ production runtime is represented here.
 - deterministic SHA-256 event identity;
 - source-file and row-level provenance;
 - duplicate-event detection across source aliases;
-- row-level quarantine with machine-readable reason codes;
-- deterministic JSONL outputs and run manifest;
-- typed Parquet output through PyArrow;
+- row-level quarantine with machine-readable reason codes, validation messages, and stage labels;
+- deterministic JSONL, CSV, quarantine, and manifest outputs;
+- standard-library runtime implementation with no third-party package dependency;
 - unit tests and GitHub Actions CI;
 - committed JSON contract files are regression-tested against the runtime CSV requirements and emitted record shapes.
 
@@ -72,22 +72,23 @@ this sample.
 
 ## Synthetic fixture
 
-`data/raw/synthetic_market_events.csv` contains six synthetic rows.
+`data/raw/synthetic_market_events.csv` contains seven synthetic rows.
 
 Expected result:
 
 - accepted: **3**
-- quarantined: **3**
+- quarantined: **4**
   - one normalized duplicate;
   - one invalid timestamp;
-  - one non-positive price.
+  - one non-positive price;
+  - one disallowed synthetic source identifier.
 
 ## Run
 
 From this directory:
 
 ```powershell
-python -m pip install -e .
+$env:PYTHONPATH=(Resolve-Path '.\src').Path
 python -m hydra_market_pipeline `
   --input data/raw/synthetic_market_events.csv `
   --aliases config/symbol_aliases.json `
@@ -98,8 +99,8 @@ Expected output files:
 
 ```text
 build/demo/
+  normalized_events.csv
   normalized_events.jsonl
-  normalized_events.parquet
   quarantine_records.jsonl
   manifest.json
 ```
@@ -107,6 +108,7 @@ build/demo/
 ## Test
 
 ```powershell
+$env:PYTHONPATH=(Resolve-Path '.\src').Path
 python -m unittest discover -s tests -t . -v
 ```
 

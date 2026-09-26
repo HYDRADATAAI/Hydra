@@ -1,0 +1,108 @@
+{
+  "schema_version": "hydra-constraint-first-slice-claim-registry/v1",
+  "record_id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH010_AI_DATA_CENTER_POWER_INFRASTRUCTURE_CLAIM_REGISTRY_V001",
+  "as_of": "2026-09-25",
+  "slice_id": "AI_DATA_CENTER_POWER_INFRASTRUCTURE_V1",
+  "claim_mode": "REVIEWED_SHADOW_CLAIMS_NOT_ORDINARY_T3",
+  "claims": [
+    {
+      "claim_id": "CLM-AIDC-001",
+      "proposition": "U.S. data-center electricity demand is increasing materially and raises the need for generation and grid infrastructure.",
+      "claim_role": "DEMAND_CONTEXT",
+      "support_evidence_ids": [
+        "EV-DC-ENERGY-2030-RANGE",
+        "EV-NERC-DATA-CENTER-LOAD-PLANNING",
+        "EV-EIA-DATA-CENTER-LOAD-GROWTH"
+      ],
+      "disconfirming_evidence_ids": [],
+      "available_at": "2026-09-25T23:52:01.573251Z"
+    },
+    {
+      "claim_id": "CLM-AIDC-002",
+      "proposition": "U.S. generator interconnection queue throughput and study duration materially delay the addition of generation resources.",
+      "claim_role": "CONSTRAINT_EXISTENCE",
+      "support_evidence_ids": [
+        "EV-LBNL-QUEUE-2024"
+      ],
+      "disconfirming_evidence_ids": [
+        "EV-FERC-ORDER2023-QUEUE-REFORM"
+      ],
+      "available_at": "2026-09-25T23:52:01.573251Z"
+    },
+    {
+      "claim_id": "CLM-AIDC-003",
+      "proposition": "Large-power-transformer supply and multi-year lead times constrain the pace of transmission/substation expansion.",
+      "claim_role": "CONSTRAINT_EXISTENCE",
+      "support_evidence_ids": [
+        "EV-DOE-LPT-SUPPLY",
+        "EV-DOE-TRANSFORMER-LEAD-TIMES"
+      ],
+      "disconfirming_evidence_ids": [],
+      "available_at": "2026-09-25T23:52:01.573251Z"
+    },
+    {
+      "claim_id": "CLM-AIDC-004",
+      "proposition": "AMER data-center switchgear lead times are long enough to create a deployment timing bottleneck.",
+      "claim_role": "CONSTRAINT_EXISTENCE",
+      "support_evidence_ids": [
+        "EV-JLL-AMER-SWITCHGEAR-LEADTIME-2026"
+      ],
+      "disconfirming_evidence_ids": [],
+      "available_at": "2026-09-25T23:58:40.805440Z"
+    },
+    {
+      "claim_id": "CLM-AIDC-005",
+      "proposition": "Eaton's completed Texas expansion more than doubled its U.S. production capacity of voltage regulators and three-phase transformers.",
+      "claim_role": "ENTITY_CAPABILITY",
+      "support_source_ids": [
+        "SRC-EATON-TEXAS-TRANSFORMER-CAPACITY-2025-10-08"
+      ],
+      "available_at": "2026-09-26T01:57:00Z"
+    },
+    {
+      "claim_id": "CLM-AIDC-006",
+      "proposition": "Eaton is investing in additional U.S. transformer production to address a critical transformer shortage and data-center/grid demand.",
+      "claim_role": "ENTITY_CAPACITY_RELIEF",
+      "support_source_ids": [
+        "SRC-EATON-SC-TRANSFORMER-EXPANSION-2025-02-12"
+      ],
+      "available_at": "2026-09-26T01:57:00Z"
+    },
+    {
+      "claim_id": "CLM-AIDC-007",
+      "proposition": "Eaton is adding U.S. medium-voltage switchgear manufacturing capacity in response to AI data-center demand and electrical supply-chain constraints.",
+      "claim_role": "ENTITY_CAPACITY_RELIEF",
+      "support_source_ids": [
+        "SRC-EATON-OMAHA-SWITCHGEAR-2026-04-08"
+      ],
+      "available_at": "2026-09-26T01:57:00Z"
+    },
+    {
+      "claim_id": "CLM-AIDC-008",
+      "proposition": "GE Vernova is expanding U.S. switchgear and grid-equipment manufacturing capacity specifically to shorten lead times and connect energy-intensive loads including data centers.",
+      "claim_role": "ENTITY_CAPACITY_RELIEF",
+      "support_source_ids": [
+        "SRC-GEV-CHARLEROI-SWITCHGEAR-2026-07-30"
+      ],
+      "available_at": "2026-09-26T01:57:00Z"
+    },
+    {
+      "claim_id": "CLM-AIDC-009",
+      "proposition": "Integrated onsite generation and modular electrical systems can provide a partial deployment-relief path for data centers facing grid-access delays.",
+      "claim_role": "SUBSTITUTION_RELIEF",
+      "support_source_ids": [
+        "SRC-EATON-SIEMENS-ONSITE-POWER-2025-06-03"
+      ],
+      "available_at": "2026-09-26T01:57:00Z"
+    },
+    {
+      "claim_id": "CLM-AIDC-010",
+      "proposition": "Bring-your-own power and cooling infrastructure is being offered as a deployment-relief path in power-constrained U.S. data-center markets.",
+      "claim_role": "SUBSTITUTION_RELIEF",
+      "support_source_ids": [
+        "SRC-VERTIV-GENERATE-BYOPC-2026-03-04"
+      ],
+      "available_at": "2026-09-26T01:57:00Z"
+    }
+  ]
+}

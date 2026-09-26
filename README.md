@@ -6,6 +6,7 @@
 
 [![T6 fail-closed validator](https://github.com/HYDRADATAAI/Hydra/actions/workflows/t6-validator.yml/badge.svg)](https://github.com/HYDRADATAAI/Hydra/actions/workflows/t6-validator.yml)
 [![Market data pipeline sample](https://github.com/HYDRADATAAI/Hydra/actions/workflows/market-data-pipeline.yml/badge.svg)](https://github.com/HYDRADATAAI/Hydra/actions/workflows/market-data-pipeline.yml)
+[![SQL data quality sample](https://github.com/HYDRADATAAI/Hydra/actions/workflows/sql-data-quality-sample.yml/badge.svg)](https://github.com/HYDRADATAAI/Hydra/actions/workflows/sql-data-quality-sample.yml)
 
 **Project site:** https://hydradataai.github.io/Hydra-Website/  
 **Technical site repository:** https://github.com/HYDRADATAAI/Hydra-Website
@@ -118,21 +119,21 @@ That behavior is intentional: missing provenance is not converted into invented 
 
 A second runnable public example lives in [`market-data-pipeline-sample/`](market-data-pipeline-sample/). It uses **synthetic, non-live** records to demonstrate a compact end-to-end data pipeline:
 
-`CSV → contract check → normalization → deterministic identity → provenance → quarantine → JSONL / Parquet → manifest`
+`CSV → contract check → normalization → deterministic identity → provenance → quarantine → JSONL / CSV → manifest`
 
 The sample intentionally distinguishes **file-level contract drift** from **row-level data-quality defects**: incompatible file schemas fail the run, while malformed or duplicate rows are quarantined with machine-readable reason codes.
 
 Key evidence:
 
 - [`pipeline.py`](market-data-pipeline-sample/src/hydra_market_pipeline/pipeline.py) performs strict contract checks, normalization, deterministic event identity, provenance hashing, and quarantine decisions.
-- [`writers.py`](market-data-pipeline-sample/src/hydra_market_pipeline/writers.py) emits deterministic JSONL, typed Parquet, and a deterministic run manifest.
-- [`test_pipeline.py`](market-data-pipeline-sample/tests/test_pipeline.py) verifies expected accept/quarantine counts, deterministic reruns, Parquet equivalence, provenance, and file-level contract failure.
+- [`writers.py`](market-data-pipeline-sample/src/hydra_market_pipeline/writers.py) emits deterministic JSONL, CSV, quarantine, and run-manifest artifacts.
+- [`test_pipeline.py`](market-data-pipeline-sample/tests/test_pipeline.py) verifies expected accept/quarantine counts, deterministic reruns, CSV/JSONL equivalence, provenance, no silent data loss, and file-level contract failure.
 - [Market data pipeline CI](https://github.com/HYDRADATAAI/Hydra/actions/workflows/market-data-pipeline.yml) runs the tests, executes the synthetic fixture, verifies the manifest, and publishes the generated outputs as a workflow artifact.
 
 From the sample directory:
 
 ```powershell
-python -m pip install -e .
+$env:PYTHONPATH=(Resolve-Path '.\src').Path
 python -m unittest discover -s tests -t . -v
 python -m hydra_market_pipeline `
   --input data/raw/synthetic_market_events.csv `
@@ -141,6 +142,14 @@ python -m hydra_market_pipeline `
 ```
 
 This is inspectable data-engineering evidence, **not** a claim of a live market-data runtime.
+
+## Public SQL data-quality sample
+
+A bounded SQL example lives in [`sql-data-quality-sample/`](sql-data-quality-sample/). It uses **synthetic, non-live** records and SQLite to demonstrate relational data-engineering fundamentals:
+
+`raw table → alias join → normalized view → CTE/window quality checks → accepted/quarantine views → analytical summary`
+
+The sample includes joins, CTEs, `ROW_NUMBER`, `LAG`, windowed averages, grouped quality summaries, and Python-driven regression tests. It is intended as inspectable SQL/data-quality evidence, not as a production database or warehouse.
 
 ## Fail-closed validator sample
 
@@ -181,7 +190,8 @@ If you have 60 seconds:
 2. Open the **architecture** view for the end-to-end data flow.
 3. Review the **case study** for a source → identity → authority → lineage → constraint walkthrough.
 4. Open the **proof** section for validation, failure semantics, and engineering receipts.
-5. Inspect [`market-data-pipeline-sample/`](market-data-pipeline-sample/) for a runnable ingestion → normalization → provenance → quarantine → Parquet path.
+5. Inspect [`market-data-pipeline-sample/`](market-data-pipeline-sample/) for a runnable ingestion → normalization → provenance → quarantine → deterministic artifact path.
+6. Inspect [`sql-data-quality-sample/`](sql-data-quality-sample/) for relational SQL, quality classification, joins, CTEs, and window functions.
 
 ## Current scope
 

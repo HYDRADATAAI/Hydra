@@ -1,0 +1,83 @@
+{
+  "schema_version": "hydra-constraint-thread6-native-t5-t6-admission-contract/v1",
+  "record_id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH002_NATIVE_T5_T6_ADMISSION_CONTRACT_V001",
+  "as_of": "2026-09-25",
+  "owner_namespace": "IMPLEMENTATION_CONTRACT",
+  "stage_pair": {
+    "producer": "PIPELINE_T5_CONSTRAINT_FORMATION",
+    "consumer": "PIPELINE_T6_CANONICAL_CANDIDATE_GOVERNANCE"
+  },
+  "semantic_authority": {
+    "thread1": "11_LILY_THREAD1_BATCH11_POST_CLOSURE_OWNER_DELTA_RECONCILIATION.md",
+    "thread2": {
+      "artifact": "LILY_THREAD_2_BATCH_06_FINAL_CLOSURE.zip",
+      "sha256": "a0faf1074ff7aaa5db6546d16076bfff0acf024548be21bd0eacc558ea5ce38e"
+    },
+    "thread3": {
+      "artifact": "LILY_THREAD_3_MASTER_CLOSURE_BUNDLE.zip",
+      "sha256": "ab7e4c05c9210a90256b8cdea89eeb9f3bb551453dfe13ebfe44616f750cb366"
+    }
+  },
+  "handoff_contract": {
+    "handoff_schema": "t6-candidate-handoff.v1",
+    "candidate_schema": "constraint-candidate.v2",
+    "invariant": "T5 forms candidate occurrences; T6 governs canonical identity."
+  },
+  "implementation_manifest_required": [
+    "implementation_id",
+    "implementation_version",
+    "artifact_sha256",
+    "test_evidence_sha256",
+    "producer_stage",
+    "consumer_stage",
+    "handoff_schema",
+    "candidate_schema",
+    "semantic_authority_pins"
+  ],
+  "admission_receipt_required": [
+    "admission_id",
+    "authority_role",
+    "decision",
+    "operation",
+    "scopes",
+    "implementation_id",
+    "bindings",
+    "producer_stage",
+    "consumer_stage",
+    "issued_at",
+    "expires_at",
+    "revocation",
+    "supersession",
+    "limitations",
+    "key_id",
+    "signature_method",
+    "signature"
+  ],
+  "admission_decision": "ADMIT_NATIVE_T5_T6_BINDING",
+  "admission_scope": "pipeline.t5_to_t6.native_binding",
+  "required_bindings": [
+    "manifest_sha256",
+    "artifact_sha256",
+    "test_evidence_sha256"
+  ],
+  "admission_non_grants": [
+    "RUNTIME_ACTIVATION",
+    "CANONICAL_PROMOTION",
+    "LIVE_SOURCE_AUTHORITY",
+    "MODEL_TRAINING",
+    "TRADING"
+  ],
+  "fail_closed_states": [
+    "BLOCKED_IMPLEMENTATION_MANIFEST_INVALID",
+    "BLOCKED_AUTHORITY_RECEIPT_ABSENT",
+    "BLOCKED_AUTHORITY_RECEIPT_INVALID"
+  ],
+  "admitted_state": "ADMITTED_EXACT_ARTIFACT",
+  "authority_inference_prohibited": [
+    "LATEST_WINS",
+    "VERSION_LABEL_IMPLIES_TRUST",
+    "SEMANTIC_CLOSURE_IMPLIES_ADMISSION",
+    "CODE_EXISTS_IMPLIES_ADMISSION",
+    "TEST_PASS_IMPLIES_ADMISSION"
+  ]
+}
