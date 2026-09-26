@@ -75,6 +75,7 @@ class ConstraintOperatingReportService:
         self._multidomain = ConstraintMultiDomainQueryService(self._root)
         self._validate_manifest()
         self._snapshot = self._build_snapshot()
+        self._validate_committed_snapshot()
 
     def _validate_manifest(self) -> None:
         if self._manifest.get("schema_version") != "1.0":
@@ -131,6 +132,27 @@ class ConstraintOperatingReportService:
             raise OperatingReportError("Batch 018 cannot create a T6 runtime binding")
         if t6.get("activation_authority_granted") is not False:
             raise OperatingReportError("Batch 018 has no T6 activation authority")
+
+    def _validate_committed_snapshot(self) -> None:
+        output=self._manifest.get("snapshot_output")
+        if not isinstance(output,dict):
+            raise OperatingReportError("Batch 018 snapshot output pin is missing")
+        relative=output.get("path")
+        expected_sha=output.get("git_blob_sha")
+        expected_digest=output.get("snapshot_digest_sha256")
+        if not isinstance(relative,str) or not isinstance(expected_sha,str):
+            raise OperatingReportError("Batch 018 snapshot output pin is incomplete")
+        snapshot_path=self._root/relative
+        if _git_blob_sha(snapshot_path)!=expected_sha:
+            raise OperatingReportError("Batch 018 snapshot Git blob pin mismatch")
+        try:
+            committed=json.loads(snapshot_path.read_text(encoding="utf-8"))
+        except (FileNotFoundError,json.JSONDecodeError) as exc:
+            raise OperatingReportError("Batch 018 committed snapshot is unreadable") from exc
+        if committed!=self._snapshot:
+            raise OperatingReportError("Batch 018 committed snapshot differs from live operating state")
+        if expected_digest!=self._snapshot.get("snapshot_digest_sha256"):
+            raise OperatingReportError("Batch 018 snapshot digest pin mismatch")
 
     def _readiness(
         self,
