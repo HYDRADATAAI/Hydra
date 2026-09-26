@@ -31,11 +31,16 @@ FILES = {
     "batch008_raw_status": VALIDATION / "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH008_T1_RAW_ARTIFACT_PERSISTENCE_STATUS_V001_20260925.json",
     "batch008_master": ARCH / "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH008_MASTER_STATUS_V001_20260925.json",
     "batch008_raw_contract": IMPL / "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH008_T1_RAW_ARTIFACT_PERSISTENCE_CONTRACT_V001_20260925.json",
+    "batch009_gap": SLICE / "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH009_AI_DATA_CENTER_POWER_INFRASTRUCTURE_SOURCE_GAP_STATUS_V001_20260925.json",
+    "batch010_status": SLICE / "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH010_AI_DATA_CENTER_POWER_INFRASTRUCTURE_CLAIM_CANDIDATE_BENEFICIARY_STATUS_V001_20260925.json",
+    "batch010_candidates": SLICE / "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH010_AI_DATA_CENTER_POWER_INFRASTRUCTURE_T5_CANDIDATE_PROPOSALS_V001_20260925.json",
+    "batch010_beneficiaries": SLICE / "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH010_AI_DATA_CENTER_POWER_INFRASTRUCTURE_BENEFICIARY_EVALUATIONS_V001_20260925.json",
+    "batch010_master": ARCH / "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH010_MASTER_STATUS_V001_20260925.json",
 }
 
 MANIFESTS = [
     VALIDATION / f"HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH00{n}_ARTIFACT_MANIFEST_V001_20260925.json"
-    for n in range(3, 9)
+    for n in range(3, 11)
 ]
 
 SLICE_ID = "AI_DATA_CENTER_POWER_INFRASTRUCTURE_V1"
@@ -117,6 +122,11 @@ def main() -> int:
     raw_status = docs["batch008_raw_status"]
     master = docs["batch008_master"]
     raw_contract = docs["batch008_raw_contract"]
+    current_gap = docs["batch009_gap"]
+    current_status = docs["batch010_status"]
+    current_candidates = docs["batch010_candidates"]
+    current_beneficiaries = docs["batch010_beneficiaries"]
+    current_master = docs["batch010_master"]
 
     # First-slice identity must remain stable across the domain artifacts.
     for name, doc in (
@@ -193,6 +203,15 @@ def main() -> int:
     require(gap_results.get("IMPLEMENTATION_ADMISSION_READY") == "NO", "Batch006 falsely claims implementation admission")
     require(gap_results.get("FIRST_SERIOUS_CONSTRAINT_RUN") == "BLOCKED", "Batch006 falsely claims serious-run readiness")
 
+    # Batch006 is historical. Batch009 explicitly closes the original frozen
+    # source-gap queue without rewriting that predecessor.
+    current_gap_results = current_gap.get("results")
+    require(isinstance(current_gap_results, dict), "Batch009 source-gap results missing")
+    require(current_gap_results.get("FIBER_CONNECTIVITY_CAPACITY_FIELD") == "POPULATED_BOUNDED_SITE_AND_PROVIDER_PROFILE", "Batch009 fiber closure drifted")
+    require(current_gap_results.get("ORIGINAL_FROZEN_SOURCE_GAP_FIELDS_REMAINING") == 0, "Batch009 source-gap queue not closed")
+    require(current_gap.get("closed_blocker") == FIBER_BLOCKER, "Batch009 did not explicitly close fiber blocker")
+    require(current_gap.get("predecessor_artifacts_rewritten") is False, "Batch009 rewrote predecessor history")
+
     # Native T5->T6 admission must remain fail-closed until exact authority exists.
     decomposition = admission.get("decomposition")
     require(isinstance(decomposition, dict), "Batch002 admission decomposition missing")
@@ -234,6 +253,41 @@ def main() -> int:
     require(master.get("first_serious_constraint_run") == "BLOCKED", "master falsely claims serious-run readiness")
     require(master.get("next_population_blocker") == RAW_MATERIALIZATION_BLOCKER, "master next blocker drifted")
 
+    # Batch010 populates only shadow claims/candidates and blocked beneficiary
+    # evaluations. It must not mint canonical constraints or qualified
+    # beneficiaries while raw lineage/admission gates remain open.
+    candidate_rows = current_candidates.get("candidates")
+    require(isinstance(candidate_rows, list) and len(candidate_rows) == 3, "Batch010 candidate count drifted")
+    for candidate in candidate_rows:
+        require(candidate.get("canonical_constraint_id") is None, "Batch010 minted canonical constraint ID")
+        require(candidate.get("ordinary_t6_eligible") is False, "Batch010 candidate became ordinary-T6 eligible")
+
+    beneficiary_rows = current_beneficiaries.get("relationships")
+    require(isinstance(beneficiary_rows, list) and len(beneficiary_rows) == 4, "Batch010 beneficiary count drifted")
+    require(current_beneficiaries.get("qualified_relationship_count") == 0, "Batch010 fabricated qualified beneficiary")
+    for relation in beneficiary_rows:
+        require(relation.get("qualification_state") == "INELIGIBLE_TO_EVALUATE", "Batch010 beneficiary qualification escaped fail-closed state")
+        require(relation.get("constraint_id") is None, "Batch010 beneficiary references minted canonical constraint")
+        require(relation.get("eligibility_state") == "BLOCKED", "Batch010 beneficiary eligibility escaped blocked state")
+
+    current_results = current_status.get("results")
+    require(isinstance(current_results, dict), "Batch010 current results missing")
+    require(current_results.get("CLAIM_LAYER_POPULATED") == "YES_SHADOW", "Batch010 claim layer status drifted")
+    require(current_results.get("T5_CONSTRAINT_CANDIDATE_LAYER_POPULATED") == "YES_SHADOW", "Batch010 candidate layer status drifted")
+    require(current_results.get("T6_BENEFICIARY_RELATIONSHIP_LAYER_POPULATED") == "YES_BLOCKED_EVALUATIONS", "Batch010 beneficiary layer status drifted")
+    require(current_results.get("CANONICAL_CONSTRAINTS_MINTED") == "NO", "Batch010 falsely minted canonical constraints")
+    require(current_results.get("QUALIFIED_BENEFICIARIES_MINTED") == "NO", "Batch010 falsely minted qualified beneficiaries")
+    require(current_results.get("FIRST_SERIOUS_CONSTRAINT_RUN") == "BLOCKED", "Batch010 falsely claims serious-run readiness")
+    current_remaining = set(current_status.get("remaining_blockers", []))
+    require(current_remaining == {RAW_MATERIALIZATION_BLOCKER, ADMISSION_BLOCKER}, f"Batch010 remaining blockers drifted: {sorted(current_remaining)}")
+
+    current_readiness = current_master.get("readiness")
+    require(isinstance(current_readiness, dict), "Batch010 master readiness missing")
+    require(current_readiness["ORIGINAL_FIRST_SLICE_SOURCE_GAPS_CLOSED"].get("status") == "YES", "Batch010 master lost source-gap closure")
+    require(current_readiness["QUALIFIED_BENEFICIARY_RELATIONSHIPS"].get("status") == "NO", "Batch010 master falsely claims qualified beneficiary")
+    require(current_readiness["FULL_CONSTRAINT_RUN_READY"].get("status") == "NO", "Batch010 master falsely claims full-run readiness")
+    require(current_master.get("first_serious_constraint_run") == "BLOCKED", "Batch010 master falsely claims serious-run readiness")
+
     # Raw-store contract must remain private and require the full ordinary T2 lineage envelope.
     boundary = raw_contract.get("public_repository_boundary")
     contract = raw_contract.get("artifact_contract")
@@ -262,9 +316,12 @@ def main() -> int:
     print(f"CAPTURE_COMPLETED_AT={completed_at}")
     print(f"MANIFESTS_VALIDATED={len(MANIFESTS)}")
     print(f"MANIFEST_MEMBERS_VALIDATED={manifest_members}")
+    print("ORIGINAL_FIRST_SLICE_SOURCE_GAPS_CLOSED=YES")
+    print("SHADOW_T5_CANDIDATES=3")
+    print("BLOCKED_BENEFICIARY_EVALUATIONS=4")
+    print("QUALIFIED_BENEFICIARIES=0")
     print("IMPLEMENTATION_ADMITTED=NO")
     print("REAL_NINE_SOURCE_MATERIALIZATION=NO")
-    print("FIBER_CONNECTIVITY_CAPACITY_READY=NO")
     print("FIRST_SERIOUS_CONSTRAINT_RUN=BLOCKED")
     print(f"NEXT_POPULATION_BLOCKER={RAW_MATERIALIZATION_BLOCKER}")
     return 0

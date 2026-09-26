@@ -18,7 +18,7 @@ VALIDATION_DIR = ROOT / "docs/constraint/validation"
 
 MANIFEST_NAMES = [
     f"HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH00{n}_ARTIFACT_MANIFEST_V001_20260925.json"
-    for n in range(3, 9)
+    for n in range(3, 11)
 ]
 
 
@@ -209,6 +209,62 @@ def case_source_disappears(root: Path) -> None:
     )
 
 
+def case_current_fiber_reopened(root: Path) -> None:
+    relative = (
+        "docs/constraint/first_slice/ai_data_center_power_infrastructure_v1/"
+        "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH009_AI_DATA_CENTER_POWER_INFRASTRUCTURE_"
+        "SOURCE_GAP_STATUS_V001_20260925.json"
+    )
+
+    def mutate(doc: dict) -> None:
+        doc["results"]["FIBER_CONNECTIVITY_CAPACITY_FIELD"] = "SOURCE_GAP"
+        doc["results"]["ORIGINAL_FROZEN_SOURCE_GAP_FIELDS_REMAINING"] = 1
+
+    mutate_json(
+        root,
+        relative,
+        mutate,
+        manifest_name="HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH009_ARTIFACT_MANIFEST_V001_20260925.json",
+    )
+
+
+def case_candidate_mints_canonical(root: Path) -> None:
+    relative = (
+        "docs/constraint/first_slice/ai_data_center_power_infrastructure_v1/"
+        "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH010_AI_DATA_CENTER_POWER_INFRASTRUCTURE_"
+        "T5_CANDIDATE_PROPOSALS_V001_20260925.json"
+    )
+
+    def mutate(doc: dict) -> None:
+        doc["candidates"][0]["canonical_constraint_id"] = "K-UNAUTHORIZED"
+
+    mutate_json(
+        root,
+        relative,
+        mutate,
+        manifest_name="HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH010_ARTIFACT_MANIFEST_V001_20260925.json",
+    )
+
+
+def case_beneficiary_falsely_qualified(root: Path) -> None:
+    relative = (
+        "docs/constraint/first_slice/ai_data_center_power_infrastructure_v1/"
+        "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH010_AI_DATA_CENTER_POWER_INFRASTRUCTURE_"
+        "BENEFICIARY_EVALUATIONS_V001_20260925.json"
+    )
+
+    def mutate(doc: dict) -> None:
+        doc["relationships"][0]["qualification_state"] = "QUALIFIED"
+        doc["qualified_relationship_count"] = 1
+
+    mutate_json(
+        root,
+        relative,
+        mutate,
+        manifest_name="HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH010_ARTIFACT_MANIFEST_V001_20260925.json",
+    )
+
+
 def case_master_falsely_ready(root: Path) -> None:
     relative = (
         "docs/constraint/architecture/"
@@ -234,6 +290,9 @@ def main() -> int:
         ("admission_falsely_granted", case_admission_falsely_granted, "native implementation unexpectedly admitted"),
         ("raw_materialization_falsely_claimed", case_raw_materialization_falsely_claimed, "real raw sources falsely marked materialized"),
         ("source_disappears", case_source_disappears, "availability source set differs from registry"),
+        ("current_fiber_reopened", case_current_fiber_reopened, "Batch009 fiber closure drifted"),
+        ("candidate_mints_canonical", case_candidate_mints_canonical, "Batch010 minted canonical constraint ID"),
+        ("beneficiary_falsely_qualified", case_beneficiary_falsely_qualified, "Batch010 fabricated qualified beneficiary"),
         ("master_falsely_ready", case_master_falsely_ready, "master falsely claims full-run readiness"),
     ]
     for name, mutator, expected in cases:

@@ -1,0 +1,31 @@
+{
+  "schema_version": "hydra-constraint-first-slice-claim-candidate-beneficiary-status/v1",
+  "record_id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH010_AI_DATA_CENTER_POWER_INFRASTRUCTURE_CLAIM_CANDIDATE_BENEFICIARY_STATUS_V001",
+  "as_of": "2026-09-25",
+  "predecessor_batch": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH009",
+  "slice_id": "AI_DATA_CENTER_POWER_INFRASTRUCTURE_V1",
+  "counts": {
+    "typed_claims": 10,
+    "t5_candidate_proposals": 3,
+    "relief_paths": 5,
+    "beneficiary_relationship_evaluations": 4,
+    "qualified_beneficiary_relationships": 0
+  },
+  "results": {
+    "CLAIM_LAYER_POPULATED": "YES_SHADOW",
+    "T5_CONSTRAINT_CANDIDATE_LAYER_POPULATED": "YES_SHADOW",
+    "RELIEF_INVALIDATOR_LAYER_POPULATED": "YES_SHADOW",
+    "T6_BENEFICIARY_RELATIONSHIP_LAYER_POPULATED": "YES_BLOCKED_EVALUATIONS",
+    "WATER_DEPENDENCY_PROMOTED_TO_CONSTRAINT": "NO",
+    "FIBER_DEPENDENCY_PROMOTED_TO_CONSTRAINT": "NO",
+    "CANONICAL_CONSTRAINTS_MINTED": "NO",
+    "QUALIFIED_BENEFICIARIES_MINTED": "NO",
+    "FIRST_SERIOUS_CONSTRAINT_RUN": "BLOCKED"
+  },
+  "remaining_blockers": [
+    "PIT-002B-FIRST-SLICE-NINE-SOURCE-RAW-CAPTURE-MATERIALIZATION",
+    "CI-TEST-008-BLOCKER-001B-NATIVE-T5-T6-SIGNED-ADMISSION-RECEIPT-ABSENT"
+  ],
+  "next_repo_executable_lane": "FIRST-SLICE-OUTCOME-LABEL-AND-REPLAY-FIXTURE-DESIGN",
+  "predecessor_artifacts_rewritten": false
+}
