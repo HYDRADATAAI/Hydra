@@ -1,0 +1,35 @@
+{
+  "schema_version": "hydra-constraint-first-slice-graph-overlay/v1",
+  "record_id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH006_AI_DATA_CENTER_POWER_INFRASTRUCTURE_GRAPH_OVERLAY_V001",
+  "as_of": "2026-09-25",
+  "predecessor_graph": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH003_AI_DATA_CENTER_POWER_INFRASTRUCTURE_GRAPH_SEED_V001",
+  "slice_id": "AI_DATA_CENTER_POWER_INFRASTRUCTURE_V1",
+  "edge_updates": [
+    {
+      "edge_id": "E012",
+      "predecessor_status": "UNPOPULATED_SOURCE_GAP",
+      "successor_status": "SUPPORTED_BOUNDED_SCOPE",
+      "evidence_ids": [
+        "EV-DOE-AI-LANDS-16-SITES-FAST-TRACK-PERMITTING",
+        "EV-DOE-AI-LANDS-4-SITES-SELECTED"
+      ],
+      "scope": "U.S._DOE_FEDERAL_LANDS"
+    },
+    {
+      "edge_id": "E014",
+      "predecessor_status": "UNPOPULATED_SOURCE_GAP",
+      "successor_status": "SUPPORTED_APPROXIMATE_REGIONAL",
+      "evidence_ids": [
+        "EV-JLL-AMER-SWITCHGEAR-LEADTIME-2026"
+      ],
+      "scope": "AMER_DATA_CENTER_MARKET_2026"
+    },
+    {
+      "edge_id": "E013",
+      "predecessor_status": "UNPOPULATED_SOURCE_GAP",
+      "successor_status": "UNPOPULATED_SOURCE_GAP",
+      "evidence_ids": [],
+      "blocker": "fiber_connectivity_capacity remains unproven"
+    }
+  ]
+}
