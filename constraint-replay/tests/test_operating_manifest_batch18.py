@@ -54,6 +54,10 @@ class Batch018OperatingManifestTests(unittest.TestCase):
             self.snapshot["snapshot_digest_sha256"],
         )
 
+    def test_operating_workflow_pin_matches(self):
+        item=self.manifest["ci_contract"]
+        self.assertEqual(item["git_blob_sha"],git_blob_sha(ROOT/item["path"]))
+
     def test_expected_current_state_is_frozen(self):
         expected=self.manifest["expected"]
         self.assertEqual(22,expected["case_count"])
