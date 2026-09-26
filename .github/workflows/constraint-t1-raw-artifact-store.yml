@@ -8,6 +8,7 @@ on:
   push:
     branches:
       - main
+      - "constraint-t6-successor-batch017-persisted-custody-20260926"
     paths:
       - "constraint-t1-raw-artifact-store/**"
       - ".github/workflows/constraint-t1-raw-artifact-store.yml"
