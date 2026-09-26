@@ -11,7 +11,10 @@ captured through an authorized or reviewed acquisition path.
 ## Safety and public-repo boundary
 
 Raw source bytes must live in a private HYDRA data root outside the public Git
-repository. The store rejects a private root nested inside the public repo.
+repository. The store rejects a private root nested inside the public repo and
+re-checks every artifact, receipt, and release destination after symlink
+resolution so descendant links cannot redirect private writes into the public
+repository or outside the configured private root.
 
 The public repository contains only persistence code, schemas/contracts,
 synthetic tests, and status/manifests. It does not publish third-party source
