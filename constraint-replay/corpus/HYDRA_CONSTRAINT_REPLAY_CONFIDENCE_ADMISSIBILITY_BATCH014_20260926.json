@@ -1,0 +1,44 @@
+{
+  "schema_version": "1.0",
+  "batch_id": "HYDRA_CONSTRAINT_REPLAY_CONFIDENCE_ADMISSIBILITY_BATCH014_20260926",
+  "policy": "Batch 014 reuses the existing confidence semantics unchanged. Regulatory conditions, legal/economic risk claims, contested export-control characterizations and modelled trade effects are not converted into historical replay probabilities.",
+  "ordinal_mappings": [],
+  "evidence": [
+    {
+      "evidence_id": "confidence-audit-nord-bnetza-2021-11-16",
+      "case_id": "nord-stream-2-certification-state-2021-2022",
+      "source_id": "nord-bnetza-2021-11-16-hypothesis",
+      "known_at": "2021-11-16T23:59:59Z",
+      "semantics": "TARGET_OR_OBJECTIVE",
+      "statement": "Bundesnetzagentur stated that Nord Stream 2 certification would remain suspended until specified organizational and documentation conditions were satisfied.",
+      "notes": "A regulatory certification condition is not a probability that certification will or will not ultimately occur."
+    },
+    {
+      "evidence_id": "confidence-audit-japan-korea-wto-2020-07-29",
+      "case_id": "japan-korea-export-control-relations-2019",
+      "source_id": "japan-korea-wto-2020-07-29-hypothesis",
+      "known_at": "2020-07-29T23:59:59Z",
+      "semantics": "QUALITATIVE_RISK",
+      "statement": "The WTO record preserved Korea's claims of delays, uncertainty, costs and serious restrictions, alongside Japan's contrary export-control characterization.",
+      "notes": "Contested qualitative claims about trade friction do not provide a numeric probability."
+    },
+    {
+      "evidence_id": "confidence-audit-eastmed-crs-2019-04-01",
+      "case_id": "eastern-mediterranean-offshore-drilling-dispute-2019-2020",
+      "source_id": "eastmed-crs-2019-04-01-hypothesis",
+      "known_at": "2019-04-01T23:59:59Z",
+      "semantics": "QUALITATIVE_RISK",
+      "statement": "CRS described drilling-related maritime activity as raising tensions and negatively affecting settlement negotiations while commercial hydrocarbon development remained uncertain.",
+      "notes": "Tension/escalation and commercial-viability risk language is not an explicit probability."
+    },
+    {
+      "evidence_id": "confidence-audit-cbam-unctad-2021-07-14",
+      "case_id": "eu-cbam-transitional-phase-2023",
+      "source_id": "cbam-unctad-2021-07-14-hypothesis",
+      "known_at": "2021-07-14T23:59:59Z",
+      "semantics": "QUALITATIVE_EXPECTATION",
+      "statement": "UNCTAD modelled CBAM as shifting trade toward more carbon-efficient production and reducing some developing-country exports while only modestly reducing global emissions.",
+      "notes": "Modelled directional trade effects without an explicit probability distribution are not replay confidence."
+    }
+  ]
+}
