@@ -27,6 +27,14 @@
       "observed_state": "PRIVATE_STORE_IMPLEMENTED_BUT_FIRST_SLICE_RAW_SOURCE_BODIES_NOT_MATERIALIZED",
       "blocker": "PIT-002B-FIRST-SLICE-NINE-SOURCE-RAW-CAPTURE-MATERIALIZATION"
     },
+    "PERSISTED_T1_CHAIN_OF_CUSTODY": {
+      "strict_gate_result": "PASS",
+      "observed_state": "EXACT_PERSISTED_SOURCE_VERSION_RECEIPT_AND_RELEASE_MANIFEST_IDENTITY_REQUIRED",
+      "evidence": [
+        "constraint-t1-raw-artifact-store@0.2.0",
+        "T1_RAW_STORE_PERSISTED_CHAIN_OF_CUSTODY_REGRESSION_SUITE"
+      ]
+    },
     "NORMALIZATION": {
       "strict_gate_result": "PASS",
       "observed_state": "REVIEWED_NORMALIZED_EVIDENCE_AND_OVERLAYS_PRESENT_WITH_GOVERNED_MISSINGNESS"
@@ -88,7 +96,7 @@
       "blocker": "PIT-002B-FIRST-SLICE-NINE-SOURCE-RAW-CAPTURE-MATERIALIZATION"
     }
   },
-  "pass_count": 8,
+  "pass_count": 9,
   "fail_count": 7,
   "overall_result": "BLOCKED",
   "shadow_results": {
