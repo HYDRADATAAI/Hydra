@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Validate Batch016 real-outcome coverage expansion without authority escalation."""
+"""Validate Batch016 coverage closure and Batch017 supplemental outcome evidence."""
 
 from __future__ import annotations
 
@@ -21,6 +21,15 @@ GATE = SLICE / "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH016_AI_DATA_CENTER_POWER
 BLOCKERS = SLICE / "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH016_AI_DATA_CENTER_POWER_INFRASTRUCTURE_BLOCKER_REGISTER_V001_20260925.json"
 MASTER = ARCH / "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH016_MASTER_STATUS_V001_20260925.json"
 BEN10 = SLICE / "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH010_AI_DATA_CENTER_POWER_INFRASTRUCTURE_BENEFICIARY_EVALUATIONS_V001_20260925.json"
+
+SOURCES17 = SLICE / "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH017_AI_DATA_CENTER_POWER_INFRASTRUCTURE_OUTCOME_SOURCE_REGISTRY_EXTENSION_V001_20260925.json"
+OUTCOMES17 = SLICE / "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH017_AI_DATA_CENTER_POWER_INFRASTRUCTURE_OUTCOME_RECORDS_SUPPLEMENT_V001_20260925.json"
+COVERAGE17 = SLICE / "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH017_AI_DATA_CENTER_POWER_INFRASTRUCTURE_REAL_OUTCOME_COVERAGE_MATRIX_V001_20260925.json"
+EVAL17 = SLICE / "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH017_AI_DATA_CENTER_POWER_INFRASTRUCTURE_EVALUATION_PROTOCOL_V001_20260925.json"
+GATE17 = SLICE / "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH017_AI_DATA_CENTER_POWER_INFRASTRUCTURE_STRICT_ACCEPTANCE_GATE_V001_20260925.json"
+BLOCKERS17 = SLICE / "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH017_AI_DATA_CENTER_POWER_INFRASTRUCTURE_BLOCKER_REGISTER_V001_20260925.json"
+MASTER17 = ARCH / "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH017_MASTER_STATUS_V001_20260925.json"
+TRACKER17 = ARCH / "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH017_NYX_ASSIGNMENT_TRACKER_V001_20260925.json"
 
 EVAL1 = "ACCEPT-014-EVAL-001-REAL-OUTCOME-COVERAGE-THIN"
 EVAL2 = "ACCEPT-014-EVAL-002-NO-ORDINARY-CANONICAL-OUTPUTS-TO-EVALUATE"
@@ -159,8 +168,110 @@ def main() -> int:
     require(master.get("repo_executable_blockers") == [], "Batch016 master still reports repo-executable blockers")
     require(master.get("next_repo_executable_lane") == expected_next, "Batch016 master next lane drifted")
 
+    # Batch017 adds one reviewed primary-source outcome while preserving the
+    # historical Batch016 closure and all admission/replay boundaries.
+    sources17 = load(SOURCES17)
+    outcomes17 = load(OUTCOMES17)
+    coverage17 = load(COVERAGE17)
+    evaluation17 = load(EVAL17)
+    gate17 = load(GATE17)
+    blockers17 = load(BLOCKERS17)
+    master17 = load(MASTER17)
+    tracker17 = load(TRACKER17)
+
+    source_rows17 = sources17.get("sources")
+    require(isinstance(source_rows17, list) and len(source_rows17) == 1, "Batch017 source count drifted")
+    source = source_rows17[0]
+    source_id = "SRC-SCHNEIDER-EL-PASO-DATACENTER-SHIPMENT-2023-09-14"
+    require(source.get("source_id") == source_id, "Schneider source identity drifted")
+    require(source.get("publication_date") == "2023-09-14", "Schneider publication date drifted")
+    require(source.get("acquired_at") == source.get("available_at"), "Schneider availability timestamp drifted")
+    require(source.get("historical_backdating_authorized") is False, "Schneider source was historically backdated")
+    require(source.get("ordinary_raw_lineage_eligible") is False, "Schneider source unexpectedly raw-lineage eligible")
+    require(sources17.get("source_content_persisted") is False, "Batch017 falsely claims raw source persistence")
+    require(sources17.get("runtime_live_source_authority_used") is False, "Batch017 uses runtime live-source authority")
+
+    rows17 = outcomes17.get("records")
+    require(isinstance(rows17, list) and len(rows17) == 1, "Batch017 outcome record count drifted")
+    schneider = rows17[0]
+    require(schneider.get("outcome_id") == "OUT-AIDC-SCHNEIDER-EL-PASO-DC-CUSTOMER-SHIPMENT-001", "Schneider outcome identity drifted")
+    require(schneider.get("outcome_label") == "CAPACITY_ADDED", "Schneider outcome label drifted")
+    require(schneider.get("source_id") == source_id, "Schneider outcome source lineage unresolved")
+    require(schneider.get("related_constraint_candidate_id") is None, "Schneider supplemental outcome was directly matched to a current constraint")
+    require(schneider.get("entity_id") is None, "Schneider entity identity was canonically resolved")
+    require(schneider.get("evaluation_mapping") == "SUPPLEMENTAL_REAL_OUTCOME_NOT_COUNTED_AS_A_DIRECT_CONSTRAINT_MATCH_OR_BENEFICIARY_CAPTURE", "Schneider evaluation mapping was overstated")
+    require(schneider.get("ordinary_replay_eligible") is False, "Schneider outcome unexpectedly ordinary-replay eligible")
+    require(schneider.get("hydra_available_at") == source.get("available_at"), "Schneider Hydra availability was backdated or detached from source review")
+    effective_time = schneider.get("real_world_effective_time")
+    require(isinstance(effective_time, dict) and effective_time.get("value") is None, "Schneider exact shipment date was invented")
+    require(effective_time.get("no_later_than") == "2023-09-14", "Schneider shipment temporal bound drifted")
+    limits = set(schneider.get("semantic_limits", []))
+    require(any("does not establish resolution" in item.lower() for item in limits), "Schneider outcome does not preserve the constraint-resolution limit")
+    require(any("does not establish constraint-attributable" in item.lower() for item in limits), "Schneider outcome overstates beneficiary capture")
+
+    counts17 = outcomes17.get("counts")
+    require(isinstance(counts17, dict), "Batch017 outcome counts missing")
+    require(counts17.get("outcomes_added_this_batch") == 1, "Batch017 added-outcome count drifted")
+    require(counts17.get("current_slice_real_outcome_count") == 6, "Batch017 total outcome count drifted")
+    require(counts17.get("capacity_added_total") == 2, "Batch017 capacity-added count drifted")
+    require(counts17.get("constraint_resolutions_total") == 0, "Batch017 falsely records constraint resolution")
+
+    require(coverage17.get("real_primary_outcome_records_total") == 6, "Batch017 coverage total drifted")
+    require(coverage17.get("core_evaluation_dimensions_covered") == 3 and coverage17.get("core_evaluation_dimensions_required") == 3, "Batch017 changed the bounded 3/3 core-coverage result")
+    require(coverage17.get("numeric_acceptance_sample_threshold_invented") is False, "Batch017 invented an acceptance threshold")
+    supplement = coverage17.get("supplemental_outcomes")
+    require(isinstance(supplement, list) and len(supplement) == 1, "Batch017 supplemental outcome mapping missing")
+    require(supplement[0].get("outcome_id") == schneider.get("outcome_id"), "Batch017 supplemental outcome mapping drifted")
+    require(supplement[0].get("evaluation_mapping") == "SUPPLEMENTAL_CONTEXT_ONLY", "Batch017 supplemental outcome was promoted into a core evaluation match")
+
+    observed17 = evaluation17.get("current_observed_coverage", {})
+    require(observed17.get("real_outcome_records") == 6, "Batch017 evaluation outcome count drifted")
+    require(observed17.get("real_outcome_labels") == 4, "Batch017 evaluation label count drifted")
+    expansion = evaluation17.get("outcome_coverage_expansion", {})
+    require(expansion.get("records_added_this_batch") == 1, "Batch017 evaluation expansion count drifted")
+    require(expansion.get("accept_014_eval_001_state") == "CLOSED_BY_BATCH016_RETAINED", "Batch017 did not preserve Batch016 blocker closure")
+    require(expansion.get("batch017_reopens_accept_014_eval_001") is False, "Batch017 re-opened the closed thin-coverage blocker")
+    require(expansion.get("new_record_counts_as_direct_core_dimension_match") is False, "Batch017 supplemental outcome was used as a direct core match")
+    require(evaluation17.get("acceptance_sufficiency_threshold", {}).get("status") == "NOT_AUTHORIZED_NOT_INVENTED", "Batch017 invented an evaluation sufficiency threshold")
+    require(evaluation17.get("readiness", {}).get("acceptance_grade_evaluation_ready") == "NO", "Batch017 falsely marks acceptance-grade evaluation ready")
+    require(set(evaluation17.get("blockers", [])) == {EVAL2, EVAL3}, "Batch017 external evaluation blockers drifted")
+
+    gate17_dims = gate17.get("dimensions", {})
+    require(gate17_dims.get("EVALUATION_READY", {}).get("status") == "BLOCKED", "Batch017 evaluation gate falsely ready")
+    require(set(gate17_dims.get("EVALUATION_READY", {}).get("blockers", [])) == {EVAL2, EVAL3}, "Batch017 evaluation gate blocker set drifted")
+    require(gate17_dims.get("IMPLEMENTATION_ADMITTED", {}).get("status") == "BLOCKED", "Batch017 falsely admits implementation")
+    require(gate17_dims.get("PROVENANCE_READY", {}).get("status") == "BLOCKED", "Batch017 falsely clears provenance blockers")
+    require(gate17_dims.get("REPLAY_READY", {}).get("status") == "BLOCKED", "Batch017 falsely clears replay blockers")
+    require(gate17.get("overall_status") == "BLOCKED" and gate17.get("full_constraint_run_allowed") is False, "Batch017 acceptance gate falsely ready")
+
+    closed17 = {row.get("blocker_id") for row in blockers17.get("closed_items", [])}
+    active17 = {row.get("blocker_id") for row in blockers17.get("blocking_items", [])}
+    require(EVAL1 in closed17 and EVAL1 not in active17, "Batch017 thin-outcome blocker was reopened")
+    require({EVAL2, EVAL3, RAW, ADMISSION} <= active17, "Batch017 external blockers were removed")
+    require(blockers17.get("repo_executable_blockers") == [], "Batch017 invents a repo-executable acceptance blocker")
+    require(blockers17.get("next_repo_executable_lane") == expected_next, "Batch017 acceptance lane drifted")
+
+    outcome_ready17 = master17.get("readiness", {}).get("REAL_OUTCOME_CORE_DIMENSION_COVERAGE", {})
+    require(outcome_ready17.get("status") == "YES_BOUNDED", "Batch017 master lost bounded outcome coverage")
+    require(outcome_ready17.get("records") == 6 and outcome_ready17.get("labels") == 4 and outcome_ready17.get("dimensions") == 3, "Batch017 master outcome metrics drifted")
+    require(master17.get("acceptance_gate", {}).get("status") == "BLOCKED", "Batch017 master acceptance status falsely ready")
+    require(master17.get("first_serious_constraint_run") == "BLOCKED", "Batch017 master falsely enables serious run")
+    require(master17.get("repo_executable_blockers") == [], "Batch017 master invents a repo-executable blocker")
+    assignment = master17.get("nyx_bounded_repo_lane_assignment", {})
+    require(assignment.get("owner") == "NYX" and assignment.get("lane") == "FIRST-SLICE-REAL-OUTCOME-COVERAGE-EXPANSION", "Batch017 master NYX lane assignment drifted")
+
+    require(tracker17.get("owner") == "NYX", "NYX assignment tracker owner drifted")
+    require(tracker17.get("lane") == "FIRST-SLICE-REAL-OUTCOME-COVERAGE-EXPANSION", "NYX assignment tracker lane drifted")
+    require(tracker17.get("status") == "COMPLETED_IN_BATCH017", "NYX assignment tracker completion state drifted")
+    boundaries = tracker17.get("source_and_ownership_boundaries", {})
+    require(boundaries.get("used_authorized_material_only") is True, "NYX assignment tracker does not preserve source authorization")
+    require(boundaries.get("future_source_discovery_or_private_record_requests_owner") == "LILY", "NYX assignment tracker changed Lily source ownership")
+    prohibitions = set(tracker17.get("prohibitions_preserved", []))
+    require({"NO_INVENTED_OUTCOMES", "NO_INVENTED_SCORES", "NO_INVENTED_ACCEPTANCE_THRESHOLDS", "NO_SHADOW_TO_CANONICAL_ADMISSION_PROMOTION", "NO_ORDINARY_REPLAY_PROMOTION"} <= prohibitions, "NYX assignment tracker omitted a scope prohibition")
+
     print("CONSTRAINT_FIRST_SLICE_REAL_OUTCOME_COVERAGE_VALIDATION=PASS")
-    print("REAL_OUTCOME_RECORDS=5")
+    print("BATCH016_REAL_OUTCOME_RECORDS=5")
+    print("REAL_OUTCOME_RECORDS=6")
     print("REAL_OUTCOME_LABELS=4")
     print("CORE_EVALUATION_OUTCOME_DIMENSIONS=3/3")
     print("SUBSTITUTION_SUCCEEDED_OUTCOMES=1")

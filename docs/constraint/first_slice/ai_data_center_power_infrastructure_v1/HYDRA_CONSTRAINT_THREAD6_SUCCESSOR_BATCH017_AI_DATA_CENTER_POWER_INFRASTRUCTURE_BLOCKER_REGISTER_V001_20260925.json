@@ -1,0 +1,68 @@
+{
+  "schema_version": "hydra-constraint-first-slice-strict-blocker-register/v1",
+  "record_id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH017_AI_DATA_CENTER_POWER_INFRASTRUCTURE_BLOCKER_REGISTER_V001",
+  "as_of": "2026-09-26",
+  "slice_id": "AI_DATA_CENTER_POWER_INFRASTRUCTURE_V1",
+  "predecessor_register": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH016_AI_DATA_CENTER_POWER_INFRASTRUCTURE_BLOCKER_REGISTER_V001",
+  "closed_items": [
+    {
+      "blocker_id": "ACCEPT-014-CONF-001-TYPED-FORMATION-CONFIDENCE-NOT-POPULATED",
+      "state": "CLOSED_BY_BATCH015_EXPLICIT_TYPED_UNKNOWN"
+    },
+    {
+      "blocker_id": "ACCEPT-014-CONF-002-BENEFICIARY-CONFIDENCE-VALUES-NULL",
+      "state": "CLOSED_BY_BATCH015_EXPLICIT_TYPED_UNKNOWN"
+    },
+    {
+      "blocker_id": "ACCEPT-014-EVAL-001-REAL-OUTCOME-COVERAGE-THIN",
+      "state": "CLOSED_BY_BATCH016_CORE_REAL_OUTCOME_DIMENSION_COVERAGE"
+    }
+  ],
+  "blocking_items": [
+    {
+      "blocker_id": "CI-TEST-008-BLOCKER-001B-NATIVE-T5-T6-SIGNED-ADMISSION-RECEIPT-ABSENT",
+      "dimension": "IMPLEMENTATION_ADMITTED",
+      "repo_executable": false
+    },
+    {
+      "blocker_id": "PIT-002B-FIRST-SLICE-NINE-SOURCE-RAW-CAPTURE-MATERIALIZATION",
+      "dimension": "PROVENANCE_READY",
+      "repo_executable": false
+    },
+    {
+      "blocker_id": "ORDINARY-POINT-IN-TIME-REPLAY-SOURCE-VERSION-HASHES-INCOMPLETE",
+      "dimension": "HISTORICAL_AS_OF_READY",
+      "repo_executable": false,
+      "depends_on": [
+        "PIT-002B-FIRST-SLICE-NINE-SOURCE-RAW-CAPTURE-MATERIALIZATION"
+      ]
+    },
+    {
+      "blocker_id": "CANONICAL-T5-T6-CONSTRAINT-AND-BENEFICIARY-ADMISSION-NOT-AUTHORIZED",
+      "dimension": "IMPLEMENTATION_ADMITTED",
+      "repo_executable": false,
+      "depends_on": [
+        "CI-TEST-008-BLOCKER-001B-NATIVE-T5-T6-SIGNED-ADMISSION-RECEIPT-ABSENT"
+      ]
+    },
+    {
+      "blocker_id": "ACCEPT-014-EVAL-002-NO-ORDINARY-CANONICAL-OUTPUTS-TO-EVALUATE",
+      "dimension": "EVALUATION_READY",
+      "repo_executable": false,
+      "depends_on": [
+        "CANONICAL-T5-T6-CONSTRAINT-AND-BENEFICIARY-ADMISSION-NOT-AUTHORIZED"
+      ]
+    },
+    {
+      "blocker_id": "ACCEPT-014-EVAL-003-ORDINARY-REPLAY-NOT-READY",
+      "dimension": "EVALUATION_READY",
+      "repo_executable": false,
+      "depends_on": [
+        "PIT-002B-FIRST-SLICE-NINE-SOURCE-RAW-CAPTURE-MATERIALIZATION"
+      ]
+    }
+  ],
+  "repo_executable_blockers": [],
+  "next_repo_executable_lane": "NONE_FIRST_SLICE_ACCEPTANCE_REQUIRES_PRIVATE_RAW_MATERIALIZATION_AND_NATIVE_ADMISSION",
+  "outcome_coverage_note": "ACCEPT-014-EVAL-001 remains closed by Batch016 core-dimension coverage; Batch017 adds supplemental evidence without re-opening it."
+}

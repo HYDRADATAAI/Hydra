@@ -8,7 +8,7 @@ import os
 import shutil
 import subprocess
 import sys
-import tempfile
+import uuid
 from pathlib import Path
 from typing import Callable
 
@@ -21,7 +21,8 @@ MASTER_REL = "docs/constraint/architecture/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BA
 
 
 def make_sandbox() -> Path:
-    temp = Path(tempfile.mkdtemp(prefix="hydra-acceptance-hostile-"))
+    temp = ROOT / f".tmp-hydra-acceptance-hostile-{uuid.uuid4().hex}"
+    temp.mkdir()
     shutil.copytree(ROOT / "docs/constraint", temp / "docs/constraint", dirs_exist_ok=True)
     return temp
 
