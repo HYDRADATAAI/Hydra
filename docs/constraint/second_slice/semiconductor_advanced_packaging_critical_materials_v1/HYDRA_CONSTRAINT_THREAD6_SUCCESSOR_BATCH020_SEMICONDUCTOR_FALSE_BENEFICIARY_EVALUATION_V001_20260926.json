@@ -1,0 +1,51 @@
+{
+  "schema_version": "hydra-constraint-second-slice-beneficiary-evaluations/v1",
+  "record_id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH020_SEMICONDUCTOR_FALSE_BENEFICIARY_EVALUATION_V001",
+  "as_of": "2026-09-26",
+  "slice_id": "SEMICONDUCTOR_ADVANCED_PACKAGING_CRITICAL_MATERIALS_V1",
+  "consumer_namespace": "PIPELINE_T6_CANONICAL_CANDIDATE_GOVERNANCE",
+  "evaluation_mode": "SHADOW_CAUSAL_CHAIN_POPULATION_NOT_RUNTIME_ADMITTED",
+  "relationships": [
+    {
+      "beneficiary_relationship_id": "BEN-SEMI-SAMSUNG-HBM-001",
+      "constraint_candidate_id": "T5C-SEMI-HBM-BOOKED-SUPPLY-2024-2025-001",
+      "constraint_id": null,
+      "beneficiary_entity_id": "ENTITY-SAMSUNG",
+      "entity_name": "Samsung Electronics Co., Ltd.",
+      "qualification_state": "INELIGIBLE_TO_EVALUATE",
+      "case_disposition": "FALSE_BENEFICIARY_REJECTED",
+      "benefit_transmission_mechanism": "POTENTIAL_ALTERNATE_HBM_SUPPLY",
+      "evidence_lineage": {
+        "constraint_evidence": [
+          "EV-SEMI-MICRON-HBM-2025-SOLDOUT",
+          "EV-SEMI-SKHYNIX-HBM-2024-SOLDOUT"
+        ],
+        "entity_connection": [
+          "EV-SEMI-B020-SAMSUNG-HBM3E12H-DEVELOPMENT",
+          "EV-SEMI-B020-SAMSUNG-HBM3E8H-MASS-PRODUCTION"
+        ],
+        "advantage_mechanism": [
+          "EV-SEMI-B020-SAMSUNG-HBM3E8H-MASS-PRODUCTION"
+        ],
+        "capacity_or_availability": [],
+        "economic_or_strategic_capture": [],
+        "disconfirming_or_blocking": [
+          "No reviewed evidence proves unbooked addressable Samsung HBM capacity for the constrained target.",
+          "No reviewed evidence proves required target-specific customer/platform qualification.",
+          "No reviewed evidence proves realized economic or strategic capture from the parent constraint."
+        ]
+      },
+      "blocker_analysis": [
+        "Product capability and some mass production are insufficient for beneficiary qualification.",
+        "Parent constraint candidate remains ordinary-T6 ineligible.",
+        "Ordinary raw lineage and native T5-to-T6 admission remain absent."
+      ],
+      "beneficiary_confidence": null,
+      "available_at": "2026-09-26T21:28:33Z",
+      "eligibility_state": "BLOCKED"
+    }
+  ],
+  "qualified_relationship_count": 0,
+  "false_beneficiary_rejection_count": 1,
+  "rule": "NO_BENEFICIARY_QUALIFICATION_FROM_NOMINAL_CAPABILITY_WITHOUT_QUALIFIED_ADDRESSABLE_CAPACITY_AND_CAPTURE_EVIDENCE"
+}
