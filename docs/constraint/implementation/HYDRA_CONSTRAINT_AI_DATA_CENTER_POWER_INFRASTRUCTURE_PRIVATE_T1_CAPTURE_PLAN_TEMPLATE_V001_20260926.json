@@ -1,0 +1,93 @@
+{
+  "schema_version": "hydra-constraint-first-slice-local-capture-plan/v1",
+  "template_record_id": "HYDRA_CONSTRAINT_AI_DATA_CENTER_POWER_INFRASTRUCTURE_PRIVATE_T1_CAPTURE_PLAN_TEMPLATE_V001_20260926",
+  "template_only": true,
+  "slice_id": "AI_DATA_CENTER_POWER_INFRASTRUCTURE_V1",
+  "availability_mode": "ACQUISITION_TIME_CONSERVATIVE",
+  "release_id": "REL-AIDC-FIRST-SLICE-RAW-REPLACE-WITH-UNIQUE-ID",
+  "release_created_at": "REPLACE_WITH_EXECUTION_TIME_Z",
+  "rule": "AVAILABLE_AT_IS_SET_EQUAL_TO_ACQUIRED_AT_BY_THE_MATERIALIZER; DO_NOT_BACKDATE",
+  "captures": [
+    {
+      "source_id": "SRC-LBNL-DC-ENERGY-2025-UPDATE",
+      "source_version_id": "REPLACE_WITH_UNIQUE_VERSION_ID_FOR_SRC-LBNL-DC-ENERGY-2025-UPDATE",
+      "input_file": "C:\\\\HYDRA_PRIVATE_CAPTURE_STAGING\\\\lbnl_data_center_energy_2025_update.html",
+      "content_type": "text/html",
+      "source_locator": "https://eta-publications.lbl.gov/publications/united-states-data-center-energy-2025",
+      "acquired_at": "REPLACE_WITH_CAPTURE_TIME_Z",
+      "processing_disposition": "ELIGIBLE"
+    },
+    {
+      "source_id": "SRC-EIA-DC-DEMAND-2026-03-12",
+      "source_version_id": "REPLACE_WITH_UNIQUE_VERSION_ID_FOR_SRC-EIA-DC-DEMAND-2026-03-12",
+      "input_file": "C:\\\\HYDRA_PRIVATE_CAPTURE_STAGING\\\\eia_data_center_demand_2026_03_12.html",
+      "content_type": "text/html",
+      "source_locator": "https://www.eia.gov/todayinenergy/detail.php?id=67344",
+      "acquired_at": "REPLACE_WITH_CAPTURE_TIME_Z",
+      "processing_disposition": "ELIGIBLE"
+    },
+    {
+      "source_id": "SRC-LBNL-QUEUED-UP-2025",
+      "source_version_id": "REPLACE_WITH_UNIQUE_VERSION_ID_FOR_SRC-LBNL-QUEUED-UP-2025",
+      "input_file": "C:\\\\HYDRA_PRIVATE_CAPTURE_STAGING\\\\lbnl_queued_up_2025.html",
+      "content_type": "text/html",
+      "source_locator": "https://emp.lbl.gov/publications/queued-2025-edition-characteristics",
+      "acquired_at": "REPLACE_WITH_CAPTURE_TIME_Z",
+      "processing_disposition": "ELIGIBLE"
+    },
+    {
+      "source_id": "SRC-FERC-ORDER-2023-FACT-SHEET",
+      "source_version_id": "REPLACE_WITH_UNIQUE_VERSION_ID_FOR_SRC-FERC-ORDER-2023-FACT-SHEET",
+      "input_file": "C:\\\\HYDRA_PRIVATE_CAPTURE_STAGING\\\\ferc_order_2023_fact_sheet.html",
+      "content_type": "text/html",
+      "source_locator": "https://www.ferc.gov/news-events/news/fact-sheet-improvements-generator-interconnection-procedures-and-agreements",
+      "acquired_at": "REPLACE_WITH_CAPTURE_TIME_Z",
+      "processing_disposition": "ELIGIBLE"
+    },
+    {
+      "source_id": "SRC-DOE-LPT-RESILIENCE-2024",
+      "source_version_id": "REPLACE_WITH_UNIQUE_VERSION_ID_FOR_SRC-DOE-LPT-RESILIENCE-2024",
+      "input_file": "C:\\\\HYDRA_PRIVATE_CAPTURE_STAGING\\\\doe_lpt_resilience_2024.pdf",
+      "content_type": "application/pdf",
+      "source_locator": "https://www.energy.gov/sites/default/files/2024-10/EXEC-2022-001242%20-%20Large%20Power%20Transformer%20Resilience%20Report%20signed%20by%20Secretary%20Granholm%20on%207-10-24.pdf",
+      "acquired_at": "REPLACE_WITH_CAPTURE_TIME_Z",
+      "processing_disposition": "ELIGIBLE"
+    },
+    {
+      "source_id": "SRC-DOE-DISTRIBUTION-TRANSFORMER-WEBINAR-2026",
+      "source_version_id": "REPLACE_WITH_UNIQUE_VERSION_ID_FOR_SRC-DOE-DISTRIBUTION-TRANSFORMER-WEBINAR-2026",
+      "input_file": "C:\\\\HYDRA_PRIVATE_CAPTURE_STAGING\\\\doe_distribution_transformer_webinar_2026.html",
+      "content_type": "text/html",
+      "source_locator": "https://www.energy.gov/oe/distribution-transformer-webinar-text-alternative",
+      "acquired_at": "REPLACE_WITH_CAPTURE_TIME_Z",
+      "processing_disposition": "ELIGIBLE"
+    },
+    {
+      "source_id": "SRC-LBNL-DATA-CENTER-WATER-2025",
+      "source_version_id": "REPLACE_WITH_UNIQUE_VERSION_ID_FOR_SRC-LBNL-DATA-CENTER-WATER-2025",
+      "input_file": "C:\\\\HYDRA_PRIVATE_CAPTURE_STAGING\\\\lbnl_data_center_water_2025.html",
+      "content_type": "text/html",
+      "source_locator": "https://eta-publications.lbl.gov/publications/water-use-data-center-workloads",
+      "acquired_at": "REPLACE_WITH_CAPTURE_TIME_Z",
+      "processing_disposition": "ELIGIBLE"
+    },
+    {
+      "source_id": "SRC-NERC-LTRA-2025",
+      "source_version_id": "REPLACE_WITH_UNIQUE_VERSION_ID_FOR_SRC-NERC-LTRA-2025",
+      "input_file": "C:\\\\HYDRA_PRIVATE_CAPTURE_STAGING\\\\nerc_ltra_2025.pdf",
+      "content_type": "application/pdf",
+      "source_locator": "https://www.nerc.com/globalassets/our-work/assessments/nerc_ltra_2025.pdf",
+      "acquired_at": "REPLACE_WITH_CAPTURE_TIME_Z",
+      "processing_disposition": "ELIGIBLE"
+    },
+    {
+      "source_id": "SRC-PJM-2025-YEAR-IN-REVIEW-2026-01-08",
+      "source_version_id": "REPLACE_WITH_UNIQUE_VERSION_ID_FOR_SRC-PJM-2025-YEAR-IN-REVIEW-2026-01-08",
+      "input_file": "C:\\\\HYDRA_PRIVATE_CAPTURE_STAGING\\\\pjm_2025_year_in_review_2026_01_08.html",
+      "content_type": "text/html",
+      "source_locator": "https://insidelines.pjm.com/2025-year-in-review-planning-prepares-for-burgeoning-electricity-demand/",
+      "acquired_at": "REPLACE_WITH_CAPTURE_TIME_Z",
+      "processing_disposition": "ELIGIBLE"
+    }
+  ]
+}
