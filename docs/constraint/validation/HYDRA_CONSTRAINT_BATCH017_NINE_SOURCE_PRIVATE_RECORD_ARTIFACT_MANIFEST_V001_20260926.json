@@ -55,7 +55,7 @@
     },
     {
       "path": "docs/constraint/architecture/HYDRA_CONSTRAINT_BATCH017_NINE_SOURCE_PRIVATE_RECORD_STATUS_V001_20260926.json",
-      "git_blob_sha": "a06c3b7086d8d605c0d5ed0049b80ea32fb9f68f"
+      "git_blob_sha": "3d9cd8a40ec9b6e99ceea309cf93061639dbe489"
     },
     {
       "path": "docs/constraint/implementation/HYDRA_CONSTRAINT_AI_DATA_CENTER_POWER_INFRASTRUCTURE_PRIVATE_T1_CAPTURE_PLAN_TEMPLATE_V001_20260926.json",
@@ -71,7 +71,7 @@
     },
     {
       "path": "docs/constraint/validation/HYDRA_CONSTRAINT_BATCH017_NINE_SOURCE_PRIVATE_RECORD_CLOSURE_REPORT_V001_20260926.md",
-      "git_blob_sha": "1ef8f31796e290d059cbecd0aae41bf6e028966f"
+      "git_blob_sha": "e6932f8dfcc4668c7a5eb97c109a0ae0c49b494b"
     },
     {
       "path": "docs/constraint/validation/HYDRA_CONSTRAINT_BATCH017_T1_PRIVATE_RECORD_SUPERSESSION_MAP_V001_20260926.json",
