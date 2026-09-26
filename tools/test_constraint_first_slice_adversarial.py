@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import json
 import os
+import re
 import shutil
 import subprocess
 import sys
@@ -15,11 +16,39 @@ from typing import Callable
 ROOT = Path(__file__).resolve().parents[1]
 VALIDATOR = ROOT / "tools/validate_constraint_first_slice_successor.py"
 VALIDATION_DIR = ROOT / "docs/constraint/validation"
+ARCH_DIR = ROOT / "docs/constraint/architecture"
 
-MANIFEST_NAMES = [
-    f"HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH00{n}_ARTIFACT_MANIFEST_V001_20260925.json"
-    for n in range(3, 10)
-]
+MANIFEST_RE = re.compile(r"BATCH(?P<batch>\d{3})_ARTIFACT_MANIFEST")
+MASTER_RE = re.compile(r"BATCH(?P<batch>\d{3})_MASTER_STATUS")
+
+
+def batch_from_name(path: Path, pattern: re.Pattern[str]) -> int:
+    match = pattern.search(path.name)
+    if match is None:
+        raise AssertionError(f"batch number missing from {path.name}")
+    return int(match.group("batch"))
+
+
+def manifest_paths() -> list[Path]:
+    paths = sorted(
+        VALIDATION_DIR.glob(
+            "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH*_ARTIFACT_MANIFEST_V001_20260925.json"
+        ),
+        key=lambda p: batch_from_name(p, MANIFEST_RE),
+    )
+    return [p for p in paths if batch_from_name(p, MANIFEST_RE) >= 3]
+
+
+def latest_master() -> tuple[int, Path]:
+    paths = list(
+        ARCH_DIR.glob(
+            "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH*_MASTER_STATUS_V001_20260925.json"
+        )
+    )
+    if not paths:
+        raise AssertionError("no master status artifacts found")
+    path = max(paths, key=lambda p: batch_from_name(p, MASTER_RE))
+    return batch_from_name(path, MASTER_RE), path
 
 
 def copy_file(relative: str, destination_root: Path) -> None:
@@ -33,8 +62,9 @@ def make_sandbox() -> Path:
     temp = Path(tempfile.mkdtemp(prefix="hydra-constraint-hostile-"))
     shutil.copytree(ROOT / "docs/constraint", temp / "docs/constraint", dirs_exist_ok=True)
 
-    for name in MANIFEST_NAMES:
-        manifest = json.loads((VALIDATION_DIR / name).read_text(encoding="utf-8"))
+    # Copy non-doc artifact members needed by manifest validation.
+    for manifest_path in manifest_paths():
+        manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
         for entry in manifest["artifacts"]:
             relative = entry["path"]
             if not (temp / relative).exists():
@@ -62,6 +92,13 @@ def repin_manifest(root: Path, manifest_name: str, relative: str) -> None:
             path.write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
             return
     raise AssertionError(f"manifest {manifest_name} does not contain {relative}")
+
+
+def manifest_name_for_batch(batch: int) -> str:
+    return (
+        f"HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH{batch:03d}_"
+        "ARTIFACT_MANIFEST_V001_20260925.json"
+    )
 
 
 def mutate_json(
@@ -132,7 +169,7 @@ def case_backdated_availability(root: Path) -> None:
         lambda doc: doc["records"][0].__setitem__(
             "conservative_available_at", "2026-09-25T23:51:59.000000Z"
         ),
-        manifest_name="HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH007_ARTIFACT_MANIFEST_V001_20260925.json",
+        manifest_name=manifest_name_for_batch(7),
     )
 
 
@@ -152,7 +189,7 @@ def case_fiber_scope_overclaim(root: Path) -> None:
         root,
         relative,
         mutate,
-        manifest_name="HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH009_ARTIFACT_MANIFEST_V001_20260925.json",
+        manifest_name=manifest_name_for_batch(9),
     )
 
 
@@ -177,8 +214,10 @@ def case_raw_materialization_falsely_claimed(root: Path) -> None:
     mutate_json(
         root,
         relative,
-        lambda doc: doc["results"].__setitem__("NINE_REAL_SOURCE_ARTIFACTS_MATERIALIZED", "YES"),
-        manifest_name="HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH008_ARTIFACT_MANIFEST_V001_20260925.json",
+        lambda doc: doc["results"].__setitem__(
+            "NINE_REAL_SOURCE_ARTIFACTS_MATERIALIZED", "YES"
+        ),
+        manifest_name=manifest_name_for_batch(8),
     )
 
 
@@ -192,15 +231,15 @@ def case_source_disappears(root: Path) -> None:
         root,
         relative,
         lambda doc: doc["records"].pop(),
-        manifest_name="HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH007_ARTIFACT_MANIFEST_V001_20260925.json",
+        manifest_name=manifest_name_for_batch(7),
     )
 
 
-def case_current_blocker_set_drift(root: Path) -> None:
+def case_batch010_blocker_set_drift(root: Path) -> None:
     relative = (
         "docs/constraint/first_slice/ai_data_center_power_infrastructure_v1/"
-        "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH009_AI_DATA_CENTER_POWER_INFRASTRUCTURE_"
-        "SOURCE_GAP_STATUS_V001_20260925.json"
+        "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH010_AI_DATA_CENTER_POWER_INFRASTRUCTURE_"
+        "CLAIM_CANDIDATE_BENEFICIARY_STATUS_V001_20260925.json"
     )
 
     def mutate(doc: dict) -> None:
@@ -212,15 +251,49 @@ def case_current_blocker_set_drift(root: Path) -> None:
         root,
         relative,
         mutate,
-        manifest_name="HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH009_ARTIFACT_MANIFEST_V001_20260925.json",
+        manifest_name=manifest_name_for_batch(10),
     )
 
 
-def case_master_falsely_ready(root: Path) -> None:
+def case_false_canonical_mint(root: Path) -> None:
     relative = (
-        "docs/constraint/architecture/"
-        "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH009_MASTER_STATUS_V001_20260925.json"
+        "docs/constraint/first_slice/ai_data_center_power_infrastructure_v1/"
+        "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH010_AI_DATA_CENTER_POWER_INFRASTRUCTURE_"
+        "CLAIM_CANDIDATE_BENEFICIARY_STATUS_V001_20260925.json"
     )
+    mutate_json(
+        root,
+        relative,
+        lambda doc: doc["results"].__setitem__("CANONICAL_CONSTRAINTS_MINTED", "YES"),
+        manifest_name=manifest_name_for_batch(10),
+    )
+
+
+def case_false_beneficiary_qualification(root: Path) -> None:
+    relative = (
+        "docs/constraint/first_slice/ai_data_center_power_infrastructure_v1/"
+        "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH010_AI_DATA_CENTER_POWER_INFRASTRUCTURE_"
+        "BENEFICIARY_EVALUATIONS_V001_20260925.json"
+    )
+
+    def mutate(doc: dict) -> None:
+        row = doc["relationships"][0]
+        row["qualification_state"] = "QUALIFIED"
+        row["eligibility_state"] = "ELIGIBLE"
+        row["beneficiary_confidence"] = 0.91
+        doc["qualified_relationship_count"] = 1
+
+    mutate_json(
+        root,
+        relative,
+        mutate,
+        manifest_name=manifest_name_for_batch(10),
+    )
+
+
+def case_latest_master_falsely_ready(root: Path) -> None:
+    batch, master_path = latest_master()
+    relative = master_path.relative_to(ROOT).as_posix()
 
     def mutate(doc: dict) -> None:
         doc["readiness"]["FULL_CONSTRAINT_RUN_READY"]["status"] = "YES"
@@ -230,7 +303,7 @@ def case_master_falsely_ready(root: Path) -> None:
         root,
         relative,
         mutate,
-        manifest_name="HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH009_ARTIFACT_MANIFEST_V001_20260925.json",
+        manifest_name=manifest_name_for_batch(batch),
     )
 
 
@@ -241,8 +314,10 @@ def main() -> int:
         ("admission_falsely_granted", case_admission_falsely_granted, "native implementation unexpectedly admitted"),
         ("raw_materialization_falsely_claimed", case_raw_materialization_falsely_claimed, "real raw sources falsely marked materialized"),
         ("source_disappears", case_source_disappears, "availability source set differs from registry"),
-        ("current_blocker_set_drift", case_current_blocker_set_drift, "Batch009 current remaining blockers drifted"),
-        ("master_falsely_ready", case_master_falsely_ready, "current master falsely claims full-run readiness"),
+        ("batch010_blocker_set_drift", case_batch010_blocker_set_drift, "Batch010 current remaining blockers drifted"),
+        ("false_canonical_mint", case_false_canonical_mint, "Batch010 falsely minted canonical constraints"),
+        ("false_beneficiary_qualification", case_false_beneficiary_qualification, "unexpectedly qualified"),
+        ("latest_master_falsely_ready", case_latest_master_falsely_ready, "latest master falsely claims full-run readiness"),
     ]
     for name, mutator, expected in cases:
         expect_failure(name, mutator, expected)
