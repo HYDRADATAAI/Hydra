@@ -24,6 +24,7 @@ from hydra_t6_failclosed.receipt import (
     ALLOWED_REASONS,
     RECEIPT_SCHEMA_ID,
     RECEIPT_VERSION,
+    ReceiptSchemaError,
 )
 from hydra_t6_failclosed.service import FailClosedValidator
 
@@ -294,6 +295,43 @@ class FailClosedServiceIntegrationTests(unittest.TestCase):
                 sha256_hex(canonical_json_bytes(oracle)),
             ),
             self.assertRaises(ValueError),
+        ):
+            self.validator.validate(
+                handoff=handoff,
+                authority=authority,
+                policy=policy,
+                output_schema=schema,
+                oracle=oracle,
+                now=self.now,
+            )
+
+    def test_digest_bound_but_unsafe_output_schema_refuses_receipt(self) -> None:
+        handoff = self.handoff("candidate-a")
+        policy = self.policy()
+        schema = receipt_schema()
+        oracle = self.oracle()
+        schema["properties"]["canonical_store_mutation_authorized"]["const"] = True
+        authority = self.authority(
+            handoff=handoff,
+            policy=policy,
+            schema=schema,
+            oracle=oracle,
+        )
+
+        with (
+            patch(
+                "hydra_t6_failclosed.service.BOUND_POLICY_SHA256",
+                sha256_hex(canonical_json_bytes(policy)),
+            ),
+            patch(
+                "hydra_t6_failclosed.service.BOUND_OUTPUT_SCHEMA_SHA256",
+                sha256_hex(canonical_json_bytes(schema)),
+            ),
+            patch(
+                "hydra_t6_failclosed.service.BOUND_ORACLE_SHA256",
+                sha256_hex(canonical_json_bytes(oracle)),
+            ),
+            self.assertRaises(ReceiptSchemaError),
         ):
             self.validator.validate(
                 handoff=handoff,
