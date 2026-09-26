@@ -41,6 +41,10 @@ class Batch016QueryManifestTests(unittest.TestCase):
             with self.subTest(path=item["path"]):
                 self.assertEqual(item["git_blob_sha"],git_blob_sha(ROOT/item["path"]))
 
+    def test_acceptance_snapshot_pin_matches(self):
+        item=self.manifest["acceptance"]
+        self.assertEqual(item["git_blob_sha"],git_blob_sha(ROOT/item["path"]))
+
     def test_operations_are_bounded(self):
         self.assertEqual(
             ["summary","integrity","case","list_cases"],
