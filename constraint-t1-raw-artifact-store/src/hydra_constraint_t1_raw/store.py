@@ -85,6 +85,7 @@ class RawArtifactStore:
             "objects", "sha256", artifact_sha256[:2], artifact_sha256[2:4], f"{artifact_sha256}.raw"
         )
         artifact_path = self.root / artifact_relpath
+        self._require_private_destination(artifact_path)
         _write_immutable_bytes(artifact_path, raw_bytes, expected_sha256=artifact_sha256)
 
         receipt: dict[str, Any] = {
@@ -107,6 +108,7 @@ class RawArtifactStore:
 
         receipt_relpath = Path("receipts", source_id, f"{source_version_id}.json")
         receipt_path = self.root / receipt_relpath
+        self._require_private_destination(receipt_path)
         encoded = _canonical_json(receipt)
         _write_immutable_bytes(
             receipt_path,
@@ -186,9 +188,23 @@ class RawArtifactStore:
             receipts=receipts,
         )
         path = self.root / "releases" / f"{release_id}.json"
+        self._require_private_destination(path)
         encoded = _canonical_json(manifest)
         _write_immutable_bytes(path, encoded, expected_sha256=hashlib.sha256(encoded).hexdigest())
         return manifest
+
+    def _require_private_destination(self, path: Path) -> None:
+        """Reject symlink-resolved writes that escape the private root or enter the public repo."""
+        resolved = path.resolve(strict=False)
+        if not resolved.is_relative_to(self.root):
+            raise PublicRepositoryRootError(
+                f"private raw-artifact destination escapes configured private root: {path}"
+            )
+        repo = self.public_repo_root
+        if repo is not None and (resolved == repo or resolved.is_relative_to(repo)):
+            raise PublicRepositoryRootError(
+                f"private raw-artifact destination resolves inside the public repository: {path}"
+            )
 
 
 def build_release_manifest(
