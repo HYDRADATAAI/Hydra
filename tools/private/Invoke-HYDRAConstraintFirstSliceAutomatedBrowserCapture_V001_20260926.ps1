@@ -79,7 +79,7 @@ if (-not (Test-Path -LiteralPath $PlaywrightPackageMarker -PathType Leaf)) {
         throw "Unable to install Playwright into the private runtime (exit code $PipExitCode)."
     }
     if (-not (Test-Path -LiteralPath $PlaywrightPackageMarker -PathType Leaf)) {
-        throw "Playwright install completed but the expected private-runtime package marker is missing: $PlaywrightPackageMarker"
+        throw "Playwright package installation completed but the expected private-runtime package marker is missing: $PlaywrightPackageMarker"
     }
 }
 
