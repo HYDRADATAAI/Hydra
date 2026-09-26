@@ -81,8 +81,10 @@ class Batch008GovernanceIntegrationTests(unittest.TestCase):
         }:
             decision=evaluate_promotion(audits[case_id])
             with self.subTest(case=case_id):
-                self.assertEqual(PromotionStage.HYPOTHESIS_EVIDENCE_PRESENT,decision.stage)
+                self.assertEqual(PromotionStage.CLASSIFIED_GOLD_UNCALIBRATED,decision.stage)
+                self.assertTrue(decision.classified_gold_uncalibrated_eligible)
                 self.assertFalse(decision.scored_gold_eligible)
+                self.assertFalse(decision.classification_blockers)
                 self.assertEqual(
                     {
                         "NO_PRECOMMITTED_CONFIDENCE_SOURCE",
