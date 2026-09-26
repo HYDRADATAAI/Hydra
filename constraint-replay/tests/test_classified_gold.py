@@ -18,6 +18,7 @@ from hydra_constraint_replay.promotion import (
     PromotionStage,
     evaluate_promotion,
     load_promotion_audits,
+    summarize_promotion,
 )
 
 
@@ -60,6 +61,13 @@ class ClassifiedGoldBatch008Tests(unittest.TestCase):
             for path,sha in record.source_artifact_pins:
                 with self.subTest(case=record.case_id,path=path):
                     self.assertEqual(sha,git_blob_sha(ROOT/path))
+
+    def test_promotion_summary_has_three_classified_and_zero_calibrated(self):
+        summary=summarize_promotion(self.audits)
+        self.assertEqual(3,summary["classified_gold_uncalibrated_count"])
+        self.assertEqual(3,summary["outcome_class_supported_count"])
+        self.assertEqual(0,summary["score_ready_count"])
+        self.assertEqual(0,summary["confidence_source_present_count"])
 
     def test_promotion_decisions_match_classified_corpus(self):
         audits={a.case_id:a for a in self.audits}
