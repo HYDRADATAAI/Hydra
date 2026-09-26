@@ -1,0 +1,40 @@
+{
+  "schema_version": "hydra-constraint-second-slice-required-case-overlay/v1",
+  "record_id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH023_SEMICONDUCTOR_REQUIRED_CASE_OVERLAY_V001",
+  "as_of": "2026-09-26",
+  "slice_id": "SEMICONDUCTOR_ADVANCED_PACKAGING_CRITICAL_MATERIALS_V1",
+  "predecessor_overlay": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH022_SEMICONDUCTOR_REQUIRED_CASE_OVERLAY_V001",
+  "covered_case_count_before": 11,
+  "updates": [
+    {
+      "case_id": 3,
+      "name": "HBM_YIELD_CONSTRAINT",
+      "successor_status": "COVERED_REVIEWED_SHADOW_REAL_PRIMARY_BOUNDED_VARIANT",
+      "basis": [
+        "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH023_SEMICONDUCTOR_HBM_YIELD_CONSTRAINT_EVALUATION_V001"
+      ],
+      "note": "Micron directly links HBM packaging complexity to yield impact and >2x wafer supply per equivalent bits, proving effective-output penalty without inventing numeric yield."
+    },
+    {
+      "case_id": 11,
+      "name": "CONSTRAINT_MIGRATION",
+      "successor_status": "COVERED_REVIEWED_SHADOW_REAL_PRIMARY_BOUNDED_CHAIN",
+      "basis": [
+        "MIG-SEMI-MICRON-HBM-RAMP-TO-CLEANROOM-001"
+      ],
+      "note": "Micron HBM qualification/yield-volume ramp shows observed relief, followed by cleanroom/trade-ratio supply limitation; system-wide unconstrained state is never claimed."
+    }
+  ],
+  "progress_only": [
+    {
+      "case_id": 12,
+      "name": "HISTORICAL_NO_LOOKAHEAD",
+      "progress_state": "UNCHANGED_EXTERNAL_RAW_LINEAGE_GATE",
+      "reason": "Ordinary historical source-version availability and raw artifact hashes remain unmaterialized."
+    }
+  ],
+  "covered_case_count_after": 13,
+  "remaining_gap_case_ids": [
+    12
+  ]
+}
