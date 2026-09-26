@@ -1,0 +1,136 @@
+{
+  "record_id": "HYDRA_CONSTRAINT_LILY_AI_INFRA_PASS003_VERIFICATION_20260926",
+  "scope": "NORMALIZED_SHADOW_KNOWLEDGE_AVAILABILITY_NOT_EFFECTIVE_STATE",
+  "status": "VERTICAL_INTEGRATION_THIN",
+  "ordinary_replay_admitted": false,
+  "predecessor_receipts_superseded_for_current_lineage_assertions": true,
+  "windows": [
+    {
+      "snapshot": {
+        "as_of": "2020-01-01T00:00:00Z",
+        "eligible_claim_ids": [],
+        "constraint_candidate_ids": [],
+        "relief_path_ids": [],
+        "beneficiary_relationship_ids": [],
+        "outcome_ids": []
+      },
+      "sha256": "091cf7afa7c30938afb00e193ff7dd6be5b4847003c99797a038783336d24a7f",
+      "lineage_leaks": []
+    },
+    {
+      "snapshot": {
+        "as_of": "2026-09-26T01:56:59Z",
+        "eligible_claim_ids": [
+          "CLM-AIDC-001",
+          "CLM-AIDC-002",
+          "CLM-AIDC-003",
+          "CLM-AIDC-004"
+        ],
+        "constraint_candidate_ids": [],
+        "relief_path_ids": [],
+        "beneficiary_relationship_ids": [],
+        "outcome_ids": []
+      },
+      "sha256": "00c86601fe94a04c66e43b9f17fcd3efbc89efa15f3bfdfcc61c163ec48a7450",
+      "lineage_leaks": []
+    },
+    {
+      "snapshot": {
+        "as_of": "2026-09-26T01:57:00Z",
+        "eligible_claim_ids": [
+          "CLM-AIDC-001",
+          "CLM-AIDC-002",
+          "CLM-AIDC-003",
+          "CLM-AIDC-004",
+          "CLM-AIDC-005",
+          "CLM-AIDC-006",
+          "CLM-AIDC-007",
+          "CLM-AIDC-008",
+          "CLM-AIDC-009",
+          "CLM-AIDC-010"
+        ],
+        "constraint_candidate_ids": [],
+        "relief_path_ids": [],
+        "beneficiary_relationship_ids": [],
+        "outcome_ids": [
+          "OUT-AIDC-EATON-NACOGDOCHES-CAPACITY-ADDED-001"
+        ]
+      },
+      "sha256": "b9c04225d8f17f78d74b5bd7f2b11f475bb2a0f58b6b9673c64c405669a7ca0b",
+      "lineage_leaks": []
+    },
+    {
+      "snapshot": {
+        "as_of": "2026-09-26T12:47:00Z",
+        "eligible_claim_ids": [
+          "CLM-AIDC-001",
+          "CLM-AIDC-002",
+          "CLM-AIDC-003",
+          "CLM-AIDC-004",
+          "CLM-AIDC-005",
+          "CLM-AIDC-006",
+          "CLM-AIDC-007",
+          "CLM-AIDC-008",
+          "CLM-AIDC-009",
+          "CLM-AIDC-010"
+        ],
+        "constraint_candidate_ids": [
+          "T5C-AIDC-AMER-SWITCHGEAR-LEADTIME-001",
+          "T5C-AIDC-US-INTERCONNECTION-THROUGHPUT-001",
+          "T5C-AIDC-US-TRANSFORMER-SUPPLY-001"
+        ],
+        "relief_path_ids": [
+          "REL-AIDC-001",
+          "REL-AIDC-002",
+          "REL-AIDC-003",
+          "REL-AIDC-004",
+          "REL-AIDC-005"
+        ],
+        "beneficiary_relationship_ids": [
+          "BEN-AIDC-EATON-SWITCHGEAR-001",
+          "BEN-AIDC-EATON-TRANSFORMER-001",
+          "BEN-AIDC-GEV-SWITCHGEAR-001",
+          "BEN-AIDC-VERTIV-POWER-RELIEF-001"
+        ],
+        "outcome_ids": [
+          "OUT-AIDC-EATON-NACOGDOCHES-CAPACITY-ADDED-001"
+        ]
+      },
+      "sha256": "edf59589dca089c9233282676bd8e545060801a9e920fda56c85766488e1b816",
+      "lineage_leaks": []
+    }
+  ],
+  "checks": [
+    {
+      "command": "python -m unittest discover -s t6-fail-closed-validator/tests",
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": "......................................................................................................................................................................\n----------------------------------------------------------------------\nRan 166 tests in 0.066s\n\nOK"
+    },
+    {
+      "command": "python tools/validate_constraint_first_slice_successor.py",
+      "exit_code": 0,
+      "stdout": "CONSTRAINT_FIRST_SLICE_INTEGRATION_VALIDATION=PASS\nSLICE_ID=AI_DATA_CENTER_POWER_INFRASTRUCTURE_V1\nREGISTERED_SOURCE_COUNT=9\nCAPTURE_COMPLETED_AT=2026-09-25T23:52:01.573251Z\nMANIFESTS_VALIDATED=8\nMANIFEST_MEMBERS_VALIDATED=57\nORIGINAL_FIRST_SLICE_SOURCE_GAPS_CLOSED=YES\nSHADOW_T5_CANDIDATES=3\nBLOCKED_BENEFICIARY_EVALUATIONS=4\nQUALIFIED_BENEFICIARIES=0\nIMPLEMENTATION_ADMITTED=NO\nREAL_NINE_SOURCE_MATERIALIZATION=NO\nREAL_OUTCOMES_CAPTURED=1\nSHADOW_REPLAY_FIXTURE=PASS\nSHADOW_NO_LOOKAHEAD=PASS\nSHADOW_DETERMINISM=PASS\nORDINARY_HISTORICAL_REPLAY=BLOCKED\nREAL_CONTRADICTION_CASE=YES_REVIEWED_SHADOW\nREAL_CANCELLED_PROJECT_CASE=YES_REVIEWED_SHADOW\nREAL_OUTCOMES_CAPTURED_TOTAL=2\nREQUIRED_FUNCTIONAL_CASES_COVERED=10\nCANONICAL_CONSTRAINTS_MINTED=0\nQUALIFIED_BENEFICIARIES_MINTED=0\nSTRICT_FIRST_SLICE_ACCEPTANCE=BLOCKED\nSTRICT_GATE_PASS_COUNT=8\nSTRICT_GATE_FAIL_COUNT=7\nSHADOW_NO_LOOKAHEAD=PASS\nSHADOW_DETERMINISM=PASS\nORDINARY_HISTORICAL_REPLAY=BLOCKED\nHARD_STOP_SECOND_ECOSYSTEM=YES\nNEXT_RECOMMENDED_ACTION=MATERIALIZE_NINE_ORIGINAL_FIRST_SLICE_SOURCE_BODIES_IN_PRIVATE_T1_STORE",
+      "stderr": ""
+    },
+    {
+      "command": "python tools/validate_constraint_lily_owner_seams.py",
+      "exit_code": 0,
+      "stdout": "CONSTRAINT_LILY_OWNER_SEAM_CONFORMANCE=PASS\nCLAIMS=10\nT5_CANDIDATES=3\nT6_BENEFICIARY_EVALUATIONS=4\nCANONICAL_CONSTRAINTS=0\nQUALIFIED_BENEFICIARIES=0\nCANDIDATE_TEMPORAL_OVERLAY=EXPLICIT_NOT_BACKDATED\nFORMATION_CONFIDENCE_STATE=NOT_EVALUATED\nCANONICAL_IDENTITY_STATE=NOT_EVALUATED\nRAW_LINEAGE=BLOCKED_INCOMPLETE_T1_T2\nSTRICT_ACCEPTANCE=BLOCKED",
+      "stderr": ""
+    },
+    {
+      "command": "python tools/test_constraint_first_slice_adversarial.py",
+      "exit_code": 0,
+      "stdout": "PASS :: backdated_availability :: conservative availability drift\nPASS :: fiber_silently_closed :: fiber source gap was silently closed\nPASS :: admission_falsely_granted :: native implementation unexpectedly admitted\nPASS :: raw_materialization_falsely_claimed :: real raw sources falsely marked materialized\nPASS :: source_disappears :: availability source set differs from registry\nPASS :: current_fiber_reopened :: Batch009 fiber closure drifted\nPASS :: candidate_mints_canonical :: Batch010 minted canonical constraint ID\nPASS :: beneficiary_falsely_qualified :: Batch010 fabricated qualified beneficiary\nPASS :: master_falsely_ready :: master falsely claims full-run readiness\nCONSTRAINT_FIRST_SLICE_HOSTILE_MUTATION_MATRIX=PASS\nHOSTILE_CASES=9",
+      "stderr": ""
+    }
+  ],
+  "tested_parent": "b79a8533a94d8101e213e5971066f8518cf3742d",
+  "ci_followup": {
+    "package_discovery_tests": 166,
+    "package_discovery_exit_code": 0,
+    "nyx_mutation_output": "PASS :: missing_acceptance :: lacks explicit blocked acceptance\nPASS :: conflicting_acceptance :: conflicting acceptance readiness\nPASS :: missing_ordinary_gate :: lacks explicit blocked readiness\nPASS :: false_ordinary_gate :: lacks explicit blocked readiness\nPASS :: backdated_availability :: conservative availability drift\nPASS :: fiber_scope_overclaim :: fiber exact site capacity unexpectedly quantified\nPASS :: admission_falsely_granted :: native implementation unexpectedly admitted\nPASS :: raw_materialization_falsely_claimed :: real raw sources falsely marked materialized\nPASS :: source_disappears :: availability source set differs from registry\nPASS :: batch010_blocker_set_drift :: Batch010 current remaining blockers drifted\nPASS :: false_canonical_mint :: Batch010 falsely minted canonical constraints\nPASS :: candidate_becomes_ordinary_t6 :: unexpectedly canonicalized\nPASS :: relief_auto_invalidates :: automatically invalidates constraint\nPASS :: false_beneficiary_qualification :: Batch010 qualified relationship count is not zero\nPASS :: batch011_outcome_overclaim :: Batch011 outcome label drifted\nPASS :: batch011_future_leak :: Batch011 pre-window claim boundary drifted\nPASS :: batch011_ordinary_replay_promoted :: Batch011 ordinary replay unexpectedly enabled\nPASS :: batch011_determinism_falsified :: Batch011 determinism repeat execution drifted\nPASS :: batch012_contradiction_scope_collapse :: Batch012 contradiction scope separation drifted\nPASS :: batch012_cancelled_scope_generalized :: Batch012 cancelled-project scope was generalized\nPASS :: batch012_true_case_falsely_closed :: Batch012 case1 overlay falsely closed true-project case\nPASS :: batch012_invents_available_at :: Batch012 invented exact HYDRA available_at\nPASS :: latest_master_falsely_ready :: falsely claims full-run readiness\nCONSTRAINT_FIRST_SLICE_HOSTILE_MUTATION_MATRIX=PASS\nHOSTILE_CASES=23\n",
+    "nyx_mutation_exit_code": 0
+  }
+}

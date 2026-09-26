@@ -285,8 +285,40 @@ def case_master_falsely_ready(root: Path) -> None:
     )
 
 
+T1_TRANSITION = "docs/constraint/validation/HYDRA_CONSTRAINT_LILY_AI_INFRA_PASS004_T1_OPERATIONAL_PIN_TRANSITION_20260926.json"
+
+
+def case_transition_deleted(root: Path) -> None:
+    (root / T1_TRANSITION).unlink()
+
+
+def case_transition_repin(root: Path) -> None:
+    path = root / T1_TRANSITION
+    doc = json.loads(path.read_text())
+    target = root / doc["transitions"][0]["path"]
+    target.write_text(target.read_text() + "\n# unauthorized version\n")
+    doc["transitions"][0]["current_git_blob_sha"] = git_blob_sha(root, doc["transitions"][0]["path"])
+    path.write_text(json.dumps(doc))
+
+
+def case_transitioned_file_changed(root: Path, index: int) -> None:
+    doc = json.loads((root / T1_TRANSITION).read_text())
+    target = root / doc["transitions"][index]["path"]
+    target.write_text(target.read_text() + "\n# unauthorized version\n")
+
+
+def case_historical_pin_rewritten(root: Path) -> None:
+    doc = json.loads((root / T1_TRANSITION).read_text())
+    repin_manifest(root, doc["historical_manifest"], doc["transitions"][0]["path"])
+
+
 def main() -> int:
     cases = [
+        ("transition_deleted", case_transition_deleted, "T1 operational transition missing"),
+        ("transition_self_repin", case_transition_repin, "T1 operational transition pin mismatch"),
+        *[("transition_file_" + str(i), lambda root, i=i: case_transitioned_file_changed(root, i),
+           "T1 current operational pin mismatch") for i in range(4)],
+        ("historical_pin_rewritten", case_historical_pin_rewritten, "T1 historical operational pin mismatch"),
         ("backdated_availability", case_backdated_availability, "conservative availability drift"),
         ("fiber_silently_closed", case_fiber_silently_closed, "fiber source gap was silently closed"),
         ("admission_falsely_granted", case_admission_falsely_granted, "native implementation unexpectedly admitted"),

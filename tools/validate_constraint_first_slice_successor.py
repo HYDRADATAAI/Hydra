@@ -109,6 +109,27 @@ def git_blob_sha(path: Path) -> str:
     return result.stdout.strip()
 
 
+# Exact reviewed operational transition. Historical data/authority pins remain
+# immutable. This does not accept arbitrary latest files or grant admission.
+T1_TRANSITION_NAME = "HYDRA_CONSTRAINT_LILY_AI_INFRA_PASS004_T1_OPERATIONAL_PIN_TRANSITION_20260926.json"
+T1_TRANSITION_BLOB = "5be4de667281b5d0c89ab9b61b6bfbdac012c42d"
+
+
+def operational_transition_matches(manifest_path: Path, relative: str,
+                                   historical: str, current: str) -> bool:
+    path = VALIDATION / T1_TRANSITION_NAME
+    if not path.is_file():
+        return False
+    require(git_blob_sha(path) == T1_TRANSITION_BLOB, "T1 operational transition pin mismatch")
+    transition = load_json(path)
+    if manifest_path.name != transition["historical_manifest"]:
+        return False
+    return any(entry["path"] == relative
+               and entry["historical_git_blob_sha"] == historical
+               and entry["current_git_blob_sha"] == current
+               for entry in transition["transitions"])
+
+
 def validate_manifest(manifest_path: Path) -> int:
     manifest = load_json(manifest_path)
     artifacts = manifest.get("artifacts")
@@ -123,12 +144,29 @@ def validate_manifest(manifest_path: Path) -> int:
         artifact = ROOT / relative
         require(artifact.is_file(), f"manifest member missing: {relative}")
         actual = git_blob_sha(artifact)
-        require(actual == expected, f"manifest blob mismatch: {relative}: expected={expected} actual={actual}")
+        require(actual == expected or operational_transition_matches(manifest_path, relative, expected, actual), f"manifest blob mismatch: {relative}: expected={expected} actual={actual}")
         count += 1
     return count
 
 
+def validate_operational_transition() -> None:
+    path = VALIDATION / T1_TRANSITION_NAME
+    require(path.is_file(), "T1 operational transition missing")
+    require(git_blob_sha(path) == T1_TRANSITION_BLOB, "T1 operational transition pin mismatch")
+    transition = load_json(path)
+    historical = load_json(VALIDATION / transition["historical_manifest"])
+    for entry in transition["transitions"]:
+        matches = [item for item in historical["artifacts"] if item.get("path") == entry["path"]]
+        require(len(matches) == 1 and matches[0].get("git_blob_sha") == entry["historical_git_blob_sha"],
+                "T1 historical operational pin mismatch: " + entry["path"])
+        artifact = ROOT / entry["path"]
+        require(artifact.is_file(), "T1 transitioned artifact missing: " + entry["path"])
+        require(git_blob_sha(artifact) == entry["current_git_blob_sha"],
+                "T1 current operational pin mismatch: " + entry["path"])
+
+
 def main() -> int:
+    validate_operational_transition()
     docs = {name: load_json(path) for name, path in FILES.items()}
 
     registry = docs["source_registry"]

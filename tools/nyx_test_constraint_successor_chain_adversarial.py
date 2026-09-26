@@ -505,8 +505,37 @@ def case_latest_master_falsely_ready(root: Path) -> None:
     )
 
 
+def mutate_latest_readiness(root: Path, change) -> None:
+    batch, path = latest_master()
+    mutate_json(root, path.relative_to(ROOT).as_posix(), change,
+                manifest_name=manifest_name_for_batch(batch))
+
+
+def case_missing_acceptance(root: Path) -> None:
+    mutate_latest_readiness(root, lambda doc: doc.pop("acceptance_state"))
+
+
+def case_conflicting_acceptance(root: Path) -> None:
+    def change(doc):
+        doc["first_serious_constraint_run"] = "BLOCKED"
+        doc["acceptance_state"]["overall"] = "PASS"
+    mutate_latest_readiness(root, change)
+
+
+def case_missing_ordinary_gate(root: Path) -> None:
+    mutate_latest_readiness(root, lambda doc: doc["readiness"].pop("ORDINARY_HISTORICAL_REPLAY_READY"))
+
+
+def case_false_ordinary_gate(root: Path) -> None:
+    mutate_latest_readiness(root, lambda doc: doc["readiness"]["ORDINARY_HISTORICAL_REPLAY_READY"].update(status="YES"))
+
+
 def main() -> int:
     cases = [
+        ("missing_acceptance", case_missing_acceptance, "lacks explicit blocked acceptance"),
+        ("conflicting_acceptance", case_conflicting_acceptance, "conflicting acceptance readiness"),
+        ("missing_ordinary_gate", case_missing_ordinary_gate, "lacks explicit blocked readiness"),
+        ("false_ordinary_gate", case_false_ordinary_gate, "lacks explicit blocked readiness"),
         ("backdated_availability", case_backdated_availability, "conservative availability drift"),
         ("fiber_scope_overclaim", case_fiber_scope_overclaim, "fiber exact site capacity unexpectedly quantified"),
         ("admission_falsely_granted", case_admission_falsely_granted, "native implementation unexpectedly admitted"),
