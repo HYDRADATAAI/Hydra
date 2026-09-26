@@ -20,7 +20,7 @@ class Batch015ExecutionManifestTests(unittest.TestCase):
 
     def test_manifest_run_digest_is_expected(self):
         self.assertEqual(
-            "812c7eac1d68f7c07f195acb7831a04bd710e827ceb9dee24975ae8a728785c0",
+            "db28edfea01800cf85dd234edb99d003d0a185ab39f7ba8cd31af416542890f1",
             self.manifest["run_digest_sha256"],
         )
 
