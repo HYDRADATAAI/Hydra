@@ -69,9 +69,6 @@ FILES = {
     "batch012_outcomes": SLICE / "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH012_AI_DATA_CENTER_POWER_INFRASTRUCTURE_OUTCOME_RECORDS_SUPPLEMENT_V001_20260925.json",
     "batch012_overlay": SLICE / "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH012_AI_DATA_CENTER_POWER_INFRASTRUCTURE_REQUIRED_CASES_HISTORICAL_CLOSURE_OVERLAY_V001_20260925.json",
     "batch012_master": ARCH / "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH012_MASTER_STATUS_V001_20260925.json",
-    "batch016_custody_contract": IMPL / "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH016_T1_T2_PERSISTED_CHAIN_OF_CUSTODY_CONTRACT_V001_20260925.json",
-    "batch016_custody_status": VALIDATION / "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH016_T1_T2_CHAIN_OF_CUSTODY_STATUS_V001_20260925.json",
-    "batch016_master": ARCH / "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH016_MASTER_STATUS_V001_20260925.json",
 }
 
 
@@ -262,10 +259,6 @@ def main() -> int:
     outcomes12 = docs["batch012_outcomes"]
     overlay12 = docs["batch012_overlay"]
     batch012_master = docs["batch012_master"]
-
-    custody16 = docs["batch016_custody_contract"]
-    custody_status16 = docs["batch016_custody_status"]
-    batch016_master = docs["batch016_master"]
 
     # Stable first-slice identity across domain artifacts.
     for name, doc in (
@@ -876,72 +869,6 @@ def main() -> int:
     require(batch010_master.get("first_serious_constraint_run") == "BLOCKED", "Batch010 master falsely claims serious-run readiness")
     require(batch010_master.get("next_repo_executable_lane") == BATCH010_NEXT, "Batch010 master next lane drifted")
 
-    # Batch016 persists receipt/release authority and preserves Batch015 confidence semantics.
-    custody_required16 = set(custody16.get("ordinary_t2_eligibility_requires", []))
-    require(
-        custody_required16
-        == {
-            "VALID_RAW_ARTIFACT_BYTES",
-            "MATCHING_ARTIFACT_SHA256",
-            "SOURCE_ID",
-            "SOURCE_VERSION_ID",
-            "ACQUIRED_AT",
-            "AVAILABLE_AT",
-            "ELIGIBLE_PROCESSING_DISPOSITION",
-            "EXACT_PERSISTED_SOURCE_VERSION_RECEIPT",
-            "EXACT_PERSISTED_RELEASE_MANIFEST",
-            "EXACT_RELEASE_MEMBERSHIP",
-        },
-        f"Batch016 persisted custody requirement set drifted: {sorted(custody_required16)}",
-    )
-    custody_semantics16 = custody16.get("authority_semantics")
-    require(isinstance(custody_semantics16, dict), "Batch016 custody semantics missing")
-    require(
-        custody_semantics16.get("caller_supplied_in_memory_receipt_authoritative") is False,
-        "Batch016 in-memory receipt authority unexpectedly enabled",
-    )
-    require(
-        custody_semantics16.get("caller_supplied_in_memory_release_manifest_authoritative") is False,
-        "Batch016 in-memory release authority unexpectedly enabled",
-    )
-    require(
-        custody_semantics16.get("self_consistent_recomputed_digest_sufficient") is False,
-        "Batch016 recomputed digest unexpectedly sufficient for authority",
-    )
-    require(
-        custody_semantics16.get("persisted_record_identity_required") is True,
-        "Batch016 persisted identity requirement removed",
-    )
-
-    custody_results16 = custody_status16.get("results")
-    require(isinstance(custody_results16, dict), "Batch016 custody status missing")
-    require(custody_results16.get("PERSISTED_RECEIPT_IDENTITY_REQUIRED") == "YES", "Batch016 persisted receipt identity not required")
-    require(custody_results16.get("PERSISTED_RELEASE_IDENTITY_REQUIRED") == "YES", "Batch016 persisted release identity not required")
-    require(custody_results16.get("FORGED_IN_MEMORY_RELEASE_AUTHORITY") == "NO", "Batch016 forged release became authority")
-    require(custody_results16.get("FORGED_RECEIPT_DISPOSITION_UPGRADE") == "BLOCKED", "Batch016 forged disposition upgrade not blocked")
-    require(custody_results16.get("TYPED_CONFIDENCE_TRANSPORT_READY") == "YES", "Batch016 lost Batch015 typed confidence")
-    require(custody_results16.get("CONFIDENCE_READY") == "YES_WITH_EXPLICIT_UNKNOWNS", "Batch016 confidence state regressed")
-    require(custody_results16.get("EVALUATION_PROTOCOL_READY") == "YES_SHADOW_BOUNDED", "Batch016 evaluation protocol regressed")
-    require(custody_results16.get("FIRST_SLICE_REAL_RAW_ARTIFACTS_MATERIALIZED") == "NO", "Batch016 falsely materializes raw source bodies")
-    require(custody_results16.get("IMPLEMENTATION_ADMITTED") == "NO", "Batch016 falsely admits implementation")
-    require(custody_results16.get("FULL_CONSTRAINT_RUN_READY") == "NO", "Batch016 falsely claims full-run readiness")
-    require(custody_results16.get("FIRST_SERIOUS_CONSTRAINT_RUN") == "BLOCKED", "Batch016 falsely claims serious-run readiness")
-
-    r16 = batch016_master.get("readiness")
-    require(isinstance(r16, dict), "Batch016 master readiness missing")
-    require(r16["TYPED_CONFIDENCE_TRANSPORT_READY"].get("status") == "YES", "Batch016 master lost typed confidence")
-    require(r16["CONFIDENCE_READY"].get("status") == "YES_WITH_EXPLICIT_UNKNOWNS", "Batch016 master confidence state regressed")
-    require(r16["EVALUATION_PROTOCOL_READY"].get("status") == "YES_SHADOW_BOUNDED", "Batch016 master evaluation protocol regressed")
-    require(r16["T1_T2_PERSISTED_CHAIN_OF_CUSTODY_READY"].get("status") == "YES", "Batch016 master lost custody readiness")
-    require(r16["FIRST_SLICE_RAW_ARTIFACTS_MATERIALIZED"].get("status") == "NO", "Batch016 master falsely materializes raw artifacts")
-    require(r16["IMPLEMENTATION_ADMITTED"].get("status") == "NO", "Batch016 master falsely admits implementation")
-    require(r16["FULL_CONSTRAINT_RUN_READY"].get("status") == "NO", "Batch016 master falsely claims full-run readiness")
-    require(batch016_master.get("first_serious_constraint_run") == "BLOCKED", "Batch016 master falsely claims serious-run readiness")
-    require(
-        batch016_master.get("next_repo_executable_lane") == "FIRST-SLICE-REAL-OUTCOME-COVERAGE-EXPANSION",
-        "Batch016 next repo-executable lane drifted",
-    )
-
     # Manifest discovery is dynamic so a new Lily successor batch cannot silently
     # bypass the guard or break it merely because the list was hard-coded.
     manifests = discover_current_manifests()
@@ -989,7 +916,6 @@ def main() -> int:
     print("IMPLEMENTATION_ADMITTED=NO")
     print("REAL_NINE_SOURCE_MATERIALIZATION=NO")
     print("QUALIFIED_BENEFICIARIES=0")
-    print("T1_T2_PERSISTED_CHAIN_OF_CUSTODY_READY=YES")
     print("FIRST_SERIOUS_CONSTRAINT_RUN=BLOCKED")
     print(f"LATEST_NEXT_REPO_EXECUTABLE_LANE={latest_master.get('next_repo_executable_lane')}")
     return 0

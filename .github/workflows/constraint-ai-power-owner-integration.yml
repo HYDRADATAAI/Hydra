@@ -35,4 +35,6 @@ jobs:
           python tools/validate_constraint_lily_owner_seams.py
           python tools/validate_constraint_first_slice_acceptance_gate.py
           python tools/validate_constraint_first_slice_confidence_evaluation.py
+          python tools/validate_constraint_first_slice_outcome_coverage.py
+          python tools/validate_constraint_first_slice_custody.py
           python tools/nyx_validate_constraint_successor_chain.py

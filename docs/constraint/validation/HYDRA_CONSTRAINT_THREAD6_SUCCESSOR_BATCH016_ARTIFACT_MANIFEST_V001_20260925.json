@@ -10,96 +10,64 @@
     "preservation": "IMMUTABLE_NOT_REWRITTEN"
   },
   "slice_id": "AI_DATA_CENTER_POWER_INFRASTRUCTURE_V1",
-  "result": "PASS_PERSISTED_CHAIN_OF_CUSTODY_HARDENED_RUN_STILL_BLOCKED",
-  "hardening_transition": {
-    "scope": "T1_TO_T2_PERSISTED_CHAIN_OF_CUSTODY",
-    "historical_batch008_store_contract_preserved": true,
-    "batch015_typed_confidence_semantics_preserved": true,
-    "ordinary_eligibility_requires_exact_persisted_receipt": true,
-    "ordinary_eligibility_requires_exact_persisted_release": true
-  },
-  "superseded_artifacts": [
-    {
-      "path": "constraint-t1-raw-artifact-store/src/hydra_constraint_t1_raw/store.py",
-      "predecessor_git_blob_sha": "c360aff06500ef19ac2f76e3b5efb9ef7debd90d",
-      "successor_git_blob_sha": "040af0ee154e3cf6e64a145125fc1254ce170902"
-    },
-    {
-      "path": "constraint-t1-raw-artifact-store/tests/test_store.py",
-      "predecessor_git_blob_sha": "4a2bbd00189ac7b62f338cf7a21062f35ba1c31f",
-      "successor_git_blob_sha": "da24ccc223900e345c5e1fb4fc92ae35db87f467"
-    },
-    {
-      "path": "constraint-t1-raw-artifact-store/README.md",
-      "predecessor_git_blob_sha": "df498d35dc3acdfb2fbef95fac1e1505c80105c8",
-      "successor_git_blob_sha": "5958840f95811a147758913bce8e42419ed55750"
-    },
-    {
-      "path": "constraint-t1-raw-artifact-store/pyproject.toml",
-      "predecessor_git_blob_sha": "2c1163d3dbb62e7ef790d967bd2f5834a1871a91",
-      "successor_git_blob_sha": "c597639479c7be82570806b034fd0f1690822f56"
-    }
-  ],
+  "result": "PASS_REPO_SIDE_ACCEPTANCE_BLOCKERS_CLOSED_EXTERNAL_GATES_REMAIN",
   "artifacts": [
     {
-      "path": "constraint-t1-raw-artifact-store/src/hydra_constraint_t1_raw/store.py",
-      "git_blob_sha": "040af0ee154e3cf6e64a145125fc1254ce170902"
+      "path": "docs/constraint/first_slice/ai_data_center_power_infrastructure_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH016_AI_DATA_CENTER_POWER_INFRASTRUCTURE_OUTCOME_SOURCE_REGISTRY_EXTENSION_V001_20260925.json",
+      "git_blob_sha": "39fa4da24e38f9386b51050d53d1eb5061c370a5"
     },
     {
-      "path": "constraint-t1-raw-artifact-store/tests/test_store.py",
-      "git_blob_sha": "da24ccc223900e345c5e1fb4fc92ae35db87f467"
+      "path": "docs/constraint/first_slice/ai_data_center_power_infrastructure_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH016_AI_DATA_CENTER_POWER_INFRASTRUCTURE_OUTCOME_RECORDS_SUPPLEMENT_V001_20260925.json",
+      "git_blob_sha": "a1bdb8ce238d173e041e140f1b7c627d7fc59dd6"
     },
     {
-      "path": "constraint-t1-raw-artifact-store/README.md",
-      "git_blob_sha": "5958840f95811a147758913bce8e42419ed55750"
+      "path": "docs/constraint/first_slice/ai_data_center_power_infrastructure_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH016_AI_DATA_CENTER_POWER_INFRASTRUCTURE_REAL_OUTCOME_COVERAGE_MATRIX_V001_20260925.json",
+      "git_blob_sha": "85ff0d3cd7dab3cc9df193c25ca0583208831069"
     },
     {
-      "path": "constraint-t1-raw-artifact-store/pyproject.toml",
-      "git_blob_sha": "c597639479c7be82570806b034fd0f1690822f56"
+      "path": "docs/constraint/first_slice/ai_data_center_power_infrastructure_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH016_AI_DATA_CENTER_POWER_INFRASTRUCTURE_EVALUATION_PROTOCOL_V001_20260925.json",
+      "git_blob_sha": "7f69221213b2fc7dd7dd25322a456425f6ec4cd6"
     },
     {
-      "path": "docs/constraint/implementation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH016_T1_T2_PERSISTED_CHAIN_OF_CUSTODY_CONTRACT_V001_20260925.json",
-      "git_blob_sha": "96684e356355b182fecfafdbb3a04b388af0d569"
+      "path": "docs/constraint/first_slice/ai_data_center_power_infrastructure_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH016_AI_DATA_CENTER_POWER_INFRASTRUCTURE_STRICT_ACCEPTANCE_GATE_V001_20260925.json",
+      "git_blob_sha": "22800b455f3b9ba3fb87f74e5fa4e0f36b5d5f89"
     },
     {
-      "path": "docs/constraint/validation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH016_T1_T2_CHAIN_OF_CUSTODY_STATUS_V001_20260925.json",
-      "git_blob_sha": "80cb95df17f499f5caa81b9565f3d55eb9052398"
+      "path": "docs/constraint/first_slice/ai_data_center_power_infrastructure_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH016_AI_DATA_CENTER_POWER_INFRASTRUCTURE_BLOCKER_REGISTER_V001_20260925.json",
+      "git_blob_sha": "8bac165d1d249b88b20ac4848f7917389469e13d"
     },
     {
       "path": "docs/constraint/architecture/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH016_MASTER_STATUS_V001_20260925.json",
-      "git_blob_sha": "5fb8d56940fc7322c7dd34a3f945205141730790"
+      "git_blob_sha": "06be9077c944ace3bf9a51ec386aa1419b82b6ab"
     },
     {
-      "path": "docs/constraint/validation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH016_T1_T2_PERSISTED_CHAIN_OF_CUSTODY_REPORT_V001_20260925.md",
-      "git_blob_sha": "311c318a68886e4a212f85dfa6e318fa44ca0693"
+      "path": "docs/constraint/validation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH016_REAL_OUTCOME_COVERAGE_EXPANSION_REPORT_V001_20260925.md",
+      "git_blob_sha": "b4d466f28483a944e362552ae5fb3d54dbd3928b"
     }
   ],
   "excluded_operational_tools": [
     {
-      "path": "tools/validate_constraint_first_slice_successor.py",
-      "reason": "operational cross-batch validator evolves independently and is exercised by CI"
+      "path": "tools/validate_constraint_first_slice_outcome_coverage.py",
+      "reason": "operational validator may evolve without manifest self-reference"
     },
     {
-      "path": "tools/nyx_validate_constraint_successor_chain.py",
-      "reason": "independent operational successor guard evolves independently and is exercised by CI"
+      "path": "tools/test_constraint_first_slice_outcome_coverage_adversarial.py",
+      "reason": "hostile-test harness may evolve without manifest self-reference"
     },
     {
-      "path": "tools/nyx_test_constraint_successor_chain_adversarial.py",
-      "reason": "hostile-test harness evolves independently and is exercised by CI"
+      "path": ".github/workflows/constraint-first-slice-integration.yml",
+      "reason": "CI orchestration is operational rather than domain authority content"
     }
   ],
   "expected": {
-    "persisted_receipt_identity_required": "YES",
-    "persisted_release_identity_required": "YES",
-    "forged_in_memory_release_authority": "NO",
-    "forged_receipt_disposition_upgrade": "BLOCKED",
-    "typed_confidence_transport_ready": "YES",
-    "confidence_ready": "YES_WITH_EXPLICIT_UNKNOWNS",
-    "evaluation_protocol_ready": "YES_SHADOW_BOUNDED",
-    "real_raw_artifacts_materialized": "NO",
+    "real_outcome_records": 5,
+    "core_evaluation_outcome_dimensions_covered": "3/3",
+    "accept_014_eval_001": "CLOSED",
+    "repo_executable_blockers": 0,
     "implementation_admitted": "NO",
-    "full_constraint_run_ready": "NO",
+    "ordinary_replay_ready": "NO",
+    "full_constraint_run_allowed": false,
     "first_serious_constraint_run": "BLOCKED",
-    "next_repo_executable_lane": "FIRST-SLICE-REAL-OUTCOME-COVERAGE-EXPANSION"
+    "next_repo_executable_lane": "NONE_FIRST_SLICE_ACCEPTANCE_REQUIRES_PRIVATE_RAW_MATERIALIZATION_AND_NATIVE_ADMISSION"
   }
 }

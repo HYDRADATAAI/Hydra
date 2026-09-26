@@ -1,0 +1,100 @@
+{
+  "schema_version": "hydra-constraint-first-slice-outcome-records-supplement/v1",
+  "record_id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH016_AI_DATA_CENTER_POWER_INFRASTRUCTURE_OUTCOME_RECORDS_SUPPLEMENT_V001",
+  "as_of": "2026-09-26",
+  "predecessor_outcomes": [
+    "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH011_AI_DATA_CENTER_POWER_INFRASTRUCTURE_OUTCOME_RECORDS_V001",
+    "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH012_AI_DATA_CENTER_POWER_INFRASTRUCTURE_OUTCOME_RECORDS_SUPPLEMENT_V001"
+  ],
+  "slice_id": "AI_DATA_CENTER_POWER_INFRASTRUCTURE_V1",
+  "outcome_mode": "REVIEWED_CURRENT_OUTCOMES_NOT_ORDINARY_REPLAY_ADMITTED",
+  "records": [
+    {
+      "outcome_id": "OUT-AIDC-LOUDOUN-ONSITE-GAS-SUBSTITUTION-SUCCEEDED-001",
+      "outcome_label": "SUBSTITUTION_SUCCEEDED",
+      "related_constraint_candidate_id": "T5C-AIDC-US-INTERCONNECTION-THROUGHPUT-001",
+      "related_relief_path_id": "REL-AIDC-002",
+      "entity_id": null,
+      "entity_name": "UNNAMED_LOUDOUN_DATA_CENTER",
+      "geography": "Loudoun County, Virginia",
+      "source_id": "SRC-LOUDOUN-DC-ENERGY-ISSUES-ONSITE-POWER-2026-09-26",
+      "observed_proposition": "Loudoun County states that one data center is currently running full time on natural-gas turbines in lieu of grid power, while explaining that power-delivery constraints are causing developers to consider on-site generation.",
+      "real_world_effective_time": {
+        "value": null,
+        "status": "CURRENT_AT_SOURCE_REVIEW_EXACT_START_NOT_STATED"
+      },
+      "hydra_available_at": "2026-09-26T13:11:19Z",
+      "observed_at": "2026-09-26T13:11:19Z",
+      "outcome_scope": "ONE_UNNAMED_LOUDOUN_DATA_CENTER",
+      "semantic_limits": [
+        "Does not prove on-site gas generation is universally feasible for data centers.",
+        "Does not prove the regional interconnection constraint is resolved.",
+        "Does not identify the site or establish when full-time turbine operation began.",
+        "Does not establish economic superiority versus grid service."
+      ],
+      "ordinary_replay_eligible": false
+    },
+    {
+      "outcome_id": "OUT-AIDC-EATON-DATACENTER-ORDER-CAPTURE-Q1-2026-001",
+      "outcome_label": "BENEFICIARY_CAPTURE_CONFIRMED",
+      "beneficiary_relationship_id": "BEN-AIDC-EATON-TRANSFORMER-001",
+      "related_constraint_candidate_ids": [
+        "T5C-AIDC-US-TRANSFORMER-SUPPLY-001",
+        "T5C-AIDC-AMER-SWITCHGEAR-LEADTIME-001"
+      ],
+      "entity_id": "ENTITY-EATON-PLC",
+      "entity_name": "Eaton Corporation plc",
+      "source_id": "SRC-EATON-Q1-2026-RESULTS-2026-05-05",
+      "observed_proposition": "Eaton reported Electrical Americas twelve-month rolling organic orders up 42%, explicitly driven by data-center momentum, alongside record Electrical Americas sales of $3.6 billion in Q1 2026.",
+      "real_world_effective_time": {
+        "value": "2026-03-31",
+        "status": "QUARTER_END_REPORTING_PERIOD"
+      },
+      "publication_time": "2026-05-05",
+      "hydra_available_at": "2026-09-26T13:11:19Z",
+      "observed_at": "2026-09-26T13:11:19Z",
+      "capture_type": "DATA_CENTER_ORDER_AND_SEGMENT_REVENUE_CAPTURE",
+      "constraint_attribution_status": "BOUNDED_NOT_EXCLUSIVE_CAUSATION",
+      "semantic_limits": [
+        "Confirms commercial capture from data-center demand in Eaton's electrical business, not that transformer or switchgear scarcity alone caused the orders or sales.",
+        "Does not prove scarcity-derived pricing power or margin uplift.",
+        "Does not by itself change the beneficiary relationship from INELIGIBLE_TO_EVALUATE to QUALIFIED while ordinary lineage/admission remain blocked."
+      ],
+      "ordinary_replay_eligible": false
+    },
+    {
+      "outcome_id": "OUT-AIDC-GEV-DATACENTER-ORDER-CAPTURE-H1-2026-001",
+      "outcome_label": "BENEFICIARY_CAPTURE_CONFIRMED",
+      "beneficiary_relationship_id": "BEN-AIDC-GEV-SWITCHGEAR-001",
+      "related_constraint_candidate_ids": [
+        "T5C-AIDC-AMER-SWITCHGEAR-LEADTIME-001"
+      ],
+      "entity_id": "ENTITY-GE-VERNOVA",
+      "entity_name": "GE Vernova Inc.",
+      "source_id": "SRC-GEV-Q2-2026-RESULTS-2026-07-22",
+      "observed_proposition": "GE Vernova reported data-center orders exceeding $5 billion year-to-date through Q2 2026, more than double its 2025 total, while reporting strong Power and Electrification order and revenue growth.",
+      "real_world_effective_time": {
+        "value": "2026-06-30",
+        "status": "HALF_YEAR_REPORTING_PERIOD_END"
+      },
+      "publication_time": "2026-07-22",
+      "hydra_available_at": "2026-09-26T13:11:19Z",
+      "observed_at": "2026-09-26T13:11:19Z",
+      "capture_type": "DATA_CENTER_ORDER_CAPTURE",
+      "constraint_attribution_status": "BOUNDED_NOT_EXCLUSIVE_CAUSATION",
+      "semantic_limits": [
+        "Confirms data-center order capture by GE Vernova but does not prove switchgear scarcity alone caused those orders.",
+        "Does not assign all Power/Electrification revenue or backlog to data centers.",
+        "Does not by itself change the beneficiary relationship from INELIGIBLE_TO_EVALUATE to QUALIFIED while ordinary lineage/admission remain blocked."
+      ],
+      "ordinary_replay_eligible": false
+    }
+  ],
+  "counts": {
+    "outcomes_added_this_batch": 3,
+    "current_slice_real_outcome_count": 5,
+    "substitution_succeeded_total": 1,
+    "beneficiary_capture_confirmed_total": 2,
+    "constraint_resolutions_total": 0
+  }
+}
