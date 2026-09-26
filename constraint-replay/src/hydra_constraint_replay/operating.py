@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from copy import deepcopy
-from hashlib import sha256
+from hashlib import sha1, sha256
 import json
 from pathlib import Path
 from typing import Any
@@ -34,6 +34,11 @@ UNEVALUABLE_REASON_BY_CASE = {
 
 class OperatingReportError(ValueError):
     pass
+
+
+def _git_blob_sha(path: Path) -> str:
+    payload=path.read_bytes()
+    return sha1(f"blob {len(payload)}\0".encode()+payload).hexdigest()
 
 
 def _stable_digest(value: Any) -> str:
@@ -78,10 +83,54 @@ class ConstraintOperatingReportService:
             raise OperatingReportError("unsupported Batch 018 contract version")
         if self._manifest.get("mode") != OPERATING_MODE:
             raise OperatingReportError("unsupported Batch 018 operating mode")
+        if self._manifest.get("source_run_digest_sha256") != self._multidomain.summary()["source_run_digest_sha256"]:
+            raise OperatingReportError("Batch 018 source replay digest mismatch")
         if self._manifest.get("read_only_capabilities") != READ_ONLY_CAPABILITIES:
             raise OperatingReportError("Batch 018 read-only capabilities mismatch")
-        if self._manifest.get("t6_status") != "DORMANT_NOT_ACTIVATED":
+
+        implementation=self._manifest.get("implementation")
+        if not isinstance(implementation,dict):
+            raise OperatingReportError("Batch 018 implementation pins are missing")
+        for key in ("module","cli"):
+            item=implementation.get(key)
+            if not isinstance(item,dict):
+                raise OperatingReportError(f"Batch 018 implementation pin missing: {key}")
+            relative=item.get("path")
+            expected=item.get("git_blob_sha")
+            if not isinstance(relative,str) or not isinstance(expected,str):
+                raise OperatingReportError(f"Batch 018 implementation pin incomplete: {key}")
+            if _git_blob_sha(self._root/relative)!=expected:
+                raise OperatingReportError(
+                    f"Batch 018 implementation Git blob pin mismatch: {relative}"
+                )
+
+        authority=self._manifest.get("source_authority")
+        if not isinstance(authority,dict):
+            raise OperatingReportError("Batch 018 source authority pins are missing")
+        for key in ("multidomain_manifest","legacy_evaluation_report"):
+            item=authority.get(key)
+            if not isinstance(item,dict):
+                raise OperatingReportError(f"Batch 018 source authority missing: {key}")
+            relative=item.get("path")
+            expected=item.get("git_blob_sha")
+            if not isinstance(relative,str) or not isinstance(expected,str):
+                raise OperatingReportError(f"Batch 018 source authority incomplete: {key}")
+            if _git_blob_sha(self._root/relative)!=expected:
+                raise OperatingReportError(
+                    f"Batch 018 source authority Git blob pin mismatch: {relative}"
+                )
+        if authority["legacy_evaluation_report"].get("classification")!="DUPLICATE_STALE":
+            raise OperatingReportError("Batch 018 legacy report classification changed")
+
+        t6=self._manifest.get("t6_boundary")
+        if not isinstance(t6,dict):
+            raise OperatingReportError("Batch 018 T6 boundary is missing")
+        if t6.get("status")!="DORMANT_NOT_ACTIVATED":
             raise OperatingReportError("Batch 018 cannot activate T6")
+        if t6.get("runtime_binding_created") is not False:
+            raise OperatingReportError("Batch 018 cannot create a T6 runtime binding")
+        if t6.get("activation_authority_granted") is not False:
+            raise OperatingReportError("Batch 018 has no T6 activation authority")
 
     def _readiness(
         self,
@@ -261,6 +310,38 @@ class ConstraintOperatingReportService:
                 blocker="LEGACY_REPORT_PREDATES_BATCH005_TO_BATCH017_STATE",
             ),
         ]
+
+        expected=self._manifest.get("expected")
+        if not isinstance(expected,dict):
+            raise OperatingReportError("Batch 018 expected-state contract is missing")
+        actual_expected={
+            "case_count": replay["coverage"]["case_count"],
+            "replay_cut_count": replay["coverage"]["replay_cut_count"],
+            "policy_event_count": policy["event_count"],
+            "policy_observation_count": policy["observation_count"],
+            "physical_binding_count": physical["binding_count"],
+            "unique_bound_entity_count": physical["unique_bound_entity_count"],
+            "source_pair_count": physical["source_pair_count"],
+            "partial_realization_count": replay["outcomes"]["class_counts"].get("PARTIAL_REALIZATION",0),
+            "unevaluable_count": replay["outcomes"]["class_counts"].get("UNEVALUABLE",0),
+            "calibrated_case_count": replay["coverage"]["calibrated_case_count"],
+            "taxonomy_event_type_count": len(taxonomy),
+            "sourced_event_type_count": len(sourced),
+            "missing_event_types": missing_types,
+        }
+        for key,actual in actual_expected.items():
+            if expected.get(key)!=actual:
+                raise OperatingReportError(
+                    f"Batch 018 expected {key}={expected.get(key)!r}, found {actual!r}"
+                )
+
+        readiness_counts={}
+        for row in dimensions:
+            readiness_counts[row["status"]]=readiness_counts.get(row["status"],0)+1
+        if expected.get("readiness_status_counts")!=readiness_counts:
+            raise OperatingReportError(
+                "Batch 018 readiness status-count contract mismatch"
+            )
 
         gaps = [
             row for row in dimensions
