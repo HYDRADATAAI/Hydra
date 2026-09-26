@@ -1,0 +1,197 @@
+{
+  "schema_version": "hydra-constraint-second-slice-graph-seed/v1",
+  "record_id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH018_SEMICONDUCTOR_ADVANCED_PACKAGING_CRITICAL_MATERIALS_GRAPH_SEED_V001",
+  "as_of": "2026-09-26",
+  "slice_id": "SEMICONDUCTOR_ADVANCED_PACKAGING_CRITICAL_MATERIALS_V1",
+  "external_nodes": [
+    {
+      "node_id": "N-AI-COMPUTE-DEMAND",
+      "source_slice": "AI_DATA_CENTER_POWER_INFRASTRUCTURE_V1"
+    }
+  ],
+  "nodes": [
+    {
+      "node_id": "N-SEMI-AI-ACCELERATOR-DEMAND",
+      "type": "DEMAND"
+    },
+    {
+      "node_id": "ENTITY-NVIDIA",
+      "type": "ENTITY"
+    },
+    {
+      "node_id": "PRODUCT-NVIDIA-H200",
+      "type": "PRODUCT"
+    },
+    {
+      "node_id": "PRODUCT-NVIDIA-B200",
+      "type": "PRODUCT"
+    },
+    {
+      "node_id": "TECH-HBM3E",
+      "type": "MEMORY_TECHNOLOGY"
+    },
+    {
+      "node_id": "ENTITY-MICRON",
+      "type": "ENTITY"
+    },
+    {
+      "node_id": "PRODUCT-MICRON-HBM3E-8H",
+      "type": "PRODUCT"
+    },
+    {
+      "node_id": "PRODUCT-MICRON-HBM3E-12H",
+      "type": "PRODUCT"
+    },
+    {
+      "node_id": "ENTITY-SK-HYNIX",
+      "type": "ENTITY"
+    },
+    {
+      "node_id": "PRODUCT-SKHYNIX-HBM3E",
+      "type": "PRODUCT"
+    },
+    {
+      "node_id": "ENTITY-TSMC",
+      "type": "ENTITY"
+    },
+    {
+      "node_id": "TECH-TSMC-COWOS",
+      "type": "PACKAGING_TECHNOLOGY"
+    }
+  ],
+  "edges": [
+    {
+      "edge_id": "SEMI-E001",
+      "from": "N-AI-COMPUTE-DEMAND",
+      "to": "N-SEMI-AI-ACCELERATOR-DEMAND",
+      "relation": "DRIVES_DEMAND_FOR",
+      "evidence_ids": [
+        "EV-SEMI-TSMC-AI-ACCELERATOR-DEMAND-2025"
+      ],
+      "status": "SUPPORTED_CROSS_SLICE"
+    },
+    {
+      "edge_id": "SEMI-E002",
+      "from": "ENTITY-NVIDIA",
+      "to": "PRODUCT-NVIDIA-H200",
+      "relation": "PROVIDES_PRODUCT",
+      "evidence_ids": [
+        "EV-SEMI-NVIDIA-HBM3E-REQUIREMENT-2026"
+      ],
+      "status": "SUPPORTED"
+    },
+    {
+      "edge_id": "SEMI-E003",
+      "from": "ENTITY-NVIDIA",
+      "to": "PRODUCT-NVIDIA-B200",
+      "relation": "PROVIDES_PRODUCT",
+      "evidence_ids": [
+        "EV-SEMI-NVIDIA-HBM3E-REQUIREMENT-2026"
+      ],
+      "status": "SUPPORTED"
+    },
+    {
+      "edge_id": "SEMI-E004",
+      "from": "PRODUCT-NVIDIA-H200",
+      "to": "TECH-HBM3E",
+      "relation": "PRODUCT_REQUIRES_MEMORY",
+      "evidence_ids": [
+        "EV-SEMI-NVIDIA-HBM3E-REQUIREMENT-2026"
+      ],
+      "status": "SUPPORTED"
+    },
+    {
+      "edge_id": "SEMI-E005",
+      "from": "PRODUCT-NVIDIA-B200",
+      "to": "TECH-HBM3E",
+      "relation": "PRODUCT_REQUIRES_MEMORY",
+      "evidence_ids": [
+        "EV-SEMI-NVIDIA-HBM3E-REQUIREMENT-2026"
+      ],
+      "status": "SUPPORTED"
+    },
+    {
+      "edge_id": "SEMI-E006",
+      "from": "ENTITY-MICRON",
+      "to": "PRODUCT-MICRON-HBM3E-8H",
+      "relation": "PROVIDES_PRODUCT",
+      "evidence_ids": [
+        "EV-SEMI-MICRON-NVIDIA-DESIGNIN-2025"
+      ],
+      "status": "SUPPORTED"
+    },
+    {
+      "edge_id": "SEMI-E007",
+      "from": "ENTITY-MICRON",
+      "to": "PRODUCT-MICRON-HBM3E-12H",
+      "relation": "PROVIDES_PRODUCT",
+      "evidence_ids": [
+        "EV-SEMI-MICRON-HBM3E12H-RAMP-YIELD-2025"
+      ],
+      "status": "SUPPORTED"
+    },
+    {
+      "edge_id": "SEMI-E008",
+      "from": "PRODUCT-MICRON-HBM3E-8H",
+      "to": "ENTITY-NVIDIA",
+      "relation": "DESIGNED_INTO_CUSTOMER_PLATFORM",
+      "evidence_ids": [
+        "EV-SEMI-MICRON-NVIDIA-DESIGNIN-2025"
+      ],
+      "status": "SUPPORTED_BOUNDED"
+    },
+    {
+      "edge_id": "SEMI-E009",
+      "from": "ENTITY-SK-HYNIX",
+      "to": "PRODUCT-SKHYNIX-HBM3E",
+      "relation": "PROVIDES_PRODUCT",
+      "evidence_ids": [
+        "EV-SEMI-SKHYNIX-HBM3E-VOLUME-PRODUCTION-2024"
+      ],
+      "status": "SUPPORTED"
+    },
+    {
+      "edge_id": "SEMI-E010",
+      "from": "TECH-HBM3E",
+      "to": "ENTITY-MICRON",
+      "relation": "SUPPLY_DEPENDS_ON",
+      "evidence_ids": [
+        "EV-SEMI-MICRON-HBM-2025-SOLDOUT"
+      ],
+      "status": "SUPPORTED_SUPPLIER_SCOPE"
+    },
+    {
+      "edge_id": "SEMI-E011",
+      "from": "TECH-HBM3E",
+      "to": "ENTITY-SK-HYNIX",
+      "relation": "SUPPLY_DEPENDS_ON",
+      "evidence_ids": [
+        "EV-SEMI-SKHYNIX-HBM-2024-SOLDOUT"
+      ],
+      "status": "SUPPORTED_SUPPLIER_SCOPE"
+    },
+    {
+      "edge_id": "SEMI-E012",
+      "from": "N-SEMI-AI-ACCELERATOR-DEMAND",
+      "to": "TECH-TSMC-COWOS",
+      "relation": "INCREASES_DEMAND_FOR",
+      "evidence_ids": [
+        "EV-SEMI-TSMC-AI-ACCELERATOR-DEMAND-2025",
+        "EV-SEMI-TSMC-COWOS-FULLY-LOADED-2025"
+      ],
+      "status": "SUPPORTED_BOUNDED"
+    },
+    {
+      "edge_id": "SEMI-E013",
+      "from": "ENTITY-TSMC",
+      "to": "TECH-TSMC-COWOS",
+      "relation": "PROVIDES_PACKAGING_TECHNOLOGY",
+      "evidence_ids": [
+        "EV-SEMI-TSMC-COWOSL-PRODUCTION-2024"
+      ],
+      "status": "SUPPORTED"
+    }
+  ],
+  "cross_slice_edge_count": 1,
+  "dependency_edge_count": 13
+}

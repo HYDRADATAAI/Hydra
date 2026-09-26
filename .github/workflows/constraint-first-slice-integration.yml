@@ -7,6 +7,7 @@ on:
       - "constraint-t1-raw-artifact-store/**"
       - "t6-fail-closed-validator/**"
       - "tools/validate_constraint_first_slice_successor.py"
+      - "tools/validate_constraint_lily_owner_seams.py"
       - "tools/test_constraint_first_slice_adversarial.py"
       - "tools/validate_constraint_first_slice_acceptance_gate.py"
       - "tools/test_constraint_first_slice_acceptance_gate_adversarial.py"
@@ -14,6 +15,8 @@ on:
       - "tools/test_constraint_first_slice_confidence_evaluation_adversarial.py"
       - "tools/validate_constraint_first_slice_outcome_coverage.py"
       - "tools/test_constraint_first_slice_outcome_coverage_adversarial.py"
+      - "tools/validate_constraint_first_slice_custody.py"
+      - "tools/test_constraint_first_slice_custody_adversarial.py"
       - ".github/workflows/constraint-first-slice-integration.yml"
   push:
     branches:
@@ -23,6 +26,7 @@ on:
       - "constraint-t1-raw-artifact-store/**"
       - "t6-fail-closed-validator/**"
       - "tools/validate_constraint_first_slice_successor.py"
+      - "tools/validate_constraint_lily_owner_seams.py"
       - "tools/test_constraint_first_slice_adversarial.py"
       - "tools/validate_constraint_first_slice_acceptance_gate.py"
       - "tools/test_constraint_first_slice_acceptance_gate_adversarial.py"
@@ -30,6 +34,8 @@ on:
       - "tools/test_constraint_first_slice_confidence_evaluation_adversarial.py"
       - "tools/validate_constraint_first_slice_outcome_coverage.py"
       - "tools/test_constraint_first_slice_outcome_coverage_adversarial.py"
+      - "tools/validate_constraint_first_slice_custody.py"
+      - "tools/test_constraint_first_slice_custody_adversarial.py"
       - ".github/workflows/constraint-first-slice-integration.yml"
 
 permissions:
@@ -70,3 +76,11 @@ jobs:
 
       - name: Run real outcome coverage hostile matrix
         run: python tools/test_constraint_first_slice_outcome_coverage_adversarial.py
+
+      - name: Validate persisted T1-to-T2 custody
+        run: python tools/validate_constraint_first_slice_custody.py
+
+      - name: Run persisted custody hostile matrix
+        run: python tools/test_constraint_first_slice_custody_adversarial.py
+      - name: Validate integrated Lily T5/T6 owner seams
+        run: python tools/validate_constraint_lily_owner_seams.py

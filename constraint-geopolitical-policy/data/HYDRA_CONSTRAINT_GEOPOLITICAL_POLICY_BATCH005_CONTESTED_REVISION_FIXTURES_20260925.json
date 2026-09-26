@@ -1,0 +1,38 @@
+{
+  "schema_version": "1.0",
+  "batch_id": "HYDRA_CONSTRAINT_GEOPOLITICAL_POLICY_BATCH005_CONTESTED_REVISION_FIXTURES_20260925",
+  "claims": [
+    {
+      "claim_id": "wto-rare-earths-full-implementation-status-2015-05-20",
+      "proposition": "The export restrictions at issue in the WTO rare-earths disputes had been fully removed by 20 May 2015.",
+      "evidence": [
+        {
+          "evidence_id": "wto-2015-china-implementation-statement",
+          "document_id": "wto-2015-05-20-rare-earths-implementation",
+          "known_at": "2015-05-20T23:59:59Z",
+          "stance": "supporting",
+          "attributed_to": "China",
+          "statement": "The WTO Secretariat recorded China's statement that export duties, export quotas and specified trading-right restrictions on rare earths, tungsten and molybdenum had been removed."
+        },
+        {
+          "evidence_id": "wto-2015-us-licensing-concern",
+          "document_id": "wto-2015-05-20-rare-earths-implementation",
+          "known_at": "2015-05-20T23:59:59Z",
+          "stance": "opposing",
+          "attributed_to": "United States",
+          "statement": "The WTO Secretariat also recorded a U.S. concern that an export licensing requirement remained."
+        }
+      ]
+    }
+  ],
+  "revisions": [
+    {
+      "revision_id": "panama-a54-modifies-a48-transit-slot-policy",
+      "prior_document_id": "panama-canal-a48-2023",
+      "revision_document_id": "panama-canal-a54-2023",
+      "known_at": "2023-12-15T23:59:59Z",
+      "relation": "MODIFIES",
+      "scope": "Panama Canal daily transit-slot schedule during the 2023 water crisis."
+    }
+  ]
+}

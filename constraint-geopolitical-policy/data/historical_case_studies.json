@@ -1,0 +1,12 @@
+{
+  "fixture_status": "SCHEMA_ONLY_NOT_HISTORICAL_FACT_ASSERTIONS",
+  "purpose": "Validation fixture shapes. Populate with separately sourced historical evidence; do not treat these placeholders as facts.",
+  "cases": [
+    {"case_id":"export-control","mechanism":"EXPORT_CONTROL","required_links":["ACTOR","LOCATION","RESOURCE","DEPENDENCY","CONSTRAINT","OUTCOME"]},
+    {"case_id":"sanctions-energy","mechanism":"SANCTION","required_links":["ACTOR","RESOURCE","INFRASTRUCTURE","CONSTRAINT","OUTCOME"]},
+    {"case_id":"shipping-chokepoint","mechanism":"SHIPPING_DISRUPTION","required_links":["LOCATION","STRATEGIC_ASSET","INFRASTRUCTURE","DEPENDENCY","CONSTRAINT","OUTCOME"]},
+    {"case_id":"tariff-trade","mechanism":"TARIFF","required_links":["ACTOR","RESOURCE","DEPENDENCY","CONSTRAINT","OUTCOME"]},
+    {"case_id":"industrial-policy-capacity","mechanism":"INDUSTRIAL_POLICY","required_links":["ACTOR","LOCATION","INFRASTRUCTURE","DEPENDENCY","OUTCOME"]},
+    {"case_id":"strategic-resource","mechanism":"STRATEGIC_RESOURCE_DISPUTE","required_links":["ACTOR","LOCATION","RESOURCE","DEPENDENCY","CONSTRAINT","OUTCOME"]}
+  ]
+}

@@ -1,0 +1,84 @@
+{
+  "schema_version": "hydra-constraint-thread6-successor-manifest/v1",
+  "record_id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH018_ARTIFACT_MANIFEST_V001",
+  "as_of": "2026-09-26",
+  "repository": "HYDRADATAAI/Hydra",
+  "base_head": "07e03eeede02e77c3076a75aef274f3f8b424158",
+  "predecessor_batch": {
+    "id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH017",
+    "preservation": "IMMUTABLE_NOT_REWRITTEN"
+  },
+  "slice_id": "SEMICONDUCTOR_ADVANCED_PACKAGING_CRITICAL_MATERIALS_V1",
+  "result": "PASS_FIRST_POPULATION_PARTIAL",
+  "artifacts": [
+    {
+      "path": "docs/constraint/second_slice/semiconductor_advanced_packaging_critical_materials_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH018_SEMICONDUCTOR_ADVANCED_PACKAGING_CRITICAL_MATERIALS_SOURCE_AUTHORITY_REGISTRY_V001_20260926.json",
+      "git_blob_sha": "b6a06de87583b9114562d4df577f75fa31f8a4af"
+    },
+    {
+      "path": "docs/constraint/second_slice/semiconductor_advanced_packaging_critical_materials_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH018_SEMICONDUCTOR_ADVANCED_PACKAGING_CRITICAL_MATERIALS_SOURCE_REGISTRY_V001_20260926.json",
+      "git_blob_sha": "be5fd7175aad95618f35eb72cb428e09f4fb050d"
+    },
+    {
+      "path": "docs/constraint/second_slice/semiconductor_advanced_packaging_critical_materials_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH018_SEMICONDUCTOR_ADVANCED_PACKAGING_CRITICAL_MATERIALS_EVIDENCE_SEED_V001_20260926.json",
+      "git_blob_sha": "ab5ca4a83fbbc44a9b779d07edc660e91ec88e73"
+    },
+    {
+      "path": "docs/constraint/second_slice/semiconductor_advanced_packaging_critical_materials_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH018_SEMICONDUCTOR_ADVANCED_PACKAGING_CRITICAL_MATERIALS_CAPACITY_YIELD_QUALIFICATION_OVERLAY_V001_20260926.json",
+      "git_blob_sha": "efed04485795c805a4bc89d94fba2dad73c6fcc7"
+    },
+    {
+      "path": "docs/constraint/second_slice/semiconductor_advanced_packaging_critical_materials_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH018_SEMICONDUCTOR_ADVANCED_PACKAGING_CRITICAL_MATERIALS_GRAPH_SEED_V001_20260926.json",
+      "git_blob_sha": "bf4211ff450238f44b57540a88fbc7f7adb4468c"
+    },
+    {
+      "path": "docs/constraint/second_slice/semiconductor_advanced_packaging_critical_materials_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH018_SEMICONDUCTOR_ADVANCED_PACKAGING_CRITICAL_MATERIALS_T5_CANDIDATE_PROPOSALS_V001_20260926.json",
+      "git_blob_sha": "a965c4da0e2389bf74ec51f532da0d11296be22e"
+    },
+    {
+      "path": "docs/constraint/second_slice/semiconductor_advanced_packaging_critical_materials_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH018_SEMICONDUCTOR_ADVANCED_PACKAGING_CRITICAL_MATERIALS_REQUIRED_CASE_OVERLAY_V001_20260926.json",
+      "git_blob_sha": "ad3bbe03668de4ec213a2424cc86b1f1287d06e6"
+    },
+    {
+      "path": "docs/constraint/second_slice/semiconductor_advanced_packaging_critical_materials_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH018_SEMICONDUCTOR_ADVANCED_PACKAGING_CRITICAL_MATERIALS_STATUS_V001_20260926.json",
+      "git_blob_sha": "eb5a8ca522c57156cb1856dbaa74ea7cf7e93978"
+    },
+    {
+      "path": "docs/constraint/architecture/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH018_MASTER_STATUS_V001_20260926.json",
+      "git_blob_sha": "034afc5b99395348fa4f2dee9e63bfcd07c79d61"
+    },
+    {
+      "path": "docs/constraint/architecture/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH018_SEMICONDUCTOR_ADVANCED_PACKAGING_CRITICAL_MATERIALS_CAPABILITY_LEDGER_DELTA_V001_20260926.json",
+      "git_blob_sha": "bb26cd3738ab0c5b62aeacd6dd56afe48306de38"
+    },
+    {
+      "path": "docs/constraint/validation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH018_SEMICONDUCTOR_FIRST_POPULATION_REPORT_V001_20260926.md",
+      "git_blob_sha": "71f72d237b97aad7804b88e4b49d9c9e9f7c538e"
+    }
+  ],
+  "excluded_operational_tools": [
+    {
+      "path": "tools/validate_constraint_second_slice_batch018_population.py",
+      "reason": "operational validator"
+    },
+    {
+      "path": "tools/test_constraint_second_slice_batch018_population_adversarial.py",
+      "reason": "hostile harness"
+    },
+    {
+      "path": ".github/workflows/constraint-second-slice.yml",
+      "reason": "CI orchestration"
+    }
+  ],
+  "expected": {
+    "primary_sources_registered": 6,
+    "evidence_observations": 10,
+    "suppliers_populated": 4,
+    "products_technologies_populated": 7,
+    "dependency_edges": 13,
+    "constraints_formed_shadow": 2,
+    "required_cases_covered": "2/14",
+    "first_semiconductor_run": "BLOCKED",
+    "next_repo_executable_lane": "SECOND-SLICE-FACILITY-MATERIAL-EQUIPMENT-AND-QUALIFICATION-POPULATION"
+  }
+}

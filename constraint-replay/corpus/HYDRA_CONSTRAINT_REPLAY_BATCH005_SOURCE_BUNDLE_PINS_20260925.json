@@ -1,0 +1,42 @@
+{
+  "schema_version": "1.0",
+  "batch_id": "HYDRA_CONSTRAINT_REPLAY_BATCH005_20260925",
+  "corpus_path": "constraint-replay/corpus/HYDRA_CONSTRAINT_REPLAY_READY_CORPUS_BATCH005_20260925.jsonl",
+  "source_bundle_pins": [
+    {
+      "path": "constraint-geopolitical-policy/data/sourced_historical_cases.json",
+      "git_blob_sha": "0bfa220181fd06bb22b19a956956305c857c9bbc",
+      "case_count": 4,
+      "event_count": 7,
+      "observation_count": 3
+    },
+    {
+      "path": "constraint-geopolitical-policy/data/HYDRA_CONSTRAINT_GEOPOLITICAL_POLICY_BATCH002_SOURCED_HISTORICAL_CASES_20260925.json",
+      "git_blob_sha": "d6925977e30927190e2c16a48cf7792ab36c63a4",
+      "case_count": 7,
+      "event_count": 8,
+      "observation_count": 1
+    },
+    {
+      "path": "constraint-geopolitical-policy/data/HYDRA_CONSTRAINT_GEOPOLITICAL_POLICY_BATCH003_SOURCED_HISTORICAL_CASES_20260925.json",
+      "git_blob_sha": "b1b308498298c142f4506da1215fad99258a3684",
+      "case_count": 6,
+      "event_count": 10,
+      "observation_count": 1
+    },
+    {
+      "path": "constraint-geopolitical-policy/data/HYDRA_CONSTRAINT_GEOPOLITICAL_POLICY_BATCH004_SOURCED_HISTORICAL_CASES_20260925.json",
+      "git_blob_sha": "36f1c1a41c2eb3c051b46fe28a44eadb5e01aa78",
+      "case_count": 5,
+      "event_count": 6,
+      "observation_count": 4
+    }
+  ],
+  "totals": {
+    "source_bundle_count": 4,
+    "case_count": 22,
+    "event_count": 31,
+    "observation_count": 9,
+    "replay_cut_count": 82
+  }
+}

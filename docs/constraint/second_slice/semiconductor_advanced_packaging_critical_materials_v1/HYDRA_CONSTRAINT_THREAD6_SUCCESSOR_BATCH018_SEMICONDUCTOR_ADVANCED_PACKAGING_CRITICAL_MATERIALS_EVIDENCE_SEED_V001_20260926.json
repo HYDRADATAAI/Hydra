@@ -1,0 +1,88 @@
+{
+  "schema_version": "hydra-constraint-second-slice-evidence-seed/v1",
+  "record_id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH018_SEMICONDUCTOR_ADVANCED_PACKAGING_CRITICAL_MATERIALS_EVIDENCE_SEED_V001",
+  "as_of": "2026-09-26",
+  "slice_id": "SEMICONDUCTOR_ADVANCED_PACKAGING_CRITICAL_MATERIALS_V1",
+  "evidence": [
+    {
+      "evidence_id": "EV-SEMI-NVIDIA-HBM3E-REQUIREMENT-2026",
+      "source_id": "SRC-SEMI-NVIDIA-HGX-COMPONENTS-2026",
+      "proposition": "NVIDIA HGX documentation specifies H200, B200 and B300 accelerators with HBM3e memory, including 141GB, 180GB and 288GB per GPU respectively.",
+      "evidence_role": "PRODUCT_MEMORY_REQUIREMENT",
+      "scope": "NVIDIA_HGX_H200_B200_B300",
+      "semantic_limit": "CURRENT_DOCUMENTATION; DOES_NOT_ESTABLISH_HISTORICAL_AVAILABILITY_OR_SUPPLIER_IDENTITY"
+    },
+    {
+      "evidence_id": "EV-SEMI-MICRON-HBM-2025-SOLDOUT",
+      "source_id": "SRC-SEMI-MICRON-Q2FY25-REMARKS-2025-03-20",
+      "proposition": "Micron stated that its calendar-2025 HBM output was sold out and that it was seeing strong demand for 2026 HBM supply.",
+      "evidence_role": "AVAILABLE_CAPACITY_BOOKING",
+      "scope": "MICRON_HBM_CALENDAR_2025",
+      "semantic_limit": "SUPPLIER_SPECIFIC; DOES_NOT_PROVE ENTIRE INDUSTRY SUPPLY IS SOLD OUT"
+    },
+    {
+      "evidence_id": "EV-SEMI-MICRON-HBM3E12H-RAMP-YIELD-2025",
+      "source_id": "SRC-SEMI-MICRON-Q2FY25-REMARKS-2025-03-20",
+      "proposition": "Micron stated that HBM3E 12-high had begun volume production and that it was focused on ramping capacity and yield.",
+      "evidence_role": "CAPACITY_AND_YIELD_STATE",
+      "scope": "MICRON_HBM3E_12H",
+      "semantic_limit": "YIELD VALUE NOT DISCLOSED; RAMP DOES NOT EQUAL FULL EFFECTIVE CAPACITY"
+    },
+    {
+      "evidence_id": "EV-SEMI-MICRON-NVIDIA-DESIGNIN-2025",
+      "source_id": "SRC-SEMI-MICRON-Q2FY25-REMARKS-2025-03-20",
+      "proposition": "Micron stated that HBM3E 8-high was designed into NVIDIA GB200 and HBM3E 12-high was designed into GB300, while additional platform/customer qualifications were progressing.",
+      "evidence_role": "PRODUCT_PLATFORM_CONNECTION_AND_QUALIFICATION",
+      "scope": "MICRON_HBM3E_TO_NVIDIA_GB200_GB300",
+      "semantic_limit": "DESIGN-IN DOES NOT BY ITSELF PROVE ALL CUSTOMER QUALIFICATION OR SHIPMENT VOLUME"
+    },
+    {
+      "evidence_id": "EV-SEMI-SKHYNIX-HBM-2024-SOLDOUT",
+      "source_id": "SRC-SEMI-SKHYNIX-HBM-SOLDOUT-2024-02-21",
+      "proposition": "SK hynix stated in February 2024 that its planned HBM production volume for 2024 had already sold out.",
+      "evidence_role": "AVAILABLE_CAPACITY_BOOKING",
+      "scope": "SK_HYNIX_HBM_2024",
+      "semantic_limit": "SUPPLIER_SPECIFIC; PLANNED PRODUCTION SOLD OUT DOES NOT QUANTIFY EFFECTIVE OUTPUT"
+    },
+    {
+      "evidence_id": "EV-SEMI-SKHYNIX-HBM3E-VOLUME-PRODUCTION-2024",
+      "source_id": "SRC-SEMI-SKHYNIX-HBM3E-VOLUME-2024-03-19",
+      "proposition": "SK hynix announced volume production of HBM3E and planned customer supply from late March 2024.",
+      "evidence_role": "PRODUCTION_STATE",
+      "scope": "SK_HYNIX_HBM3E",
+      "semantic_limit": "VOLUME PRODUCTION DOES NOT PROVE UNRESERVED AVAILABLE CAPACITY"
+    },
+    {
+      "evidence_id": "EV-SEMI-TSMC-AI-ACCELERATOR-DEMAND-2025",
+      "source_id": "SRC-SEMI-TSMC-Q1-2025-TRANSCRIPT-2025-04-17",
+      "proposition": "TSMC stated that robust AI-related demand continued in 2025 and reaffirmed that revenue from AI accelerators was expected to double in 2025.",
+      "evidence_role": "END_MARKET_AND_ACCELERATOR_DEMAND",
+      "scope": "TSMC_AI_ACCELERATOR_BUSINESS_2025",
+      "semantic_limit": "DEMAND SIGNAL DOES NOT BY ITSELF PROVE A CONSTRAINT"
+    },
+    {
+      "evidence_id": "EV-SEMI-TSMC-COWOS-FULLY-LOADED-2025",
+      "source_id": "SRC-SEMI-TSMC-Q1-2025-TRANSCRIPT-2025-04-17",
+      "proposition": "TSMC's CEO stated that CoWoS capacity remained fully loaded and that the company needed to double CoWoS capacity to meet demand.",
+      "evidence_role": "ADVANCED_PACKAGING_CAPACITY_CONSTRAINT",
+      "scope": "TSMC_COWOS_2025",
+      "semantic_limit": "TSMC-SPECIFIC COWOS SCOPE; DOES NOT PROVE ALL ADVANCED PACKAGING WORLDWIDE IS CONSTRAINED"
+    },
+    {
+      "evidence_id": "EV-SEMI-TSMC-COWOS-2026-BALANCE-EXPECTATION",
+      "source_id": "SRC-SEMI-TSMC-Q1-2025-TRANSCRIPT-2025-04-17",
+      "proposition": "TSMC's CEO said CoWoS supply-demand was expected to be more balanced in 2026 while the company continued capacity expansion.",
+      "evidence_role": "RELIEF_EXPECTATION",
+      "scope": "TSMC_COWOS_2026_FORWARD_EXPECTATION",
+      "semantic_limit": "FORWARD EXPECTATION IS NOT OBSERVED CONSTRAINT RESOLUTION"
+    },
+    {
+      "evidence_id": "EV-SEMI-TSMC-COWOSL-PRODUCTION-2024",
+      "source_id": "SRC-SEMI-TSMC-ANNUAL-REPORT-2024",
+      "proposition": "TSMC reported that its first CoWoS-L at 3.5-reticle size entered production in 2024 and described strong CoWoS growth momentum from surging AI demand.",
+      "evidence_role": "ADVANCED_PACKAGING_PRODUCTION_STATE",
+      "scope": "TSMC_COWOS_L_2024",
+      "semantic_limit": "TECHNOLOGY ENTERED PRODUCTION; DOES NOT QUANTIFY AVAILABLE OR UNBOOKED CAPACITY"
+    }
+  ]
+}

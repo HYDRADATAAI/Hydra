@@ -1,0 +1,123 @@
+{
+  "schema_version": "hydra-constraint-second-slice-capacity-yield-qualification-overlay/v1",
+  "record_id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH018_SEMICONDUCTOR_ADVANCED_PACKAGING_CRITICAL_MATERIALS_CAPACITY_YIELD_QUALIFICATION_OVERLAY_V001",
+  "as_of": "2026-09-26",
+  "slice_id": "SEMICONDUCTOR_ADVANCED_PACKAGING_CRITICAL_MATERIALS_V1",
+  "rows": [
+    {
+      "observation_id": "CAPOBS-MICRON-HBM-2025-BOOKED-001",
+      "entity_id": "ENTITY-MICRON",
+      "product_id": "PRODUCT-HBM-MICRON-2025",
+      "capacity_state": "BOOKED",
+      "installed_capacity": null,
+      "available_capacity": null,
+      "effective_capacity": null,
+      "booked_capacity": "ALL_DISCLOSED_CALENDAR_2025_HBM_OUTPUT",
+      "yield_value": null,
+      "yield_state": "UNKNOWN_NOT_DISCLOSED",
+      "qualification_type": null,
+      "qualification_state": null,
+      "evidence_ids": [
+        "EV-SEMI-MICRON-HBM-2025-SOLDOUT"
+      ],
+      "available_at": "2026-09-26T21:05:03Z"
+    },
+    {
+      "observation_id": "CAPOBS-MICRON-HBM3E12H-RAMP-001",
+      "entity_id": "ENTITY-MICRON",
+      "product_id": "PRODUCT-MICRON-HBM3E-12H",
+      "capacity_state": "RAMPING",
+      "installed_capacity": null,
+      "available_capacity": null,
+      "effective_capacity": null,
+      "booked_capacity": null,
+      "yield_value": null,
+      "yield_state": "RAMPING_UNQUANTIFIED",
+      "qualification_type": "PRODUCT_QUALIFICATION",
+      "qualification_state": "ADDITIONAL_PLATFORM_AND_CUSTOMER_QUALIFICATION_IN_PROGRESS",
+      "evidence_ids": [
+        "EV-SEMI-MICRON-HBM3E12H-RAMP-YIELD-2025",
+        "EV-SEMI-MICRON-NVIDIA-DESIGNIN-2025"
+      ],
+      "available_at": "2026-09-26T21:05:03Z"
+    },
+    {
+      "observation_id": "CAPOBS-SKHYNIX-HBM-2024-BOOKED-001",
+      "entity_id": "ENTITY-SK-HYNIX",
+      "product_id": "PRODUCT-SKHYNIX-HBM-2024",
+      "capacity_state": "BOOKED",
+      "installed_capacity": null,
+      "available_capacity": null,
+      "effective_capacity": null,
+      "booked_capacity": "ALL_DISCLOSED_PLANNED_2024_HBM_PRODUCTION",
+      "yield_value": null,
+      "yield_state": "UNKNOWN_NOT_DISCLOSED",
+      "qualification_type": null,
+      "qualification_state": null,
+      "evidence_ids": [
+        "EV-SEMI-SKHYNIX-HBM-2024-SOLDOUT"
+      ],
+      "available_at": "2026-09-26T21:05:03Z"
+    },
+    {
+      "observation_id": "CAPOBS-SKHYNIX-HBM3E-OPERATIONAL-001",
+      "entity_id": "ENTITY-SK-HYNIX",
+      "product_id": "PRODUCT-SKHYNIX-HBM3E",
+      "capacity_state": "OPERATIONAL",
+      "installed_capacity": null,
+      "available_capacity": null,
+      "effective_capacity": null,
+      "booked_capacity": null,
+      "yield_value": null,
+      "yield_state": "UNKNOWN_NOT_DISCLOSED",
+      "qualification_type": "CUSTOMER_QUALIFICATION",
+      "qualification_state": "CUSTOMER_SUPPLY_ANNOUNCED_FROM_LATE_MARCH_2024",
+      "evidence_ids": [
+        "EV-SEMI-SKHYNIX-HBM3E-VOLUME-PRODUCTION-2024"
+      ],
+      "available_at": "2026-09-26T21:05:03Z"
+    },
+    {
+      "observation_id": "CAPOBS-TSMC-COWOS-2025-FULLY-LOADED-001",
+      "entity_id": "ENTITY-TSMC",
+      "product_id": "TECH-TSMC-COWOS",
+      "capacity_state": "OPERATIONAL",
+      "utilization_state": "FULLY_LOADED",
+      "installed_capacity": null,
+      "available_capacity": "NO_UNBOOKED_CAPACITY_QUANTIFIED",
+      "effective_capacity": null,
+      "reserved_capacity": null,
+      "booked_capacity": null,
+      "yield_value": null,
+      "yield_state": "UNKNOWN_NOT_DISCLOSED",
+      "qualification_type": null,
+      "qualification_state": null,
+      "evidence_ids": [
+        "EV-SEMI-TSMC-COWOS-FULLY-LOADED-2025"
+      ],
+      "available_at": "2026-09-26T21:05:03Z"
+    },
+    {
+      "observation_id": "CAPOBS-TSMC-COWOS-2025-EXPANSION-001",
+      "entity_id": "ENTITY-TSMC",
+      "product_id": "TECH-TSMC-COWOS",
+      "capacity_state": "RAMPING",
+      "utilization_state": null,
+      "installed_capacity": null,
+      "available_capacity": null,
+      "effective_capacity": null,
+      "reserved_capacity": null,
+      "booked_capacity": null,
+      "yield_value": null,
+      "yield_state": "UNKNOWN_NOT_DISCLOSED",
+      "qualification_type": null,
+      "qualification_state": null,
+      "target_change": "DOUBLE_COWOS_CAPACITY_IN_2025",
+      "evidence_ids": [
+        "EV-SEMI-TSMC-COWOS-FULLY-LOADED-2025"
+      ],
+      "semantic_limit": "TARGET/EXPANSION IN PROGRESS; DOES NOT PROVE DOUBLING ACHIEVED",
+      "available_at": "2026-09-26T21:05:03Z"
+    }
+  ]
+}

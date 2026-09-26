@@ -1,0 +1,16 @@
+{
+  "$schema":"https://json-schema.org/draft/2020-12/schema",
+  "$id":"https://hydra.local/contracts/constraint-replay/outcome.schema.json",
+  "title":"Constraint Historical Outcome",
+  "type":"object",
+  "additionalProperties":false,
+  "required":["outcome_class","realized_constraint"],
+  "properties":{
+    "outcome_class":{"enum":["TRUE_POSITIVE","FALSE_POSITIVE","TRUE_NEGATIVE","FALSE_NEGATIVE","PARTIAL_REALIZATION","RIGHT_MECHANISM_WRONG_TIMING","RIGHT_CONSTRAINT_WRONG_BENEFICIARY","INVALIDATED","UNRESOLVED","UNEVALUABLE"]},
+    "realized_constraint":{"type":["boolean","null"]},
+    "impact_first_observed_at":{"type":["string","null"],"format":"date-time"},
+    "beneficiary_outcomes":{"type":"array","items":{"type":"string"}},
+    "exposure_outcomes":{"type":"array","items":{"type":"string"}},
+    "false_negative_evidence":{"type":"array","items":{"type":"string"}}
+  }
+}

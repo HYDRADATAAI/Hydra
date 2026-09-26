@@ -1,0 +1,91 @@
+{
+  "schema_version": "hydra-constraint-second-slice-t5-candidate-proposals/v1",
+  "record_id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH018_SEMICONDUCTOR_ADVANCED_PACKAGING_CRITICAL_MATERIALS_T5_CANDIDATE_PROPOSALS_V001",
+  "as_of": "2026-09-26",
+  "slice_id": "SEMICONDUCTOR_ADVANCED_PACKAGING_CRITICAL_MATERIALS_V1",
+  "producer_namespace": "PIPELINE_T5_CONSTRAINT_FORMATION",
+  "formation_mode": "REVIEWED_SHADOW_PROPOSAL_NOT_RUNTIME_ADMITTED",
+  "canonicalization_performed": false,
+  "candidates": [
+    {
+      "constraint_candidate_id": "T5C-SEMI-TSMC-COWOS-CAPACITY-2025-001",
+      "canonical_constraint_id": null,
+      "constraint_class": "CAPACITY",
+      "classification_status": "RESOLVED_SHADOW",
+      "constraining_mechanism": "TSMC CoWoS advanced-packaging capacity was fully loaded while AI-related demand required further capacity expansion.",
+      "constrained_target": "Additional TSMC CoWoS advanced-packaging throughput for AI accelerators",
+      "material_scope": {
+        "supplier": "TSMC",
+        "technology": "CoWoS",
+        "period": "2025",
+        "geography": "TSMC_NETWORK_UNSPECIFIED"
+      },
+      "semantic_temporal_state": "CURRENT_AT_2025Q1_SOURCE",
+      "evidence_roles": {
+        "constraint_support": [
+          "EV-SEMI-TSMC-COWOS-FULLY-LOADED-2025"
+        ],
+        "demand_context": [
+          "EV-SEMI-TSMC-AI-ACCELERATOR-DEMAND-2025"
+        ],
+        "relief_or_disconfirming": [
+          "EV-SEMI-TSMC-COWOS-2026-BALANCE-EXPECTATION"
+        ]
+      },
+      "formation_confidence": {
+        "type": "FORMATION_CONFIDENCE",
+        "measurement_state": "UNKNOWN_NOT_MEASURED",
+        "value": null
+      },
+      "ordinary_t6_eligible": false,
+      "ineligibility_reasons": [
+        "SEMICONDUCTOR-SLICE-006-RAW-SOURCE-VERSIONS-NOT-MATERIALIZED",
+        "CI-TEST-008-BLOCKER-001B-NATIVE-T5-T6-SIGNED-ADMISSION-RECEIPT-ABSENT"
+      ]
+    },
+    {
+      "constraint_candidate_id": "T5C-SEMI-HBM-BOOKED-SUPPLY-2024-2025-001",
+      "canonical_constraint_id": null,
+      "constraint_class": "CAPACITY",
+      "classification_status": "RESOLVED_SHADOW",
+      "constraining_mechanism": "Disclosed HBM production at multiple major suppliers was fully committed/sold out for bounded periods, limiting additional near-term supplier-available HBM output.",
+      "constrained_target": "Additional unbooked HBM supply for AI accelerator demand",
+      "material_scope": {
+        "suppliers": [
+          "Micron",
+          "SK hynix"
+        ],
+        "periods": [
+          "2024",
+          "2025"
+        ],
+        "product_family": "HBM"
+      },
+      "semantic_temporal_state": "HISTORICAL_REVIEWED_CURRENT_CAPTURE",
+      "evidence_roles": {
+        "constraint_support": [
+          "EV-SEMI-MICRON-HBM-2025-SOLDOUT",
+          "EV-SEMI-SKHYNIX-HBM-2024-SOLDOUT"
+        ],
+        "demand_context": [
+          "EV-SEMI-NVIDIA-HBM3E-REQUIREMENT-2026"
+        ],
+        "relief_or_disconfirming": [
+          "EV-SEMI-MICRON-HBM3E12H-RAMP-YIELD-2025",
+          "EV-SEMI-SKHYNIX-HBM3E-VOLUME-PRODUCTION-2024"
+        ]
+      },
+      "formation_confidence": {
+        "type": "FORMATION_CONFIDENCE",
+        "measurement_state": "UNKNOWN_NOT_MEASURED",
+        "value": null
+      },
+      "ordinary_t6_eligible": false,
+      "ineligibility_reasons": [
+        "SEMICONDUCTOR-SLICE-006-RAW-SOURCE-VERSIONS-NOT-MATERIALIZED",
+        "CI-TEST-008-BLOCKER-001B-NATIVE-T5-T6-SIGNED-ADMISSION-RECEIPT-ABSENT"
+      ],
+      "semantic_limit": "DOES_NOT_ASSERT ALL GLOBAL HBM SUPPLY WAS SOLD OUT OR THAT ALL HBM GENERATIONS/CUSTOMERS WERE EQUALLY CONSTRAINED"
+    }
+  ]
+}
