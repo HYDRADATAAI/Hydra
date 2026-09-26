@@ -10,6 +10,9 @@ on:
       - "tools/test_constraint_second_slice_batch017_audit_adversarial.py"
       - "tools/validate_constraint_semiconductor_pass004_source_seed.py"
       - "tools/test_constraint_semiconductor_pass004_source_seed.py"
+      - "tools/hydra_constraint_semiconductor_pass006_capture_intake.py"
+      - "tools/test_hydra_constraint_semiconductor_pass006_capture_intake.py"
+      - "constraint-t1-raw-artifact-store/**"
       - "tools/validate_constraint_second_slice_batch018_population.py"
       - "tools/test_constraint_second_slice_batch018_population_adversarial.py"
       - ".github/workflows/constraint-second-slice.yml"
@@ -24,6 +27,9 @@ on:
       - "tools/test_constraint_second_slice_batch017_audit_adversarial.py"
       - "tools/validate_constraint_semiconductor_pass004_source_seed.py"
       - "tools/test_constraint_semiconductor_pass004_source_seed.py"
+      - "tools/hydra_constraint_semiconductor_pass006_capture_intake.py"
+      - "tools/test_hydra_constraint_semiconductor_pass006_capture_intake.py"
+      - "constraint-t1-raw-artifact-store/**"
       - "tools/validate_constraint_second_slice_batch018_population.py"
       - "tools/test_constraint_second_slice_batch018_population_adversarial.py"
       - ".github/workflows/constraint-second-slice.yml"
@@ -51,3 +57,5 @@ jobs:
         run: python tools/validate_constraint_second_slice_batch018_population.py
       - name: Run Batch018 hostile matrix
         run: python tools/test_constraint_second_slice_batch018_population_adversarial.py
+      - name: Verify semiconductor private capture intake
+        run: python tools/test_hydra_constraint_semiconductor_pass006_capture_intake.py
