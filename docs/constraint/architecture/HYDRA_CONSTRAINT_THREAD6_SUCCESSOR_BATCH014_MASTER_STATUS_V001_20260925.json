@@ -9,7 +9,7 @@
   "slice_id": "AI_DATA_CENTER_POWER_INFRASTRUCTURE_V1",
   "acceptance_state": {
     "overall": "BLOCKED",
-    "strict_gate_pass_count": 8,
+    "strict_gate_pass_count": 9,
     "strict_gate_fail_count": 7,
     "functional_case_matrix": "10_OF_10_COVERED_WITH_SCOPE_CLASSES",
     "real_source_data_used": "YES",
@@ -29,6 +29,9 @@
     },
     "RAW_PROVENANCE_READY": {
       "status": "NO"
+    },
+    "T1_T2_PERSISTED_CHAIN_OF_CUSTODY_READY": {
+      "status": "YES"
     },
     "IMPLEMENTATION_ADMITTED": {
       "status": "NO"
@@ -62,5 +65,6 @@
     "CANONICAL-T5-T6-CONSTRAINT-AND-BENEFICIARY-ADMISSION-NOT-AUTHORIZED"
   ],
   "hard_stop_second_ecosystem": true,
-  "next_repo_executable_lane": "PRIVATE-T1-RAW-MATERIALIZATION-THEN-NATIVE-T5-T6-ADMISSION"
+  "next_repo_executable_lane": "PRIVATE-T1-RAW-MATERIALIZATION-THEN-NATIVE-T5-T6-ADMISSION",
+  "first_serious_constraint_run": "BLOCKED"
 }
