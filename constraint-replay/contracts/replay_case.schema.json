@@ -1,0 +1,24 @@
+{
+  "$schema":"https://json-schema.org/draft/2020-12/schema",
+  "$id":"https://hydra.local/contracts/constraint-replay/replay_case.schema.json",
+  "title":"HYDRA Constraint Replay Case",
+  "type":"object",
+  "additionalProperties":false,
+  "required":["case_id","replay_t","constraint_candidate","confidence_at_t","evidence","outcome"],
+  "properties":{
+    "case_id":{"type":"string","minLength":1},
+    "replay_t":{"type":"string","format":"date-time"},
+    "constraint_candidate":{"type":"string","minLength":1},
+    "confidence_at_t":{"type":"number","minimum":0,"maximum":1},
+    "geography":{"type":"array","items":{"type":"string"}},
+    "resources":{"type":"array","items":{"type":"string"}},
+    "infrastructure":{"type":"array","items":{"type":"string"}},
+    "affected_entities":{"type":"array","items":{"type":"string"}},
+    "expected_mechanism":{"type":"string"},
+    "expected_direction":{"type":"string"},
+    "expected_horizon_days":{"type":["integer","null"],"minimum":0},
+    "invalidators":{"type":"array","items":{"type":"string"}},
+    "evidence":{"type":"array","items":{"$ref":"evidence.schema.json"}},
+    "outcome":{"$ref":"outcome.schema.json"}
+  }
+}

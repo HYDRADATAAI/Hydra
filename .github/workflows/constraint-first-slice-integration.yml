@@ -7,6 +7,7 @@ on:
       - "constraint-t1-raw-artifact-store/**"
       - "t6-fail-closed-validator/**"
       - "tools/validate_constraint_first_slice_successor.py"
+      - "tools/validate_constraint_lily_owner_seams.py"
       - "tools/test_constraint_first_slice_adversarial.py"
       - "tools/validate_constraint_first_slice_acceptance_gate.py"
       - "tools/test_constraint_first_slice_acceptance_gate_adversarial.py"
@@ -25,6 +26,7 @@ on:
       - "constraint-t1-raw-artifact-store/**"
       - "t6-fail-closed-validator/**"
       - "tools/validate_constraint_first_slice_successor.py"
+      - "tools/validate_constraint_lily_owner_seams.py"
       - "tools/test_constraint_first_slice_adversarial.py"
       - "tools/validate_constraint_first_slice_acceptance_gate.py"
       - "tools/test_constraint_first_slice_acceptance_gate_adversarial.py"
@@ -80,3 +82,5 @@ jobs:
 
       - name: Run persisted custody hostile matrix
         run: python tools/test_constraint_first_slice_custody_adversarial.py
+      - name: Validate integrated Lily T5/T6 owner seams
+        run: python tools/validate_constraint_lily_owner_seams.py
