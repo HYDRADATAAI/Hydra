@@ -49,6 +49,16 @@ class TemporalFacts:
     resolved_at: datetime | None = None
 
     def validate(self) -> None:
+        # Every semantic clock must be timezone-aware. A naive clock cannot
+        # safely participate in point-in-time replay.
+        for label,ts in (
+            ("known_at",self.known_at),
+            ("effective_at",self.effective_at),
+            ("observed_at",self.observed_at),
+            ("resolved_at",self.resolved_at),
+        ):
+            if ts is not None and (ts.tzinfo is None or ts.utcoffset() is None):
+                raise ValidationError(f"{label} must be timezone-aware")
         # Clocks are intentionally independent. Only resolution has a hard
         # semantic lower bound against an effective action when both exist.
         if self.effective_at and self.resolved_at and self.resolved_at < self.effective_at:
@@ -159,6 +169,28 @@ def eligible_as_of(events: Iterable[HistoricalEvent], as_of: datetime) -> list[H
             continue
         eligible.append(event)
     return sorted(eligible, key=lambda e: (e.temporal.known_at, e.event_id))
+
+
+def active_events_as_of(
+    events: Iterable[HistoricalEvent], as_of: datetime
+) -> list[HistoricalEvent]:
+    """Return historically knowable events whose effective state is active.
+
+    This is deliberately distinct from eligible_as_of(), which answers what
+    evidence was knowable and therefore retains resolved historical events.
+    """
+    if as_of.tzinfo is None or as_of.utcoffset() is None:
+        raise ValidationError("as_of must be timezone-aware")
+    active: list[HistoricalEvent] = []
+    for event in eligible_as_of(events, as_of):
+        effective=event.temporal.effective_at
+        resolved=event.temporal.resolved_at
+        if effective is not None and effective > as_of:
+            continue
+        if resolved is not None and resolved <= as_of:
+            continue
+        active.append(event)
+    return active
 
 
 def warning_signs_as_of(
