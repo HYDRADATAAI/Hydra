@@ -1,0 +1,64 @@
+name: AWS market data pipeline sample
+
+on:
+  pull_request:
+    paths:
+      - "aws-market-data-pipeline/**"
+      - ".github/workflows/aws-market-data-pipeline.yml"
+  push:
+    branches:
+      - main
+    paths:
+      - "aws-market-data-pipeline/**"
+      - ".github/workflows/aws-market-data-pipeline.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  test-and-build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Set up AWS SAM
+        uses: aws-actions/setup-sam@v3
+
+      - name: Lint SAM template
+        working-directory: aws-market-data-pipeline
+        run: sam validate --lint --template-file template.json
+
+      - name: Run processor, Lambda, and infrastructure tests
+        working-directory: aws-market-data-pipeline
+        run: python -m unittest discover -s tests -t . -v
+
+      - name: Build deterministic local outputs
+        working-directory: aws-market-data-pipeline
+        run: python local_demo.py --output-dir build/local
+
+      - name: Verify expected manifest
+        working-directory: aws-market-data-pipeline
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          manifest = json.loads(Path("build/local/manifest.json").read_text(encoding="utf-8"))
+          assert manifest["accepted_rows"] == 3, manifest
+          assert manifest["quarantined_rows"] == 4, manifest
+          assert manifest["schema_version"] == "hydra-aws-market-pipeline-manifest/v1", manifest
+          print("AWS_SAMPLE_MANIFEST=PASS")
+          PY
+
+      - name: Publish local synthetic outputs
+        uses: actions/upload-artifact@v4
+        with:
+          name: hydra-aws-market-data-pipeline-local
+          path: aws-market-data-pipeline/build/local/
+          if-no-files-found: error

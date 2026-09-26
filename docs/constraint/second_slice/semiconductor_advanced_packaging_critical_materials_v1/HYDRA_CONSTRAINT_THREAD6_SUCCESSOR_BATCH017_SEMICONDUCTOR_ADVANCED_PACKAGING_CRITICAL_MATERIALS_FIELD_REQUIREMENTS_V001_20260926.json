@@ -1,0 +1,396 @@
+{
+  "schema_version": "hydra-constraint-second-slice-field-requirements/v1",
+  "record_id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH017_SEMICONDUCTOR_ADVANCED_PACKAGING_CRITICAL_MATERIALS_FIELD_REQUIREMENTS_V001",
+  "as_of": "2026-09-26",
+  "slice_id": "SEMICONDUCTOR_ADVANCED_PACKAGING_CRITICAL_MATERIALS_V1",
+  "frozen_field_count": 60,
+  "fields": [
+    {
+      "ordinal": 1,
+      "field_name": "entity_id",
+      "status": "FROZEN_V1_REQUIREMENT",
+      "unknown_policy": "UNKNOWN_ALLOWED_NO_FALSE_PRECISION"
+    },
+    {
+      "ordinal": 2,
+      "field_name": "entity_type",
+      "status": "FROZEN_V1_REQUIREMENT",
+      "unknown_policy": "UNKNOWN_ALLOWED_NO_FALSE_PRECISION"
+    },
+    {
+      "ordinal": 3,
+      "field_name": "facility_id",
+      "status": "FROZEN_V1_REQUIREMENT",
+      "unknown_policy": "UNKNOWN_ALLOWED_NO_FALSE_PRECISION"
+    },
+    {
+      "ordinal": 4,
+      "field_name": "facility_type",
+      "status": "FROZEN_V1_REQUIREMENT",
+      "unknown_policy": "UNKNOWN_ALLOWED_NO_FALSE_PRECISION"
+    },
+    {
+      "ordinal": 5,
+      "field_name": "facility_owner_id",
+      "status": "FROZEN_V1_REQUIREMENT",
+      "unknown_policy": "UNKNOWN_ALLOWED_NO_FALSE_PRECISION"
+    },
+    {
+      "ordinal": 6,
+      "field_name": "geography_id",
+      "status": "FROZEN_V1_REQUIREMENT",
+      "unknown_policy": "UNKNOWN_ALLOWED_NO_FALSE_PRECISION"
+    },
+    {
+      "ordinal": 7,
+      "field_name": "product_id",
+      "status": "FROZEN_V1_REQUIREMENT",
+      "unknown_policy": "UNKNOWN_ALLOWED_NO_FALSE_PRECISION"
+    },
+    {
+      "ordinal": 8,
+      "field_name": "product_type",
+      "status": "FROZEN_V1_REQUIREMENT",
+      "unknown_policy": "UNKNOWN_ALLOWED_NO_FALSE_PRECISION"
+    },
+    {
+      "ordinal": 9,
+      "field_name": "technology_id",
+      "status": "FROZEN_V1_REQUIREMENT",
+      "unknown_policy": "UNKNOWN_ALLOWED_NO_FALSE_PRECISION"
+    },
+    {
+      "ordinal": 10,
+      "field_name": "process_id",
+      "status": "FROZEN_V1_REQUIREMENT",
+      "unknown_policy": "UNKNOWN_ALLOWED_NO_FALSE_PRECISION"
+    },
+    {
+      "ordinal": 11,
+      "field_name": "process_node",
+      "status": "FROZEN_V1_REQUIREMENT",
+      "unknown_policy": "UNKNOWN_ALLOWED_NO_FALSE_PRECISION"
+    },
+    {
+      "ordinal": 12,
+      "field_name": "process_generation",
+      "status": "FROZEN_V1_REQUIREMENT",
+      "unknown_policy": "UNKNOWN_ALLOWED_NO_FALSE_PRECISION"
+    },
+    {
+      "ordinal": 13,
+      "field_name": "manufacturing_stage",
+      "status": "FROZEN_V1_REQUIREMENT",
+      "unknown_policy": "UNKNOWN_ALLOWED_NO_FALSE_PRECISION"
+    },
+    {
+      "ordinal": 14,
+      "field_name": "packaging_type",
+      "status": "FROZEN_V1_REQUIREMENT",
+      "unknown_policy": "UNKNOWN_ALLOWED_NO_FALSE_PRECISION"
+    },
+    {
+      "ordinal": 15,
+      "field_name": "capacity_state",
+      "status": "FROZEN_V1_REQUIREMENT",
+      "unknown_policy": "UNKNOWN_ALLOWED_NO_FALSE_PRECISION"
+    },
+    {
+      "ordinal": 16,
+      "field_name": "installed_capacity",
+      "status": "FROZEN_V1_REQUIREMENT",
+      "unknown_policy": "UNKNOWN_ALLOWED_NO_FALSE_PRECISION"
+    },
+    {
+      "ordinal": 17,
+      "field_name": "operational_capacity",
+      "status": "FROZEN_V1_REQUIREMENT",
+      "unknown_policy": "UNKNOWN_ALLOWED_NO_FALSE_PRECISION"
+    },
+    {
+      "ordinal": 18,
+      "field_name": "available_capacity",
+      "status": "FROZEN_V1_REQUIREMENT",
+      "unknown_policy": "UNKNOWN_ALLOWED_NO_FALSE_PRECISION"
+    },
+    {
+      "ordinal": 19,
+      "field_name": "effective_capacity",
+      "status": "FROZEN_V1_REQUIREMENT",
+      "unknown_policy": "UNKNOWN_ALLOWED_NO_FALSE_PRECISION"
+    },
+    {
+      "ordinal": 20,
+      "field_name": "reserved_capacity",
+      "status": "FROZEN_V1_REQUIREMENT",
+      "unknown_policy": "UNKNOWN_ALLOWED_NO_FALSE_PRECISION"
+    },
+    {
+      "ordinal": 21,
+      "field_name": "booked_capacity",
+      "status": "FROZEN_V1_REQUIREMENT",
+      "unknown_policy": "UNKNOWN_ALLOWED_NO_FALSE_PRECISION"
+    },
+    {
+      "ordinal": 22,
+      "field_name": "capacity_unit",
+      "status": "FROZEN_V1_REQUIREMENT",
+      "unknown_policy": "UNKNOWN_ALLOWED_NO_FALSE_PRECISION"
+    },
+    {
+      "ordinal": 23,
+      "field_name": "capacity_period",
+      "status": "FROZEN_V1_REQUIREMENT",
+      "unknown_policy": "UNKNOWN_ALLOWED_NO_FALSE_PRECISION"
+    },
+    {
+      "ordinal": 24,
+      "field_name": "utilization_state",
+      "status": "FROZEN_V1_REQUIREMENT",
+      "unknown_policy": "UNKNOWN_ALLOWED_NO_FALSE_PRECISION"
+    },
+    {
+      "ordinal": 25,
+      "field_name": "yield_value",
+      "status": "FROZEN_V1_REQUIREMENT",
+      "unknown_policy": "UNKNOWN_ALLOWED_NO_FALSE_PRECISION"
+    },
+    {
+      "ordinal": 26,
+      "field_name": "yield_state",
+      "status": "FROZEN_V1_REQUIREMENT",
+      "unknown_policy": "UNKNOWN_ALLOWED_NO_FALSE_PRECISION"
+    },
+    {
+      "ordinal": 27,
+      "field_name": "yield_available_at",
+      "status": "FROZEN_V1_REQUIREMENT",
+      "unknown_policy": "UNKNOWN_ALLOWED_NO_FALSE_PRECISION"
+    },
+    {
+      "ordinal": 28,
+      "field_name": "qualification_type",
+      "status": "FROZEN_V1_REQUIREMENT",
+      "unknown_policy": "UNKNOWN_ALLOWED_NO_FALSE_PRECISION"
+    },
+    {
+      "ordinal": 29,
+      "field_name": "qualification_state",
+      "status": "FROZEN_V1_REQUIREMENT",
+      "unknown_policy": "UNKNOWN_ALLOWED_NO_FALSE_PRECISION"
+    },
+    {
+      "ordinal": 30,
+      "field_name": "qualification_start",
+      "status": "FROZEN_V1_REQUIREMENT",
+      "unknown_policy": "UNKNOWN_ALLOWED_NO_FALSE_PRECISION"
+    },
+    {
+      "ordinal": 31,
+      "field_name": "qualification_complete",
+      "status": "FROZEN_V1_REQUIREMENT",
+      "unknown_policy": "UNKNOWN_ALLOWED_NO_FALSE_PRECISION"
+    },
+    {
+      "ordinal": 32,
+      "field_name": "customer_id",
+      "status": "FROZEN_V1_REQUIREMENT",
+      "unknown_policy": "UNKNOWN_ALLOWED_NO_FALSE_PRECISION"
+    },
+    {
+      "ordinal": 33,
+      "field_name": "supplier_id",
+      "status": "FROZEN_V1_REQUIREMENT",
+      "unknown_policy": "UNKNOWN_ALLOWED_NO_FALSE_PRECISION"
+    },
+    {
+      "ordinal": 34,
+      "field_name": "supplier_role",
+      "status": "FROZEN_V1_REQUIREMENT",
+      "unknown_policy": "UNKNOWN_ALLOWED_NO_FALSE_PRECISION"
+    },
+    {
+      "ordinal": 35,
+      "field_name": "equipment_id",
+      "status": "FROZEN_V1_REQUIREMENT",
+      "unknown_policy": "UNKNOWN_ALLOWED_NO_FALSE_PRECISION"
+    },
+    {
+      "ordinal": 36,
+      "field_name": "equipment_type",
+      "status": "FROZEN_V1_REQUIREMENT",
+      "unknown_policy": "UNKNOWN_ALLOWED_NO_FALSE_PRECISION"
+    },
+    {
+      "ordinal": 37,
+      "field_name": "equipment_installed_state",
+      "status": "FROZEN_V1_REQUIREMENT",
+      "unknown_policy": "UNKNOWN_ALLOWED_NO_FALSE_PRECISION"
+    },
+    {
+      "ordinal": 38,
+      "field_name": "equipment_qualification_state",
+      "status": "FROZEN_V1_REQUIREMENT",
+      "unknown_policy": "UNKNOWN_ALLOWED_NO_FALSE_PRECISION"
+    },
+    {
+      "ordinal": 39,
+      "field_name": "equipment_lead_time",
+      "status": "FROZEN_V1_REQUIREMENT",
+      "unknown_policy": "UNKNOWN_ALLOWED_NO_FALSE_PRECISION"
+    },
+    {
+      "ordinal": 40,
+      "field_name": "material_id",
+      "status": "FROZEN_V1_REQUIREMENT",
+      "unknown_policy": "UNKNOWN_ALLOWED_NO_FALSE_PRECISION"
+    },
+    {
+      "ordinal": 41,
+      "field_name": "material_stage",
+      "status": "FROZEN_V1_REQUIREMENT",
+      "unknown_policy": "UNKNOWN_ALLOWED_NO_FALSE_PRECISION"
+    },
+    {
+      "ordinal": 42,
+      "field_name": "material_grade",
+      "status": "FROZEN_V1_REQUIREMENT",
+      "unknown_policy": "UNKNOWN_ALLOWED_NO_FALSE_PRECISION"
+    },
+    {
+      "ordinal": 43,
+      "field_name": "material_processing_state",
+      "status": "FROZEN_V1_REQUIREMENT",
+      "unknown_policy": "UNKNOWN_ALLOWED_NO_FALSE_PRECISION"
+    },
+    {
+      "ordinal": 44,
+      "field_name": "material_qualification_state",
+      "status": "FROZEN_V1_REQUIREMENT",
+      "unknown_policy": "UNKNOWN_ALLOWED_NO_FALSE_PRECISION"
+    },
+    {
+      "ordinal": 45,
+      "field_name": "power_dependency_state",
+      "status": "FROZEN_V1_REQUIREMENT",
+      "unknown_policy": "UNKNOWN_ALLOWED_NO_FALSE_PRECISION"
+    },
+    {
+      "ordinal": 46,
+      "field_name": "water_dependency_state",
+      "status": "FROZEN_V1_REQUIREMENT",
+      "unknown_policy": "UNKNOWN_ALLOWED_NO_FALSE_PRECISION"
+    },
+    {
+      "ordinal": 47,
+      "field_name": "logistics_dependency_state",
+      "status": "FROZEN_V1_REQUIREMENT",
+      "unknown_policy": "UNKNOWN_ALLOWED_NO_FALSE_PRECISION"
+    },
+    {
+      "ordinal": 48,
+      "field_name": "trade_or_export_restriction_state",
+      "status": "FROZEN_V1_REQUIREMENT",
+      "unknown_policy": "UNKNOWN_ALLOWED_NO_FALSE_PRECISION"
+    },
+    {
+      "ordinal": 49,
+      "field_name": "substitute_id",
+      "status": "FROZEN_V1_REQUIREMENT",
+      "unknown_policy": "UNKNOWN_ALLOWED_NO_FALSE_PRECISION"
+    },
+    {
+      "ordinal": 50,
+      "field_name": "substitution_state",
+      "status": "FROZEN_V1_REQUIREMENT",
+      "unknown_policy": "UNKNOWN_ALLOWED_NO_FALSE_PRECISION"
+    },
+    {
+      "ordinal": 51,
+      "field_name": "evidence_ids",
+      "status": "FROZEN_V1_REQUIREMENT",
+      "unknown_policy": "UNKNOWN_ALLOWED_NO_FALSE_PRECISION"
+    },
+    {
+      "ordinal": 52,
+      "field_name": "source_version_ids",
+      "status": "FROZEN_V1_REQUIREMENT",
+      "unknown_policy": "UNKNOWN_ALLOWED_NO_FALSE_PRECISION"
+    },
+    {
+      "ordinal": 53,
+      "field_name": "effective_from",
+      "status": "FROZEN_V1_REQUIREMENT",
+      "unknown_policy": "UNKNOWN_ALLOWED_NO_FALSE_PRECISION"
+    },
+    {
+      "ordinal": 54,
+      "field_name": "effective_to",
+      "status": "FROZEN_V1_REQUIREMENT",
+      "unknown_policy": "UNKNOWN_ALLOWED_NO_FALSE_PRECISION"
+    },
+    {
+      "ordinal": 55,
+      "field_name": "available_at",
+      "status": "FROZEN_V1_REQUIREMENT",
+      "unknown_policy": "UNKNOWN_ALLOWED_NO_FALSE_PRECISION"
+    },
+    {
+      "ordinal": 56,
+      "field_name": "observed_at",
+      "status": "FROZEN_V1_REQUIREMENT",
+      "unknown_policy": "UNKNOWN_ALLOWED_NO_FALSE_PRECISION"
+    },
+    {
+      "ordinal": 57,
+      "field_name": "confidence_type",
+      "status": "FROZEN_V1_REQUIREMENT",
+      "unknown_policy": "UNKNOWN_ALLOWED_NO_FALSE_PRECISION"
+    },
+    {
+      "ordinal": 58,
+      "field_name": "confidence_value",
+      "status": "FROZEN_V1_REQUIREMENT",
+      "unknown_policy": "UNKNOWN_ALLOWED_NO_FALSE_PRECISION"
+    },
+    {
+      "ordinal": 59,
+      "field_name": "contradiction_state",
+      "status": "FROZEN_V1_REQUIREMENT",
+      "unknown_policy": "UNKNOWN_ALLOWED_NO_FALSE_PRECISION"
+    },
+    {
+      "ordinal": 60,
+      "field_name": "quarantine_state",
+      "status": "FROZEN_V1_REQUIREMENT",
+      "unknown_policy": "UNKNOWN_ALLOWED_NO_FALSE_PRECISION"
+    }
+  ],
+  "semantic_firewalls": [
+    "ANNOUNCED_FAB_NE_COMPLETED_FAB",
+    "COMPLETED_FAB_NE_QUALIFIED_PRODUCTION",
+    "TOOL_INSTALLED_NE_PRODUCTION_READY_TOOL",
+    "INSTALLED_CAPACITY_NE_EFFECTIVE_CAPACITY",
+    "NAMEPLATE_CAPACITY_NE_USABLE_OUTPUT",
+    "WAFER_CAPACITY_NE_GOOD_DIE_OUTPUT",
+    "CAPACITY_INCREASE_NE_EQUIVALENT_PRODUCT_SUPPLY",
+    "PROCESS_QUALIFICATION_NE_CUSTOMER_QUALIFICATION",
+    "DESIGN_WIN_NE_PRODUCTION_VOLUME",
+    "CUSTOMER_QUALIFICATION_NE_PURCHASE_ORDER",
+    "PURCHASE_ORDER_NE_SHIPMENT",
+    "PACKAGING_LINE_EXISTS_NE_REQUIRED_PACKAGING_CAPABILITY",
+    "HBM_PRODUCTION_NE_QUALIFIED_HBM_FOR_SPECIFIC_ACCELERATOR",
+    "MATERIAL_RESOURCE_NE_RECOVERABLE_RESERVE",
+    "RESERVE_NE_PROCESSED_MATERIAL",
+    "PROCESSED_MATERIAL_NE_SEMICONDUCTOR_GRADE_MATERIAL",
+    "SUPPLIER_EXISTS_NE_QUALIFIED_SUPPLIER",
+    "SUPPLIER_CAPACITY_NE_AVAILABLE_CAPACITY",
+    "AVAILABLE_CAPACITY_NE_ADDRESSABLE_CAPACITY",
+    "SUBSTITUTE_EXISTS_NE_QUALIFIED_SUBSTITUTE",
+    "NEW_CAPACITY_ANNOUNCEMENT_NE_CONSTRAINT_RESOLVED",
+    "HIGH_DEMAND_NE_BINDING_CONSTRAINT",
+    "HIGH_PRICE_NE_PROVEN_SHORTAGE",
+    "GEOGRAPHIC_CONCENTRATION_NE_DISRUPTION",
+    "EXPORT_RESTRICTION_NE_COMPLETE_SUPPLY_CUTOFF"
+  ]
+}

@@ -1,0 +1,81 @@
+{
+  "schema_version": "hydra-constraint-thread6-successor-manifest/v1",
+  "record_id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH017_ARTIFACT_MANIFEST_V001",
+  "as_of": "2026-09-26",
+  "repository": "HYDRADATAAI/Hydra",
+  "base_head": "61fed50b2f9487c8082e2271dc65beef856f75d6",
+  "predecessor_batch": {
+    "id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH016",
+    "preservation": "IMMUTABLE_NOT_REWRITTEN"
+  },
+  "owner_seam_reconciliation": "HYDRA_CONSTRAINT_LILY_OWNER_SEAM_RECONCILIATION_STATUS_V002_20260926",
+  "slice_id": "SEMICONDUCTOR_ADVANCED_PACKAGING_CRITICAL_MATERIALS_V1",
+  "result": "PASS_SCOPE_AND_AUTHORITY_FROZEN_POPULATION_EMPTY",
+  "artifacts": [
+    {
+      "path": "docs/constraint/second_slice/semiconductor_advanced_packaging_critical_materials_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH017_SEMICONDUCTOR_ADVANCED_PACKAGING_CRITICAL_MATERIALS_SCOPE_MANIFEST_V001_20260926.json",
+      "git_blob_sha": "81a4190fda86d9f48223141892865b8a539696ba"
+    },
+    {
+      "path": "docs/constraint/second_slice/semiconductor_advanced_packaging_critical_materials_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH017_SEMICONDUCTOR_ADVANCED_PACKAGING_CRITICAL_MATERIALS_SEMANTIC_REUSE_AUDIT_V001_20260926.json",
+      "git_blob_sha": "0e537e445821cc49f707d651193c991bcbf40d64"
+    },
+    {
+      "path": "docs/constraint/second_slice/semiconductor_advanced_packaging_critical_materials_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH017_SEMICONDUCTOR_ADVANCED_PACKAGING_CRITICAL_MATERIALS_FIELD_REQUIREMENTS_V001_20260926.json",
+      "git_blob_sha": "f02fdffce928d755e5318e132dbf1af583866d5d"
+    },
+    {
+      "path": "docs/constraint/second_slice/semiconductor_advanced_packaging_critical_materials_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH017_SEMICONDUCTOR_ADVANCED_PACKAGING_CRITICAL_MATERIALS_REQUIRED_CASE_MATRIX_V001_20260926.json",
+      "git_blob_sha": "973aa3e98c72b70cc6710877429bc63a1447ebbe"
+    },
+    {
+      "path": "docs/constraint/second_slice/semiconductor_advanced_packaging_critical_materials_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH017_SEMICONDUCTOR_ADVANCED_PACKAGING_CRITICAL_MATERIALS_AUTHORITY_MAP_V001_20260926.json",
+      "git_blob_sha": "59f071122671fb2f1ef56208ff575e845201c57e"
+    },
+    {
+      "path": "docs/constraint/second_slice/semiconductor_advanced_packaging_critical_materials_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH017_SEMICONDUCTOR_ADVANCED_PACKAGING_CRITICAL_MATERIALS_STATUS_V001_20260926.json",
+      "git_blob_sha": "f491936db6f2ff8d8603f55aaa5427aafd4c313a"
+    },
+    {
+      "path": "docs/constraint/architecture/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH017_MASTER_STATUS_V001_20260926.json",
+      "git_blob_sha": "e0cd67652eb8626be8477e0e705d71bc44cd775f"
+    },
+    {
+      "path": "docs/constraint/architecture/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH017_SEMICONDUCTOR_ADVANCED_PACKAGING_CRITICAL_MATERIALS_CAPABILITY_LEDGER_DELTA_V001_20260926.json",
+      "git_blob_sha": "22e346745d8ae273461eef97185fff45ae5a0304"
+    },
+    {
+      "path": "docs/constraint/validation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH017_SEMICONDUCTOR_ADVANCED_PACKAGING_CRITICAL_MATERIALS_AUDIT_REPORT_V001_20260926.md",
+      "git_blob_sha": "1a8b027b68e55b061c05ea364646d952d3367624"
+    }
+  ],
+  "excluded_operational_tools": [
+    {
+      "path": "tools/validate_constraint_second_slice_batch017_audit.py",
+      "reason": "operational validator may evolve without manifest self-reference"
+    },
+    {
+      "path": "tools/test_constraint_second_slice_batch017_audit_adversarial.py",
+      "reason": "hostile harness may evolve without manifest self-reference"
+    },
+    {
+      "path": "tools/nyx_validate_constraint_successor_chain.py",
+      "reason": "cross-batch operational validator"
+    },
+    {
+      "path": "tools/nyx_test_constraint_successor_chain_adversarial.py",
+      "reason": "cross-batch hostile validator"
+    },
+    {
+      "path": ".github/workflows/constraint-second-slice.yml",
+      "reason": "CI orchestration"
+    }
+  ],
+  "expected": {
+    "semantic_duplication_created": false,
+    "semiconductor_specific_population": "NO",
+    "required_cases_frozen": 14,
+    "first_semiconductor_run": "BLOCKED",
+    "next_repo_executable_lane": "SECOND-SLICE-SOURCE-AUTHORITY-AND-FIRST-POPULATION"
+  }
+}

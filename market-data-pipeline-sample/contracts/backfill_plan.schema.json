@@ -1,0 +1,32 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "inputs": {
+      "items": {
+        "additionalProperties": false,
+        "properties": {
+          "path": {"minLength": 1, "type": "string"},
+          "source_id": {
+            "pattern": "^[a-z0-9][a-z0-9._-]{0,79}$",
+            "type": "string"
+          }
+        },
+        "required": ["path", "source_id"],
+        "type": "object"
+      },
+      "minItems": 1,
+      "type": "array"
+    },
+    "max_partitions": {"minimum": 1, "type": "integer"},
+    "max_total_source_bytes": {"minimum": 1, "type": "integer"},
+    "schema_version": {"const": "hydra-market-backfill-plan/v1"}
+  },
+  "required": [
+    "inputs",
+    "max_partitions",
+    "max_total_source_bytes",
+    "schema_version"
+  ],
+  "type": "object"
+}

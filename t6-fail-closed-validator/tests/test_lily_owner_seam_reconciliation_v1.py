@@ -16,12 +16,13 @@ ROOT = Path(__file__).resolve().parents[2]
 SLICE = ROOT / "docs" / "constraint" / "first_slice" / "ai_data_center_power_infrastructure_v1"
 
 FILES = {
+    "typed_confidence": SLICE / "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH015_AI_DATA_CENTER_POWER_INFRASTRUCTURE_TYPED_CONFIDENCE_OVERLAY_V001_20260925.json",
     "claims": SLICE / "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH010_AI_DATA_CENTER_POWER_INFRASTRUCTURE_CLAIM_REGISTRY_V001_20260925.json",
     "candidates": SLICE / "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH010_AI_DATA_CENTER_POWER_INFRASTRUCTURE_T5_CANDIDATE_PROPOSALS_V001_20260925.json",
     "beneficiaries": SLICE / "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH010_AI_DATA_CENTER_POWER_INFRASTRUCTURE_BENEFICIARY_EVALUATIONS_V001_20260925.json",
-    "overlay": SLICE / "HYDRA_CONSTRAINT_LILY_OWNER_SEAM_RECONCILIATION_T5_CANDIDATE_TEMPORAL_IDENTITY_OVERLAY_V001_20260926.json",
+    "overlay": SLICE / "HYDRA_CONSTRAINT_LILY_OWNER_SEAM_RECONCILIATION_T5_CANDIDATE_TEMPORAL_IDENTITY_OVERLAY_V002_20260926.json",
     "batch13": SLICE / "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH013_AI_DATA_CENTER_POWER_INFRASTRUCTURE_EATON_TRANSFORMER_PREQUALIFICATION_OVERLAY_V001_20260925.json",
-    "batch14": SLICE / "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH014_AI_DATA_CENTER_POWER_INFRASTRUCTURE_STRICT_ACCEPTANCE_GATE_V001_20260925.json",
+    "batch16": SLICE / "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH016_AI_DATA_CENTER_POWER_INFRASTRUCTURE_STRICT_ACCEPTANCE_GATE_V001_20260925.json",
 }
 
 
@@ -45,9 +46,10 @@ class LilyOwnerSeamReconciliationTests(unittest.TestCase):
             claims=source["claims"],
             candidates=source["candidates"],
             beneficiaries=source["beneficiaries"],
-            overlay=source["overlay"],
+            temporal_identity_overlay=source["overlay"],
+            typed_confidence=source["typed_confidence"],
             batch13_beneficiary_overlay=source["batch13"],
-            batch14_strict_gate=source["batch14"],
+            batch16_strict_gate=source["batch16"],
         )
 
     def mutated(self):
@@ -55,7 +57,7 @@ class LilyOwnerSeamReconciliationTests(unittest.TestCase):
 
     def test_committed_owner_seams_pass_fail_closed(self):
         result = self.validate()
-        self.assertEqual("PASS_FAIL_CLOSED_OWNER_SEAMS", result["status"])
+        self.assertEqual("PASS_CURRENT_FAIL_CLOSED_OWNER_SEAMS", result["status"])
         self.assertEqual(10, result["claim_count"])
         self.assertEqual(3, result["candidate_count"])
         self.assertEqual(4, result["beneficiary_relationship_count"])
@@ -79,10 +81,10 @@ class LilyOwnerSeamReconciliationTests(unittest.TestCase):
         with self.assertRaisesRegex(OwnerSeamConformanceError, "backdates availability"):
             self.validate(docs)
 
-    def test_missing_formation_confidence_stays_not_evaluated(self):
+    def test_missing_formation_confidence_stays_explicit_unknown(self):
         docs = self.mutated()
-        docs["overlay"]["candidates"][0]["formation_confidence_state"] = "HIGH"
-        with self.assertRaisesRegex(OwnerSeamConformanceError, "NOT_EVALUATED"):
+        docs["typed_confidence"]["candidate_confidence"][0]["measurement_state"] = "HIGH"
+        with self.assertRaisesRegex(OwnerSeamConformanceError, "explicit unknown"):
             self.validate(docs)
 
     def test_overlay_cannot_invent_effective_interval(self):
@@ -113,21 +115,21 @@ class LilyOwnerSeamReconciliationTests(unittest.TestCase):
         with self.assertRaisesRegex(OwnerSeamConformanceError, "not inherited from parent"):
             self.validate(docs)
 
-    def test_batch13_prequalification_cannot_fabricate_economic_capture(self):
+    def test_batch13_prequalification_cannot_claim_canonical_qualification(self):
         docs = self.mutated()
-        docs["batch13"]["evidence_roles"]["economic_capture"] = ["CLM-AIDC-005"]
-        with self.assertRaisesRegex(OwnerSeamConformanceError, "fabricated economic capture"):
+        docs["batch13"]["canonical_qualification_state"] = "QUALIFIED"
+        with self.assertRaisesRegex(OwnerSeamConformanceError, "blocked qualification state"):
             self.validate(docs)
 
     def test_strict_gate_cannot_turn_shadow_candidate_coverage_into_formation_pass(self):
         docs = self.mutated()
-        docs["batch14"]["dimensions"]["IMPLEMENTATION_ADMITTED"]["status"] = "READY"
-        with self.assertRaisesRegex(OwnerSeamConformanceError, "constraint-formation gate"):
+        docs["batch16"]["dimensions"]["IMPLEMENTATION_ADMITTED"]["status"] = "READY"
+        with self.assertRaisesRegex(OwnerSeamConformanceError, "implementation admission"):
             self.validate(docs)
 
     def test_strict_gate_cannot_turn_blocked_beneficiary_evaluation_into_pass(self):
         docs = self.mutated()
-        docs["batch14"]["dimensions"]["IMPLEMENTATION_ADMITTED"]["blockers"].remove(
+        docs["batch16"]["dimensions"]["IMPLEMENTATION_ADMITTED"]["blockers"].remove(
             "CANONICAL-T5-T6-CONSTRAINT-AND-BENEFICIARY-ADMISSION-NOT-AUTHORIZED"
         )
         with self.assertRaisesRegex(OwnerSeamConformanceError, "beneficiary gate"):
@@ -150,13 +152,13 @@ class LilyOwnerSeamReconciliationTests(unittest.TestCase):
         for field, value in mutations:
             with self.subTest(field=field, value=value):
                 docs = self.mutated()
-                docs["batch14"][field] = value
+                docs["batch16"][field] = value
                 with self.assertRaises(OwnerSeamConformanceError):
                     self.validate(docs)
 
     def test_mainline_gate_cannot_drop_native_admission_blocker(self):
         docs = self.mutated()
-        docs["batch14"]["dimensions"]["IMPLEMENTATION_ADMITTED"]["blockers"].remove(
+        docs["batch16"]["dimensions"]["IMPLEMENTATION_ADMITTED"]["blockers"].remove(
             "CI-TEST-008-BLOCKER-001B-NATIVE-T5-T6-SIGNED-ADMISSION-RECEIPT-ABSENT"
         )
         with self.assertRaisesRegex(OwnerSeamConformanceError, "native admission blocker"):

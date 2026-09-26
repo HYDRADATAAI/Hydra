@@ -1,0 +1,70 @@
+{
+  "schema_version": "hydra-constraint-second-slice-authority-map/v1",
+  "record_id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH017_SEMICONDUCTOR_ADVANCED_PACKAGING_CRITICAL_MATERIALS_AUTHORITY_MAP_V001",
+  "as_of": "2026-09-26",
+  "slice_id": "SEMICONDUCTOR_ADVANCED_PACKAGING_CRITICAL_MATERIALS_V1",
+  "owner_seam_pin": "HYDRA_CONSTRAINT_LILY_OWNER_SEAM_RECONCILIATION_STATUS_V002_20260926",
+  "authorities": [
+    {
+      "concept": "source/source_version/raw_artifact/acquisition/available_at",
+      "owner": "PIPELINE_T1_SOURCE_ACQUISITION",
+      "action": "REUSE"
+    },
+    {
+      "concept": "normalized evidence",
+      "owner": "PIPELINE_T2_EVIDENCE_NORMALIZATION",
+      "action": "REUSE"
+    },
+    {
+      "concept": "entity/claim/relationship extraction",
+      "owner": "PIPELINE_T3_SEMANTIC_EXTRACTION",
+      "action": "REUSE"
+    },
+    {
+      "concept": "provenance/dedupe/contradiction/evidence quality",
+      "owner": "PIPELINE_T4_TRUST_GOVERNANCE",
+      "action": "REUSE"
+    },
+    {
+      "concept": "constraint formation",
+      "owner": "PIPELINE_T5_CONSTRAINT_FORMATION",
+      "action": "REUSE"
+    },
+    {
+      "concept": "canonical constraint and beneficiary governance",
+      "owner": "PIPELINE_T6_CANONICAL_CANDIDATE_GOVERNANCE",
+      "action": "REUSE"
+    },
+    {
+      "concept": "constraint class/truth semantics",
+      "owner": "LILY_THREAD_2_CONSTRAINT_SEMANTICS",
+      "action": "REUSE"
+    },
+    {
+      "concept": "canonical/beneficiary policy",
+      "owner": "LILY_THREAD_3_CANONICAL_BENEFICIARY",
+      "action": "REUSE"
+    },
+    {
+      "concept": "historical replay/Baby-ML observation boundary",
+      "owner": "LILY_THREAD_4_BABY_ML_CONTRACT",
+      "action": "REUSE"
+    },
+    {
+      "concept": "source-family coverage design",
+      "owner": "LILY_THREAD_5_SOURCE_COVERAGE",
+      "action": "REUSE"
+    },
+    {
+      "concept": "cross-thread/current master reconciliation",
+      "owner": "LILY_THREAD_6_ARCHITECTURE_REGISTER",
+      "action": "REUSE"
+    },
+    {
+      "concept": "geography/strategic assets/resources/infrastructure/policy",
+      "owner": "EXISTING_CONSTRAINT_DOMAIN_LANES",
+      "action": "REUSE_AND_POPULATE"
+    }
+  ],
+  "parallel_architecture_authorized": false
+}

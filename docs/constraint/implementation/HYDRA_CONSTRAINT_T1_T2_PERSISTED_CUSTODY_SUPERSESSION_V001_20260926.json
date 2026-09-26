@@ -1,0 +1,41 @@
+{
+  "schema_version": "hydra-constraint-t1-t2-persisted-custody-supersession/v1",
+  "record_id": "HYDRA_CONSTRAINT_T1_T2_PERSISTED_CUSTODY_SUPERSESSION_V001",
+  "as_of": "2026-09-26",
+  "owner_namespace": "PIPELINE_T1_SOURCE_ACQUISITION",
+  "purpose": "Record exact predecessor-to-successor blob transitions for the rebased persisted-custody implementation hardening without rewriting sealed historical manifests.",
+  "acceptance_effect": "NONE",
+  "raw_source_materialization_claimed": false,
+  "network_acquisition_authorized": false,
+  "ordinary_replay_promoted": false,
+  "canonical_constraint_or_beneficiary_admission_promoted": false,
+  "superseded_artifacts": [
+    {
+      "path": "constraint-t1-raw-artifact-store/src/hydra_constraint_t1_raw/store.py",
+      "predecessor_git_blob_sha": "c360aff06500ef19ac2f76e3b5efb9ef7debd90d",
+      "successor_git_blob_sha": "040af0ee154e3cf6e64a145125fc1254ce170902"
+    },
+    {
+      "path": "constraint-t1-raw-artifact-store/tests/test_store.py",
+      "predecessor_git_blob_sha": "4a2bbd00189ac7b62f338cf7a21062f35ba1c31f",
+      "successor_git_blob_sha": "da24ccc223900e345c5e1fb4fc92ae35db87f467"
+    },
+    {
+      "path": "constraint-t1-raw-artifact-store/README.md",
+      "predecessor_git_blob_sha": "df498d35dc3acdfb2fbef95fac1e1505c80105c8",
+      "successor_git_blob_sha": "5958840f95811a147758913bce8e42419ed55750"
+    },
+    {
+      "path": "constraint-t1-raw-artifact-store/pyproject.toml",
+      "predecessor_git_blob_sha": "2c1163d3dbb62e7ef790d967bd2f5834a1871a91",
+      "successor_git_blob_sha": "c597639479c7be82570806b034fd0f1690822f56"
+    }
+  ],
+  "guardrails": [
+    "SEALED_PREDECESSOR_MANIFESTS_ARE_NOT_REWRITTEN",
+    "ONLY_EXACT_DECLARED_PREDECESSOR_TO_SUCCESSOR_BLOB_TRANSITIONS_ARE_ACCEPTED",
+    "PERSISTED_CUSTODY_HARDENING_DOES_NOT_PROVE_REAL_RAW_SOURCE_MATERIALIZATION",
+    "PERSISTED_CUSTODY_HARDENING_DOES_NOT_AUTHORIZE_NATIVE_T5_T6_ADMISSION",
+    "PERSISTED_CUSTODY_HARDENING_DOES_NOT_AUTHORIZE_ORDINARY_REPLAY"
+  ]
+}

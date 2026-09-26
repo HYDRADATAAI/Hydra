@@ -5,12 +5,13 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "hydra-market-data-pipeline-sample"
 version = "0.1.0"
-description = "Synthetic market-data ingestion, normalization, provenance, quarantine, and deterministic output sample"
+description = "Synthetic market-data ingestion, normalization, quarantine, deterministic output, and checkpointed operations sample"
 requires-python = ">=3.11"
 dependencies = []
 
 [project.scripts]
 hydra-market-pipeline = "hydra_market_pipeline.cli:main"
+hydra-market-backfill = "hydra_market_pipeline.operations_cli:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]

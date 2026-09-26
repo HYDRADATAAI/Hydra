@@ -57,9 +57,36 @@ jobs:
           print("SAMPLE_MANIFEST=PASS")
           PY
 
+      - name: Prove checkpoint recovery and idempotent replay
+        working-directory: market-data-pipeline-sample
+        env:
+          PYTHONPATH: src
+        run: python run_recovery_demo.py --output-dir build/operations
+
+      - name: Verify operational receipt
+        working-directory: market-data-pipeline-sample
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          receipt = json.loads(Path("build/operations/recovery_receipt.json").read_text(encoding="utf-8"))
+          manifest = json.loads(Path("build/operations/operations_manifest.json").read_text(encoding="utf-8"))
+          assert receipt["first_attempt"]["status"] == "INTERRUPTED_AS_INJECTED", receipt
+          assert receipt["resume_attempt"]["status"] == "PASS", receipt
+          assert receipt["completed_replay"]["processed_sources"] == [], receipt
+          assert receipt["completed_replay"]["manifest_unchanged"], receipt
+          assert receipt["completed_replay"]["metrics_unchanged"], receipt
+          assert manifest["slis"]["partition_completion_ratio"]["status"] == "PASS", manifest
+          assert manifest["slis"]["row_accounting_ratio"]["status"] == "PASS", manifest
+          print("OPERATIONS_RECEIPT=PASS")
+          PY
+
       - name: Publish synthetic pipeline outputs
         uses: actions/upload-artifact@v4
         with:
           name: hydra-market-data-pipeline-sample
-          path: market-data-pipeline-sample/build/demo/
+          path: |
+            market-data-pipeline-sample/build/demo/
+            market-data-pipeline-sample/build/operations/
           if-no-files-found: error

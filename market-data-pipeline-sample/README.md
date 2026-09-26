@@ -21,6 +21,8 @@ provenance hashes
 duplicate / defect quarantine
   ↓
 JSONL + CSV + deterministic manifest
+  ↓
+checkpointed backfill + recovery receipt + deterministic SLIs
 ```
 
 No live market feed, broker connection, trading action, private source data, or
@@ -40,6 +42,10 @@ production runtime is represented here.
 - standard-library runtime implementation with no third-party package dependency;
 - unit tests and GitHub Actions CI;
 - committed JSON contract files are regression-tested against the runtime CSV requirements and emitted record shapes.
+- bounded multi-partition backfills with strict plan contracts and source-byte/partition budgets;
+- atomic checkpoints, integrity-checked artifact reuse, and fail-closed plan drift;
+- injected interruption recovery whose final artifacts match a clean run byte for byte;
+- structured deterministic metrics and explicit partition-completion and row-accounting SLIs.
 
 ## Failure semantics
 
@@ -113,14 +119,32 @@ python -m unittest discover -s tests -t . -v
 ```
 
 CI runs the same tests, executes the synthetic pipeline, and publishes the
-generated sample outputs as a workflow artifact.
+generated sample outputs as a workflow artifact. It also injects a synthetic
+interruption after the first backfill partition, resumes from the checkpoint,
+and proves that a completed replay performs no new source work.
+
+## Run the recovery proof
+
+From a fresh output directory:
+
+```powershell
+$env:PYTHONPATH=(Resolve-Path '.\src').Path
+python run_recovery_demo.py --output-dir build/operations
+```
+
+This emits `operations_manifest.json`, `metrics.jsonl`, and
+`recovery_receipt.json` plus the content-addressed partition outputs. The SLIs
+measure only deterministic behavior in this local synthetic run. They are not
+production latency, uptime, reliability, or cost claims.
 
 ## Package map
 
 ```text
 config/
+  backfill_plan.json
   symbol_aliases.json
 contracts/
+  backfill_plan.schema.json
   input_contract.json
   normalized_event.schema.json
   quarantine_record.schema.json
@@ -132,11 +156,15 @@ src/hydra_market_pipeline/
   cli.py
   hashing.py
   models.py
+  operations.py
+  operations_cli.py
   pipeline.py
   writers.py
 tests/
   test_contract_files.py
+  test_operations.py
   test_pipeline.py
+run_recovery_demo.py
 ```
 
 The purpose is inspectable data-engineering evidence, not a claim of production

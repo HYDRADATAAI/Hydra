@@ -3,6 +3,7 @@
 
 from __future__ import annotations
 
+import json
 import re
 import sys
 import tomllib
@@ -13,6 +14,7 @@ ROOT = Path(__file__).resolve().parents[1]
 COMPONENT = ROOT / "t6-fail-closed-validator"
 PIPELINE = ROOT / "market-data-pipeline-sample"
 SQL_SAMPLE = ROOT / "sql-data-quality-sample"
+AWS_SAMPLE = ROOT / "aws-market-data-pipeline"
 
 REQUIRED_PATHS = (
     "README.md",
@@ -36,6 +38,19 @@ REQUIRED_PATHS = (
     "t6-fail-closed-validator/tests/test_receipt.py",
     ".github/workflows/market-data-pipeline.yml",
     ".github/workflows/sql-data-quality-sample.yml",
+    ".github/workflows/aws-market-data-pipeline.yml",
+    ".github/workflows/aws-market-data-deploy.yml",
+    "aws-market-data-pipeline/README.md",
+    "aws-market-data-pipeline/template.json",
+    "aws-market-data-pipeline/local_demo.py",
+    "aws-market-data-pipeline/fixtures/synthetic_market_events.csv",
+    "aws-market-data-pipeline/function/__init__.py",
+    "aws-market-data-pipeline/function/app.py",
+    "aws-market-data-pipeline/function/processor.py",
+    "aws-market-data-pipeline/tests/__init__.py",
+    "aws-market-data-pipeline/tests/test_processor.py",
+    "aws-market-data-pipeline/tests/test_lambda_handler.py",
+    "aws-market-data-pipeline/tests/test_template.py",
     "sql-data-quality-sample/README.md",
     "sql-data-quality-sample/fixtures/synthetic_market_events.csv",
     "sql-data-quality-sample/sql/01_schema.sql",
@@ -47,19 +62,26 @@ REQUIRED_PATHS = (
     "market-data-pipeline-sample/README.md",
     "market-data-pipeline-sample/pyproject.toml",
     "market-data-pipeline-sample/config/symbol_aliases.json",
+    "market-data-pipeline-sample/config/backfill_plan.json",
+    "market-data-pipeline-sample/contracts/backfill_plan.schema.json",
     "market-data-pipeline-sample/contracts/input_contract.json",
     "market-data-pipeline-sample/contracts/normalized_event.schema.json",
     "market-data-pipeline-sample/contracts/quarantine_record.schema.json",
     "market-data-pipeline-sample/data/raw/synthetic_market_events.csv",
+    "market-data-pipeline-sample/data/raw/synthetic_market_events_day2.csv",
     "market-data-pipeline-sample/src/hydra_market_pipeline/__init__.py",
     "market-data-pipeline-sample/src/hydra_market_pipeline/__main__.py",
     "market-data-pipeline-sample/src/hydra_market_pipeline/cli.py",
     "market-data-pipeline-sample/src/hydra_market_pipeline/hashing.py",
     "market-data-pipeline-sample/src/hydra_market_pipeline/models.py",
+    "market-data-pipeline-sample/src/hydra_market_pipeline/operations.py",
+    "market-data-pipeline-sample/src/hydra_market_pipeline/operations_cli.py",
     "market-data-pipeline-sample/src/hydra_market_pipeline/pipeline.py",
     "market-data-pipeline-sample/src/hydra_market_pipeline/writers.py",
     "market-data-pipeline-sample/tests/test_contract_files.py",
     "market-data-pipeline-sample/tests/test_pipeline.py",
+    "market-data-pipeline-sample/tests/test_operations.py",
+    "market-data-pipeline-sample/run_recovery_demo.py",
 )
 
 FORBIDDEN_ACTIVE_PATHS = (
@@ -126,6 +148,11 @@ def active_public_text_files() -> list[Path]:
     files.extend([SQL_SAMPLE / "README.md", SQL_SAMPLE / "run_demo.py"])
     files.extend((SQL_SAMPLE / "tests").rglob("*.py"))
     files.extend((SQL_SAMPLE / "sql").rglob("*.sql"))
+    files.extend(
+        path
+        for path in AWS_SAMPLE.rglob("*")
+        if path.suffix.casefold() in {".csv", ".json", ".md", ".py"}
+    )
     return sorted(path for path in files if path.is_file())
 
 
@@ -204,6 +231,8 @@ def validate_ci_contract(errors: list[str]) -> None:
         "PYTHONPATH: src",
         "python -m unittest discover -s tests -t . -v",
         "--output-dir build/demo",
+        "python run_recovery_demo.py --output-dir build/operations",
+        "OPERATIONS_RECEIPT=PASS",
         "actions/upload-artifact@v4",
     )
     for fragment in pipeline_fragments:
@@ -223,6 +252,68 @@ def validate_ci_contract(errors: list[str]) -> None:
         if fragment not in sql_workflow:
             errors.append(f"sql-sample CI contract missing: {fragment}")
 
+    aws_workflow = (ROOT / ".github/workflows/aws-market-data-pipeline.yml").read_text(
+        encoding="utf-8-sig"
+    )
+    aws_fragments = (
+        'python-version: "3.11"',
+        "aws-actions/setup-sam@v3",
+        "sam validate --lint --template-file template.json",
+        "python -m unittest discover -s tests -t . -v",
+        "python local_demo.py --output-dir build/local",
+        "AWS_SAMPLE_MANIFEST=PASS",
+        "actions/upload-artifact@v4",
+    )
+    for fragment in aws_fragments:
+        if fragment not in aws_workflow:
+            errors.append(f"aws-sample CI contract missing: {fragment}")
+
+    deploy_workflow = (ROOT / ".github/workflows/aws-market-data-deploy.yml").read_text(
+        encoding="utf-8-sig"
+    )
+    deploy_fragments = (
+        "workflow_dispatch:",
+        "id-token: write",
+        "AWS_DEMO_ROLE_ARN",
+        "mask-aws-account-id: true",
+        "sam deploy",
+        "deployed_outputs_match_local_replay",
+        "start-query-execution",
+        "inputs.teardown",
+        "sam delete",
+    )
+    for fragment in deploy_fragments:
+        if fragment not in deploy_workflow:
+            errors.append(f"aws-deploy workflow contract missing: {fragment}")
+    if re.search(r"(?m)^  (?:pull_request|push):", deploy_workflow):
+        errors.append("aws-deploy workflow must remain manual-only")
+
+
+def validate_aws_template_contract(errors: list[str]) -> None:
+    template_path = AWS_SAMPLE / "template.json"
+    try:
+        template = json.loads(template_path.read_text(encoding="utf-8-sig"))
+    except (OSError, json.JSONDecodeError) as exc:
+        errors.append(f"unable to parse AWS template.json: {exc}")
+        return
+
+    resources = template.get("Resources", {})
+    expected = {
+        "RawBucket": "AWS::S3::Bucket",
+        "CuratedBucket": "AWS::S3::Bucket",
+        "TransformFunction": "AWS::Serverless::Function",
+        "DataCatalogDatabase": "AWS::Glue::Database",
+        "NormalizedEventsTable": "AWS::Glue::Table",
+        "AthenaWorkGroup": "AWS::Athena::WorkGroup",
+    }
+    for name, resource_type in expected.items():
+        actual = resources.get(name, {}).get("Type")
+        if actual != resource_type:
+            errors.append(
+                f"AWS template resource contract changed: {name}={actual!r}; "
+                f"expected {resource_type!r}"
+            )
+
 
 def main() -> int:
     errors: list[str] = []
@@ -232,6 +323,7 @@ def main() -> int:
     validate_markdown_links(errors)
     validate_safety_contract(errors)
     validate_ci_contract(errors)
+    validate_aws_template_contract(errors)
 
     if errors:
         print("PUBLIC_REPOSITORY_VALIDATION=FAIL")
@@ -247,6 +339,9 @@ def main() -> int:
     print("VALIDATOR_CI_CONTRACT=PASS")
     print("MARKET_PIPELINE_CI_CONTRACT=PASS")
     print("SQL_SAMPLE_CI_CONTRACT=PASS")
+    print("AWS_SAMPLE_CI_CONTRACT=PASS")
+    print("AWS_DEPLOY_WORKFLOW_CONTRACT=PASS")
+    print("AWS_TEMPLATE_CONTRACT=PASS")
     return 0
 
 

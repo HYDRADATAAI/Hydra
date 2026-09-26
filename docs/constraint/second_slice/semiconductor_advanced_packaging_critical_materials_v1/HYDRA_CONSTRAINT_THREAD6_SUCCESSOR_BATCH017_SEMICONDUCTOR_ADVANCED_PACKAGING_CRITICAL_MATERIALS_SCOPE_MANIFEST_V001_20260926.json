@@ -1,0 +1,85 @@
+{
+  "schema_version": "hydra-constraint-second-slice-scope-manifest/v1",
+  "record_id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH017_SEMICONDUCTOR_ADVANCED_PACKAGING_CRITICAL_MATERIALS_SCOPE_MANIFEST_V001",
+  "as_of": "2026-09-26",
+  "slice_id": "SEMICONDUCTOR_ADVANCED_PACKAGING_CRITICAL_MATERIALS_V1",
+  "predecessor_first_slice": "AI_DATA_CENTER_POWER_INFRASTRUCTURE_V1",
+  "predecessor_successor_batch": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH016",
+  "current_owner_seam_reconciliation": "HYDRA_CONSTRAINT_LILY_OWNER_SEAM_RECONCILIATION_STATUS_V002_20260926",
+  "mission_path": [
+    "END_MARKET_DEMAND",
+    "DEVICE_REQUIREMENT",
+    "MANUFACTURING_PROCESS",
+    "EQUIPMENT",
+    "PACKAGING",
+    "MEMORY",
+    "MATERIAL",
+    "PROCESSING_CAPACITY",
+    "GEOGRAPHY",
+    "SUPPLIER",
+    "QUALIFICATION",
+    "CONSTRAINT",
+    "SUBSTITUTION_OR_INVALIDATION",
+    "BENEFICIARY",
+    "HISTORICAL_OUTCOME"
+  ],
+  "bounded_universe": {
+    "logic_accelerator_producers_or_designers": {
+      "target_min": 5,
+      "target_max": 10
+    },
+    "foundry_fab_operators": {
+      "target_min": 3,
+      "target_max": 6
+    },
+    "memory_producers": {
+      "target_min": 3,
+      "target_max": 6
+    },
+    "packaging_osat_substrate_providers": {
+      "target_min": 5,
+      "target_max": 10
+    },
+    "equipment_material_suppliers": {
+      "target_min": 10,
+      "target_max": 20
+    },
+    "manufacturing_or_packaging_facilities": {
+      "target_min": 10,
+      "target_max": 25
+    },
+    "strategically_relevant_geographies": {
+      "target_min": 3,
+      "target_max": 6
+    }
+  },
+  "primary_dependency_chains": [
+    "ADVANCED_PACKAGING",
+    "HBM",
+    "EQUIPMENT",
+    "CRITICAL_MATERIAL",
+    "FAB_PACKAGING_INFRASTRUCTURE"
+  ],
+  "cross_slice_requirement": {
+    "required": true,
+    "target_path": [
+      "AI_COMPUTE_DEMAND",
+      "ACCELERATOR_DEMAND",
+      "ADVANCED_LOGIC_DEMAND",
+      "HBM_DEMAND",
+      "ADVANCED_PACKAGING",
+      "FAB_OR_OSAT_CAPACITY",
+      "SPECIALTY_MATERIALS",
+      "POWER_AND_WATER_REQUIREMENTS",
+      "GRID_INTERCONNECTION",
+      "TRANSFORMER_REQUIREMENT"
+    ]
+  },
+  "prohibited_expansion": [
+    "ROBOTICS",
+    "BIOTECH",
+    "HOUSING",
+    "OTHER_MAJOR_ECOSYSTEM"
+  ],
+  "semantic_duplication_created": false
+}

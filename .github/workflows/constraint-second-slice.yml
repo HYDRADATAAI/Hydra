@@ -1,0 +1,35 @@
+name: Constraint second-slice audit
+
+on:
+  pull_request:
+    paths:
+      - "docs/constraint/second_slice/**"
+      - "docs/constraint/architecture/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH017_MASTER_STATUS_V001_20260926.json"
+      - "tools/validate_constraint_second_slice_batch017_audit.py"
+      - "tools/test_constraint_second_slice_batch017_audit_adversarial.py"
+      - ".github/workflows/constraint-second-slice.yml"
+  push:
+    branches:
+      - main
+    paths:
+      - "docs/constraint/second_slice/**"
+      - "docs/constraint/architecture/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH017_MASTER_STATUS_V001_20260926.json"
+      - "tools/validate_constraint_second_slice_batch017_audit.py"
+      - "tools/test_constraint_second_slice_batch017_audit_adversarial.py"
+      - ".github/workflows/constraint-second-slice.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Validate second-slice Batch017 audit
+        run: python tools/validate_constraint_second_slice_batch017_audit.py
+      - name: Run second-slice Batch017 hostile matrix
+        run: python tools/test_constraint_second_slice_batch017_audit_adversarial.py

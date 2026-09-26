@@ -1,0 +1,94 @@
+{
+  "schema_version": "hydra-constraint-second-slice-required-case-matrix/v1",
+  "record_id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH017_SEMICONDUCTOR_ADVANCED_PACKAGING_CRITICAL_MATERIALS_REQUIRED_CASE_MATRIX_V001",
+  "as_of": "2026-09-26",
+  "slice_id": "SEMICONDUCTOR_ADVANCED_PACKAGING_CRITICAL_MATERIALS_V1",
+  "required_case_count": 14,
+  "cases": [
+    {
+      "case_id": 1,
+      "name": "REAL_PACKAGING_BOTTLENECK",
+      "expected_behavior": "Demand exceeds qualified available advanced packaging capacity.",
+      "status": "GAP"
+    },
+    {
+      "case_id": 2,
+      "name": "ANNOUNCED_CAPACITY_FALSE_RELIEF",
+      "expected_behavior": "Historical cutoff precedes qualification/ramp of announced expansion.",
+      "status": "GAP"
+    },
+    {
+      "case_id": 3,
+      "name": "HBM_YIELD_CONSTRAINT",
+      "expected_behavior": "Nameplate output appears sufficient but usable output is restricted by yield/stacking/qualification.",
+      "status": "GAP"
+    },
+    {
+      "case_id": 4,
+      "name": "TOOL_BOTTLENECK",
+      "expected_behavior": "Required specialized equipment delays effective capacity.",
+      "status": "GAP"
+    },
+    {
+      "case_id": 5,
+      "name": "MATERIAL_BOTTLENECK",
+      "expected_behavior": "Geological/feedstock availability is not equivalent to high-purity semiconductor-grade processing capacity.",
+      "status": "GAP"
+    },
+    {
+      "case_id": 6,
+      "name": "QUALIFICATION_BOTTLENECK",
+      "expected_behavior": "Alternate nominal capacity cannot relieve constraint before required qualification.",
+      "status": "GAP"
+    },
+    {
+      "case_id": 7,
+      "name": "FALSE_BENEFICIARY",
+      "expected_behavior": "Relevant supplier lacks spare/compatible/qualified capacity or is equally constrained.",
+      "status": "GAP"
+    },
+    {
+      "case_id": 8,
+      "name": "VALID_BENEFICIARY",
+      "expected_behavior": "Entity has qualified available addressable capability and evidence-backed capture mechanism.",
+      "status": "GAP"
+    },
+    {
+      "case_id": 9,
+      "name": "EXPORT_POLICY_EVENT",
+      "expected_behavior": "Policy changes access with correct known/effective timing and no backward leakage.",
+      "status": "GAP"
+    },
+    {
+      "case_id": 10,
+      "name": "SUBSTITUTION",
+      "expected_behavior": "Constraint weakens only after alternate process/material/equipment is technically qualified.",
+      "status": "GAP"
+    },
+    {
+      "case_id": 11,
+      "name": "CONSTRAINT_MIGRATION",
+      "expected_behavior": "Old bottleneck eases while another dependency becomes dominant.",
+      "status": "GAP"
+    },
+    {
+      "case_id": 12,
+      "name": "HISTORICAL_NO_LOOKAHEAD",
+      "expected_behavior": "Future successful capacity ramp is invisible before availability.",
+      "status": "GAP"
+    },
+    {
+      "case_id": 13,
+      "name": "FAILED_CAPACITY_RAMP",
+      "expected_behavior": "Announced capacity remains historical while current effective capacity is corrected after failure/delay.",
+      "status": "GAP"
+    },
+    {
+      "case_id": 14,
+      "name": "DUPLICATE_SOURCE_INFLATION",
+      "expected_behavior": "Syndicated/repeated source content does not multiply independent evidence.",
+      "status": "GAP"
+    }
+  ],
+  "covered_case_count": 0
+}

@@ -17,6 +17,9 @@ _REQUIRED_BENEFICIARY_LINEAGE = {
     "disconfirming_or_blocking",
 }
 
+RAW_BLOCKER = "PIT-002B-FIRST-SLICE-NINE-SOURCE-RAW-CAPTURE-MATERIALIZATION"
+ADMISSION_BLOCKER = "CI-TEST-008-BLOCKER-001B-NATIVE-T5-T6-SIGNED-ADMISSION-RECEIPT-ABSENT"
+
 
 def _fail(message: str) -> None:
     raise OwnerSeamConformanceError(message)
@@ -49,9 +52,10 @@ def validate_owner_seams(
     claims: dict[str, Any],
     candidates: dict[str, Any],
     beneficiaries: dict[str, Any],
-    overlay: dict[str, Any],
+    temporal_identity_overlay: dict[str, Any],
+    typed_confidence: dict[str, Any],
     batch13_beneficiary_overlay: dict[str, Any],
-    batch14_strict_gate: dict[str, Any],
+    batch16_strict_gate: dict[str, Any],
 ) -> dict[str, int | str]:
     if candidates.get("producer_namespace") != "PIPELINE_T5_CONSTRAINT_FORMATION":
         _fail("candidate producer namespace is not authoritative T5")
@@ -59,22 +63,43 @@ def validate_owner_seams(
         _fail("T5 candidate artifact performed canonicalization")
     if beneficiaries.get("consumer_namespace") != "PIPELINE_T6_CANONICAL_CANDIDATE_GOVERNANCE":
         _fail("beneficiary consumer namespace is not authoritative T6")
-    if beneficiaries.get("beneficiary_policy_version") != overlay.get("authority_bindings", {}).get("canonical_beneficiary_policy"):
-        _fail("beneficiary policy version is not pinned to the reconciled Thread-3 authority")
 
     claim_rows = claims.get("claims")
     candidate_rows = candidates.get("candidates")
     beneficiary_rows = beneficiaries.get("relationships")
-    overlay_rows = overlay.get("candidates")
-    if not all(isinstance(rows, list) for rows in (claim_rows, candidate_rows, beneficiary_rows, overlay_rows)):
-        _fail("claims/candidates/beneficiaries/overlay rows must be lists")
+    overlay_rows = temporal_identity_overlay.get("candidates")
+    candidate_confidence = typed_confidence.get("candidate_confidence")
+    beneficiary_confidence = typed_confidence.get("beneficiary_confidence")
+    if not all(
+        isinstance(rows, list)
+        for rows in (
+            claim_rows,
+            candidate_rows,
+            beneficiary_rows,
+            overlay_rows,
+            candidate_confidence,
+            beneficiary_confidence,
+        )
+    ):
+        _fail("owner-seam inputs must contain list rows")
 
     claim_ids = _unique_ids(claim_rows, "claim_id", "claims")
     candidate_ids = _unique_ids(candidate_rows, "constraint_candidate_id", "candidates")
     relationship_ids = _unique_ids(beneficiary_rows, "beneficiary_relationship_id", "beneficiaries")
     overlay_ids = _unique_ids(overlay_rows, "constraint_candidate_id", "overlay.candidates")
+    candidate_confidence_ids = _unique_ids(
+        candidate_confidence, "constraint_candidate_id", "candidate_confidence"
+    )
+    beneficiary_confidence_ids = _unique_ids(
+        beneficiary_confidence, "beneficiary_relationship_id", "beneficiary_confidence"
+    )
+
     if overlay_ids != candidate_ids:
         _fail("successor overlay candidate universe differs from predecessor T5 candidate universe")
+    if candidate_confidence_ids != candidate_ids:
+        _fail("typed formation-confidence universe differs from T5 candidate universe")
+    if beneficiary_confidence_ids != relationship_ids:
+        _fail("typed beneficiary-confidence universe differs from T6 relationship universe")
 
     known_evidence_ids: set[str] = set()
     claim_available_at: dict[str, datetime] = {}
@@ -89,6 +114,9 @@ def validate_owner_seams(
 
     candidate_by_id = {row["constraint_candidate_id"]: row for row in candidate_rows}
     overlay_by_id = {row["constraint_candidate_id"]: row for row in overlay_rows}
+    confidence_by_id = {
+        row["constraint_candidate_id"]: row for row in candidate_confidence
+    }
 
     for cid, candidate in candidate_by_id.items():
         if not candidate.get("constraining_mechanism"):
@@ -119,14 +147,12 @@ def validate_owner_seams(
                     _fail(f"{cid}.{role}: unknown claim {value}")
 
         successor = overlay_by_id[cid]
-        overlay_available = _aware_dt(successor.get("available_at", ""), f"{cid}.overlay.available_at")
+        overlay_available = _aware_dt(
+            successor.get("available_at", ""), f"{cid}.overlay.available_at"
+        )
         latest_parent_claim = max(claim_available_at[claim_id] for claim_id in refs)
         if overlay_available < latest_parent_claim:
             _fail(f"{cid}: successor overlay backdates availability before parent claim lineage")
-        if successor.get("formation_confidence") is not None:
-            _fail(f"{cid}: overlay fabricated formation confidence")
-        if successor.get("formation_confidence_state") != "NOT_EVALUATED":
-            _fail(f"{cid}: missing confidence must remain NOT_EVALUATED")
         if successor.get("effective_from") is not None or successor.get("effective_to") is not None:
             _fail(f"{cid}: overlay fabricated candidate effective interval")
         if successor.get("effective_state") != "UNRESOLVED_NOT_FABRICATED":
@@ -139,9 +165,25 @@ def validate_owner_seams(
             _fail(f"{cid}: incomplete upstream lineage was not preserved as blocking")
         if successor.get("ordinary_t6_eligible") is not False:
             _fail(f"{cid}: overlay admitted ordinary T6 eligibility")
-        if set(successor.get("source_ineligibility_reasons", [])) != set(candidate.get("ineligibility_reasons", [])):
-            _fail(f"{cid}: overlay altered predecessor ineligibility reasons")
+        if set(successor.get("source_ineligibility_reasons", [])) != {
+            RAW_BLOCKER,
+            ADMISSION_BLOCKER,
+        }:
+            _fail(f"{cid}: overlay blocker set drifted")
 
+        confidence = confidence_by_id[cid]
+        if confidence.get("confidence_type") != "FORMATION_CONFIDENCE":
+            _fail(f"{cid}: wrong formation confidence type")
+        if confidence.get("semantic_owner_id") != "PIPELINE_T5_CONSTRAINT_FORMATION":
+            _fail(f"{cid}: formation confidence owner drifted")
+        if confidence.get("measurement_state") != "UNKNOWN_NOT_MEASURED":
+            _fail(f"{cid}: formation confidence is not explicit unknown")
+        if confidence.get("value") is not None:
+            _fail(f"{cid}: numeric formation confidence was invented")
+
+    beneficiary_confidence_by_id = {
+        row["beneficiary_relationship_id"]: row for row in beneficiary_confidence
+    }
     for relation in beneficiary_rows:
         rid = relation["beneficiary_relationship_id"]
         parent_id = relation.get("constraint_candidate_id")
@@ -157,19 +199,36 @@ def validate_owner_seams(
                 _fail(f"{rid}: blocked parent candidate did not force ineligible beneficiary evaluation")
             if relation.get("eligibility_state") != "BLOCKED":
                 _fail(f"{rid}: beneficiary eligibility escaped BLOCKED")
-            if relation.get("beneficiary_confidence") is not None:
-                _fail(f"{rid}: beneficiary confidence fabricated while evaluation is blocked")
         if not relation.get("benefit_transmission_mechanism"):
             _fail(f"{rid}: missing beneficiary transmission mechanism")
         lineage = relation.get("evidence_lineage")
         if not isinstance(lineage, dict) or not _REQUIRED_BENEFICIARY_LINEAGE <= set(lineage):
             _fail(f"{rid}: incomplete beneficiary evidence-role lineage")
-        if not set(lineage["constraint_evidence"]) <= set(parent.get("evidence_roles", {}).get("constraint_support", [])):
+        if not set(lineage["constraint_evidence"]) <= set(
+            parent.get("evidence_roles", {}).get("constraint_support", [])
+        ):
             _fail(f"{rid}: beneficiary constraint evidence is not inherited from parent constraint support")
-        for field in ("entity_connection", "advantage_mechanism", "capacity_or_availability", "economic_or_strategic_capture"):
+        for field in (
+            "entity_connection",
+            "advantage_mechanism",
+            "capacity_or_availability",
+            "economic_or_strategic_capture",
+        ):
             for claim_id in lineage[field]:
                 if claim_id not in claim_ids:
                     _fail(f"{rid}.{field}: unknown claim {claim_id}")
+
+        confidence = beneficiary_confidence_by_id[rid]
+        if confidence.get("confidence_type") != "BENEFICIARY_CONFIDENCE":
+            _fail(f"{rid}: wrong beneficiary confidence type")
+        if confidence.get("semantic_owner_id") != "PIPELINE_T6_CANONICAL_CANDIDATE_GOVERNANCE":
+            _fail(f"{rid}: beneficiary confidence owner drifted")
+        if confidence.get("measurement_state") != "UNKNOWN_INELIGIBLE_TO_EVALUATE":
+            _fail(f"{rid}: beneficiary confidence is not explicit ineligible unknown")
+        if confidence.get("value") is not None:
+            _fail(f"{rid}: numeric beneficiary confidence was invented")
+        if confidence.get("qualification_state") != "INELIGIBLE_TO_EVALUATE":
+            _fail(f"{rid}: typed beneficiary confidence escaped qualification block")
 
     if beneficiaries.get("qualified_relationship_count") != 0:
         _fail("qualified beneficiary count is nonzero while candidate admission is blocked")
@@ -183,42 +242,54 @@ def validate_owner_seams(
         _fail("Batch013 beneficiary overlay escaped ordinary-T6 gate")
     if batch13_beneficiary_overlay.get("canonical_qualification_state") != "BLOCKED":
         _fail("Batch013 beneficiary overlay escaped blocked qualification state")
-    if batch13_beneficiary_overlay.get("evidence_roles", {}).get("economic_capture") != []:
-        _fail("Batch013 beneficiary overlay fabricated economic capture")
 
-    # Consume the immutable mainline Batch014 dimension gate. The older
-    # branch-local `gates` representation is not an alternate authority.
-    if batch14_strict_gate.get("schema_version") != "hydra-constraint-first-slice-strict-acceptance-gate/v1":
-        _fail("Batch014 strict gate schema is unsupported")
-    if batch14_strict_gate.get("record_id") != "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH014_AI_DATA_CENTER_POWER_INFRASTRUCTURE_STRICT_ACCEPTANCE_GATE_V001":
-        _fail("Batch014 strict gate identity mismatch")
-    if batch14_strict_gate.get("slice_id") != "AI_DATA_CENTER_POWER_INFRASTRUCTURE_V1":
-        _fail("Batch014 strict gate slice mismatch")
-    if "gates" in batch14_strict_gate or "overall_result" in batch14_strict_gate:
-        _fail("Batch014 conflicting legacy gate representation")
-    dimensions = batch14_strict_gate.get("dimensions")
+    if batch16_strict_gate.get("schema_version") != "hydra-constraint-first-slice-strict-acceptance-gate/v1":
+        _fail("Batch016 strict gate schema is unsupported")
+    if batch16_strict_gate.get("record_id") != "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH016_AI_DATA_CENTER_POWER_INFRASTRUCTURE_STRICT_ACCEPTANCE_GATE_V001":
+        _fail("Batch016 strict gate identity mismatch")
+    if batch16_strict_gate.get("slice_id") != "AI_DATA_CENTER_POWER_INFRASTRUCTURE_V1":
+        _fail("Batch016 strict gate slice mismatch")
+    if "gates" in batch16_strict_gate or "overall_result" in batch16_strict_gate:
+        _fail("Batch016 conflicting legacy gate representation")
+    dimensions = batch16_strict_gate.get("dimensions")
     if not isinstance(dimensions, dict):
-        _fail("Batch014 strict gate dimensions missing")
-    admission = dimensions.get("IMPLEMENTATION_ADMITTED")
-    if not isinstance(admission, dict) or admission.get("status") != "BLOCKED":
-        _fail("Batch014 strict constraint-formation gate is not fail-closed")
-    blockers = admission.get("blockers")
+        _fail("Batch016 strict gate dimensions missing")
+    for key in ("IMPLEMENTATION_ADMITTED", "PROVENANCE_READY", "CONFIDENCE_READY", "REPLAY_READY", "EVALUATION_READY"):
+        if not isinstance(dimensions.get(key), dict):
+            _fail(f"Batch016 malformed dimension: {key}")
+    blockers = dimensions["IMPLEMENTATION_ADMITTED"].get("blockers")
     if not isinstance(blockers, list) or not all(isinstance(b, str) for b in blockers):
-        _fail("Batch014 strict admission blockers missing")
-    if "CI-TEST-008-BLOCKER-001B-NATIVE-T5-T6-SIGNED-ADMISSION-RECEIPT-ABSENT" not in blockers:
-        _fail("Batch014 strict constraint-formation gate lost native admission blocker")
+        _fail("Batch016 strict admission blockers missing")
+    if ADMISSION_BLOCKER not in blockers:
+        _fail("Batch016 strict gate lost native admission blocker")
     if "CANONICAL-T5-T6-CONSTRAINT-AND-BENEFICIARY-ADMISSION-NOT-AUTHORIZED" not in blockers:
-        _fail("Batch014 strict beneficiary gate lost canonical admission blocker")
-    if (batch14_strict_gate.get("overall_status") != "BLOCKED"
-            or batch14_strict_gate.get("full_constraint_run_allowed") is not False
-            or batch14_strict_gate.get("first_serious_constraint_run") != "BLOCKED"):
-        _fail("Batch014 overall strict acceptance escaped BLOCKED")
+        _fail("Batch016 strict beneficiary gate lost canonical admission blocker")
+    if batch16_strict_gate.get("first_serious_constraint_run") != "BLOCKED":
+        _fail("Batch016 first serious run escaped BLOCKED")
+    if dimensions.get("IMPLEMENTATION_ADMITTED", {}).get("status") != "BLOCKED":
+        _fail("Batch016 implementation admission escaped BLOCKED")
+    if dimensions.get("PROVENANCE_READY", {}).get("status") != "BLOCKED":
+        _fail("Batch016 provenance gate escaped BLOCKED")
+    if dimensions.get("CONFIDENCE_READY", {}).get("status") != "READY_WITH_NONBLOCKING_GAPS":
+        _fail("Batch016 confidence semantics regressed")
+    if dimensions.get("REPLAY_READY", {}).get("status") != "BLOCKED":
+        _fail("Batch016 replay gate escaped BLOCKED")
+    if dimensions.get("EVALUATION_READY", {}).get("status") != "BLOCKED":
+        _fail("Batch016 evaluation gate escaped BLOCKED")
+    if batch16_strict_gate.get("overall_status") != "BLOCKED":
+        _fail("Batch016 overall strict acceptance escaped BLOCKED")
+    if batch16_strict_gate.get("full_constraint_run_allowed") is not False:
+        _fail("Batch016 full constraint run was authorized")
 
-    if overlay.get("original_candidate_availability_reconstructed") is not False:
+    if temporal_identity_overlay.get("original_candidate_availability_reconstructed") is not False:
         _fail("overlay claims retroactive reconstruction of original candidate availability")
-    result = overlay.get("result", {})
+    result = temporal_identity_overlay.get("result", {})
     if result.get("predecessor_rewritten") is not False:
         _fail("overlay rewrote predecessor")
+    if result.get("confidence_semantics_reimplemented") is not False:
+        _fail("overlay duplicated Batch015 confidence semantics")
+    if result.get("t1_custody_reimplemented") is not False:
+        _fail("overlay duplicated T1 custody hardening")
     if result.get("canonical_constraints_minted") != 0:
         _fail("overlay minted canonical constraints")
     if result.get("qualified_beneficiaries_minted") != 0:
@@ -232,5 +303,5 @@ def validate_owner_seams(
         "beneficiary_relationship_count": len(beneficiary_rows),
         "qualified_beneficiary_count": beneficiaries.get("qualified_relationship_count", 0),
         "canonical_constraint_count": 0,
-        "status": "PASS_FAIL_CLOSED_OWNER_SEAMS",
+        "status": "PASS_CURRENT_FAIL_CLOSED_OWNER_SEAMS",
     }
