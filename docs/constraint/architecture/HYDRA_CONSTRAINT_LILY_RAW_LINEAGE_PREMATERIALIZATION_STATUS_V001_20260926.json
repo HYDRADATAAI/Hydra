@@ -1,0 +1,49 @@
+{
+  "schema_version": "hydra-constraint-lily-raw-lineage-prematerialization-status/v1",
+  "record_id": "HYDRA_CONSTRAINT_LILY_RAW_LINEAGE_PREMATERIALIZATION_STATUS_V001_20260926",
+  "as_of": "2026-09-26",
+  "pull_request": 56,
+  "scope": "AI_DATA_CENTER_POWER_INFRASTRUCTURE_V1_PRIVATE_T1_RAW_LINEAGE",
+  "results": {
+    "BATCH014_CUSTODY_READINESS_IMPLEMENTATION_RECONCILED": "YES",
+    "RAW_STORE_VERSION": "0.2.0",
+    "EXACT_PERSISTED_RECEIPT_REQUIRED": "YES",
+    "EXACT_PERSISTED_RELEASE_REQUIRED": "YES",
+    "PUBLIC_REPO_RAW_STORAGE_BLOCKED": "YES",
+    "NINE_SOURCE_CAPTURE_PLAN_READY": "YES",
+    "NINE_PUBLIC_ENDPOINTS_REACHABLE_AT_AUDIT": "9_OF_9",
+    "OFFLINE_EXACT_SET_MATERIALIZER_READY": "YES",
+    "CONSERVATIVE_AVAILABLE_AT_POLICY": "ACQUIRED_AT_ONLY",
+    "PUBLIC_SANITIZED_ATTESTATION_VALIDATOR_READY": "YES",
+    "SYNTHETIC_COMPLETE_SET_MATERIALIZATION_TEST": "PASS",
+    "ACTUAL_NINE_SOURCE_PRIVATE_MATERIALIZATION": "NO",
+    "ACTUAL_NINE_SOURCE_ORDINARY_T2_ELIGIBILITY": "NO",
+    "STRICT_HISTORICAL_REPLAY_READY": "NO",
+    "NATIVE_T5_T6_ADMISSION_READY": "NO",
+    "FIRST_SERIOUS_CONSTRAINT_RUN": "BLOCKED"
+  },
+  "ci": {
+    "raw_store_run_id": 36244235806,
+    "raw_store_run_number": 22,
+    "raw_store_test_count": 30,
+    "raw_store_result": "PASS",
+    "first_slice_integration_run_id": 36244235781,
+    "first_slice_integration_result": "PASS",
+    "t6_validator_run_id": 36244235876,
+    "t6_validator_result": "PASS",
+    "nyx_successor_guard_run_id": 36244235982,
+    "nyx_successor_guard_result": "PASS",
+    "public_validation_run_id": 36244235812,
+    "public_validation_result": "PASS",
+    "hygiene_run_id": 36244235802,
+    "hygiene_result": "PASS"
+  },
+  "remaining_blockers": [
+    "PIT-002B-FIRST-SLICE-NINE-SOURCE-RAW-CAPTURE-MATERIALIZATION",
+    "ORDINARY-POINT-IN-TIME-REPLAY-SOURCE-VERSION-HASHES-INCOMPLETE",
+    "CI-TEST-008-BLOCKER-001B-NATIVE-T5-T6-SIGNED-ADMISSION-RECEIPT-ABSENT",
+    "CANONICAL-T5-T6-CONSTRAINT-AND-BENEFICIARY-ADMISSION-NOT-AUTHORIZED"
+  ],
+  "boundary": "THE_ONLY_UNEXECUTED_RAW_CUSTODY_STEP_IS_AUTHORIZED_PRIVATE_CAPTURE_OF_THE_REAL_NINE_SOURCE_BODIES",
+  "readiness": "REPLAYABLE_WITH_BLOCKERS"
+}
