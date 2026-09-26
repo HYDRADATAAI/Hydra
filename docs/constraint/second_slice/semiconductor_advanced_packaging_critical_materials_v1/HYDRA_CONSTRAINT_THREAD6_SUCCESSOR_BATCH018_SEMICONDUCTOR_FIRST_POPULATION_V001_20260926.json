@@ -1,0 +1,346 @@
+{
+  "schema_version": "hydra-constraint-second-slice-first-population/v1",
+  "record_id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH018_SEMICONDUCTOR_FIRST_POPULATION_V001",
+  "as_of": "2026-09-26",
+  "predecessor_batch": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH017",
+  "slice_id": "SEMICONDUCTOR_ADVANCED_PACKAGING_CRITICAL_MATERIALS_V1",
+  "population_mode": "MANUAL_REVIEWED_PUBLIC_SOURCE_SEED_NOT_ORDINARY_T3",
+  "ordinary_t3_eligible": false,
+  "canonical_constraints_minted": 0,
+  "qualified_beneficiaries_minted": 0,
+  "companies": [
+    {
+      "entity_id": "S2-COMP-NVIDIA",
+      "entity_type": "COMPANY",
+      "label": "NVIDIA Corporation",
+      "evidence_ids": [
+        "EV-S2-NVIDIA-H200-HBM3E",
+        "EV-S2-NVIDIA-FY2024-SUPPLY-CHAIN"
+      ],
+      "source_version_ids": [],
+      "available_at": null,
+      "confidence_type": "UNASSESSED_SEED",
+      "confidence_value": null,
+      "contradiction_state": "UNASSESSED_IN_SEED",
+      "quarantine_state": "SHADOW_NOT_T1_MATERIALIZED"
+    },
+    {
+      "entity_id": "S2-COMP-TSMC",
+      "entity_type": "COMPANY",
+      "label": "Taiwan Semiconductor Manufacturing Company Limited",
+      "evidence_ids": [
+        "EV-S2-NVIDIA-FY2024-SUPPLY-CHAIN",
+        "EV-S2-TSMC-ARIZONA-PLAN-2023",
+        "EV-S2-TSMC-ARIZONA-HVM-4Q2024",
+        "EV-S2-TSMC-COWOS-AI-2024"
+      ],
+      "source_version_ids": [],
+      "available_at": null,
+      "confidence_type": "UNASSESSED_SEED",
+      "confidence_value": null,
+      "contradiction_state": "UNASSESSED_IN_SEED",
+      "quarantine_state": "SHADOW_NOT_T1_MATERIALIZED"
+    },
+    {
+      "entity_id": "S2-COMP-MICRON",
+      "entity_type": "COMPANY",
+      "label": "Micron Technology, Inc.",
+      "evidence_ids": [
+        "EV-S2-MICRON-HBM3E-VOLUME-H200",
+        "EV-S2-NVIDIA-FY2024-SUPPLY-CHAIN"
+      ],
+      "source_version_ids": [],
+      "available_at": null,
+      "confidence_type": "UNASSESSED_SEED",
+      "confidence_value": null,
+      "contradiction_state": "UNASSESSED_IN_SEED",
+      "quarantine_state": "SHADOW_NOT_T1_MATERIALIZED"
+    },
+    {
+      "entity_id": "S2-COMP-SKHYNIX",
+      "entity_type": "COMPANY",
+      "label": "SK hynix Inc.",
+      "evidence_ids": [
+        "EV-S2-SKHYNIX-HBM3E-VOLUME",
+        "EV-S2-NVIDIA-FY2024-SUPPLY-CHAIN"
+      ],
+      "source_version_ids": [],
+      "available_at": null,
+      "confidence_type": "UNASSESSED_SEED",
+      "confidence_value": null,
+      "contradiction_state": "UNASSESSED_IN_SEED",
+      "quarantine_state": "SHADOW_NOT_T1_MATERIALIZED"
+    },
+    {
+      "entity_id": "S2-COMP-SAMSUNG",
+      "entity_type": "COMPANY",
+      "label": "Samsung Electronics Co., Ltd.",
+      "evidence_ids": [
+        "EV-S2-SAMSUNG-HBM3E12H-DEVELOPED",
+        "EV-S2-NVIDIA-FY2024-SUPPLY-CHAIN"
+      ],
+      "source_version_ids": [],
+      "available_at": null,
+      "confidence_type": "UNASSESSED_SEED",
+      "confidence_value": null,
+      "contradiction_state": "UNASSESSED_IN_SEED",
+      "quarantine_state": "SHADOW_NOT_T1_MATERIALIZED"
+    },
+    {
+      "entity_id": "S2-COMP-ASML",
+      "entity_type": "COMPANY",
+      "label": "ASML Holding N.V.",
+      "evidence_ids": [
+        "EV-S2-ASML-LICENSE-REVOCATION"
+      ],
+      "source_version_ids": [],
+      "available_at": null,
+      "confidence_type": "UNASSESSED_SEED",
+      "confidence_value": null,
+      "contradiction_state": "UNASSESSED_IN_SEED",
+      "quarantine_state": "SHADOW_NOT_T1_MATERIALIZED"
+    }
+  ],
+  "facilities": [
+    {
+      "entity_id": "S2-FAC-TSMC-ARIZONA-FIRST-FAB",
+      "entity_type": "MANUFACTURING_FACILITY",
+      "facility_id": "S2-FAC-TSMC-ARIZONA-FIRST-FAB",
+      "facility_type": "SEMICONDUCTOR_FAB",
+      "facility_owner_id": "S2-COMP-TSMC",
+      "geography_id": "S2-GEO-ARIZONA-US",
+      "label": "TSMC Arizona first fab",
+      "process_node": "N4",
+      "capacity_state": "HIGH_VOLUME_PRODUCTION",
+      "installed_capacity": null,
+      "operational_capacity": null,
+      "available_capacity": null,
+      "effective_capacity": null,
+      "capacity_unit": null,
+      "effective_from": "2024-Q4",
+      "effective_to": null,
+      "available_at": null,
+      "observed_at": null,
+      "evidence_ids": [
+        "EV-S2-TSMC-ARIZONA-HVM-4Q2024"
+      ],
+      "source_version_ids": [],
+      "confidence_type": "UNASSESSED_SEED",
+      "confidence_value": null,
+      "contradiction_state": "TEMPORAL_SUCCESSOR_TO_PRIOR_PLAN",
+      "quarantine_state": "SHADOW_NOT_T1_MATERIALIZED"
+    }
+  ],
+  "products_and_technologies": [
+    {
+      "entity_id": "S2-PROD-NVIDIA-H200",
+      "entity_type": "ACCELERATOR_PRODUCT",
+      "label": "NVIDIA H200 Tensor Core GPU",
+      "product_type": "GPU_ACCELERATOR",
+      "technology_id": "HOPPER",
+      "evidence_ids": [
+        "EV-S2-NVIDIA-H200-HBM3E",
+        "EV-S2-MICRON-HBM3E-VOLUME-H200"
+      ],
+      "source_version_ids": [],
+      "available_at": null,
+      "quarantine_state": "SHADOW_NOT_T1_MATERIALIZED"
+    },
+    {
+      "entity_id": "S2-PROD-HBM3E",
+      "entity_type": "MEMORY_PRODUCT_CLASS",
+      "label": "HBM3E",
+      "product_type": "HIGH_BANDWIDTH_MEMORY",
+      "evidence_ids": [
+        "EV-S2-NVIDIA-H200-HBM3E",
+        "EV-S2-MICRON-HBM3E-VOLUME-H200",
+        "EV-S2-SKHYNIX-HBM3E-VOLUME",
+        "EV-S2-SAMSUNG-HBM3E12H-DEVELOPED"
+      ],
+      "source_version_ids": [],
+      "available_at": null,
+      "quarantine_state": "SHADOW_NOT_T1_MATERIALIZED"
+    },
+    {
+      "entity_id": "S2-PROD-SAMSUNG-HBM3E12H",
+      "entity_type": "MEMORY_PRODUCT",
+      "label": "Samsung 36GB HBM3E 12H",
+      "product_type": "HIGH_BANDWIDTH_MEMORY",
+      "evidence_ids": [
+        "EV-S2-SAMSUNG-HBM3E12H-DEVELOPED"
+      ],
+      "source_version_ids": [],
+      "available_at": null,
+      "quarantine_state": "SHADOW_NOT_T1_MATERIALIZED"
+    },
+    {
+      "entity_id": "S2-TECH-TSMC-COWOS",
+      "entity_type": "PACKAGING_TECHNOLOGY",
+      "label": "TSMC CoWoS",
+      "packaging_type": "ADVANCED_2_5D_PACKAGING",
+      "evidence_ids": [
+        "EV-S2-NVIDIA-FY2024-SUPPLY-CHAIN",
+        "EV-S2-TSMC-COWOS-AI-2024"
+      ],
+      "source_version_ids": [],
+      "available_at": null,
+      "quarantine_state": "SHADOW_NOT_T1_MATERIALIZED"
+    },
+    {
+      "entity_id": "S2-PROC-TSMC-N4",
+      "entity_type": "PROCESS_TECHNOLOGY",
+      "label": "TSMC N4",
+      "process_node": "N4",
+      "evidence_ids": [
+        "EV-S2-TSMC-ARIZONA-PLAN-2023",
+        "EV-S2-TSMC-ARIZONA-HVM-4Q2024"
+      ],
+      "source_version_ids": [],
+      "available_at": null,
+      "quarantine_state": "SHADOW_NOT_T1_MATERIALIZED"
+    },
+    {
+      "entity_id": "S2-EQUIP-ASML-NXT2050I",
+      "entity_type": "LITHOGRAPHY_EQUIPMENT",
+      "label": "ASML NXT:2050i",
+      "equipment_type": "DUV_IMMERSION_LITHOGRAPHY",
+      "evidence_ids": [
+        "EV-S2-ASML-LICENSE-REVOCATION"
+      ],
+      "source_version_ids": [],
+      "available_at": null,
+      "quarantine_state": "SHADOW_NOT_T1_MATERIALIZED"
+    },
+    {
+      "entity_id": "S2-EQUIP-ASML-NXT2100I",
+      "entity_type": "LITHOGRAPHY_EQUIPMENT",
+      "label": "ASML NXT:2100i",
+      "equipment_type": "DUV_IMMERSION_LITHOGRAPHY",
+      "evidence_ids": [
+        "EV-S2-ASML-LICENSE-REVOCATION"
+      ],
+      "source_version_ids": [],
+      "available_at": null,
+      "quarantine_state": "SHADOW_NOT_T1_MATERIALIZED"
+    },
+    {
+      "entity_id": "S2-CLASS-HBM",
+      "entity_type": "PRODUCT_CLASS",
+      "label": "High-bandwidth memory",
+      "product_type": "HIGH_BANDWIDTH_MEMORY_CLASS",
+      "evidence_ids": [
+        "EV-S2-BIS-2024-HBM-SME"
+      ],
+      "source_version_ids": [],
+      "available_at": null,
+      "quarantine_state": "SHADOW_NOT_T1_MATERIALIZED"
+    }
+  ],
+  "geographies": [
+    {
+      "entity_id": "S2-GEO-TAIWAN",
+      "entity_type": "GEOGRAPHY",
+      "label": "Taiwan",
+      "evidence_ids": [
+        "EV-S2-NVIDIA-FY2024-SUPPLY-CHAIN",
+        "EV-S2-TSMC-COWOS-AI-2024"
+      ],
+      "source_version_ids": [],
+      "available_at": null,
+      "quarantine_state": "SHADOW_NOT_T1_MATERIALIZED"
+    },
+    {
+      "entity_id": "S2-GEO-ARIZONA-US",
+      "entity_type": "GEOGRAPHY",
+      "label": "Arizona, United States",
+      "evidence_ids": [
+        "EV-S2-TSMC-ARIZONA-PLAN-2023",
+        "EV-S2-TSMC-ARIZONA-HVM-4Q2024"
+      ],
+      "source_version_ids": [],
+      "available_at": null,
+      "quarantine_state": "SHADOW_NOT_T1_MATERIALIZED"
+    },
+    {
+      "entity_id": "S2-GEO-SOUTH-KOREA",
+      "entity_type": "GEOGRAPHY",
+      "label": "Republic of Korea",
+      "evidence_ids": [
+        "EV-S2-SKHYNIX-HBM3E-VOLUME",
+        "EV-S2-SAMSUNG-HBM3E12H-DEVELOPED"
+      ],
+      "source_version_ids": [],
+      "available_at": null,
+      "quarantine_state": "SHADOW_NOT_T1_MATERIALIZED"
+    },
+    {
+      "entity_id": "S2-GEO-NETHERLANDS",
+      "entity_type": "GEOGRAPHY",
+      "label": "Netherlands",
+      "evidence_ids": [
+        "EV-S2-ASML-LICENSE-REVOCATION"
+      ],
+      "source_version_ids": [],
+      "available_at": null,
+      "quarantine_state": "SHADOW_NOT_T1_MATERIALIZED"
+    },
+    {
+      "entity_id": "S2-GEO-PRC",
+      "entity_type": "GEOGRAPHY",
+      "label": "People's Republic of China",
+      "evidence_ids": [
+        "EV-S2-ASML-LICENSE-REVOCATION",
+        "EV-S2-BIS-2022-ADV-COMPUTE-SME",
+        "EV-S2-BIS-2024-HBM-SME"
+      ],
+      "source_version_ids": [],
+      "available_at": null,
+      "quarantine_state": "SHADOW_NOT_T1_MATERIALIZED"
+    }
+  ],
+  "policy_events": [
+    {
+      "entity_id": "S2-POL-BIS-2022-ADV-COMPUTE-SME",
+      "entity_type": "POLICY_EVENT",
+      "label": "2022 U.S. advanced computing and semiconductor manufacturing export controls",
+      "effective_from": "2022-10",
+      "available_at": null,
+      "evidence_ids": [
+        "EV-S2-BIS-2022-ADV-COMPUTE-SME"
+      ],
+      "source_version_ids": [],
+      "quarantine_state": "SHADOW_NOT_T1_MATERIALIZED"
+    },
+    {
+      "entity_id": "S2-POL-ASML-2024-LICENSE-REVOCATION",
+      "entity_type": "POLICY_EVENT",
+      "label": "Partial revocation of ASML NXT:2050i/NXT:2100i shipment license",
+      "effective_from": null,
+      "available_at": null,
+      "evidence_ids": [
+        "EV-S2-ASML-LICENSE-REVOCATION"
+      ],
+      "source_version_ids": [],
+      "quarantine_state": "SHADOW_NOT_T1_MATERIALIZED"
+    },
+    {
+      "entity_id": "S2-POL-BIS-2024-HBM-SME",
+      "entity_type": "POLICY_EVENT",
+      "label": "2024 U.S. HBM and semiconductor manufacturing equipment export control package",
+      "effective_from": "2024-12",
+      "available_at": null,
+      "evidence_ids": [
+        "EV-S2-BIS-2024-HBM-SME"
+      ],
+      "source_version_ids": [],
+      "quarantine_state": "SHADOW_NOT_T1_MATERIALIZED"
+    }
+  ],
+  "material_records": [],
+  "explicit_gaps": [
+    "NO_SEMICONDUCTOR_GRADE_CRITICAL_MATERIAL_RECORD_ADMITTED_IN_BATCH018",
+    "NO_OSAT_FACILITY_RECORD_ADMITTED_IN_BATCH018",
+    "NO_CAPACITY_VALUE_ADMITTED_WITHOUT_PRIMARY_SOURCE_SUPPORT",
+    "NO_YIELD_VALUE_ADMITTED_WITHOUT_PRIMARY_SOURCE_SUPPORT"
+  ]
+}
