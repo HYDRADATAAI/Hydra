@@ -26,8 +26,13 @@ class TemplateContractTests(unittest.TestCase):
         )
 
     def test_buckets_are_private_encrypted_versioned_and_expiring(self):
-        for name in ("RawBucket", "CuratedBucket"):
+        parameter_by_bucket = {
+            "RawBucket": "RawBucketName",
+            "CuratedBucket": "CuratedBucketName",
+        }
+        for name, parameter_name in parameter_by_bucket.items():
             properties = TEMPLATE["Resources"][name]["Properties"]
+            self.assertEqual(properties["BucketName"], {"Ref": parameter_name})
             public = properties["PublicAccessBlockConfiguration"]
             self.assertTrue(all(public.values()))
             encryption = properties["BucketEncryption"]
@@ -46,6 +51,22 @@ class TemplateContractTests(unittest.TestCase):
                 ],
                 {"NoncurrentDays": {"Ref": "ArtifactRetentionDays"}},
             )
+
+    def test_bucket_name_parameters_break_the_s3_notification_cycle(self):
+        for parameter_name in ("RawBucketName", "CuratedBucketName"):
+            self.assertEqual(
+                TEMPLATE["Parameters"][parameter_name]["AllowedPattern"],
+                "^[a-z0-9][a-z0-9.-]{1,61}[a-z0-9]$",
+            )
+
+        policies = TEMPLATE["Resources"]["TransformFunction"]["Properties"][
+            "Policies"
+        ]
+        serialized = json.dumps(policies, sort_keys=True)
+        self.assertNotIn("RawBucket.Arn", serialized)
+        self.assertNotIn("CuratedBucket.Arn", serialized)
+        self.assertIn("${RawBucketName}/raw/*", serialized)
+        self.assertIn("${CuratedBucketName}/curated/*", serialized)
 
     def test_glue_database_name_is_athena_compatible_and_configurable(self):
         parameter = TEMPLATE["Parameters"]["DataCatalogDatabaseName"]

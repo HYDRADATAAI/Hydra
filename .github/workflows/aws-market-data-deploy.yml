@@ -62,6 +62,12 @@ jobs:
 
       - name: Deploy temporary stack
         run: |
+          set -euo pipefail
+          account_id=$(aws sts get-caller-identity --query Account --output text)
+          stack_hash=$(printf '%s' "$STACK_NAME" | sha256sum | cut -c1-12)
+          bucket_suffix="${account_id}-${AWS_REGION}-${stack_hash}"
+          raw_bucket_name="hydra-public-raw-${bucket_suffix}"
+          curated_bucket_name="hydra-public-curated-${bucket_suffix}"
           sam deploy \
             --stack-name "$STACK_NAME" \
             --region "$AWS_REGION" \
@@ -69,6 +75,9 @@ jobs:
             --capabilities CAPABILITY_IAM \
             --no-confirm-changeset \
             --no-fail-on-empty-changeset \
+            --parameter-overrides \
+              RawBucketName="$raw_bucket_name" \
+              CuratedBucketName="$curated_bucket_name" \
             --tags hydra:sample=aws-market-data-pipeline hydra:data-boundary=synthetic-non-live
 
       - name: Read non-sensitive stack outputs
