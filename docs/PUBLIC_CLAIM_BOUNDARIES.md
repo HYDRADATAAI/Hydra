@@ -40,6 +40,20 @@ Public language should distinguish:
 - blocked;
 - planned.
 
+## Cloud deployment boundary
+
+The public AWS sample may be described as **deployment-ready** when its local tests, infrastructure contract tests, and credential-free CI pass.
+
+It may be described as **deployed and verified** only after the manual AWS workflow succeeds against a real account and publishes sanitized evidence that proves:
+
+- the stack deployed;
+- the synthetic source object triggered the transform;
+- accepted, quarantine, and manifest objects matched local deterministic replay;
+- the bounded Athena query succeeded;
+- no account identifier, role ARN, credential, or globally unique bucket name was disclosed.
+
+Infrastructure code alone is not proof of a live AWS deployment, production scale, production availability, or production cost behavior.
+
 ## Trading boundary
 
 HYDRA public materials should not imply autonomous live trading unless that state is separately and explicitly proven.

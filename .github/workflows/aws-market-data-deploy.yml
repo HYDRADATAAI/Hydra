@@ -1,0 +1,209 @@
+name: AWS market data deploy and verify
+
+on:
+  workflow_dispatch:
+    inputs:
+      aws_region:
+        description: AWS region for the temporary public sample stack
+        required: true
+        default: us-east-1
+        type: string
+      stack_name:
+        description: CloudFormation stack name
+        required: true
+        default: hydra-public-market-pipeline
+        type: string
+      teardown:
+        description: Empty buckets and delete the stack after verification
+        required: true
+        default: true
+        type: boolean
+
+permissions:
+  contents: read
+  id-token: write
+
+concurrency:
+  group: hydra-aws-market-data-demo
+  cancel-in-progress: false
+
+jobs:
+  deploy-and-verify:
+    runs-on: ubuntu-latest
+    environment: aws-demo
+    env:
+      AWS_REGION: ${{ inputs.aws_region }}
+      STACK_NAME: ${{ inputs.stack_name }}
+      SAMPLE_DIR: aws-market-data-pipeline
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Configure short-lived AWS credentials
+        uses: aws-actions/configure-aws-credentials@v6.3.0
+        with:
+          aws-region: ${{ inputs.aws_region }}
+          mask-aws-account-id: true
+          role-to-assume: ${{ secrets.AWS_DEMO_ROLE_ARN }}
+          role-session-name: hydra-public-aws-proof
+
+      - name: Set up AWS SAM
+        uses: aws-actions/setup-sam@v3
+
+      - name: Validate and build
+        run: |
+          sam validate --template "$SAMPLE_DIR/template.json"
+          sam build --template-file "$SAMPLE_DIR/template.json"
+
+      - name: Deploy temporary stack
+        run: |
+          sam deploy \
+            --stack-name "$STACK_NAME" \
+            --region "$AWS_REGION" \
+            --resolve-s3 \
+            --capabilities CAPABILITY_IAM \
+            --no-confirm-changeset \
+            --no-fail-on-empty-changeset \
+            --tags hydra:sample=aws-market-data-pipeline hydra:data-boundary=synthetic-non-live
+
+      - name: Read non-sensitive stack outputs
+        run: |
+          set -euo pipefail
+          output() {
+            aws cloudformation describe-stacks \
+              --stack-name "$STACK_NAME" \
+              --region "$AWS_REGION" \
+              --query "Stacks[0].Outputs[?OutputKey=='$1'].OutputValue" \
+              --output text
+          }
+          echo "RAW_BUCKET=$(output RawBucketName)" >> "$GITHUB_ENV"
+          echo "CURATED_BUCKET=$(output CuratedBucketName)" >> "$GITHUB_ENV"
+          echo "GLUE_DATABASE=$(output GlueDatabaseName)" >> "$GITHUB_ENV"
+          echo "ATHENA_WORKGROUP=$(output AthenaWorkGroupName)" >> "$GITHUB_ENV"
+
+      - name: Build expected outputs and upload synthetic fixture
+        run: |
+          set -euo pipefail
+          cd "$SAMPLE_DIR"
+          python local_demo.py --output-dir build/local
+          RUN_ID=$(python -c "import json; print(json.load(open('build/local/manifest.json'))['pipeline_run_id'])")
+          echo "RUN_ID=$RUN_ID" >> "$GITHUB_ENV"
+          aws s3 cp \
+            fixtures/synthetic_market_events.csv \
+            "s3://$RAW_BUCKET/raw/synthetic_market_events.csv" \
+            --sse AES256 \
+            --region "$AWS_REGION"
+
+      - name: Wait for deterministic cloud outputs
+        run: |
+          set -euo pipefail
+          manifest="s3://$CURATED_BUCKET/curated/manifests/$RUN_ID/manifest.json"
+          for attempt in $(seq 1 30); do
+            if aws s3 ls "$manifest" --region "$AWS_REGION" >/dev/null 2>&1; then
+              exit 0
+            fi
+            sleep 5
+          done
+          echo "Timed out waiting for $manifest" >&2
+          exit 1
+
+      - name: Download and compare deployed artifacts
+        run: |
+          set -euo pipefail
+          mkdir -p "$SAMPLE_DIR/build/deployed"
+          aws s3 cp "s3://$CURATED_BUCKET/curated/accepted/$RUN_ID/normalized_events.jsonl" "$SAMPLE_DIR/build/deployed/normalized_events.jsonl"
+          aws s3 cp "s3://$CURATED_BUCKET/curated/quarantine/$RUN_ID/quarantine_records.jsonl" "$SAMPLE_DIR/build/deployed/quarantine_records.jsonl"
+          aws s3 cp "s3://$CURATED_BUCKET/curated/manifests/$RUN_ID/manifest.json" "$SAMPLE_DIR/build/deployed/manifest.json"
+          cmp "$SAMPLE_DIR/build/local/normalized_events.jsonl" "$SAMPLE_DIR/build/deployed/normalized_events.jsonl"
+          cmp "$SAMPLE_DIR/build/local/quarantine_records.jsonl" "$SAMPLE_DIR/build/deployed/quarantine_records.jsonl"
+          cmp "$SAMPLE_DIR/build/local/manifest.json" "$SAMPLE_DIR/build/deployed/manifest.json"
+
+      - name: Run bounded Athena verification query
+        run: |
+          set -euo pipefail
+          query='SELECT symbol, COUNT(*) AS row_count FROM normalized_events GROUP BY symbol ORDER BY symbol'
+          QUERY_ID=$(aws athena start-query-execution \
+            --query-string "$query" \
+            --query-execution-context "Database=$GLUE_DATABASE" \
+            --work-group "$ATHENA_WORKGROUP" \
+            --region "$AWS_REGION" \
+            --query QueryExecutionId \
+            --output text)
+          echo "QUERY_ID=$QUERY_ID" >> "$GITHUB_ENV"
+          for attempt in $(seq 1 30); do
+            state=$(aws athena get-query-execution --query-execution-id "$QUERY_ID" --query 'QueryExecution.Status.State' --output text)
+            if [[ "$state" == "SUCCEEDED" ]]; then
+              aws athena get-query-results --query-execution-id "$QUERY_ID" > "$SAMPLE_DIR/build/deployed/athena_query_results.json"
+              exit 0
+            fi
+            if [[ "$state" == "FAILED" || "$state" == "CANCELLED" ]]; then
+              aws athena get-query-execution --query-execution-id "$QUERY_ID"
+              exit 1
+            fi
+            sleep 5
+          done
+          echo "Timed out waiting for Athena query $QUERY_ID" >&2
+          exit 1
+
+      - name: Write sanitized deployment evidence
+        env:
+          GITHUB_RUN_ID_VALUE: ${{ github.run_id }}
+        run: |
+          python - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+
+          root = Path(os.environ["SAMPLE_DIR"]) / "build" / "deployed"
+          manifest = json.loads((root / "manifest.json").read_text(encoding="utf-8"))
+          evidence = {
+              "accepted_rows": manifest["accepted_rows"],
+              "athena_query_state": "SUCCEEDED",
+              "aws_region": os.environ["AWS_REGION"],
+              "deployed_outputs_match_local_replay": True,
+              "github_run_id": os.environ["GITHUB_RUN_ID_VALUE"],
+              "pipeline_run_id": os.environ["RUN_ID"],
+              "quarantined_rows": manifest["quarantined_rows"],
+              "schema_version": "hydra-aws-deployment-evidence/v1",
+              "stack_name": os.environ["STACK_NAME"],
+          }
+          (root / "deployment_evidence.json").write_text(
+              json.dumps(evidence, indent=2, sort_keys=True) + "\n",
+              encoding="utf-8",
+          )
+          PY
+
+      - name: Publish sanitized deployment evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: hydra-aws-market-data-deployment-evidence
+          path: aws-market-data-pipeline/build/deployed/
+          if-no-files-found: error
+
+      - name: Empty versioned buckets and delete stack
+        if: ${{ always() && inputs.teardown }}
+        run: |
+          set +e
+          output() {
+            aws cloudformation describe-stacks \
+              --stack-name "$STACK_NAME" \
+              --region "$AWS_REGION" \
+              --query "Stacks[0].Outputs[?OutputKey=='$1'].OutputValue" \
+              --output text 2>/dev/null
+          }
+          raw_bucket="${RAW_BUCKET:-$(output RawBucketName)}"
+          curated_bucket="${CURATED_BUCKET:-$(output CuratedBucketName)}"
+          for bucket in "$raw_bucket" "$curated_bucket"; do
+            [[ -z "$bucket" ]] && continue
+            aws s3 rm "s3://$bucket" --recursive --region "$AWS_REGION"
+            versions=$(aws s3api list-object-versions --bucket "$bucket" --region "$AWS_REGION" --output json | jq '{Objects: (((.Versions // []) + (.DeleteMarkers // [])) | map({Key,VersionId})), Quiet: true}')
+            if [[ $(jq '.Objects | length' <<< "$versions") -gt 0 ]]; then
+              aws s3api delete-objects --bucket "$bucket" --region "$AWS_REGION" --delete "$versions"
+            fi
+          done
+          sam delete --stack-name "$STACK_NAME" --region "$AWS_REGION" --no-prompts

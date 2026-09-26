@@ -7,6 +7,7 @@
 [![T6 fail-closed validator](https://github.com/HYDRADATAAI/Hydra/actions/workflows/t6-validator.yml/badge.svg)](https://github.com/HYDRADATAAI/Hydra/actions/workflows/t6-validator.yml)
 [![Market data pipeline sample](https://github.com/HYDRADATAAI/Hydra/actions/workflows/market-data-pipeline.yml/badge.svg)](https://github.com/HYDRADATAAI/Hydra/actions/workflows/market-data-pipeline.yml)
 [![SQL data quality sample](https://github.com/HYDRADATAAI/Hydra/actions/workflows/sql-data-quality-sample.yml/badge.svg)](https://github.com/HYDRADATAAI/Hydra/actions/workflows/sql-data-quality-sample.yml)
+[![AWS market data pipeline sample](https://github.com/HYDRADATAAI/Hydra/actions/workflows/aws-market-data-pipeline.yml/badge.svg)](https://github.com/HYDRADATAAI/Hydra/actions/workflows/aws-market-data-pipeline.yml)
 
 **Project site:** https://hydradataai.github.io/Hydra-Website/  
 **Technical site repository:** https://github.com/HYDRADATAAI/Hydra-Website
@@ -151,6 +152,22 @@ A bounded SQL example lives in [`sql-data-quality-sample/`](sql-data-quality-sam
 
 The sample includes joins, CTEs, `ROW_NUMBER`, `LAG`, windowed averages, grouped quality summaries, and Python-driven regression tests. It is intended as inspectable SQL/data-quality evidence, not as a production database or warehouse.
 
+## AWS deployment-ready vertical slice
+
+A bounded cloud mapping lives in [`aws-market-data-pipeline/`](aws-market-data-pipeline/). Its current status is **deployment-ready / not yet deployed / synthetic / non-live**.
+
+`synthetic CSV → private raw S3 → Python 3.11 Lambda → accepted/quarantine S3 prefixes → Glue table → bounded Athena query`
+
+The sample includes:
+
+- [`template.json`](aws-market-data-pipeline/template.json), a SAM/CloudFormation template for encrypted private buckets, a least-privilege transform function, a Glue table over accepted outputs, and an Athena workgroup with a scan cutoff;
+- [`processor.py`](aws-market-data-pipeline/function/processor.py), the deterministic transform shared by local replay and Lambda;
+- [`test_processor.py`](aws-market-data-pipeline/tests/test_processor.py), [`test_lambda_handler.py`](aws-market-data-pipeline/tests/test_lambda_handler.py), and [`test_template.py`](aws-market-data-pipeline/tests/test_template.py) for data, adapter, replay, and infrastructure contracts;
+- [credential-free CI](https://github.com/HYDRADATAAI/Hydra/actions/workflows/aws-market-data-pipeline.yml) for local deterministic evidence;
+- a [manual OIDC deploy-and-verify workflow](https://github.com/HYDRADATAAI/Hydra/actions/workflows/aws-market-data-deploy.yml) that compares deployed S3 artifacts byte-for-byte with local replay, runs a bounded Athena query, publishes sanitized evidence, and tears the stack down by default.
+
+No AWS deployment is claimed until that manual workflow succeeds against a real account. The website should not promote this path as deployed evidence before then.
+
 ## Fail-closed validator sample
 
 A focused public implementation example lives in [`t6-fail-closed-validator/`](t6-fail-closed-validator/). The component is explicitly **source-only, dormant, and not activated**; its public contract is fail-closed and returns only `ABSTAIN` or `QUARANTINE`.
@@ -192,6 +209,7 @@ If you have 60 seconds:
 4. Open the **proof** section for validation, failure semantics, and engineering receipts.
 5. Inspect [`market-data-pipeline-sample/`](market-data-pipeline-sample/) for a runnable ingestion → normalization → provenance → quarantine → deterministic artifact path.
 6. Inspect [`sql-data-quality-sample/`](sql-data-quality-sample/) for relational SQL, quality classification, joins, CTEs, and window functions.
+7. Inspect [`aws-market-data-pipeline/`](aws-market-data-pipeline/) for the deployment-ready, not-yet-deployed S3 → Lambda → Glue/Athena mapping.
 
 ## Current scope
 
@@ -200,11 +218,12 @@ HYDRA is an actively developed engineering project. Public materials focus on in
 The public surfaces do **not** claim:
 
 - live autonomous trading;
+- a currently deployed or production-grade AWS data platform;
 - production ML deployment;
 - fabricated production metrics;
 - authority that the underlying producers cannot prove.
 
-Future cloud and ML work stays in the roadmap until it is implemented and inspectable.
+The AWS sample remains deployment-ready rather than deployed until a real manual run produces sanitized evidence. Broader production cloud and ML work stays in the roadmap until it is implemented and inspectable.
 
 ## Links
 
@@ -215,4 +234,4 @@ Future cloud and ML work stays in the roadmap until it is implemented and inspec
 
 ## Maintenance guard
 
-The public core repository is protected by deterministic CI. [Public repository validation](https://github.com/HYDRADATAAI/Hydra/actions/workflows/public-repository-validation.yml) checks required source/test paths, README links, public terminology, the validator's fail-closed `pyproject.toml` contract, and both Python 3.11 public-sample workflow contracts.
+The public core repository is protected by deterministic CI. [Public repository validation](https://github.com/HYDRADATAAI/Hydra/actions/workflows/public-repository-validation.yml) checks required source/test paths, README links, public terminology, the validator's fail-closed `pyproject.toml` contract, and the Python 3.11 public-sample workflow contracts.
