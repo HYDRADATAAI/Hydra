@@ -1,0 +1,60 @@
+{
+  "schema_version": "1.0",
+  "batch_id": "HYDRA_CONSTRAINT_REPLAY_OUTCOME_MAPPING_BATCH009_20260926",
+  "rule_set_id": "POSITIVE_CONSTRAINT_RULESET_V1",
+  "declared_at": "2026-09-26T13:20:00Z",
+  "policy": "Batch 009 reuses the Batch 008 mechanism-generic rule set unchanged. No case-specific rule or hindsight threshold is introduced.",
+  "cases": [
+    {
+      "case_id": "us-section232-steel-tariff-2018",
+      "mechanism_observed": true,
+      "direction_consistent": true,
+      "explicit_numeric_target_defined": false,
+      "target_met": null,
+      "explicit_horizon_defined": false,
+      "horizon_met": null,
+      "causal_attribution_clean": true,
+      "outcome_observation_complete": true,
+      "contradiction_open": false,
+      "evidence_source_ids": [
+        "section232-fed-beige-book-2018-04-18",
+        "section232-usitc-2023-03-15-effects"
+      ],
+      "rationale": "Tariff-related steel price pressure anticipated by Federal Reserve contacts was later supported by USITC causal estimates of higher steel prices, lower affected imports and higher domestic production, but the historical hypothesis did not specify a numeric success target."
+    },
+    {
+      "case_id": "eu-russian-oil-import-restrictions-2022",
+      "mechanism_observed": true,
+      "direction_consistent": true,
+      "explicit_numeric_target_defined": false,
+      "target_met": null,
+      "explicit_horizon_defined": false,
+      "horizon_met": null,
+      "causal_attribution_clean": false,
+      "outcome_observation_complete": true,
+      "contradiction_open": false,
+      "evidence_source_ids": [
+        "eu-russian-oil-iea-2022-06-15-hypothesis",
+        "eu-russian-oil-eurostat-2023-09-25"
+      ],
+      "rationale": "Russian petroleum-oil flows to the EU fell sharply and alternative suppliers gained share in the expected reallocation direction, but the observed trade shift reflects sanctions, war-related adjustments and market responses rather than a single isolated cause."
+    },
+    {
+      "case_id": "panama-canal-drought-transit-policy-2023",
+      "mechanism_observed": true,
+      "direction_consistent": true,
+      "explicit_numeric_target_defined": false,
+      "target_met": null,
+      "explicit_horizon_defined": false,
+      "horizon_met": null,
+      "causal_attribution_clean": true,
+      "outcome_observation_complete": true,
+      "contradiction_open": false,
+      "evidence_source_ids": [
+        "panama-imf-2023-11-15-hypothesis",
+        "panama-unctad-2024-01-26-transits"
+      ],
+      "rationale": "The continuing drought-related trade restriction mechanism was observed in the expected direction, with UNCTAD later reporting a 36 percent year-over-year transit reduction, but this mapping does not treat the separate 18-ships-per-day operating projection as the success target of the selected qualitative hypothesis."
+    }
+  ]
+}
