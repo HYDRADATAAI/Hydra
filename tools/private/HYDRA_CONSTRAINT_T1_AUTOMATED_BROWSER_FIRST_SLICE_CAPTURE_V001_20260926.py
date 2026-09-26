@@ -387,6 +387,11 @@ def _validate_post_outputs(attestation_path: Path, replay_path: Path) -> None:
 
 
 def run(args: argparse.Namespace) -> int:
+    if not getattr(args, "authorized_public_acquisition", False):
+        raise CaptureError(
+            "explicit --authorized-public-acquisition is required for browser-backed public source acquisition"
+        )
+
     repo_root = _resolved(args.repo_root)
     private_root = assert_outside_repo(args.private_root, repo_root, "PrivateRoot")
     raw_root = assert_outside_repo(private_root / "raw", repo_root, "PrivateRawRoot")
@@ -598,7 +603,8 @@ def build_parser() -> argparse.ArgumentParser:
         )
     )
     parser.add_argument("--repo-root", default=str(default_repo))
-    parser.add_argument("--private-root", default=r"D:\HYDRA\_PRIVATE\constraint")
+    parser.add_argument("--authorized-public-acquisition", action="store_true")
+    parser.add_argument("--private-root", default=r"D:\HYDRA_PRIVATE\constraint")
     parser.add_argument("--browser", choices=("auto", "chrome", "msedge"), default="auto")
     parser.add_argument("--headless", action="store_true")
     parser.add_argument("--challenge-wait-seconds", type=int, default=180)
