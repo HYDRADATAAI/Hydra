@@ -44,7 +44,7 @@ After all nine browser captures succeed, the runner generates the existing local
 
 1. `hydra_constraint_t1_raw.first_slice_cli`;
 2. `tools/validate_constraint_t1_first_slice_attestation.py`;
-3. `tools/build_constraint_t1_first_slice_replay_lineage.py`.
+3. `tools/build_constraint_t1_first_slice_replay_lineage.py`;\n4. `tools/build_constraint_t1_post_capture_public_status.py`.
 
 The materializer remains network-blind. `AVAILABLE_AT=ACQUIRED_AT` remains mandatory. No historical availability is inferred or backdated.
 
