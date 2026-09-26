@@ -9,7 +9,9 @@ param(
 
     [string]$PrivateStagingRoot = "D:\HYDRA_PRIVATE\constraint\capture-staging",
 
-    [string]$PrivateMetadataRoot = "D:\HYDRA_PRIVATE\constraint\metadata"
+    [string]$PrivateMetadataRoot = "D:\HYDRA_PRIVATE\constraint\metadata",
+
+    [string]$LbnlQueuedUpSanitizedHarPath
 )
 
 $ErrorActionPreference = "Stop"
@@ -106,11 +108,61 @@ foreach ($Source in $Registry.sources) {
     $Destination = Join-Path $CaptureDir ($SourceId + $Extension)
 
     Write-Host "CAPTURE_START $SourceId"
-    $Response = Invoke-WebRequest `
-        -Uri $Uri `
-        -OutFile $Destination `
-        -MaximumRedirection 10 `
-        -UseBasicParsing
+    $Response = $null
+    $UsedBrowserHar = $false
+
+    try {
+        $Response = Invoke-WebRequest `
+            -Uri $Uri `
+            -OutFile $Destination `
+            -MaximumRedirection 10 `
+            -UseBasicParsing
+    }
+    catch {
+        if (Test-Path -LiteralPath $Destination -PathType Leaf) {
+            Remove-Item -LiteralPath $Destination -Force
+        }
+
+        if (
+            $SourceId -eq "SRC-LBNL-QUEUED-UP-2025" -and
+            $LbnlQueuedUpSanitizedHarPath
+        ) {
+            Assert-OutsideRepo -CandidatePath $LbnlQueuedUpSanitizedHarPath -RepositoryPath $RepoRoot -Label "LbnlQueuedUpSanitizedHarPath"
+            if (-not (Test-Path -LiteralPath $LbnlQueuedUpSanitizedHarPath -PathType Leaf)) {
+                throw "Sanitized HAR file not found: $LbnlQueuedUpSanitizedHarPath"
+            }
+
+            $BrowserCaptureMetadata = Join-Path $PrivateMetadataRoot ("HYDRA_CONSTRAINT_BROWSER_RESPONSE_CAPTURE_LBNL_QUEUED_UP_" + $RunStamp + ".json")
+            $PreviousHarPythonPath = $env:PYTHONPATH
+            try {
+                $env:PYTHONPATH = $MaterializerSrc
+                & python -m hydra_constraint_t1_raw.browser_response_capture `
+                    --har $LbnlQueuedUpSanitizedHarPath `
+                    --output $Destination `
+                    --metadata-output $BrowserCaptureMetadata `
+                    --exact-url $Uri `
+                    --expected-mime-prefix "text/html" `
+                    --expected-text "Queued Up: 2025 Edition" `
+                    --public-repo-root $RepoRoot
+
+                if ($LASTEXITCODE -ne 0) {
+                    throw "Reviewed browser-response extraction failed with exit code $LASTEXITCODE"
+                }
+            }
+            finally {
+                $env:PYTHONPATH = $PreviousHarPythonPath
+            }
+
+            $UsedBrowserHar = $true
+            Write-Host "CAPTURE_BROWSER_HAR_OK $SourceId metadata=$BrowserCaptureMetadata"
+        }
+        else {
+            if ($SourceId -eq "SRC-LBNL-QUEUED-UP-2025") {
+                throw "Direct capture failed for $SourceId. Do not bypass Cloudflare or substitute the linked PDF. Export a sanitized browser HAR containing the exact registered document response and rerun with -LbnlQueuedUpSanitizedHarPath <private-har-path>."
+            }
+            throw
+        }
+    }
 
     if (-not (Test-Path -LiteralPath $Destination -PathType Leaf)) {
         throw "Capture did not create a file for $SourceId"
@@ -122,7 +174,7 @@ foreach ($Source in $Registry.sources) {
     }
 
     $ObservedContentType = $null
-    if ($null -ne $Response.Headers -and $Response.Headers["Content-Type"]) {
+    if (-not $UsedBrowserHar -and $null -ne $Response -and $null -ne $Response.Headers -and $Response.Headers["Content-Type"]) {
         $ObservedContentType = [string]$Response.Headers["Content-Type"]
     }
     if (
@@ -151,7 +203,8 @@ foreach ($Source in $Registry.sources) {
         processing_disposition = "ELIGIBLE"
     }
 
-    Write-Host "CAPTURE_OK $SourceId bytes=$($Item.Length) sha256=$Hash"
+    $CaptureMethod = if ($UsedBrowserHar) { "SANITIZED_BROWSER_HAR_EXACT_RESPONSE_BODY" } else { "DIRECT_REGISTERED_LOCATOR" }
+    Write-Host "CAPTURE_OK $SourceId method=$CaptureMethod bytes=$($Item.Length) sha256=$Hash"
 }
 
 if ($Captures.Count -ne 9) {
@@ -211,3 +264,6 @@ Write-Host "RAW_BODIES_PUBLISHED_TO_GIT=NO"
 Write-Host "HISTORICAL_BACKDATING=NO"
 Write-Host "ORDINARY_REPLAY_PROMOTED=NO"
 Write-Host "CANONICAL_ADMISSION_PROMOTED=NO"
+Write-Host "CLOUDFLARE_BYPASS_ATTEMPTED=NO"
+Write-Host "LINKED_REPORT_SUBSTITUTED=NO"
+Write-Host "RENDERED_DOM_USED=NO"
