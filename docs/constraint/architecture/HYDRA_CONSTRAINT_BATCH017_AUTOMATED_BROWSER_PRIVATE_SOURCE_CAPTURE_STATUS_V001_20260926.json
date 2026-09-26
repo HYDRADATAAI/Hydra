@@ -1,0 +1,47 @@
+{
+  "schema_version": "hydra-constraint-batch017-automated-browser-private-source-capture-status/v1",
+  "record_id": "HYDRA_CONSTRAINT_BATCH017_AUTOMATED_BROWSER_PRIVATE_SOURCE_CAPTURE_STATUS_V001_20260926",
+  "as_of": "2026-09-26",
+  "source_private_pr": 65,
+  "slice_id": "AI_DATA_CENTER_POWER_INFRASTRUCTURE_V1",
+  "scope": "PRIVATE_BROWSER_SOURCE_ACQUISITION_EXECUTION",
+  "implementation": {
+    "authoritative_registry_reused": true,
+    "authoritative_t1_materializer_reused": true,
+    "sanitized_attestation_validator_reused": true,
+    "deterministic_replay_lineage_builder_reused": true,
+    "manual_har_required_for_normal_workflow": false,
+    "installed_browser_channels": [
+      "chrome",
+      "msedge"
+    ],
+    "playwright_browser_download_required": false,
+    "dedicated_private_browser_profile": true,
+    "raw_body_publication": false,
+    "challenge_bypass": false,
+    "historical_available_at_backdating": false,
+    "canonical_t5_t6_promotion": false
+  },
+  "fail_closed_on": [
+    "WRONG_URL",
+    "UNAUTHORIZED_REDIRECT",
+    "NON_200_STATUS",
+    "CHALLENGE_OR_INTERSTITIAL_BODY",
+    "EMPTY_OR_SUSPICIOUS_BODY",
+    "MISSING_SOURCE",
+    "DUPLICATE_SOURCE_IDENTITY",
+    "DUPLICATE_SOURCE_LOCATOR",
+    "UNEXPECTED_CONTENT_TYPE",
+    "INVALID_PDF_SIGNATURE"
+  ],
+  "actual_private_capture_executed_by_ci": false,
+  "expected_local_success_status": [
+    "SOURCE_CAPTURE=9/9",
+    "PRIVATE_MATERIALIZATION=PASS",
+    "ATTESTATION=PASS",
+    "SOURCE_VERSION_HASH_LINEAGE=PASS",
+    "REPLAY_LINEAGE=PASS",
+    "STRICT_HISTORICAL_REPLAY=BLOCKED",
+    "NATIVE_T5_T6_ADMISSION=BLOCKED"
+  ]
+}
