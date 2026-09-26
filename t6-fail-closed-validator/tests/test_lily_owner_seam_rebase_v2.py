@@ -117,6 +117,70 @@ class LilyOwnerSeamRebaseTests(unittest.TestCase):
         with self.assertRaisesRegex(OwnerSeamConformanceError, "duplicated Batch015 confidence"):
             self.validate(docs)
 
+    def test_candidate_references_must_resolve_in_known_namespace(self):
+        for value in ("UNRESOLVED-NOT-A-REFERENCE", "EV-NONEXISTENT", "CLM-NONEXISTENT"):
+            with self.subTest(value=value):
+                docs = self.mutated()
+                docs["candidates"]["candidates"][0]["evidence_roles"]["demand_context"].append(value)
+                with self.assertRaises(OwnerSeamConformanceError):
+                    self.validate(docs)
+
+    def test_candidate_role_mapping_cannot_disappear(self):
+        for value in (None, [], {}, ""):
+            with self.subTest(value=value):
+                docs = self.mutated()
+                docs["candidates"]["candidates"][0]["evidence_roles"] = value
+                with self.assertRaisesRegex(OwnerSeamConformanceError, "evidence-role mapping"):
+                    self.validate(docs)
+
+    def test_lineage_rejects_malformed_members_without_raw_type_errors(self):
+        for value in (None, True, 17, {}, [], "", " ", " EV-DOE-LPT-SUPPLY"):
+            with self.subTest(value=value):
+                docs = self.mutated()
+                docs["candidates"]["candidates"][0]["evidence_roles"]["demand_context"].append(value)
+                with self.assertRaises(OwnerSeamConformanceError):
+                    self.validate(docs)
+
+    def test_beneficiary_role_collections_cannot_masquerade_as_empty_lists(self):
+        fields = ("constraint_evidence", "entity_connection", "advantage_mechanism",
+                  "capacity_or_availability", "economic_or_strategic_capture", "disconfirming_or_blocking")
+        for field in fields:
+            for value in ("", {}, None):
+                with self.subTest(field=field, value=value):
+                    docs = self.mutated()
+                    docs["beneficiaries"]["relationships"][0]["evidence_lineage"][field] = value
+                    with self.assertRaisesRegex(OwnerSeamConformanceError, "list required"):
+                        self.validate(docs)
+
+    def test_beneficiary_blocker_references_must_resolve(self):
+        for value in ("EV-NONEXISTENT", "CLM-NONEXISTENT"):
+            with self.subTest(value=value):
+                docs = self.mutated()
+                docs["beneficiaries"]["relationships"][0]["evidence_lineage"]["disconfirming_or_blocking"].append(value)
+                with self.assertRaisesRegex(OwnerSeamConformanceError, "unknown"):
+                    self.validate(docs)
+
+    def test_known_blocker_references_and_historical_notes_remain_valid(self):
+        docs = self.mutated()
+        docs["beneficiaries"]["relationships"][0]["evidence_lineage"]["disconfirming_or_blocking"].extend(
+            ["EV-DOE-LPT-SUPPLY", "CLM-AIDC-001"]
+        )
+        result = self.validate(docs)
+        self.assertEqual(0, result["qualified_beneficiary_count"])
+
+    def test_claim_evidence_requires_a_list_not_iterable_mapping(self):
+        docs = self.mutated()
+        refs = docs["claims"]["claims"][0]["support_evidence_ids"]
+        docs["claims"]["claims"][0]["support_evidence_ids"] = dict.fromkeys(refs)
+        with self.assertRaisesRegex(OwnerSeamConformanceError, "list required"):
+            self.validate(docs)
+
+    def test_non_object_candidate_row_fails_with_domain_error(self):
+        docs = self.mutated()
+        docs["candidates"]["candidates"][0] = None
+        with self.assertRaisesRegex(OwnerSeamConformanceError, "object required"):
+            self.validate(docs)
+
 
 if __name__ == "__main__":
     unittest.main()
