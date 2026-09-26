@@ -8,6 +8,7 @@ from pathlib import Path
 from hydra_constraint_t1_raw.first_slice_materialization import (
     FirstSliceMaterializationError,
     materialize_capture_plan,
+    validate_public_materialization_attestation,
 )
 
 
@@ -137,6 +138,32 @@ class FirstSliceMaterializationTests(unittest.TestCase):
         self.assertEqual(1, attestation["ordinary_t2_eligible_count"])
         self.assertEqual(1, attestation["ordinary_t2_blocked_count"])
         self.assertFalse(attestation["all_sources_ordinary_t2_eligible"])
+
+
+    def test_public_attestation_validates_without_private_raw_bytes(self):
+        attestation = self.run_plan()
+        validate_public_materialization_attestation(
+            attestation=attestation,
+            registry=self.registry,
+        )
+
+    def test_public_attestation_rejects_private_path_leakage(self):
+        attestation = self.run_plan()
+        attestation["members"][0]["input_file"] = str(self.captures / "a.html")
+        with self.assertRaisesRegex(FirstSliceMaterializationError, "private/raw path"):
+            validate_public_materialization_attestation(
+                attestation=attestation,
+                registry=self.registry,
+            )
+
+    def test_public_attestation_rejects_member_digest_tamper(self):
+        attestation = self.run_plan()
+        attestation["members"][0]["artifact_sha256"] = "0" * 64
+        with self.assertRaisesRegex(FirstSliceMaterializationError, "release SHA"):
+            validate_public_materialization_attestation(
+                attestation=attestation,
+                registry=self.registry,
+            )
 
     def test_replay_of_identical_capture_plan_is_idempotent(self):
         left = self.run_plan()
