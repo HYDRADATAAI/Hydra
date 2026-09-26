@@ -21,7 +21,7 @@ REGISTRY_RELATIVE_PATH = Path(
 )
 MATERIALIZER_SRC_RELATIVE_PATH = Path("constraint-t1-raw-artifact-store/src")
 ATTESTATION_VALIDATOR_RELATIVE_PATH = Path("tools/validate_constraint_t1_first_slice_attestation.py")
-REPLAY_BUILDER_RELATIVE_PATH = Path("tools/build_constraint_t1_first_slice_replay_lineage.py")
+REPLAY_BUILDER_RELATIVE_PATH = Path("tools/build_constraint_t1_first_slice_replay_lineage.py")\nPOST_CAPTURE_STATUS_BUILDER_RELATIVE_PATH = Path("tools/build_constraint_t1_post_capture_public_status.py")
 
 HTML_BLOCK_MARKERS = (
     b"attention required! | cloudflare",
