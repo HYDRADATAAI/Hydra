@@ -1,10 +1,15 @@
 """Adversarial tests of existing shadow owner; all mutations are test fixtures."""
 import copy
 import unittest
-if __package__:
-    from . import test_first_slice_outcome_shadow_replay as existing
-else:
-    import test_first_slice_outcome_shadow_replay as existing
+import importlib.util
+from pathlib import Path
+
+# Multiple owner packages use a module named tests; resolve this fixture by
+# its sibling file for unittest and pytest importlib discovery alike.
+_spec = importlib.util.spec_from_file_location(
+    "hydra_ai_infra_shadow_fixture", Path(__file__).with_name("test_first_slice_outcome_shadow_replay.py"))
+existing = importlib.util.module_from_spec(_spec)
+_spec.loader.exec_module(existing)
 from hydra_t6_failclosed.first_slice_shadow_replay import build_shadow_snapshot, future_leaks
 
 

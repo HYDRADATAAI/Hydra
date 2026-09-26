@@ -1,0 +1,18 @@
+{
+  "$schema":"https://json-schema.org/draft/2020-12/schema",
+  "$id":"https://hydra.local/contracts/constraint-replay/evidence.schema.json",
+  "title":"Historical Evidence",
+  "type":"object",
+  "additionalProperties":false,
+  "required":["evidence_id","known_at","observed_at","source_uri","source_hash","payload"],
+  "properties":{
+    "evidence_id":{"type":"string","minLength":1},
+    "known_at":{"type":"string","format":"date-time"},
+    "observed_at":{"type":"string","format":"date-time"},
+    "effective_at":{"type":["string","null"],"format":"date-time"},
+    "resolved_at":{"type":["string","null"],"format":"date-time"},
+    "source_uri":{"type":"string","minLength":1},
+    "source_hash":{"type":"string","minLength":1},
+    "payload":{"type":"object"}
+  }
+}
