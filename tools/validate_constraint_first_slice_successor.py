@@ -43,7 +43,10 @@ FILES = {
 
 MANIFESTS = [
     VALIDATION / f"HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH{n:03d}_ARTIFACT_MANIFEST_V001_20260925.json"
-    for n in range(3, 12)
+    for n in range(3, 10)
+] + [
+    VALIDATION / "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH010_ARTIFACT_MANIFEST_V002_20260925.json",
+    VALIDATION / "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH011_ARTIFACT_MANIFEST_V001_20260925.json",
 ]
 SUCCESSOR_MANIFEST = VALIDATION / "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH011_ARTIFACT_MANIFEST_V001_20260925.json"
 
@@ -328,6 +331,7 @@ def main() -> int:
     require(current_readiness["FULL_CONSTRAINT_RUN_READY"].get("status") == "NO", "Batch010 master falsely claims full-run readiness")
     require(current_master.get("first_serious_constraint_run") == "BLOCKED", "Batch010 master falsely claims serious-run readiness")
 
+
     # Batch011 consumes Batch010 current-state semantics and hardens T1->T2 release authority.
     custody_results = custody_status.get("results")
     require(isinstance(custody_results, dict), "Batch011 custody status missing")
@@ -379,7 +383,7 @@ def main() -> int:
     require(custody_readiness["FULL_CONSTRAINT_RUN_READY"].get("status") == "NO", "Batch011 master falsely claims full-run readiness")
     require(custody_master.get("first_serious_constraint_run") == "BLOCKED", "Batch011 master falsely claims serious-run readiness")
 
-    # Raw-store contract must remain private and preserve the historical Batch008 lineage envelope.
+    # Raw-store contract must remain private and require the full ordinary T2 lineage envelope.
     boundary = raw_contract.get("public_repository_boundary")
     contract = raw_contract.get("artifact_contract")
     require(isinstance(boundary, dict) and isinstance(contract, dict), "raw-store contract incomplete")
