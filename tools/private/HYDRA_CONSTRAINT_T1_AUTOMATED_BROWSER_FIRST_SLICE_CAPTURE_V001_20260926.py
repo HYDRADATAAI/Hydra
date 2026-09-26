@@ -23,6 +23,7 @@ MATERIALIZER_SRC_RELATIVE_PATH = Path("constraint-t1-raw-artifact-store/src")
 ATTESTATION_VALIDATOR_RELATIVE_PATH = Path("tools/validate_constraint_t1_first_slice_attestation.py")
 REPLAY_BUILDER_RELATIVE_PATH = Path("tools/build_constraint_t1_first_slice_replay_lineage.py")
 POST_CAPTURE_STATUS_BUILDER_RELATIVE_PATH = Path("tools/build_constraint_t1_post_capture_public_status.py")
+POST_CAPTURE_STATUS_BUILDER_RELATIVE_PATH = Path("tools/build_constraint_t1_post_capture_public_status.py")
 
 HTML_BLOCK_MARKERS = (
     b"attention required! | cloudflare",
@@ -366,7 +367,7 @@ def _build_capture_plan(captures: Sequence[CapturedDocument], *, release_id: str
     }
 
 
-def _validate_post_outputs(attestation_path: Path, replay_path: Path) -> None:
+def _validate_post_outputs(attestation_path: Path, replay_path: Path, post_capture_status_path: Path) -> None:
     attestation = _load_json(attestation_path)
     if attestation.get("materialized_source_count") != EXPECTED_SOURCE_COUNT:
         raise CaptureError("sanitized attestation source count is not 9")
@@ -384,6 +385,28 @@ def _validate_post_outputs(attestation_path: Path, replay_path: Path) -> None:
         raise CaptureError("strict historical replay was improperly promoted")
     if replay.get("historical_availability_backdated") is not False:
         raise CaptureError("replay-lineage reports historical availability backdating")
+
+    post_status = _load_json(post_capture_status_path)
+    if post_status.get("source_count") != EXPECTED_SOURCE_COUNT:
+        raise CaptureError("post-capture sanitized status source count is not 9")
+    if post_status.get("materialized_source_count") != EXPECTED_SOURCE_COUNT:
+        raise CaptureError("post-capture sanitized status materialized count is not 9")
+    if post_status.get("ordinary_t2_eligible_count") != EXPECTED_SOURCE_COUNT:
+        raise CaptureError("post-capture sanitized status ordinary T2 eligible count is not 9")
+    closure = post_status.get("closure")
+    if not isinstance(closure, Mapping):
+        raise CaptureError("post-capture sanitized status closure block is missing")
+    if closure.get("PIT-002B-FIRST-SLICE-NINE-SOURCE-RAW-CAPTURE-MATERIALIZATION") != "CLOSED_BY_VALIDATED_PRIVATE_T1_ATTESTATION":
+        raise CaptureError("post-capture sanitized status did not close raw materialization")
+    still_blocked = post_status.get("still_blocked")
+    if not isinstance(still_blocked, Mapping):
+        raise CaptureError("post-capture sanitized status still_blocked block is missing")
+    if still_blocked.get("ORDINARY_POINT_IN_TIME_REPLAY_READY") != "NO":
+        raise CaptureError("post-capture sanitized status improperly promotes ordinary replay")
+    if post_status.get("native_signed_t5_t6_receipt_present") is not False:
+        raise CaptureError("post-capture sanitized status claims native signed T5->T6 receipt")
+    if post_status.get("canonical_admission_promoted") is not False:
+        raise CaptureError("post-capture sanitized status improperly promotes canonical admission")
 
 
 def run(args: argparse.Namespace) -> int:
