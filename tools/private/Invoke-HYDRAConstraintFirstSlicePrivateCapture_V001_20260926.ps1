@@ -15,7 +15,9 @@ param(
 
     [string]$FercOrder2023SanitizedHarPath,
 
-    [string]$Pjm2025YearInReviewSanitizedHarPath
+    [string]$Pjm2025YearInReviewSanitizedHarPath,
+
+    [string]$ResumeJournalPath
 )
 
 $ErrorActionPreference = "Stop"
@@ -44,6 +46,68 @@ function Assert-OutsideRepo {
         $candidate.StartsWith($repo.TrimEnd("\") + "\", [System.StringComparison]::OrdinalIgnoreCase)
     ) {
         throw "$Label must remain outside the public repository: $candidate"
+    }
+}
+
+function Write-CaptureJournal {
+    param(
+        [Parameter(Mandatory = $true)]$Journal,
+        [Parameter(Mandatory = $true)][string]$JournalPath
+    )
+
+    $Journal.updated_at = Get-UtcTimestamp
+    $Journal | ConvertTo-Json -Depth 10 | Set-Content -LiteralPath $JournalPath -Encoding UTF8
+}
+
+function Test-JournalEntry {
+    param(
+        [Parameter(Mandatory = $true)]$Entry,
+        [Parameter(Mandatory = $true)][string]$ExpectedSourceId,
+        [Parameter(Mandatory = $true)][string]$ExpectedUri,
+        [Parameter(Mandatory = $true)][string]$ExpectedContentType,
+        [Parameter(Mandatory = $true)][string]$RepositoryPath
+    )
+
+    if ([string]$Entry.source_id -ne $ExpectedSourceId) {
+        throw "Resume journal source_id mismatch for $ExpectedSourceId"
+    }
+    if ([string]$Entry.source_locator -ne $ExpectedUri) {
+        throw "Resume journal source locator mismatch for $ExpectedSourceId"
+    }
+    if ([string]$Entry.content_type -ne $ExpectedContentType) {
+        throw "Resume journal content type mismatch for $ExpectedSourceId"
+    }
+    if ([string]::IsNullOrWhiteSpace([string]$Entry.source_version_id)) {
+        throw "Resume journal source_version_id missing for $ExpectedSourceId"
+    }
+    if ([string]::IsNullOrWhiteSpace([string]$Entry.acquired_at)) {
+        throw "Resume journal acquired_at missing for $ExpectedSourceId"
+    }
+    try {
+        [void][DateTimeOffset]::Parse([string]$Entry.acquired_at)
+    }
+    catch {
+        throw "Resume journal acquired_at invalid for $ExpectedSourceId"
+    }
+
+    $InputFile = [string]$Entry.input_file
+    Assert-OutsideRepo -CandidatePath $InputFile -RepositoryPath $RepositoryPath -Label "ResumeJournalInputFile"
+    if (-not (Test-Path -LiteralPath $InputFile -PathType Leaf)) {
+        throw "Resume journal input file missing for $ExpectedSourceId"
+    }
+
+    $Item = Get-Item -LiteralPath $InputFile
+    if ([int64]$Entry.byte_length -ne $Item.Length) {
+        throw "Resume journal byte length mismatch for $ExpectedSourceId"
+    }
+
+    $Hash = (Get-FileHash -LiteralPath $InputFile -Algorithm SHA256).Hash.ToLowerInvariant()
+    if ($Hash -ne [string]$Entry.artifact_sha256) {
+        throw "Resume journal SHA-256 mismatch for $ExpectedSourceId"
+    }
+
+    if ([string]$Entry.processing_disposition -ne "ELIGIBLE") {
+        throw "Resume journal entry is not ELIGIBLE for $ExpectedSourceId"
     }
 }
 
@@ -92,9 +156,79 @@ if (($SourceIds | Sort-Object -Unique).Count -ne 9) {
     throw "Registered source IDs are not unique."
 }
 
-$RunStamp = Get-SafeTimestamp
-$CaptureDir = Join-Path $PrivateStagingRoot $RunStamp
-New-Item -ItemType Directory -Path $CaptureDir -Force | Out-Null
+$Journal = $null
+$JournalPath = $null
+
+if ($ResumeJournalPath) {
+    Assert-OutsideRepo -CandidatePath $ResumeJournalPath -RepositoryPath $RepoRoot -Label "ResumeJournalPath"
+    if (-not (Test-Path -LiteralPath $ResumeJournalPath -PathType Leaf)) {
+        throw "Resume journal not found: $ResumeJournalPath"
+    }
+
+    $LoadedJournal = Get-Content -LiteralPath $ResumeJournalPath -Raw -Encoding UTF8 | ConvertFrom-Json
+    if ([string]$LoadedJournal.schema_version -ne "hydra-constraint-private-capture-journal/v1") {
+        throw "Unsupported private capture journal schema"
+    }
+    if ([string]$LoadedJournal.slice_id -ne "AI_DATA_CENTER_POWER_INFRASTRUCTURE_V1") {
+        throw "Resume journal slice_id mismatch"
+    }
+    if ($LoadedJournal.authoritative -ne $false) {
+        throw "Resume journal must remain non-authoritative"
+    }
+    if ($LoadedJournal.t1_release_written -eq $true) {
+        throw "Resume journal already records a completed T1 release"
+    }
+
+    $RunStamp = [string]$LoadedJournal.run_stamp
+    if ([string]::IsNullOrWhiteSpace($RunStamp)) {
+        throw "Resume journal run_stamp missing"
+    }
+
+    $CaptureDir = [string]$LoadedJournal.capture_dir
+    Assert-OutsideRepo -CandidatePath $CaptureDir -RepositoryPath $RepoRoot -Label "ResumeCaptureDir"
+    if (-not (Test-Path -LiteralPath $CaptureDir -PathType Container)) {
+        throw "Resume capture directory missing: $CaptureDir"
+    }
+
+    $JournalPath = [System.IO.Path]::GetFullPath($ResumeJournalPath)
+    $ExistingEntries = @($LoadedJournal.entries)
+    $Journal = [ordered]@{
+        schema_version = "hydra-constraint-private-capture-journal/v1"
+        slice_id = "AI_DATA_CENTER_POWER_INFRASTRUCTURE_V1"
+        run_stamp = $RunStamp
+        capture_dir = $CaptureDir
+        created_at = [string]$LoadedJournal.created_at
+        updated_at = [string]$LoadedJournal.updated_at
+        authoritative = $false
+        capture_plan_written = $false
+        t1_materialization_started = $false
+        t1_release_written = $false
+        entries = @($ExistingEntries)
+    }
+    Write-Host "CAPTURE_RESUME_JOURNAL=$JournalPath"
+}
+else {
+    $RunStamp = Get-SafeTimestamp
+    $CaptureDir = Join-Path $PrivateStagingRoot $RunStamp
+    New-Item -ItemType Directory -Path $CaptureDir -Force | Out-Null
+
+    $JournalPath = Join-Path $PrivateMetadataRoot ("HYDRA_CONSTRAINT_FIRST_SLICE_PRIVATE_CAPTURE_JOURNAL_" + $RunStamp + ".json")
+    $Journal = [ordered]@{
+        schema_version = "hydra-constraint-private-capture-journal/v1"
+        slice_id = "AI_DATA_CENTER_POWER_INFRASTRUCTURE_V1"
+        run_stamp = $RunStamp
+        capture_dir = $CaptureDir
+        created_at = Get-UtcTimestamp
+        updated_at = Get-UtcTimestamp
+        authoritative = $false
+        capture_plan_written = $false
+        t1_materialization_started = $false
+        t1_release_written = $false
+        entries = @()
+    }
+    Write-CaptureJournal -Journal $Journal -JournalPath $JournalPath
+    Write-Host "CAPTURE_JOURNAL=$JournalPath"
+}
 
 $BrowserHarFallbacks = @{
     "SRC-LBNL-QUEUED-UP-2025" = @{
@@ -131,6 +265,29 @@ foreach ($Source in $Registry.sources) {
     $Extension = if ($IsPdf) { ".pdf" } else { ".html" }
     $ExpectedContentType = if ($IsPdf) { "application/pdf" } else { "text/html" }
     $Destination = Join-Path $CaptureDir ($SourceId + $Extension)
+
+    $ExistingEntry = @($Journal.entries | Where-Object { [string]$_.source_id -eq $SourceId }) | Select-Object -First 1
+    if ($null -ne $ExistingEntry) {
+        Test-JournalEntry `
+            -Entry $ExistingEntry `
+            -ExpectedSourceId $SourceId `
+            -ExpectedUri $Uri `
+            -ExpectedContentType $ExpectedContentType `
+            -RepositoryPath $RepoRoot
+
+        $Captures += [ordered]@{
+            source_id = [string]$ExistingEntry.source_id
+            source_version_id = [string]$ExistingEntry.source_version_id
+            input_file = [string]$ExistingEntry.input_file
+            content_type = [string]$ExistingEntry.content_type
+            source_locator = [string]$ExistingEntry.source_locator
+            acquired_at = [string]$ExistingEntry.acquired_at
+            processing_disposition = [string]$ExistingEntry.processing_disposition
+        }
+
+        Write-Host "CAPTURE_RESUME_OK $SourceId method=$([string]$ExistingEntry.capture_method) bytes=$([int64]$ExistingEntry.byte_length) sha256=$([string]$ExistingEntry.artifact_sha256)"
+        continue
+    }
 
     Write-Host "CAPTURE_START $SourceId"
     $Response = $null
@@ -233,6 +390,22 @@ foreach ($Source in $Registry.sources) {
     }
 
     $CaptureMethod = if ($UsedBrowserHar) { "SANITIZED_BROWSER_HAR_EXACT_RESPONSE_BODY" } else { "DIRECT_REGISTERED_LOCATOR" }
+
+    $Journal.entries += [ordered]@{
+        source_id = $SourceId
+        source_version_id = $SourceVersionId
+        input_file = $Destination
+        content_type = $ExpectedContentType
+        source_locator = $Uri
+        acquired_at = $AcquiredAt
+        processing_disposition = "ELIGIBLE"
+        artifact_sha256 = $Hash
+        byte_length = [int64]$Item.Length
+        capture_method = $CaptureMethod
+        authoritative = $false
+    }
+    Write-CaptureJournal -Journal $Journal -JournalPath $JournalPath
+
     Write-Host "CAPTURE_OK $SourceId method=$CaptureMethod bytes=$($Item.Length) sha256=$Hash"
 }
 
@@ -257,10 +430,14 @@ $PlanPath = Join-Path $PrivateMetadataRoot ("HYDRA_CONSTRAINT_FIRST_SLICE_PRIVAT
 $AttestationPath = Join-Path $PrivateMetadataRoot ("HYDRA_CONSTRAINT_FIRST_SLICE_PRIVATE_MATERIALIZATION_ATTESTATION_" + $RunStamp + ".json")
 
 $CapturePlan | ConvertTo-Json -Depth 8 | Set-Content -LiteralPath $PlanPath -Encoding UTF8
+$Journal.capture_plan_written = $true
+Write-CaptureJournal -Journal $Journal -JournalPath $JournalPath
 
 $PreviousPythonPath = $env:PYTHONPATH
 try {
     $env:PYTHONPATH = $MaterializerSrc
+    $Journal.t1_materialization_started = $true
+    Write-CaptureJournal -Journal $Journal -JournalPath $JournalPath
 
     & python -m hydra_constraint_t1_raw.first_slice_cli `
         --registry $RegistryPath `
@@ -280,6 +457,9 @@ try {
     if ($LASTEXITCODE -ne 0) {
         throw "Sanitized attestation validation failed with exit code $LASTEXITCODE"
     }
+
+    $Journal.t1_release_written = $true
+    Write-CaptureJournal -Journal $Journal -JournalPath $JournalPath
 }
 finally {
     $env:PYTHONPATH = $PreviousPythonPath
@@ -289,6 +469,7 @@ Write-Host "HYDRA_FIRST_SLICE_PRIVATE_CAPTURE=PASS"
 Write-Host "PRIVATE_RAW_ROOT=$PrivateRawRoot"
 Write-Host "PRIVATE_CAPTURE_PLAN=$PlanPath"
 Write-Host "PRIVATE_ATTESTATION=$AttestationPath"
+Write-Host "PRIVATE_CAPTURE_JOURNAL=$JournalPath"
 Write-Host "RAW_BODIES_PUBLISHED_TO_GIT=NO"
 Write-Host "HISTORICAL_BACKDATING=NO"
 Write-Host "ORDINARY_REPLAY_PROMOTED=NO"
