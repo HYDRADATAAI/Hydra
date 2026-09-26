@@ -1,0 +1,41 @@
+{
+  "schema_version": "hydra-constraint-thread6-t1-raw-artifact-persistence-status/v1",
+  "record_id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH008_T1_RAW_ARTIFACT_PERSISTENCE_STATUS_V001",
+  "as_of": "2026-09-25",
+  "predecessor_batch": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH007",
+  "blocker_decomposition": {
+    "PIT-002-IMMUTABLE-RAW-SOURCE-ARTIFACT-PERSISTENCE": {
+      "state": "DECOMPOSED_BY_BATCH008",
+      "children": [
+        "PIT-002A-PRIVATE-RAW-ARTIFACT-PERSISTENCE-MECHANISM",
+        "PIT-002B-FIRST-SLICE-NINE-SOURCE-RAW-CAPTURE-MATERIALIZATION"
+      ]
+    },
+    "PIT-002A-PRIVATE-RAW-ARTIFACT-PERSISTENCE-MECHANISM": {
+      "state": "CLOSED_BY_BATCH008",
+      "evidence": "constraint-t1-raw-artifact-store package + CI"
+    },
+    "PIT-002B-FIRST-SLICE-NINE-SOURCE-RAW-CAPTURE-MATERIALIZATION": {
+      "state": "OPEN_BLOCKING_ORDINARY_REPLAY",
+      "reason": "The public GitHub execution surface has no mounted private HYDRA raw-data root containing the nine exact source bodies. Batch008 does not fabricate persistence."
+    }
+  },
+  "results": {
+    "PRIVATE_RAW_STORE_IMPLEMENTED": "YES",
+    "CONTENT_ADDRESSED_IMMUTABLE_WRITE": "YES",
+    "SOURCE_VERSION_RECEIPT_READY": "YES",
+    "T1_RELEASE_MANIFEST_READY": "YES",
+    "ORDINARY_T2_ELIGIBILITY_CHECK_READY": "YES",
+    "NETWORK_ACQUISITION_AUTHORIZED": "NO",
+    "PUBLIC_RAW_SOURCE_CONTENT_PUBLISHED": "NO",
+    "NINE_REAL_SOURCE_ARTIFACTS_MATERIALIZED": "NO",
+    "STRICT_ORDINARY_ORIGINAL_AS_OF_READY": "NO",
+    "FIRST_SERIOUS_CONSTRAINT_RUN": "BLOCKED"
+  },
+  "remaining_blockers": [
+    "PIT-002B-FIRST-SLICE-NINE-SOURCE-RAW-CAPTURE-MATERIALIZATION",
+    "SOURCE-GAP-FIBER-CONNECTIVITY-CAPACITY",
+    "CI-TEST-008-BLOCKER-001B-NATIVE-T5-T6-SIGNED-ADMISSION-RECEIPT-ABSENT"
+  ],
+  "next_population_blocker": "PIT-002B-FIRST-SLICE-NINE-SOURCE-RAW-CAPTURE-MATERIALIZATION"
+}

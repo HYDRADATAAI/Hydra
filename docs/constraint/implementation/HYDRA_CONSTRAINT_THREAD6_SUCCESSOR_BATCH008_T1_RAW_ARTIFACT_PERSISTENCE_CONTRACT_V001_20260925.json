@@ -1,0 +1,34 @@
+{
+  "schema_version": "hydra-constraint-thread6-t1-raw-artifact-persistence-contract/v1",
+  "record_id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH008_T1_RAW_ARTIFACT_PERSISTENCE_CONTRACT_V001",
+  "as_of": "2026-09-25",
+  "owner_namespace": "PIPELINE_T1_SOURCE_ACQUISITION",
+  "authority_basis": [
+    "NYX-T1-D001_MANIFEST_DEFINES_RELEASE",
+    "NYX-T1-D002_RAW_BYTES_ARE_EVIDENTIARY_ANCHOR",
+    "NYX-T1-D003_SOURCE_ID_AND_SOURCE_VERSION_ID_DISTINCT",
+    "LILY_THREAD1_DECISION191_T1_T2_ORDINARY_ELIGIBILITY"
+  ],
+  "public_repository_boundary": {
+    "raw_source_bytes_allowed_in_public_repo": false,
+    "private_raw_root_required": true,
+    "network_acquisition_performed_by_store": false
+  },
+  "artifact_contract": {
+    "content_addressing": "SHA256",
+    "atomic_write": true,
+    "immutable": true,
+    "source_version_receipt_required": true,
+    "release_manifest_required": true,
+    "ordinary_t2_eligibility_requires": [
+      "VALID_RAW_ARTIFACT_BYTES",
+      "MATCHING_ARTIFACT_SHA256",
+      "SOURCE_ID",
+      "SOURCE_VERSION_ID",
+      "ACQUIRED_AT",
+      "AVAILABLE_AT",
+      "ELIGIBLE_PROCESSING_DISPOSITION",
+      "DECLARED_RELEASE_MEMBERSHIP"
+    ]
+  }
+}
