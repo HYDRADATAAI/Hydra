@@ -23,7 +23,7 @@ MATERIALIZER_SRC_RELATIVE_PATH = Path("constraint-t1-raw-artifact-store/src")
 ATTESTATION_VALIDATOR_RELATIVE_PATH = Path("tools/validate_constraint_t1_first_slice_attestation.py")
 REPLAY_BUILDER_RELATIVE_PATH = Path("tools/build_constraint_t1_first_slice_replay_lineage.py")
 POST_CAPTURE_STATUS_BUILDER_RELATIVE_PATH = Path("tools/build_constraint_t1_post_capture_public_status.py")
-POST_CAPTURE_STATUS_BUILDER_RELATIVE_PATH = Path("tools/build_constraint_t1_post_capture_public_status.py")
+CAPTURE_JOURNAL_SCHEMA = "hydra-constraint-automated-browser-capture-journal/v1"
 
 HTML_BLOCK_MARKERS = (
     b"attention required! | cloudflare",
@@ -339,6 +339,33 @@ def _write_json(path: Path, value: Mapping[str, Any]) -> None:
     path.write_text(json.dumps(value, indent=2, sort_keys=True) + "\n", encoding="utf-8")
 
 
+def _is_target_closed_error(exc: BaseException) -> bool:
+    text = f"{type(exc).__name__}: {exc}".lower()
+    return (
+        "targetclosed" in text
+        or "target page, context or browser has been closed" in text
+        or "browser has been closed" in text
+        or "context has been closed" in text
+    )
+
+
+def _capture_metadata(row: CapturedDocument) -> dict[str, Any]:
+    return {
+        "source_id": row.source_id,
+        "source_locator": row.source_locator,
+        "source_version_id": row.source_version_id,
+        "acquired_at": row.acquired_at,
+        "http_status": row.status,
+        "content_type": row.content_type,
+        "byte_length": row.byte_length,
+        "artifact_sha256": row.artifact_sha256,
+        "body_path": str(row.body_path),
+        "capture_method": row.capture_method,
+        "browser_channel": row.browser_channel,
+        "redirect_chain": list(row.redirect_chain),
+    }
+
+
 def _run_checked(command: list[str], *, env: Mapping[str, str] | None = None, label: str) -> None:
     completed = subprocess.run(command, env=dict(env) if env is not None else None, check=False)
     if completed.returncode != 0:
@@ -444,6 +471,21 @@ def run(args: argparse.Namespace) -> int:
     run_stamp = safe_timestamp()
     capture_dir = staging_root / run_stamp
     capture_dir.mkdir(parents=True, exist_ok=False)
+    journal_path = metadata_root / (
+        f"HYDRA_CONSTRAINT_FIRST_SLICE_AUTOMATED_BROWSER_CAPTURE_JOURNAL_{run_stamp}.json"
+    )
+    journal: dict[str, Any] = {
+        "schema_version": CAPTURE_JOURNAL_SCHEMA,
+        "slice_id": EXPECTED_SLICE_ID,
+        "run_stamp": run_stamp,
+        "capture_dir": str(capture_dir),
+        "created_at": utc_timestamp(),
+        "updated_at": utc_timestamp(),
+        "authoritative": False,
+        "t1_release_written": False,
+        "entries": [],
+    }
+    _write_json(journal_path, journal)
 
     try:
         from playwright.sync_api import sync_playwright
@@ -464,21 +506,60 @@ def run(args: argparse.Namespace) -> int:
         )
         try:
             for source in sources:
-                row = capture_source(
-                    context=context,
-                    browser_channel=browser_channel,
-                    source=source,
-                    capture_dir=capture_dir,
-                    challenge_wait_seconds=args.challenge_wait_seconds,
-                    navigation_timeout_seconds=args.navigation_timeout_seconds,
-                )
+                source_id = str(source["source_id"])
+                restart_count = 0
+                while True:
+                    try:
+                        row = capture_source(
+                            context=context,
+                            browser_channel=browser_channel,
+                            source=source,
+                            capture_dir=capture_dir,
+                            challenge_wait_seconds=args.challenge_wait_seconds,
+                            navigation_timeout_seconds=args.navigation_timeout_seconds,
+                        )
+                        break
+                    except Exception as exc:
+                        if (
+                            _is_target_closed_error(exc)
+                            and restart_count < args.browser_restart_retries
+                        ):
+                            restart_count += 1
+                            print(
+                                f"CAPTURE_BROWSER_RESTART {source_id} "
+                                f"attempt={restart_count}/{args.browser_restart_retries}"
+                            )
+                            try:
+                                context.close()
+                            except Exception:
+                                pass
+                            context, browser_channel = _launch_persistent_context(
+                                playwright,
+                                private_root=private_root,
+                                browser=args.browser,
+                                headless=args.headless,
+                            )
+                            continue
+                        if isinstance(exc, CaptureError):
+                            raise
+                        raise CaptureError(
+                            f"{source_id}: browser capture failed: {exc}"
+                        ) from exc
+
                 captures.append(row)
+                journal["browser_channel"] = browser_channel
+                journal["updated_at"] = utc_timestamp()
+                journal["entries"] = [_capture_metadata(item) for item in captures]
+                _write_json(journal_path, journal)
                 print(
                     f"CAPTURE_OK {row.source_id} status={row.status} "
                     f"bytes={row.byte_length} sha256={row.artifact_sha256}"
                 )
         finally:
-            context.close()
+            try:
+                context.close()
+            except Exception:
+                pass
 
     if len(captures) != EXPECTED_SOURCE_COUNT:
         raise CaptureError(
@@ -496,17 +577,9 @@ def run(args: argparse.Namespace) -> int:
         "rendered_dom_used_as_source_body": False,
         "sources": [
             {
-                "source_id": row.source_id,
-                "source_locator": row.source_locator,
-                "source_version_id": row.source_version_id,
-                "acquired_at": row.acquired_at,
-                "http_status": row.status,
-                "content_type": row.content_type,
-                "byte_length": row.byte_length,
-                "artifact_sha256": row.artifact_sha256,
-                "capture_method": row.capture_method,
-                "browser_channel": row.browser_channel,
-                "redirect_chain": list(row.redirect_chain),
+                key: value
+                for key, value in _capture_metadata(row).items()
+                if key != "body_path"
             }
             for row in captures
         ],
@@ -602,7 +675,14 @@ def run(args: argparse.Namespace) -> int:
         env=env,
         label="post-capture sanitized status builder",
     )
-    _validate_post_outputs(attestation_path, replay_path)
+    _validate_post_outputs(attestation_path, replay_path, post_capture_status_path)
+    journal["updated_at"] = utc_timestamp()
+    journal["t1_release_written"] = True
+    journal["release_id"] = release_id
+    journal["attestation_path"] = str(attestation_path)
+    journal["replay_lineage_path"] = str(replay_path)
+    journal["post_capture_status_path"] = str(post_capture_status_path)
+    _write_json(journal_path, journal)
 
     print(f"SOURCE_CAPTURE={EXPECTED_SOURCE_COUNT}/{EXPECTED_SOURCE_COUNT}")
     print("PRIVATE_MATERIALIZATION=PASS")
@@ -632,6 +712,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--headless", action="store_true")
     parser.add_argument("--challenge-wait-seconds", type=int, default=180)
     parser.add_argument("--navigation-timeout-seconds", type=int, default=90)
+    parser.add_argument("--browser-restart-retries", type=int, default=2)
     return parser
 
 
