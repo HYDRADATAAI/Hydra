@@ -10,10 +10,24 @@ from .corpus import (
     summarize_replay_ready_corpus,
     validate_replay_ready_record,
 )
+from .promotion import (
+    OutcomeEvidenceLevel,
+    PromotionAudit,
+    PromotionDecision,
+    PromotionError,
+    PromotionStage,
+    assert_scored_gold_eligible,
+    evaluate_promotion,
+    load_promotion_audits,
+    summarize_promotion,
+)
 
 __all__ = [
     "Evidence","Hypothesis","Outcome","ReplayCase","LeakageError","replay_case",
     "evaluate_cases","CorpusValidationError","REPLAY_READY_TIER",
     "ReplayReadyCorpusSummary","load_replay_ready_corpus",
     "summarize_replay_ready_corpus","validate_replay_ready_record",
+    "OutcomeEvidenceLevel","PromotionAudit","PromotionDecision","PromotionError",
+    "PromotionStage","assert_scored_gold_eligible","evaluate_promotion",
+    "load_promotion_audits","summarize_promotion",
 ]
