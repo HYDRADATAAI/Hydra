@@ -8,7 +8,7 @@ This is the strict acceptance gate for the first serious HYDRA Constraint vertic
 
 ## What is genuinely working
 
-The slice now has a reconciled authority envelope, a populated source/field design, reviewed normalized evidence, stable graph references, real contradiction preservation, invalidator/relief handling, ten-of-ten governed functional case coverage, two real outcome records, and deterministic/no-lookahead behavior in the frozen normalized shadow replay.
+The slice now has a reconciled authority envelope, a populated source/field design, reviewed normalized evidence, stable graph references, real contradiction preservation, invalidator/relief handling, ten-of-ten governed functional case coverage, two real outcome records, deterministic/no-lookahead behavior in the frozen normalized shadow replay, and a T1 store that binds ordinary eligibility to the exact persisted source-version receipt and exact persisted release manifest.
 
 Those are meaningful closures. They are not enough to call the serious run accepted.
 
@@ -27,6 +27,7 @@ Because ordinary replay is unavailable, the strict `NO_LOOKAHEAD` and `DETERMINI
 | AUTHORITY_CURRENT | PASS | Reconciled authority + successor-chain guard |
 | SOURCE_MAP | PASS | Source registry / field map / gap closures |
 | RAW_PROVENANCE | FAIL | Raw source bodies not materialized |
+| PERSISTED_T1_CHAIN_OF_CUSTODY | PASS | Exact persisted receipt + release identity required; reconstructed in-memory lookalikes are not authority |
 | NORMALIZATION | PASS | Reviewed normalized evidence present |
 | ENTITY_RESOLUTION | PASS | Existing authority reused; no parallel IDs |
 | GRAPH_REFERENTIAL_INTEGRITY | PASS | Cross-batch validator passes |
@@ -70,6 +71,8 @@ QUALIFIED_BENEFICIARIES=0
 SHADOW_NO_LOOKAHEAD=PASS
 SHADOW_DETERMINISTIC_REPLAY=PASS
 FUNCTIONAL_REQUIRED_CASES_COVERED=10
+PERSISTED_T1_CHAIN_OF_CUSTODY=PASS
+CALLER_SUPPLIED_IN_MEMORY_RELEASE_AUTHORITY=NO
 ```
 
 ## Hard stop
