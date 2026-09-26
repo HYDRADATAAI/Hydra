@@ -119,7 +119,8 @@ Raw third-party bodies remain outside Git.
 ## Validation
 
 Source/private-record suite:
-- 37 tests: PASS;
+- 42 tests: PASS;
+- replay-lineage derivation/no-lookahead tests: 5/5 PASS;
 - exact registry/plan/discovery alignment: PASS;
 - persisted receipt authority: PASS;
 - persisted release authority: PASS;
@@ -135,7 +136,7 @@ Constraint first-slice integration and hostile matrices: PASS.
 
 Public repository hygiene: PASS.
 
-NYX successor-chain guard remains red for the same Batch017 real-outcome report blob mismatch already present on PR #62 before this source branch. This pass does not change or repair that outcome-lane artifact.
+The inherited Batch017 real-outcome report manifest pin was repaired on PR #62 without changing report semantics. PR #64 then consumed that repaired base. NYX successor-chain validation and its hostile matrix now PASS on the current source/private branch.
 
 ## What remains external/private
 
