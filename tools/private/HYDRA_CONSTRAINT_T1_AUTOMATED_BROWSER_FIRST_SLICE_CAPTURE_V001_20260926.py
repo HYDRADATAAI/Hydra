@@ -366,6 +366,191 @@ def _capture_metadata(row: CapturedDocument) -> dict[str, Any]:
     }
 
 
+def _parse_aware_timestamp(value: Any, label: str) -> None:
+    if not isinstance(value, str) or not value:
+        raise CaptureError(f"{label}: timestamp required")
+    try:
+        parsed = datetime.fromisoformat(value.replace("Z", "+00:00"))
+    except ValueError as exc:
+        raise CaptureError(f"{label}: invalid timestamp") from exc
+    if parsed.tzinfo is None or parsed.utcoffset() is None:
+        raise CaptureError(f"{label}: timezone-aware timestamp required")
+
+
+def _resume_entry_to_capture(
+    *,
+    entry: Mapping[str, Any],
+    source: Mapping[str, Any],
+    public_repo_root: Path,
+) -> CapturedDocument:
+    source_id = str(source["source_id"])
+    locator = str(source["url"])
+
+    if entry.get("source_id") != source_id:
+        raise CaptureError(f"{source_id}: resume journal source identity mismatch")
+    if entry.get("source_locator") != locator:
+        raise CaptureError(f"{source_id}: resume journal exact locator mismatch")
+    if entry.get("http_status") != 200:
+        raise CaptureError(f"{source_id}: resume journal HTTP status is not 200")
+
+    content_type = entry.get("content_type")
+    expected_type = expected_content_type(locator)
+    if content_type != expected_type:
+        raise CaptureError(f"{source_id}: resume journal content type mismatch")
+
+    redirect_chain = entry.get("redirect_chain")
+    if redirect_chain != [locator]:
+        raise CaptureError(f"{source_id}: resume journal redirect chain mismatch")
+
+    source_version_id = entry.get("source_version_id")
+    if not isinstance(source_version_id, str) or not source_version_id:
+        raise CaptureError(f"{source_id}: resume journal source_version_id missing")
+
+    acquired_at = entry.get("acquired_at")
+    _parse_aware_timestamp(acquired_at, f"{source_id}.acquired_at")
+
+    digest = entry.get("artifact_sha256")
+    if not isinstance(digest, str):
+        raise CaptureError(f"{source_id}: resume journal SHA-256 invalid")
+    digest = digest.lower()
+    if (
+        len(digest) != 64
+        or any(ch not in "0123456789abcdef" for ch in digest)
+    ):
+        raise CaptureError(f"{source_id}: resume journal SHA-256 invalid")
+
+    byte_length = entry.get("byte_length")
+    if not isinstance(byte_length, int) or byte_length <= 0:
+        raise CaptureError(f"{source_id}: resume journal byte length invalid")
+
+    body_path_raw = entry.get("body_path")
+    if not isinstance(body_path_raw, str) or not body_path_raw:
+        raise CaptureError(f"{source_id}: resume journal body_path missing")
+    body_path = assert_outside_repo(
+        body_path_raw,
+        public_repo_root,
+        f"{source_id} resume body",
+    )
+    if not body_path.is_file():
+        raise CaptureError(f"{source_id}: resume journal staged body is missing")
+
+    body = body_path.read_bytes()
+    if len(body) != byte_length:
+        raise CaptureError(f"{source_id}: resume journal byte length does not match staged body")
+    if hashlib.sha256(body).hexdigest() != digest:
+        raise CaptureError(f"{source_id}: resume journal SHA-256 does not match staged body")
+
+    validate_main_document(
+        source_id=source_id,
+        exact_locator=locator,
+        response_url=locator,
+        redirect_chain=[locator],
+        status=200,
+        observed_content_type=content_type,
+        body=body,
+    )
+
+    capture_method = entry.get("capture_method")
+    if capture_method != "PLAYWRIGHT_INSTALLED_BROWSER_MAIN_DOCUMENT":
+        raise CaptureError(f"{source_id}: resume journal capture method invalid")
+    browser_channel = entry.get("browser_channel")
+    if browser_channel not in {"chrome", "msedge"}:
+        raise CaptureError(f"{source_id}: resume journal browser channel invalid")
+
+    return CapturedDocument(
+        source_id=source_id,
+        source_locator=locator,
+        source_version_id=source_version_id,
+        acquired_at=str(acquired_at),
+        status=200,
+        content_type=content_type,
+        byte_length=byte_length,
+        artifact_sha256=digest,
+        body_path=body_path,
+        capture_method=capture_method,
+        browser_channel=browser_channel,
+        redirect_chain=(locator,),
+    )
+
+
+def _load_resume_journal(
+    *,
+    journal_path: Path,
+    sources: Sequence[Mapping[str, Any]],
+    public_repo_root: Path,
+) -> tuple[dict[str, Any], Path, list[CapturedDocument]]:
+    journal = _load_json(journal_path)
+    if journal.get("schema_version") != CAPTURE_JOURNAL_SCHEMA:
+        raise CaptureError("resume journal schema mismatch")
+    if journal.get("slice_id") != EXPECTED_SLICE_ID:
+        raise CaptureError("resume journal slice_id mismatch")
+    if journal.get("authoritative") is not False:
+        raise CaptureError("resume journal must remain non-authoritative")
+    if journal.get("t1_release_written") is not False:
+        raise CaptureError("resume journal already records a completed T1 release")
+
+    capture_dir_raw = journal.get("capture_dir")
+    if not isinstance(capture_dir_raw, str) or not capture_dir_raw:
+        raise CaptureError("resume journal capture_dir missing")
+    capture_dir = assert_outside_repo(
+        capture_dir_raw,
+        public_repo_root,
+        "ResumeCaptureDir",
+    )
+    if not capture_dir.is_dir():
+        raise CaptureError("resume journal capture_dir is missing")
+
+    entries = journal.get("entries")
+    if not isinstance(entries, list):
+        raise CaptureError("resume journal entries must be a list")
+    if len(entries) > len(sources):
+        raise CaptureError("resume journal contains more entries than the registry")
+
+    expected_prefix = [str(source["source_id"]) for source in sources[: len(entries)]]
+    observed_ids = [
+        entry.get("source_id") if isinstance(entry, Mapping) else None
+        for entry in entries
+    ]
+    if observed_ids != expected_prefix:
+        raise CaptureError(
+            "resume journal entries must match a prefix of the authoritative source order"
+        )
+    if len(observed_ids) != len(set(observed_ids)):
+        raise CaptureError("resume journal contains duplicate source identities")
+
+    captures: list[CapturedDocument] = []
+    for index, entry in enumerate(entries):
+        if not isinstance(entry, Mapping):
+            raise CaptureError(f"resume journal entries[{index}] must be an object")
+        captures.append(
+            _resume_entry_to_capture(
+                entry=entry,
+                source=sources[index],
+                public_repo_root=public_repo_root,
+            )
+        )
+    return journal, capture_dir, captures
+
+
+def _find_latest_incomplete_journal(metadata_root: Path) -> Path | None:
+    candidates = sorted(
+        metadata_root.glob(
+            "HYDRA_CONSTRAINT_FIRST_SLICE_AUTOMATED_BROWSER_CAPTURE_JOURNAL_*.json"
+        ),
+        key=lambda path: path.name,
+        reverse=True,
+    )
+    for candidate in candidates:
+        journal = _load_json(candidate)
+        if (
+            journal.get("schema_version") == CAPTURE_JOURNAL_SCHEMA
+            and journal.get("slice_id") == EXPECTED_SLICE_ID
+            and journal.get("t1_release_written") is False
+        ):
+            return candidate
+    return None
+
+
 def _run_checked(command: list[str], *, env: Mapping[str, str] | None = None, label: str) -> None:
     completed = subprocess.run(command, env=dict(env) if env is not None else None, check=False)
     if completed.returncode != 0:
@@ -468,24 +653,55 @@ def run(args: argparse.Namespace) -> int:
     staging_root.mkdir(parents=True, exist_ok=True)
     metadata_root.mkdir(parents=True, exist_ok=True)
 
-    run_stamp = safe_timestamp()
-    capture_dir = staging_root / run_stamp
-    capture_dir.mkdir(parents=True, exist_ok=False)
-    journal_path = metadata_root / (
-        f"HYDRA_CONSTRAINT_FIRST_SLICE_AUTOMATED_BROWSER_CAPTURE_JOURNAL_{run_stamp}.json"
-    )
-    journal: dict[str, Any] = {
-        "schema_version": CAPTURE_JOURNAL_SCHEMA,
-        "slice_id": EXPECTED_SLICE_ID,
-        "run_stamp": run_stamp,
-        "capture_dir": str(capture_dir),
-        "created_at": utc_timestamp(),
-        "updated_at": utc_timestamp(),
-        "authoritative": False,
-        "t1_release_written": False,
-        "entries": [],
-    }
-    _write_json(journal_path, journal)
+    if args.resume_journal and args.fresh:
+        raise CaptureError("--resume-journal and --fresh are mutually exclusive")
+
+    resume_path: Path | None = None
+    if args.resume_journal:
+        resume_path = assert_outside_repo(
+            args.resume_journal,
+            repo_root,
+            "ResumeJournalPath",
+        )
+        if not resume_path.is_file():
+            raise CaptureError(f"resume journal not found: {resume_path}")
+    elif not args.fresh:
+        resume_path = _find_latest_incomplete_journal(metadata_root)
+
+    if resume_path is not None:
+        journal_path = resume_path
+        journal, capture_dir, captures = _load_resume_journal(
+            journal_path=journal_path,
+            sources=sources,
+            public_repo_root=repo_root,
+        )
+        run_stamp = str(journal.get("run_stamp") or journal_path.stem)
+        print(f"CAPTURE_RESUME_JOURNAL={journal_path}")
+        for row in captures:
+            print(
+                f"CAPTURE_RESUME_OK {row.source_id} status={row.status} "
+                f"bytes={row.byte_length} sha256={row.artifact_sha256}"
+            )
+    else:
+        run_stamp = safe_timestamp()
+        capture_dir = staging_root / run_stamp
+        capture_dir.mkdir(parents=True, exist_ok=False)
+        journal_path = metadata_root / (
+            f"HYDRA_CONSTRAINT_FIRST_SLICE_AUTOMATED_BROWSER_CAPTURE_JOURNAL_{run_stamp}.json"
+        )
+        journal = {
+            "schema_version": CAPTURE_JOURNAL_SCHEMA,
+            "slice_id": EXPECTED_SLICE_ID,
+            "run_stamp": run_stamp,
+            "capture_dir": str(capture_dir),
+            "created_at": utc_timestamp(),
+            "updated_at": utc_timestamp(),
+            "authoritative": False,
+            "t1_release_written": False,
+            "entries": [],
+        }
+        captures = []
+        _write_json(journal_path, journal)
 
     try:
         from playwright.sync_api import sync_playwright
@@ -495,71 +711,80 @@ def run(args: argparse.Namespace) -> int:
             "Use the committed PowerShell launcher, which bootstraps Playwright into the private root."
         ) from exc
 
-    captures: list[CapturedDocument] = []
-    browser_channel = ""
-    with sync_playwright() as playwright:
-        context, browser_channel = _launch_persistent_context(
-            playwright,
-            private_root=private_root,
-            browser=args.browser,
-            headless=args.headless,
-        )
-        try:
-            for source in sources:
-                source_id = str(source["source_id"])
-                restart_count = 0
-                while True:
-                    try:
-                        row = capture_source(
-                            context=context,
-                            browser_channel=browser_channel,
-                            source=source,
-                            capture_dir=capture_dir,
-                            challenge_wait_seconds=args.challenge_wait_seconds,
-                            navigation_timeout_seconds=args.navigation_timeout_seconds,
-                        )
-                        break
-                    except Exception as exc:
-                        if (
-                            _is_target_closed_error(exc)
-                            and restart_count < args.browser_restart_retries
-                        ):
-                            restart_count += 1
-                            print(
-                                f"CAPTURE_BROWSER_RESTART {source_id} "
-                                f"attempt={restart_count}/{args.browser_restart_retries}"
-                            )
-                            try:
-                                context.close()
-                            except Exception:
-                                pass
-                            context, browser_channel = _launch_persistent_context(
-                                playwright,
-                                private_root=private_root,
-                                browser=args.browser,
-                                headless=args.headless,
-                            )
-                            continue
-                        if isinstance(exc, CaptureError):
-                            raise
-                        raise CaptureError(
-                            f"{source_id}: browser capture failed: {exc}"
-                        ) from exc
+    browser_channel = (
+        captures[-1].browser_channel
+        if captures
+        else str(journal.get("browser_channel") or "")
+    )
+    completed_ids = {row.source_id for row in captures}
 
-                captures.append(row)
-                journal["browser_channel"] = browser_channel
-                journal["updated_at"] = utc_timestamp()
-                journal["entries"] = [_capture_metadata(item) for item in captures]
-                _write_json(journal_path, journal)
-                print(
-                    f"CAPTURE_OK {row.source_id} status={row.status} "
-                    f"bytes={row.byte_length} sha256={row.artifact_sha256}"
-                )
-        finally:
+    if len(captures) < EXPECTED_SOURCE_COUNT:
+        with sync_playwright() as playwright:
+            context, browser_channel = _launch_persistent_context(
+                playwright,
+                private_root=private_root,
+                browser=args.browser,
+                headless=args.headless,
+            )
             try:
-                context.close()
-            except Exception:
-                pass
+                for source in sources:
+                    source_id = str(source["source_id"])
+                    if source_id in completed_ids:
+                        continue
+                    restart_count = 0
+                    while True:
+                        try:
+                            row = capture_source(
+                                context=context,
+                                browser_channel=browser_channel,
+                                source=source,
+                                capture_dir=capture_dir,
+                                challenge_wait_seconds=args.challenge_wait_seconds,
+                                navigation_timeout_seconds=args.navigation_timeout_seconds,
+                            )
+                            break
+                        except Exception as exc:
+                            if (
+                                _is_target_closed_error(exc)
+                                and restart_count < args.browser_restart_retries
+                            ):
+                                restart_count += 1
+                                print(
+                                    f"CAPTURE_BROWSER_RESTART {source_id} "
+                                    f"attempt={restart_count}/{args.browser_restart_retries}"
+                                )
+                                try:
+                                    context.close()
+                                except Exception:
+                                    pass
+                                context, browser_channel = _launch_persistent_context(
+                                    playwright,
+                                    private_root=private_root,
+                                    browser=args.browser,
+                                    headless=args.headless,
+                                )
+                                continue
+                            if isinstance(exc, CaptureError):
+                                raise
+                            raise CaptureError(
+                                f"{source_id}: browser capture failed: {exc}"
+                            ) from exc
+
+                    captures.append(row)
+                    completed_ids.add(row.source_id)
+                    journal["browser_channel"] = browser_channel
+                    journal["updated_at"] = utc_timestamp()
+                    journal["entries"] = [_capture_metadata(item) for item in captures]
+                    _write_json(journal_path, journal)
+                    print(
+                        f"CAPTURE_OK {row.source_id} status={row.status} "
+                        f"bytes={row.byte_length} sha256={row.artifact_sha256}"
+                    )
+            finally:
+                try:
+                    context.close()
+                except Exception:
+                    pass
 
     if len(captures) != EXPECTED_SOURCE_COUNT:
         raise CaptureError(
@@ -589,8 +814,25 @@ def run(args: argparse.Namespace) -> int:
     )
     _write_json(capture_manifest_path, capture_manifest)
 
-    release_created_at = utc_timestamp()
-    release_id = f"REL-AIDC-FIRST-SLICE-{datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%SZ')}"
+    release_id = journal.get("release_id")
+    release_created_at = journal.get("release_created_at")
+    if (release_id is None) != (release_created_at is None):
+        raise CaptureError("resume journal release identity is only partially populated")
+    if release_id is None:
+        release_created_at = utc_timestamp()
+        release_id = (
+            f"REL-AIDC-FIRST-SLICE-"
+            f"{datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%SZ')}"
+        )
+        journal["release_id"] = release_id
+        journal["release_created_at"] = release_created_at
+        journal["updated_at"] = utc_timestamp()
+        _write_json(journal_path, journal)
+    else:
+        if not isinstance(release_id, str) or not release_id:
+            raise CaptureError("resume journal release_id invalid")
+        _parse_aware_timestamp(release_created_at, "resume journal release_created_at")
+
     capture_plan = _build_capture_plan(
         captures,
         release_id=release_id,
@@ -713,6 +955,12 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--challenge-wait-seconds", type=int, default=180)
     parser.add_argument("--navigation-timeout-seconds", type=int, default=90)
     parser.add_argument("--browser-restart-retries", type=int, default=2)
+    parser.add_argument("--resume-journal")
+    parser.add_argument(
+        "--fresh",
+        action="store_true",
+        help="ignore incomplete private capture journals and start a new capture",
+    )
     return parser
 
 
