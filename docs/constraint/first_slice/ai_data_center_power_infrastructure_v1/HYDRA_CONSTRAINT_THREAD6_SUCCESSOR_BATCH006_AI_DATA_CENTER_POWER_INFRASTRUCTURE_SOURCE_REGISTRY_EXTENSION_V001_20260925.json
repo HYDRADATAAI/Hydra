@@ -1,0 +1,43 @@
+{
+  "schema_version": "hydra-constraint-first-slice-source-registry-extension/v1",
+  "record_id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH006_AI_DATA_CENTER_POWER_INFRASTRUCTURE_SOURCE_REGISTRY_EXTENSION_V001",
+  "as_of": "2026-09-25",
+  "predecessor_batch": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH005",
+  "slice_id": "AI_DATA_CENTER_POWER_INFRASTRUCTURE_V1",
+  "runtime_live_source_authority_used": false,
+  "sources": [
+    {
+      "source_id": "SRC-DOE-AI-LANDS-IDENTIFICATION-2025-04-03",
+      "publisher": "U.S. Department of Energy",
+      "title": "DOE Identifies 16 Federal Sites Across the Country for Data Center and AI Infrastructure Development",
+      "url": "https://www.energy.gov/articles/doe-identifies-16-federal-sites-across-country-data-center-and-ai-infrastructure",
+      "publication_date": "2025-04-03",
+      "publication_date_precision": "DAY",
+      "acquired_at": "2026-09-25T23:58:40.805440Z",
+      "available_at": null,
+      "strict_original_as_of_eligible": false
+    },
+    {
+      "source_id": "SRC-DOE-AI-LANDS-SITE-SELECTION-2025-07-24",
+      "publisher": "U.S. Department of Energy",
+      "title": "DOE Announces Site Selection for AI Data Center and Energy Infrastructure Development on Federal Lands",
+      "url": "https://www.energy.gov/articles/doe-announces-site-selection-ai-data-center-and-energy-infrastructure-development-federal",
+      "publication_date": "2025-07-24",
+      "publication_date_precision": "DAY",
+      "acquired_at": "2026-09-25T23:58:40.805440Z",
+      "available_at": null,
+      "strict_original_as_of_eligible": false
+    },
+    {
+      "source_id": "SRC-JLL-GLOBAL-DATA-CENTER-OUTLOOK-2026",
+      "publisher": "JLL Research",
+      "title": "2026 Global Data Center Outlook",
+      "url": "https://www.jll.com/content/dam/jllcom/en/global/documents/reports/research-reports/26-research-global-data-center-outlook-new.pdf",
+      "publication_date": "2026",
+      "publication_date_precision": "YEAR",
+      "acquired_at": "2026-09-25T23:59:37.538679Z",
+      "available_at": null,
+      "strict_original_as_of_eligible": false
+    }
+  ]
+}
