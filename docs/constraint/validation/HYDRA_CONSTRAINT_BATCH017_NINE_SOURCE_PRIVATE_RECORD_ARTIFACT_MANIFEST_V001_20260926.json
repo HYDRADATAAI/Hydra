@@ -1,0 +1,106 @@
+{
+  "schema_version": "hydra-constraint-batch017-nine-source-private-record-manifest/v1",
+  "record_id": "HYDRA_CONSTRAINT_BATCH017_NINE_SOURCE_PRIVATE_RECORD_ARTIFACT_MANIFEST_V001_20260926",
+  "as_of": "2026-09-26",
+  "repository": "HYDRADATAAI/Hydra",
+  "stacked_on_pr": 62,
+  "pull_request": 64,
+  "branch": "constraint/t1-private-record-source-discovery-20260926",
+  "purpose": "NINE_REGISTERED_SOURCE_DISCOVERY_AND_PRIVATE_RECORD_PREPARATION_ONLY",
+  "predecessor_batch017_rewritten": false,
+  "raw_source_bodies_published": false,
+  "ordinary_replay_promoted": false,
+  "canonical_admission_promoted": false,
+  "outcome_or_evaluation_threshold_changed": false,
+  "artifacts": [
+    {
+      "path": "constraint-t1-raw-artifact-store/pyproject.toml",
+      "git_blob_sha": "c597639479c7be82570806b034fd0f1690822f56"
+    },
+    {
+      "path": "constraint-t1-raw-artifact-store/README.md",
+      "git_blob_sha": "5958840f95811a147758913bce8e42419ed55750"
+    },
+    {
+      "path": "constraint-t1-raw-artifact-store/src/hydra_constraint_t1_raw/first_slice_cli.py",
+      "git_blob_sha": "3e38cac4577e8416b048c45b62670ab40aa63d36"
+    },
+    {
+      "path": "constraint-t1-raw-artifact-store/src/hydra_constraint_t1_raw/first_slice_materialization.py",
+      "git_blob_sha": "7f33e558792071b57283192dd3eee304a46da057"
+    },
+    {
+      "path": "constraint-t1-raw-artifact-store/src/hydra_constraint_t1_raw/replay_lineage.py",
+      "git_blob_sha": "2548dd4759c82bd11112f10a71f6529c87b9036d"
+    },
+    {
+      "path": "constraint-t1-raw-artifact-store/src/hydra_constraint_t1_raw/store.py",
+      "git_blob_sha": "040af0ee154e3cf6e64a145125fc1254ce170902"
+    },
+    {
+      "path": "constraint-t1-raw-artifact-store/tests/test_batch017_registered_source_private_record_alignment.py",
+      "git_blob_sha": "b203e4ddd1075361f1d578f3467e71284f04907b"
+    },
+    {
+      "path": "constraint-t1-raw-artifact-store/tests/test_first_slice_materialization.py",
+      "git_blob_sha": "d7aed41b507a42309161129ee1b330e323f06abc"
+    },
+    {
+      "path": "constraint-t1-raw-artifact-store/tests/test_first_slice_replay_lineage.py",
+      "git_blob_sha": "83ec8ca4d92ac90bdbfaf3484dc608c341d1b63e"
+    },
+    {
+      "path": "constraint-t1-raw-artifact-store/tests/test_store.py",
+      "git_blob_sha": "da24ccc223900e345c5e1fb4fc92ae35db87f467"
+    },
+    {
+      "path": "docs/constraint/architecture/HYDRA_CONSTRAINT_BATCH017_NINE_SOURCE_PRIVATE_RECORD_STATUS_V001_20260926.json",
+      "git_blob_sha": "3d9cd8a40ec9b6e99ceea309cf93061639dbe489"
+    },
+    {
+      "path": "docs/constraint/implementation/HYDRA_CONSTRAINT_AI_DATA_CENTER_POWER_INFRASTRUCTURE_PRIVATE_T1_CAPTURE_PLAN_TEMPLATE_V001_20260926.json",
+      "git_blob_sha": "6aac032f40e8da7c538ee9392b8bbcc2fc2b0443"
+    },
+    {
+      "path": "docs/constraint/implementation/HYDRA_CONSTRAINT_AI_DATA_CENTER_POWER_INFRASTRUCTURE_PRIVATE_T1_MATERIALIZATION_RUNBOOK_V001_20260926.md",
+      "git_blob_sha": "4051ee788579f2284adddb829172425021aa6934"
+    },
+    {
+      "path": "docs/constraint/validation/HYDRA_CONSTRAINT_BATCH017_NINE_REGISTERED_SOURCE_DISCOVERY_PRIVATE_RECORD_AUDIT_V001_20260926.json",
+      "git_blob_sha": "d0ec3e3e8bf8f38ebcc5c9d0e25c424ef0f0829e"
+    },
+    {
+      "path": "docs/constraint/validation/HYDRA_CONSTRAINT_BATCH017_NINE_SOURCE_PRIVATE_RECORD_CLOSURE_REPORT_V001_20260926.md",
+      "git_blob_sha": "e6932f8dfcc4668c7a5eb97c109a0ae0c49b494b"
+    },
+    {
+      "path": "docs/constraint/validation/HYDRA_CONSTRAINT_BATCH017_T1_PRIVATE_RECORD_SUPERSESSION_MAP_V001_20260926.json",
+      "git_blob_sha": "dd672a59f40d6d864d59c7692f07358d524e3264"
+    },
+    {
+      "path": "tools/build_constraint_t1_first_slice_replay_lineage.py",
+      "git_blob_sha": "dc521a34552bd8fc6e863e8073a4913d45f5d3bd"
+    },
+    {
+      "path": "tools/validate_constraint_first_slice_successor.py",
+      "git_blob_sha": "c3ce81a0ca499e00f5bb000b708d954c21bfd4c6"
+    },
+    {
+      "path": "tools/validate_constraint_t1_first_slice_attestation.py",
+      "git_blob_sha": "20c9940d9904f78ce62f6416d2acb70ee9c8b898"
+    }
+  ],
+  "expected": {
+    "registered_source_count": 9,
+    "exact_registered_locators_resolved": 9,
+    "missing_registered_sources": 0,
+    "t1_raw_store_version": "0.2.0",
+    "actual_private_materialization_executed": false,
+    "ordinary_source_version_hash_lineage_complete": false,
+    "native_signed_t5_t6_receipt_present": false,
+    "replay_lineage_packet_builder_ready": true,
+    "deterministic_as_of_source_membership_ready": true,
+    "actual_replay_lineage_packet_built": false,
+    "strict_historical_replay_ready": false
+  }
+}
