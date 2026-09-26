@@ -1,0 +1,353 @@
+{
+  "schema_version": "1.0",
+  "batch_id": "HYDRA_CONSTRAINT_REPLAY_PROMOTION_AUDIT_BATCH013_20260926",
+  "replay_corpus_path": "constraint-replay/corpus/HYDRA_CONSTRAINT_REPLAY_READY_CORPUS_BATCH005_20260925.jsonl",
+  "audit_policy": "Batch 013 expands CLASSIFIED_GOLD_UNCALIBRATED under the existing confidence, contradiction and outcome-mapping rules. Russia food inflation and BIS semiconductor restrictions may clear classification as partial realizations; the rare-earths implementation case remains UNEVALUABLE because the WTO record preserves a live compliance disagreement. Numeric confidence remains prohibited without historical probability provenance.",
+  "cases": [
+    {
+      "case_id": "bis-semiconductor-controls-2022",
+      "replay_tier": "REPLAY_READY_UNSCORED",
+      "historical_hypothesis_source_ids": [
+        "bis-2022-10-07-hypothesis"
+      ],
+      "historical_confidence_source_ids": [],
+      "outcome_source_ids": [
+        "bis-nvidia-2024-08-28-outcome"
+      ],
+      "outcome_evidence_level": "SCORABLE_CANDIDATE_QUANTITATIVE",
+      "outcome_class_supported": true,
+      "proposed_confidence_at_t": null,
+      "proposed_outcome_class": "PARTIAL_REALIZATION",
+      "audit_note": "BIS supplied the historical restriction objective; NVIDIA later reported zero licenses for specified restricted China products and a China Data Center revenue share below pre-control levels. Because later control updates and product adaptation also shaped the outcome, the governed class is PARTIAL_REALIZATION. Numeric confidence remains unsupported."
+    },
+    {
+      "case_id": "black-sea-grain-corridor-2022",
+      "replay_tier": "REPLAY_READY_UNSCORED",
+      "historical_hypothesis_source_ids": [
+        "bsgi-imf-2022-07-26-hypothesis"
+      ],
+      "historical_confidence_source_ids": [],
+      "outcome_source_ids": [
+        "bsgi-fao-2022-08-05-prices",
+        "bsgi-un-2022-11-01-tonnage",
+        "bsgi-un-2023-05-26-series"
+      ],
+      "outcome_evidence_level": "SCORABLE_CANDIDATE_QUANTITATIVE",
+      "outcome_class_supported": true,
+      "proposed_confidence_at_t": null,
+      "proposed_outcome_class": "PARTIAL_REALIZATION",
+      "audit_note": "Independent IMF mechanism evidence now predates quantified FAO price outcomes and multi-date UN export-throughput evidence. Outcome-class mapping is now governed by POSITIVE_CONSTRAINT_RULESET_V1 and resolves conservatively to PARTIAL_REALIZATION. Historical confidence provenance remains unresolved."
+    },
+    {
+      "case_id": "china-gallium-germanium-controls-2023",
+      "replay_tier": "REPLAY_READY_UNSCORED",
+      "historical_hypothesis_source_ids": [
+        "gagermanium-iea-2023-07-11-hypothesis"
+      ],
+      "historical_confidence_source_ids": [],
+      "outcome_source_ids": [
+        "gagermanium-usgs-2024-01-30-gallium",
+        "gagermanium-usgs-2024-01-30-germanium"
+      ],
+      "outcome_evidence_level": "SCORABLE_CANDIDATE_QUANTITATIVE",
+      "outcome_class_supported": true,
+      "proposed_confidence_at_t": null,
+      "proposed_outcome_class": "PARTIAL_REALIZATION",
+      "audit_note": "IEA supplied a pre-effective-date supply-concentration risk hypothesis; USGS later documented export interruption and substantial price increases. Classification is PARTIAL_REALIZATION; numeric confidence remains unsupported."
+    },
+    {
+      "case_id": "eastern-mediterranean-offshore-drilling-dispute-2019-2020",
+      "replay_tier": "REPLAY_READY_UNSCORED",
+      "historical_hypothesis_source_ids": [],
+      "historical_confidence_source_ids": [],
+      "outcome_source_ids": [
+        "consilium-2020-02-27-eastmed-listings"
+      ],
+      "outcome_evidence_level": "CONTEXT_ONLY",
+      "outcome_class_supported": false,
+      "proposed_confidence_at_t": null,
+      "proposed_outcome_class": null,
+      "audit_note": "Later evidence exists but currently documents implementation, escalation, guidance, or contested status rather than a mapped scorable constraint outcome."
+    },
+    {
+      "case_id": "eu-battery-ipcei-state-aid-2019",
+      "replay_tier": "REPLAY_READY_UNSCORED",
+      "historical_hypothesis_source_ids": [
+        "battery-iea-2019-05-27-hypothesis"
+      ],
+      "historical_confidence_source_ids": [],
+      "outcome_source_ids": [
+        "battery-ec-2025-09-16-outcome"
+      ],
+      "outcome_evidence_level": "SCORABLE_CANDIDATE_QUANTITATIVE",
+      "outcome_class_supported": true,
+      "proposed_confidence_at_t": null,
+      "proposed_outcome_class": "PARTIAL_REALIZATION",
+      "audit_note": "IEA supplied an independent pre-approval battery-value-chain expansion hypothesis; the European Commission later reported an 8 percent global Li-ion production-capacity share and 90,000 direct EU battery jobs in 2023. Because the sector outcome reflects multiple policies, demand growth and both battery IPCEIs rather than the first IPCEI alone, the governed class is PARTIAL_REALIZATION. Numeric confidence remains unsupported."
+    },
+    {
+      "case_id": "eu-cbam-transitional-phase-2023",
+      "replay_tier": "REPLAY_READY_UNSCORED",
+      "historical_hypothesis_source_ids": [],
+      "historical_confidence_source_ids": [],
+      "outcome_source_ids": [],
+      "outcome_evidence_level": "NONE",
+      "outcome_class_supported": false,
+      "proposed_confidence_at_t": null,
+      "proposed_outcome_class": null,
+      "audit_note": "No later observation is present in the committed case bundle."
+    },
+    {
+      "case_id": "eu-fifth-package-coal-and-port-restrictions-2022",
+      "replay_tier": "REPLAY_READY_UNSCORED",
+      "historical_hypothesis_source_ids": [
+        "coal-iea-2022-07-28-hypothesis"
+      ],
+      "historical_confidence_source_ids": [],
+      "outcome_source_ids": [
+        "coal-eurostat-2025-07-03-outcome"
+      ],
+      "outcome_evidence_level": "SCORABLE_CANDIDATE_QUANTITATIVE",
+      "outcome_class_supported": true,
+      "proposed_confidence_at_t": null,
+      "proposed_outcome_class": "PARTIAL_REALIZATION",
+      "audit_note": "IEA supplied an independent pre-effective-date expectation of a major Russian coal-export decline and supplier substitution; Eurostat later quantified a 98 percent fall in Russian hard-coal net imports and a diversified supplier mix. Because the case also contains a port-restriction leg and broader market factors, the governed class is PARTIAL_REALIZATION. Numeric confidence remains unsupported."
+    },
+    {
+      "case_id": "eu-russian-oil-import-restrictions-2022",
+      "replay_tier": "REPLAY_READY_UNSCORED",
+      "historical_hypothesis_source_ids": [
+        "eu-russian-oil-iea-2022-06-15-hypothesis"
+      ],
+      "historical_confidence_source_ids": [],
+      "outcome_source_ids": [
+        "eu-russian-oil-eurostat-2023-09-25"
+      ],
+      "outcome_evidence_level": "SCORABLE_CANDIDATE_QUANTITATIVE",
+      "outcome_class_supported": true,
+      "proposed_confidence_at_t": null,
+      "proposed_outcome_class": "PARTIAL_REALIZATION",
+      "audit_note": "IEA supplied an independent pre-outcome sanctions/embargo mechanism hypothesis; Eurostat later quantified a sharp reduction in Russian petroleum-oil imports and diversification toward other suppliers. The governed outcome class is PARTIAL_REALIZATION. Numeric confidence remains unsupported."
+    },
+    {
+      "case_id": "germany-uniper-nationalization-2022",
+      "replay_tier": "REPLAY_READY_UNSCORED",
+      "historical_hypothesis_source_ids": [
+        "uniper-ec-2022-12-21-hypothesis"
+      ],
+      "historical_confidence_source_ids": [],
+      "outcome_source_ids": [
+        "uniper-2024-02-28-outcome"
+      ],
+      "outcome_evidence_level": "SCORABLE_CANDIDATE_QUANTITATIVE",
+      "outcome_class_supported": true,
+      "proposed_confidence_at_t": null,
+      "proposed_outcome_class": "PARTIAL_REALIZATION",
+      "audit_note": "The European Commission supplied an independent stabilization hypothesis immediately before completion of the recapitalisation; Uniper later reported a dramatic financial recovery. The governed class is PARTIAL_REALIZATION because market prices, hedging, portfolio optimization and replacement-procurement dynamics also materially contributed. Numeric confidence remains unsupported."
+    },
+    {
+      "case_id": "germany-wilhelmshaven-lng-commissioning-2022-2023",
+      "replay_tier": "REPLAY_READY_UNSCORED",
+      "historical_hypothesis_source_ids": [
+        "wilhelm-bnetza-2022-09-29-hypothesis"
+      ],
+      "historical_confidence_source_ids": [],
+      "outcome_source_ids": [
+        "wilhelm-uniper-2023-01-03-firstcargo",
+        "wilhelm-uniper-2023-12-15-year1"
+      ],
+      "outcome_evidence_level": "SCORABLE_CANDIDATE_QUANTITATIVE",
+      "outcome_class_supported": true,
+      "proposed_confidence_at_t": null,
+      "proposed_outcome_class": "PARTIAL_REALIZATION",
+      "audit_note": "Independent pre-operation regulator evidence now precedes quantified first-cargo and first-year throughput/consumption-share outcomes. Outcome-class mapping is now governed by POSITIVE_CONSTRAINT_RULESET_V1 and resolves conservatively to PARTIAL_REALIZATION. Historical confidence provenance remains unresolved."
+    },
+    {
+      "case_id": "imo-sulphur-2020-regulation",
+      "replay_tier": "REPLAY_READY_UNSCORED",
+      "historical_hypothesis_source_ids": [
+        "imo2020-epa-2019-12-11-hypothesis"
+      ],
+      "historical_confidence_source_ids": [],
+      "outcome_source_ids": [
+        "imo2020-imo-2021-01-28-outcome"
+      ],
+      "outcome_evidence_level": "SCORABLE_CANDIDATE_QUANTITATIVE",
+      "outcome_class_supported": true,
+      "proposed_confidence_at_t": null,
+      "proposed_outcome_class": "PARTIAL_REALIZATION",
+      "audit_note": "EPA supplied an independent pre-effective-date expectation of significant benefits from the sulfur-limit reduction; IMO later reported a 70 percent shipping SOx reduction. Classification is PARTIAL_REALIZATION; numeric confidence remains unsupported."
+    },
+    {
+      "case_id": "japan-korea-export-control-relations-2019",
+      "replay_tier": "REPLAY_READY_UNSCORED",
+      "historical_hypothesis_source_ids": [],
+      "historical_confidence_source_ids": [],
+      "outcome_source_ids": [
+        "wto-ds590-2019-09-16"
+      ],
+      "outcome_evidence_level": "CONTEXT_ONLY",
+      "outcome_class_supported": false,
+      "proposed_confidence_at_t": null,
+      "proposed_outcome_class": null,
+      "audit_note": "Later evidence exists but currently documents implementation, escalation, guidance, or contested status rather than a mapped scorable constraint outcome."
+    },
+    {
+      "case_id": "nord-stream-2-certification-state-2021-2022",
+      "replay_tier": "REPLAY_READY_UNSCORED",
+      "historical_hypothesis_source_ids": [],
+      "historical_confidence_source_ids": [],
+      "outcome_source_ids": [],
+      "outcome_evidence_level": "NONE",
+      "outcome_class_supported": false,
+      "proposed_confidence_at_t": null,
+      "proposed_outcome_class": null,
+      "audit_note": "No later observation is present in the committed case bundle."
+    },
+    {
+      "case_id": "panama-canal-drought-transit-policy-2023",
+      "replay_tier": "REPLAY_READY_UNSCORED",
+      "historical_hypothesis_source_ids": [
+        "panama-imf-2023-11-15-hypothesis"
+      ],
+      "historical_confidence_source_ids": [],
+      "outcome_source_ids": [
+        "panama-unctad-2024-01-26-transits"
+      ],
+      "outcome_evidence_level": "SCORABLE_CANDIDATE_QUANTITATIVE",
+      "outcome_class_supported": true,
+      "proposed_confidence_at_t": null,
+      "proposed_outcome_class": "PARTIAL_REALIZATION",
+      "audit_note": "IMF staff supplied an independent expectation that drought restrictions would continue hampering trade for months; UNCTAD later quantified a 36 percent year-over-year decline in total transits. The governed outcome class is PARTIAL_REALIZATION. Numeric confidence remains unsupported."
+    },
+    {
+      "case_id": "russia-food-import-embargo-2014",
+      "replay_tier": "REPLAY_READY_UNSCORED",
+      "historical_hypothesis_source_ids": [
+        "russia-worldbank-2014-08-11-hypothesis"
+      ],
+      "historical_confidence_source_ids": [],
+      "outcome_source_ids": [
+        "russia-fao-2015-03-03-outcome"
+      ],
+      "outcome_evidence_level": "SCORABLE_CANDIDATE_QUANTITATIVE",
+      "outcome_class_supported": true,
+      "proposed_confidence_at_t": null,
+      "proposed_outcome_class": "PARTIAL_REALIZATION",
+      "audit_note": "The World Bank supplied an independent contemporaneous inflation hypothesis; FAO later reported a 14 percent food-price increase in 2014 with further bread/flour increases, while attributing the surge to both ruble depreciation and the embargo. The governed class is PARTIAL_REALIZATION. Numeric confidence remains unsupported."
+    },
+    {
+      "case_id": "suez-ever-given-2021",
+      "replay_tier": "REPLAY_READY_UNSCORED",
+      "historical_hypothesis_source_ids": [
+        "suez-spglobal-2021-03-26-hypothesis"
+      ],
+      "historical_confidence_source_ids": [],
+      "outcome_source_ids": [
+        "suez-sca-2021-03-31-traffic",
+        "suez-unctad-2021-04-23-freight"
+      ],
+      "outcome_evidence_level": "SCORABLE_CANDIDATE_QUANTITATIVE",
+      "outcome_class_supported": true,
+      "proposed_confidence_at_t": null,
+      "proposed_outcome_class": "PARTIAL_REALIZATION",
+      "audit_note": "Independent pre-outcome shipping-market evidence now exists and the outcome layer contains quantified canal-clearing traffic plus later UNCTAD freight-market evidence. Outcome-class mapping is now governed by POSITIVE_CONSTRAINT_RULESET_V1 and resolves conservatively to PARTIAL_REALIZATION. Historical confidence provenance remains unresolved."
+    },
+    {
+      "case_id": "us-china-section301-multi-stage-trade-dispute-2018",
+      "replay_tier": "REPLAY_READY_UNSCORED",
+      "historical_hypothesis_source_ids": [
+        "section301-fed-beige-book-2018-09-12"
+      ],
+      "historical_confidence_source_ids": [],
+      "outcome_source_ids": [
+        "section301-usitc-2023-03-15-effects"
+      ],
+      "outcome_evidence_level": "SCORABLE_CANDIDATE_QUANTITATIVE",
+      "outcome_class_supported": true,
+      "proposed_confidence_at_t": null,
+      "proposed_outcome_class": "PARTIAL_REALIZATION",
+      "audit_note": "Federal Reserve contacts supplied independent contemporaneous evidence of tariff-related price and supply-disruption pressure; USITC later quantified Section 301 effects on imports, prices and production. Classification is PARTIAL_REALIZATION; numeric confidence remains unsupported."
+    },
+    {
+      "case_id": "us-chips-act-2022",
+      "replay_tier": "REPLAY_READY_UNSCORED",
+      "historical_hypothesis_source_ids": [
+        "chips-bcg-2021-04-01-hypothesis"
+      ],
+      "historical_confidence_source_ids": [],
+      "outcome_source_ids": [
+        "chips-commerce-2024-08-09-outcome"
+      ],
+      "outcome_evidence_level": "SCORABLE_CANDIDATE_QUANTITATIVE",
+      "outcome_class_supported": true,
+      "proposed_confidence_at_t": null,
+      "proposed_outcome_class": "UNEVALUABLE",
+      "audit_note": "BCG/SIA supplied an independent pre-enactment ten-year manufacturing-capacity hypothesis; Commerce later reported substantial proposed investment and 16 new manufacturing facilities in implementation. Because the explicit ten-year outcome horizon remains open, the governed class is UNEVALUABLE rather than an early success/failure. Numeric confidence remains unsupported."
+    },
+    {
+      "case_id": "us-pdvsa-sanctions-2019",
+      "replay_tier": "REPLAY_READY_UNSCORED",
+      "historical_hypothesis_source_ids": [
+        "pdvsa-eia-2019-05-20-hypothesis"
+      ],
+      "historical_confidence_source_ids": [],
+      "outcome_source_ids": [
+        "pdvsa-opec-2019-12-11-outcome"
+      ],
+      "outcome_evidence_level": "SCORABLE_CANDIDATE_QUANTITATIVE",
+      "outcome_class_supported": true,
+      "proposed_confidence_at_t": null,
+      "proposed_outcome_class": "PARTIAL_REALIZATION",
+      "audit_note": "EIA supplied an independent contemporaneous expectation of continued Venezuelan production decline with sanctions as one contributor; OPEC later quantified lower production. The governed class is PARTIAL_REALIZATION because multiple non-sanctions causes were explicitly present. Numeric confidence remains unsupported."
+    },
+    {
+      "case_id": "us-section232-steel-tariff-2018",
+      "replay_tier": "REPLAY_READY_UNSCORED",
+      "historical_hypothesis_source_ids": [
+        "section232-fed-beige-book-2018-04-18"
+      ],
+      "historical_confidence_source_ids": [],
+      "outcome_source_ids": [
+        "section232-usitc-2023-03-15-effects"
+      ],
+      "outcome_evidence_level": "SCORABLE_CANDIDATE_QUANTITATIVE",
+      "outcome_class_supported": true,
+      "proposed_confidence_at_t": null,
+      "proposed_outcome_class": "PARTIAL_REALIZATION",
+      "audit_note": "Federal Reserve contacts supplied an independent contemporaneous expectation of further tariff-related steel price pressure; USITC later quantified lower affected imports, higher steel prices and higher domestic production. The outcome mapping resolves to PARTIAL_REALIZATION. Numeric confidence remains unsupported."
+    },
+    {
+      "case_id": "us-section45x-advanced-manufacturing-incentive-2022",
+      "replay_tier": "REPLAY_READY_UNSCORED",
+      "historical_hypothesis_source_ids": [
+        "45x-doe-2023-05-12-hypothesis"
+      ],
+      "historical_confidence_source_ids": [],
+      "outcome_source_ids": [
+        "45x-treasury-2024-10-24-outcome"
+      ],
+      "outcome_evidence_level": "SCORABLE_CANDIDATE_QUANTITATIVE",
+      "outcome_class_supported": true,
+      "proposed_confidence_at_t": null,
+      "proposed_outcome_class": "PARTIAL_REALIZATION",
+      "audit_note": "DOE supplied an independent manufacturing-expansion hypothesis for Section 45X operating with complementary domestic-content incentives; Treasury later reported more than $126 billion in announced clean-energy manufacturing investment with 45X described as a major driver. Because attribution is multi-policy, the governed class is PARTIAL_REALIZATION. Numeric confidence remains unsupported."
+    },
+    {
+      "case_id": "wto-china-rare-earths-resource-dispute-2014-2015",
+      "replay_tier": "REPLAY_READY_UNSCORED",
+      "historical_hypothesis_source_ids": [
+        "rareearth-ustr-2014-03-26-hypothesis"
+      ],
+      "historical_confidence_source_ids": [],
+      "outcome_source_ids": [
+        "rareearth-wto-2015-05-20-outcome"
+      ],
+      "outcome_evidence_level": "SCORABLE_CANDIDATE_QUALITATIVE",
+      "outcome_class_supported": true,
+      "proposed_confidence_at_t": null,
+      "proposed_outcome_class": "UNEVALUABLE",
+      "audit_note": "USTR supplied a historical mechanism hypothesis about export-restraint price and competition effects; the WTO later recorded removal of the challenged duties/quotas/trading-right restrictions but also preserved a U.S. licensing concern and disagreement over full compliance. The governed class is UNEVALUABLE. Numeric confidence remains unsupported."
+    }
+  ]
+}
