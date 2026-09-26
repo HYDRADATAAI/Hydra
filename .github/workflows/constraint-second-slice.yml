@@ -14,6 +14,7 @@ on:
       - "docs/constraint/architecture/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH024_*.json"
       - "docs/constraint/architecture/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH025_*.json"
       - "docs/constraint/architecture/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH026_*.json"
+      - "docs/constraint/architecture/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH027_*.json"
       - "docs/constraint/validation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH019_*"
       - "docs/constraint/validation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH020_*"
       - "docs/constraint/validation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH021_*"
@@ -22,6 +23,7 @@ on:
       - "docs/constraint/validation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH024_*"
       - "docs/constraint/validation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH025_*"
       - "docs/constraint/validation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH026_*"
+      - "docs/constraint/validation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH027_*"
       - "tools/validate_constraint_second_slice_batch017_audit.py"
       - "tools/test_constraint_second_slice_batch017_audit_adversarial.py"
       - "tools/validate_constraint_second_slice_batch018_population.py"
@@ -44,6 +46,10 @@ on:
       - "tools/test_constraint_second_slice_batch026_private_t1_packet_adversarial.py"
       - "tools/materialize_constraint_second_slice_batch026_private_t1.py"
       - "tools/verify_constraint_second_slice_batch026_private_t1.py"
+      - "tools/Invoke-HydraConstraintSemiconductorBatch026PrivateT1.ps1"
+      - "tools/build_constraint_second_slice_batch026_private_t1_handback.py"
+      - "tools/validate_constraint_second_slice_batch027_workstation_launcher.py"
+      - "tools/test_constraint_second_slice_batch027_workstation_launcher_adversarial.py"
       - ".github/workflows/constraint-second-slice.yml"
   push:
     branches:
@@ -60,6 +66,7 @@ on:
       - "docs/constraint/architecture/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH024_*.json"
       - "docs/constraint/architecture/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH025_*.json"
       - "docs/constraint/architecture/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH026_*.json"
+      - "docs/constraint/architecture/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH027_*.json"
       - "docs/constraint/validation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH019_*"
       - "docs/constraint/validation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH020_*"
       - "docs/constraint/validation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH021_*"
@@ -68,6 +75,7 @@ on:
       - "docs/constraint/validation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH024_*"
       - "docs/constraint/validation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH025_*"
       - "docs/constraint/validation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH026_*"
+      - "docs/constraint/validation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH027_*"
       - "tools/validate_constraint_second_slice_batch017_audit.py"
       - "tools/test_constraint_second_slice_batch017_audit_adversarial.py"
       - "tools/validate_constraint_second_slice_batch018_population.py"
@@ -90,6 +98,10 @@ on:
       - "tools/test_constraint_second_slice_batch026_private_t1_packet_adversarial.py"
       - "tools/materialize_constraint_second_slice_batch026_private_t1.py"
       - "tools/verify_constraint_second_slice_batch026_private_t1.py"
+      - "tools/Invoke-HydraConstraintSemiconductorBatch026PrivateT1.ps1"
+      - "tools/build_constraint_second_slice_batch026_private_t1_handback.py"
+      - "tools/validate_constraint_second_slice_batch027_workstation_launcher.py"
+      - "tools/test_constraint_second_slice_batch027_workstation_launcher_adversarial.py"
       - ".github/workflows/constraint-second-slice.yml"
 
 permissions:
@@ -145,3 +157,16 @@ jobs:
         run: python tools/test_constraint_second_slice_batch026_private_t1_packet_adversarial.py
       - name: Compile Batch026 local materializer and verifier
         run: python -m py_compile tools/materialize_constraint_second_slice_batch026_private_t1.py tools/verify_constraint_second_slice_batch026_private_t1.py
+
+      - name: Validate Batch027 workstation launcher contract
+        run: python tools/validate_constraint_second_slice_batch027_workstation_launcher.py
+
+      - name: Run Batch027 hostile matrix
+        run: python tools/test_constraint_second_slice_batch027_workstation_launcher_adversarial.py
+
+      - name: Contract-check Batch027 PowerShell launcher
+        shell: pwsh
+        run: ./tools/Invoke-HydraConstraintSemiconductorBatch026PrivateT1.ps1 -Mode ContractCheck -RepoRoot "$PWD"
+
+      - name: Compile Batch027 handback builder
+        run: python -m py_compile tools/build_constraint_second_slice_batch026_private_t1_handback.py
