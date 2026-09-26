@@ -3,6 +3,8 @@ from __future__ import annotations
 from dataclasses import dataclass
 from datetime import datetime
 from enum import Enum
+import json
+from pathlib import Path
 
 
 class ClaimEvidenceError(ValueError):
@@ -123,3 +125,59 @@ def revisions_as_of(revisions: tuple[HistoricalRevision,...], as_of: datetime) -
         if revision.known_at<=as_of:
             out.append(revision)
     return tuple(sorted(out,key=lambda r:(r.known_at,r.revision_id)))
+
+
+def _parse_dt(value: str, label: str) -> datetime:
+    try:
+        ts=datetime.fromisoformat(value.replace("Z","+00:00"))
+    except Exception as exc:
+        raise ClaimEvidenceError(f"{label}: invalid timestamp") from exc
+    if ts.tzinfo is None or ts.utcoffset() is None:
+        raise ClaimEvidenceError(f"{label}: timezone-aware timestamp required")
+    return ts
+
+
+def load_claim_revision_bundle(
+    path: str | Path,
+) -> tuple[tuple[ContestedClaim,...],tuple[HistoricalRevision,...]]:
+    raw=json.loads(Path(path).read_text(encoding="utf-8"))
+    claims=[]
+    for item in raw.get("claims",[]):
+        evidence=[]
+        for e in item.get("evidence",[]):
+            evidence.append(ClaimEvidence(
+                evidence_id=e["evidence_id"],
+                document_id=e["document_id"],
+                known_at=_parse_dt(e["known_at"],f"{e['evidence_id']}.known_at"),
+                stance=ClaimStance(e["stance"]),
+                attributed_to=e["attributed_to"],
+                statement=e["statement"],
+            ))
+        claim=ContestedClaim(
+            claim_id=item["claim_id"],
+            proposition=item["proposition"],
+            evidence=tuple(evidence),
+        )
+        claim.validate()
+        claims.append(claim)
+
+    revisions=[]
+    for item in raw.get("revisions",[]):
+        revision=HistoricalRevision(
+            revision_id=item["revision_id"],
+            prior_document_id=item["prior_document_id"],
+            revision_document_id=item["revision_document_id"],
+            known_at=_parse_dt(item["known_at"],f"{item['revision_id']}.known_at"),
+            relation=RevisionRelation(item["relation"]),
+            scope=item["scope"],
+        )
+        revision.validate()
+        revisions.append(revision)
+
+    claim_ids=[c.claim_id for c in claims]
+    revision_ids=[r.revision_id for r in revisions]
+    if len(claim_ids)!=len(set(claim_ids)):
+        raise ClaimEvidenceError("duplicate claim_id")
+    if len(revision_ids)!=len(set(revision_ids)):
+        raise ClaimEvidenceError("duplicate revision_id")
+    return tuple(claims),tuple(revisions)
