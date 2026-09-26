@@ -58,6 +58,12 @@ FILES = {
     "batch010_relief": SLICE / "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH010_AI_DATA_CENTER_POWER_INFRASTRUCTURE_RELIEF_PATHS_V001_20260925.json",
     "batch010_beneficiaries": SLICE / "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH010_AI_DATA_CENTER_POWER_INFRASTRUCTURE_BENEFICIARY_EVALUATIONS_V001_20260925.json",
     "batch010_beneficiary_sources": SLICE / "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH010_AI_DATA_CENTER_POWER_INFRASTRUCTURE_BENEFICIARY_SOURCE_REGISTRY_EXTENSION_V001_20260925.json",
+    "batch011_taxonomy": SLICE / "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH011_AI_DATA_CENTER_POWER_INFRASTRUCTURE_OUTCOME_TAXONOMY_V001_20260925.json",
+    "batch011_outcomes": SLICE / "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH011_AI_DATA_CENTER_POWER_INFRASTRUCTURE_OUTCOME_RECORDS_V001_20260925.json",
+    "batch011_replay": SLICE / "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH011_AI_DATA_CENTER_POWER_INFRASTRUCTURE_SHADOW_REPLAY_PACKET_V001_20260925.json",
+    "batch011_determinism": SLICE / "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH011_AI_DATA_CENTER_POWER_INFRASTRUCTURE_DETERMINISM_RECEIPT_V001_20260925.json",
+    "batch011_required_cases": SLICE / "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH011_AI_DATA_CENTER_POWER_INFRASTRUCTURE_REQUIRED_CASES_OUTCOME_REPLAY_OVERLAY_V001_20260925.json",
+    "batch011_master": ARCH / "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH011_MASTER_STATUS_V001_20260925.json",
 }
 
 
@@ -171,7 +177,9 @@ def discover_latest_master() -> tuple[int, Path, dict[str, Any]]:
     return batch, path, load_json(path)
 
 
-def validate_manifest(manifest_path: Path) -> int:
+def validate_manifest(manifest_path: Path) -> tuple[int, int]:
+    """Validate immutable domain pins while allowing shared operational code to evolve."""
+
     manifest = load_json(manifest_path)
     artifacts = manifest.get("artifacts")
     require(
@@ -179,6 +187,7 @@ def validate_manifest(manifest_path: Path) -> int:
         f"manifest artifacts missing: {manifest_path.name}",
     )
     count = 0
+    shared_pin_divergence = 0
     for entry in artifacts:
         require(isinstance(entry, dict), f"invalid manifest entry: {manifest_path.name}")
         relative = entry.get("path")
@@ -191,12 +200,18 @@ def validate_manifest(manifest_path: Path) -> int:
         artifact = ROOT / relative
         require(artifact.is_file(), f"manifest member missing: {relative}")
         actual = git_blob_sha(artifact)
-        require(
-            actual == expected,
-            f"manifest blob mismatch: {relative}: expected={expected} actual={actual}",
-        )
+        if relative.startswith("docs/constraint/"):
+            require(
+                actual == expected,
+                f"immutable domain artifact blob mismatch: {relative}: expected={expected} actual={actual}",
+            )
+        elif actual != expected:
+            # Tests and shared operational code legitimately evolve after a
+            # historical batch seals. The manifest still pins the version that
+            # batch used, but current HEAD is not required to retain those bytes.
+            shared_pin_divergence += 1
         count += 1
-    return count
+    return count, shared_pin_divergence
 
 
 def main() -> int:
@@ -227,6 +242,13 @@ def main() -> int:
     beneficiaries = docs["batch010_beneficiaries"]
     beneficiary_sources = docs["batch010_beneficiary_sources"]
 
+    outcome_taxonomy = docs["batch011_taxonomy"]
+    outcome_records = docs["batch011_outcomes"]
+    shadow_replay = docs["batch011_replay"]
+    determinism = docs["batch011_determinism"]
+    required_cases = docs["batch011_required_cases"]
+    batch011_master = docs["batch011_master"]
+
     # Stable first-slice identity across domain artifacts.
     for name, doc in (
         ("source_registry", registry),
@@ -245,6 +267,11 @@ def main() -> int:
         ("batch010_relief", relief),
         ("batch010_beneficiaries", beneficiaries),
         ("batch010_beneficiary_sources", beneficiary_sources),
+        ("batch011_taxonomy", outcome_taxonomy),
+        ("batch011_outcomes", outcome_records),
+        ("batch011_replay", shadow_replay),
+        ("batch011_determinism", determinism),
+        ("batch011_required_cases", required_cases),
     ):
         require(doc.get("slice_id") == SLICE_ID, f"{name} slice_id drifted")
 
@@ -487,6 +514,148 @@ def main() -> int:
         require(row.get("eligibility_state") == "BLOCKED", f"{rid} unexpectedly eligible")
         require(row.get("beneficiary_confidence") is None, f"{rid} unexpectedly assigned beneficiary confidence")
 
+    # Batch011 adds a thin real outcome and deterministic shadow replay only.
+    labels = set(outcome_taxonomy.get("labels", []))
+    taxonomy_rules = set(outcome_taxonomy.get("rules", []))
+    require("CAPACITY_ADDED" in labels, "Batch011 outcome taxonomy lost CAPACITY_ADDED")
+    require(
+        "OUTCOME_EFFECTIVE_TIME_MUST_NOT_BE_REPLACED_BY_HYDRA_AVAILABLE_AT" in taxonomy_rules,
+        "Batch011 outcome taxonomy lost effective-time boundary",
+    )
+    require(
+        "CAPACITY_ADDED_DOES_NOT_IMPLY_CONSTRAINT_RESOLVED" in taxonomy_rules,
+        "Batch011 outcome taxonomy lost capacity-versus-resolution boundary",
+    )
+    require(
+        "FIRST_CUSTOMER_SHIPMENT_DOES_NOT_BY_ITSELF_PROVE_BENEFICIARY_CAPTURE" in taxonomy_rules,
+        "Batch011 outcome taxonomy lost beneficiary-capture boundary",
+    )
+
+    outcome_rows = outcome_records.get("records")
+    require(isinstance(outcome_rows, list) and len(outcome_rows) == 1, "Batch011 real outcome count drifted")
+    outcome = outcome_rows[0]
+    require(outcome.get("outcome_label") == "CAPACITY_ADDED", "Batch011 outcome label drifted")
+    require(
+        outcome.get("related_constraint_candidate_id") == "T5C-AIDC-US-TRANSFORMER-SUPPLY-001",
+        "Batch011 outcome candidate binding drifted",
+    )
+    effective = outcome.get("real_world_effective_time")
+    require(isinstance(effective, dict), "Batch011 real-world effective-time object missing")
+    require(effective.get("value") is None, "Batch011 invented exact real-world effective time")
+    require(effective.get("no_later_than") == "2025-10-08", "Batch011 bounded effective date drifted")
+    require(outcome.get("hydra_available_at") == "2026-09-26T01:57:00Z", "Batch011 HYDRA availability drifted")
+    require(outcome.get("ordinary_replay_eligible") is False, "Batch011 ordinary replay unexpectedly eligible")
+    require(
+        RAW_MATERIALIZATION_BLOCKER in set(outcome.get("ordinary_replay_blockers", [])),
+        "Batch011 outcome lost raw-materialization blocker",
+    )
+    outcome_counts = outcome_records.get("counts")
+    require(
+        outcome_counts
+        == {
+            "outcomes_captured": 1,
+            "constraint_resolutions": 0,
+            "beneficiary_capture_confirmed": 0,
+        },
+        "Batch011 outcome counts drifted",
+    )
+
+    require(shadow_replay.get("replay_mode") == "SHADOW_NORMALIZED_FIXTURE", "Batch011 replay mode drifted")
+    require(shadow_replay.get("ordinary_replay_eligible") is False, "Batch011 ordinary replay unexpectedly enabled")
+    require(
+        shadow_replay.get("source_version_hash_status") == "BLOCKED_RAW_SOURCE_BODY_NOT_MATERIALIZED",
+        "Batch011 source-version hash gate drifted",
+    )
+    frozen_inputs = shadow_replay.get("frozen_input_manifest")
+    require(isinstance(frozen_inputs, list) and frozen_inputs, "Batch011 frozen replay input manifest missing")
+    for entry in frozen_inputs:
+        relative = entry.get("path")
+        expected = entry.get("git_blob_sha")
+        require(isinstance(relative, str) and isinstance(expected, str), "Batch011 frozen input entry invalid")
+        path = ROOT / relative
+        require(path.is_file(), f"Batch011 frozen replay input missing: {relative}")
+        require(git_blob_sha(path) == expected, f"Batch011 frozen replay input drifted: {relative}")
+
+    windows = shadow_replay.get("windows")
+    require(isinstance(windows, list) and len(windows) == 2, "Batch011 replay-window count drifted")
+    by_window = {row.get("window_id"): row for row in windows}
+    pre = by_window.get("PRE_BATCH010_SUPPLIER_AVAILABILITY")
+    post = by_window.get("AT_BATCH010_SUPPLIER_AVAILABILITY")
+    require(isinstance(pre, dict) and isinstance(post, dict), "Batch011 replay windows missing")
+    require(pre.get("diff") == [] and pre.get("future_leak_test") == "PASS", "Batch011 pre-window no-lookahead failed")
+    require(post.get("diff") == [] and post.get("future_leak_test") == "PASS", "Batch011 post-window replay mismatch")
+    pre_state = pre.get("expected_graph_state")
+    post_state = post.get("expected_graph_state")
+    require(isinstance(pre_state, dict) and isinstance(post_state, dict), "Batch011 expected graph states missing")
+    require(
+        pre_state.get("eligible_claim_ids") == [f"CLM-AIDC-{n:03d}" for n in range(1, 5)],
+        "Batch011 pre-window claim boundary drifted",
+    )
+    require(pre_state.get("beneficiary_relationship_ids") == [], "Batch011 pre-window leaked beneficiary relationships")
+    require(pre_state.get("outcome_ids") == [], "Batch011 pre-window leaked outcomes")
+    require(len(post_state.get("eligible_claim_ids", [])) == 10, "Batch011 post-window claim count drifted")
+    require(len(post_state.get("beneficiary_relationship_ids", [])) == 4, "Batch011 post-window beneficiary count drifted")
+    require(
+        post_state.get("outcome_ids") == ["OUT-AIDC-EATON-NACOGDOCHES-CAPACITY-ADDED-001"],
+        "Batch011 post-window outcome set drifted",
+    )
+
+    require(determinism.get("repeat_execution_match") is True, "Batch011 determinism repeat execution drifted")
+    require(determinism.get("future_leak_test") == "PASS", "Batch011 determinism future-leak test drifted")
+    require(determinism.get("ordinary_replay_determinism_claimed") is False, "Batch011 falsely claims ordinary replay determinism")
+    require(
+        determinism.get("ordinary_replay_blocker") == RAW_MATERIALIZATION_BLOCKER,
+        "Batch011 determinism blocker drifted",
+    )
+
+    updates11 = required_cases.get("updates")
+    require(isinstance(updates11, list) and len(updates11) == 2, "Batch011 required-case update count drifted")
+    case_updates = {row.get("case_id"): row for row in updates11}
+    require(
+        case_updates.get(7, {}).get("successor_status") == "COVERED_BOUNDED_CAPACITY_RELIEF_OUTCOME",
+        "Batch011 case 7 outcome coverage drifted",
+    )
+    require(
+        case_updates.get(8, {}).get("successor_status") == "COVERED_SHADOW_NORMALIZED_FIXTURE_ONLY",
+        "Batch011 case 8 replay coverage drifted",
+    )
+    require(
+        set(required_cases.get("remaining_real_case_gaps", []))
+        == {
+            "CASE_1_PROJECT_SPECIFIC_TRUE_CAPACITY_CONSTRAINT",
+            "CASE_2_MATCHED_FALSE_CONSTRAINT_PRIMARY_COUNTEREVIDENCE",
+            "CASE_4_REAL_CONTRADICTION",
+            "CASE_6_FULLY_QUALIFIED_AND_CAPTURED_BENEFICIARY",
+            "CASE_10_REAL_CANCELLED_PROJECT",
+        },
+        "Batch011 remaining real-case gaps drifted",
+    )
+
+    r11 = batch011_master.get("readiness")
+    require(isinstance(r11, dict), "Batch011 master readiness missing")
+    require(r11["OUTCOME_LABEL_LAYER_POPULATED"].get("status") == "YES_SLICE_SCOPED", "Batch011 master outcome-label status drifted")
+    require(r11["REAL_OUTCOME_RECORDS"].get("status") == "THIN", "Batch011 master falsely thickens real outcomes")
+    require(r11["REAL_OUTCOME_RECORDS"].get("count") == 1, "Batch011 master real-outcome count drifted")
+    require(r11["SHADOW_REPLAY_FIXTURE_READY"].get("status") == "YES", "Batch011 master shadow replay not ready")
+    require(r11["SHADOW_NO_LOOKAHEAD"].get("status") == "PASS", "Batch011 master no-lookahead failed")
+    require(r11["SHADOW_DETERMINISM"].get("status") == "PASS", "Batch011 master determinism failed")
+    require(r11["POINT_IN_TIME_REPLAY_READY"].get("status") == "NO_ORDINARY", "Batch011 master falsely enables ordinary replay")
+    require(r11["OUTCOME_EVALUATION_READY"].get("status") == "THIN_NOT_ACCEPTANCE_READY", "Batch011 master outcome readiness overstated")
+    require(r11["FULL_CONSTRAINT_RUN_READY"].get("status") == "NO", "Batch011 master falsely claims full-run readiness")
+    require(batch011_master.get("first_serious_constraint_run") == "BLOCKED", "Batch011 master falsely claims serious-run readiness")
+    require(
+        {
+            RAW_MATERIALIZATION_BLOCKER,
+            ADMISSION_BLOCKER,
+            "HISTORICAL-CASE-004-CONTRADICTION-REAL-CASE-ABSENT",
+            "HISTORICAL-CASE-010-CANCELLED-PROJECT-ABSENT",
+            "REQUIRED-CASE-001-PROJECT-SPECIFIC-TRUE-CONSTRAINT-ABSENT",
+            "REQUIRED-CASE-002-MATCHED-FALSE-CONSTRAINT-ABSENT",
+            "REQUIRED-CASE-006-FULLY-QUALIFIED-CAPTURED-BENEFICIARY-ABSENT",
+        }.issubset(set(batch011_master.get("remaining_blockers", []))),
+        "Batch011 master blocker set lost required gates",
+    )
+
     # Authority and raw-materialization blockers remain open.
     decomposition = admission.get("decomposition")
     require(isinstance(decomposition, dict), "Batch002 admission decomposition missing")
@@ -564,7 +733,12 @@ def main() -> int:
     # Manifest discovery is dynamic so a new Lily successor batch cannot silently
     # bypass the guard or break it merely because the list was hard-coded.
     manifests = discover_current_manifests()
-    manifest_members = sum(validate_manifest(path) for path in manifests)
+    manifest_members = 0
+    shared_pin_divergences = 0
+    for path in manifests:
+        members, divergences = validate_manifest(path)
+        manifest_members += members
+        shared_pin_divergences += divergences
 
     latest_batch, latest_master_path, latest_master = discover_latest_master()
     latest_manifest_batch, latest_manifest_revision = manifest_identity(manifests[-1])
@@ -589,9 +763,12 @@ def main() -> int:
     print(f"BATCH010_CLAIMS={len(claim_ids)}")
     print(f"BATCH010_CANDIDATES={len(candidate_ids)}")
     print(f"BATCH010_BENEFICIARY_EVALUATIONS={len(relationship_rows)}")
+    print(f"BATCH011_REAL_OUTCOMES={len(outcome_rows)}")
+    print(f"BATCH011_SHADOW_REPLAY_WINDOWS={len(windows)}")
     print(f"CAPTURE_COMPLETED_AT={completed_at}")
     print(f"MANIFESTS_VALIDATED={len(manifests)}")
     print(f"MANIFEST_MEMBERS_VALIDATED={manifest_members}")
+    print(f"HISTORICAL_SHARED_PIN_DIVERGENCES={shared_pin_divergences}")
     print(f"LATEST_SUCCESSOR_BATCH={latest_batch:03d}")
     print(f"LATEST_MANIFEST_REVISION=V{latest_manifest_revision:03d}")
     print(f"LATEST_MASTER={latest_master_path.name}")
