@@ -29,5 +29,9 @@ jobs:
         run: python -m unittest discover -s constraint-physical-dependency/tests -p "test_*.py" -v
       - name: Test replay foundation
         run: python -m pytest -q constraint-replay/tests
+      - name: Run Batch 015 classified replay E2E contract
+        run: >-
+          python constraint-replay/scripts/run_HYDRA_CONSTRAINT_BATCH015_classified_replay_e2e_20260926.py
+          --check constraint-replay/runs/HYDRA_CONSTRAINT_BATCH015_CLASSIFIED_REPLAY_E2E_RUN_20260926.json
       - name: Test policy and cross-layer integration
         run: python -m unittest discover -s constraint-geopolitical-policy/tests -p "test_*.py" -v
