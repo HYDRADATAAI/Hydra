@@ -5,8 +5,13 @@ on:
     paths:
       - "docs/constraint/second_slice/**"
       - "docs/constraint/architecture/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH017_MASTER_STATUS_V001_20260926.json"
+      - "docs/constraint/architecture/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH018_*.json"
+      - "docs/constraint/validation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH018_*.md"
+      - "docs/constraint/validation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH018_*.json"
       - "tools/validate_constraint_second_slice_batch017_audit.py"
       - "tools/test_constraint_second_slice_batch017_audit_adversarial.py"
+      - "tools/validate_constraint_second_slice_batch018_first_population.py"
+      - "tools/test_constraint_second_slice_batch018_first_population_adversarial.py"
       - ".github/workflows/constraint-second-slice.yml"
   push:
     branches:
@@ -14,8 +19,13 @@ on:
     paths:
       - "docs/constraint/second_slice/**"
       - "docs/constraint/architecture/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH017_MASTER_STATUS_V001_20260926.json"
+      - "docs/constraint/architecture/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH018_*.json"
+      - "docs/constraint/validation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH018_*.md"
+      - "docs/constraint/validation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH018_*.json"
       - "tools/validate_constraint_second_slice_batch017_audit.py"
       - "tools/test_constraint_second_slice_batch017_audit_adversarial.py"
+      - "tools/validate_constraint_second_slice_batch018_first_population.py"
+      - "tools/test_constraint_second_slice_batch018_first_population_adversarial.py"
       - ".github/workflows/constraint-second-slice.yml"
 
 permissions:
@@ -33,3 +43,7 @@ jobs:
         run: python tools/validate_constraint_second_slice_batch017_audit.py
       - name: Run second-slice Batch017 hostile matrix
         run: python tools/test_constraint_second_slice_batch017_audit_adversarial.py
+      - name: Validate second-slice Batch018 first population
+        run: python tools/validate_constraint_second_slice_batch018_first_population.py
+      - name: Run second-slice Batch018 hostile matrix
+        run: python tools/test_constraint_second_slice_batch018_first_population_adversarial.py
