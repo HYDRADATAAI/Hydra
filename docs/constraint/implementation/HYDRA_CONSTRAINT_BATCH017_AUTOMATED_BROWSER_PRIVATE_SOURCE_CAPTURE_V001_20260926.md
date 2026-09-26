@@ -14,7 +14,7 @@ Run:
 powershell -ExecutionPolicy Bypass -File .\tools\private\Invoke-HYDRAConstraintFirstSliceAutomatedBrowserCapture_V001_20260926.ps1
 ```
 
-The launcher creates a Python virtual environment only under `D:\HYDRA_PRIVATE\constraint\browser-runtime`, installs the Python Playwright client there when absent, and uses an already-installed Chrome or Edge browser. It does not download a Playwright browser build.
+The launcher creates a Python virtual environment only under `D:\HYDRA\_PRIVATE\constraint\browser-runtime`, installs the Python Playwright client there when absent, and uses an already-installed Chrome or Edge browser. It does not download a Playwright browser build.
 
 The browser is headed by default. A dedicated persistent browser profile is stored under the private root. Normal site cookies/session state in that dedicated profile may therefore persist across runs. The runner never exports browser cookies or credentials.
 
@@ -36,7 +36,7 @@ For every registered source the runner requires:
 - block/challenge/interstitial rejection for HTML;
 - source-specific body markers for the three previously blocked HTML sources.
 
-The response body, capture manifest, generated capture plan, sanitized attestation, and replay-lineage packet are written only under `D:\HYDRA_PRIVATE\constraint`.
+The response body, capture manifest, generated capture plan, sanitized attestation, and replay-lineage packet are written only under `D:\HYDRA\_PRIVATE\constraint`.
 
 ## Existing authority reused
 
