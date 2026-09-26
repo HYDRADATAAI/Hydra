@@ -147,7 +147,8 @@
           "source_id": "suez-unctad-2021-04-23-freight",
           "statement": "UNCTAD attributed a new surge in container spot freight rates to the blockage as one factor in an already disrupted freight market."
         }
-      ]
+      ],
+      "hypothesis_independence_basis": "S&P Global is distinct from the Suez Canal Authority and UNCTAD outcome publishers and published during the blockage before the admitted post-blockage outcome sources."
     },
     {
       "case_id": "black-sea-grain-corridor-2022",
@@ -263,7 +264,8 @@
             }
           ]
         }
-      ]
+      ],
+      "hypothesis_independence_basis": "The IMF is distinct from the FAO and UN Joint Coordination Centre outcome publishers and published its mechanism assessment before the admitted August 2022 and later outcome sources."
     },
     {
       "case_id": "germany-wilhelmshaven-lng-commissioning-2022-2023",
@@ -325,7 +327,8 @@
           "value": 6,
           "unit": "percent"
         }
-      ]
+      ],
+      "hypothesis_independence_basis": "Bundesnetzagentur is a regulator distinct from terminal operator Uniper and published its pre-operation supply-security assessment before the admitted cargo and first-year outcome sources."
     }
   ]
 }
