@@ -33,14 +33,15 @@
     {
       "path": ".github/workflows/constraint-t1-raw-artifact-store.yml",
       "predecessor_git_blob_sha": "4e4744e3cc0a51a4aebb8d7dd4f9b0e585f384fa",
-      "successor_git_blob_sha": "217252895e087634cb4734b427872818c493db5f",
-      "reason": "Run T1 tests when the private capture helper changes and syntax-parse the operator PowerShell before merge."
+      "successor_git_blob_sha": "1dd0c0ffefb83257f1820e6b050ca90962567212",
+      "reason": "Run the T1 suite for both legacy and automated private capture entry points and syntax-parse both PowerShell launchers before merge."
     }
   ],
   "guardrails": [
     "NO_RAW_SOURCE_BODY_PUBLISHED",
     "NO_LIVE_NETWORK_ACQUISITION_AUTHORIZED",
     "NO_ORDINARY_REPLAY_PROMOTION",
-    "NO_NATIVE_T5_T6_ADMISSION_CLAIM"
+    "NO_NATIVE_T5_T6_ADMISSION_CLAIM",
+    "AUTOMATED_BROWSER_CAPTURE_REQUIRES_EXPLICIT_AUTHORIZATION"
   ]
 }
