@@ -161,3 +161,33 @@ Ordinary replay: `BLOCKED`
 Canonical admission: `BLOCKED`
 
 No new outcome or evaluation threshold was introduced.
+
+
+## Replay-lineage preparation
+
+A deterministic sanitized replay-lineage builder is now included for the step
+immediately after private materialization/attestation.
+
+It consumes only the validated public-safe attestation and registry, then binds:
+
+- exact source IDs and source-version IDs;
+- artifact SHA-256 and receipt SHA-256;
+- persisted release ID/hash;
+- conservative acquisition/availability timestamps;
+- deterministic availability boundaries;
+- as-of membership under `SOURCE_VISIBLE_IFF_AVAILABLE_AT_LTE_AS_OF`.
+
+The builder refuses incomplete or quarantined source sets and preserves the
+historical boundary:
+
+- ordinary current source-version lineage can become complete after actual
+  nine-source materialization;
+- strict historical replay remains **NO** under conservative first-capture
+  availability;
+- no pre-capture visibility is inferred;
+- no native T5→T6 or canonical admission is granted.
+
+Current execution state remains unchanged because no real sanitized
+materialization attestation exists in this session:
+
+`ACTUAL_REPLAY_LINEAGE_PACKET_BUILT=NO`.
