@@ -1,0 +1,38 @@
+name: Constraint owner-seam conformance
+
+on:
+  pull_request:
+    paths:
+      - "docs/constraint/first_slice/ai_data_center_power_infrastructure_v1/**"
+      - "t6-fail-closed-validator/src/hydra_t6_failclosed/owner_seam_conformance.py"
+      - "t6-fail-closed-validator/tests/test_lily_owner_seam_rebase_v2.py"
+      - "tools/validate_constraint_lily_owner_seams.py"
+      - ".github/workflows/constraint-owner-seam-conformance.yml"
+  push:
+    branches:
+      - main
+    paths:
+      - "docs/constraint/first_slice/ai_data_center_power_infrastructure_v1/**"
+      - "t6-fail-closed-validator/src/hydra_t6_failclosed/owner_seam_conformance.py"
+      - "t6-fail-closed-validator/tests/test_lily_owner_seam_rebase_v2.py"
+      - "tools/validate_constraint_lily_owner_seams.py"
+      - ".github/workflows/constraint-owner-seam-conformance.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Run owner-seam unit tests
+        working-directory: t6-fail-closed-validator
+        run: |
+          export PYTHONPATH="$PWD/src"
+          python -m unittest tests.test_lily_owner_seam_rebase_v2 -v
+      - name: Run standalone owner-seam validator
+        run: python tools/validate_constraint_lily_owner_seams.py
