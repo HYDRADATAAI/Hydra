@@ -16,6 +16,8 @@ on:
       - "tools/test_constraint_first_slice_outcome_coverage_adversarial.py"
       - "tools/validate_constraint_first_slice_custody.py"
       - "tools/test_constraint_first_slice_custody_adversarial.py"
+      - "tools/materialize_constraint_first_slice_private_t1.py"
+      - "tools/test_constraint_first_slice_private_materialization.py"
       - ".github/workflows/constraint-first-slice-integration.yml"
   push:
     branches:
@@ -80,3 +82,6 @@ jobs:
 
       - name: Run persisted custody hostile matrix
         run: python tools/test_constraint_first_slice_custody_adversarial.py
+
+      - name: Test private T1 materialization runner
+        run: python tools/test_constraint_first_slice_private_materialization.py
