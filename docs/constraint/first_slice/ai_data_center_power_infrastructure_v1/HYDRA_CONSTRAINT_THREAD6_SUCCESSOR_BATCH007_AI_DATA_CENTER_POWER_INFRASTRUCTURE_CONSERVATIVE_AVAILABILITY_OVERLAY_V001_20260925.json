@@ -1,0 +1,120 @@
+{
+  "schema_version": "hydra-constraint-first-slice-conservative-availability-overlay/v1",
+  "record_id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH007_AI_DATA_CENTER_POWER_INFRASTRUCTURE_CONSERVATIVE_AVAILABILITY_OVERLAY_V001",
+  "as_of": "2026-09-25",
+  "slice_id": "AI_DATA_CENTER_POWER_INFRASTRUCTURE_V1",
+  "predecessors": [
+    "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH004_AI_DATA_CENTER_POWER_INFRASTRUCTURE_PIT_ACQUISITION_CAPTURE_V001",
+    "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH005_AI_DATA_CENTER_POWER_INFRASTRUCTURE_SOURCE_TEMPORAL_AUDIT_V001",
+    "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH006_AI_DATA_CENTER_POWER_INFRASTRUCTURE_SOURCE_GAP_STATUS_V001"
+  ],
+  "authority_basis": {
+    "rule": "LILY_THREAD1_BATCH5_DECISION145",
+    "invariant": "BACKDATED_AVAILABILITY_REQUIRES_PROOF; ABSENT_PROOF CONSERVATIVE_AVAILABILITY IS HYDRA FIRST DEFENSIBLE ACQUISITION/OBSERVATION TIME"
+  },
+  "current_capture_available_at": "2026-09-25T23:52:01.573251Z",
+  "historical_backdating_authorized": false,
+  "records": [
+    {
+      "source_id": "SRC-LBNL-DC-ENERGY-2025-UPDATE",
+      "inherited_acquired_at": "2026-09-25T23:52:01.573251Z",
+      "conservative_available_at": "2026-09-25T23:52:01.573251Z",
+      "availability_basis": "HYDRA_FIRST_DEFENSIBLE_ACQUISITION_OBSERVATION",
+      "historical_backdating_authorized": false,
+      "publication_metadata_source": "BATCH005_TEMPORAL_AUDIT_WHERE_APPLICABLE",
+      "source_content_persisted": false,
+      "temporal_original_as_of_eligible_from": "2026-09-25T23:52:01.573251Z",
+      "ordinary_replay_lineage_eligible": false
+    },
+    {
+      "source_id": "SRC-EIA-DC-DEMAND-2026-03-12",
+      "inherited_acquired_at": "2026-09-25T23:52:01.573251Z",
+      "conservative_available_at": "2026-09-25T23:52:01.573251Z",
+      "availability_basis": "HYDRA_FIRST_DEFENSIBLE_ACQUISITION_OBSERVATION",
+      "historical_backdating_authorized": false,
+      "publication_metadata_source": "BATCH005_TEMPORAL_AUDIT_WHERE_APPLICABLE",
+      "source_content_persisted": false,
+      "temporal_original_as_of_eligible_from": "2026-09-25T23:52:01.573251Z",
+      "ordinary_replay_lineage_eligible": false
+    },
+    {
+      "source_id": "SRC-LBNL-QUEUED-UP-2025",
+      "inherited_acquired_at": "2026-09-25T23:52:01.573251Z",
+      "conservative_available_at": "2026-09-25T23:52:01.573251Z",
+      "availability_basis": "HYDRA_FIRST_DEFENSIBLE_ACQUISITION_OBSERVATION",
+      "historical_backdating_authorized": false,
+      "publication_metadata_source": "BATCH005_TEMPORAL_AUDIT_WHERE_APPLICABLE",
+      "source_content_persisted": false,
+      "temporal_original_as_of_eligible_from": "2026-09-25T23:52:01.573251Z",
+      "ordinary_replay_lineage_eligible": false
+    },
+    {
+      "source_id": "SRC-FERC-ORDER-2023-FACT-SHEET",
+      "inherited_acquired_at": "2026-09-25T23:52:01.573251Z",
+      "conservative_available_at": "2026-09-25T23:52:01.573251Z",
+      "availability_basis": "HYDRA_FIRST_DEFENSIBLE_ACQUISITION_OBSERVATION",
+      "historical_backdating_authorized": false,
+      "publication_metadata_source": "BATCH005_TEMPORAL_AUDIT_WHERE_APPLICABLE",
+      "source_content_persisted": false,
+      "temporal_original_as_of_eligible_from": "2026-09-25T23:52:01.573251Z",
+      "ordinary_replay_lineage_eligible": false
+    },
+    {
+      "source_id": "SRC-DOE-LPT-RESILIENCE-2024",
+      "inherited_acquired_at": "2026-09-25T23:52:01.573251Z",
+      "conservative_available_at": "2026-09-25T23:52:01.573251Z",
+      "availability_basis": "HYDRA_FIRST_DEFENSIBLE_ACQUISITION_OBSERVATION",
+      "historical_backdating_authorized": false,
+      "publication_metadata_source": "BATCH005_TEMPORAL_AUDIT_WHERE_APPLICABLE",
+      "source_content_persisted": false,
+      "temporal_original_as_of_eligible_from": "2026-09-25T23:52:01.573251Z",
+      "ordinary_replay_lineage_eligible": false
+    },
+    {
+      "source_id": "SRC-DOE-DISTRIBUTION-TRANSFORMER-WEBINAR-2026",
+      "inherited_acquired_at": "2026-09-25T23:52:01.573251Z",
+      "conservative_available_at": "2026-09-25T23:52:01.573251Z",
+      "availability_basis": "HYDRA_FIRST_DEFENSIBLE_ACQUISITION_OBSERVATION",
+      "historical_backdating_authorized": false,
+      "publication_metadata_source": "BATCH005_TEMPORAL_AUDIT_WHERE_APPLICABLE",
+      "source_content_persisted": false,
+      "temporal_original_as_of_eligible_from": "2026-09-25T23:52:01.573251Z",
+      "ordinary_replay_lineage_eligible": false
+    },
+    {
+      "source_id": "SRC-LBNL-DATA-CENTER-WATER-2025",
+      "inherited_acquired_at": "2026-09-25T23:52:01.573251Z",
+      "conservative_available_at": "2026-09-25T23:52:01.573251Z",
+      "availability_basis": "HYDRA_FIRST_DEFENSIBLE_ACQUISITION_OBSERVATION",
+      "historical_backdating_authorized": false,
+      "publication_metadata_source": "BATCH005_TEMPORAL_AUDIT_WHERE_APPLICABLE",
+      "source_content_persisted": false,
+      "temporal_original_as_of_eligible_from": "2026-09-25T23:52:01.573251Z",
+      "ordinary_replay_lineage_eligible": false
+    },
+    {
+      "source_id": "SRC-NERC-LTRA-2025",
+      "inherited_acquired_at": "2026-09-25T23:52:01.573251Z",
+      "conservative_available_at": "2026-09-25T23:52:01.573251Z",
+      "availability_basis": "HYDRA_FIRST_DEFENSIBLE_ACQUISITION_OBSERVATION",
+      "historical_backdating_authorized": false,
+      "publication_metadata_source": "BATCH005_TEMPORAL_AUDIT_WHERE_APPLICABLE",
+      "source_content_persisted": false,
+      "temporal_original_as_of_eligible_from": "2026-09-25T23:52:01.573251Z",
+      "ordinary_replay_lineage_eligible": false
+    },
+    {
+      "source_id": "SRC-PJM-2025-YEAR-IN-REVIEW-2026-01-08",
+      "inherited_acquired_at": "2026-09-25T23:52:01.573251Z",
+      "conservative_available_at": "2026-09-25T23:52:01.573251Z",
+      "availability_basis": "HYDRA_FIRST_DEFENSIBLE_ACQUISITION_OBSERVATION",
+      "historical_backdating_authorized": false,
+      "publication_metadata_source": "BATCH005_TEMPORAL_AUDIT_WHERE_APPLICABLE",
+      "source_content_persisted": false,
+      "temporal_original_as_of_eligible_from": "2026-09-25T23:52:01.573251Z",
+      "ordinary_replay_lineage_eligible": false
+    }
+  ],
+  "correction_scope": "CURRENT_STATUS_ONLY",
+  "predecessor_artifacts_rewritten": false
+}

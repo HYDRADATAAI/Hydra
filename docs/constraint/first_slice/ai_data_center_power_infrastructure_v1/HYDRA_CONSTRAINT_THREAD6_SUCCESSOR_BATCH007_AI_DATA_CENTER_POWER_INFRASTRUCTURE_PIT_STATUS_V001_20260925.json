@@ -1,0 +1,41 @@
+{
+  "schema_version": "hydra-constraint-first-slice-pit-status/v1",
+  "record_id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH007_AI_DATA_CENTER_POWER_INFRASTRUCTURE_PIT_STATUS_V001",
+  "as_of": "2026-09-25",
+  "predecessor_batch": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH006",
+  "slice_id": "AI_DATA_CENTER_POWER_INFRASTRUCTURE_V1",
+  "blocker_reconciliation": {
+    "PIT-001A-EXACT-ACQUIRED-AT-CAPTURE": {
+      "state": "CLOSED_BY_BATCH004"
+    },
+    "PIT-001B-EXACT-AVAILABLE-AT-HISTORICAL-PROOF": {
+      "state": "NARROWED_BY_BATCH007",
+      "current_capture_status": "CLOSED_BY_CONSERVATIVE_AVAILABLE_AT",
+      "historical_backdating_status": "OPEN_ONLY_IF_PRE_CAPTURE_REPLAY_IS_REQUIRED",
+      "blocking_current_capture_temporal_use": false
+    },
+    "PIT-002-IMMUTABLE-RAW-SOURCE-ARTIFACT-PERSISTENCE": {
+      "state": "OPEN_BLOCKING_ORDINARY_REPLAY",
+      "reason": "Batch004 explicitly records source_content_persisted=false for all nine sources, so Thread1 complete raw-artifact lineage is not yet satisfied."
+    }
+  },
+  "results": {
+    "ACQUIRED_AT_CAPTURE_READY": "YES",
+    "CONSERVATIVE_AVAILABLE_AT_READY": "YES",
+    "TEMPORAL_ORIGINAL_AS_OF_ELIGIBLE_FROM": "2026-09-25T23:52:01.573251Z",
+    "PRE_CAPTURE_HISTORICAL_BACKDATING_READY": "NO",
+    "SOURCE_CONTENT_PERSISTED": "NO",
+    "ORDINARY_T1_RAW_ARTIFACT_LINEAGE_COMPLETE": "NO",
+    "STRICT_ORDINARY_ORIGINAL_AS_OF_READY": "NO",
+    "FIBER_CONNECTIVITY_CAPACITY_FIELD": "SOURCE_GAP",
+    "IMPLEMENTATION_ADMISSION_READY": "NO",
+    "FIRST_SERIOUS_CONSTRAINT_RUN": "BLOCKED"
+  },
+  "remaining_blockers": [
+    "PIT-002-IMMUTABLE-RAW-SOURCE-ARTIFACT-PERSISTENCE",
+    "SOURCE-GAP-FIBER-CONNECTIVITY-CAPACITY",
+    "CI-TEST-008-BLOCKER-001B-NATIVE-T5-T6-SIGNED-ADMISSION-RECEIPT-ABSENT"
+  ],
+  "next_population_blocker": "PIT-002-IMMUTABLE-RAW-SOURCE-ARTIFACT-PERSISTENCE",
+  "predecessor_artifacts_rewritten": false
+}
