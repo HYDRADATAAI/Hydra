@@ -45,6 +45,20 @@ def nine_sources() -> list[dict]:
 
 
 class AutomatedBrowserPrivateSourceCaptureTests(unittest.TestCase):
+    def test_parser_requires_explicit_authorized_public_acquisition_for_run(self) -> None:
+        parser = capture.build_parser()
+        args = parser.parse_args([])
+        self.assertFalse(args.authorized_public_acquisition)
+        self.assertEqual(args.private_root, r"D:\\HYDRA_PRIVATE\\constraint")
+
+        with self.assertRaisesRegex(capture.CaptureError, "explicit --authorized-public-acquisition"):
+            capture.run(args)
+
+    def test_parser_accepts_explicit_authorization_switch(self) -> None:
+        parser = capture.build_parser()
+        args = parser.parse_args(["--authorized-public-acquisition"])
+        self.assertTrue(args.authorized_public_acquisition)
+
     def test_registry_requires_exact_nine_unique_source_ids_and_locators(self) -> None:
         rows = nine_sources()
         self.assertEqual(len(capture.validate_registry(registry(rows))), 9)
