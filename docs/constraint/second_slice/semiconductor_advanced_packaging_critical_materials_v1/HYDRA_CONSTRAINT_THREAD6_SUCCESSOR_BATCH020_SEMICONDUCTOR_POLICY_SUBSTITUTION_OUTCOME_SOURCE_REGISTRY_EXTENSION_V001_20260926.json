@@ -5,7 +5,7 @@
   "slice_id": "SEMICONDUCTOR_ADVANCED_PACKAGING_CRITICAL_MATERIALS_V1",
   "predecessor_source_registry": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH019_SEMICONDUCTOR_FACILITY_MATERIAL_EQUIPMENT_SOURCE_REGISTRY_EXTENSION_V001",
   "capture_mode": "CURRENT_REVIEW_CONSERVATIVE_AVAILABILITY",
-  "capture_completed_at": null,
+  "capture_completed_at": "2026-09-26T21:28:33Z",
   "source_content_persisted": false,
   "reused_source_ids": [
     "SRC-SEMI-TSMC-ANNUAL-REPORT-2024",
@@ -27,9 +27,9 @@
         "CAPACITY_PLAN",
         "RAMP_TARGET"
       ],
-      "acquired_at": null,
-      "available_at": null,
-      "availability_basis": null,
+      "acquired_at": "2026-09-26T21:28:33Z",
+      "available_at": "2026-09-26T21:28:33Z",
+      "availability_basis": "HYDRA_FIRST_DEFENSIBLE_GITHUB_REVIEW_ARTIFACT_COMMIT",
       "ordinary_raw_lineage_eligible": false
     },
     {
@@ -45,9 +45,9 @@
         "RAMP_REVISION",
         "LABOR_INSTALLATION_CONSTRAINT"
       ],
-      "acquired_at": null,
-      "available_at": null,
-      "availability_basis": null,
+      "acquired_at": "2026-09-26T21:28:33Z",
+      "available_at": "2026-09-26T21:28:33Z",
+      "availability_basis": "HYDRA_FIRST_DEFENSIBLE_GITHUB_REVIEW_ARTIFACT_COMMIT",
       "ordinary_raw_lineage_eligible": false
     },
     {
@@ -67,9 +67,9 @@
         "EFFECTIVE_DATE",
         "COMPLIANCE_DATE"
       ],
-      "acquired_at": null,
-      "available_at": null,
-      "availability_basis": null,
+      "acquired_at": "2026-09-26T21:28:33Z",
+      "available_at": "2026-09-26T21:28:33Z",
+      "availability_basis": "HYDRA_FIRST_DEFENSIBLE_GITHUB_REVIEW_ARTIFACT_COMMIT",
       "ordinary_raw_lineage_eligible": false
     },
     {
@@ -85,9 +85,9 @@
         "HBM",
         "SEMICONDUCTOR_MANUFACTURING_EQUIPMENT"
       ],
-      "acquired_at": null,
-      "available_at": null,
-      "availability_basis": null,
+      "acquired_at": "2026-09-26T21:28:33Z",
+      "available_at": "2026-09-26T21:28:33Z",
+      "availability_basis": "HYDRA_FIRST_DEFENSIBLE_GITHUB_REVIEW_ARTIFACT_COMMIT",
       "ordinary_raw_lineage_eligible": false
     },
     {
@@ -103,9 +103,9 @@
         "SAMPLING",
         "FUTURE_MASS_PRODUCTION_PLAN"
       ],
-      "acquired_at": null,
-      "available_at": null,
-      "availability_basis": null,
+      "acquired_at": "2026-09-26T21:28:33Z",
+      "available_at": "2026-09-26T21:28:33Z",
+      "availability_basis": "HYDRA_FIRST_DEFENSIBLE_GITHUB_REVIEW_ARTIFACT_COMMIT",
       "ordinary_raw_lineage_eligible": false
     },
     {
@@ -121,9 +121,9 @@
         "HBM3E_12H_PLAN",
         "HBM_SUPPLY_EXPANSION"
       ],
-      "acquired_at": null,
-      "available_at": null,
-      "availability_basis": null,
+      "acquired_at": "2026-09-26T21:28:33Z",
+      "available_at": "2026-09-26T21:28:33Z",
+      "availability_basis": "HYDRA_FIRST_DEFENSIBLE_GITHUB_REVIEW_ARTIFACT_COMMIT",
       "ordinary_raw_lineage_eligible": false
     }
   ],
