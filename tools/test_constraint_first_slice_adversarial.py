@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Adversarial mutation checks for the Constraint first-slice integration guard."""
+"""Adversarial mutation checks for the current Constraint first-slice guard."""
 
 from __future__ import annotations
 
@@ -18,7 +18,7 @@ VALIDATION_DIR = ROOT / "docs/constraint/validation"
 
 MANIFEST_NAMES = [
     f"HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH00{n}_ARTIFACT_MANIFEST_V001_20260925.json"
-    for n in range(3, 9)
+    for n in range(3, 10)
 ]
 
 
@@ -56,15 +56,12 @@ def git_blob_sha(root: Path, relative: str) -> str:
 def repin_manifest(root: Path, manifest_name: str, relative: str) -> None:
     path = root / "docs/constraint/validation" / manifest_name
     manifest = json.loads(path.read_text(encoding="utf-8"))
-    found = False
     for entry in manifest["artifacts"]:
         if entry["path"] == relative:
             entry["git_blob_sha"] = git_blob_sha(root, relative)
-            found = True
-            break
-    if not found:
-        raise AssertionError(f"manifest {manifest_name} does not contain {relative}")
-    path.write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
+            path.write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
+            return
+    raise AssertionError(f"manifest {manifest_name} does not contain {relative}")
 
 
 def mutate_json(
@@ -105,7 +102,7 @@ def expect_failure(
         baseline = run_validator(sandbox)
         if baseline.returncode != 0:
             raise AssertionError(
-                f"{name}: baseline validator failed before mutation\n"
+                f"{name}: baseline failed before mutation\n"
                 f"STDOUT:\n{baseline.stdout}\nSTDERR:\n{baseline.stderr}"
             )
 
@@ -116,8 +113,7 @@ def expect_failure(
         output = result.stdout + result.stderr
         if expected_fragment not in output:
             raise AssertionError(
-                f"{name}: expected failure fragment {expected_fragment!r} not found\n"
-                f"OUTPUT:\n{output}"
+                f"{name}: expected {expected_fragment!r} not found\nOUTPUT:\n{output}"
             )
         print(f"PASS :: {name} :: {expected_fragment}")
     finally:
@@ -130,34 +126,33 @@ def case_backdated_availability(root: Path) -> None:
         "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH007_AI_DATA_CENTER_POWER_INFRASTRUCTURE_"
         "CONSERVATIVE_AVAILABILITY_OVERLAY_V001_20260925.json"
     )
-
-    def mutate(doc: dict) -> None:
-        doc["records"][0]["conservative_available_at"] = "2026-09-25T23:51:59.000000Z"
-
     mutate_json(
         root,
         relative,
-        mutate,
+        lambda doc: doc["records"][0].__setitem__(
+            "conservative_available_at", "2026-09-25T23:51:59.000000Z"
+        ),
         manifest_name="HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH007_ARTIFACT_MANIFEST_V001_20260925.json",
     )
 
 
-def case_fiber_silently_closed(root: Path) -> None:
+def case_fiber_scope_overclaim(root: Path) -> None:
     relative = (
         "docs/constraint/first_slice/ai_data_center_power_infrastructure_v1/"
-        "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH006_AI_DATA_CENTER_POWER_INFRASTRUCTURE_"
-        "SOURCE_GAP_STATUS_V001_20260925.json"
+        "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH009_AI_DATA_CENTER_POWER_INFRASTRUCTURE_"
+        "FIBER_FIELD_OVERLAY_V001_20260925.json"
     )
 
     def mutate(doc: dict) -> None:
-        doc["results"]["FIBER_CONNECTIVITY_CAPACITY_FIELD"] = "POPULATED_UNPROVEN"
-        doc["results"]["SOURCE_GAP_FIELDS_REMAINING"] = 0
+        update = doc["field_updates"][0]
+        update["value"]["site_access_example"]["exact_site_capacity"] = "400_GBPS"
+        update["uncertainty"] = "UNIVERSAL_SITE_CAPACITY_ASSUMED"
 
     mutate_json(
         root,
         relative,
         mutate,
-        manifest_name="HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH006_ARTIFACT_MANIFEST_V001_20260925.json",
+        manifest_name="HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH009_ARTIFACT_MANIFEST_V001_20260925.json",
     )
 
 
@@ -179,14 +174,10 @@ def case_raw_materialization_falsely_claimed(root: Path) -> None:
         "docs/constraint/validation/"
         "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH008_T1_RAW_ARTIFACT_PERSISTENCE_STATUS_V001_20260925.json"
     )
-
-    def mutate(doc: dict) -> None:
-        doc["results"]["NINE_REAL_SOURCE_ARTIFACTS_MATERIALIZED"] = "YES"
-
     mutate_json(
         root,
         relative,
-        mutate,
+        lambda doc: doc["results"].__setitem__("NINE_REAL_SOURCE_ARTIFACTS_MATERIALIZED", "YES"),
         manifest_name="HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH008_ARTIFACT_MANIFEST_V001_20260925.json",
     )
 
@@ -197,22 +188,38 @@ def case_source_disappears(root: Path) -> None:
         "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH007_AI_DATA_CENTER_POWER_INFRASTRUCTURE_"
         "CONSERVATIVE_AVAILABILITY_OVERLAY_V001_20260925.json"
     )
+    mutate_json(
+        root,
+        relative,
+        lambda doc: doc["records"].pop(),
+        manifest_name="HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH007_ARTIFACT_MANIFEST_V001_20260925.json",
+    )
+
+
+def case_current_blocker_set_drift(root: Path) -> None:
+    relative = (
+        "docs/constraint/first_slice/ai_data_center_power_infrastructure_v1/"
+        "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH009_AI_DATA_CENTER_POWER_INFRASTRUCTURE_"
+        "SOURCE_GAP_STATUS_V001_20260925.json"
+    )
 
     def mutate(doc: dict) -> None:
-        doc["records"].pop()
+        doc["remaining_blockers"] = [
+            "PIT-002B-FIRST-SLICE-NINE-SOURCE-RAW-CAPTURE-MATERIALIZATION"
+        ]
 
     mutate_json(
         root,
         relative,
         mutate,
-        manifest_name="HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH007_ARTIFACT_MANIFEST_V001_20260925.json",
+        manifest_name="HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH009_ARTIFACT_MANIFEST_V001_20260925.json",
     )
 
 
 def case_master_falsely_ready(root: Path) -> None:
     relative = (
         "docs/constraint/architecture/"
-        "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH008_MASTER_STATUS_V001_20260925.json"
+        "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH009_MASTER_STATUS_V001_20260925.json"
     )
 
     def mutate(doc: dict) -> None:
@@ -223,18 +230,19 @@ def case_master_falsely_ready(root: Path) -> None:
         root,
         relative,
         mutate,
-        manifest_name="HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH008_ARTIFACT_MANIFEST_V001_20260925.json",
+        manifest_name="HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH009_ARTIFACT_MANIFEST_V001_20260925.json",
     )
 
 
 def main() -> int:
     cases = [
         ("backdated_availability", case_backdated_availability, "conservative availability drift"),
-        ("fiber_silently_closed", case_fiber_silently_closed, "fiber source gap was silently closed"),
+        ("fiber_scope_overclaim", case_fiber_scope_overclaim, "fiber exact site capacity unexpectedly quantified"),
         ("admission_falsely_granted", case_admission_falsely_granted, "native implementation unexpectedly admitted"),
         ("raw_materialization_falsely_claimed", case_raw_materialization_falsely_claimed, "real raw sources falsely marked materialized"),
         ("source_disappears", case_source_disappears, "availability source set differs from registry"),
-        ("master_falsely_ready", case_master_falsely_ready, "master falsely claims full-run readiness"),
+        ("current_blocker_set_drift", case_current_blocker_set_drift, "Batch009 current remaining blockers drifted"),
+        ("master_falsely_ready", case_master_falsely_ready, "current master falsely claims full-run readiness"),
     ]
     for name, mutator, expected in cases:
         expect_failure(name, mutator, expected)
