@@ -12,6 +12,8 @@ on:
       - "tools/test_constraint_first_slice_acceptance_gate_adversarial.py"
       - "tools/validate_constraint_first_slice_confidence_evaluation.py"
       - "tools/test_constraint_first_slice_confidence_evaluation_adversarial.py"
+      - "tools/validate_constraint_first_slice_outcome_coverage.py"
+      - "tools/test_constraint_first_slice_outcome_coverage_adversarial.py"
       - ".github/workflows/constraint-first-slice-integration.yml"
   push:
     branches:
@@ -26,6 +28,8 @@ on:
       - "tools/test_constraint_first_slice_acceptance_gate_adversarial.py"
       - "tools/validate_constraint_first_slice_confidence_evaluation.py"
       - "tools/test_constraint_first_slice_confidence_evaluation_adversarial.py"
+      - "tools/validate_constraint_first_slice_outcome_coverage.py"
+      - "tools/test_constraint_first_slice_outcome_coverage_adversarial.py"
       - ".github/workflows/constraint-first-slice-integration.yml"
 
 permissions:
@@ -60,3 +64,9 @@ jobs:
 
       - name: Run typed confidence hostile matrix
         run: python tools/test_constraint_first_slice_confidence_evaluation_adversarial.py
+
+      - name: Validate real outcome coverage
+        run: python tools/validate_constraint_first_slice_outcome_coverage.py
+
+      - name: Run real outcome coverage hostile matrix
+        run: python tools/test_constraint_first_slice_outcome_coverage_adversarial.py

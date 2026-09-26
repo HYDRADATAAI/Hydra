@@ -1,0 +1,65 @@
+{
+  "schema_version": "hydra-constraint-first-slice-source-registry-extension/v1",
+  "record_id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH016_AI_DATA_CENTER_POWER_INFRASTRUCTURE_OUTCOME_SOURCE_REGISTRY_EXTENSION_V001",
+  "as_of": "2026-09-26",
+  "predecessor_batch": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH015",
+  "slice_id": "AI_DATA_CENTER_POWER_INFRASTRUCTURE_V1",
+  "runtime_live_source_authority_used": false,
+  "source_content_persisted": false,
+  "sources": [
+    {
+      "source_id": "SRC-LOUDOUN-DC-ENERGY-ISSUES-ONSITE-POWER-2026-09-26",
+      "publisher": "Loudoun County, Virginia",
+      "title": "Data Centers: Energy Issues & Considerations",
+      "url": "https://www.loudoun.gov/6404/Energy-Issues-Considerations",
+      "publication_date": null,
+      "publication_date_precision": "UNRESOLVED_CURRENT_PAGE",
+      "acquired_at": "2026-09-26T13:11:19Z",
+      "available_at": "2026-09-26T13:11:19Z",
+      "availability_basis": "HYDRA_FIRST_DEFENSIBLE_ACQUISITION_OBSERVATION",
+      "historical_backdating_authorized": false,
+      "roles": [
+        "SUBSTITUTION_OUTCOME",
+        "POWER_DELIVERY_CONSTRAINT",
+        "ONSITE_GENERATION"
+      ],
+      "ordinary_raw_lineage_eligible": false
+    },
+    {
+      "source_id": "SRC-EATON-Q1-2026-RESULTS-2026-05-05",
+      "publisher": "Eaton",
+      "title": "Eaton Reports Record First Quarter 2026 Results, with Accelerating Growth in Sales, Orders and Backlog, and Raises 2026 Organic Growth Guidance to 10% from 8% at the Midpoint",
+      "url": "https://www.eaton.com/us/en-us/company/news-insights/news-releases/2026/eaton-reports-record-first-quarter-2026-results.html",
+      "publication_date": "2026-05-05",
+      "publication_date_precision": "DAY",
+      "acquired_at": "2026-09-26T13:11:19Z",
+      "available_at": "2026-09-26T13:11:19Z",
+      "availability_basis": "HYDRA_FIRST_DEFENSIBLE_ACQUISITION_OBSERVATION",
+      "historical_backdating_authorized": false,
+      "roles": [
+        "BENEFICIARY_CAPTURE_OUTCOME",
+        "DATA_CENTER_ORDER_MOMENTUM",
+        "ELECTRICAL_AMERICAS"
+      ],
+      "ordinary_raw_lineage_eligible": false
+    },
+    {
+      "source_id": "SRC-GEV-Q2-2026-RESULTS-2026-07-22",
+      "publisher": "GE Vernova",
+      "title": "GE Vernova reports second quarter 2026 financial results and raises 2026 financial guidance",
+      "url": "https://www.gevernova.com/news/taxonomy/term/9211",
+      "publication_date": "2026-07-22",
+      "publication_date_precision": "DAY",
+      "acquired_at": "2026-09-26T13:11:19Z",
+      "available_at": "2026-09-26T13:11:19Z",
+      "availability_basis": "HYDRA_FIRST_DEFENSIBLE_ACQUISITION_OBSERVATION",
+      "historical_backdating_authorized": false,
+      "roles": [
+        "BENEFICIARY_CAPTURE_OUTCOME",
+        "DATA_CENTER_ORDERS",
+        "ELECTRIFICATION"
+      ],
+      "ordinary_raw_lineage_eligible": false
+    }
+  ]
+}
