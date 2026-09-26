@@ -49,6 +49,9 @@ FILES = {
     "batch013_case_matrix": SLICE / "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH013_AI_DATA_CENTER_POWER_INFRASTRUCTURE_REQUIRED_CASE_MATRIX_V001_20260925.json",
     "batch013_beneficiary_overlay": SLICE / "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH013_AI_DATA_CENTER_POWER_INFRASTRUCTURE_EATON_TRANSFORMER_PREQUALIFICATION_OVERLAY_V001_20260925.json",
     "batch013_master": ARCH / "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH013_MASTER_STATUS_V001_20260925.json",
+    "batch016_custody_contract": IMPL / "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH016_T1_T2_PERSISTED_CHAIN_OF_CUSTODY_CONTRACT_V001_20260925.json",
+    "batch016_custody_status": VALIDATION / "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH016_T1_T2_CHAIN_OF_CUSTODY_STATUS_V001_20260925.json",
+    "batch016_master": ARCH / "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH016_MASTER_STATUS_V001_20260925.json",
 }
 
 MANIFESTS = [
@@ -57,6 +60,7 @@ MANIFESTS = [
 ] + [
     VALIDATION / "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH010_ARTIFACT_MANIFEST_V002_20260925.json"
 ]
+BATCH016_MANIFEST = VALIDATION / "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH016_ARTIFACT_MANIFEST_V001_20260925.json"
 
 SLICE_ID = "AI_DATA_CENTER_POWER_INFRASTRUCTURE_V1"
 ADMISSION_BLOCKER = "CI-TEST-008-BLOCKER-001B-NATIVE-T5-T6-SIGNED-ADMISSION-RECEIPT-ABSENT"
@@ -106,10 +110,32 @@ def git_blob_sha(path: Path) -> str:
     return result.stdout.strip()
 
 
+def _batch016_supersessions() -> dict[str, dict[str, str]]:
+    manifest = load_json(BATCH016_MANIFEST)
+    rows = manifest.get("superseded_artifacts")
+    require(isinstance(rows, list) and rows, "Batch016 superseded_artifacts missing")
+    result: dict[str, dict[str, str]] = {}
+    for row in rows:
+        require(isinstance(row, dict), "Batch016 supersession entry invalid")
+        relative = row.get("path")
+        predecessor = row.get("predecessor_git_blob_sha")
+        successor = row.get("successor_git_blob_sha")
+        require(isinstance(relative, str) and relative, "Batch016 supersession path missing")
+        require(isinstance(predecessor, str) and len(predecessor) == 40, f"Batch016 predecessor blob invalid: {relative}")
+        require(isinstance(successor, str) and len(successor) == 40, f"Batch016 successor blob invalid: {relative}")
+        require(relative not in result, f"duplicate Batch016 supersession path: {relative}")
+        result[relative] = {
+            "predecessor_git_blob_sha": predecessor,
+            "successor_git_blob_sha": successor,
+        }
+    return result
+
+
 def validate_manifest(manifest_path: Path) -> int:
     manifest = load_json(manifest_path)
     artifacts = manifest.get("artifacts")
     require(isinstance(artifacts, list) and artifacts, f"manifest artifacts missing: {manifest_path.name}")
+    supersessions = _batch016_supersessions()
     count = 0
     for entry in artifacts:
         require(isinstance(entry, dict), f"invalid manifest entry: {manifest_path.name}")
@@ -120,7 +146,20 @@ def validate_manifest(manifest_path: Path) -> int:
         artifact = ROOT / relative
         require(artifact.is_file(), f"manifest member missing: {relative}")
         actual = git_blob_sha(artifact)
-        require(actual == expected, f"manifest blob mismatch: {relative}: expected={expected} actual={actual}")
+        if actual != expected:
+            transition = supersessions.get(relative)
+            require(
+                transition is not None,
+                f"manifest blob mismatch without explicit Batch016 supersession: {relative}: expected={expected} actual={actual}",
+            )
+            require(
+                transition["predecessor_git_blob_sha"] == expected,
+                f"Batch016 supersession predecessor mismatch: {relative}",
+            )
+            require(
+                transition["successor_git_blob_sha"] == actual,
+                f"Batch016 supersession successor mismatch: {relative}",
+            )
         count += 1
     return count
 
@@ -155,6 +194,9 @@ def main() -> int:
     matrix13 = docs["batch013_case_matrix"]
     beneficiary13 = docs["batch013_beneficiary_overlay"]
     master13 = docs["batch013_master"]
+    custody16 = docs["batch016_custody_contract"]
+    custody_status16 = docs["batch016_custody_status"]
+    master16 = docs["batch016_master"]
 
     # First-slice identity must remain stable across the domain artifacts.
     for name, doc in (
@@ -431,7 +473,58 @@ def main() -> int:
     }
     require(required == expected_required, f"ordinary T2 eligibility contract drifted: {sorted(required)}")
 
+    # Batch016 hardens ordinary T1->T2 persisted release authority and preserves Batch015 confidence progress.
+    custody_required16 = set(custody16.get("ordinary_t2_eligibility_requires", []))
+    require(
+        custody_required16
+        == {
+            "VALID_RAW_ARTIFACT_BYTES",
+            "MATCHING_ARTIFACT_SHA256",
+            "SOURCE_ID",
+            "SOURCE_VERSION_ID",
+            "ACQUIRED_AT",
+            "AVAILABLE_AT",
+            "ELIGIBLE_PROCESSING_DISPOSITION",
+            "EXACT_PERSISTED_SOURCE_VERSION_RECEIPT",
+            "EXACT_PERSISTED_RELEASE_MANIFEST",
+            "EXACT_RELEASE_MEMBERSHIP",
+        },
+        f"Batch016 custody requirements drifted: {sorted(custody_required16)}",
+    )
+    custody_semantics16 = custody16.get("authority_semantics")
+    require(isinstance(custody_semantics16, dict), "Batch016 custody semantics missing")
+    require(custody_semantics16.get("caller_supplied_in_memory_receipt_authoritative") is False, "Batch016 in-memory receipt authority unexpectedly enabled")
+    require(custody_semantics16.get("caller_supplied_in_memory_release_manifest_authoritative") is False, "Batch016 in-memory release authority unexpectedly enabled")
+    require(custody_semantics16.get("persisted_record_identity_required") is True, "Batch016 persisted identity requirement removed")
+
+    custody_results16 = custody_status16.get("results")
+    require(isinstance(custody_results16, dict), "Batch016 custody status missing")
+    require(custody_results16.get("PERSISTED_RECEIPT_IDENTITY_REQUIRED") == "YES", "Batch016 persisted receipt identity not ready")
+    require(custody_results16.get("PERSISTED_RELEASE_IDENTITY_REQUIRED") == "YES", "Batch016 persisted release identity not ready")
+    require(custody_results16.get("FORGED_IN_MEMORY_RELEASE_AUTHORITY") == "NO", "Batch016 forged release became authority")
+    require(custody_results16.get("FORGED_RECEIPT_DISPOSITION_UPGRADE") == "BLOCKED", "Batch016 forged disposition upgrade not blocked")
+    require(custody_results16.get("TYPED_CONFIDENCE_TRANSPORT_READY") == "YES", "Batch016 lost Batch015 typed confidence")
+    require(custody_results16.get("CONFIDENCE_READY") == "YES_WITH_EXPLICIT_UNKNOWNS", "Batch016 confidence readiness regressed")
+    require(custody_results16.get("EVALUATION_PROTOCOL_READY") == "YES_SHADOW_BOUNDED", "Batch016 evaluation protocol regressed")
+    require(custody_results16.get("FIRST_SLICE_REAL_RAW_ARTIFACTS_MATERIALIZED") == "NO", "Batch016 falsely materialized raw source bodies")
+    require(custody_results16.get("IMPLEMENTATION_ADMITTED") == "NO", "Batch016 falsely admits implementation")
+    require(custody_results16.get("FULL_CONSTRAINT_RUN_READY") == "NO", "Batch016 falsely claims full-run readiness")
+    require(custody_results16.get("FIRST_SERIOUS_CONSTRAINT_RUN") == "BLOCKED", "Batch016 falsely claims serious-run readiness")
+
+    readiness16 = master16.get("readiness")
+    require(isinstance(readiness16, dict), "Batch016 master readiness missing")
+    require(readiness16["TYPED_CONFIDENCE_TRANSPORT_READY"].get("status") == "YES", "Batch016 master lost typed confidence")
+    require(readiness16["CONFIDENCE_READY"].get("status") == "YES_WITH_EXPLICIT_UNKNOWNS", "Batch016 master confidence regressed")
+    require(readiness16["EVALUATION_PROTOCOL_READY"].get("status") == "YES_SHADOW_BOUNDED", "Batch016 master evaluation protocol regressed")
+    require(readiness16["T1_T2_PERSISTED_CHAIN_OF_CUSTODY_READY"].get("status") == "YES", "Batch016 master lost custody readiness")
+    require(readiness16["FIRST_SLICE_RAW_ARTIFACTS_MATERIALIZED"].get("status") == "NO", "Batch016 master falsely materializes raw artifacts")
+    require(readiness16["IMPLEMENTATION_ADMITTED"].get("status") == "NO", "Batch016 master falsely admits implementation")
+    require(readiness16["FULL_CONSTRAINT_RUN_READY"].get("status") == "NO", "Batch016 master falsely claims full run ready")
+    require(master16.get("first_serious_constraint_run") == "BLOCKED", "Batch016 master falsely allows serious run")
+    require(master16.get("next_repo_executable_lane") == "FIRST-SLICE-REAL-OUTCOME-COVERAGE-EXPANSION", "Batch016 next repo lane drifted")
+
     manifest_members = sum(validate_manifest(path) for path in MANIFESTS)
+    manifest_members += validate_manifest(BATCH016_MANIFEST)
 
     print("CONSTRAINT_FIRST_SLICE_INTEGRATION_VALIDATION=PASS")
     print(f"SLICE_ID={SLICE_ID}")
@@ -456,8 +549,9 @@ def main() -> int:
     print("REQUIRED_FUNCTIONAL_CASES_COVERED=10")
     print("CANONICAL_CONSTRAINTS_MINTED=0")
     print("QUALIFIED_BENEFICIARIES_MINTED=0")
+    print("T1_T2_PERSISTED_CHAIN_OF_CUSTODY_READY=YES")
     print("FIRST_SERIOUS_CONSTRAINT_RUN=BLOCKED")
-    print("NEXT_REPO_EXECUTABLE_LANE=FIRST-SLICE-STRICT-ACCEPTANCE-GATE-AND-BLOCKER-REPORT")
+    print("NEXT_REPO_EXECUTABLE_LANE=FIRST-SLICE-REAL-OUTCOME-COVERAGE-EXPANSION")
     return 0
 
 
