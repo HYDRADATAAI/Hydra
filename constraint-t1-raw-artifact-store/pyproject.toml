@@ -1,6 +1,6 @@
 [project]
 name = "hydra-constraint-t1-raw-artifact-store"
-version = "0.1.0"
+version = "0.1.1"
 description = "Private immutable raw-artifact persistence for HYDRA Constraint T1"
 requires-python = ">=3.11"
 dependencies = []
