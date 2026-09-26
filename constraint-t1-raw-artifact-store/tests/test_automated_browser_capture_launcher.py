@@ -35,6 +35,12 @@ class AutomatedBrowserCaptureLauncherTests(unittest.TestCase):
         self.assertNotIn(r'D:\HYDRA_PRIVATE\constraint', self.launcher)
         self.assertNotIn(r'D:\HYDRA_PRIVATE\constraint', self.runner)
 
+    def test_launcher_bootstrap_does_not_import_playwright_as_native_probe(self):
+        self.assertNotIn('& $VenvPython -c "import playwright"', self.launcher)
+        self.assertIn('Lib\\site-packages\\playwright\\__init__.py', self.launcher)
+        self.assertIn('$PipExitCode = $LASTEXITCODE', self.launcher)
+        self.assertIn('$ErrorActionPreference = "Continue"', self.launcher)
+
     def test_runner_requires_authorization_even_when_invoked_directly(self):
         self.assertIn(
             'explicit --authorized-public-acquisition is required',
