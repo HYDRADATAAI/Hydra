@@ -1,5 +1,8 @@
 [CmdletBinding()]
 param(
+    [Parameter(Mandatory = $true)]
+    [switch]$AuthorizedPublicAcquisition,
+
     [ValidateSet("auto", "chrome", "msedge")]
     [string]$Browser = "auto",
 
@@ -11,7 +14,7 @@ param(
 
     [string]$RepoRoot,
 
-    [string]$PrivateRoot = "D:\HYDRA\_PRIVATE\constraint",
+    [string]$PrivateRoot = "D:\HYDRA_PRIVATE\constraint",
 
     [string]$BootstrapPython = "python",
 
@@ -66,6 +69,7 @@ if ($LASTEXITCODE -ne 0) {
 
 $Arguments = @(
     $Runner,
+    "--authorized-public-acquisition",
     "--repo-root", $RepoRoot,
     "--private-root", $PrivateRoot,
     "--browser", $Browser,
