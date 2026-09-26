@@ -1,0 +1,294 @@
+{
+  "schema_version": "hydra-constraint-second-slice-dependency-graph-seed/v1",
+  "record_id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH018_SEMICONDUCTOR_DEPENDENCY_GRAPH_SEED_V001",
+  "as_of": "2026-09-26",
+  "predecessor_batch": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH017",
+  "slice_id": "SEMICONDUCTOR_ADVANCED_PACKAGING_CRITICAL_MATERIALS_V1",
+  "graph_status": "REVIEWED_EVIDENCE_BACKED_SEED_PARTIAL_NOT_REPLAY_READY",
+  "cross_slice_predecessor_node_ids": [
+    "N-AI-COMPUTE-DEMAND"
+  ],
+  "nodes": [
+    "N-AI-COMPUTE-DEMAND",
+    "S2-COMP-NVIDIA",
+    "S2-COMP-TSMC",
+    "S2-COMP-MICRON",
+    "S2-COMP-SKHYNIX",
+    "S2-COMP-SAMSUNG",
+    "S2-COMP-ASML",
+    "S2-FAC-TSMC-ARIZONA-FIRST-FAB",
+    "S2-PROD-NVIDIA-H200",
+    "S2-PROD-HBM3E",
+    "S2-PROD-SAMSUNG-HBM3E12H",
+    "S2-TECH-TSMC-COWOS",
+    "S2-PROC-TSMC-N4",
+    "S2-EQUIP-ASML-NXT2050I",
+    "S2-EQUIP-ASML-NXT2100I",
+    "S2-CLASS-HBM",
+    "S2-GEO-ARIZONA-US",
+    "S2-GEO-PRC",
+    "S2-POL-BIS-2022-ADV-COMPUTE-SME",
+    "S2-POL-ASML-2024-LICENSE-REVOCATION",
+    "S2-POL-BIS-2024-HBM-SME"
+  ],
+  "edges": [
+    {
+      "edge_id": "S2-E001",
+      "from": "N-AI-COMPUTE-DEMAND",
+      "relation": "DRIVES_DEMAND_FOR",
+      "to": "S2-PROD-NVIDIA-H200",
+      "evidence_ids": [
+        "EV-S2-NVIDIA-H200-HBM3E"
+      ],
+      "status": "SUPPORTED_REVIEWED_SEED"
+    },
+    {
+      "edge_id": "S2-E002",
+      "from": "S2-PROD-NVIDIA-H200",
+      "relation": "REQUIRES_MEMORY_TYPE",
+      "to": "S2-PROD-HBM3E",
+      "evidence_ids": [
+        "EV-S2-NVIDIA-H200-HBM3E"
+      ],
+      "status": "SUPPORTED_REVIEWED_SEED"
+    },
+    {
+      "edge_id": "S2-E003",
+      "from": "S2-COMP-MICRON",
+      "relation": "VOLUME_PRODUCES",
+      "to": "S2-PROD-HBM3E",
+      "evidence_ids": [
+        "EV-S2-MICRON-HBM3E-VOLUME-H200"
+      ],
+      "status": "SUPPORTED_REVIEWED_SEED"
+    },
+    {
+      "edge_id": "S2-E004",
+      "from": "S2-PROD-HBM3E",
+      "relation": "SUPPLIED_FOR_PRODUCT",
+      "to": "S2-PROD-NVIDIA-H200",
+      "evidence_ids": [
+        "EV-S2-MICRON-HBM3E-VOLUME-H200"
+      ],
+      "status": "SUPPORTED_REVIEWED_SEED",
+      "scope": "MICRON_24GB_8H_HBM3E"
+    },
+    {
+      "edge_id": "S2-E005",
+      "from": "S2-COMP-SKHYNIX",
+      "relation": "VOLUME_PRODUCES",
+      "to": "S2-PROD-HBM3E",
+      "evidence_ids": [
+        "EV-S2-SKHYNIX-HBM3E-VOLUME"
+      ],
+      "status": "SUPPORTED_REVIEWED_SEED",
+      "qualification_state": "CUSTOMER_UNNAMED"
+    },
+    {
+      "edge_id": "S2-E006",
+      "from": "S2-COMP-SAMSUNG",
+      "relation": "DEVELOPED_PRODUCT",
+      "to": "S2-PROD-SAMSUNG-HBM3E12H",
+      "evidence_ids": [
+        "EV-S2-SAMSUNG-HBM3E12H-DEVELOPED"
+      ],
+      "status": "SUPPORTED_REVIEWED_SEED",
+      "qualification_state": "NOT_PROVEN_VOLUME_OR_NVIDIA_QUALIFIED"
+    },
+    {
+      "edge_id": "S2-E007",
+      "from": "S2-PROD-SAMSUNG-HBM3E12H",
+      "relation": "IS_A",
+      "to": "S2-PROD-HBM3E",
+      "evidence_ids": [
+        "EV-S2-SAMSUNG-HBM3E12H-DEVELOPED"
+      ],
+      "status": "SUPPORTED_REVIEWED_SEED"
+    },
+    {
+      "edge_id": "S2-E008",
+      "from": "S2-COMP-NVIDIA",
+      "relation": "USES_FOUNDRY_SUPPLIER",
+      "to": "S2-COMP-TSMC",
+      "evidence_ids": [
+        "EV-S2-NVIDIA-FY2024-SUPPLY-CHAIN"
+      ],
+      "status": "SUPPORTED_REVIEWED_SEED"
+    },
+    {
+      "edge_id": "S2-E009",
+      "from": "S2-COMP-NVIDIA",
+      "relation": "USES_FOUNDRY_SUPPLIER",
+      "to": "S2-COMP-SAMSUNG",
+      "evidence_ids": [
+        "EV-S2-NVIDIA-FY2024-SUPPLY-CHAIN"
+      ],
+      "status": "SUPPORTED_REVIEWED_SEED"
+    },
+    {
+      "edge_id": "S2-E010",
+      "from": "S2-COMP-NVIDIA",
+      "relation": "PURCHASES_MEMORY_FROM",
+      "to": "S2-COMP-MICRON",
+      "evidence_ids": [
+        "EV-S2-NVIDIA-FY2024-SUPPLY-CHAIN"
+      ],
+      "status": "SUPPORTED_REVIEWED_SEED"
+    },
+    {
+      "edge_id": "S2-E011",
+      "from": "S2-COMP-NVIDIA",
+      "relation": "PURCHASES_MEMORY_FROM",
+      "to": "S2-COMP-SKHYNIX",
+      "evidence_ids": [
+        "EV-S2-NVIDIA-FY2024-SUPPLY-CHAIN"
+      ],
+      "status": "SUPPORTED_REVIEWED_SEED"
+    },
+    {
+      "edge_id": "S2-E012",
+      "from": "S2-COMP-NVIDIA",
+      "relation": "PURCHASES_MEMORY_FROM",
+      "to": "S2-COMP-SAMSUNG",
+      "evidence_ids": [
+        "EV-S2-NVIDIA-FY2024-SUPPLY-CHAIN"
+      ],
+      "status": "SUPPORTED_REVIEWED_SEED"
+    },
+    {
+      "edge_id": "S2-E013",
+      "from": "S2-COMP-NVIDIA",
+      "relation": "USES_PACKAGING_TECHNOLOGY",
+      "to": "S2-TECH-TSMC-COWOS",
+      "evidence_ids": [
+        "EV-S2-NVIDIA-FY2024-SUPPLY-CHAIN"
+      ],
+      "status": "SUPPORTED_REVIEWED_SEED"
+    },
+    {
+      "edge_id": "S2-E014",
+      "from": "S2-COMP-TSMC",
+      "relation": "DEVELOPS_AND_PRODUCES",
+      "to": "S2-TECH-TSMC-COWOS",
+      "evidence_ids": [
+        "EV-S2-TSMC-COWOS-AI-2024"
+      ],
+      "status": "SUPPORTED_REVIEWED_SEED"
+    },
+    {
+      "edge_id": "S2-E015",
+      "from": "S2-COMP-TSMC",
+      "relation": "OPERATES",
+      "to": "S2-FAC-TSMC-ARIZONA-FIRST-FAB",
+      "evidence_ids": [
+        "EV-S2-TSMC-ARIZONA-PLAN-2023",
+        "EV-S2-TSMC-ARIZONA-HVM-4Q2024"
+      ],
+      "status": "SUPPORTED_REVIEWED_SEED"
+    },
+    {
+      "edge_id": "S2-E016",
+      "from": "S2-FAC-TSMC-ARIZONA-FIRST-FAB",
+      "relation": "HIGH_VOLUME_PRODUCTION_OF",
+      "to": "S2-PROC-TSMC-N4",
+      "evidence_ids": [
+        "EV-S2-TSMC-ARIZONA-HVM-4Q2024"
+      ],
+      "status": "SUPPORTED_REVIEWED_SEED",
+      "effective_from": "2024-Q4",
+      "available_at": null
+    },
+    {
+      "edge_id": "S2-E017",
+      "from": "S2-COMP-ASML",
+      "relation": "SUPPLIES_EQUIPMENT_CLASS",
+      "to": "S2-EQUIP-ASML-NXT2050I",
+      "evidence_ids": [
+        "EV-S2-ASML-LICENSE-REVOCATION"
+      ],
+      "status": "SUPPORTED_REVIEWED_SEED"
+    },
+    {
+      "edge_id": "S2-E018",
+      "from": "S2-COMP-ASML",
+      "relation": "SUPPLIES_EQUIPMENT_CLASS",
+      "to": "S2-EQUIP-ASML-NXT2100I",
+      "evidence_ids": [
+        "EV-S2-ASML-LICENSE-REVOCATION"
+      ],
+      "status": "SUPPORTED_REVIEWED_SEED"
+    },
+    {
+      "edge_id": "S2-E019",
+      "from": "S2-POL-ASML-2024-LICENSE-REVOCATION",
+      "relation": "AFFECTS_LICENSED_SHIPMENT_OF",
+      "to": "S2-EQUIP-ASML-NXT2050I",
+      "evidence_ids": [
+        "EV-S2-ASML-LICENSE-REVOCATION"
+      ],
+      "status": "SUPPORTED_REVIEWED_SEED"
+    },
+    {
+      "edge_id": "S2-E020",
+      "from": "S2-POL-ASML-2024-LICENSE-REVOCATION",
+      "relation": "AFFECTS_LICENSED_SHIPMENT_OF",
+      "to": "S2-EQUIP-ASML-NXT2100I",
+      "evidence_ids": [
+        "EV-S2-ASML-LICENSE-REVOCATION"
+      ],
+      "status": "SUPPORTED_REVIEWED_SEED"
+    },
+    {
+      "edge_id": "S2-E021",
+      "from": "S2-POL-BIS-2022-ADV-COMPUTE-SME",
+      "relation": "TARGETS_DESTINATION",
+      "to": "S2-GEO-PRC",
+      "evidence_ids": [
+        "EV-S2-BIS-2022-ADV-COMPUTE-SME"
+      ],
+      "status": "SUPPORTED_REVIEWED_SEED"
+    },
+    {
+      "edge_id": "S2-E022",
+      "from": "S2-PROD-HBM3E",
+      "relation": "IS_A",
+      "to": "S2-CLASS-HBM",
+      "evidence_ids": [
+        "EV-S2-BIS-2024-HBM-SME"
+      ],
+      "status": "SUPPORTED_REVIEWED_SEED"
+    },
+    {
+      "edge_id": "S2-E023",
+      "from": "S2-POL-BIS-2024-HBM-SME",
+      "relation": "CONTROLS_CERTAIN_ITEMS_IN_CLASS",
+      "to": "S2-CLASS-HBM",
+      "evidence_ids": [
+        "EV-S2-BIS-2024-HBM-SME"
+      ],
+      "status": "SUPPORTED_REVIEWED_SEED"
+    },
+    {
+      "edge_id": "S2-E024",
+      "from": "S2-POL-BIS-2024-HBM-SME",
+      "relation": "TARGETS_DESTINATION",
+      "to": "S2-GEO-PRC",
+      "evidence_ids": [
+        "EV-S2-BIS-2024-HBM-SME"
+      ],
+      "status": "SUPPORTED_REVIEWED_SEED"
+    }
+  ],
+  "cross_slice_path_proven_in_shadow": [
+    "N-AI-COMPUTE-DEMAND",
+    "S2-PROD-NVIDIA-H200",
+    "S2-PROD-HBM3E",
+    "S2-COMP-MICRON"
+  ],
+  "rules": [
+    "NO_SUPPORTED_EDGE_WITHOUT_REVIEWED_EVIDENCE_ID",
+    "SHADOW_EDGE_DOES_NOT_EQUAL_ORDINARY_T3_RELATIONSHIP",
+    "CROSS_SLICE_SEED_DOES_NOT_EQUAL_REPLAY_READY_GRAPH",
+    "SAMSUNG_DEVELOPMENT_DOES_NOT_IMPLY_VOLUME_OR_NVIDIA_QUALIFICATION"
+  ]
+}
