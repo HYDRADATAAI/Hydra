@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import hashlib
 import json
 from pathlib import Path
 from typing import Any
@@ -15,6 +16,7 @@ PATHS = {
     "status": SLICE / "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH018_SEMICONDUCTOR_SOURCE_AUTHORITY_FIRST_POPULATION_STATUS_V001_20260926.json",
     "required_cases": SLICE / "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH017_SEMICONDUCTOR_ADVANCED_PACKAGING_CRITICAL_MATERIALS_REQUIRED_CASE_MATRIX_V001_20260926.json",
     "master": ROOT / "docs" / "constraint" / "architecture" / "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH018_MASTER_STATUS_V001_20260926.json",
+    "manifest": ROOT / "docs" / "constraint" / "validation" / "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH018_ARTIFACT_MANIFEST_V001_20260926.json",
 }
 
 EXPECTED_SLICE = "SEMICONDUCTOR_ADVANCED_PACKAGING_CRITICAL_MATERIALS_V1"
@@ -34,6 +36,12 @@ def _fail(message: str) -> None:
 
 def _load(path: Path) -> dict[str, Any]:
     return json.loads(path.read_text(encoding="utf-8"))
+
+
+def _git_blob_sha(path: Path) -> str:
+    data = path.read_bytes()
+    header = b"blob " + str(len(data)).encode("ascii") + b"\\0"
+    return hashlib.sha1(header + data).hexdigest()
 
 
 def load_documents() -> dict[str, dict[str, Any]]:
@@ -57,6 +65,7 @@ def validate_documents(docs: dict[str, dict[str, Any]]) -> dict[str, Any]:
     status = docs["status"]
     required_cases = docs["required_cases"]
     master = docs["master"]
+    manifest = docs["manifest"]
 
     for name, doc in docs.items():
         if name != "required_cases" and doc.get("slice_id") not in (None, EXPECTED_SLICE):
@@ -254,6 +263,41 @@ def validate_documents(docs: dict[str, dict[str, Any]]) -> dict[str, Any]:
         _fail("master: replay readiness escaped NO")
     if readiness.get("FULL_CONSTRAINT_RUN_READY", {}).get("status") != "NO":
         _fail("master: full Constraint run escaped NO")
+
+    if manifest.get("result") != "PASS_REVIEWED_SOURCE_AUTHORITY_AND_FIRST_POPULATION_SHADOW_ONLY":
+        _fail("manifest: result drift")
+    expected_manifest = manifest.get("expected", {})
+    if expected_manifest.get("source_count") != EXPECTED_SOURCE_COUNT:
+        _fail("manifest: source count drift")
+    if expected_manifest.get("evidence_observation_count") != EXPECTED_EVIDENCE_COUNT:
+        _fail("manifest: evidence count drift")
+    if expected_manifest.get("dependency_edge_count") != EXPECTED_EDGE_COUNT:
+        _fail("manifest: edge count drift")
+    if expected_manifest.get("ordinary_t3_eligible") is not False:
+        _fail("manifest: ordinary T3 eligibility promoted")
+    if expected_manifest.get("strict_original_as_of_ready") is not False:
+        _fail("manifest: strict original-as-of readiness promoted")
+    if expected_manifest.get("historical_replay") != "BLOCKED":
+        _fail("manifest: historical replay promoted")
+    if expected_manifest.get("required_cases_covered") != 0:
+        _fail("manifest: required-case coverage promoted")
+    if expected_manifest.get("first_semiconductor_run") != "BLOCKED":
+        _fail("manifest: first semiconductor run promoted")
+
+    manifest_paths = set()
+    for artifact in manifest.get("artifacts", []):
+        rel = artifact.get("path")
+        expected_sha = artifact.get("git_blob_sha")
+        if not isinstance(rel, str) or not isinstance(expected_sha, str):
+            _fail("manifest: malformed artifact entry")
+        if rel in manifest_paths:
+            _fail(f"manifest: duplicate artifact path {rel}")
+        manifest_paths.add(rel)
+        artifact_path = ROOT / rel
+        if not artifact_path.is_file():
+            _fail(f"manifest: missing artifact {rel}")
+        if _git_blob_sha(artifact_path) != expected_sha:
+            _fail(f"manifest: blob pin mismatch for {rel}")
 
     return {
         "source_count": len(source_rows),
