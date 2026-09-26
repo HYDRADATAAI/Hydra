@@ -26,6 +26,29 @@ class SemiconductorRegistryTests(unittest.TestCase):
             with self.subTest(field=field), self.assertRaises(capture.CaptureError):
                 capture.validate_registry(registry, slice_id=SLICE, source_count=20)
 
+    def test_pass012_resumes_six_pass009_captures(self):
+        folder = ROOT / 'docs/constraint/implementation'
+        old = json.loads((folder / 'HYDRA_CONSTRAINT_SEMICONDUCTOR_PASS009_CAPTURE_REGISTRY_20260926.json').read_text())
+        new = json.loads((folder / 'HYDRA_CONSTRAINT_SEMICONDUCTOR_PASS012_CAPTURE_REGISTRY_20260926.json').read_text())
+        capture.validate_registry(new, slice_id=SLICE, source_count=20)
+        self.assertEqual(old['sources'][:6], new['sources'][:6])
+        self.assertEqual(old['sources'][7:], new['sources'][7:])
+        changed = dict(new['sources'][6], url=old['sources'][6]['url'])
+        self.assertEqual(changed, old['sources'][6])
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            entries = []
+            for index, source in enumerate(old['sources'][:6]):
+                body = b'<html>' + b'synthetic body ' * 100 + b'</html>'
+                path = root / f'{index}.html'
+                path.write_bytes(body)
+                row = capture.CapturedDocument(source['source_id'], source['url'], 'SV-SYNTHETIC-' + str(index), capture.utc_timestamp(), 200, 'text/html', len(body), hashlib.sha256(body).hexdigest(), path, 'PLAYWRIGHT_INSTALLED_BROWSER_MAIN_DOCUMENT', 'chrome', (source['url'],))
+                entries.append(capture._capture_metadata(row))
+            journal_path = root / 'journal.json'
+            journal_path.write_text(json.dumps(dict(schema_version=capture.CAPTURE_JOURNAL_SCHEMA, slice_id=SLICE, authoritative=False, t1_release_written=False, capture_dir=str(root), entries=entries)))
+            _, _, resumed = capture._load_resume_journal(journal_path=journal_path, sources=new['sources'], public_repo_root=ROOT, slice_id=SLICE)
+            self.assertEqual(len(resumed), 6)
+
     def test_synthetic_capture_reaches_existing_materializer_only(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
