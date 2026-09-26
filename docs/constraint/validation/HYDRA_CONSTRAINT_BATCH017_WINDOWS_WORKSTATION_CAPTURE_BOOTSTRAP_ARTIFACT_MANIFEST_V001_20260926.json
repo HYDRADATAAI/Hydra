@@ -1,0 +1,58 @@
+{
+  "schema_version": "hydra-constraint-batch017-windows-workstation-capture-bootstrap-manifest/v1",
+  "record_id": "HYDRA_CONSTRAINT_BATCH017_WINDOWS_WORKSTATION_CAPTURE_BOOTSTRAP_ARTIFACT_MANIFEST_V001_20260926",
+  "as_of": "2026-09-26",
+  "repository": "HYDRADATAAI/Hydra",
+  "branch": "constraint/t1-windows-workstation-bootstrap-20260926",
+  "stacked_on_pr": 65,
+  "rebased_on_capture_head": "0ef8dfb1a0be9c78a7fde88d523b65b08671404e",
+  "purpose": "FROM_ANYWHERE_WINDOWS_REPO_VALIDATION_BRANCH_FAST_FORWARD_AND_CANONICAL_CAPTURE_INVOCATION",
+  "raw_source_bodies_published": false,
+  "capture_plan_created": false,
+  "t1_object_created": false,
+  "t1_receipt_created": false,
+  "t1_release_created": false,
+  "ordinary_replay_promoted": false,
+  "canonical_admission_promoted": false,
+  "artifacts": [
+    {
+      "path": "tools/private/Start-HYDRAConstraintFirstSliceCaptureFromAnywhere_V001_20260926.ps1",
+      "git_blob_sha": "fe016c3bfb36a1bfb4652c12840a8fb56dff37e2"
+    },
+    {
+      "path": "constraint-t1-raw-artifact-store/tests/test_windows_workstation_bootstrap.py",
+      "git_blob_sha": "7d9eddee6cb4b6b3b77cd63dbb676386fb4f4e3a"
+    },
+    {
+      "path": ".github/workflows/constraint-t1-raw-artifact-store.yml",
+      "git_blob_sha": "dce091857590cfbecaf9564b6d776ef75b0bbeb8"
+    },
+    {
+      "path": "docs/constraint/validation/HYDRA_CONSTRAINT_BATCH017_T1_PRIVATE_RECORD_BROWSER_ACQUISITION_AND_WORKSTATION_BOOTSTRAP_SUPERSESSION_MAP_V003_20260926.json",
+      "git_blob_sha": "40fbe1080908ab30ae0ff15e2a5a0a4e50998bf6"
+    },
+    {
+      "path": "tools/validate_constraint_first_slice_successor.py",
+      "git_blob_sha": "e301f331183cde3d12721e60090851d93efe6c7b"
+    },
+    {
+      "path": "docs/constraint/implementation/HYDRA_CONSTRAINT_BATCH017_WINDOWS_WORKSTATION_FROM_ANYWHERE_CAPTURE_BOOTSTRAP_V001_20260926.md",
+      "git_blob_sha": "4ad61ce66cab92ccf0e9615a68d2c9a7765ad7ec"
+    },
+    {
+      "path": "docs/constraint/architecture/HYDRA_CONSTRAINT_BATCH017_WINDOWS_WORKSTATION_CAPTURE_BOOTSTRAP_STATUS_V001_20260926.json",
+      "git_blob_sha": "0728c13dcc494daa1bf9f39d7ed17016b0468ac4"
+    }
+  ],
+  "expected": {
+    "default_repo_root": "D:\\HYDRA_GITHUB\\Hydra",
+    "expected_remote_repository": "HYDRADATAAI/Hydra",
+    "canonical_capture_branch": "constraint/t1-private-capture-execution-packet-20260926",
+    "tracked_worktree_clean_required": true,
+    "update_mode": "FETCH_PLUS_FAST_FORWARD_ONLY",
+    "canonical_capture_script_required": true,
+    "explicit_capture_authorization_required": true,
+    "bootstrap_creates_t1_authority": false,
+    "powershell_syntax_ci_required": true
+  }
+}
