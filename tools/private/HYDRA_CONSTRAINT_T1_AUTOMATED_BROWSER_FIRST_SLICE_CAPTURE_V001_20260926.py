@@ -627,7 +627,7 @@ def build_parser() -> argparse.ArgumentParser:
     )
     parser.add_argument("--repo-root", default=str(default_repo))
     parser.add_argument("--authorized-public-acquisition", action="store_true")
-    parser.add_argument("--private-root", default=r"D:\HYDRA_PRIVATE\constraint")
+    parser.add_argument("--private-root", default=r"D:\HYDRA\_PRIVATE\constraint")
     parser.add_argument("--browser", choices=("auto", "chrome", "msedge"), default="auto")
     parser.add_argument("--headless", action="store_true")
     parser.add_argument("--challenge-wait-seconds", type=int, default=180)
