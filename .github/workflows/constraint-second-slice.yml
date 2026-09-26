@@ -8,8 +8,10 @@ on:
       - "docs/constraint/architecture/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH018_MASTER_STATUS_V001_20260926.json"
       - "docs/constraint/architecture/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH019_*.json"
       - "docs/constraint/architecture/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH020_*.json"
+      - "docs/constraint/architecture/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH021_*.json"
       - "docs/constraint/validation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH019_*"
       - "docs/constraint/validation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH020_*"
+      - "docs/constraint/validation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH021_*"
       - "tools/validate_constraint_second_slice_batch017_audit.py"
       - "tools/test_constraint_second_slice_batch017_audit_adversarial.py"
       - "tools/validate_constraint_second_slice_batch018_population.py"
@@ -18,6 +20,8 @@ on:
       - "tools/test_constraint_second_slice_batch019_facility_material_equipment_adversarial.py"
       - "tools/validate_constraint_second_slice_batch020_policy_outcomes_cases.py"
       - "tools/test_constraint_second_slice_batch020_policy_outcomes_cases_adversarial.py"
+      - "tools/validate_constraint_second_slice_batch021_beneficiary_substitution_power.py"
+      - "tools/test_constraint_second_slice_batch021_beneficiary_substitution_power_adversarial.py"
       - ".github/workflows/constraint-second-slice.yml"
   push:
     branches:
@@ -28,8 +32,10 @@ on:
       - "docs/constraint/architecture/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH018_MASTER_STATUS_V001_20260926.json"
       - "docs/constraint/architecture/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH019_*.json"
       - "docs/constraint/architecture/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH020_*.json"
+      - "docs/constraint/architecture/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH021_*.json"
       - "docs/constraint/validation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH019_*"
       - "docs/constraint/validation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH020_*"
+      - "docs/constraint/validation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH021_*"
       - "tools/validate_constraint_second_slice_batch017_audit.py"
       - "tools/test_constraint_second_slice_batch017_audit_adversarial.py"
       - "tools/validate_constraint_second_slice_batch018_population.py"
@@ -38,6 +44,8 @@ on:
       - "tools/test_constraint_second_slice_batch019_facility_material_equipment_adversarial.py"
       - "tools/validate_constraint_second_slice_batch020_policy_outcomes_cases.py"
       - "tools/test_constraint_second_slice_batch020_policy_outcomes_cases_adversarial.py"
+      - "tools/validate_constraint_second_slice_batch021_beneficiary_substitution_power.py"
+      - "tools/test_constraint_second_slice_batch021_beneficiary_substitution_power_adversarial.py"
       - ".github/workflows/constraint-second-slice.yml"
 
 permissions:
@@ -67,3 +75,7 @@ jobs:
         run: python tools/validate_constraint_second_slice_batch020_policy_outcomes_cases.py
       - name: Run Batch020 hostile matrix
         run: python tools/test_constraint_second_slice_batch020_policy_outcomes_cases_adversarial.py
+      - name: Validate Batch021 beneficiary substitution power depth
+        run: python tools/validate_constraint_second_slice_batch021_beneficiary_substitution_power.py
+      - name: Run Batch021 hostile matrix
+        run: python tools/test_constraint_second_slice_batch021_beneficiary_substitution_power_adversarial.py

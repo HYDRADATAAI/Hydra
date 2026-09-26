@@ -1,0 +1,157 @@
+{
+  "schema_version": "hydra-constraint-second-slice-source-registry-extension/v1",
+  "record_id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH021_SEMICONDUCTOR_VALID_BENEFICIARY_SUBSTITUTION_MIGRATION_POWER_SOURCE_REGISTRY_V001",
+  "as_of": "2026-09-26",
+  "slice_id": "SEMICONDUCTOR_ADVANCED_PACKAGING_CRITICAL_MATERIALS_V1",
+  "predecessor_source_registry": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH020_SEMICONDUCTOR_POLICY_SUBSTITUTION_OUTCOME_SOURCE_REGISTRY_EXTENSION_V001",
+  "capture_mode": "CURRENT_REVIEW_CONSERVATIVE_AVAILABILITY",
+  "capture_completed_at": "2026-09-26T21:47:26Z",
+  "source_content_persisted": false,
+  "reused_source_ids": [
+    "SRC-SEMI-MICRON-Q2FY25-REMARKS-2025-03-20",
+    "SRC-SEMI-TSMC-Q1-2025-TRANSCRIPT-2025-04-17",
+    "SRC-SEMI-B020-SAMSUNG-HBM3E12H-2024-02-27",
+    "SRC-SEMI-B020-SAMSUNG-Q1-2024-RESULTS-2024-04-30"
+  ],
+  "sources": [
+    {
+      "source_id": "SRC-SEMI-B021-MICRON-Q3FY24-REMARKS-2024-06-26",
+      "publisher": "Micron Technology",
+      "title": "Fiscal Q3 2024 Earnings Call Prepared Remarks",
+      "url": "https://investors.micron.com/static-files/4550f98c-1054-4847-a929-c17d520a0564",
+      "publication_date": "2024-06-26",
+      "publication_date_precision": "DAY",
+      "source_family": "COMPANY_EARNINGS_AND_PREPARED_REMARKS",
+      "roles": [
+        "HBM_REVENUE_CAPTURE",
+        "HBM_MARGIN_CAPTURE",
+        "HBM_BOOKING"
+      ],
+      "acquired_at": "2026-09-26T21:47:26Z",
+      "available_at": "2026-09-26T21:47:26Z",
+      "availability_basis": "HYDRA_FIRST_DEFENSIBLE_CURRENT_REVIEW",
+      "ordinary_raw_lineage_eligible": false
+    },
+    {
+      "source_id": "SRC-SEMI-B021-MICRON-Q3FY25-REMARKS-2025-06-25",
+      "publisher": "Micron Technology",
+      "title": "Fiscal Q3 2025 Earnings Call Prepared Remarks",
+      "url": "https://investors.micron.com/static-files/39bb28c4-dd18-4097-a1fe-e5eb4956bcfc",
+      "publication_date": "2025-06-25",
+      "publication_date_precision": "DAY",
+      "source_family": "COMPANY_EARNINGS_AND_PREPARED_REMARKS",
+      "roles": [
+        "HBM_HIGH_VOLUME_SHIPMENTS",
+        "HBM_YIELD_RAMP",
+        "AMD_DESIGN_IN",
+        "CUSTOMER_COUNT"
+      ],
+      "acquired_at": "2026-09-26T21:47:26Z",
+      "available_at": "2026-09-26T21:47:26Z",
+      "availability_basis": "HYDRA_FIRST_DEFENSIBLE_CURRENT_REVIEW",
+      "ordinary_raw_lineage_eligible": false
+    },
+    {
+      "source_id": "SRC-SEMI-B021-MICRON-Q4FY25-REMARKS-2025-09-23",
+      "publisher": "Micron Technology",
+      "title": "Fiscal Q4 2025 Earnings Call Prepared Remarks",
+      "url": "https://investors.micron.com/static-files/5ea95475-639b-4cfc-91fd-b9b4a2bb5e63",
+      "publication_date": "2025-09-23",
+      "publication_date_precision": "DAY",
+      "source_family": "COMPANY_EARNINGS_AND_PREPARED_REMARKS",
+      "roles": [
+        "HBM_REVENUE_CAPTURE",
+        "HBM_CUSTOMER_EXPANSION",
+        "DATA_CENTER_REVENUE",
+        "HBM_2026_BOOKING"
+      ],
+      "acquired_at": "2026-09-26T21:47:26Z",
+      "available_at": "2026-09-26T21:47:26Z",
+      "availability_basis": "HYDRA_FIRST_DEFENSIBLE_CURRENT_REVIEW",
+      "ordinary_raw_lineage_eligible": false
+    },
+    {
+      "source_id": "SRC-SEMI-B021-AMD-SAMSUNG-HBM3E-PARTNERSHIP-2026-03-18",
+      "publisher": "AMD",
+      "title": "Samsung, AMD Expand Strategic Collaboration on Next-Generation AI Memory Solutions",
+      "url": "https://newsroom.amd.com/news/samsung-and-amd-expand-strategic-collaboratio/",
+      "publication_date": "2026-03-18",
+      "publication_date_precision": "DAY",
+      "source_family": "CUSTOMER_OR_PLATFORM_PRIMARY_SOURCE",
+      "roles": [
+        "HBM3E_CUSTOMER_PLATFORM_QUALIFICATION",
+        "HBM_SUPPLIER_SUBSTITUTION",
+        "AMD_MI350X_MI355X"
+      ],
+      "acquired_at": "2026-09-26T21:47:26Z",
+      "available_at": "2026-09-26T21:47:26Z",
+      "availability_basis": "HYDRA_FIRST_DEFENSIBLE_CURRENT_REVIEW",
+      "ordinary_raw_lineage_eligible": false
+    },
+    {
+      "source_id": "SRC-SEMI-B021-APS-BISCUIT-FLATS-TSMC-2021-06",
+      "publisher": "Arizona Public Service",
+      "title": "Biscuit Flats 500/230kV Line Relocation Project — Supplement to Application to Amend",
+      "url": "https://www.aps.com/-/media/APS/APSCOM-PDFs/About/Construction-and-Power-Line-Siting/Power-Line-Siting/Power-Line-Siting-Projects/Biscuit-Flats/Biscuit_Flats_20210611.pdf",
+      "publication_date": "2021-06",
+      "publication_date_precision": "MONTH",
+      "source_family": "UTILITY_INFRASTRUCTURE_PRIMARY_RECORD",
+      "roles": [
+        "TSMC_ARIZONA_FACILITY",
+        "TRANSMISSION",
+        "SUBSTATION",
+        "ELECTRIC_POWER_DEPENDENCY"
+      ],
+      "acquired_at": "2026-09-26T21:47:26Z",
+      "available_at": "2026-09-26T21:47:26Z",
+      "availability_basis": "HYDRA_FIRST_DEFENSIBLE_CURRENT_REVIEW",
+      "ordinary_raw_lineage_eligible": false
+    },
+    {
+      "source_id": "SRC-SEMI-B021-AZCC-TSMC-POWER-ORDER-2021-09-09",
+      "publisher": "Arizona Corporation Commission",
+      "title": "Commission Approves APS Decision Amendment Allowing Substation Expansion and Transmission Line Relocation for Semiconductor Plant",
+      "url": "https://azcc.gov/es/news/noticias/2021/09/09/puntos-destacados-de-la-reuni%C3%B3n-abierta-de-septiembre-de-la-comisi%C3%B3n-de-corporaciones-de-arizona",
+      "publication_date": "2021-09-09",
+      "publication_date_precision": "DAY",
+      "source_family": "GOVERNMENT_OR_REGULATOR",
+      "roles": [
+        "TSMC_ARIZONA_FACILITY",
+        "POWER_DEMAND",
+        "TRANSMISSION",
+        "SUBSTATION_APPROVAL"
+      ],
+      "acquired_at": "2026-09-26T21:47:26Z",
+      "available_at": "2026-09-26T21:47:26Z",
+      "availability_basis": "HYDRA_FIRST_DEFENSIBLE_CURRENT_REVIEW",
+      "ordinary_raw_lineage_eligible": false
+    },
+    {
+      "source_id": "SRC-SEMI-B021-MICRON-Q1FY26-REMARKS-2025-12-17",
+      "publisher": "Micron Technology",
+      "title": "Fiscal Q1 2026 Earnings Call Prepared Remarks",
+      "url": "https://investors.micron.com/static-files/088991c5-a249-4f66-a0a6-258d9b66f3f9",
+      "publication_date": "2025-12-17",
+      "publication_date_precision": "DAY",
+      "source_family": "COMPANY_EARNINGS_AND_PREPARED_REMARKS",
+      "roles": [
+        "MEMORY_SUPPLY_CONSTRAINT",
+        "HBM_TRADE_RATIO",
+        "CLEANROOM_CAPACITY",
+        "CAPACITY_LEAD_TIME"
+      ],
+      "acquired_at": "2026-09-26T21:47:26Z",
+      "available_at": "2026-09-26T21:47:26Z",
+      "availability_basis": "HYDRA_FIRST_DEFENSIBLE_CURRENT_REVIEW",
+      "ordinary_raw_lineage_eligible": false
+    }
+  ],
+  "rules": [
+    "CURRENT_REVIEW_DOES_NOT_CREATE_HISTORICAL_RAW_LINEAGE",
+    "PUBLICATION_DATE_DOES_NOT_EQUAL_HYDRA_AVAILABLE_AT",
+    "ECONOMIC_CAPTURE_DOES_NOT_AUTOMATICALLY_CANONICALLY_QUALIFY_BENEFICIARY",
+    "TARGET_SPECIFIC_DEPLOYMENT_CAN_PROVE_TECHNICAL_QUALIFICATION_WITHOUT_PROVING_SPARE_CAPACITY",
+    "POWER_DEPENDENCY_DOES_NOT_AUTOMATICALLY_CREATE_POWER_CONSTRAINT",
+    "FORWARD_EXPECTED_RELIEF_DOES_NOT_PROVE_CONSTRAINT_MIGRATION"
+  ]
+}
