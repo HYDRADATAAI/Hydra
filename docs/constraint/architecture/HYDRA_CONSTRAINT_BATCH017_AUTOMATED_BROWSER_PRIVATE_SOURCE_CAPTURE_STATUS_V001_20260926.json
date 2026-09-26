@@ -21,7 +21,11 @@
     "challenge_bypass": false,
     "historical_available_at_backdating": false,
     "canonical_t5_t6_promotion": false,
-    "post_capture_sanitized_status_builder_reused": true
+    "post_capture_sanitized_status_builder_reused": true,
+    "explicit_operator_authorization_required": true,
+    "private_root": "D:\\HYDRA_PRIVATE\\constraint",
+    "browser_session_material_exported": false,
+    "post_capture_sanitized_status_builder_invoked": true
   },
   "fail_closed_on": [
     "WRONG_URL",
