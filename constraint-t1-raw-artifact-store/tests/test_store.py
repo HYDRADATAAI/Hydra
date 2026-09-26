@@ -110,6 +110,41 @@ class RawArtifactStoreTests(unittest.TestCase):
         tampered["available_at"] = "2025-01-01T00:00:00Z"
         self.assertIn("receipt_digest_invalid", self.store.validate_receipt(tampered))
 
+    def _symlink(self, link: Path, target: Path) -> None:
+        target.mkdir(parents=True, exist_ok=True)
+        try:
+            link.symlink_to(target, target_is_directory=True)
+        except (OSError, NotImplementedError) as exc:
+            self.skipTest(f"directory symlinks unavailable: {exc}")
+
+    def test_symlinked_object_tree_into_public_repo_is_rejected(self):
+        self._symlink(self.private_root / "objects", self.repo / "escaped-objects")
+        with self.assertRaises(PublicRepositoryRootError):
+            self.persist()
+        self.assertEqual(list((self.repo / "escaped-objects").rglob("*.raw")), [])
+
+    def test_symlinked_receipt_tree_into_public_repo_is_rejected(self):
+        self._symlink(self.private_root / "receipts", self.repo / "escaped-receipts")
+        with self.assertRaises(PublicRepositoryRootError):
+            self.persist()
+        self.assertEqual(list((self.repo / "escaped-receipts").rglob("*.json")), [])
+
+    def test_symlinked_release_tree_into_public_repo_is_rejected(self):
+        receipt = self.persist()
+        self._symlink(self.private_root / "releases", self.repo / "escaped-releases")
+        with self.assertRaises(PublicRepositoryRootError):
+            self.store.write_release_manifest(
+                release_id="REL-SYMLINK",
+                created_at=self.when,
+                receipts=[receipt],
+            )
+        self.assertEqual(list((self.repo / "escaped-releases").rglob("*.json")), [])
+
+    def test_symlinked_object_tree_outside_private_root_is_rejected(self):
+        self._symlink(self.private_root / "objects", self.base / "escaped-private-root")
+        with self.assertRaises(PublicRepositoryRootError):
+            self.persist()
+
 
 if __name__ == "__main__":
     unittest.main()
