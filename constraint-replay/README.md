@@ -88,6 +88,31 @@ The targeted evidence queue is:
 
 It narrows the next outcome-evidence pass to Suez, Black Sea grain and Wilhelmshaven rather than enriching every case indiscriminately.
 
+## Quantitative outcome enrichment
+
+`corpus/HYDRA_CONSTRAINT_REPLAY_OUTCOME_ENRICHMENT_BATCH007_20260926.json` deepens the three Batch 006 candidates without rewriting the immutable replay-ready corpus.
+
+The enrichment adds:
+
+- publisher-independent historical hypothesis sources;
+- source-digested quantitative outcome metrics;
+- time-series data where available;
+- hypothesis-before-outcome timing checks;
+- explicit publisher-separation checks between hypothesis and outcome evidence.
+
+The updated promotion audit is:
+
+`corpus/HYDRA_CONSTRAINT_REPLAY_PROMOTION_AUDIT_BATCH007_20260926.json`
+
+Current state after enrichment:
+
+- 3 cases with independent historical hypothesis provenance;
+- 3 cases with quantitative scorable-candidate outcome evidence;
+- 0 cases with historical confidence provenance;
+- 0 scored-gold eligible cases.
+
+The remaining blockers are intentional: no case receives a synthetic confidence value or a hindsight outcome class.
+
 ## Run
 
 ```bash
@@ -103,11 +128,10 @@ Upstream Constraint domains emit provenance-bearing evidence with stable evidenc
 
 ## Next integration gate
 
-Deepen the replay-ready corpus with:
-- independent historical hypotheses where available;
-- outcome-side quantitative evidence;
-- contradictions and revisions;
-- repeated replay cuts around material state transitions;
+Continue only where evidence closes a real blocker:
+- historical confidence/probability provenance for the three enriched candidates;
+- audited outcome-class mapping rules declared before score assignment;
+- additional quantitative outcome series where they improve causal discrimination;
 - promotion of only defensible cases into scored gold.
 
 The target remains a serious 20–40+ **scored** historical-case corpus, but replay-ready source count alone is not treated as equivalent to scored gold.
