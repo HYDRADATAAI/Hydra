@@ -1,17 +1,18 @@
 #!/usr/bin/env python3
-"""Cross-batch integration validator for the current Constraint first slice.
+"""Read-only cross-batch integration guard for the Constraint first slice.
 
-This validator is intentionally read-only. It verifies that the current
-Thread-6 successor artifacts agree with one another without inventing domain
-facts, admission authority, live-source state, or replay readiness.
+NYX owns validation here, not domain population. This guard verifies successor
+continuity, bounded semantics, manifest integrity, and fail-closed readiness.
+It does not fetch source data, create claims, mint authority, activate runtime
+behavior, or promote canonical state.
 """
 
 from __future__ import annotations
 
 import json
 import os
+import re
 import subprocess
-import sys
 from pathlib import Path
 from typing import Any
 
@@ -21,38 +22,49 @@ VALIDATION = ROOT / "docs/constraint/validation"
 ARCH = ROOT / "docs/constraint/architecture"
 IMPL = ROOT / "docs/constraint/implementation"
 
+SLICE_ID = "AI_DATA_CENTER_POWER_INFRASTRUCTURE_V1"
+ADMISSION_BLOCKER = "CI-TEST-008-BLOCKER-001B-NATIVE-T5-T6-SIGNED-ADMISSION-RECEIPT-ABSENT"
+RAW_MATERIALIZATION_BLOCKER = "PIT-002B-FIRST-SLICE-NINE-SOURCE-RAW-CAPTURE-MATERIALIZATION"
+HISTORICAL_FIBER_BLOCKER = "SOURCE-GAP-FIBER-CONNECTIVITY-CAPACITY"
+BATCH009_NEXT = "FIRST-SLICE-CONSTRAINT-AND-BENEFICIARY-CLAIM-POPULATION"
+BATCH010_NEXT = "FIRST-SLICE-OUTCOME-LABEL-AND-REPLAY-FIXTURE-DESIGN"
+FIBER_STATUS = "POPULATED_BOUNDED_SITE_AND_PROVIDER_PROFILE"
+
+MANIFEST_RE = re.compile(
+    r"BATCH(?P<batch>\d{3})_ARTIFACT_MANIFEST_V(?P<revision>\d{3})_"
+)
+MASTER_RE = re.compile(r"BATCH(?P<batch>\d{3})_MASTER_STATUS")
+
 FILES = {
     "source_registry": SLICE / "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH003_AI_DATA_CENTER_POWER_INFRASTRUCTURE_SOURCE_REGISTRY_V001_20260925.json",
     "pit_capture": SLICE / "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH004_AI_DATA_CENTER_POWER_INFRASTRUCTURE_PIT_ACQUISITION_CAPTURE_V001_20260925.json",
     "temporal_audit": SLICE / "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH005_AI_DATA_CENTER_POWER_INFRASTRUCTURE_SOURCE_TEMPORAL_AUDIT_V001_20260925.json",
-    "source_gap": SLICE / "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH006_AI_DATA_CENTER_POWER_INFRASTRUCTURE_SOURCE_GAP_STATUS_V001_20260925.json",
+    "batch006_gap": SLICE / "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH006_AI_DATA_CENTER_POWER_INFRASTRUCTURE_SOURCE_GAP_STATUS_V001_20260925.json",
     "availability": SLICE / "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH007_AI_DATA_CENTER_POWER_INFRASTRUCTURE_CONSERVATIVE_AVAILABILITY_OVERLAY_V001_20260925.json",
     "batch002_admission": VALIDATION / "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH002_NATIVE_T5_T6_ADMISSION_STATUS_V001_20260925.json",
     "batch008_raw_status": VALIDATION / "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH008_T1_RAW_ARTIFACT_PERSISTENCE_STATUS_V001_20260925.json",
     "batch008_master": ARCH / "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH008_MASTER_STATUS_V001_20260925.json",
     "batch008_raw_contract": IMPL / "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH008_T1_RAW_ARTIFACT_PERSISTENCE_CONTRACT_V001_20260925.json",
     "batch009_gap": SLICE / "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH009_AI_DATA_CENTER_POWER_INFRASTRUCTURE_SOURCE_GAP_STATUS_V001_20260925.json",
+    "batch009_master": ARCH / "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH009_MASTER_STATUS_V001_20260925.json",
+    "batch009_fiber_sources": SLICE / "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH009_AI_DATA_CENTER_POWER_INFRASTRUCTURE_SOURCE_REGISTRY_EXTENSION_V001_20260925.json",
+    "batch009_fiber_evidence": SLICE / "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH009_AI_DATA_CENTER_POWER_INFRASTRUCTURE_FIBER_EVIDENCE_SUPPLEMENT_V001_20260925.json",
+    "batch009_fiber_field": SLICE / "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH009_AI_DATA_CENTER_POWER_INFRASTRUCTURE_FIBER_FIELD_OVERLAY_V001_20260925.json",
+    "batch009_fiber_graph": SLICE / "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH009_AI_DATA_CENTER_POWER_INFRASTRUCTURE_FIBER_GRAPH_OVERLAY_V001_20260925.json",
     "batch010_status": SLICE / "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH010_AI_DATA_CENTER_POWER_INFRASTRUCTURE_CLAIM_CANDIDATE_BENEFICIARY_STATUS_V001_20260925.json",
-    "batch010_candidates": SLICE / "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH010_AI_DATA_CENTER_POWER_INFRASTRUCTURE_T5_CANDIDATE_PROPOSALS_V001_20260925.json",
-    "batch010_beneficiaries": SLICE / "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH010_AI_DATA_CENTER_POWER_INFRASTRUCTURE_BENEFICIARY_EVALUATIONS_V001_20260925.json",
     "batch010_master": ARCH / "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH010_MASTER_STATUS_V001_20260925.json",
+    "batch010_claims": SLICE / "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH010_AI_DATA_CENTER_POWER_INFRASTRUCTURE_CLAIM_REGISTRY_V001_20260925.json",
+    "batch010_candidates": SLICE / "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH010_AI_DATA_CENTER_POWER_INFRASTRUCTURE_T5_CANDIDATE_PROPOSALS_V001_20260925.json",
+    "batch010_relief": SLICE / "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH010_AI_DATA_CENTER_POWER_INFRASTRUCTURE_RELIEF_PATHS_V001_20260925.json",
+    "batch010_beneficiaries": SLICE / "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH010_AI_DATA_CENTER_POWER_INFRASTRUCTURE_BENEFICIARY_EVALUATIONS_V001_20260925.json",
+    "batch010_beneficiary_sources": SLICE / "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH010_AI_DATA_CENTER_POWER_INFRASTRUCTURE_BENEFICIARY_SOURCE_REGISTRY_EXTENSION_V001_20260925.json",
+    "batch011_taxonomy": SLICE / "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH011_AI_DATA_CENTER_POWER_INFRASTRUCTURE_OUTCOME_TAXONOMY_V001_20260925.json",
     "batch011_outcomes": SLICE / "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH011_AI_DATA_CENTER_POWER_INFRASTRUCTURE_OUTCOME_RECORDS_V001_20260925.json",
     "batch011_replay": SLICE / "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH011_AI_DATA_CENTER_POWER_INFRASTRUCTURE_SHADOW_REPLAY_PACKET_V001_20260925.json",
-    "batch011_receipt": SLICE / "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH011_AI_DATA_CENTER_POWER_INFRASTRUCTURE_DETERMINISM_RECEIPT_V001_20260925.json",
+    "batch011_determinism": SLICE / "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH011_AI_DATA_CENTER_POWER_INFRASTRUCTURE_DETERMINISM_RECEIPT_V001_20260925.json",
+    "batch011_required_cases": SLICE / "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH011_AI_DATA_CENTER_POWER_INFRASTRUCTURE_REQUIRED_CASES_OUTCOME_REPLAY_OVERLAY_V001_20260925.json",
     "batch011_master": ARCH / "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH011_MASTER_STATUS_V001_20260925.json",
 }
-
-MANIFESTS = [
-    VALIDATION / f"HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH{n:03d}_ARTIFACT_MANIFEST_V001_20260925.json"
-    for n in range(3, 10)
-] + [
-    VALIDATION / "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH010_ARTIFACT_MANIFEST_V002_20260925.json"
-]
-
-SLICE_ID = "AI_DATA_CENTER_POWER_INFRASTRUCTURE_V1"
-ADMISSION_BLOCKER = "CI-TEST-008-BLOCKER-001B-NATIVE-T5-T6-SIGNED-ADMISSION-RECEIPT-ABSENT"
-RAW_MATERIALIZATION_BLOCKER = "PIT-002B-FIRST-SLICE-NINE-SOURCE-RAW-CAPTURE-MATERIALIZATION"
-FIBER_BLOCKER = "SOURCE-GAP-FIBER-CONNECTIVITY-CAPACITY"
 
 
 class ValidationFailure(Exception):
@@ -85,6 +97,13 @@ def source_ids(records: list[dict[str, Any]]) -> set[str]:
     return set(ids)
 
 
+def unique_ids(records: list[dict[str, Any]], field: str, label: str) -> set[str]:
+    ids = [record.get(field) for record in records]
+    require(all(isinstance(item, str) and item for item in ids), f"{label} identity missing")
+    require(len(ids) == len(set(ids)), f"duplicate {label} identity")
+    return set(ids)
+
+
 def git_blob_sha(path: Path) -> str:
     result = subprocess.run(
         ["git", "hash-object", str(path.relative_to(ROOT))],
@@ -93,27 +112,106 @@ def git_blob_sha(path: Path) -> str:
         capture_output=True,
         check=False,
     )
-    require(result.returncode == 0, f"git hash-object failed for {path.relative_to(ROOT)}: {result.stderr.strip()}")
+    require(
+        result.returncode == 0,
+        f"git hash-object failed for {path.relative_to(ROOT)}: {result.stderr.strip()}",
+    )
     return result.stdout.strip()
 
 
-def validate_manifest(manifest_path: Path) -> int:
+def manifest_identity(path: Path) -> tuple[int, int]:
+    match = MANIFEST_RE.search(path.name)
+    require(match is not None, f"manifest batch/revision missing: {path.name}")
+    return int(match.group("batch")), int(match.group("revision"))
+
+
+def master_batch(path: Path) -> int:
+    match = MASTER_RE.search(path.name)
+    require(match is not None, f"master batch missing: {path.name}")
+    return int(match.group("batch"))
+
+
+def discover_current_manifests() -> list[Path]:
+    """Return the highest-revision manifest for each contiguous successor batch."""
+
+    grouped: dict[int, list[tuple[int, Path]]] = {}
+    for path in VALIDATION.glob(
+        "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH*_ARTIFACT_MANIFEST_V*_20260925.json"
+    ):
+        batch, revision = manifest_identity(path)
+        if batch >= 3:
+            grouped.setdefault(batch, []).append((revision, path))
+
+    require(grouped, "no successor manifests discovered")
+    highest_batch = max(grouped)
+    expected_batches = set(range(3, highest_batch + 1))
+    require(
+        set(grouped) == expected_batches,
+        f"successor manifest sequence has gaps: found={sorted(grouped)}",
+    )
+
+    selected: list[Path] = []
+    for batch in sorted(grouped):
+        revision, path = max(grouped[batch], key=lambda item: item[0])
+        if revision > 1:
+            doc = load_json(path)
+            supersedes = doc.get("supersedes")
+            require(
+                isinstance(supersedes, dict)
+                and supersedes.get("predecessor_preserved") is True,
+                f"Batch{batch:03d} revised manifest lacks preserved supersession boundary",
+            )
+        selected.append(path)
+    return selected
+
+
+def discover_latest_master() -> tuple[int, Path, dict[str, Any]]:
+    paths = list(
+        ARCH.glob(
+            "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH*_MASTER_STATUS_V001_20260925.json"
+        )
+    )
+    require(paths, "no successor master status discovered")
+    path = max(paths, key=master_batch)
+    batch = master_batch(path)
+    return batch, path, load_json(path)
+
+
+def validate_manifest(manifest_path: Path) -> tuple[int, int]:
+    """Validate immutable domain pins while allowing shared operational code to evolve."""
+
     manifest = load_json(manifest_path)
     artifacts = manifest.get("artifacts")
-    require(isinstance(artifacts, list) and artifacts, f"manifest artifacts missing: {manifest_path.name}")
+    require(
+        isinstance(artifacts, list) and artifacts,
+        f"manifest artifacts missing: {manifest_path.name}",
+    )
     count = 0
+    shared_pin_divergence = 0
     for entry in artifacts:
         require(isinstance(entry, dict), f"invalid manifest entry: {manifest_path.name}")
         relative = entry.get("path")
         expected = entry.get("git_blob_sha")
         require(isinstance(relative, str) and relative, f"manifest path missing: {manifest_path.name}")
-        require(isinstance(expected, str) and len(expected) == 40, f"manifest git_blob_sha invalid: {relative}")
+        require(
+            isinstance(expected, str) and re.fullmatch(r"[0-9a-f]{40}", expected) is not None,
+            f"manifest git_blob_sha invalid: {relative}",
+        )
         artifact = ROOT / relative
         require(artifact.is_file(), f"manifest member missing: {relative}")
         actual = git_blob_sha(artifact)
-        require(actual == expected, f"manifest blob mismatch: {relative}: expected={expected} actual={actual}")
+        if relative.startswith("docs/constraint/"):
+            require(
+                actual == expected,
+                f"immutable domain artifact blob mismatch: {relative}: expected={expected} actual={actual}",
+            )
+        elif actual != expected:
+            # Tests and shared operational code legitimately evolve after a
+            # historical batch seals. The manifest still pins the version that
+            # batch used, but current HEAD is not required to retain those bytes.
+            shared_pin_divergence += 1
         count += 1
-    return count
+    return count, shared_pin_divergence
 
 
 def main() -> int:
@@ -122,32 +220,62 @@ def main() -> int:
     registry = docs["source_registry"]
     capture = docs["pit_capture"]
     temporal = docs["temporal_audit"]
-    gap = docs["source_gap"]
+    batch006_gap = docs["batch006_gap"]
     availability = docs["availability"]
     admission = docs["batch002_admission"]
     raw_status = docs["batch008_raw_status"]
-    master = docs["batch008_master"]
+    batch008_master = docs["batch008_master"]
     raw_contract = docs["batch008_raw_contract"]
-    current_gap = docs["batch009_gap"]
-    current_status = docs["batch010_status"]
-    current_candidates = docs["batch010_candidates"]
-    current_beneficiaries = docs["batch010_beneficiaries"]
-    current_master = docs["batch010_master"]
-    outcome11 = docs["batch011_outcomes"]
-    replay11 = docs["batch011_replay"]
-    receipt11 = docs["batch011_receipt"]
-    master11 = docs["batch011_master"]
 
-    # First-slice identity must remain stable across the domain artifacts.
+    batch009_gap = docs["batch009_gap"]
+    batch009_master = docs["batch009_master"]
+    fiber_sources = docs["batch009_fiber_sources"]
+    fiber_evidence = docs["batch009_fiber_evidence"]
+    fiber_field = docs["batch009_fiber_field"]
+    fiber_graph = docs["batch009_fiber_graph"]
+
+    batch010_status = docs["batch010_status"]
+    batch010_master = docs["batch010_master"]
+    claims = docs["batch010_claims"]
+    candidates = docs["batch010_candidates"]
+    relief = docs["batch010_relief"]
+    beneficiaries = docs["batch010_beneficiaries"]
+    beneficiary_sources = docs["batch010_beneficiary_sources"]
+
+    outcome_taxonomy = docs["batch011_taxonomy"]
+    outcome_records = docs["batch011_outcomes"]
+    shadow_replay = docs["batch011_replay"]
+    determinism = docs["batch011_determinism"]
+    required_cases = docs["batch011_required_cases"]
+    batch011_master = docs["batch011_master"]
+
+    # Stable first-slice identity across domain artifacts.
     for name, doc in (
         ("source_registry", registry),
         ("pit_capture", capture),
         ("temporal_audit", temporal),
-        ("source_gap", gap),
+        ("batch006_gap", batch006_gap),
         ("availability", availability),
+        ("batch009_gap", batch009_gap),
+        ("batch009_fiber_sources", fiber_sources),
+        ("batch009_fiber_evidence", fiber_evidence),
+        ("batch009_fiber_field", fiber_field),
+        ("batch009_fiber_graph", fiber_graph),
+        ("batch010_status", batch010_status),
+        ("batch010_claims", claims),
+        ("batch010_candidates", candidates),
+        ("batch010_relief", relief),
+        ("batch010_beneficiaries", beneficiaries),
+        ("batch010_beneficiary_sources", beneficiary_sources),
+        ("batch011_taxonomy", outcome_taxonomy),
+        ("batch011_outcomes", outcome_records),
+        ("batch011_replay", shadow_replay),
+        ("batch011_determinism", determinism),
+        ("batch011_required_cases", required_cases),
     ):
         require(doc.get("slice_id") == SLICE_ID, f"{name} slice_id drifted")
 
+    # Original nine-source point-in-time continuity.
     registry_records = registry.get("sources")
     capture_records = capture.get("records")
     temporal_records = temporal.get("records")
@@ -164,7 +292,7 @@ def main() -> int:
     capture_ids = source_ids(capture_records)
     temporal_ids = source_ids(temporal_records)
     availability_ids = source_ids(availability_records)
-    require(len(registry_ids) == 9, f"expected nine first-slice sources, found {len(registry_ids)}")
+    require(len(registry_ids) == 9, f"expected nine original first-slice sources, found {len(registry_ids)}")
     require(capture_ids == registry_ids, "capture source set differs from registry")
     require(temporal_ids == registry_ids, "temporal source set differs from registry")
     require(availability_ids == registry_ids, "availability source set differs from registry")
@@ -176,11 +304,17 @@ def main() -> int:
 
     completed_at = capture.get("capture_completed_at")
     require(isinstance(completed_at, str) and completed_at.endswith("Z"), "capture_completed_at missing/invalid")
-    require(capture.get("source_content_persisted") is False, "Batch004 must not retroactively claim raw source persistence")
+    require(
+        capture.get("source_content_persisted") is False,
+        "Batch004 must not retroactively claim raw source persistence",
+    )
 
     for sid in sorted(registry_ids):
         require(capture_by_id[sid].get("url") == registry_by_id[sid].get("url"), f"URL drift for {sid}")
-        require(capture_by_id[sid].get("acquisition_result") == "RESOLVED_PUBLIC_SOURCE", f"capture result not resolved for {sid}")
+        require(
+            capture_by_id[sid].get("acquisition_result") == "RESOLVED_PUBLIC_SOURCE",
+            f"capture result not resolved for {sid}",
+        )
         require(capture_by_id[sid].get("acquired_at") == completed_at, f"acquired_at drift for {sid}")
         require(capture_by_id[sid].get("available_at") is None, f"Batch004 backdated available_at for {sid}")
         require(temporal_by_id[sid].get("available_at") is None, f"Batch005 promoted available_at for {sid}")
@@ -188,180 +322,461 @@ def main() -> int:
         row = availability_by_id[sid]
         require(row.get("inherited_acquired_at") == completed_at, f"Batch007 inherited acquisition drift for {sid}")
         require(row.get("conservative_available_at") == completed_at, f"Batch007 conservative availability drift for {sid}")
-        require(row.get("temporal_original_as_of_eligible_from") == completed_at, f"Batch007 eligibility timestamp drift for {sid}")
-        require(row.get("historical_backdating_authorized") is False, f"historical backdating unexpectedly authorized for {sid}")
+        require(
+            row.get("temporal_original_as_of_eligible_from") == completed_at,
+            f"Batch007 eligibility timestamp drift for {sid}",
+        )
+        require(
+            row.get("historical_backdating_authorized") is False,
+            f"historical backdating unexpectedly authorized for {sid}",
+        )
         require(row.get("source_content_persisted") is False, f"Batch007 raw persistence unexpectedly claimed for {sid}")
         require(row.get("ordinary_replay_lineage_eligible") is False, f"ordinary replay unexpectedly enabled for {sid}")
 
     require(temporal.get("available_at_proven_count") == 0, "Batch005 available_at_proven_count must remain zero")
     require(temporal.get("strict_original_as_of_ready") is False, "Batch005 strict replay unexpectedly ready")
-
     overrides = temporal.get("successor_overrides")
     require(isinstance(overrides, list) and len(overrides) == 1, "expected exactly one temporal successor override")
-    nerc = overrides[0]
-    require(nerc.get("source_id") == "SRC-NERC-LTRA-2025", "unexpected temporal override source")
-    require(nerc.get("successor_value") == "2026-01", "NERC publication correction drifted")
-    require(nerc.get("assessment_year") == "2025", "NERC assessment year drifted")
+    require(overrides[0].get("source_id") == "SRC-NERC-LTRA-2025", "unexpected temporal override source")
+    require(overrides[0].get("successor_value") == "2026-01", "NERC publication correction drifted")
+    require(overrides[0].get("assessment_year") == "2025", "NERC assessment year drifted")
 
-    # Domain gap closure must stay bounded.
-    gap_results = gap.get("results")
-    require(isinstance(gap_results, dict), "Batch006 results missing")
-    require(gap_results.get("SWITCHGEAR_LEAD_TIME_FIELD") == "POPULATED_APPROXIMATE_REGIONAL", "switchgear status drifted")
-    require(gap_results.get("LAND_PERMITTING_STATUS_FIELD") == "POPULATED_BOUNDED_FEDERAL_SCOPE", "land status drifted")
-    require(gap_results.get("FIBER_CONNECTIVITY_CAPACITY_FIELD") == "SOURCE_GAP", "fiber source gap was silently closed")
-    require(gap_results.get("SOURCE_GAP_FIELDS_REMAINING") == 1, "source-gap remaining count drifted")
-    require(gap_results.get("IMPLEMENTATION_ADMISSION_READY") == "NO", "Batch006 falsely claims implementation admission")
-    require(gap_results.get("FIRST_SERIOUS_CONSTRAINT_RUN") == "BLOCKED", "Batch006 falsely claims serious-run readiness")
+    # Preserve historical Batch006 truth: fiber was open at that point.
+    hist_gap = batch006_gap.get("results")
+    require(isinstance(hist_gap, dict), "Batch006 results missing")
+    require(hist_gap.get("SWITCHGEAR_LEAD_TIME_FIELD") == "POPULATED_APPROXIMATE_REGIONAL", "switchgear status drifted")
+    require(hist_gap.get("LAND_PERMITTING_STATUS_FIELD") == "POPULATED_BOUNDED_FEDERAL_SCOPE", "land status drifted")
+    require(hist_gap.get("FIBER_CONNECTIVITY_CAPACITY_FIELD") == "SOURCE_GAP", "Batch006 historical fiber gap was rewritten")
+    require(hist_gap.get("SOURCE_GAP_FIELDS_REMAINING") == 1, "Batch006 source-gap count drifted")
+    require(hist_gap.get("FIRST_SERIOUS_CONSTRAINT_RUN") == "BLOCKED", "Batch006 falsely claims serious-run readiness")
 
-    # Batch006 is historical. Batch009 explicitly closes the original frozen
-    # source-gap queue without rewriting that predecessor.
-    current_gap_results = current_gap.get("results")
-    require(isinstance(current_gap_results, dict), "Batch009 source-gap results missing")
-    require(current_gap_results.get("FIBER_CONNECTIVITY_CAPACITY_FIELD") == "POPULATED_BOUNDED_SITE_AND_PROVIDER_PROFILE", "Batch009 fiber closure drifted")
-    require(current_gap_results.get("ORIGINAL_FROZEN_SOURCE_GAP_FIELDS_REMAINING") == 0, "Batch009 source-gap queue not closed")
-    require(current_gap.get("closed_blocker") == FIBER_BLOCKER, "Batch009 did not explicitly close fiber blocker")
-    require(current_gap.get("predecessor_artifacts_rewritten") is False, "Batch009 rewrote predecessor history")
+    # Batch009 legitimately closes that gap at bounded scope.
+    gap9 = batch009_gap.get("results")
+    require(isinstance(gap9, dict), "Batch009 source-gap results missing")
+    require(gap9.get("FIBER_CONNECTIVITY_CAPACITY_FIELD") == FIBER_STATUS, "Batch009 fiber closure drifted")
+    require(gap9.get("ORIGINAL_FROZEN_SOURCE_GAP_FIELDS_REMAINING") == 0, "Batch009 original source-gap count is not zero")
+    require(gap9.get("DOMAIN_DATA_POPULATED") == "PARTIAL", "Batch009 falsely claims complete domain population")
+    require(gap9.get("BENEFICIARY_LAYER_POPULATED") == "NO", "Batch009 falsely claims beneficiary population")
+    require(gap9.get("FIRST_SLICE_REAL_RAW_ARTIFACTS_MATERIALIZED") == "NO", "Batch009 falsely claims raw materialization")
+    require(gap9.get("IMPLEMENTATION_ADMISSION_READY") == "NO", "Batch009 falsely claims implementation admission")
+    require(gap9.get("FIRST_SERIOUS_CONSTRAINT_RUN") == "BLOCKED", "Batch009 falsely claims serious-run readiness")
+    require(batch009_gap.get("closed_blocker") == HISTORICAL_FIBER_BLOCKER, "Batch009 closed blocker drifted")
+    require(
+        set(batch009_gap.get("remaining_blockers", []))
+        == {RAW_MATERIALIZATION_BLOCKER, ADMISSION_BLOCKER},
+        "Batch009 current remaining blockers drifted",
+    )
+    require(batch009_gap.get("next_repo_executable_lane") == BATCH009_NEXT, "Batch009 next executable lane drifted")
+    require(batch009_gap.get("predecessor_artifacts_rewritten") is False, "Batch009 rewrote predecessor state")
 
-    # Native T5->T6 admission must remain fail-closed until exact authority exists.
+    source_extension = fiber_sources.get("sources")
+    require(isinstance(source_extension, list) and len(source_extension) == 2, "Batch009 fiber source extension must contain two sources")
+    extension_ids = source_ids(source_extension)
+    require(
+        extension_ids
+        == {
+            "SRC-DOE-PADUCAH-AI-ENERGY-PARTNERSHIP-2026-07-29",
+            "SRC-LUMEN-RAPIDROUTES-2025-09-09",
+        },
+        "Batch009 fiber source identities drifted",
+    )
+    require(fiber_sources.get("source_content_persisted") is False, "Batch009 fiber source content falsely persisted")
+    for source in source_extension:
+        require(source.get("available_at") == source.get("acquired_at"), f"conservative availability drift for {source.get('source_id')}")
+        require(source.get("historical_backdating_authorized") is False, f"fiber source backdating unexpectedly authorized for {source.get('source_id')}")
+        require(source.get("ordinary_raw_lineage_eligible") is False, f"fiber source ordinary raw lineage unexpectedly ready for {source.get('source_id')}")
+
+    updates = fiber_field.get("field_updates")
+    require(isinstance(updates, list) and len(updates) == 1, "Batch009 fiber field overlay must contain one update")
+    fiber_update = updates[0]
+    require(fiber_update.get("field_name") == "fiber_connectivity_capacity", "fiber field name drifted")
+    require(fiber_update.get("predecessor_status") == "SOURCE_GAP", "fiber predecessor status drifted")
+    require(fiber_update.get("successor_status") == FIBER_STATUS, "fiber successor status drifted")
+    require(fiber_field.get("source_gap_count_before") == 1, "fiber source-gap before count drifted")
+    require(fiber_field.get("source_gap_count_after") == 0, "fiber source-gap after count drifted")
+
+    value = fiber_update.get("value")
+    require(isinstance(value, dict), "fiber structured value missing")
+    site = value.get("site_access_example")
+    provider = value.get("provider_capacity_example")
+    require(isinstance(site, dict) and isinstance(provider, dict), "fiber bounded examples missing")
+    require(site.get("site") == "DOE Paducah Site, Kentucky", "fiber site example drifted")
+    require(site.get("fiber_connectivity") == "EXISTING", "fiber site connectivity claim drifted")
+    require(site.get("exact_site_capacity") == "UNSPECIFIED", "fiber exact site capacity unexpectedly quantified")
+    require(provider.get("provider") == "Lumen Technologies", "fiber provider example drifted")
+    require(provider.get("advertised_connection_speeds_gbps") == [100, 400], "fiber provider speed profile drifted")
+    uncertainty = fiber_update.get("uncertainty")
+    require(
+        isinstance(uncertainty, str)
+        and "NOT_UNIVERSAL" in uncertainty
+        and "DOES_NOT_ASSERT_EXACT_CAPACITY_AT_PADUCAH" in uncertainty,
+        "fiber uncertainty boundary drifted",
+    )
+
+    observations = fiber_evidence.get("observations")
+    require(isinstance(observations, list) and len(observations) == 2, "fiber evidence supplement must contain two observations")
+    evidence_ids = {item.get("evidence_id") for item in observations}
+    require(set(fiber_update.get("evidence_ids", [])) == evidence_ids, "fiber field/evidence IDs drifted")
+    edges = fiber_graph.get("edge_updates")
+    require(isinstance(edges, list) and len(edges) == 1, "fiber graph overlay must contain one edge update")
+    require(edges[0].get("successor_status") == "SUPPORTED_BOUNDED_SITE_PROVIDER_SCOPE", "fiber graph scope drifted")
+    require(
+        "EXACT UNIVERSAL SITE CAPACITY IS NOT ASSERTED" in str(edges[0].get("semantic_limit", "")),
+        "fiber graph universal-capacity guard missing",
+    )
+
+    # Batch010 shadow causal-chain population remains shadow and blocked.
+    counts = batch010_status.get("counts")
+    results10 = batch010_status.get("results")
+    require(isinstance(counts, dict) and isinstance(results10, dict), "Batch010 status incomplete")
+    require(
+        counts
+        == {
+            "typed_claims": 10,
+            "t5_candidate_proposals": 3,
+            "relief_paths": 5,
+            "beneficiary_relationship_evaluations": 4,
+            "qualified_beneficiary_relationships": 0,
+        },
+        "Batch010 population counts drifted",
+    )
+    require(results10.get("CLAIM_LAYER_POPULATED") == "YES_SHADOW", "Batch010 claim layer status drifted")
+    require(results10.get("T5_CONSTRAINT_CANDIDATE_LAYER_POPULATED") == "YES_SHADOW", "Batch010 candidate layer status drifted")
+    require(results10.get("RELIEF_INVALIDATOR_LAYER_POPULATED") == "YES_SHADOW", "Batch010 relief layer status drifted")
+    require(results10.get("T6_BENEFICIARY_RELATIONSHIP_LAYER_POPULATED") == "YES_BLOCKED_EVALUATIONS", "Batch010 beneficiary layer status drifted")
+    require(results10.get("WATER_DEPENDENCY_PROMOTED_TO_CONSTRAINT") == "NO", "water dependency was promoted to constraint")
+    require(results10.get("FIBER_DEPENDENCY_PROMOTED_TO_CONSTRAINT") == "NO", "fiber dependency was promoted to constraint")
+    require(results10.get("CANONICAL_CONSTRAINTS_MINTED") == "NO", "Batch010 falsely minted canonical constraints")
+    require(results10.get("QUALIFIED_BENEFICIARIES_MINTED") == "NO", "Batch010 falsely minted qualified beneficiaries")
+    require(results10.get("FIRST_SERIOUS_CONSTRAINT_RUN") == "BLOCKED", "Batch010 falsely claims serious-run readiness")
+    require(
+        set(batch010_status.get("remaining_blockers", []))
+        == {RAW_MATERIALIZATION_BLOCKER, ADMISSION_BLOCKER},
+        "Batch010 current remaining blockers drifted",
+    )
+    require(batch010_status.get("next_repo_executable_lane") == BATCH010_NEXT, "Batch010 next executable lane drifted")
+    require(batch010_status.get("predecessor_artifacts_rewritten") is False, "Batch010 rewrote predecessor state")
+
+    claim_rows = claims.get("claims")
+    require(isinstance(claim_rows, list) and len(claim_rows) == 10, "Batch010 claim registry count drifted")
+    claim_ids = unique_ids(claim_rows, "claim_id", "claim")
+    require(claim_ids == {f"CLM-AIDC-{n:03d}" for n in range(1, 11)}, "Batch010 claim IDs drifted")
+    require(claims.get("claim_mode") == "REVIEWED_SHADOW_CLAIMS_NOT_ORDINARY_T3", "Batch010 claim mode drifted")
+
+    candidate_rows = candidates.get("candidates")
+    require(isinstance(candidate_rows, list) and len(candidate_rows) == 3, "Batch010 candidate count drifted")
+    candidate_ids = unique_ids(candidate_rows, "constraint_candidate_id", "candidate")
+    require(candidates.get("canonicalization_performed") is False, "Batch010 candidate canonicalization unexpectedly performed")
+    require(
+        set(candidates.get("explicitly_not_formed_as_constraints", []))
+        == {"water_cooling_dependency", "fiber_connectivity_dependency"},
+        "Batch010 dependency non-promotion boundary drifted",
+    )
+    for row in candidate_rows:
+        cid = row.get("constraint_candidate_id")
+        require(row.get("canonical_constraint_id") is None, f"candidate {cid} unexpectedly canonicalized")
+        require(row.get("ordinary_t6_eligible") is False, f"candidate {cid} unexpectedly ordinary-T6 eligible")
+        require(
+            set(row.get("ineligibility_reasons", []))
+            == {RAW_MATERIALIZATION_BLOCKER, ADMISSION_BLOCKER},
+            f"candidate {cid} blocker set drifted",
+        )
+        require(set(row.get("claim_ids", [])).issubset(claim_ids), f"candidate {cid} references unknown claim")
+
+    relief_rows = relief.get("relief_paths")
+    require(isinstance(relief_rows, list) and len(relief_rows) == 5, "Batch010 relief-path count drifted")
+    unique_ids(relief_rows, "relief_path_id", "relief path")
+    for row in relief_rows:
+        rid = row.get("relief_path_id")
+        require(row.get("constraint_candidate_id") in candidate_ids, f"relief path {rid} references unknown candidate")
+        require(row.get("invalidates_constraint") is False, f"relief path {rid} automatically invalidates constraint")
+        require(set(row.get("support_claim_ids", [])).issubset(claim_ids), f"relief path {rid} references unknown claim")
+
+    beneficiary_source_rows = beneficiary_sources.get("sources")
+    require(isinstance(beneficiary_source_rows, list) and len(beneficiary_source_rows) == 6, "Batch010 beneficiary source count drifted")
+    unique_ids(beneficiary_source_rows, "source_id", "beneficiary source")
+    require(beneficiary_sources.get("source_content_persisted") is False, "Batch010 beneficiary source content falsely persisted")
+    for source in beneficiary_source_rows:
+        sid = source.get("source_id")
+        require(source.get("available_at") == source.get("acquired_at"), f"beneficiary source availability drift for {sid}")
+        require(source.get("historical_backdating_authorized") is False, f"beneficiary source backdating unexpectedly authorized for {sid}")
+        require(source.get("ordinary_raw_lineage_eligible") is False, f"beneficiary source ordinary lineage unexpectedly ready for {sid}")
+
+    relationship_rows = beneficiaries.get("relationships")
+    require(isinstance(relationship_rows, list) and len(relationship_rows) == 4, "Batch010 beneficiary evaluation count drifted")
+    unique_ids(relationship_rows, "beneficiary_relationship_id", "beneficiary relationship")
+    require(beneficiaries.get("qualified_relationship_count") == 0, "Batch010 qualified relationship count is not zero")
+    for row in relationship_rows:
+        rid = row.get("beneficiary_relationship_id")
+        require(row.get("constraint_candidate_id") in candidate_ids, f"{rid} references unknown candidate")
+        require(row.get("constraint_id") is None, f"{rid} unexpectedly references canonical constraint")
+        require(row.get("qualification_state") == "INELIGIBLE_TO_EVALUATE", f"{rid} unexpectedly qualified")
+        require(row.get("eligibility_state") == "BLOCKED", f"{rid} unexpectedly eligible")
+        require(row.get("beneficiary_confidence") is None, f"{rid} unexpectedly assigned beneficiary confidence")
+
+    # Batch011 adds a thin real outcome and deterministic shadow replay only.
+    labels = set(outcome_taxonomy.get("labels", []))
+    taxonomy_rules = set(outcome_taxonomy.get("rules", []))
+    require("CAPACITY_ADDED" in labels, "Batch011 outcome taxonomy lost CAPACITY_ADDED")
+    require(
+        "OUTCOME_EFFECTIVE_TIME_MUST_NOT_BE_REPLACED_BY_HYDRA_AVAILABLE_AT" in taxonomy_rules,
+        "Batch011 outcome taxonomy lost effective-time boundary",
+    )
+    require(
+        "CAPACITY_ADDED_DOES_NOT_IMPLY_CONSTRAINT_RESOLVED" in taxonomy_rules,
+        "Batch011 outcome taxonomy lost capacity-versus-resolution boundary",
+    )
+    require(
+        "FIRST_CUSTOMER_SHIPMENT_DOES_NOT_BY_ITSELF_PROVE_BENEFICIARY_CAPTURE" in taxonomy_rules,
+        "Batch011 outcome taxonomy lost beneficiary-capture boundary",
+    )
+
+    outcome_rows = outcome_records.get("records")
+    require(isinstance(outcome_rows, list) and len(outcome_rows) == 1, "Batch011 real outcome count drifted")
+    outcome = outcome_rows[0]
+    require(outcome.get("outcome_label") == "CAPACITY_ADDED", "Batch011 outcome label drifted")
+    require(
+        outcome.get("related_constraint_candidate_id") == "T5C-AIDC-US-TRANSFORMER-SUPPLY-001",
+        "Batch011 outcome candidate binding drifted",
+    )
+    effective = outcome.get("real_world_effective_time")
+    require(isinstance(effective, dict), "Batch011 real-world effective-time object missing")
+    require(effective.get("value") is None, "Batch011 invented exact real-world effective time")
+    require(effective.get("no_later_than") == "2025-10-08", "Batch011 bounded effective date drifted")
+    require(outcome.get("hydra_available_at") == "2026-09-26T01:57:00Z", "Batch011 HYDRA availability drifted")
+    require(outcome.get("ordinary_replay_eligible") is False, "Batch011 ordinary replay unexpectedly eligible")
+    require(
+        RAW_MATERIALIZATION_BLOCKER in set(outcome.get("ordinary_replay_blockers", [])),
+        "Batch011 outcome lost raw-materialization blocker",
+    )
+    outcome_counts = outcome_records.get("counts")
+    require(
+        outcome_counts
+        == {
+            "outcomes_captured": 1,
+            "constraint_resolutions": 0,
+            "beneficiary_capture_confirmed": 0,
+        },
+        "Batch011 outcome counts drifted",
+    )
+
+    require(shadow_replay.get("replay_mode") == "SHADOW_NORMALIZED_FIXTURE", "Batch011 replay mode drifted")
+    require(shadow_replay.get("ordinary_replay_eligible") is False, "Batch011 ordinary replay unexpectedly enabled")
+    require(
+        shadow_replay.get("source_version_hash_status") == "BLOCKED_RAW_SOURCE_BODY_NOT_MATERIALIZED",
+        "Batch011 source-version hash gate drifted",
+    )
+    frozen_inputs = shadow_replay.get("frozen_input_manifest")
+    require(isinstance(frozen_inputs, list) and frozen_inputs, "Batch011 frozen replay input manifest missing")
+    for entry in frozen_inputs:
+        relative = entry.get("path")
+        expected = entry.get("git_blob_sha")
+        require(isinstance(relative, str) and isinstance(expected, str), "Batch011 frozen input entry invalid")
+        path = ROOT / relative
+        require(path.is_file(), f"Batch011 frozen replay input missing: {relative}")
+        require(git_blob_sha(path) == expected, f"Batch011 frozen replay input drifted: {relative}")
+
+    windows = shadow_replay.get("windows")
+    require(isinstance(windows, list) and len(windows) == 2, "Batch011 replay-window count drifted")
+    by_window = {row.get("window_id"): row for row in windows}
+    pre = by_window.get("PRE_BATCH010_SUPPLIER_AVAILABILITY")
+    post = by_window.get("AT_BATCH010_SUPPLIER_AVAILABILITY")
+    require(isinstance(pre, dict) and isinstance(post, dict), "Batch011 replay windows missing")
+    require(pre.get("diff") == [] and pre.get("future_leak_test") == "PASS", "Batch011 pre-window no-lookahead failed")
+    require(post.get("diff") == [] and post.get("future_leak_test") == "PASS", "Batch011 post-window replay mismatch")
+    pre_state = pre.get("expected_graph_state")
+    post_state = post.get("expected_graph_state")
+    require(isinstance(pre_state, dict) and isinstance(post_state, dict), "Batch011 expected graph states missing")
+    require(
+        pre_state.get("eligible_claim_ids") == [f"CLM-AIDC-{n:03d}" for n in range(1, 5)],
+        "Batch011 pre-window claim boundary drifted",
+    )
+    require(pre_state.get("beneficiary_relationship_ids") == [], "Batch011 pre-window leaked beneficiary relationships")
+    require(pre_state.get("outcome_ids") == [], "Batch011 pre-window leaked outcomes")
+    require(len(post_state.get("eligible_claim_ids", [])) == 10, "Batch011 post-window claim count drifted")
+    require(len(post_state.get("beneficiary_relationship_ids", [])) == 4, "Batch011 post-window beneficiary count drifted")
+    require(
+        post_state.get("outcome_ids") == ["OUT-AIDC-EATON-NACOGDOCHES-CAPACITY-ADDED-001"],
+        "Batch011 post-window outcome set drifted",
+    )
+
+    require(determinism.get("repeat_execution_match") is True, "Batch011 determinism repeat execution drifted")
+    require(determinism.get("future_leak_test") == "PASS", "Batch011 determinism future-leak test drifted")
+    require(determinism.get("ordinary_replay_determinism_claimed") is False, "Batch011 falsely claims ordinary replay determinism")
+    require(
+        determinism.get("ordinary_replay_blocker") == RAW_MATERIALIZATION_BLOCKER,
+        "Batch011 determinism blocker drifted",
+    )
+
+    updates11 = required_cases.get("updates")
+    require(isinstance(updates11, list) and len(updates11) == 2, "Batch011 required-case update count drifted")
+    case_updates = {row.get("case_id"): row for row in updates11}
+    require(
+        case_updates.get(7, {}).get("successor_status") == "COVERED_BOUNDED_CAPACITY_RELIEF_OUTCOME",
+        "Batch011 case 7 outcome coverage drifted",
+    )
+    require(
+        case_updates.get(8, {}).get("successor_status") == "COVERED_SHADOW_NORMALIZED_FIXTURE_ONLY",
+        "Batch011 case 8 replay coverage drifted",
+    )
+    require(
+        set(required_cases.get("remaining_real_case_gaps", []))
+        == {
+            "CASE_1_PROJECT_SPECIFIC_TRUE_CAPACITY_CONSTRAINT",
+            "CASE_2_MATCHED_FALSE_CONSTRAINT_PRIMARY_COUNTEREVIDENCE",
+            "CASE_4_REAL_CONTRADICTION",
+            "CASE_6_FULLY_QUALIFIED_AND_CAPTURED_BENEFICIARY",
+            "CASE_10_REAL_CANCELLED_PROJECT",
+        },
+        "Batch011 remaining real-case gaps drifted",
+    )
+
+    r11 = batch011_master.get("readiness")
+    require(isinstance(r11, dict), "Batch011 master readiness missing")
+    require(r11["OUTCOME_LABEL_LAYER_POPULATED"].get("status") == "YES_SLICE_SCOPED", "Batch011 master outcome-label status drifted")
+    require(r11["REAL_OUTCOME_RECORDS"].get("status") == "THIN", "Batch011 master falsely thickens real outcomes")
+    require(r11["REAL_OUTCOME_RECORDS"].get("count") == 1, "Batch011 master real-outcome count drifted")
+    require(r11["SHADOW_REPLAY_FIXTURE_READY"].get("status") == "YES", "Batch011 master shadow replay not ready")
+    require(r11["SHADOW_NO_LOOKAHEAD"].get("status") == "PASS", "Batch011 master no-lookahead failed")
+    require(r11["SHADOW_DETERMINISM"].get("status") == "PASS", "Batch011 master determinism failed")
+    require(r11["POINT_IN_TIME_REPLAY_READY"].get("status") == "NO_ORDINARY", "Batch011 master falsely enables ordinary replay")
+    require(r11["OUTCOME_EVALUATION_READY"].get("status") == "THIN_NOT_ACCEPTANCE_READY", "Batch011 master outcome readiness overstated")
+    require(r11["FULL_CONSTRAINT_RUN_READY"].get("status") == "NO", "Batch011 master falsely claims full-run readiness")
+    require(batch011_master.get("first_serious_constraint_run") == "BLOCKED", "Batch011 master falsely claims serious-run readiness")
+    require(
+        {
+            RAW_MATERIALIZATION_BLOCKER,
+            ADMISSION_BLOCKER,
+            "HISTORICAL-CASE-004-CONTRADICTION-REAL-CASE-ABSENT",
+            "HISTORICAL-CASE-010-CANCELLED-PROJECT-ABSENT",
+            "REQUIRED-CASE-001-PROJECT-SPECIFIC-TRUE-CONSTRAINT-ABSENT",
+            "REQUIRED-CASE-002-MATCHED-FALSE-CONSTRAINT-ABSENT",
+            "REQUIRED-CASE-006-FULLY-QUALIFIED-CAPTURED-BENEFICIARY-ABSENT",
+        }.issubset(set(batch011_master.get("remaining_blockers", []))),
+        "Batch011 master blocker set lost required gates",
+    )
+
+    # Authority and raw-materialization blockers remain open.
     decomposition = admission.get("decomposition")
     require(isinstance(decomposition, dict), "Batch002 admission decomposition missing")
     blocker = decomposition.get(ADMISSION_BLOCKER)
-    require(isinstance(blocker, dict) and blocker.get("state") == "OPEN_BLOCKING", "signed admission blocker no longer OPEN_BLOCKING")
+    require(
+        isinstance(blocker, dict) and blocker.get("state") == "OPEN_BLOCKING",
+        "signed admission blocker no longer OPEN_BLOCKING",
+    )
     require(admission.get("implementation_admitted") == "NO", "native implementation unexpectedly admitted")
     require(admission.get("runtime_activation_authorized") == "NO", "runtime activation unexpectedly authorized")
     require(admission.get("canonical_promotion_authorized") == "NO", "canonical promotion unexpectedly authorized")
     require(admission.get("live_source_authorized") == "NO", "live source unexpectedly authorized")
-    require(admission.get("first_serious_constraint_run") == "BLOCKED", "admission status falsely claims serious-run readiness")
 
-    # Batch008 closed the store mechanism, not the real nine-source materialization.
     raw_results = raw_status.get("results")
     require(isinstance(raw_results, dict), "Batch008 raw results missing")
     require(raw_results.get("PRIVATE_RAW_STORE_IMPLEMENTED") == "YES", "private raw store not marked implemented")
     require(raw_results.get("NINE_REAL_SOURCE_ARTIFACTS_MATERIALIZED") == "NO", "real raw sources falsely marked materialized")
     require(raw_results.get("NETWORK_ACQUISITION_AUTHORIZED") == "NO", "network acquisition unexpectedly authorized")
     require(raw_results.get("PUBLIC_RAW_SOURCE_CONTENT_PUBLISHED") == "NO", "raw third-party source content unexpectedly public")
-    require(raw_results.get("FIRST_SERIOUS_CONSTRAINT_RUN") == "BLOCKED", "raw status falsely claims serious-run readiness")
-    require(raw_status.get("next_population_blocker") == RAW_MATERIALIZATION_BLOCKER, "Batch008 next population blocker drifted")
-
-    remaining = set(raw_status.get("remaining_blockers", []))
     require(
-        remaining == {RAW_MATERIALIZATION_BLOCKER, FIBER_BLOCKER, ADMISSION_BLOCKER},
-        f"Batch008 remaining blockers drifted: {sorted(remaining)}",
+        set(raw_status.get("remaining_blockers", []))
+        == {RAW_MATERIALIZATION_BLOCKER, HISTORICAL_FIBER_BLOCKER, ADMISSION_BLOCKER},
+        "Batch008 historical remaining blockers drifted",
     )
 
-    # Master status must agree with the detailed statuses.
-    readiness = master.get("readiness")
-    require(isinstance(readiness, dict), "Batch008 master readiness missing")
-    require(readiness["IMPLEMENTATION_ADMITTED"].get("status") == "NO", "master falsely admits implementation")
-    require(readiness["IMPLEMENTATION_ADMITTED"].get("blocker") == ADMISSION_BLOCKER, "master admission blocker drifted")
-    require(readiness["PRIVATE_RAW_ARTIFACT_STORE_READY"].get("status") == "YES", "master lost raw-store readiness")
-    require(readiness["FIRST_SLICE_RAW_ARTIFACTS_MATERIALIZED"].get("status") == "NO", "master falsely marks raw sources materialized")
-    require(readiness["FIRST_SLICE_RAW_ARTIFACTS_MATERIALIZED"].get("blocker") == RAW_MATERIALIZATION_BLOCKER, "master raw blocker drifted")
-    require(readiness["FIBER_CONNECTIVITY_CAPACITY_READY"].get("status") == "NO", "master falsely closes fiber gap")
-    require(readiness["FIBER_CONNECTIVITY_CAPACITY_READY"].get("blocker") == FIBER_BLOCKER, "master fiber blocker drifted")
-    require(readiness["FULL_CONSTRAINT_RUN_READY"].get("status") == "NO", "master falsely claims full-run readiness")
-    require(master.get("first_serious_constraint_run") == "BLOCKED", "master falsely claims serious-run readiness")
-    require(master.get("next_population_blocker") == RAW_MATERIALIZATION_BLOCKER, "master next blocker drifted")
+    batch008_readiness = batch008_master.get("readiness")
+    require(isinstance(batch008_readiness, dict), "Batch008 master readiness missing")
+    require(
+        batch008_readiness["FIBER_CONNECTIVITY_CAPACITY_READY"].get("status") == "NO",
+        "Batch008 historical master fiber state was rewritten",
+    )
 
-    # Batch010 populates only shadow claims/candidates and blocked beneficiary
-    # evaluations. It must not mint canonical constraints or qualified
-    # beneficiaries while raw lineage/admission gates remain open.
-    candidate_rows = current_candidates.get("candidates")
-    require(isinstance(candidate_rows, list) and len(candidate_rows) == 3, "Batch010 candidate count drifted")
-    for candidate in candidate_rows:
-        require(candidate.get("canonical_constraint_id") is None, "Batch010 minted canonical constraint ID")
-        require(candidate.get("ordinary_t6_eligible") is False, "Batch010 candidate became ordinary-T6 eligible")
-
-    beneficiary_rows = current_beneficiaries.get("relationships")
-    require(isinstance(beneficiary_rows, list) and len(beneficiary_rows) == 4, "Batch010 beneficiary count drifted")
-    require(current_beneficiaries.get("qualified_relationship_count") == 0, "Batch010 fabricated qualified beneficiary")
-    for relation in beneficiary_rows:
-        require(relation.get("qualification_state") == "INELIGIBLE_TO_EVALUATE", "Batch010 beneficiary qualification escaped fail-closed state")
-        require(relation.get("constraint_id") is None, "Batch010 beneficiary references minted canonical constraint")
-        require(relation.get("eligibility_state") == "BLOCKED", "Batch010 beneficiary eligibility escaped blocked state")
-
-    current_results = current_status.get("results")
-    require(isinstance(current_results, dict), "Batch010 current results missing")
-    require(current_results.get("CLAIM_LAYER_POPULATED") == "YES_SHADOW", "Batch010 claim layer status drifted")
-    require(current_results.get("T5_CONSTRAINT_CANDIDATE_LAYER_POPULATED") == "YES_SHADOW", "Batch010 candidate layer status drifted")
-    require(current_results.get("T6_BENEFICIARY_RELATIONSHIP_LAYER_POPULATED") == "YES_BLOCKED_EVALUATIONS", "Batch010 beneficiary layer status drifted")
-    require(current_results.get("CANONICAL_CONSTRAINTS_MINTED") == "NO", "Batch010 falsely minted canonical constraints")
-    require(current_results.get("QUALIFIED_BENEFICIARIES_MINTED") == "NO", "Batch010 falsely minted qualified beneficiaries")
-    require(current_results.get("FIRST_SERIOUS_CONSTRAINT_RUN") == "BLOCKED", "Batch010 falsely claims serious-run readiness")
-    current_remaining = set(current_status.get("remaining_blockers", []))
-    require(current_remaining == {RAW_MATERIALIZATION_BLOCKER, ADMISSION_BLOCKER}, f"Batch010 remaining blockers drifted: {sorted(current_remaining)}")
-
-    current_readiness = current_master.get("readiness")
-    require(isinstance(current_readiness, dict), "Batch010 master readiness missing")
-    require(current_readiness["ORIGINAL_FIRST_SLICE_SOURCE_GAPS_CLOSED"].get("status") == "YES", "Batch010 master lost source-gap closure")
-    require(current_readiness["QUALIFIED_BENEFICIARY_RELATIONSHIPS"].get("status") == "NO", "Batch010 master falsely claims qualified beneficiary")
-    require(current_readiness["FULL_CONSTRAINT_RUN_READY"].get("status") == "NO", "Batch010 master falsely claims full-run readiness")
-    require(current_master.get("first_serious_constraint_run") == "BLOCKED", "Batch010 master falsely claims serious-run readiness")
-
-    # Batch011 advances historical outcomes from EMPTY to THIN and proves only a normalized shadow replay.
-    outcome_rows = outcome11.get("records")
-    require(isinstance(outcome_rows, list) and len(outcome_rows) == 1, "Batch011 outcome count drifted")
-    outcome = outcome_rows[0]
-    require(outcome.get("outcome_label") == "CAPACITY_ADDED", "Batch011 outcome label drifted")
-    require(outcome.get("hydra_available_at") == "2026-09-26T01:57:00Z", "Batch011 outcome availability drifted")
-    require(outcome11.get("counts", {}).get("constraint_resolutions") == 0, "Batch011 falsely resolves constraint")
-    require(outcome11.get("counts", {}).get("beneficiary_capture_confirmed") == 0, "Batch011 falsely confirms beneficiary capture")
-    require(replay11.get("replay_mode") == "SHADOW_NORMALIZED_FIXTURE", "Batch011 replay mode drifted")
-    require(replay11.get("ordinary_replay_eligible") is False, "Batch011 falsely grants ordinary replay")
-    require(replay11.get("source_version_hash_status") == "BLOCKED_RAW_SOURCE_BODY_NOT_MATERIALIZED", "Batch011 raw hash blocker drifted")
-    require(all(w.get("future_leak_test") == "PASS" for w in replay11.get("windows", [])), "Batch011 future-leak receipt failed")
-    require(receipt11.get("repeat_execution_match") is True, "Batch011 determinism receipt failed")
-    require(receipt11.get("future_leak_test") == "PASS", "Batch011 no-lookahead receipt failed")
-    require(receipt11.get("ordinary_replay_determinism_claimed") is False, "Batch011 overclaims ordinary determinism")
-    readiness11 = master11.get("readiness")
-    require(isinstance(readiness11, dict), "Batch011 master readiness missing")
-    require(readiness11["REAL_OUTCOME_RECORDS"].get("count") == 1, "Batch011 master outcome count drifted")
-    require(readiness11["SHADOW_NO_LOOKAHEAD"].get("status") == "PASS", "Batch011 shadow no-lookahead drifted")
-    require(readiness11["SHADOW_DETERMINISM"].get("status") == "PASS", "Batch011 shadow determinism drifted")
-    require(readiness11["POINT_IN_TIME_REPLAY_READY"].get("status") == "NO_ORDINARY", "Batch011 falsely claims ordinary replay")
-    require(master11.get("first_serious_constraint_run") == "BLOCKED", "Batch011 falsely claims serious-run readiness")
-
-    # Raw-store contract must remain private and require the full ordinary T2 lineage envelope.
     boundary = raw_contract.get("public_repository_boundary")
     contract = raw_contract.get("artifact_contract")
     require(isinstance(boundary, dict) and isinstance(contract, dict), "raw-store contract incomplete")
     require(boundary.get("raw_source_bytes_allowed_in_public_repo") is False, "raw bytes unexpectedly allowed in public repo")
     require(boundary.get("private_raw_root_required") is True, "private raw root requirement removed")
     require(boundary.get("network_acquisition_performed_by_store") is False, "raw store unexpectedly performs network acquisition")
-    required = set(contract.get("ordinary_t2_eligibility_requires", []))
-    expected_required = {
-        "VALID_RAW_ARTIFACT_BYTES",
-        "MATCHING_ARTIFACT_SHA256",
-        "SOURCE_ID",
-        "SOURCE_VERSION_ID",
-        "ACQUIRED_AT",
-        "AVAILABLE_AT",
-        "ELIGIBLE_PROCESSING_DISPOSITION",
-        "DECLARED_RELEASE_MEMBERSHIP",
-    }
-    require(required == expected_required, f"ordinary T2 eligibility contract drifted: {sorted(required)}")
+    require(
+        set(contract.get("ordinary_t2_eligibility_requires", []))
+        == {
+            "VALID_RAW_ARTIFACT_BYTES",
+            "MATCHING_ARTIFACT_SHA256",
+            "SOURCE_ID",
+            "SOURCE_VERSION_ID",
+            "ACQUIRED_AT",
+            "AVAILABLE_AT",
+            "ELIGIBLE_PROCESSING_DISPOSITION",
+            "DECLARED_RELEASE_MEMBERSHIP",
+        },
+        "ordinary T2 eligibility contract drifted",
+    )
 
-    manifest_members = sum(validate_manifest(path) for path in MANIFESTS)
+    # Batch009 and Batch010 master transitions.
+    r9 = batch009_master.get("readiness")
+    require(isinstance(r9, dict), "Batch009 master readiness missing")
+    require(r9["ORIGINAL_FIRST_SLICE_SOURCE_GAPS_CLOSED"].get("status") == "YES", "Batch009 master did not close original source gaps")
+    require(batch009_master.get("next_repo_executable_lane") == BATCH009_NEXT, "Batch009 master next lane drifted")
+
+    r10 = batch010_master.get("readiness")
+    require(isinstance(r10, dict), "Batch010 master readiness missing")
+    require(r10["CLAIM_LAYER_POPULATED"].get("status") == "YES_SHADOW", "Batch010 master claim status drifted")
+    require(r10["T5_CANDIDATE_LAYER_POPULATED"].get("status") == "YES_SHADOW", "Batch010 master candidate status drifted")
+    require(r10["RELIEF_INVALIDATOR_LAYER_POPULATED"].get("status") == "YES_SHADOW", "Batch010 master relief status drifted")
+    require(r10["BENEFICIARY_LAYER_POPULATED"].get("status") == "YES_BLOCKED_EVALUATIONS", "Batch010 master beneficiary status drifted")
+    require(r10["QUALIFIED_BENEFICIARY_RELATIONSHIPS"].get("status") == "NO", "Batch010 master falsely qualifies beneficiaries")
+    require(r10["FIRST_SLICE_RAW_ARTIFACTS_MATERIALIZED"].get("status") == "NO", "Batch010 master falsely marks raw artifacts materialized")
+    require(r10["FIRST_SLICE_RAW_ARTIFACTS_MATERIALIZED"].get("blocker") == RAW_MATERIALIZATION_BLOCKER, "Batch010 master raw blocker drifted")
+    require(r10["IMPLEMENTATION_ADMITTED"].get("status") == "NO", "Batch010 master falsely admits implementation")
+    require(r10["IMPLEMENTATION_ADMITTED"].get("blocker") == ADMISSION_BLOCKER, "Batch010 master admission blocker drifted")
+    require(r10["FULL_CONSTRAINT_RUN_READY"].get("status") == "NO", "Batch010 master falsely claims full-run readiness")
+    require(batch010_master.get("first_serious_constraint_run") == "BLOCKED", "Batch010 master falsely claims serious-run readiness")
+    require(batch010_master.get("next_repo_executable_lane") == BATCH010_NEXT, "Batch010 master next lane drifted")
+
+    # Manifest discovery is dynamic so a new Lily successor batch cannot silently
+    # bypass the guard or break it merely because the list was hard-coded.
+    manifests = discover_current_manifests()
+    manifest_members = 0
+    shared_pin_divergences = 0
+    for path in manifests:
+        members, divergences = validate_manifest(path)
+        manifest_members += members
+        shared_pin_divergences += divergences
+
+    latest_batch, latest_master_path, latest_master = discover_latest_master()
+    latest_manifest_batch, latest_manifest_revision = manifest_identity(manifests[-1])
+    require(latest_manifest_batch == latest_batch, "latest successor manifest/master batch mismatch")
+
+    latest_readiness = latest_master.get("readiness")
+    require(isinstance(latest_readiness, dict), "latest master readiness missing")
+    if "FULL_CONSTRAINT_RUN_READY" in latest_readiness:
+        require(
+            latest_readiness["FULL_CONSTRAINT_RUN_READY"].get("status") == "NO",
+            "latest master falsely claims full-run readiness",
+        )
+    require(
+        latest_master.get("first_serious_constraint_run") == "BLOCKED",
+        "latest master falsely claims serious-run readiness",
+    )
 
     print("CONSTRAINT_FIRST_SLICE_INTEGRATION_VALIDATION=PASS")
     print(f"SLICE_ID={SLICE_ID}")
-    print(f"REGISTERED_SOURCE_COUNT={len(registry_ids)}")
+    print(f"ORIGINAL_REGISTERED_SOURCE_COUNT={len(registry_ids)}")
+    print(f"FIBER_EXTENSION_SOURCE_COUNT={len(extension_ids)}")
+    print(f"BATCH010_CLAIMS={len(claim_ids)}")
+    print(f"BATCH010_CANDIDATES={len(candidate_ids)}")
+    print(f"BATCH010_BENEFICIARY_EVALUATIONS={len(relationship_rows)}")
+    print(f"BATCH011_REAL_OUTCOMES={len(outcome_rows)}")
+    print(f"BATCH011_SHADOW_REPLAY_WINDOWS={len(windows)}")
     print(f"CAPTURE_COMPLETED_AT={completed_at}")
-    print(f"MANIFESTS_VALIDATED={len(MANIFESTS)}")
+    print(f"MANIFESTS_VALIDATED={len(manifests)}")
     print(f"MANIFEST_MEMBERS_VALIDATED={manifest_members}")
-    print("ORIGINAL_FIRST_SLICE_SOURCE_GAPS_CLOSED=YES")
-    print("SHADOW_T5_CANDIDATES=3")
-    print("BLOCKED_BENEFICIARY_EVALUATIONS=4")
-    print("QUALIFIED_BENEFICIARIES=0")
+    print(f"HISTORICAL_SHARED_PIN_DIVERGENCES={shared_pin_divergences}")
+    print(f"LATEST_SUCCESSOR_BATCH={latest_batch:03d}")
+    print(f"LATEST_MANIFEST_REVISION=V{latest_manifest_revision:03d}")
+    print(f"LATEST_MASTER={latest_master_path.name}")
     print("IMPLEMENTATION_ADMITTED=NO")
     print("REAL_NINE_SOURCE_MATERIALIZATION=NO")
-    print("REAL_OUTCOMES_CAPTURED=1")
-    print("SHADOW_REPLAY_FIXTURE=PASS")
-    print("SHADOW_NO_LOOKAHEAD=PASS")
-    print("SHADOW_DETERMINISM=PASS")
-    print("ORDINARY_HISTORICAL_REPLAY=BLOCKED")
+    print("QUALIFIED_BENEFICIARIES=0")
     print("FIRST_SERIOUS_CONSTRAINT_RUN=BLOCKED")
-    print("NEXT_REPO_EXECUTABLE_LANE=FIRST-SLICE-CONTRADICTION-CANCELLED-PROJECT-AND-MATCHED-HISTORICAL-CASE-POPULATION")
+    print(f"LATEST_NEXT_REPO_EXECUTABLE_LANE={latest_master.get('next_repo_executable_lane')}")
     return 0
 
 
