@@ -140,7 +140,7 @@ For the current declared historical scope:
 - deterministic replay execution: **FULL**;
 - policy → physical binding: **FULL**;
 - read-only query/orchestration: **FULL**;
-- event-taxonomy sourced breadth: **THIN** (17/18 event types; `SUPPLY_AFFECTING_CONFLICT` has no sourced case);
+- event-taxonomy sourced breadth: **FULL** (18/18 event types; Batch 019 closes `SUPPLY_AFFECTING_CONFLICT` with a separate sourced taxonomy supplement that does not alter the frozen 22-case replay corpus);
 - probabilistic calibration: **EMPTY**;
 - live/current public Constraint ingestion: **MISSING**;
 - canonical mutation runtime: **MISSING intentionally**;
@@ -148,7 +148,7 @@ For the current declared historical scope:
 
 The operating layer remains read-only and does not authorize canonical mutation, ranking, model training, trading, external effects, or T6 activation.
 
-See [`constraint-replay/`](constraint-replay/) for the Batch 018 operating snapshot, manifest, report, tests, and CLI.
+See [`constraint-replay/`](constraint-replay/) for the Batch 018/019 operating snapshots, manifests, reports, tests, and CLIs.
 ## Public data-engineering pipeline sample
 
 A second runnable public example lives in [`market-data-pipeline-sample/`](market-data-pipeline-sample/). It uses **synthetic, non-live** records to demonstrate a compact end-to-end data pipeline:
