@@ -29,6 +29,12 @@
       "predecessor_git_blob_sha": "2c1163d3dbb62e7ef790d967bd2f5834a1871a91",
       "successor_git_blob_sha": "c597639479c7be82570806b034fd0f1690822f56",
       "reason": "Advance private raw-store implementation version from 0.1.0 to 0.2.0 for persisted-custody hardening."
+    },
+    {
+      "path": ".github/workflows/constraint-t1-raw-artifact-store.yml",
+      "predecessor_git_blob_sha": "4e4744e3cc0a51a4aebb8d7dd4f9b0e585f384fa",
+      "successor_git_blob_sha": "217252895e087634cb4734b427872818c493db5f",
+      "reason": "Run T1 tests when the private capture helper changes and syntax-parse the operator PowerShell before merge."
     }
   ],
   "guardrails": [
