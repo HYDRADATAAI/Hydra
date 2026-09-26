@@ -85,6 +85,7 @@ class RawArtifactStore:
             "objects", "sha256", artifact_sha256[:2], artifact_sha256[2:4], f"{artifact_sha256}.raw"
         )
         artifact_path = self.root / artifact_relpath
+        self._require_private_path(artifact_path)
         _write_immutable_bytes(artifact_path, raw_bytes, expected_sha256=artifact_sha256)
 
         receipt: dict[str, Any] = {
@@ -107,6 +108,7 @@ class RawArtifactStore:
 
         receipt_relpath = Path("receipts", source_id, f"{source_version_id}.json")
         receipt_path = self.root / receipt_relpath
+        self._require_private_path(receipt_path)
         encoded = _canonical_json(receipt)
         _write_immutable_bytes(
             receipt_path,
@@ -161,8 +163,9 @@ class RawArtifactStore:
         artifact_relpath = Path(str(receipt["artifact_relpath"]))
         if artifact_relpath.is_absolute() or ".." in artifact_relpath.parts:
             return ("artifact_relpath_unsafe",)
-        artifact_path = (self.root / artifact_relpath).resolve()
-        if not artifact_path.is_relative_to(self.root):
+        try:
+            artifact_path = self._require_private_path(self.root / artifact_relpath)
+        except PublicRepositoryRootError:
             return ("artifact_relpath_unsafe",)
         if not artifact_path.is_file():
             return ("artifact_missing",)
@@ -171,6 +174,16 @@ class RawArtifactStore:
             return ("artifact_digest_mismatch",)
         if len(raw) != receipt["byte_length"]:
             return ("artifact_length_mismatch",)
+
+        receipt_path = self.root / "receipts" / str(receipt["source_id"]) / f"{receipt['source_version_id']}.json"
+        try:
+            receipt_path = self._require_private_path(receipt_path)
+        except PublicRepositoryRootError:
+            return ("receipt_record_path_unsafe",)
+        if not receipt_path.is_file():
+            return ("receipt_record_missing",)
+        if receipt_path.read_bytes() != _canonical_json(receipt):
+            return ("receipt_record_mismatch",)
         return ()
 
     def write_release_manifest(
@@ -180,15 +193,51 @@ class RawArtifactStore:
         created_at: str,
         receipts: Sequence[Mapping[str, Any]],
     ) -> dict[str, Any]:
+        for receipt in receipts:
+            issues = self.validate_receipt(receipt)
+            if issues:
+                raise ArtifactIntegrityError(
+                    "release may contain only exact persisted receipt records: " + ",".join(issues)
+                )
         manifest = build_release_manifest(
             release_id=release_id,
             created_at=created_at,
             receipts=receipts,
         )
-        path = self.root / "releases" / f"{release_id}.json"
+        path = self._require_private_path(self.root / "releases" / f"{release_id}.json")
         encoded = _canonical_json(manifest)
         _write_immutable_bytes(path, encoded, expected_sha256=hashlib.sha256(encoded).hexdigest())
         return manifest
+
+    def validate_stored_release_manifest(self, manifest: Mapping[str, Any]) -> tuple[str, ...]:
+        """Require the supplied release to be the exact immutable record stored by this store."""
+        issues = validate_release_manifest(manifest)
+        if issues:
+            return issues
+        release_id = str(manifest["release_id"])
+        try:
+            path = self._require_private_path(self.root / "releases" / f"{release_id}.json")
+        except PublicRepositoryRootError:
+            return ("release_record_path_unsafe",)
+        if not path.is_file():
+            return ("release_record_missing",)
+        if path.read_bytes() != _canonical_json(manifest):
+            return ("release_record_mismatch",)
+        return ()
+
+    def _require_private_path(self, path: Path) -> Path:
+        """Resolve and enforce the private/public storage boundary for every store path."""
+        resolved = path.resolve(strict=False)
+        if not resolved.is_relative_to(self.root):
+            raise PublicRepositoryRootError(
+                f"private raw-artifact path escapes configured private root: {path}"
+            )
+        repo = self.public_repo_root
+        if repo is not None and (resolved == repo or resolved.is_relative_to(repo)):
+            raise PublicRepositoryRootError(
+                f"private raw-artifact path resolves inside the public repository: {path}"
+            )
+        return resolved
 
 
 def build_release_manifest(
@@ -283,7 +332,7 @@ def is_ordinary_t2_eligible(
 ) -> bool:
     if store.validate_receipt(receipt):
         return False
-    if validate_release_manifest(release_manifest):
+    if store.validate_stored_release_manifest(release_manifest):
         return False
     if receipt.get("processing_disposition") != ELIGIBLE_DISPOSITION:
         return False
