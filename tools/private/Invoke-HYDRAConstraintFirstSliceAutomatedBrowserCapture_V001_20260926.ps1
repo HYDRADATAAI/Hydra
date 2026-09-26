@@ -14,7 +14,7 @@ param(
 
     [string]$RepoRoot,
 
-    [string]$PrivateRoot = "D:\HYDRA_PRIVATE\constraint",
+    [string]$PrivateRoot = "D:\HYDRA\_PRIVATE\constraint",
 
     [string]$BootstrapPython = "python",
 
