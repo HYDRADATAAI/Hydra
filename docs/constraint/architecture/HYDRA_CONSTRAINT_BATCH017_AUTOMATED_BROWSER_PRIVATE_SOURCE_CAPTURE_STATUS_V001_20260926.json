@@ -25,7 +25,16 @@
     "explicit_operator_authorization_required": true,
     "private_root": "D:\\HYDRA_PRIVATE\\constraint",
     "browser_session_material_exported": false,
-    "post_capture_sanitized_status_builder_invoked": true
+    "post_capture_sanitized_status_builder_invoked": true,
+    "python_only_bootstrap_ready": true,
+    "python_bootstrap_is_normal_workflow": true,
+    "powershell_required_for_normal_workflow": false,
+    "validated_partial_resume": true,
+    "auto_resume_latest_incomplete_journal": true,
+    "browser_target_closed_restart_retries": 2,
+    "resume_requires_exact_registry_order_prefix": true,
+    "resume_revalidates_hash_and_body": true,
+    "current_private_root": "D:\\HYDRA\\_PRIVATE\\constraint"
   },
   "fail_closed_on": [
     "WRONG_URL",
