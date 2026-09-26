@@ -37,8 +37,8 @@
   },
   "snapshot_output": {
     "path": "constraint-replay/operating/HYDRA_CONSTRAINT_BATCH019_OPERATING_SNAPSHOT_20260926.json",
-    "git_blob_sha": "e877ff26fd3457651b5ab708e3cc41b07e4e26c8",
-    "snapshot_digest_sha256": "99fc9235e146e87ed716d3f55484ae8c0ed66ce5ab28e7225e0dd1f5712aa6ef"
+    "git_blob_sha": "589e21b3156cda90bb824485d10c20cb60910577",
+    "snapshot_digest_sha256": "4e6d3de489457c125d27aa243f983891c0ee988a4b0671b6d496d4c00125fa03"
   },
   "expected": {
     "base_case_count": 22,
