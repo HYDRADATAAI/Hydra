@@ -33,8 +33,8 @@
     {
       "path": ".github/workflows/constraint-t1-raw-artifact-store.yml",
       "predecessor_git_blob_sha": "4e4744e3cc0a51a4aebb8d7dd4f9b0e585f384fa",
-      "successor_git_blob_sha": "1dd0c0ffefb83257f1820e6b050ca90962567212",
-      "reason": "Run T1 tests for both private capture entry points and syntax-parse both operator PowerShell launchers before merge."
+      "successor_git_blob_sha": "803b4932a6c6b4da2f284d502e7ecf38f44e0553",
+      "reason": "Run T1 tests and PowerShell syntax checks for legacy/automated capture entry points, and trigger CI when the canonical Python-only browser bootstrap changes."
     }
   ],
   "guardrails": [
@@ -43,7 +43,8 @@
     "NO_RAW_SOURCE_BODY_PUBLISHED",
     "NO_CHALLENGE_BYPASS_OR_CREDENTIAL_REPLAY",
     "NO_ORDINARY_HISTORICAL_REPLAY_PROMOTION",
-    "NO_NATIVE_T5_T6_ADMISSION_CLAIM"
+    "NO_NATIVE_T5_T6_ADMISSION_CLAIM",
+    "PYTHON_BOOTSTRAP_REPO_ANCHORED_NO_DRIVE_SCAN"
   ],
   "predecessor_map": "HYDRA_CONSTRAINT_BATCH017_T1_PRIVATE_RECORD_SUPERSESSION_MAP_V001_20260926",
   "browser_acquisition": {
