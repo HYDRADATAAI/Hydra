@@ -18,7 +18,7 @@ VALIDATION_DIR = ROOT / "docs/constraint/validation"
 
 MANIFEST_NAMES = [
     f"HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH{n:03d}_ARTIFACT_MANIFEST_V001_20260925.json"
-    for n in range(3, 11)
+    for n in range(3, 12)
 ]
 
 
@@ -283,6 +283,24 @@ def case_master_falsely_ready(root: Path) -> None:
     )
 
 
+
+def case_custody_contract_relaxed(root: Path) -> None:
+    relative = (
+        "docs/constraint/implementation/"
+        "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH011_T1_T2_PERSISTED_CHAIN_OF_CUSTODY_CONTRACT_V001_20260925.json"
+    )
+
+    def mutate(doc: dict) -> None:
+        doc["authority_semantics"]["caller_supplied_in_memory_release_manifest_authoritative"] = True
+
+    mutate_json(
+        root,
+        relative,
+        mutate,
+        manifest_name="HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH011_ARTIFACT_MANIFEST_V001_20260925.json",
+    )
+
+
 def main() -> int:
     cases = [
         ("backdated_availability", case_backdated_availability, "conservative availability drift"),
@@ -294,6 +312,7 @@ def main() -> int:
         ("candidate_mints_canonical", case_candidate_mints_canonical, "Batch010 minted canonical constraint ID"),
         ("beneficiary_falsely_qualified", case_beneficiary_falsely_qualified, "Batch010 fabricated qualified beneficiary"),
         ("master_falsely_ready", case_master_falsely_ready, "master falsely claims full-run readiness"),
+        ("custody_contract_relaxed", case_custody_contract_relaxed, "in-memory release became authority"),
     ]
     for name, mutator, expected in cases:
         expect_failure(name, mutator, expected)
