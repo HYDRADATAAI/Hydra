@@ -890,10 +890,24 @@ def main() -> int:
             latest_readiness["FULL_CONSTRAINT_RUN_READY"].get("status") == "NO",
             "latest master falsely claims full-run readiness",
         )
-    require(
-        latest_master.get("first_serious_constraint_run") == "BLOCKED",
-        "latest master falsely claims serious-run readiness",
-    )
+    # Batch014 records strict acceptance in acceptance_state instead of the
+    # older top-level serious-run field. Neither missing nor conflicting
+    # declarations may silently become a blocked state.
+    acceptance = latest_master.get("acceptance_state")
+    if "first_serious_constraint_run" in latest_master:
+        require(latest_master["first_serious_constraint_run"] == "BLOCKED",
+                "latest master falsely claims serious-run readiness")
+    else:
+        require(isinstance(acceptance, dict) and acceptance.get("overall") == "BLOCKED",
+                "latest master lacks explicit blocked acceptance")
+        for gate in ("FULL_CONSTRAINT_RUN_READY", "IMPLEMENTATION_ADMITTED",
+                     "ORDINARY_HISTORICAL_REPLAY_READY"):
+            value = latest_readiness.get(gate)
+            require(isinstance(value, dict) and value.get("status") == "NO",
+                    "latest master lacks explicit blocked readiness: " + gate)
+    if acceptance is not None:
+        require(isinstance(acceptance, dict) and acceptance.get("overall") == "BLOCKED",
+                "latest master has conflicting acceptance readiness")
 
     print("CONSTRAINT_FIRST_SLICE_INTEGRATION_VALIDATION=PASS")
     print(f"SLICE_ID={SLICE_ID}")

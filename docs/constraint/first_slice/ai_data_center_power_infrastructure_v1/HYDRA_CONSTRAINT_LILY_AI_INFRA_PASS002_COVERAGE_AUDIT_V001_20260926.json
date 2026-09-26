@@ -1,0 +1,596 @@
+{
+  "record_id": "HYDRA_CONSTRAINT_LILY_AI_INFRA_PASS002_COVERAGE_AUDIT_V001_20260926",
+  "status": "VERTICAL_INTEGRATION_THIN",
+  "scope": "Repository-backed first-slice stack b79a853; physical/policy/replay closure branch 425ea997 inspected read-only. EMPTY/MISSING are scoped vertical implementation findings, not claims that HYDRA has no generic concept.",
+  "base_commit": "b79a853",
+  "physical_owner_commit": "425ea997853e69bc41265fa1f142112cc7161329",
+  "counts": {
+    "THIN": 22,
+    "EMPTY": 31,
+    "MISSING": 4
+  },
+  "areas": [
+    {
+      "area": "Compute",
+      "concept": "data-center campuses",
+      "status": "THIN",
+      "basis": "Bounded reviewed evidence or seed edges exist; no admitted complete vertical traversal.",
+      "owner": "T5/T6 first-slice evidence + physical-domain owner seam"
+    },
+    {
+      "area": "Compute",
+      "concept": "hyperscale facilities",
+      "status": "THIN",
+      "basis": "Bounded reviewed evidence or seed edges exist; no admitted complete vertical traversal.",
+      "owner": "T5/T6 first-slice evidence + physical-domain owner seam"
+    },
+    {
+      "area": "Compute",
+      "concept": "colocation facilities",
+      "status": "EMPTY",
+      "basis": "Generic facility/resource/product/dependency representation exists; this specific AI vertical population and traversal are unproven.",
+      "owner": "Physical-domain / policy owners, pending normal branch integration"
+    },
+    {
+      "area": "Compute",
+      "concept": "cloud regions",
+      "status": "EMPTY",
+      "basis": "Generic facility/resource/product/dependency representation exists; this specific AI vertical population and traversal are unproven.",
+      "owner": "Physical-domain / policy owners, pending normal branch integration"
+    },
+    {
+      "area": "Compute",
+      "concept": "AI compute clusters",
+      "status": "EMPTY",
+      "basis": "Generic facility/resource/product/dependency representation exists; this specific AI vertical population and traversal are unproven.",
+      "owner": "Physical-domain / policy owners, pending normal branch integration"
+    },
+    {
+      "area": "Compute",
+      "concept": "accelerator deployments",
+      "status": "EMPTY",
+      "basis": "Generic facility/resource/product/dependency representation exists; this specific AI vertical population and traversal are unproven.",
+      "owner": "Physical-domain / policy owners, pending normal branch integration"
+    },
+    {
+      "area": "Compute",
+      "concept": "server capacity",
+      "status": "EMPTY",
+      "basis": "Generic facility/resource/product/dependency representation exists; this specific AI vertical population and traversal are unproven.",
+      "owner": "Physical-domain / policy owners, pending normal branch integration"
+    },
+    {
+      "area": "Compute",
+      "concept": "rack-density classes where evidence permits",
+      "status": "MISSING",
+      "basis": "No dedicated governed contract or populated vertical relationship located in inspected scope; owner determination required.",
+      "owner": "Physical-domain / policy owners, pending normal branch integration"
+    },
+    {
+      "area": "Compute",
+      "concept": "compute expansion projects",
+      "status": "THIN",
+      "basis": "Bounded reviewed evidence or seed edges exist; no admitted complete vertical traversal.",
+      "owner": "T5/T6 first-slice evidence + physical-domain owner seam"
+    },
+    {
+      "area": "Compute",
+      "concept": "facility construction/commissioning state",
+      "status": "THIN",
+      "basis": "Bounded reviewed evidence or seed edges exist; no admitted complete vertical traversal.",
+      "owner": "T5/T6 first-slice evidence + physical-domain owner seam"
+    },
+    {
+      "area": "Power",
+      "concept": "generating assets",
+      "status": "EMPTY",
+      "basis": "Generic facility/resource/product/dependency representation exists; this specific AI vertical population and traversal are unproven.",
+      "owner": "Physical-domain / policy owners, pending normal branch integration"
+    },
+    {
+      "area": "Power",
+      "concept": "generation mix",
+      "status": "EMPTY",
+      "basis": "Generic facility/resource/product/dependency representation exists; this specific AI vertical population and traversal are unproven.",
+      "owner": "Physical-domain / policy owners, pending normal branch integration"
+    },
+    {
+      "area": "Power",
+      "concept": "grid regions",
+      "status": "THIN",
+      "basis": "Bounded reviewed evidence or seed edges exist; no admitted complete vertical traversal.",
+      "owner": "T5/T6 first-slice evidence + physical-domain owner seam"
+    },
+    {
+      "area": "Power",
+      "concept": "transmission",
+      "status": "THIN",
+      "basis": "Bounded reviewed evidence or seed edges exist; no admitted complete vertical traversal.",
+      "owner": "T5/T6 first-slice evidence + physical-domain owner seam"
+    },
+    {
+      "area": "Power",
+      "concept": "substations",
+      "status": "EMPTY",
+      "basis": "Generic facility/resource/product/dependency representation exists; this specific AI vertical population and traversal are unproven.",
+      "owner": "Physical-domain / policy owners, pending normal branch integration"
+    },
+    {
+      "area": "Power",
+      "concept": "transformers",
+      "status": "THIN",
+      "basis": "Bounded reviewed evidence or seed edges exist; no admitted complete vertical traversal.",
+      "owner": "T5/T6 first-slice evidence + physical-domain owner seam"
+    },
+    {
+      "area": "Power",
+      "concept": "interconnects",
+      "status": "THIN",
+      "basis": "Bounded reviewed evidence or seed edges exist; no admitted complete vertical traversal.",
+      "owner": "T5/T6 first-slice evidence + physical-domain owner seam"
+    },
+    {
+      "area": "Power",
+      "concept": "interconnection queues where historically available",
+      "status": "THIN",
+      "basis": "Bounded reviewed evidence or seed edges exist; no admitted complete vertical traversal.",
+      "owner": "T5/T6 first-slice evidence + physical-domain owner seam"
+    },
+    {
+      "area": "Power",
+      "concept": "contracted power",
+      "status": "THIN",
+      "basis": "Bounded reviewed evidence or seed edges exist; no admitted complete vertical traversal.",
+      "owner": "T5/T6 first-slice evidence + physical-domain owner seam"
+    },
+    {
+      "area": "Power",
+      "concept": "PPAs",
+      "status": "EMPTY",
+      "basis": "Generic facility/resource/product/dependency representation exists; this specific AI vertical population and traversal are unproven.",
+      "owner": "Physical-domain / policy owners, pending normal branch integration"
+    },
+    {
+      "area": "Power",
+      "concept": "backup generation",
+      "status": "EMPTY",
+      "basis": "Generic facility/resource/product/dependency representation exists; this specific AI vertical population and traversal are unproven.",
+      "owner": "Physical-domain / policy owners, pending normal branch integration"
+    },
+    {
+      "area": "Power",
+      "concept": "onsite generation",
+      "status": "THIN",
+      "basis": "Bounded reviewed evidence or seed edges exist; no admitted complete vertical traversal.",
+      "owner": "T5/T6 first-slice evidence + physical-domain owner seam"
+    },
+    {
+      "area": "Power",
+      "concept": "nuclear / gas / renewable dependencies",
+      "status": "THIN",
+      "basis": "Bounded reviewed evidence or seed edges exist; no admitted complete vertical traversal.",
+      "owner": "T5/T6 first-slice evidence + physical-domain owner seam"
+    },
+    {
+      "area": "Power",
+      "concept": "grid congestion",
+      "status": "THIN",
+      "basis": "Bounded reviewed evidence or seed edges exist; no admitted complete vertical traversal.",
+      "owner": "T5/T6 first-slice evidence + physical-domain owner seam"
+    },
+    {
+      "area": "Power",
+      "concept": "power availability constraints",
+      "status": "THIN",
+      "basis": "Bounded reviewed evidence or seed edges exist; no admitted complete vertical traversal.",
+      "owner": "T5/T6 first-slice evidence + physical-domain owner seam"
+    },
+    {
+      "area": "Water / Cooling",
+      "concept": "water sources",
+      "status": "EMPTY",
+      "basis": "Generic facility/resource/product/dependency representation exists; this specific AI vertical population and traversal are unproven.",
+      "owner": "Physical-domain / policy owners, pending normal branch integration"
+    },
+    {
+      "area": "Water / Cooling",
+      "concept": "municipal supply",
+      "status": "EMPTY",
+      "basis": "Generic facility/resource/product/dependency representation exists; this specific AI vertical population and traversal are unproven.",
+      "owner": "Physical-domain / policy owners, pending normal branch integration"
+    },
+    {
+      "area": "Water / Cooling",
+      "concept": "cooling systems",
+      "status": "THIN",
+      "basis": "Bounded reviewed evidence or seed edges exist; no admitted complete vertical traversal.",
+      "owner": "T5/T6 first-slice evidence + physical-domain owner seam"
+    },
+    {
+      "area": "Water / Cooling",
+      "concept": "water rights where strategically material",
+      "status": "MISSING",
+      "basis": "No dedicated governed contract or populated vertical relationship located in inspected scope; owner determination required.",
+      "owner": "Physical-domain / policy owners, pending normal branch integration"
+    },
+    {
+      "area": "Water / Cooling",
+      "concept": "drought exposure",
+      "status": "EMPTY",
+      "basis": "Generic facility/resource/product/dependency representation exists; this specific AI vertical population and traversal are unproven.",
+      "owner": "Physical-domain / policy owners, pending normal branch integration"
+    },
+    {
+      "area": "Water / Cooling",
+      "concept": "competing industrial/municipal demand",
+      "status": "EMPTY",
+      "basis": "Generic facility/resource/product/dependency representation exists; this specific AI vertical population and traversal are unproven.",
+      "owner": "Physical-domain / policy owners, pending normal branch integration"
+    },
+    {
+      "area": "Water / Cooling",
+      "concept": "cooling-capacity constraints",
+      "status": "EMPTY",
+      "basis": "Generic facility/resource/product/dependency representation exists; this specific AI vertical population and traversal are unproven.",
+      "owner": "Physical-domain / policy owners, pending normal branch integration"
+    },
+    {
+      "area": "Water / Cooling",
+      "concept": "water restrictions",
+      "status": "EMPTY",
+      "basis": "Generic facility/resource/product/dependency representation exists; this specific AI vertical population and traversal are unproven.",
+      "owner": "Physical-domain / policy owners, pending normal branch integration"
+    },
+    {
+      "area": "Semiconductor Dependency",
+      "concept": "GPU / accelerator suppliers",
+      "status": "EMPTY",
+      "basis": "Generic facility/resource/product/dependency representation exists; this specific AI vertical population and traversal are unproven.",
+      "owner": "Physical-domain / policy owners, pending normal branch integration"
+    },
+    {
+      "area": "Semiconductor Dependency",
+      "concept": "advanced logic fabrication",
+      "status": "EMPTY",
+      "basis": "Generic facility/resource/product/dependency representation exists; this specific AI vertical population and traversal are unproven.",
+      "owner": "Physical-domain / policy owners, pending normal branch integration"
+    },
+    {
+      "area": "Semiconductor Dependency",
+      "concept": "advanced packaging",
+      "status": "EMPTY",
+      "basis": "Generic facility/resource/product/dependency representation exists; this specific AI vertical population and traversal are unproven.",
+      "owner": "Physical-domain / policy owners, pending normal branch integration"
+    },
+    {
+      "area": "Semiconductor Dependency",
+      "concept": "HBM",
+      "status": "EMPTY",
+      "basis": "Generic facility/resource/product/dependency representation exists; this specific AI vertical population and traversal are unproven.",
+      "owner": "Physical-domain / policy owners, pending normal branch integration"
+    },
+    {
+      "area": "Semiconductor Dependency",
+      "concept": "memory",
+      "status": "EMPTY",
+      "basis": "Generic facility/resource/product/dependency representation exists; this specific AI vertical population and traversal are unproven.",
+      "owner": "Physical-domain / policy owners, pending normal branch integration"
+    },
+    {
+      "area": "Semiconductor Dependency",
+      "concept": "substrates",
+      "status": "EMPTY",
+      "basis": "Generic facility/resource/product/dependency representation exists; this specific AI vertical population and traversal are unproven.",
+      "owner": "Physical-domain / policy owners, pending normal branch integration"
+    },
+    {
+      "area": "Semiconductor Dependency",
+      "concept": "networking silicon",
+      "status": "EMPTY",
+      "basis": "Generic facility/resource/product/dependency representation exists; this specific AI vertical population and traversal are unproven.",
+      "owner": "Physical-domain / policy owners, pending normal branch integration"
+    },
+    {
+      "area": "Semiconductor Dependency",
+      "concept": "server manufacturing",
+      "status": "EMPTY",
+      "basis": "Generic facility/resource/product/dependency representation exists; this specific AI vertical population and traversal are unproven.",
+      "owner": "Physical-domain / policy owners, pending normal branch integration"
+    },
+    {
+      "area": "Semiconductor Dependency",
+      "concept": "critical semiconductor equipment/material dependencies",
+      "status": "EMPTY",
+      "basis": "Generic facility/resource/product/dependency representation exists; this specific AI vertical population and traversal are unproven.",
+      "owner": "Physical-domain / policy owners, pending normal branch integration"
+    },
+    {
+      "area": "Network Infrastructure",
+      "concept": "fiber corridors",
+      "status": "THIN",
+      "basis": "Bounded reviewed evidence or seed edges exist; no admitted complete vertical traversal.",
+      "owner": "T5/T6 first-slice evidence + physical-domain owner seam"
+    },
+    {
+      "area": "Network Infrastructure",
+      "concept": "carrier density",
+      "status": "MISSING",
+      "basis": "No dedicated governed contract or populated vertical relationship located in inspected scope; owner determination required.",
+      "owner": "Physical-domain / policy owners, pending normal branch integration"
+    },
+    {
+      "area": "Network Infrastructure",
+      "concept": "internet exchanges",
+      "status": "EMPTY",
+      "basis": "Generic facility/resource/product/dependency representation exists; this specific AI vertical population and traversal are unproven.",
+      "owner": "Physical-domain / policy owners, pending normal branch integration"
+    },
+    {
+      "area": "Network Infrastructure",
+      "concept": "backbone connectivity",
+      "status": "THIN",
+      "basis": "Bounded reviewed evidence or seed edges exist; no admitted complete vertical traversal.",
+      "owner": "T5/T6 first-slice evidence + physical-domain owner seam"
+    },
+    {
+      "area": "Network Infrastructure",
+      "concept": "subsea cable connectivity where material",
+      "status": "EMPTY",
+      "basis": "Generic facility/resource/product/dependency representation exists; this specific AI vertical population and traversal are unproven.",
+      "owner": "Physical-domain / policy owners, pending normal branch integration"
+    },
+    {
+      "area": "Network Infrastructure",
+      "concept": "terrestrial network chokepoints",
+      "status": "EMPTY",
+      "basis": "Generic facility/resource/product/dependency representation exists; this specific AI vertical population and traversal are unproven.",
+      "owner": "Physical-domain / policy owners, pending normal branch integration"
+    },
+    {
+      "area": "Network Infrastructure",
+      "concept": "latency-sensitive geographic relationships",
+      "status": "MISSING",
+      "basis": "No dedicated governed contract or populated vertical relationship located in inspected scope; owner determination required.",
+      "owner": "Physical-domain / policy owners, pending normal branch integration"
+    },
+    {
+      "area": "Physical Geography / Land",
+      "concept": "data-center clusters",
+      "status": "THIN",
+      "basis": "Bounded reviewed evidence or seed edges exist; no admitted complete vertical traversal.",
+      "owner": "T5/T6 first-slice evidence + physical-domain owner seam"
+    },
+    {
+      "area": "Physical Geography / Land",
+      "concept": "industrial land",
+      "status": "THIN",
+      "basis": "Bounded reviewed evidence or seed edges exist; no admitted complete vertical traversal.",
+      "owner": "T5/T6 first-slice evidence + physical-domain owner seam"
+    },
+    {
+      "area": "Physical Geography / Land",
+      "concept": "proximity to transmission",
+      "status": "THIN",
+      "basis": "Bounded reviewed evidence or seed edges exist; no admitted complete vertical traversal.",
+      "owner": "T5/T6 first-slice evidence + physical-domain owner seam"
+    },
+    {
+      "area": "Physical Geography / Land",
+      "concept": "proximity to substations",
+      "status": "EMPTY",
+      "basis": "Generic facility/resource/product/dependency representation exists; this specific AI vertical population and traversal are unproven.",
+      "owner": "Physical-domain / policy owners, pending normal branch integration"
+    },
+    {
+      "area": "Physical Geography / Land",
+      "concept": "water availability",
+      "status": "THIN",
+      "basis": "Bounded reviewed evidence or seed edges exist; no admitted complete vertical traversal.",
+      "owner": "T5/T6 first-slice evidence + physical-domain owner seam"
+    },
+    {
+      "area": "Physical Geography / Land",
+      "concept": "flood/fire/weather exposure where materially relevant",
+      "status": "EMPTY",
+      "basis": "Generic facility/resource/product/dependency representation exists; this specific AI vertical population and traversal are unproven.",
+      "owner": "Physical-domain / policy owners, pending normal branch integration"
+    },
+    {
+      "area": "Physical Geography / Land",
+      "concept": "transport/logistics dependencies",
+      "status": "EMPTY",
+      "basis": "Generic facility/resource/product/dependency representation exists; this specific AI vertical population and traversal are unproven.",
+      "owner": "Physical-domain / policy owners, pending normal branch integration"
+    },
+    {
+      "area": "Physical Geography / Land",
+      "concept": "regional permitting constraints",
+      "status": "THIN",
+      "basis": "Bounded reviewed evidence or seed edges exist; no admitted complete vertical traversal.",
+      "owner": "T5/T6 first-slice evidence + physical-domain owner seam"
+    }
+  ],
+  "predecessor_correction": {
+    "classification": "DUPLICATE/STALE",
+    "artifact": "Batch011 shadow candidate visibility / no-lookahead receipt",
+    "reason": "Predecessor algorithm included every candidate regardless of claim or candidate knowledge time. Historical files retained, no longer evidence of current full-lineage no-lookahead."
+  },
+  "input_pins": [
+    {
+      "path": "docs/constraint/first_slice/ai_data_center_power_infrastructure_v1/HYDRA_CONSTRAINT_LILY_OWNER_SEAM_RECONCILIATION_T5_CANDIDATE_TEMPORAL_IDENTITY_OVERLAY_V001_20260926.json",
+      "sha256": "00e506388da24f31a626f03d2759b0ebe6cf804a42d7195b712125b08336f259"
+    },
+    {
+      "path": "docs/constraint/first_slice/ai_data_center_power_infrastructure_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH003_AI_DATA_CENTER_POWER_INFRASTRUCTURE_EVIDENCE_SEED_V001_20260925.json",
+      "sha256": "8989956f7cb0fe01119315062775dec38300bf05a346ec3e1befbe385eae2f50"
+    },
+    {
+      "path": "docs/constraint/first_slice/ai_data_center_power_infrastructure_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH003_AI_DATA_CENTER_POWER_INFRASTRUCTURE_FIELD_MATRIX_V001_20260925.json",
+      "sha256": "1aa1c1a916ec1de30b3dd456325c4f27fefc312a7d840ef11120c84051c8fe55"
+    },
+    {
+      "path": "docs/constraint/first_slice/ai_data_center_power_infrastructure_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH003_AI_DATA_CENTER_POWER_INFRASTRUCTURE_GRAPH_SEED_V001_20260925.json",
+      "sha256": "939f93e7e6177464cbb194facba820a6f82754417d095d889e07776fbd235234"
+    },
+    {
+      "path": "docs/constraint/first_slice/ai_data_center_power_infrastructure_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH003_AI_DATA_CENTER_POWER_INFRASTRUCTURE_POPULATION_STATUS_V001_20260925.json",
+      "sha256": "e12fa90d7e717cd946a1516582bfd8f83aa45311f4951868d995394ec04aa978"
+    },
+    {
+      "path": "docs/constraint/first_slice/ai_data_center_power_infrastructure_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH003_AI_DATA_CENTER_POWER_INFRASTRUCTURE_SOURCE_REGISTRY_V001_20260925.json",
+      "sha256": "006247b6ca0efd2588737e8ad8b4cb1aa141242a87d9ccf1e495a9564fa362aa"
+    },
+    {
+      "path": "docs/constraint/first_slice/ai_data_center_power_infrastructure_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH004_AI_DATA_CENTER_POWER_INFRASTRUCTURE_PIT_ACQUISITION_CAPTURE_V001_20260925.json",
+      "sha256": "ff1b46720c13c69f23f905a89b10baf662c00b63cf10d3d6849330febcaed0ea"
+    },
+    {
+      "path": "docs/constraint/first_slice/ai_data_center_power_infrastructure_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH004_AI_DATA_CENTER_POWER_INFRASTRUCTURE_PIT_STATUS_V001_20260925.json",
+      "sha256": "3d2ae00963f382e3501388c73006acf369dcfcaf193524aa00f37a247acddc44"
+    },
+    {
+      "path": "docs/constraint/first_slice/ai_data_center_power_infrastructure_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH005_AI_DATA_CENTER_POWER_INFRASTRUCTURE_SOURCE_TEMPORAL_AUDIT_V001_20260925.json",
+      "sha256": "74ce27573b3333ae405a74a2cd83126e14657d39f95662174ff4f2ac4106c5f5"
+    },
+    {
+      "path": "docs/constraint/first_slice/ai_data_center_power_infrastructure_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH005_AI_DATA_CENTER_POWER_INFRASTRUCTURE_SOURCE_TEMPORAL_STATUS_V001_20260925.json",
+      "sha256": "a50bfbcab19facddf76a33742d4183411bb45b01e47fb2898cb65213a83eff16"
+    },
+    {
+      "path": "docs/constraint/first_slice/ai_data_center_power_infrastructure_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH006_AI_DATA_CENTER_POWER_INFRASTRUCTURE_EVIDENCE_SUPPLEMENT_V001_20260925.json",
+      "sha256": "b0c58c043e5231cd8cd1ba4e84e2157b5d5d485bf2df10e18f7e5fd9428dd547"
+    },
+    {
+      "path": "docs/constraint/first_slice/ai_data_center_power_infrastructure_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH006_AI_DATA_CENTER_POWER_INFRASTRUCTURE_FIELD_POPULATION_OVERLAY_V001_20260925.json",
+      "sha256": "e14b4c80a841693e293193373ff28569c2b575b7b8dcda5f3b39e149a7bc2d6b"
+    },
+    {
+      "path": "docs/constraint/first_slice/ai_data_center_power_infrastructure_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH006_AI_DATA_CENTER_POWER_INFRASTRUCTURE_GRAPH_OVERLAY_V001_20260925.json",
+      "sha256": "70619fd3e4498c41d54904dbeaa75015fc1b10ebbce3d1cd548d22bade6a4d00"
+    },
+    {
+      "path": "docs/constraint/first_slice/ai_data_center_power_infrastructure_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH006_AI_DATA_CENTER_POWER_INFRASTRUCTURE_SOURCE_GAP_STATUS_V001_20260925.json",
+      "sha256": "37e4a043e12940f2244cd50ea8e1ec6cf08506f173fbf0634fde59f4ac67f14f"
+    },
+    {
+      "path": "docs/constraint/first_slice/ai_data_center_power_infrastructure_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH006_AI_DATA_CENTER_POWER_INFRASTRUCTURE_SOURCE_REGISTRY_EXTENSION_V001_20260925.json",
+      "sha256": "5d5efa65a49754006c4ceb07a16f1610058bc09492365a91c918414f8d67ea92"
+    },
+    {
+      "path": "docs/constraint/first_slice/ai_data_center_power_infrastructure_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH007_AI_DATA_CENTER_POWER_INFRASTRUCTURE_CONSERVATIVE_AVAILABILITY_OVERLAY_V001_20260925.json",
+      "sha256": "7821a3d2315fa777739d7099a93848ff7c0ec41fcc92772713709b18a0f0c5da"
+    },
+    {
+      "path": "docs/constraint/first_slice/ai_data_center_power_infrastructure_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH007_AI_DATA_CENTER_POWER_INFRASTRUCTURE_PIT_STATUS_V001_20260925.json",
+      "sha256": "188ce4b5e2b7abebc76747e1743512e0443d282172816ab0e6bec71863597994"
+    },
+    {
+      "path": "docs/constraint/first_slice/ai_data_center_power_infrastructure_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH009_AI_DATA_CENTER_POWER_INFRASTRUCTURE_FIBER_EVIDENCE_SUPPLEMENT_V001_20260925.json",
+      "sha256": "dc44bef6c787eff37f6473e9af1ea9eabd23e6792969f9f70552fae5ed1d4bc7"
+    },
+    {
+      "path": "docs/constraint/first_slice/ai_data_center_power_infrastructure_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH009_AI_DATA_CENTER_POWER_INFRASTRUCTURE_FIBER_FIELD_OVERLAY_V001_20260925.json",
+      "sha256": "2a213fafb6280a46c2516054aada58bf19036fcb2a90abefb8f7b88a3b4c3b3a"
+    },
+    {
+      "path": "docs/constraint/first_slice/ai_data_center_power_infrastructure_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH009_AI_DATA_CENTER_POWER_INFRASTRUCTURE_FIBER_GRAPH_OVERLAY_V001_20260925.json",
+      "sha256": "f0ee45ea35972bc3647b8a6c95ce197d0e38d797838ecf660ba133fdf5a03329"
+    },
+    {
+      "path": "docs/constraint/first_slice/ai_data_center_power_infrastructure_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH009_AI_DATA_CENTER_POWER_INFRASTRUCTURE_SOURCE_GAP_STATUS_V001_20260925.json",
+      "sha256": "7a6ed064b5b23c4a9cfd017129f0e5dbf05c3948a10cc67ee7c3701aab4edca9"
+    },
+    {
+      "path": "docs/constraint/first_slice/ai_data_center_power_infrastructure_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH009_AI_DATA_CENTER_POWER_INFRASTRUCTURE_SOURCE_REGISTRY_EXTENSION_V001_20260925.json",
+      "sha256": "79781cfe3a52268d66c4026a4e3fd2970e72584a460a03060d706b6ad16e8633"
+    },
+    {
+      "path": "docs/constraint/first_slice/ai_data_center_power_infrastructure_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH010_AI_DATA_CENTER_POWER_INFRASTRUCTURE_BENEFICIARY_EVALUATIONS_V001_20260925.json",
+      "sha256": "8d82e9f732232e03e739dca7e835fb2cf6092141e7cde92fd8a6813d95309b14"
+    },
+    {
+      "path": "docs/constraint/first_slice/ai_data_center_power_infrastructure_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH010_AI_DATA_CENTER_POWER_INFRASTRUCTURE_BENEFICIARY_SOURCE_REGISTRY_EXTENSION_V001_20260925.json",
+      "sha256": "135f295bd650e1706cacb9817c2ff8652fd2d2a0892ac9cdad7d0744b8fd2901"
+    },
+    {
+      "path": "docs/constraint/first_slice/ai_data_center_power_infrastructure_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH010_AI_DATA_CENTER_POWER_INFRASTRUCTURE_CLAIM_CANDIDATE_BENEFICIARY_STATUS_V001_20260925.json",
+      "sha256": "f64d1d53861031790d5b7f86714a2caabea78201f32ed66c984d7a95b595f01e"
+    },
+    {
+      "path": "docs/constraint/first_slice/ai_data_center_power_infrastructure_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH010_AI_DATA_CENTER_POWER_INFRASTRUCTURE_CLAIM_REGISTRY_V001_20260925.json",
+      "sha256": "68c0fb0e3f7cf2512794dbeaa04f9c56d967b3278385a3fe4caa8d8fc3e57bb4"
+    },
+    {
+      "path": "docs/constraint/first_slice/ai_data_center_power_infrastructure_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH010_AI_DATA_CENTER_POWER_INFRASTRUCTURE_RELIEF_PATHS_V001_20260925.json",
+      "sha256": "d2d7dbe793fd5e517f44d643b503d0b89fe8ba55ead8161fc57167e4cfdbad2f"
+    },
+    {
+      "path": "docs/constraint/first_slice/ai_data_center_power_infrastructure_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH010_AI_DATA_CENTER_POWER_INFRASTRUCTURE_T5_CANDIDATE_PROPOSALS_V001_20260925.json",
+      "sha256": "16b3278057bba5a707f1d7a5a6fb3b7e3e8e6717434567deb9f4299b57276150"
+    },
+    {
+      "path": "docs/constraint/first_slice/ai_data_center_power_infrastructure_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH011_AI_DATA_CENTER_POWER_INFRASTRUCTURE_DETERMINISM_RECEIPT_V001_20260925.json",
+      "sha256": "dc9cd34045c0ac31bcaf4f1f81fb31d6536174f1d2a92d31ddf9a4a8d0b011ba"
+    },
+    {
+      "path": "docs/constraint/first_slice/ai_data_center_power_infrastructure_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH011_AI_DATA_CENTER_POWER_INFRASTRUCTURE_OUTCOME_RECORDS_V001_20260925.json",
+      "sha256": "1585c161d21fa3846092a0c7a8f06b3910017b8df2acb5722139fb4c97d32317"
+    },
+    {
+      "path": "docs/constraint/first_slice/ai_data_center_power_infrastructure_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH011_AI_DATA_CENTER_POWER_INFRASTRUCTURE_OUTCOME_TAXONOMY_V001_20260925.json",
+      "sha256": "2fc14314d412e9f21bbb841e1beb823336daa260e350cbbfbf1500424fdaf793"
+    },
+    {
+      "path": "docs/constraint/first_slice/ai_data_center_power_infrastructure_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH011_AI_DATA_CENTER_POWER_INFRASTRUCTURE_REQUIRED_CASES_OUTCOME_REPLAY_OVERLAY_V001_20260925.json",
+      "sha256": "aa98fae8b22e29ea643e758b622fd414b4aedb98ad71a97e274a6e384eaf006c"
+    },
+    {
+      "path": "docs/constraint/first_slice/ai_data_center_power_infrastructure_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH011_AI_DATA_CENTER_POWER_INFRASTRUCTURE_SHADOW_REPLAY_PACKET_V001_20260925.json",
+      "sha256": "63e39afe42aa84b0067fe403cc186884aed131168320170c059a9f1c0e56e0a5"
+    },
+    {
+      "path": "docs/constraint/first_slice/ai_data_center_power_infrastructure_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH012_AI_DATA_CENTER_POWER_INFRASTRUCTURE_HISTORICAL_CASE_EVIDENCE_SUPPLEMENT_V001_20260925.json",
+      "sha256": "79a48b72007714f11bfc7ccf1ca25408434119ab569346b6b3993e12b82e6d41"
+    },
+    {
+      "path": "docs/constraint/first_slice/ai_data_center_power_infrastructure_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH012_AI_DATA_CENTER_POWER_INFRASTRUCTURE_HISTORICAL_CASE_REGISTRY_V001_20260925.json",
+      "sha256": "c35574f8ff06b54e581ed917ee956c9d8a0ee625fc7d2e03d2ab01d38eb94e7e"
+    },
+    {
+      "path": "docs/constraint/first_slice/ai_data_center_power_infrastructure_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH012_AI_DATA_CENTER_POWER_INFRASTRUCTURE_HISTORICAL_CASE_SOURCE_REGISTRY_EXTENSION_V001_20260925.json",
+      "sha256": "5f4367631f9fc7006ec584e103a69b498c9bcf9ba9b17c4a35c2db539dc21184"
+    },
+    {
+      "path": "docs/constraint/first_slice/ai_data_center_power_infrastructure_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH012_AI_DATA_CENTER_POWER_INFRASTRUCTURE_OUTCOME_RECORDS_SUPPLEMENT_V001_20260925.json",
+      "sha256": "ae4a3727fe67ffc8c3daeb0109d0cacd4d75ed8052983576f690624b397e60fb"
+    },
+    {
+      "path": "docs/constraint/first_slice/ai_data_center_power_infrastructure_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH012_AI_DATA_CENTER_POWER_INFRASTRUCTURE_REQUIRED_CASES_HISTORICAL_CLOSURE_OVERLAY_V001_20260925.json",
+      "sha256": "72fd89be85d5c16a763ed77d036c3ab839e25ed17f454531a52f6c23b221de93"
+    },
+    {
+      "path": "docs/constraint/first_slice/ai_data_center_power_infrastructure_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH013_AI_DATA_CENTER_POWER_INFRASTRUCTURE_EATON_TRANSFORMER_PREQUALIFICATION_OVERLAY_V001_20260925.json",
+      "sha256": "73e37ff5e5e69c3b38a42e3b01ebe9eb8e8f6a1c9efe79d2d0bbc5fe9057920a"
+    },
+    {
+      "path": "docs/constraint/first_slice/ai_data_center_power_infrastructure_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH013_AI_DATA_CENTER_POWER_INFRASTRUCTURE_FALSE_CONSTRAINT_NEGATIVE_CONTROL_V001_20260925.json",
+      "sha256": "78505e82a1b810b958a38ae5805721305f98ab134ca2007d1406df7c5d445bd7"
+    },
+    {
+      "path": "docs/constraint/first_slice/ai_data_center_power_infrastructure_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH013_AI_DATA_CENTER_POWER_INFRASTRUCTURE_REQUIRED_CASE_001_002_006_CLOSURE_V001_20260925.json",
+      "sha256": "cee329e2145d93ec69bfa013073810fb2e9655aece09278405b25dfb72ad82f9"
+    },
+    {
+      "path": "docs/constraint/first_slice/ai_data_center_power_infrastructure_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH013_AI_DATA_CENTER_POWER_INFRASTRUCTURE_REQUIRED_CASE_MATRIX_V001_20260925.json",
+      "sha256": "f650d91122ec3ac486effea9511a6e1d77c4c884d0a92865e0eb871b45f058e5"
+    },
+    {
+      "path": "docs/constraint/first_slice/ai_data_center_power_infrastructure_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH014_AI_DATA_CENTER_POWER_INFRASTRUCTURE_FINAL_RETURN_V001_20260925.json",
+      "sha256": "c5fdb3616e2a1a73cb203a9ae2369ef52c22b91b7e2d3f1763a1a7872e93c3b2"
+    },
+    {
+      "path": "docs/constraint/first_slice/ai_data_center_power_infrastructure_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH014_AI_DATA_CENTER_POWER_INFRASTRUCTURE_STRICT_ACCEPTANCE_GATE_V001_20260925.json",
+      "sha256": "39c67c7aba77923145d55c55a24db435b9aa4685ddaefe574cc4c0747f40c012"
+    }
+  ]
+}
