@@ -26,16 +26,20 @@ FILES = {
     "temporal_audit": SLICE / "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH005_AI_DATA_CENTER_POWER_INFRASTRUCTURE_SOURCE_TEMPORAL_AUDIT_V001_20260925.json",
     "source_gap": SLICE / "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH006_AI_DATA_CENTER_POWER_INFRASTRUCTURE_SOURCE_GAP_STATUS_V001_20260925.json",
     "availability": SLICE / "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH007_AI_DATA_CENTER_POWER_INFRASTRUCTURE_CONSERVATIVE_AVAILABILITY_OVERLAY_V001_20260925.json",
+    "batch009_gap_status": SLICE / "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH009_AI_DATA_CENTER_POWER_INFRASTRUCTURE_SOURCE_GAP_STATUS_V001_20260925.json",
     "batch002_admission": VALIDATION / "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH002_NATIVE_T5_T6_ADMISSION_STATUS_V001_20260925.json",
     "batch008_raw_status": VALIDATION / "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH008_T1_RAW_ARTIFACT_PERSISTENCE_STATUS_V001_20260925.json",
-    "batch008_master": ARCH / "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH008_MASTER_STATUS_V001_20260925.json",
     "batch008_raw_contract": IMPL / "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH008_T1_RAW_ARTIFACT_PERSISTENCE_CONTRACT_V001_20260925.json",
+    "batch010_custody_status": VALIDATION / "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH010_T1_T2_CHAIN_OF_CUSTODY_STATUS_V001_20260925.json",
+    "batch010_master": ARCH / "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH010_MASTER_STATUS_V001_20260925.json",
+    "batch010_custody_contract": IMPL / "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH010_T1_T2_PERSISTED_CHAIN_OF_CUSTODY_CONTRACT_V001_20260925.json",
 }
 
 MANIFESTS = [
-    VALIDATION / f"HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH00{n}_ARTIFACT_MANIFEST_V001_20260925.json"
-    for n in range(3, 9)
+    VALIDATION / f"HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH{n:03d}_ARTIFACT_MANIFEST_V001_20260925.json"
+    for n in range(3, 11)
 ]
+SUCCESSOR_MANIFEST = VALIDATION / "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH010_ARTIFACT_MANIFEST_V001_20260925.json"
 
 SLICE_ID = "AI_DATA_CENTER_POWER_INFRASTRUCTURE_V1"
 ADMISSION_BLOCKER = "CI-TEST-008-BLOCKER-001B-NATIVE-T5-T6-SIGNED-ADMISSION-RECEIPT-ABSENT"
@@ -85,7 +89,27 @@ def git_blob_sha(path: Path) -> str:
     return result.stdout.strip()
 
 
-def validate_manifest(manifest_path: Path) -> int:
+def supersession_map(manifest: dict[str, Any]) -> dict[str, dict[str, str]]:
+    transitions = manifest.get("superseded_artifacts")
+    require(isinstance(transitions, list) and transitions, "Batch010 superseded_artifacts missing")
+    result: dict[str, dict[str, str]] = {}
+    for entry in transitions:
+        require(isinstance(entry, dict), "invalid Batch010 supersession entry")
+        path = entry.get("path")
+        predecessor = entry.get("predecessor_git_blob_sha")
+        successor = entry.get("successor_git_blob_sha")
+        require(isinstance(path, str) and path, "Batch010 supersession path missing")
+        require(isinstance(predecessor, str) and len(predecessor) == 40, f"invalid predecessor blob for {path}")
+        require(isinstance(successor, str) and len(successor) == 40, f"invalid successor blob for {path}")
+        require(path not in result, f"duplicate Batch010 supersession path: {path}")
+        result[path] = {
+            "predecessor_git_blob_sha": predecessor,
+            "successor_git_blob_sha": successor,
+        }
+    return result
+
+
+def validate_manifest(manifest_path: Path, *, supersessions: dict[str, dict[str, str]]) -> int:
     manifest = load_json(manifest_path)
     artifacts = manifest.get("artifacts")
     require(isinstance(artifacts, list) and artifacts, f"manifest artifacts missing: {manifest_path.name}")
@@ -99,7 +123,20 @@ def validate_manifest(manifest_path: Path) -> int:
         artifact = ROOT / relative
         require(artifact.is_file(), f"manifest member missing: {relative}")
         actual = git_blob_sha(artifact)
-        require(actual == expected, f"manifest blob mismatch: {relative}: expected={expected} actual={actual}")
+        if actual != expected:
+            transition = supersessions.get(relative)
+            require(
+                transition is not None,
+                f"manifest blob mismatch without explicit supersession: {relative}: expected={expected} actual={actual}",
+            )
+            require(
+                transition["predecessor_git_blob_sha"] == expected,
+                f"supersession predecessor mismatch: {relative}",
+            )
+            require(
+                transition["successor_git_blob_sha"] == actual,
+                f"supersession successor mismatch: {relative}",
+            )
         count += 1
     return count
 
@@ -112,10 +149,13 @@ def main() -> int:
     temporal = docs["temporal_audit"]
     gap = docs["source_gap"]
     availability = docs["availability"]
+    current_gap = docs["batch009_gap_status"]
     admission = docs["batch002_admission"]
     raw_status = docs["batch008_raw_status"]
-    master = docs["batch008_master"]
     raw_contract = docs["batch008_raw_contract"]
+    custody_status = docs["batch010_custody_status"]
+    master = docs["batch010_master"]
+    custody_contract = docs["batch010_custody_contract"]
 
     # First-slice identity must remain stable across the domain artifacts.
     for name, doc in (
@@ -124,6 +164,7 @@ def main() -> int:
         ("temporal_audit", temporal),
         ("source_gap", gap),
         ("availability", availability),
+        ("batch009_gap_status", current_gap),
     ):
         require(doc.get("slice_id") == SLICE_ID, f"{name} slice_id drifted")
 
@@ -192,6 +233,29 @@ def main() -> int:
     require(gap_results.get("IMPLEMENTATION_ADMISSION_READY") == "NO", "Batch006 falsely claims implementation admission")
     require(gap_results.get("FIRST_SERIOUS_CONSTRAINT_RUN") == "BLOCKED", "Batch006 falsely claims serious-run readiness")
 
+    # Batch009 explicitly closes the historical fiber source gap without rewriting Batch006.
+    current_gap_results = current_gap.get("results")
+    require(isinstance(current_gap_results, dict), "Batch009 current gap results missing")
+    require(
+        current_gap_results.get("FIBER_CONNECTIVITY_CAPACITY_FIELD")
+        == "POPULATED_BOUNDED_SITE_AND_PROVIDER_PROFILE",
+        "Batch009 fiber closure drifted",
+    )
+    require(
+        current_gap_results.get("ORIGINAL_FROZEN_SOURCE_GAP_FIELDS_REMAINING") == 0,
+        "Batch009 source-gap count drifted",
+    )
+    require(current_gap.get("closed_blocker") == FIBER_BLOCKER, "Batch009 fiber blocker closure drifted")
+    require(
+        set(current_gap.get("remaining_blockers", []))
+        == {RAW_MATERIALIZATION_BLOCKER, ADMISSION_BLOCKER},
+        "Batch009 current blockers drifted",
+    )
+    require(
+        current_gap_results.get("FIRST_SERIOUS_CONSTRAINT_RUN") == "BLOCKED",
+        "Batch009 falsely claims serious-run readiness",
+    )
+
     # Native T5->T6 admission must remain fail-closed until exact authority exists.
     decomposition = admission.get("decomposition")
     require(isinstance(decomposition, dict), "Batch002 admission decomposition missing")
@@ -219,19 +283,24 @@ def main() -> int:
         f"Batch008 remaining blockers drifted: {sorted(remaining)}",
     )
 
-    # Master status must agree with the detailed statuses.
+    # Current master status must consume Batch009 closure plus Batch010 custody hardening.
     readiness = master.get("readiness")
-    require(isinstance(readiness, dict), "Batch008 master readiness missing")
+    require(isinstance(readiness, dict), "Batch010 master readiness missing")
     require(readiness["IMPLEMENTATION_ADMITTED"].get("status") == "NO", "master falsely admits implementation")
     require(readiness["IMPLEMENTATION_ADMITTED"].get("blocker") == ADMISSION_BLOCKER, "master admission blocker drifted")
     require(readiness["PRIVATE_RAW_ARTIFACT_STORE_READY"].get("status") == "YES", "master lost raw-store readiness")
+    require(
+        readiness["T1_T2_PERSISTED_CHAIN_OF_CUSTODY_READY"].get("status") == "YES",
+        "master lost persisted chain-of-custody readiness",
+    )
+    require(
+        readiness["ORIGINAL_FIRST_SLICE_SOURCE_GAPS_CLOSED"].get("status") == "YES",
+        "master failed to consume Batch009 source-gap closure",
+    )
     require(readiness["FIRST_SLICE_RAW_ARTIFACTS_MATERIALIZED"].get("status") == "NO", "master falsely marks raw sources materialized")
     require(readiness["FIRST_SLICE_RAW_ARTIFACTS_MATERIALIZED"].get("blocker") == RAW_MATERIALIZATION_BLOCKER, "master raw blocker drifted")
-    require(readiness["FIBER_CONNECTIVITY_CAPACITY_READY"].get("status") == "NO", "master falsely closes fiber gap")
-    require(readiness["FIBER_CONNECTIVITY_CAPACITY_READY"].get("blocker") == FIBER_BLOCKER, "master fiber blocker drifted")
     require(readiness["FULL_CONSTRAINT_RUN_READY"].get("status") == "NO", "master falsely claims full-run readiness")
     require(master.get("first_serious_constraint_run") == "BLOCKED", "master falsely claims serious-run readiness")
-    require(master.get("next_population_blocker") == RAW_MATERIALIZATION_BLOCKER, "master next blocker drifted")
 
     # Raw-store contract must remain private and require the full ordinary T2 lineage envelope.
     boundary = raw_contract.get("public_repository_boundary")
@@ -251,9 +320,52 @@ def main() -> int:
         "ELIGIBLE_PROCESSING_DISPOSITION",
         "DECLARED_RELEASE_MEMBERSHIP",
     }
-    require(required == expected_required, f"ordinary T2 eligibility contract drifted: {sorted(required)}")
+    require(required == expected_required, f"historical Batch008 ordinary T2 contract drifted: {sorted(required)}")
 
-    manifest_members = sum(validate_manifest(path) for path in MANIFESTS)
+    # Batch010 strengthens current eligibility to exact persisted receipt and release identity.
+    current_required = set(custody_contract.get("ordinary_t2_eligibility_requires", []))
+    expected_current_required = {
+        "VALID_RAW_ARTIFACT_BYTES",
+        "MATCHING_ARTIFACT_SHA256",
+        "SOURCE_ID",
+        "SOURCE_VERSION_ID",
+        "ACQUIRED_AT",
+        "AVAILABLE_AT",
+        "ELIGIBLE_PROCESSING_DISPOSITION",
+        "EXACT_PERSISTED_SOURCE_VERSION_RECEIPT",
+        "EXACT_PERSISTED_RELEASE_MANIFEST",
+        "EXACT_RELEASE_MEMBERSHIP",
+    }
+    require(
+        current_required == expected_current_required,
+        f"Batch010 persisted custody contract drifted: {sorted(current_required)}",
+    )
+    semantics = custody_contract.get("authority_semantics")
+    require(isinstance(semantics, dict), "Batch010 authority semantics missing")
+    require(semantics.get("caller_supplied_in_memory_receipt_authoritative") is False, "in-memory receipt became authority")
+    require(semantics.get("caller_supplied_in_memory_release_manifest_authoritative") is False, "in-memory release became authority")
+    require(semantics.get("persisted_record_identity_required") is True, "persisted record identity requirement removed")
+
+    custody_results = custody_status.get("results")
+    require(isinstance(custody_results, dict), "Batch010 custody status missing")
+    require(custody_results.get("PERSISTED_RECEIPT_IDENTITY_REQUIRED") == "YES", "persisted receipt identity not ready")
+    require(custody_results.get("PERSISTED_RELEASE_IDENTITY_REQUIRED") == "YES", "persisted release identity not ready")
+    require(custody_results.get("FORGED_IN_MEMORY_RELEASE_AUTHORITY") == "NO", "forged release unexpectedly authoritative")
+    require(custody_results.get("FORGED_RECEIPT_DISPOSITION_UPGRADE") == "BLOCKED", "forged disposition upgrade not blocked")
+    require(custody_results.get("FIRST_SLICE_REAL_RAW_ARTIFACTS_MATERIALIZED") == "NO", "real raw sources falsely materialized")
+    require(custody_results.get("IMPLEMENTATION_ADMITTED") == "NO", "Batch010 falsely admits implementation")
+    require(
+        set(custody_status.get("remaining_blockers", []))
+        == {RAW_MATERIALIZATION_BLOCKER, ADMISSION_BLOCKER},
+        "Batch010 current blockers drifted",
+    )
+
+    successor = load_json(SUCCESSOR_MANIFEST)
+    supersessions = supersession_map(successor)
+    manifest_members = sum(
+        validate_manifest(path, supersessions=supersessions)
+        for path in MANIFESTS
+    )
 
     print("CONSTRAINT_FIRST_SLICE_INTEGRATION_VALIDATION=PASS")
     print(f"SLICE_ID={SLICE_ID}")
@@ -263,7 +375,8 @@ def main() -> int:
     print(f"MANIFEST_MEMBERS_VALIDATED={manifest_members}")
     print("IMPLEMENTATION_ADMITTED=NO")
     print("REAL_NINE_SOURCE_MATERIALIZATION=NO")
-    print("FIBER_CONNECTIVITY_CAPACITY_READY=NO")
+    print("ORIGINAL_FIRST_SLICE_SOURCE_GAPS_CLOSED=YES")
+    print("T1_T2_PERSISTED_CHAIN_OF_CUSTODY_READY=YES")
     print("FIRST_SERIOUS_CONSTRAINT_RUN=BLOCKED")
     print(f"NEXT_POPULATION_BLOCKER={RAW_MATERIALIZATION_BLOCKER}")
     return 0
