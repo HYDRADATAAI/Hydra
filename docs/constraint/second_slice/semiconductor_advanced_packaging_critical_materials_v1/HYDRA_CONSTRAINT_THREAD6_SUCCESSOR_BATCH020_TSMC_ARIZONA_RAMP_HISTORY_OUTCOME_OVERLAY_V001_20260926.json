@@ -1,0 +1,59 @@
+{
+  "schema_version": "hydra-constraint-second-slice-ramp-history-outcome-overlay/v1",
+  "record_id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH020_TSMC_ARIZONA_RAMP_HISTORY_OUTCOME_OVERLAY_V001",
+  "as_of": "2026-09-26",
+  "slice_id": "SEMICONDUCTOR_ADVANCED_PACKAGING_CRITICAL_MATERIALS_V1",
+  "facility_id": "FAC-SEMI-TSMC-ARIZONA-FIRST-FAB",
+  "timeline": [
+    {
+      "state_id": "ARIZONA-RAMP-2020-ORIGINAL",
+      "state_type": "ANNOUNCED_PLAN",
+      "source_date": "2020-05-15",
+      "target_production_period": "2024",
+      "process_plan": "5NM",
+      "announced_capacity": {
+        "value": 20000,
+        "unit": "WAFERS_PER_MONTH"
+      },
+      "evidence_ids": [
+        "EV-SEMI-B020-TSMC-ARIZONA-ORIGINAL-2024-TARGET"
+      ],
+      "available_at": "2026-09-26T21:28:33Z"
+    },
+    {
+      "state_id": "ARIZONA-RAMP-2023-DELAY",
+      "state_type": "REVISED_DELAYED_PLAN",
+      "source_date": "2023-07-20",
+      "target_production_period": "2025",
+      "process_plan": "N4",
+      "delay_cause": "INSUFFICIENT_SPECIALIZED_SKILLED_WORKERS_FOR_EQUIPMENT_INSTALLATION",
+      "evidence_ids": [
+        "EV-SEMI-B020-TSMC-ARIZONA-2023-DELAY"
+      ],
+      "available_at": "2026-09-26T21:28:33Z"
+    },
+    {
+      "state_id": "ARIZONA-RAMP-2024-ACTUAL",
+      "state_type": "OBSERVED_OPERATIONAL_OUTCOME",
+      "source_date_context": "TSMC_2024_ANNUAL_REPORT",
+      "effective_period": "2024-Q4",
+      "process_actual": "N4",
+      "production_state": "HIGH_VOLUME_PRODUCTION",
+      "realized_capacity_value": null,
+      "evidence_ids": [
+        "EV-SEMI-B019-TSMC-ARIZONA-ACTUAL-2024"
+      ],
+      "available_at": "2026-09-26T21:17:39Z"
+    }
+  ],
+  "outcome": {
+    "outcome_id": "OUTCOME-SEMI-TSMC-ARIZONA-RAMP-DELAY-AND-RECOVERY-001",
+    "outcome_type": "FAILED_OR_DELAYED_CAPACITY_RAMP_WITH_LATER_OPERATIONAL_RECOVERY",
+    "original_target_preserved": true,
+    "delay_preserved": true,
+    "later_actual_preserved": true,
+    "original_announced_capacity_carried_forward_to_actual": false,
+    "historical_replay_eligible": false,
+    "semantic_limit": "CURRENT_REVIEW_TIMELINE_ONLY; ORIGINAL_5NM_20000_WPM_PLAN_IS_NOT_TREATED_AS_REALIZED_N4_CAPACITY"
+  }
+}
