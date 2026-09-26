@@ -14,6 +14,8 @@ on:
       - "tools/test_constraint_first_slice_confidence_evaluation_adversarial.py"
       - "tools/validate_constraint_first_slice_outcome_coverage.py"
       - "tools/test_constraint_first_slice_outcome_coverage_adversarial.py"
+      - "tools/validate_constraint_first_slice_custody.py"
+      - "tools/test_constraint_first_slice_custody_adversarial.py"
       - ".github/workflows/constraint-first-slice-integration.yml"
   push:
     branches:
@@ -30,6 +32,8 @@ on:
       - "tools/test_constraint_first_slice_confidence_evaluation_adversarial.py"
       - "tools/validate_constraint_first_slice_outcome_coverage.py"
       - "tools/test_constraint_first_slice_outcome_coverage_adversarial.py"
+      - "tools/validate_constraint_first_slice_custody.py"
+      - "tools/test_constraint_first_slice_custody_adversarial.py"
       - ".github/workflows/constraint-first-slice-integration.yml"
 
 permissions:
@@ -70,3 +74,9 @@ jobs:
 
       - name: Run real outcome coverage hostile matrix
         run: python tools/test_constraint_first_slice_outcome_coverage_adversarial.py
+
+      - name: Validate persisted T1-to-T2 custody
+        run: python tools/validate_constraint_first_slice_custody.py
+
+      - name: Run persisted custody hostile matrix
+        run: python tools/test_constraint_first_slice_custody_adversarial.py
