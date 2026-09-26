@@ -190,6 +190,29 @@
           }
         ]
       }
+    },
+    "integrity": {
+      "contract_version": "hydra-constraint-readonly-query/v1",
+      "mode": "READ_ONLY_HISTORICAL_REPLAY",
+      "operation": "integrity",
+      "source_run_digest_sha256": "db28edfea01800cf85dd234edb99d003d0a185ab39f7ba8cd31af416542890f1",
+      "capabilities": {
+        "canonical_promotion_authorized": false,
+        "canonical_store_mutation_authorized": false,
+        "external_actions_authorized": false,
+        "model_training_authorized": false,
+        "ranking_authorized": false,
+        "trading_authorized": false
+      },
+      "result": {
+        "manifest_path": "constraint-replay/runs/HYDRA_CONSTRAINT_BATCH015_CLASSIFIED_REPLAY_E2E_MANIFEST_20260926.json",
+        "manifest_git_blob_sha": "7d2deb998e8c3362cea861f48909b78c1c00a42d",
+        "run_path": "constraint-replay/runs/HYDRA_CONSTRAINT_BATCH015_CLASSIFIED_REPLAY_E2E_RUN_20260926.json",
+        "run_git_blob_sha": "67fc5fb5883fb4ca510eee5a8c908c298d1b5bc9",
+        "run_digest_sha256": "db28edfea01800cf85dd234edb99d003d0a185ab39f7ba8cd31af416542890f1",
+        "pinned_artifact_count": 8,
+        "status": "PASS"
+      }
     }
   },
   "expected_integrity": {
