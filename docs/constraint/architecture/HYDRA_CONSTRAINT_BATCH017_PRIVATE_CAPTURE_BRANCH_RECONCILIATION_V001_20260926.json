@@ -1,0 +1,25 @@
+{
+  "schema_version": "hydra-constraint-batch017-private-capture-branch-reconciliation/v1",
+  "record_id": "HYDRA_CONSTRAINT_BATCH017_PRIVATE_CAPTURE_BRANCH_RECONCILIATION_V001_20260926",
+  "as_of": "2026-09-26",
+  "repository": "HYDRADATAAI/Hydra",
+  "slice_id": "AI_DATA_CENTER_POWER_INFRASTRUCTURE_V1",
+  "authoritative_source_discovery_pr": 64,
+  "canonical_private_capture_execution_pr": 65,
+  "reconciled_post_capture_pr": 66,
+  "superseded_manual_har_preflight_pr": 73,
+  "decisions": {
+    "automated_browser_capture_is_normal_workflow": true,
+    "manual_har_required": false,
+    "legacy_har_extractor_retained_for_compatibility": true,
+    "post_capture_status_gate_reused_in_pr65": true,
+    "second_custody_system_created": false,
+    "second_replay_system_created": false,
+    "raw_source_publication": false,
+    "historical_available_at_backdating": false,
+    "canonical_t5_t6_promotion": false
+  },
+  "canonical_one_command": "powershell -ExecutionPolicy Bypass -File .\\\\tools\\\\private\\\\Invoke-HYDRAConstraintFirstSliceAutomatedBrowserCapture_V001_20260926.ps1",
+  "remaining_runtime_dependency": "EXECUTE_REAL_WINDOWS_BROWSER_CAPTURE_AGAINST_PRIVATE_ROOT",
+  "private_root": "D:\\\\HYDRA\\\\_PRIVATE\\\\constraint"
+}
