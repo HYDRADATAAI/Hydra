@@ -1,0 +1,69 @@
+{
+  "schema_version": "hydra-constraint-lily-raw-lineage-prematerialization-manifest/v1",
+  "record_id": "HYDRA_CONSTRAINT_LILY_RAW_LINEAGE_PREMATERIALIZATION_ARTIFACT_MANIFEST_V001_20260926",
+  "as_of": "2026-09-26",
+  "repository": "HYDRADATAAI/Hydra",
+  "pull_request": 56,
+  "branch": "constraint/lily-owner-seam-reconciliation-v1-20260926",
+  "purpose": "RECONCILE_PERSISTED_T1_CUSTODY_AND_PREPARE_EXACT_NINE_SOURCE_PRIVATE_MATERIALIZATION",
+  "historical_artifact_rewrite": false,
+  "public_raw_source_content_published": false,
+  "network_acquisition_authorized": false,
+  "artifacts": [
+    {
+      "path": "constraint-t1-raw-artifact-store/src/hydra_constraint_t1_raw/store.py",
+      "git_blob_sha": "040af0ee154e3cf6e64a145125fc1254ce170902"
+    },
+    {
+      "path": "constraint-t1-raw-artifact-store/src/hydra_constraint_t1_raw/first_slice_materialization.py",
+      "git_blob_sha": "7f33e558792071b57283192dd3eee304a46da057"
+    },
+    {
+      "path": "constraint-t1-raw-artifact-store/src/hydra_constraint_t1_raw/first_slice_cli.py",
+      "git_blob_sha": "3e38cac4577e8416b048c45b62670ab40aa63d36"
+    },
+    {
+      "path": "constraint-t1-raw-artifact-store/tests/test_store.py",
+      "git_blob_sha": "da24ccc223900e345c5e1fb4fc92ae35db87f467"
+    },
+    {
+      "path": "constraint-t1-raw-artifact-store/tests/test_first_slice_materialization.py",
+      "git_blob_sha": "d7aed41b507a42309161129ee1b330e323f06abc"
+    },
+    {
+      "path": "docs/constraint/implementation/HYDRA_CONSTRAINT_AI_DATA_CENTER_POWER_INFRASTRUCTURE_PRIVATE_T1_CAPTURE_PLAN_TEMPLATE_V001_20260926.json",
+      "git_blob_sha": "6aac032f40e8da7c538ee9392b8bbcc2fc2b0443"
+    },
+    {
+      "path": "docs/constraint/implementation/HYDRA_CONSTRAINT_AI_DATA_CENTER_POWER_INFRASTRUCTURE_PRIVATE_T1_MATERIALIZATION_RUNBOOK_V001_20260926.md",
+      "git_blob_sha": "578560e3aae157a3a7202adafe72f256172c866b"
+    },
+    {
+      "path": "docs/constraint/architecture/HYDRA_CONSTRAINT_LILY_RAW_LINEAGE_PREMATERIALIZATION_STATUS_V001_20260926.json",
+      "git_blob_sha": "5afaab0f6d417869ff50aa440e53684ab5d90f57"
+    },
+    {
+      "path": "docs/constraint/validation/HYDRA_CONSTRAINT_AI_DATA_CENTER_POWER_INFRASTRUCTURE_SOURCE_ENDPOINT_REACHABILITY_AUDIT_V001_20260926.json",
+      "git_blob_sha": "87426a2bbb85d6a48f1f69dcda4308ac250f2a44"
+    },
+    {
+      "path": "docs/constraint/validation/HYDRA_CONSTRAINT_LILY_RAW_LINEAGE_PREMATERIALIZATION_REPORT_V001_20260926.md",
+      "git_blob_sha": "3952ce2d4d8a1abc1ff5d55d5a28eb8f3b30680a"
+    },
+    {
+      "path": "tools/validate_constraint_t1_first_slice_attestation.py",
+      "git_blob_sha": "20c9940d9904f78ce62f6416d2acb70ee9c8b898"
+    }
+  ],
+  "expected": {
+    "raw_store_version": "0.2.0",
+    "persisted_receipt_identity_required": true,
+    "persisted_release_identity_required": true,
+    "exact_registry_source_set_required": true,
+    "conservative_available_at_equals_acquired_at": true,
+    "actual_nine_source_private_materialization": false,
+    "strict_historical_replay_ready": false,
+    "native_t5_t6_admission_ready": false,
+    "first_serious_constraint_run": "BLOCKED"
+  }
+}
