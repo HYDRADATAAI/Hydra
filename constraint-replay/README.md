@@ -179,6 +179,35 @@ Current state:
 
 No further classification batch should be created unless new historical cases are intentionally added or a predecessor record requires evidence-backed correction.
 
+## Batch 015 deterministic end-to-end classified replay
+
+The first serious aggregate run is committed as:
+
+`runs/HYDRA_CONSTRAINT_BATCH015_CLASSIFIED_REPLAY_E2E_RUN_20260926.json`
+
+Execution manifest:
+
+`runs/HYDRA_CONSTRAINT_BATCH015_CLASSIFIED_REPLAY_E2E_MANIFEST_20260926.json`
+
+Run digest:
+
+`db28edfea01800cf85dd234edb99d003d0a185ab39f7ba8cd31af416542890f1`
+
+The run covers:
+
+- 22 classified historical cases;
+- 82 replay cuts;
+- 31 executable historical event IDs;
+- 17 PARTIAL_REALIZATION outcomes;
+- 5 UNEVALUABLE outcomes;
+- 0 calibrated cases.
+
+The runner validates replay-source and classified-artifact Git blob pins, exact case-set equality, promotion/classification agreement, calibration blockers and positive evidence-availability lead times.
+
+Both the replay workflow and full policy/physical/replay workflow regenerate the run and compare it against the committed artifact. A mismatch fails CI.
+
+Calibration remains explicitly blocked because no current case has admissible numeric historical confidence provenance.
+
 ## Run
 
 ```bash

@@ -24,3 +24,7 @@ jobs:
       - run: python -m pip install -e .
       - run: python -m pip install pytest
       - run: python -m pytest -q
+      - name: Run Batch 015 classified replay E2E contract
+        run: >-
+          python scripts/run_HYDRA_CONSTRAINT_BATCH015_classified_replay_e2e_20260926.py
+          --check constraint-replay/runs/HYDRA_CONSTRAINT_BATCH015_CLASSIFIED_REPLAY_E2E_RUN_20260926.json
