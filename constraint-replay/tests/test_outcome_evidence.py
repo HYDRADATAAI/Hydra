@@ -49,9 +49,10 @@ class OutcomeEvidenceTests(unittest.TestCase):
 
     def test_black_sea_has_price_and_throughput_series(self):
         case=self.by_id("black-sea-grain-corridor-2022")
-        metrics={m.metric:m.value for m in case.metrics}
-        self.assertEqual(-14.5,metrics["world_wheat_price_change"])
-        self.assertEqual(9729083,metrics["cumulative_exports"])
+        metrics_by_id={m.metric_id:m.value for m in case.metrics}
+        self.assertEqual(-14.5,metrics_by_id["bsgi-july-wheat-price-change"])
+        self.assertEqual(9729083,metrics_by_id["bsgi-cumulative-tonnage-2022-11-01"])
+        self.assertEqual(30288930,metrics_by_id["bsgi-cumulative-tonnage-2023-05-26"])
         series=case.time_series[0]
         self.assertEqual(9,len(series.points))
         self.assertEqual(4241809,next(p.value for p in series.points if p.period=="2022-10"))
