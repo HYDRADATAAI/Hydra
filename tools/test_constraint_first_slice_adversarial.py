@@ -444,7 +444,7 @@ def main() -> int:
         ("batch011_future_leak", case_batch011_future_leak, "Batch011 pre-window claim boundary drifted"),
         ("batch011_ordinary_replay_promoted", case_batch011_ordinary_replay_promoted, "Batch011 ordinary replay unexpectedly enabled"),
         ("batch011_determinism_falsified", case_batch011_determinism_falsified, "Batch011 determinism repeat execution drifted"),
-        ("latest_master_falsely_ready", case_latest_master_falsely_ready, "latest master falsely claims full-run readiness"),
+        ("latest_master_falsely_ready", case_latest_master_falsely_ready, "Batch011 master falsely claims full-run readiness"),
     ]
     for name, mutator, expected in cases:
         expect_failure(name, mutator, expected)
