@@ -1,7 +1,10 @@
 """Adversarial tests of existing shadow owner; all mutations are test fixtures."""
 import copy
 import unittest
-import test_first_slice_outcome_shadow_replay as existing
+if __package__:
+    from . import test_first_slice_outcome_shadow_replay as existing
+else:
+    import test_first_slice_outcome_shadow_replay as existing
 from hydra_t6_failclosed.first_slice_shadow_replay import build_shadow_snapshot, future_leaks
 
 

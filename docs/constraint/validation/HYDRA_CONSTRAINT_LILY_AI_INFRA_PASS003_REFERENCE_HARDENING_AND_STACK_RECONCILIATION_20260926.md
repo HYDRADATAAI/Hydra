@@ -19,3 +19,9 @@ The review base is therefore pinned to b79a8533a94d8101e213e5971066f8518cf3742d,
 ## Remaining gates
 
 Physical/policy owner reconciliation remains unresolved; no physical graph code was copied into T6. Private raw-source materialization, immutable lineage, native signed T5/T6 admission, facility identity/capacity/lifecycle bindings and complete historical A–E cases remain blockers. No source bodies, private fixtures, policy authorities or sealed reviews were added. No V1 freeze or readiness upgrade.
+
+## GitHub CI follow-up
+
+Initial draft PR #61 CI confirmed first-slice integration, public validation and hygiene PASS. T6 discovery failed because the new test used a top-level sibling import under package discovery; repaired using package-relative imports when a package is present. Both local discovery modes now execute 166 tests.
+
+The NYX guard failed on unchanged Batch014: it required the predecessor top-level first_serious_constraint_run field, whereas Batch014 stores acceptance_state.overall=BLOCKED. The guard now accepts that explicit representation only alongside NO full-run, implementation-admission and ordinary-replay statuses. Missing or contradictory declarations fail closed. Four additional hostile mutations cover absent acceptance, conflicting acceptance, missing ordinary readiness and false ordinary readiness. No master or historical manifest was rewritten.

@@ -126,5 +126,11 @@
       "stderr": ""
     }
   ],
-  "tested_parent": "b79a8533a94d8101e213e5971066f8518cf3742d"
+  "tested_parent": "b79a8533a94d8101e213e5971066f8518cf3742d",
+  "ci_followup": {
+    "package_discovery_tests": 166,
+    "package_discovery_exit_code": 0,
+    "nyx_mutation_output": "PASS :: missing_acceptance :: lacks explicit blocked acceptance\nPASS :: conflicting_acceptance :: conflicting acceptance readiness\nPASS :: missing_ordinary_gate :: lacks explicit blocked readiness\nPASS :: false_ordinary_gate :: lacks explicit blocked readiness\nPASS :: backdated_availability :: conservative availability drift\nPASS :: fiber_scope_overclaim :: fiber exact site capacity unexpectedly quantified\nPASS :: admission_falsely_granted :: native implementation unexpectedly admitted\nPASS :: raw_materialization_falsely_claimed :: real raw sources falsely marked materialized\nPASS :: source_disappears :: availability source set differs from registry\nPASS :: batch010_blocker_set_drift :: Batch010 current remaining blockers drifted\nPASS :: false_canonical_mint :: Batch010 falsely minted canonical constraints\nPASS :: candidate_becomes_ordinary_t6 :: unexpectedly canonicalized\nPASS :: relief_auto_invalidates :: automatically invalidates constraint\nPASS :: false_beneficiary_qualification :: Batch010 qualified relationship count is not zero\nPASS :: batch011_outcome_overclaim :: Batch011 outcome label drifted\nPASS :: batch011_future_leak :: Batch011 pre-window claim boundary drifted\nPASS :: batch011_ordinary_replay_promoted :: Batch011 ordinary replay unexpectedly enabled\nPASS :: batch011_determinism_falsified :: Batch011 determinism repeat execution drifted\nPASS :: batch012_contradiction_scope_collapse :: Batch012 contradiction scope separation drifted\nPASS :: batch012_cancelled_scope_generalized :: Batch012 cancelled-project scope was generalized\nPASS :: batch012_true_case_falsely_closed :: Batch012 case1 overlay falsely closed true-project case\nPASS :: batch012_invents_available_at :: Batch012 invented exact HYDRA available_at\nPASS :: latest_master_falsely_ready :: falsely claims full-run readiness\nCONSTRAINT_FIRST_SLICE_HOSTILE_MUTATION_MATRIX=PASS\nHOSTILE_CASES=23\n",
+    "nyx_mutation_exit_code": 0
+  }
 }
