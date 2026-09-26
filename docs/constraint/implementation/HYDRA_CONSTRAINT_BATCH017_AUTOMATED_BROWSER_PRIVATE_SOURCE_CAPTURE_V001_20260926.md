@@ -11,7 +11,7 @@ It does not replace T1 custody, persisted receipt/release identity, the exact-ni
 Run:
 
 ```powershell
-powershell -ExecutionPolicy Bypass -File .\tools\private\Invoke-HYDRAConstraintFirstSliceAutomatedBrowserCapture_V001_20260926.ps1
+powershell -ExecutionPolicy Bypass -File .\tools\private\Invoke-HYDRAConstraintFirstSliceAutomatedBrowserCapture_V001_20260926.ps1 -AuthorizedPublicAcquisition
 ```
 
 The launcher creates a Python virtual environment only under `D:\HYDRA\_PRIVATE\constraint\browser-runtime`, installs the Python Playwright client there when absent, and uses an already-installed Chrome or Edge browser. It does not download a Playwright browser build.
@@ -44,7 +44,8 @@ After all nine browser captures succeed, the runner generates the existing local
 
 1. `hydra_constraint_t1_raw.first_slice_cli`;
 2. `tools/validate_constraint_t1_first_slice_attestation.py`;
-3. `tools/build_constraint_t1_first_slice_replay_lineage.py`;\n4. `tools/build_constraint_t1_post_capture_public_status.py`.
+3. `tools/build_constraint_t1_first_slice_replay_lineage.py`;
+4. `tools/build_constraint_t1_post_capture_public_status.py`.
 
 The materializer remains network-blind. `AVAILABLE_AT=ACQUIRED_AT` remains mandatory. No historical availability is inferred or backdated.
 
@@ -58,6 +59,7 @@ PRIVATE_MATERIALIZATION=PASS
 ATTESTATION=PASS
 SOURCE_VERSION_HASH_LINEAGE=PASS
 REPLAY_LINEAGE=PASS
+POST_CAPTURE_SANITIZED_STATUS=PASS
 STRICT_HISTORICAL_REPLAY=BLOCKED
 NATIVE_T5_T6_ADMISSION=BLOCKED
 RAW_SOURCE_PUBLICATION=NO
