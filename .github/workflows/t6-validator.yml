@@ -4,12 +4,14 @@ on:
   pull_request:
     paths:
       - "t6-fail-closed-validator/**"
+      - "docs/constraint/first_slice/**"
       - ".github/workflows/t6-validator.yml"
   push:
     branches:
       - main
     paths:
       - "t6-fail-closed-validator/**"
+      - "docs/constraint/first_slice/**"
       - ".github/workflows/t6-validator.yml"
 
 permissions:
