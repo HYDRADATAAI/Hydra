@@ -62,6 +62,7 @@ SLICE_ID = "AI_DATA_CENTER_POWER_INFRASTRUCTURE_V1"
 ADMISSION_BLOCKER = "CI-TEST-008-BLOCKER-001B-NATIVE-T5-T6-SIGNED-ADMISSION-RECEIPT-ABSENT"
 RAW_MATERIALIZATION_BLOCKER = "PIT-002B-FIRST-SLICE-NINE-SOURCE-RAW-CAPTURE-MATERIALIZATION"
 FIBER_BLOCKER = "SOURCE-GAP-FIBER-CONNECTIVITY-CAPACITY"
+SOURCE_PRIVATE_SUPERSESSION_MAP = VALIDATION / "HYDRA_CONSTRAINT_BATCH017_T1_PRIVATE_RECORD_SUPERSESSION_MAP_V001_20260926.json"
 
 
 class ValidationFailure(Exception):
@@ -106,6 +107,27 @@ def git_blob_sha(path: Path) -> str:
     return result.stdout.strip()
 
 
+
+def source_private_supersessions() -> dict[str, dict[str, str]]:
+    manifest = load_json(SOURCE_PRIVATE_SUPERSESSION_MAP)
+    rows = manifest.get("transitions")
+    require(isinstance(rows, list) and rows, "T1 private-record supersession map missing transitions")
+    result: dict[str, dict[str, str]] = {}
+    for row in rows:
+        require(isinstance(row, dict), "T1 private-record supersession entry invalid")
+        relative = row.get("path")
+        predecessor = row.get("predecessor_git_blob_sha")
+        successor = row.get("successor_git_blob_sha")
+        require(isinstance(relative, str) and relative, "T1 private-record supersession path missing")
+        require(isinstance(predecessor, str) and len(predecessor) == 40, f"T1 predecessor blob invalid: {relative}")
+        require(isinstance(successor, str) and len(successor) == 40, f"T1 successor blob invalid: {relative}")
+        require(relative not in result, f"duplicate T1 private-record supersession path: {relative}")
+        result[relative] = {
+            "predecessor_git_blob_sha": predecessor,
+            "successor_git_blob_sha": successor,
+        }
+    return result
+
 def validate_manifest(manifest_path: Path) -> int:
     manifest = load_json(manifest_path)
     artifacts = manifest.get("artifacts")
@@ -120,7 +142,20 @@ def validate_manifest(manifest_path: Path) -> int:
         artifact = ROOT / relative
         require(artifact.is_file(), f"manifest member missing: {relative}")
         actual = git_blob_sha(artifact)
-        require(actual == expected, f"manifest blob mismatch: {relative}: expected={expected} actual={actual}")
+        if actual != expected:
+            transition = source_private_supersessions().get(relative)
+            require(
+                transition is not None,
+                f"manifest blob mismatch without explicit T1 private-record supersession: {relative}: expected={expected} actual={actual}",
+            )
+            require(
+                transition["predecessor_git_blob_sha"] == expected,
+                f"T1 private-record supersession predecessor mismatch: {relative}",
+            )
+            require(
+                transition["successor_git_blob_sha"] == actual,
+                f"T1 private-record supersession successor mismatch: {relative}",
+            )
         count += 1
     return count
 
