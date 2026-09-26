@@ -10,9 +10,9 @@ function Invoke-WebRequest {
     param($Uri, $MaximumRedirection, [switch]$UseBasicParsing)
     $mime = if ($Uri.EndsWith(".pdf")) { "application/pdf" } else { "text/html" }
     $headers = @{}
-    if ($script:Mode -eq "wrong") { $headers["Content-Type"] = "application/json" }
-    elseif ($script:Mode -eq "prefix") { $headers["Content-Type"] = $mime + "-invalid" }
-    elseif ($script:Mode -ne "missing") { $headers["Content-Type"] = $mime + "; charset=utf-8" }
+    if ($CaptureTestMode -eq "wrong") { $headers["Content-Type"] = "application/json" }
+    elseif ($CaptureTestMode -eq "prefix") { $headers["Content-Type"] = $mime + "-invalid" }
+    elseif ($CaptureTestMode -ne "missing") { $headers["Content-Type"] = $mime + "; charset=utf-8" }
     $body = [byte[]](0, 1, 127, 128, 255, 13, 10)
     return [pscustomobject]@{
         Headers = $headers
@@ -34,19 +34,19 @@ try {
     $json = @{ slice_id = "AI_DATA_CENTER_POWER_INFRASTRUCTURE_V1"; sources = $sources } | ConvertTo-Json -Depth 5
     [System.IO.File]::WriteAllText($registryPath, $json, [System.Text.UTF8Encoding]::new($false))
 
-    foreach ($script:Mode in @("missing", "wrong", "prefix", "valid")) {
-        $caseRoot = Join-Path $TempRoot $script:Mode
+    foreach ($CaptureTestMode in @("missing", "wrong", "prefix", "valid")) {
+        $caseRoot = Join-Path $TempRoot $CaptureTestMode
         $failed = $false
         try {
             & (Join-Path $SourceRepo "tools\private\Invoke-HYDRAConstraintFirstSlicePrivateCapture_V001_20260926.ps1") -AuthorizedPublicAcquisition -RepoRoot $FixtureRepo -PrivateRawRoot (Join-Path $caseRoot "raw") -PrivateStagingRoot (Join-Path $caseRoot "staging") -PrivateMetadataRoot (Join-Path $caseRoot "metadata") | Out-Null
         }
         catch {
             $failed = $true
-            if ($script:Mode -eq "valid") { throw }
+            if ($CaptureTestMode -eq "valid") { throw }
             if ($_.Exception.Message -notlike "*Content-Type*") { throw }
         }
-        if ($script:Mode -ne "valid") {
-            if (-not $failed) { throw "Invalid response accepted: $script:Mode" }
+        if ($CaptureTestMode -ne "valid") {
+            if (-not $failed) { throw "Invalid response accepted: $CaptureTestMode" }
             if (@(Get-ChildItem (Join-Path $caseRoot "metadata") -File).Count -ne 0) { throw "Rejected response produced metadata" }
             if (@(Get-ChildItem (Join-Path $caseRoot "raw") -File -Recurse).Count -ne 0) { throw "Rejected response entered custody" }
         }
