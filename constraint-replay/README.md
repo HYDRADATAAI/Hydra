@@ -241,7 +241,7 @@ python constraint-replay/scripts/query_HYDRA_CONSTRAINT_BATCH016_readonly_replay
 ```
 
 The public T6 validator remains explicitly dormant and is not activated or runtime-bound by this query surface.
-## Run
+## Batch 017 multi-domain read-only orchestration\n\nBatch 017 composes the frozen replay/query state with the authoritative historical policy and physical packages without duplicating their schemas.\n\nThe orchestrator:\n\n- loads four validated policy bundles;\n- loads their four paired sourced physical graphs;\n- materializes the 31 executable policy events;\n- validates 51 policy → physical bindings across 47 canonical physical entity IDs;\n- requires exact 22-case equality with the Batch 015 replay state;\n- exposes read-only summary, integrity, case, entity-usage, and cross-domain case-list queries.\n\nThe four source pairs remain separate; Batch 017 does not create a synthetic cross-batch physical mega-graph.\n\nThe public T6 validator remains dormant and is not called or runtime-bound.\n\nCLI:\n\n```bash\npython constraint-replay/scripts/query_HYDRA_CONSTRAINT_BATCH017_multidomain_readonly_20260926.py summary\npython constraint-replay/scripts/query_HYDRA_CONSTRAINT_BATCH017_multidomain_readonly_20260926.py case suez-ever-given-2021 --max-depth 3\npython constraint-replay/scripts/query_HYDRA_CONSTRAINT_BATCH017_multidomain_readonly_20260926.py entity infrastructure:suez-canal --max-depth 3\n```\n## Run
 
 ```bash
 cd constraint-replay
