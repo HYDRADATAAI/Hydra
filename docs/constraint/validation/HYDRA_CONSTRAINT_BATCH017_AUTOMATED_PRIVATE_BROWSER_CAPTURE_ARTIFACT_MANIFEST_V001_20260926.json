@@ -28,7 +28,7 @@
     },
     {
       "path": "tools/private/Invoke-HYDRAConstraintFirstSliceAutomatedBrowserCapture_V001_20260926.ps1",
-      "git_blob_sha": "33b0f2189269a028ee382bb5919f544a6a989702"
+      "git_blob_sha": "3eeea950ef24c34a7c95453c58e11edab67e3189"
     },
     {
       "path": "tools/private/HYDRA_CONSTRAINT_T1_AUTOMATED_BROWSER_CAPTURE_REQUIREMENTS_V001_20260926.txt",
@@ -40,7 +40,7 @@
     },
     {
       "path": "constraint-t1-raw-artifact-store/tests/test_automated_browser_capture_launcher.py",
-      "git_blob_sha": "7fdfec5bd921d58b6216e8c0b816c441c3af8dc9"
+      "git_blob_sha": "eb967903bc257c1efa5a9ba3f0de6705e84d6ef3"
     },
     {
       "path": "constraint-t1-raw-artifact-store/src/hydra_constraint_t1_raw/post_capture_status.py",
@@ -82,5 +82,7 @@
   "superseded_pull_requests": [
     66,
     73
-  ]
+  ],
+  "windows_powershell5_bootstrap_probe": "PACKAGE_MARKER_NO_NATIVE_IMPORT_PROBE",
+  "windows_powershell5_native_stderr_termination_regression_covered": true
 }
