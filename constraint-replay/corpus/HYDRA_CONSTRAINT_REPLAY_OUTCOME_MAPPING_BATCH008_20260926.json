@@ -1,0 +1,64 @@
+{
+  "schema_version": "1.0",
+  "batch_id": "HYDRA_CONSTRAINT_REPLAY_OUTCOME_MAPPING_BATCH008_20260926",
+  "rule_set_id": "POSITIVE_CONSTRAINT_RULESET_V1",
+  "declared_at": "2026-09-26T12:47:00Z",
+  "policy": "Rules are mechanism-generic and declared before Batch 008 writes any candidate outcome class into the promotion audit. They do not use case-specific numeric thresholds and do not transform qualitative expectations into confidence scores.",
+  "cases": [
+    {
+      "case_id": "suez-ever-given-2021",
+      "mechanism_observed": true,
+      "direction_consistent": true,
+      "explicit_numeric_target_defined": false,
+      "target_met": null,
+      "explicit_horizon_defined": false,
+      "horizon_met": null,
+      "causal_attribution_clean": false,
+      "outcome_observation_complete": true,
+      "contradiction_open": false,
+      "evidence_source_ids": [
+        "suez-spglobal-2021-03-26-hypothesis",
+        "suez-sca-2021-03-31-traffic",
+        "suez-unctad-2021-04-23-freight"
+      ],
+      "rationale": "Congestion/backlog and freight-pressure mechanisms were observed in the expected direction, but the hypothesis did not contain a numeric success target and freight-market attribution was not cleanly isolated from the wider disrupted market."
+    },
+    {
+      "case_id": "black-sea-grain-corridor-2022",
+      "mechanism_observed": true,
+      "direction_consistent": true,
+      "explicit_numeric_target_defined": false,
+      "target_met": null,
+      "explicit_horizon_defined": false,
+      "horizon_met": null,
+      "causal_attribution_clean": false,
+      "outcome_observation_complete": true,
+      "contradiction_open": false,
+      "evidence_source_ids": [
+        "bsgi-imf-2022-07-26-hypothesis",
+        "bsgi-fao-2022-08-05-prices",
+        "bsgi-un-2022-11-01-tonnage",
+        "bsgi-un-2023-05-26-series"
+      ],
+      "rationale": "The corridor restored large physical export flows and food-price indicators moved in the direction consistent with reduced logistics pressure, but FAO identified multiple contributing market/seasonal factors and the hypothesis lacked a numeric success target."
+    },
+    {
+      "case_id": "germany-wilhelmshaven-lng-commissioning-2022-2023",
+      "mechanism_observed": true,
+      "direction_consistent": true,
+      "explicit_numeric_target_defined": false,
+      "target_met": null,
+      "explicit_horizon_defined": false,
+      "horizon_met": null,
+      "causal_attribution_clean": false,
+      "outcome_observation_complete": true,
+      "contradiction_open": false,
+      "evidence_source_ids": [
+        "wilhelm-bnetza-2022-09-29-hypothesis",
+        "wilhelm-uniper-2023-01-03-firstcargo",
+        "wilhelm-uniper-2023-12-15-year1"
+      ],
+      "rationale": "The terminal operated materially and supplied measurable gas volumes in the expected direction, but 'high utilization' and supply-security contribution were not defined as a numeric success threshold and system-level security attribution is multi-factor."
+    }
+  ]
+}

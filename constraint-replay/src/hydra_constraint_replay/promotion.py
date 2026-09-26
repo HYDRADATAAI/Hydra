@@ -23,6 +23,7 @@ class PromotionStage(str, Enum):
     REPLAY_READY_ONLY = "REPLAY_READY_ONLY"
     OUTCOME_EVIDENCE_PRESENT = "OUTCOME_EVIDENCE_PRESENT"
     HYPOTHESIS_EVIDENCE_PRESENT = "HYPOTHESIS_EVIDENCE_PRESENT"
+    CLASSIFIED_GOLD_UNCALIBRATED = "CLASSIFIED_GOLD_UNCALIBRATED"
     CONFIDENCE_EVIDENCE_PRESENT = "CONFIDENCE_EVIDENCE_PRESENT"
     SCORE_READY = "SCORE_READY"
 
@@ -70,6 +71,8 @@ class PromotionAudit:
             raise PromotionError(f"{self.case_id}: outcome class supplied without support")
         if self.outcome_class_supported and not self.outcome_source_ids:
             raise PromotionError(f"{self.case_id}: outcome class support requires outcome evidence")
+        if self.outcome_class_supported and self.proposed_outcome_class is None:
+            raise PromotionError(f"{self.case_id}: supported outcome class must be explicit")
 
 
 @dataclass(frozen=True)
@@ -77,32 +80,41 @@ class PromotionDecision:
     case_id: str
     stage: PromotionStage
     blockers: tuple[str, ...]
+    classification_blockers: tuple[str, ...]
+    calibration_blockers: tuple[str, ...]
+    classified_gold_uncalibrated_eligible: bool
     scored_gold_eligible: bool
 
 
 def evaluate_promotion(audit: PromotionAudit) -> PromotionDecision:
     audit.validate()
-    blockers=[]
 
+    classification_blockers=[]
     if not audit.historical_hypothesis_source_ids:
-        blockers.append("NO_INDEPENDENT_HISTORICAL_HYPOTHESIS_SOURCE")
-    if not audit.historical_confidence_source_ids:
-        blockers.append("NO_PRECOMMITTED_CONFIDENCE_SOURCE")
-    if audit.proposed_confidence_at_t is None:
-        blockers.append("NO_SOURCE_GROUNDED_CONFIDENCE_VALUE")
+        classification_blockers.append("NO_INDEPENDENT_HISTORICAL_HYPOTHESIS_SOURCE")
     if not audit.outcome_source_ids:
-        blockers.append("NO_OUTCOME_OBSERVATION_IN_CASE_BUNDLE")
+        classification_blockers.append("NO_OUTCOME_OBSERVATION_IN_CASE_BUNDLE")
     if not audit.outcome_class_supported:
-        blockers.append("OUTCOME_NOT_MAPPED_TO_SCORABLE_CLASS")
+        classification_blockers.append("OUTCOME_NOT_MAPPED_TO_SCORABLE_CLASS")
     if audit.proposed_outcome_class is None:
-        blockers.append("NO_SUPPORTED_OUTCOME_CLASS")
+        classification_blockers.append("NO_SUPPORTED_OUTCOME_CLASS")
 
-    eligible=not blockers
+    calibration_blockers=[]
+    if not audit.historical_confidence_source_ids:
+        calibration_blockers.append("NO_PRECOMMITTED_CONFIDENCE_SOURCE")
+    if audit.proposed_confidence_at_t is None:
+        calibration_blockers.append("NO_SOURCE_GROUNDED_CONFIDENCE_VALUE")
 
-    if eligible:
+    classified=not classification_blockers
+    scored=classified and not calibration_blockers
+    blockers=tuple(classification_blockers+calibration_blockers)
+
+    if scored:
         stage=PromotionStage.SCORE_READY
     elif audit.historical_confidence_source_ids:
         stage=PromotionStage.CONFIDENCE_EVIDENCE_PRESENT
+    elif classified:
+        stage=PromotionStage.CLASSIFIED_GOLD_UNCALIBRATED
     elif audit.historical_hypothesis_source_ids:
         stage=PromotionStage.HYPOTHESIS_EVIDENCE_PRESENT
     elif audit.outcome_source_ids:
@@ -113,9 +125,21 @@ def evaluate_promotion(audit: PromotionAudit) -> PromotionDecision:
     return PromotionDecision(
         case_id=audit.case_id,
         stage=stage,
-        blockers=tuple(blockers),
-        scored_gold_eligible=eligible,
+        blockers=blockers,
+        classification_blockers=tuple(classification_blockers),
+        calibration_blockers=tuple(calibration_blockers),
+        classified_gold_uncalibrated_eligible=classified,
+        scored_gold_eligible=scored,
     )
+
+
+def assert_classified_gold_eligible(audit: PromotionAudit) -> None:
+    decision=evaluate_promotion(audit)
+    if not decision.classified_gold_uncalibrated_eligible:
+        raise PromotionError(
+            f"{audit.case_id}: classified-gold promotion blocked: "
+            f"{', '.join(decision.classification_blockers)}"
+        )
 
 
 def assert_scored_gold_eligible(audit: PromotionAudit) -> None:
@@ -167,8 +191,12 @@ def summarize_promotion(audits: Iterable[PromotionAudit]) -> dict:
     decisions=[evaluate_promotion(a) for a in audits]
     return {
         "case_count":len(audits),
+        "classified_gold_uncalibrated_count":sum(
+            d.classified_gold_uncalibrated_eligible for d in decisions
+        ),
         "score_ready_count":sum(d.scored_gold_eligible for d in decisions),
         "outcome_evidence_present_count":sum(bool(a.outcome_source_ids) for a in audits),
+        "outcome_class_supported_count":sum(a.outcome_class_supported for a in audits),
         "scorable_candidate_outcome_count":sum(
             a.outcome_evidence_level in {
                 OutcomeEvidenceLevel.SCORABLE_CANDIDATE_QUALITATIVE,
