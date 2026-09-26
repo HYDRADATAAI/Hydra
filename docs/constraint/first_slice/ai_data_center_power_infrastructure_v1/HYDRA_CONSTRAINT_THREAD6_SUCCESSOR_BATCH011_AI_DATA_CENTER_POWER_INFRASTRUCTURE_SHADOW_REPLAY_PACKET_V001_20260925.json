@@ -1,0 +1,202 @@
+{
+  "schema_version": "hydra-constraint-first-slice-shadow-replay-packet/v1",
+  "record_id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH011_AI_DATA_CENTER_POWER_INFRASTRUCTURE_SHADOW_REPLAY_PACKET_V001",
+  "as_of": "2026-09-25",
+  "predecessor_batch": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH010",
+  "slice_id": "AI_DATA_CENTER_POWER_INFRASTRUCTURE_V1",
+  "replay_mode": "SHADOW_NORMALIZED_FIXTURE",
+  "ordinary_replay_eligible": false,
+  "ordinary_replay_blockers": [
+    "PIT-002B-FIRST-SLICE-NINE-SOURCE-RAW-CAPTURE-MATERIALIZATION",
+    "SOURCE_VERSION_RAW_SHA256_NOT_AVAILABLE_FOR_BATCH010_SUPPLIER_SOURCES"
+  ],
+  "authority_pins": {
+    "thread1": "11_LILY_THREAD1_BATCH11_POST_CLOSURE_OWNER_DELTA_RECONCILIATION.md",
+    "thread2_sha256": "a0faf1074ff7aaa5db6546d16076bfff0acf024548be21bd0eacc558ea5ce38e",
+    "thread3_sha256": "ab7e4c05c9210a90256b8cdea89eeb9f3bb551453dfe13ebfe44616f750cb366",
+    "thread5_sha256": "1156c76a5de2115a65edba187622135359fdb2a9b59d425679fc7fd381ab06ba"
+  },
+  "frozen_input_manifest": [
+    {
+      "path": "docs/constraint/first_slice/ai_data_center_power_infrastructure_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH003_AI_DATA_CENTER_POWER_INFRASTRUCTURE_EVIDENCE_SEED_V001_20260925.json",
+      "git_blob_sha": "fd9ff0fa7c7cf49989bdf1ddb2023bd0a3180457"
+    },
+    {
+      "path": "docs/constraint/first_slice/ai_data_center_power_infrastructure_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH007_AI_DATA_CENTER_POWER_INFRASTRUCTURE_CONSERVATIVE_AVAILABILITY_OVERLAY_V001_20260925.json",
+      "git_blob_sha": "e3b6fdbbf408a75f4c8b97f2ce6bde9cc47335ad"
+    },
+    {
+      "path": "docs/constraint/first_slice/ai_data_center_power_infrastructure_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH010_AI_DATA_CENTER_POWER_INFRASTRUCTURE_CLAIM_REGISTRY_V001_20260925.json",
+      "git_blob_sha": "13cb776549b43c777a04b47f43557e60b5b7b961"
+    },
+    {
+      "path": "docs/constraint/first_slice/ai_data_center_power_infrastructure_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH010_AI_DATA_CENTER_POWER_INFRASTRUCTURE_T5_CANDIDATE_PROPOSALS_V001_20260925.json",
+      "git_blob_sha": "112cf49941031ad51ff7cd2e1b8da096d8627b84"
+    },
+    {
+      "path": "docs/constraint/first_slice/ai_data_center_power_infrastructure_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH010_AI_DATA_CENTER_POWER_INFRASTRUCTURE_RELIEF_PATHS_V001_20260925.json",
+      "git_blob_sha": "28d20700818f64e2ce4d90953a1f166e7277e2ba"
+    },
+    {
+      "path": "docs/constraint/first_slice/ai_data_center_power_infrastructure_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH010_AI_DATA_CENTER_POWER_INFRASTRUCTURE_BENEFICIARY_EVALUATIONS_V001_20260925.json",
+      "git_blob_sha": "43245bd562d92987d934791ee2595f9e53d79db4"
+    },
+    {
+      "path": "docs/constraint/first_slice/ai_data_center_power_infrastructure_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH011_AI_DATA_CENTER_POWER_INFRASTRUCTURE_OUTCOME_RECORDS_V001_20260925.json",
+      "git_blob_sha": "d74f10c1cf621c5ff8155dff68804bd7fd698639"
+    }
+  ],
+  "source_version_hashes": {
+    "SRC-EATON-TEXAS-TRANSFORMER-CAPACITY-2025-10-08": null
+  },
+  "source_version_hash_status": "BLOCKED_RAW_SOURCE_BODY_NOT_MATERIALIZED",
+  "windows": [
+    {
+      "window_id": "PRE_BATCH010_SUPPLIER_AVAILABILITY",
+      "as_of": "2026-09-26T01:56:59Z",
+      "expected_graph_state": {
+        "as_of": "2026-09-26T01:56:59Z",
+        "eligible_claim_ids": [
+          "CLM-AIDC-001",
+          "CLM-AIDC-002",
+          "CLM-AIDC-003",
+          "CLM-AIDC-004"
+        ],
+        "constraint_candidate_ids": [
+          "T5C-AIDC-US-INTERCONNECTION-THROUGHPUT-001",
+          "T5C-AIDC-US-TRANSFORMER-SUPPLY-001",
+          "T5C-AIDC-AMER-SWITCHGEAR-LEADTIME-001"
+        ],
+        "relief_path_ids": [
+          "REL-AIDC-001"
+        ],
+        "beneficiary_relationship_ids": [],
+        "outcome_ids": []
+      },
+      "actual_graph_state_at_authoring": {
+        "as_of": "2026-09-26T01:56:59Z",
+        "eligible_claim_ids": [
+          "CLM-AIDC-001",
+          "CLM-AIDC-002",
+          "CLM-AIDC-003",
+          "CLM-AIDC-004"
+        ],
+        "constraint_candidate_ids": [
+          "T5C-AIDC-US-INTERCONNECTION-THROUGHPUT-001",
+          "T5C-AIDC-US-TRANSFORMER-SUPPLY-001",
+          "T5C-AIDC-AMER-SWITCHGEAR-LEADTIME-001"
+        ],
+        "relief_path_ids": [
+          "REL-AIDC-001"
+        ],
+        "beneficiary_relationship_ids": [],
+        "outcome_ids": []
+      },
+      "diff": [],
+      "future_leak_test": "PASS"
+    },
+    {
+      "window_id": "AT_BATCH010_SUPPLIER_AVAILABILITY",
+      "as_of": "2026-09-26T01:57:00Z",
+      "expected_graph_state": {
+        "as_of": "2026-09-26T01:57:00Z",
+        "eligible_claim_ids": [
+          "CLM-AIDC-001",
+          "CLM-AIDC-002",
+          "CLM-AIDC-003",
+          "CLM-AIDC-004",
+          "CLM-AIDC-005",
+          "CLM-AIDC-006",
+          "CLM-AIDC-007",
+          "CLM-AIDC-008",
+          "CLM-AIDC-009",
+          "CLM-AIDC-010"
+        ],
+        "constraint_candidate_ids": [
+          "T5C-AIDC-US-INTERCONNECTION-THROUGHPUT-001",
+          "T5C-AIDC-US-TRANSFORMER-SUPPLY-001",
+          "T5C-AIDC-AMER-SWITCHGEAR-LEADTIME-001"
+        ],
+        "relief_path_ids": [
+          "REL-AIDC-001",
+          "REL-AIDC-002",
+          "REL-AIDC-003",
+          "REL-AIDC-004",
+          "REL-AIDC-005"
+        ],
+        "beneficiary_relationship_ids": [
+          "BEN-AIDC-EATON-TRANSFORMER-001",
+          "BEN-AIDC-EATON-SWITCHGEAR-001",
+          "BEN-AIDC-GEV-SWITCHGEAR-001",
+          "BEN-AIDC-VERTIV-POWER-RELIEF-001"
+        ],
+        "outcome_ids": [
+          "OUT-AIDC-EATON-NACOGDOCHES-CAPACITY-ADDED-001"
+        ]
+      },
+      "actual_graph_state_at_authoring": {
+        "as_of": "2026-09-26T01:57:00Z",
+        "eligible_claim_ids": [
+          "CLM-AIDC-001",
+          "CLM-AIDC-002",
+          "CLM-AIDC-003",
+          "CLM-AIDC-004",
+          "CLM-AIDC-005",
+          "CLM-AIDC-006",
+          "CLM-AIDC-007",
+          "CLM-AIDC-008",
+          "CLM-AIDC-009",
+          "CLM-AIDC-010"
+        ],
+        "constraint_candidate_ids": [
+          "T5C-AIDC-US-INTERCONNECTION-THROUGHPUT-001",
+          "T5C-AIDC-US-TRANSFORMER-SUPPLY-001",
+          "T5C-AIDC-AMER-SWITCHGEAR-LEADTIME-001"
+        ],
+        "relief_path_ids": [
+          "REL-AIDC-001",
+          "REL-AIDC-002",
+          "REL-AIDC-003",
+          "REL-AIDC-004",
+          "REL-AIDC-005"
+        ],
+        "beneficiary_relationship_ids": [
+          "BEN-AIDC-EATON-TRANSFORMER-001",
+          "BEN-AIDC-EATON-SWITCHGEAR-001",
+          "BEN-AIDC-GEV-SWITCHGEAR-001",
+          "BEN-AIDC-VERTIV-POWER-RELIEF-001"
+        ],
+        "outcome_ids": [
+          "OUT-AIDC-EATON-NACOGDOCHES-CAPACITY-ADDED-001"
+        ]
+      },
+      "diff": [],
+      "future_leak_test": "PASS"
+    }
+  ],
+  "cross_window_diff": {
+    "added_claim_ids": [
+      "CLM-AIDC-005",
+      "CLM-AIDC-006",
+      "CLM-AIDC-007",
+      "CLM-AIDC-008",
+      "CLM-AIDC-009",
+      "CLM-AIDC-010"
+    ],
+    "added_relief_path_ids": [
+      "REL-AIDC-002",
+      "REL-AIDC-003",
+      "REL-AIDC-004",
+      "REL-AIDC-005"
+    ],
+    "added_beneficiary_relationship_ids": [
+      "BEN-AIDC-EATON-TRANSFORMER-001",
+      "BEN-AIDC-EATON-SWITCHGEAR-001",
+      "BEN-AIDC-GEV-SWITCHGEAR-001",
+      "BEN-AIDC-VERTIV-POWER-RELIEF-001"
+    ],
+    "added_outcome_ids": [
+      "OUT-AIDC-EATON-NACOGDOCHES-CAPACITY-ADDED-001"
+    ]
+  }
+}

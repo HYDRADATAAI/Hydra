@@ -1,0 +1,52 @@
+{
+  "schema_version": "hydra-constraint-first-slice-outcome-records/v1",
+  "record_id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH011_AI_DATA_CENTER_POWER_INFRASTRUCTURE_OUTCOME_RECORDS_V001",
+  "as_of": "2026-09-25",
+  "predecessor_batch": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH010",
+  "slice_id": "AI_DATA_CENTER_POWER_INFRASTRUCTURE_V1",
+  "outcome_mode": "REVIEWED_SHADOW_OUTCOME_NOT_ORDINARY_REPLAY_ADMITTED",
+  "records": [
+    {
+      "outcome_id": "OUT-AIDC-EATON-NACOGDOCHES-CAPACITY-ADDED-001",
+      "outcome_label": "CAPACITY_ADDED",
+      "entity_id": "ENTITY-EATON-PLC",
+      "entity_name": "Eaton Corporation plc",
+      "facility": "Nacogdoches, Texas manufacturing facility",
+      "related_constraint_candidate_id": "T5C-AIDC-US-TRANSFORMER-SUPPLY-001",
+      "source_id": "SRC-EATON-TEXAS-TRANSFORMER-CAPACITY-2025-10-08",
+      "claim_id": "CLM-AIDC-005",
+      "observed_proposition": "Eaton publicly announced completion of a $100 million Nacogdoches expansion, start of production, more than doubled U.S. production capacity for voltage regulators and three-phase transformers, and first shipment allocation to Oncor.",
+      "real_world_effective_time": {
+        "value": null,
+        "status": "COMPLETED_BY_PUBLICATION_DATE_EXACT_COMPLETION_TIMESTAMP_NOT_STATED",
+        "no_later_than": "2025-10-08"
+      },
+      "publication_time": "2025-10-08",
+      "hydra_available_at": "2026-09-26T01:57:00Z",
+      "observed_at": "2026-09-26T01:57:00Z",
+      "revision_time": null,
+      "evidence_roles": {
+        "outcome_support": [
+          "CLM-AIDC-005"
+        ],
+        "constraint_support": [],
+        "beneficiary_capture_support": []
+      },
+      "semantic_limits": [
+        "Does not prove the broader transformer constraint was resolved.",
+        "Does not establish spare qualified capacity for every product or customer.",
+        "Does not establish constraint-driven revenue, margin, pricing power, or beneficiary capture."
+      ],
+      "ordinary_replay_eligible": false,
+      "ordinary_replay_blockers": [
+        "PIT-002B-FIRST-SLICE-NINE-SOURCE-RAW-CAPTURE-MATERIALIZATION",
+        "RAW_SOURCE_VERSION_HASH_FOR_THIS_SOURCE_NOT_MATERIALIZED"
+      ]
+    }
+  ],
+  "counts": {
+    "outcomes_captured": 1,
+    "constraint_resolutions": 0,
+    "beneficiary_capture_confirmed": 0
+  }
+}
