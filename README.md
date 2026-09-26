@@ -124,11 +124,19 @@ A second runnable public example lives in [`market-data-pipeline-sample/`](marke
 
 The sample intentionally distinguishes **file-level contract drift** from **row-level data-quality defects**: incompatible file schemas fail the run, while malformed or duplicate rows are quarantined with machine-readable reason codes.
 
+It also includes a bounded local operations path:
+
+`pinned partition plan → source-byte/partition budget → checkpointed runs → injected interruption → resume → SLI + recovery receipt`
+
+The operations path proves atomic checkpoints, integrity-checked reuse, idempotent completed replay, deterministic recovery equivalence, complete row accounting, and structured metrics over two synthetic partitions. These are local implementation receipts, not production SLO or uptime measurements.
+
 Key evidence:
 
 - [`pipeline.py`](market-data-pipeline-sample/src/hydra_market_pipeline/pipeline.py) performs strict contract checks, normalization, deterministic event identity, provenance hashing, and quarantine decisions.
 - [`writers.py`](market-data-pipeline-sample/src/hydra_market_pipeline/writers.py) emits deterministic JSONL, CSV, quarantine, and run-manifest artifacts.
+- [`operations.py`](market-data-pipeline-sample/src/hydra_market_pipeline/operations.py) executes bounded backfills with atomic checkpoints, persisted-artifact verification, deterministic SLIs, and idempotent reuse.
 - [`test_pipeline.py`](market-data-pipeline-sample/tests/test_pipeline.py) verifies expected accept/quarantine counts, deterministic reruns, CSV/JSONL equivalence, provenance, no silent data loss, and file-level contract failure.
+- [`test_operations.py`](market-data-pipeline-sample/tests/test_operations.py) verifies interruption recovery, byte-identical clean/resumed outcomes, tamper rejection, changed-source rejection, budgets, row accounting, and completed replay.
 - [Market data pipeline CI](https://github.com/HYDRADATAAI/Hydra/actions/workflows/market-data-pipeline.yml) runs the tests, executes the synthetic fixture, verifies the manifest, and publishes the generated outputs as a workflow artifact.
 
 From the sample directory:
@@ -140,9 +148,10 @@ python -m hydra_market_pipeline `
   --input data/raw/synthetic_market_events.csv `
   --aliases config/symbol_aliases.json `
   --output-dir build/demo
+python run_recovery_demo.py --output-dir build/operations
 ```
 
-This is inspectable data-engineering evidence, **not** a claim of a live market-data runtime.
+This is inspectable data-engineering and local operational evidence, **not** a claim of a live market-data runtime or production operations.
 
 ## Public SQL data-quality sample
 
@@ -208,8 +217,9 @@ If you have 60 seconds:
 3. Review the **case study** for a source → identity → authority → lineage → constraint walkthrough.
 4. Open the **proof** section for validation, failure semantics, and engineering receipts.
 5. Inspect [`market-data-pipeline-sample/`](market-data-pipeline-sample/) for a runnable ingestion → normalization → provenance → quarantine → deterministic artifact path.
-6. Inspect [`sql-data-quality-sample/`](sql-data-quality-sample/) for relational SQL, quality classification, joins, CTEs, and window functions.
-7. Inspect [`aws-market-data-pipeline/`](aws-market-data-pipeline/) for the deployment-ready, not-yet-deployed S3 → Lambda → Glue/Athena mapping.
+6. Open its [`operations.py`](market-data-pipeline-sample/src/hydra_market_pipeline/operations.py) and recovery tests for checkpoint, backfill, replay, integrity, SLI, and budget behavior.
+7. Inspect [`sql-data-quality-sample/`](sql-data-quality-sample/) for relational SQL, quality classification, joins, CTEs, and window functions.
+8. Inspect [`aws-market-data-pipeline/`](aws-market-data-pipeline/) for the deployment-ready, not-yet-deployed S3 → Lambda → Glue/Athena mapping.
 
 ## Current scope
 

@@ -53,6 +53,23 @@ class ContractFileSyncTests(unittest.TestCase):
         self.assertFalse(schema["additionalProperties"])
         self.assertTrue(record["errors"])
 
+    def test_backfill_plan_schema_matches_committed_plan(self) -> None:
+        schema = json.loads(
+            (CONTRACTS / "backfill_plan.schema.json").read_text(encoding="utf-8")
+        )
+        plan = json.loads(
+            (ROOT / "config/backfill_plan.json").read_text(encoding="utf-8")
+        )
+
+        self.assertEqual(set(schema["required"]), set(plan))
+        self.assertEqual(set(schema["properties"]), set(plan))
+        self.assertFalse(schema["additionalProperties"])
+        self.assertEqual(
+            schema["properties"]["schema_version"]["const"],
+            plan["schema_version"],
+        )
+        self.assertLessEqual(len(plan["inputs"]), plan["max_partitions"])
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -54,6 +54,12 @@ It may be described as **deployed and verified** only after the manual AWS workf
 
 Infrastructure code alone is not proof of a live AWS deployment, production scale, production availability, or production cost behavior.
 
+## Operational evidence boundary
+
+The checkpoint, backfill, recovery, SLI, and budget artifacts in the public market-data sample are deterministic local evidence over synthetic fixtures.
+
+They may demonstrate implementation behavior such as atomic checkpointing, idempotent replay, tamper detection, complete row accounting, and bounded input execution. They are not production SLO measurements, uptime evidence, incident-response history, production cost observations, or proof of a deployed orchestration service.
+
 ## Trading boundary
 
 HYDRA public materials should not imply autonomous live trading unless that state is separately and explicitly proven.
