@@ -10,6 +10,7 @@ on:
       - "tools/private/HYDRA_CONSTRAINT_T1_AUTOMATED_BROWSER_FIRST_SLICE_CAPTURE_V001_20260926.py"
       - "tools/private/HYDRA_CONSTRAINT_T1_AUTOMATED_BROWSER_CAPTURE_REQUIREMENTS_V001_20260926.txt"
       - "tools/private/HYDRA_CONSTRAINT_T1_WINDOWS_PYTHON_BROWSER_CAPTURE_BOOTSTRAP_V001_20260926.py"
+      - "tools/private/Start-HYDRAConstraintFirstSliceCaptureFromAnywhere_V001_20260926.ps1"
   push:
     branches:
       - main
@@ -21,6 +22,7 @@ on:
       - "tools/private/HYDRA_CONSTRAINT_T1_AUTOMATED_BROWSER_FIRST_SLICE_CAPTURE_V001_20260926.py"
       - "tools/private/HYDRA_CONSTRAINT_T1_AUTOMATED_BROWSER_CAPTURE_REQUIREMENTS_V001_20260926.txt"
       - "tools/private/HYDRA_CONSTRAINT_T1_WINDOWS_PYTHON_BROWSER_CAPTURE_BOOTSTRAP_V001_20260926.py"
+      - "tools/private/Start-HYDRAConstraintFirstSliceCaptureFromAnywhere_V001_20260926.ps1"
 
 permissions:
   contents: read
@@ -45,7 +47,8 @@ jobs:
         run: |
           $paths = @(
             "tools/private/Invoke-HYDRAConstraintFirstSlicePrivateCapture_V001_20260926.ps1",
-            "tools/private/Invoke-HYDRAConstraintFirstSliceAutomatedBrowserCapture_V001_20260926.ps1"
+            "tools/private/Invoke-HYDRAConstraintFirstSliceAutomatedBrowserCapture_V001_20260926.ps1",
+            "tools/private/Start-HYDRAConstraintFirstSliceCaptureFromAnywhere_V001_20260926.ps1"
           )
           foreach ($path in $paths) {
             if (-not (Test-Path -LiteralPath $path -PathType Leaf)) {
