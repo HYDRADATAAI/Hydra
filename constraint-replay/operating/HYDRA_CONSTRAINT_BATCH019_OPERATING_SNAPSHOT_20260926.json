@@ -21,14 +21,14 @@
     "policy_observation_count": 9,
     "replay_cut_count": 82,
     "source_pair_count": 4,
-    "unevaluable_count": 5,
-    "unique_bound_entity_count": 47,
     "taxonomy_event_type_count": 18,
     "taxonomy_sourced_event_type_count": 18,
     "taxonomy_supplement_case_count": 1,
     "taxonomy_supplement_event_count": 1,
     "taxonomy_supplement_observation_count": 1,
-    "taxonomy_supplement_physical_binding_count": 3
+    "taxonomy_supplement_physical_binding_count": 3,
+    "unevaluable_count": 5,
+    "unique_bound_entity_count": 47
   },
   "gaps": [
     {
@@ -158,9 +158,6 @@
     {
       "dimension": "policy_event_taxonomy_sourced_coverage",
       "evidence": {
-        "taxonomy_event_type_count": 18,
-        "sourced_event_type_count": 18,
-        "missing_event_types": [],
         "event_type_counts": {
           "ECONOMICALLY_RELEVANT_DIPLOMATIC_CHANGE": 1,
           "EMBARGO": 2,
@@ -181,10 +178,13 @@
           "TERRITORIAL_DISPUTE": 1,
           "TRADE_DISPUTE": 3
         },
+        "missing_event_types": [],
+        "sourced_event_type_count": 18,
+        "taxonomy_event_type_count": 18,
         "taxonomy_supplement_case_id": "ukraine-war-agricultural-supply-shock-2022-taxonomy-supplement",
         "taxonomy_supplement_event_id": "ukraine-war-agricultural-supply-shock-2022-04-26",
-        "taxonomy_supplement_replay_case_admitted": false,
-        "taxonomy_supplement_physical_binding_count": 3
+        "taxonomy_supplement_physical_binding_count": 3,
+        "taxonomy_supplement_replay_case_admitted": false
       },
       "intentional": false,
       "scope": "CURRENT_HISTORICAL_POLICY_CORPUS_PLUS_BATCH019_TAXONOMY_SUPPLEMENT",
@@ -253,7 +253,21 @@
     }
   ],
   "schema_version": "1.0",
+  "snapshot_digest_sha256": "99fc9235e146e87ed716d3f55484ae8c0ed66ce5ab28e7225e0dd1f5712aa6ef",
   "source_run_digest_sha256": "db28edfea01800cf85dd234edb99d003d0a185ab39f7ba8cd31af416542890f1",
+  "taxonomy_supplement": {
+    "case_id": "ukraine-war-agricultural-supply-shock-2022-taxonomy-supplement",
+    "event_id": "ukraine-war-agricultural-supply-shock-2022-04-26",
+    "event_type": "SUPPLY_AFFECTING_CONFLICT",
+    "observation_id": "ukraine-war-agricultural-export-and-production-2022-07-05",
+    "physical_binding_count": 3,
+    "physical_entity_ids": [
+      "bottleneck:ukraine-war-agricultural-supply-shock-2022",
+      "extraction:ukraine-agricultural-production-conflict-2022",
+      "resource:ukraine-grain-supply-conflict-2022"
+    ],
+    "replay_case_admitted": false
+  },
   "unevaluable_cases": [
     {
       "case_id": "eastern-mediterranean-offshore-drilling-dispute-2019-2020",
@@ -275,19 +289,5 @@
       "case_id": "wto-china-rare-earths-resource-dispute-2014-2015",
       "reason_code": "CONTESTED_IMPLEMENTATION_COMPLIANCE"
     }
-  ],
-  "taxonomy_supplement": {
-    "case_id": "ukraine-war-agricultural-supply-shock-2022-taxonomy-supplement",
-    "event_id": "ukraine-war-agricultural-supply-shock-2022-04-26",
-    "event_type": "SUPPLY_AFFECTING_CONFLICT",
-    "observation_id": "ukraine-war-agricultural-export-and-production-2022-07-05",
-    "physical_binding_count": 3,
-    "physical_entity_ids": [
-      "bottleneck:ukraine-war-agricultural-supply-shock-2022",
-      "extraction:ukraine-agricultural-production-conflict-2022",
-      "resource:ukraine-grain-supply-conflict-2022"
-    ],
-    "replay_case_admitted": false
-  },
-  "snapshot_digest_sha256": "99fc9235e146e87ed716d3f55484ae8c0ed66ce5ab28e7225e0dd1f5712aa6ef"
+  ]
 }
