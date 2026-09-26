@@ -53,10 +53,27 @@ class Batch017PrivateCaptureExecutionPacketTests(unittest.TestCase):
         self.assertIn("--private-root $PrivateRawRoot", self.text)
         self.assertIn("--attestation-output $AttestationPath", self.text)
 
+    def test_script_supports_reviewed_sanitized_har_only_for_lbnl_queued_up(self):
+        self.assertIn("[string]$LbnlQueuedUpSanitizedHarPath", self.text)
+        self.assertIn('$SourceId -eq "SRC-LBNL-QUEUED-UP-2025"', self.text)
+        self.assertIn("hydra_constraint_t1_raw.browser_response_capture", self.text)
+        self.assertIn('--exact-url $Uri', self.text)
+        self.assertIn('--expected-text "Queued Up: 2025 Edition"', self.text)
+        self.assertIn("Do not bypass Cloudflare or substitute the linked PDF", self.text)
+
+    def test_script_does_not_replay_browser_cookies_or_copy_curl(self):
+        self.assertNotIn("cf_clearance", self.text)
+        self.assertNotIn("Copy as cURL", self.text)
+        self.assertNotIn("-Headers @{", self.text)
+        self.assertNotIn("Cookie", self.text)
+
     def test_script_never_claims_replay_or_canonical_promotion(self):
         self.assertIn("ORDINARY_REPLAY_PROMOTED=NO", self.text)
         self.assertIn("CANONICAL_ADMISSION_PROMOTED=NO", self.text)
         self.assertIn("RAW_BODIES_PUBLISHED_TO_GIT=NO", self.text)
+        self.assertIn("CLOUDFLARE_BYPASS_ATTEMPTED=NO", self.text)
+        self.assertIn("LINKED_REPORT_SUBSTITUTED=NO", self.text)
+        self.assertIn("RENDERED_DOM_USED=NO", self.text)
 
 
 if __name__ == "__main__":
