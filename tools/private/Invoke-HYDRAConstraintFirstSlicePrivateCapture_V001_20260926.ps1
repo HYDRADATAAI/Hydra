@@ -11,7 +11,11 @@ param(
 
     [string]$PrivateMetadataRoot = "D:\HYDRA_PRIVATE\constraint\metadata",
 
-    [string]$LbnlQueuedUpSanitizedHarPath
+    [string]$LbnlQueuedUpSanitizedHarPath,
+
+    [string]$FercOrder2023SanitizedHarPath,
+
+    [string]$Pjm2025YearInReviewSanitizedHarPath
 )
 
 $ErrorActionPreference = "Stop"
@@ -92,6 +96,27 @@ $RunStamp = Get-SafeTimestamp
 $CaptureDir = Join-Path $PrivateStagingRoot $RunStamp
 New-Item -ItemType Directory -Path $CaptureDir -Force | Out-Null
 
+$BrowserHarFallbacks = @{
+    "SRC-LBNL-QUEUED-UP-2025" = @{
+        HarPath = $LbnlQueuedUpSanitizedHarPath
+        ExpectedText = "Queued Up: 2025 Edition"
+        MetadataStem = "LBNL_QUEUED_UP"
+        HarParameter = "-LbnlQueuedUpSanitizedHarPath"
+    }
+    "SRC-FERC-ORDER-2023-FACT-SHEET" = @{
+        HarPath = $FercOrder2023SanitizedHarPath
+        ExpectedText = "Fact Sheet | Improvements to Generator Interconnection Procedures and Agreements"
+        MetadataStem = "FERC_ORDER_2023_FACT_SHEET"
+        HarParameter = "-FercOrder2023SanitizedHarPath"
+    }
+    "SRC-PJM-2025-YEAR-IN-REVIEW-2026-01-08" = @{
+        HarPath = $Pjm2025YearInReviewSanitizedHarPath
+        ExpectedText = "2025 Year in Review: Planning Prepares for Burgeoning Electricity Demand"
+        MetadataStem = "PJM_2025_YEAR_IN_REVIEW"
+        HarParameter = "-Pjm2025YearInReviewSanitizedHarPath"
+    }
+}
+
 $Captures = @()
 
 foreach ($Source in $Registry.sources) {
@@ -123,30 +148,33 @@ foreach ($Source in $Registry.sources) {
             Remove-Item -LiteralPath $Destination -Force
         }
 
-        if (
-            $SourceId -eq "SRC-LBNL-QUEUED-UP-2025" -and
-            $LbnlQueuedUpSanitizedHarPath
-        ) {
-            Assert-OutsideRepo -CandidatePath $LbnlQueuedUpSanitizedHarPath -RepositoryPath $RepoRoot -Label "LbnlQueuedUpSanitizedHarPath"
-            if (-not (Test-Path -LiteralPath $LbnlQueuedUpSanitizedHarPath -PathType Leaf)) {
-                throw "Sanitized HAR file not found: $LbnlQueuedUpSanitizedHarPath"
+        $Fallback = $BrowserHarFallbacks[$SourceId]
+        if ($null -ne $Fallback -and $Fallback.HarPath) {
+            $HarPath = [string]$Fallback.HarPath
+            $HarParameter = [string]$Fallback.HarParameter
+            $ExpectedText = [string]$Fallback.ExpectedText
+            $MetadataStem = [string]$Fallback.MetadataStem
+
+            Assert-OutsideRepo -CandidatePath $HarPath -RepositoryPath $RepoRoot -Label ($HarParameter.TrimStart("-"))
+            if (-not (Test-Path -LiteralPath $HarPath -PathType Leaf)) {
+                throw "Sanitized HAR file not found for $SourceId: $HarPath"
             }
 
-            $BrowserCaptureMetadata = Join-Path $PrivateMetadataRoot ("HYDRA_CONSTRAINT_BROWSER_RESPONSE_CAPTURE_LBNL_QUEUED_UP_" + $RunStamp + ".json")
+            $BrowserCaptureMetadata = Join-Path $PrivateMetadataRoot ("HYDRA_CONSTRAINT_BROWSER_RESPONSE_CAPTURE_" + $MetadataStem + "_" + $RunStamp + ".json")
             $PreviousHarPythonPath = $env:PYTHONPATH
             try {
                 $env:PYTHONPATH = $MaterializerSrc
                 & python -m hydra_constraint_t1_raw.browser_response_capture `
-                    --har $LbnlQueuedUpSanitizedHarPath `
+                    --har $HarPath `
                     --output $Destination `
                     --metadata-output $BrowserCaptureMetadata `
                     --exact-url $Uri `
                     --expected-mime-prefix "text/html" `
-                    --expected-text "Queued Up: 2025 Edition" `
+                    --expected-text $ExpectedText `
                     --public-repo-root $RepoRoot
 
                 if ($LASTEXITCODE -ne 0) {
-                    throw "Reviewed browser-response extraction failed with exit code $LASTEXITCODE"
+                    throw "Reviewed browser-response extraction failed for $SourceId with exit code $LASTEXITCODE"
                 }
             }
             finally {
@@ -157,8 +185,9 @@ foreach ($Source in $Registry.sources) {
             Write-Host "CAPTURE_BROWSER_HAR_OK $SourceId metadata=$BrowserCaptureMetadata"
         }
         else {
-            if ($SourceId -eq "SRC-LBNL-QUEUED-UP-2025") {
-                throw "Direct capture failed for $SourceId. Do not bypass Cloudflare or substitute the linked PDF. Export a sanitized browser HAR containing the exact registered document response and rerun with -LbnlQueuedUpSanitizedHarPath <private-har-path>."
+            if ($null -ne $Fallback) {
+                $HarParameter = [string]$Fallback.HarParameter
+                throw "Direct capture failed for $SourceId. Do not bypass the site challenge, replay browser credentials, substitute another source, or use rendered DOM. Export a sanitized browser HAR containing the exact registered document response and rerun with $HarParameter <private-har-path>."
             }
             throw
         }
