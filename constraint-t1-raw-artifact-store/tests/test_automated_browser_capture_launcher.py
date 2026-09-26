@@ -29,11 +29,11 @@ class AutomatedBrowserCaptureLauncherTests(unittest.TestCase):
         self.assertIn("[switch]$AuthorizedPublicAcquisition", self.launcher)
         self.assertIn('"--authorized-public-acquisition"', self.launcher)
 
-    def test_private_root_matches_existing_hydra_private_root(self):
-        self.assertIn('D:\\HYDRA_PRIVATE\\constraint', self.launcher)
-        self.assertIn(r'D:\HYDRA_PRIVATE\constraint', self.runner)
-        self.assertNotIn(r'D:\HYDRA\_PRIVATE\constraint', self.launcher)
-        self.assertNotIn(r'D:\HYDRA\_PRIVATE\constraint', self.runner)
+    def test_private_root_matches_current_hydra_private_root(self):
+        self.assertIn('D:\\HYDRA\\_PRIVATE\\constraint', self.launcher)
+        self.assertIn(r'D:\HYDRA\_PRIVATE\constraint', self.runner)
+        self.assertNotIn(r'D:\HYDRA_PRIVATE\constraint', self.launcher)
+        self.assertNotIn(r'D:\HYDRA_PRIVATE\constraint', self.runner)
 
     def test_runner_requires_authorization_even_when_invoked_directly(self):
         self.assertIn(
