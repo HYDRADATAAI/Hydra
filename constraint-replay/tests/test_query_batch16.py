@@ -18,6 +18,24 @@ class Batch016ReadOnlyQueryTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.service=ConstraintReplayQueryService(ROOT)
+        cls.acceptance=json.loads(
+            (ROOT/"constraint-replay"/"runtime"/
+             "HYDRA_CONSTRAINT_BATCH016_READONLY_QUERY_ACCEPTANCE_20260926.json"
+            ).read_text(encoding="utf-8")
+        )
+
+    def test_acceptance_snapshot_matches_live_service(self):
+        expected=self.acceptance["queries"]
+        self.assertEqual(expected["summary"],self.service.summary())
+        self.assertEqual(expected["integrity"],self.service.integrity())
+        self.assertEqual(
+            expected["case_suez"],
+            self.service.case("suez-ever-given-2021"),
+        )
+        self.assertEqual(
+            expected["list_unevaluable"],
+            self.service.list_cases(outcome_class="UNEVALUABLE"),
+        )
 
     def test_summary_exposes_frozen_batch15_aggregate(self):
         response=self.service.summary()
