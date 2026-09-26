@@ -50,7 +50,14 @@ class Batch017MultiDomainIntegrationTests(unittest.TestCase):
             for binding in event["physical_bindings"]
         }
         self.assertIn("infrastructure:suez-canal",entity_ids)
-        self.assertIn("transport:maritime-traffic-via-suez",entity_ids)
+        self.assertIn("bottleneck:suez-canal-grounding-2021",entity_ids)
+        canal_event=next(
+            event for event in result["policy_events"]
+            if "infrastructure:suez-canal" in event["downstream_edge_paths"]
+        )
+        self.assertTrue(
+            canal_event["downstream_edge_paths"]["infrastructure:suez-canal"]
+        )
 
     def test_suez_entity_usage_resolves_canonical_physical_reference(self):
         result=self.service.entity_usage("infrastructure:suez-canal",max_depth=3)["result"]
