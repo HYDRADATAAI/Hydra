@@ -6,6 +6,9 @@ on:
       - "constraint-t1-raw-artifact-store/**"
       - ".github/workflows/constraint-t1-raw-artifact-store.yml"
       - "tools/private/Invoke-HYDRAConstraintFirstSlicePrivateCapture_V001_20260926.ps1"
+      - "tools/private/Invoke-HYDRAConstraintFirstSliceAutomatedBrowserCapture_V001_20260926.ps1"
+      - "tools/private/HYDRA_CONSTRAINT_T1_AUTOMATED_BROWSER_FIRST_SLICE_CAPTURE_V001_20260926.py"
+      - "tools/private/HYDRA_CONSTRAINT_T1_AUTOMATED_BROWSER_CAPTURE_REQUIREMENTS_V001_20260926.txt"
   push:
     branches:
       - main
@@ -13,6 +16,9 @@ on:
       - "constraint-t1-raw-artifact-store/**"
       - ".github/workflows/constraint-t1-raw-artifact-store.yml"
       - "tools/private/Invoke-HYDRAConstraintFirstSlicePrivateCapture_V001_20260926.ps1"
+      - "tools/private/Invoke-HYDRAConstraintFirstSliceAutomatedBrowserCapture_V001_20260926.ps1"
+      - "tools/private/HYDRA_CONSTRAINT_T1_AUTOMATED_BROWSER_FIRST_SLICE_CAPTURE_V001_20260926.py"
+      - "tools/private/HYDRA_CONSTRAINT_T1_AUTOMATED_BROWSER_CAPTURE_REQUIREMENTS_V001_20260926.txt"
 
 permissions:
   contents: read
@@ -32,22 +38,27 @@ jobs:
         run: |
           export PYTHONPATH="$PWD/src"
           python -m unittest discover -s tests -t . -v
-      - name: Parse private first-slice capture PowerShell
+      - name: Parse private capture PowerShell entry points
         shell: pwsh
         run: |
-          $path = "tools/private/Invoke-HYDRAConstraintFirstSlicePrivateCapture_V001_20260926.ps1"
-          if (-not (Test-Path -LiteralPath $path -PathType Leaf)) {
-            throw "Capture helper missing: $path"
-          }
-          $tokens = $null
-          $errors = $null
-          [System.Management.Automation.Language.Parser]::ParseFile(
-            (Resolve-Path -LiteralPath $path),
-            [ref]$tokens,
-            [ref]$errors
-          ) | Out-Null
-          if ($errors.Count -gt 0) {
-            $errors | ForEach-Object { Write-Error $_.Message }
-            throw "Private first-slice capture PowerShell syntax validation failed."
+          $paths = @(
+            "tools/private/Invoke-HYDRAConstraintFirstSlicePrivateCapture_V001_20260926.ps1",
+            "tools/private/Invoke-HYDRAConstraintFirstSliceAutomatedBrowserCapture_V001_20260926.ps1"
+          )
+          foreach ($path in $paths) {
+            if (-not (Test-Path -LiteralPath $path -PathType Leaf)) {
+              throw "Capture helper missing: $path"
+            }
+            $tokens = $null
+            $errors = $null
+            [System.Management.Automation.Language.Parser]::ParseFile(
+              (Resolve-Path -LiteralPath $path),
+              [ref]$tokens,
+              [ref]$errors
+            ) | Out-Null
+            if ($errors.Count -gt 0) {
+              $errors | ForEach-Object { Write-Error "$path :: $($_.Message)" }
+              throw "Private capture PowerShell syntax validation failed: $path"
+            }
           }
           Write-Host "HYDRA_PRIVATE_CAPTURE_POWERSHELL_SYNTAX=PASS"
