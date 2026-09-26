@@ -15,6 +15,7 @@ COMPONENT = ROOT / "t6-fail-closed-validator"
 PIPELINE = ROOT / "market-data-pipeline-sample"
 SQL_SAMPLE = ROOT / "sql-data-quality-sample"
 AWS_SAMPLE = ROOT / "aws-market-data-pipeline"
+INTELLIGENCE_SAMPLE = ROOT / "governed-intelligence-sample"
 
 REQUIRED_PATHS = (
     "README.md",
@@ -40,6 +41,7 @@ REQUIRED_PATHS = (
     ".github/workflows/sql-data-quality-sample.yml",
     ".github/workflows/aws-market-data-pipeline.yml",
     ".github/workflows/aws-market-data-deploy.yml",
+    ".github/workflows/governed-intelligence-sample.yml",
     "aws-market-data-pipeline/README.md",
     "aws-market-data-pipeline/template.json",
     "aws-market-data-pipeline/local_demo.py",
@@ -82,6 +84,22 @@ REQUIRED_PATHS = (
     "market-data-pipeline-sample/tests/test_pipeline.py",
     "market-data-pipeline-sample/tests/test_operations.py",
     "market-data-pipeline-sample/run_recovery_demo.py",
+    "governed-intelligence-sample/README.md",
+    "governed-intelligence-sample/pyproject.toml",
+    "governed-intelligence-sample/config/policy.json",
+    "governed-intelligence-sample/contracts/request.schema.json",
+    "governed-intelligence-sample/contracts/decision.schema.json",
+    "governed-intelligence-sample/fixtures/evaluation_cases.json",
+    "governed-intelligence-sample/run_demo.py",
+    "governed-intelligence-sample/src/hydra_governed_intelligence/__init__.py",
+    "governed-intelligence-sample/src/hydra_governed_intelligence/__main__.py",
+    "governed-intelligence-sample/src/hydra_governed_intelligence/cli.py",
+    "governed-intelligence-sample/src/hydra_governed_intelligence/context.py",
+    "governed-intelligence-sample/src/hydra_governed_intelligence/evaluation.py",
+    "governed-intelligence-sample/tests/__init__.py",
+    "governed-intelligence-sample/tests/support.py",
+    "governed-intelligence-sample/tests/test_context.py",
+    "governed-intelligence-sample/tests/test_evaluation.py",
 )
 
 FORBIDDEN_ACTIVE_PATHS = (
@@ -153,6 +171,14 @@ def active_public_text_files() -> list[Path]:
         for path in AWS_SAMPLE.rglob("*")
         if path.suffix.casefold() in {".csv", ".json", ".md", ".py"}
     )
+    files.extend(
+        [INTELLIGENCE_SAMPLE / "README.md", INTELLIGENCE_SAMPLE / "pyproject.toml"]
+    )
+    files.extend((INTELLIGENCE_SAMPLE / "src").rglob("*.py"))
+    files.extend((INTELLIGENCE_SAMPLE / "tests").rglob("*.py"))
+    files.extend((INTELLIGENCE_SAMPLE / "config").rglob("*.json"))
+    files.extend((INTELLIGENCE_SAMPLE / "contracts").rglob("*.json"))
+    files.extend((INTELLIGENCE_SAMPLE / "fixtures").rglob("*.json"))
     return sorted(path for path in files if path.is_file())
 
 
@@ -206,6 +232,34 @@ def validate_safety_contract(errors: list[str]) -> None:
         if actual != expected_value:
             errors.append(
                 f"fail-closed pyproject contract changed: tool.hydra.{key}={actual!r}; "
+                f"expected {expected_value!r}"
+            )
+
+    intelligence_pyproject = INTELLIGENCE_SAMPLE / "pyproject.toml"
+    try:
+        intelligence_data = tomllib.loads(
+            intelligence_pyproject.read_text(encoding="utf-8-sig")
+        )
+    except (OSError, tomllib.TOMLDecodeError) as exc:
+        errors.append(f"unable to parse governed-intelligence pyproject.toml: {exc}")
+        return
+
+    intelligence_project = intelligence_data.get("project", {})
+    if intelligence_project.get("requires-python") != ">=3.11":
+        errors.append(
+            "governed-intelligence requires-python must remain exactly '>=3.11'"
+        )
+    intelligence_hydra = intelligence_data.get("tool", {}).get("hydra", {})
+    intelligence_expected = {
+        "data-boundary": "synthetic-non-live",
+        "model-execution": False,
+        "external-effects": False,
+    }
+    for key, expected_value in intelligence_expected.items():
+        actual = intelligence_hydra.get(key)
+        if actual != expected_value:
+            errors.append(
+                f"governed-intelligence safety contract changed: tool.hydra.{key}={actual!r}; "
                 f"expected {expected_value!r}"
             )
 
@@ -288,6 +342,21 @@ def validate_ci_contract(errors: list[str]) -> None:
     if re.search(r"(?m)^  (?:pull_request|push):", deploy_workflow):
         errors.append("aws-deploy workflow must remain manual-only")
 
+    intelligence_workflow = (
+        ROOT / ".github/workflows/governed-intelligence-sample.yml"
+    ).read_text(encoding="utf-8-sig")
+    intelligence_fragments = (
+        'python-version: "3.11"',
+        "working-directory: governed-intelligence-sample",
+        "python -m unittest discover -s tests -t . -v",
+        "python run_demo.py",
+        "GOVERNED_INTELLIGENCE_EVAL=PASS",
+        "actions/upload-artifact@v4",
+    )
+    for fragment in intelligence_fragments:
+        if fragment not in intelligence_workflow:
+            errors.append(f"governed-intelligence CI contract missing: {fragment}")
+
 
 def validate_aws_template_contract(errors: list[str]) -> None:
     template_path = AWS_SAMPLE / "template.json"
@@ -341,6 +410,8 @@ def main() -> int:
     print("SQL_SAMPLE_CI_CONTRACT=PASS")
     print("AWS_SAMPLE_CI_CONTRACT=PASS")
     print("AWS_DEPLOY_WORKFLOW_CONTRACT=PASS")
+    print("GOVERNED_INTELLIGENCE_SAFETY_CONTRACT=PASS")
+    print("GOVERNED_INTELLIGENCE_CI_CONTRACT=PASS")
     print("AWS_TEMPLATE_CONTRACT=PASS")
     return 0
 

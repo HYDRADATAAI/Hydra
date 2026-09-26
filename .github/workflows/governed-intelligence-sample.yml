@@ -1,0 +1,83 @@
+name: Governed intelligence pre-model sample
+
+on:
+  pull_request:
+    paths:
+      - "governed-intelligence-sample/**"
+      - "market-data-pipeline-sample/**"
+      - ".github/workflows/governed-intelligence-sample.yml"
+  push:
+    branches:
+      - main
+    paths:
+      - "governed-intelligence-sample/**"
+      - "market-data-pipeline-sample/**"
+      - ".github/workflows/governed-intelligence-sample.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  evaluate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Build governed synthetic pipeline artifacts
+        working-directory: market-data-pipeline-sample
+        env:
+          PYTHONPATH: src
+        run: |
+          python -m hydra_market_pipeline \
+            --input data/raw/synthetic_market_events.csv \
+            --aliases config/symbol_aliases.json \
+            --output-dir build/demo
+
+      - name: Run pre-model control tests
+        working-directory: governed-intelligence-sample
+        env:
+          PYTHONPATH: src
+        run: python -m unittest discover -s tests -t . -v
+
+      - name: Build deterministic context and evaluation receipts
+        working-directory: governed-intelligence-sample
+        env:
+          PYTHONPATH: src
+        run: |
+          python run_demo.py \
+            --pipeline-output-dir ../market-data-pipeline-sample/build/demo \
+            --policy config/policy.json \
+            --cases fixtures/evaluation_cases.json \
+            --output-dir build/evaluation
+
+      - name: Verify evaluation receipt
+        working-directory: governed-intelligence-sample
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          report = json.loads(Path("build/evaluation/evaluation_report.json").read_text(encoding="utf-8"))
+          assert report["status"] == "PASS", report
+          assert report["case_count"] == 5, report
+          assert report["disposition_counts"] == {"ABSTAIN": 2, "ADMIT": 2, "REFUSE": 1}, report
+          assert report["checks"]["citation_integrity_pass_count"] == 5, report
+          assert report["checks"]["unauthorized_model_execution_count"] == 0, report
+          assert report["checks"]["quarantined_raw_records_exposed_count"] == 0, report
+          print("GOVERNED_INTELLIGENCE_EVAL=PASS")
+          PY
+
+      - name: Publish synthetic pre-model receipts
+        uses: actions/upload-artifact@v4
+        with:
+          name: hydra-governed-intelligence-sample
+          path: |
+            governed-intelligence-sample/build/evaluation/
+            market-data-pipeline-sample/build/demo/
+          if-no-files-found: error

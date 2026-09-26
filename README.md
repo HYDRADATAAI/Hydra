@@ -8,6 +8,7 @@
 [![Market data pipeline sample](https://github.com/HYDRADATAAI/Hydra/actions/workflows/market-data-pipeline.yml/badge.svg)](https://github.com/HYDRADATAAI/Hydra/actions/workflows/market-data-pipeline.yml)
 [![SQL data quality sample](https://github.com/HYDRADATAAI/Hydra/actions/workflows/sql-data-quality-sample.yml/badge.svg)](https://github.com/HYDRADATAAI/Hydra/actions/workflows/sql-data-quality-sample.yml)
 [![AWS market data pipeline sample](https://github.com/HYDRADATAAI/Hydra/actions/workflows/aws-market-data-pipeline.yml/badge.svg)](https://github.com/HYDRADATAAI/Hydra/actions/workflows/aws-market-data-pipeline.yml)
+[![Governed intelligence pre-model sample](https://github.com/HYDRADATAAI/Hydra/actions/workflows/governed-intelligence-sample.yml/badge.svg)](https://github.com/HYDRADATAAI/Hydra/actions/workflows/governed-intelligence-sample.yml)
 
 **Project site:** https://hydradataai.github.io/Hydra-Website/  
 **Technical site repository:** https://github.com/HYDRADATAAI/Hydra-Website
@@ -177,6 +178,23 @@ The sample includes:
 
 No AWS deployment is claimed until that manual workflow succeeds against a real account. The website should not promote this path as deployed evidence before then.
 
+## Governed intelligence pre-model sample
+
+A downstream control proof lives in [`governed-intelligence-sample/`](governed-intelligence-sample/). It consumes the exact synthetic artifacts emitted by the public market-data pipeline and demonstrates the boundary before any model or agent execution:
+
+`manifest integrity -> policy decision -> bounded accepted context -> exact citations -> deterministic evaluation receipt`
+
+The sample fails closed on artifact drift, excludes quarantined raw rows from context, admits only governed evidence, abstains when evidence or production authority is missing, and refuses trading instructions. Its five-case evaluation verifies all citations and expected dispositions while recording zero model executions and zero quarantined raw-record exposures.
+
+This is inspectable pre-model grounding and control evidence. It does **not** claim model quality, semantic retrieval quality, natural-language intent classification, live market coverage, production performance, investment advice, or trading authorization.
+
+Key evidence:
+
+- [`context.py`](governed-intelligence-sample/src/hydra_governed_intelligence/context.py) verifies upstream digests, assembles bounded accepted-record context, and validates citations.
+- [`evaluation.py`](governed-intelligence-sample/src/hydra_governed_intelligence/evaluation.py) emits deterministic decisions, evaluation results, and digest-bound receipts.
+- [`evaluation_cases.json`](governed-intelligence-sample/fixtures/evaluation_cases.json) makes the admit, abstain, and refuse expectations inspectable.
+- [Governed intelligence CI](https://github.com/HYDRADATAAI/Hydra/actions/workflows/governed-intelligence-sample.yml) rebuilds the upstream synthetic artifacts before running the controls and publishing receipts.
+
 ## Fail-closed validator sample
 
 A focused public implementation example lives in [`t6-fail-closed-validator/`](t6-fail-closed-validator/). The component is explicitly **source-only, dormant, and not activated**; its public contract is fail-closed and returns only `ABSTAIN` or `QUARANTINE`.
@@ -220,6 +238,7 @@ If you have 60 seconds:
 6. Open its [`operations.py`](market-data-pipeline-sample/src/hydra_market_pipeline/operations.py) and recovery tests for checkpoint, backfill, replay, integrity, SLI, and budget behavior.
 7. Inspect [`sql-data-quality-sample/`](sql-data-quality-sample/) for relational SQL, quality classification, joins, CTEs, and window functions.
 8. Inspect [`aws-market-data-pipeline/`](aws-market-data-pipeline/) for the deployment-ready, not-yet-deployed S3 → Lambda → Glue/Athena mapping.
+9. Inspect [`governed-intelligence-sample/`](governed-intelligence-sample/) for integrity-checked context, exact citations, abstention/refusal controls, and deterministic pre-model evaluation.
 
 ## Current scope
 
@@ -230,10 +249,11 @@ The public surfaces do **not** claim:
 - live autonomous trading;
 - a currently deployed or production-grade AWS data platform;
 - production ML deployment;
+- executed model or agent behavior in the public pre-model sample;
 - fabricated production metrics;
 - authority that the underlying producers cannot prove.
 
-The AWS sample remains deployment-ready rather than deployed until a real manual run produces sanitized evidence. Broader production cloud and ML work stays in the roadmap until it is implemented and inspectable.
+The AWS sample remains deployment-ready rather than deployed until a real manual run produces sanitized evidence. The governed-intelligence sample stops before model execution. Broader production cloud and ML work stays in the roadmap until it is implemented and inspectable.
 
 ## Links
 

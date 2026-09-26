@@ -1,0 +1,25 @@
+{
+  "$id": "hydra-governed-intelligence-request/v1",
+  "additionalProperties": false,
+  "properties": {
+    "request_id": {
+      "maxLength": 64,
+      "minLength": 1,
+      "pattern": "^[A-Za-z0-9._-]+$",
+      "type": "string"
+    },
+    "subject": {
+      "maxLength": 64,
+      "minLength": 1,
+      "type": ["string", "null"]
+    },
+    "task_type": {
+      "maxLength": 64,
+      "minLength": 1,
+      "pattern": "^[a-z0-9_]+$",
+      "type": "string"
+    }
+  },
+  "required": ["request_id", "task_type", "subject"],
+  "type": "object"
+}
