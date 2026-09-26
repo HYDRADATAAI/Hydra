@@ -1,0 +1,76 @@
+{
+  "schema_version": "hydra-constraint-thread6-successor-manifest/v1",
+  "record_id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH018_ARTIFACT_MANIFEST_V001",
+  "as_of": "2026-09-26",
+  "repository": "HYDRADATAAI/Hydra",
+  "branch_base_head": "07e03eeede02e77c3076a75aef274f3f8b424158",
+  "current_main_observed_during_seal": "677f87cc54a2af43b834b44979df4f607508461a",
+  "predecessor_batch": {
+    "id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH017",
+    "preservation": "IMMUTABLE_NOT_REWRITTEN"
+  },
+  "slice_id": "SEMICONDUCTOR_ADVANCED_PACKAGING_CRITICAL_MATERIALS_V1",
+  "result": "PASS_REVIEWED_SOURCE_AUTHORITY_AND_FIRST_POPULATION_SHADOW_ONLY",
+  "artifacts": [
+    {
+      "path": "docs/constraint/second_slice/semiconductor_advanced_packaging_critical_materials_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH018_SEMICONDUCTOR_SOURCE_AUTHORITY_REGISTRY_V001_20260926.json",
+      "git_blob_sha": "9e4d9fbc7b8b1439a0c4761449cb071ded83d726"
+    },
+    {
+      "path": "docs/constraint/second_slice/semiconductor_advanced_packaging_critical_materials_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH018_SEMICONDUCTOR_EVIDENCE_SEED_V001_20260926.json",
+      "git_blob_sha": "85476de8e808c07dc2833cc759b846f3107ebc87"
+    },
+    {
+      "path": "docs/constraint/second_slice/semiconductor_advanced_packaging_critical_materials_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH018_SEMICONDUCTOR_FIRST_POPULATION_V001_20260926.json",
+      "git_blob_sha": "23b777bcb0c78ef8be90ed406c4069f8e2a7dbe6"
+    },
+    {
+      "path": "docs/constraint/second_slice/semiconductor_advanced_packaging_critical_materials_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH018_SEMICONDUCTOR_DEPENDENCY_GRAPH_SEED_V001_20260926.json",
+      "git_blob_sha": "603cb377e05e2fa397004edf748a0e5984623845"
+    },
+    {
+      "path": "docs/constraint/second_slice/semiconductor_advanced_packaging_critical_materials_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH018_SEMICONDUCTOR_SOURCE_AUTHORITY_FIRST_POPULATION_STATUS_V001_20260926.json",
+      "git_blob_sha": "e6a4d94068d2a895f735de44dffce8280af4664f"
+    },
+    {
+      "path": "docs/constraint/architecture/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH018_SEMICONDUCTOR_CAPABILITY_LEDGER_DELTA_V001_20260926.json",
+      "git_blob_sha": "0db58ff852b1bd94f0abcfa97e89a6993fcbc531"
+    },
+    {
+      "path": "docs/constraint/architecture/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH018_MASTER_STATUS_V001_20260926.json",
+      "git_blob_sha": "48bfa570bf3836b2caeee74fc475a37398eab686"
+    },
+    {
+      "path": "docs/constraint/validation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH018_SEMICONDUCTOR_SOURCE_AUTHORITY_FIRST_POPULATION_REPORT_V001_20260926.md",
+      "git_blob_sha": "5c398b13a4b1898c9d7d3e4365dde694940d4f55"
+    }
+  ],
+  "excluded_operational_tools": [
+    {
+      "path": "tools/validate_constraint_second_slice_batch018_first_population.py",
+      "reason": "operational validator may evolve without manifest self-reference"
+    },
+    {
+      "path": "tools/test_constraint_second_slice_batch018_first_population_adversarial.py",
+      "reason": "hostile harness may evolve without manifest self-reference"
+    },
+    {
+      "path": ".github/workflows/constraint-second-slice.yml",
+      "reason": "CI orchestration"
+    }
+  ],
+  "expected": {
+    "source_authority_registry": "POPULATED_REVIEWED_SHADOW",
+    "first_population": "PARTIAL_REVIEWED_SHADOW",
+    "source_count": 10,
+    "evidence_observation_count": 11,
+    "dependency_edge_count": 24,
+    "materials_populated": 0,
+    "ordinary_t3_eligible": false,
+    "strict_original_as_of_ready": false,
+    "historical_replay": "BLOCKED",
+    "required_cases_covered": 0,
+    "first_semiconductor_run": "BLOCKED",
+    "next_repo_executable_lane": "SECOND-SLICE-CRITICAL-MATERIAL-AND-PACKAGING-DEPTH-WITHOUT-REPLAY-PROMOTION"
+  }
+}
