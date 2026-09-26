@@ -1,0 +1,53 @@
+{
+  "schema_version": "hydra-constraint-batch017-lbnl-browser-response-exception-manifest/v1",
+  "record_id": "HYDRA_CONSTRAINT_BATCH017_LBNL_QUEUED_UP_BROWSER_RESPONSE_EXCEPTION_ARTIFACT_MANIFEST_V001_20260926",
+  "as_of": "2026-09-26",
+  "repository": "HYDRADATAAI/Hydra",
+  "stacked_on_pr": 65,
+  "branch": "constraint/t1-private-capture-execution-packet-20260926",
+  "source_id": "SRC-LBNL-QUEUED-UP-2025",
+  "registered_locator": "https://emp.lbl.gov/publications/queued-2025-edition-characteristics",
+  "purpose": "EXACT_REGISTERED_BROWSER_RESPONSE_CAPTURE_WITHOUT_CLOUDFLARE_BYPASS_OR_LINKED_FILE_SUBSTITUTION",
+  "raw_source_body_published": false,
+  "rendered_dom_used": false,
+  "linked_report_substituted": false,
+  "cloudflare_bypass_attempted": false,
+  "ordinary_replay_promoted": false,
+  "canonical_admission_promoted": false,
+  "artifacts": [
+    {
+      "path": "constraint-t1-raw-artifact-store/src/hydra_constraint_t1_raw/browser_response_capture.py",
+      "git_blob_sha": "2814235a499adb00efccc664a7050195f7488fbf"
+    },
+    {
+      "path": "constraint-t1-raw-artifact-store/tests/test_browser_response_capture.py",
+      "git_blob_sha": "f70096ebdfd14f6e943ba00b04998957ddb82d1b"
+    },
+    {
+      "path": "constraint-t1-raw-artifact-store/tests/test_batch017_private_capture_execution_packet.py",
+      "git_blob_sha": "d4afbfbc228acc99a6f4d3d42ebf6f48e93ca782"
+    },
+    {
+      "path": "tools/private/Invoke-HYDRAConstraintFirstSlicePrivateCapture_V001_20260926.ps1",
+      "git_blob_sha": "529fb9113fc6ea6219915a3c382097ab00af71b4"
+    },
+    {
+      "path": "docs/constraint/implementation/HYDRA_CONSTRAINT_BATCH017_LBNL_QUEUED_UP_EXACT_BROWSER_RESPONSE_CAPTURE_V001_20260926.md",
+      "git_blob_sha": "33b0855c482c4d732ef3afb8063fbca46ebb1315"
+    },
+    {
+      "path": "docs/constraint/architecture/HYDRA_CONSTRAINT_BATCH017_LBNL_QUEUED_UP_CAPTURE_EXCEPTION_STATUS_V001_20260926.json",
+      "git_blob_sha": "6d420650394f63f1a354c7abe8012c199fbd7f08"
+    }
+  ],
+  "acceptance_rules": [
+    "HAR_MUST_BE_SANITIZED",
+    "EXACT_REGISTERED_URL_REQUIRED",
+    "HTTP_200_REQUIRED",
+    "TEXT_HTML_REQUIRED",
+    "EXPECTED_QUEUED_UP_MARKER_REQUIRED",
+    "SENSITIVE_AUTH_HEADERS_REJECTED",
+    "CLOUDFLARE_BLOCK_OR_CHALLENGE_BODY_REJECTED",
+    "PRIVATE_PATHS_OUTSIDE_PUBLIC_REPO_REQUIRED"
+  ]
+}
