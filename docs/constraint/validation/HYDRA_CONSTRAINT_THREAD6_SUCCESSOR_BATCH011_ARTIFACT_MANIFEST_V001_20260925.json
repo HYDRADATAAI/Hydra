@@ -1,0 +1,105 @@
+{
+  "schema_version": "hydra-constraint-thread6-successor-manifest/v1",
+  "record_id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH011_ARTIFACT_MANIFEST_V001",
+  "as_of": "2026-09-25",
+  "repository": "HYDRADATAAI/Hydra",
+  "base_head": "f8e13decb4109a01caed8f5bf92a3a0e99b02c67",
+  "predecessor_batch": {
+    "id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH010",
+    "commit": "e986a32641dac4d874095ac6d04af44546e2554b",
+    "preservation": "IMMUTABLE_NOT_REWRITTEN"
+  },
+  "owner_namespace": "PIPELINE_T1_SOURCE_ACQUISITION",
+  "hardening_transition": {
+    "scope": "T1_TO_T2_PERSISTED_CHAIN_OF_CUSTODY",
+    "batch008_raw_store_history_preserved": true,
+    "batch010_claim_beneficiary_history_preserved": true,
+    "in_memory_record_authority_removed": true,
+    "integration_validator_made_successor_aware": true
+  },
+  "superseded_artifacts": [
+    {
+      "path": "constraint-t1-raw-artifact-store/src/hydra_constraint_t1_raw/store.py",
+      "predecessor_git_blob_sha": "c360aff06500ef19ac2f76e3b5efb9ef7debd90d",
+      "successor_git_blob_sha": "040af0ee154e3cf6e64a145125fc1254ce170902"
+    },
+    {
+      "path": "constraint-t1-raw-artifact-store/tests/test_store.py",
+      "predecessor_git_blob_sha": "4a2bbd00189ac7b62f338cf7a21062f35ba1c31f",
+      "successor_git_blob_sha": "da24ccc223900e345c5e1fb4fc92ae35db87f467"
+    },
+    {
+      "path": "constraint-t1-raw-artifact-store/README.md",
+      "predecessor_git_blob_sha": "df498d35dc3acdfb2fbef95fac1e1505c80105c8",
+      "successor_git_blob_sha": "5958840f95811a147758913bce8e42419ed55750"
+    },
+    {
+      "path": "constraint-t1-raw-artifact-store/pyproject.toml",
+      "predecessor_git_blob_sha": "2c1163d3dbb62e7ef790d967bd2f5834a1871a91",
+      "successor_git_blob_sha": "c597639479c7be82570806b034fd0f1690822f56"
+    },
+    {
+      "path": "tools/validate_constraint_first_slice_successor.py",
+      "predecessor_git_blob_sha": "856fd25fc177137602b450236c2f6523cf4751de",
+      "successor_git_blob_sha": "f7f12e09f404c74195570851eb42eeb41ea55a1e"
+    },
+    {
+      "path": "tools/test_constraint_first_slice_adversarial.py",
+      "predecessor_git_blob_sha": "c38bbeadbb1c27d83c225f1778ce04a4dc4af93b",
+      "successor_git_blob_sha": "64101a3644d46bce716f82fe19e5894965342fe4"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "constraint-t1-raw-artifact-store/src/hydra_constraint_t1_raw/store.py",
+      "git_blob_sha": "040af0ee154e3cf6e64a145125fc1254ce170902"
+    },
+    {
+      "path": "constraint-t1-raw-artifact-store/tests/test_store.py",
+      "git_blob_sha": "da24ccc223900e345c5e1fb4fc92ae35db87f467"
+    },
+    {
+      "path": "constraint-t1-raw-artifact-store/README.md",
+      "git_blob_sha": "5958840f95811a147758913bce8e42419ed55750"
+    },
+    {
+      "path": "constraint-t1-raw-artifact-store/pyproject.toml",
+      "git_blob_sha": "c597639479c7be82570806b034fd0f1690822f56"
+    },
+    {
+      "path": "tools/validate_constraint_first_slice_successor.py",
+      "git_blob_sha": "f7f12e09f404c74195570851eb42eeb41ea55a1e"
+    },
+    {
+      "path": "tools/test_constraint_first_slice_adversarial.py",
+      "git_blob_sha": "64101a3644d46bce716f82fe19e5894965342fe4"
+    },
+    {
+      "path": "docs/constraint/implementation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH011_T1_T2_PERSISTED_CHAIN_OF_CUSTODY_CONTRACT_V001_20260925.json",
+      "git_blob_sha": "25276f3bac6b5763bf829555321b9e861917c42e"
+    },
+    {
+      "path": "docs/constraint/validation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH011_T1_T2_CHAIN_OF_CUSTODY_STATUS_V001_20260925.json",
+      "git_blob_sha": "e899e0413baf848c8609ae93226a40929913f5b6"
+    },
+    {
+      "path": "docs/constraint/architecture/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH011_MASTER_STATUS_V001_20260925.json",
+      "git_blob_sha": "b178951590958d16c1126ea849622d796f4bde52"
+    },
+    {
+      "path": "docs/constraint/validation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH011_T1_T2_CHAIN_OF_CUSTODY_HARDENING_REPORT_V001_20260925.md",
+      "git_blob_sha": "e61d256db5e3f7a0bfe6ddfa901c9e4f4b92cab4"
+    }
+  ],
+  "expected": {
+    "persisted_receipt_identity_required": "YES",
+    "persisted_release_identity_required": "YES",
+    "forged_in_memory_release_authority": "NO",
+    "forged_receipt_disposition_upgrade": "BLOCKED",
+    "claim_layer_populated": "YES_SHADOW",
+    "qualified_beneficiaries_minted": "NO",
+    "real_raw_artifacts_materialized": "NO",
+    "implementation_admitted": "NO",
+    "first_serious_constraint_run": "BLOCKED"
+  }
+}
