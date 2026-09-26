@@ -1,0 +1,60 @@
+{
+  "schema_version": "hydra-constraint-first-slice-real-outcome-coverage-matrix/v1",
+  "record_id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH017_AI_DATA_CENTER_POWER_INFRASTRUCTURE_REAL_OUTCOME_COVERAGE_MATRIX_V001",
+  "as_of": "2026-09-26",
+  "slice_id": "AI_DATA_CENTER_POWER_INFRASTRUCTURE_V1",
+  "coverage_rule": "CLOSE_THIN_COVERAGE_BLOCKER_BY_CORE_EVALUATION_DIMENSION_COVERAGE_NOT_BY_INVENTED_NUMERIC_SAMPLE_THRESHOLD",
+  "evaluation_dimensions": [
+    {
+      "dimension": "CONSTRAINT_OUTCOME_MATCH",
+      "status": "COVERED_REAL_PRIMARY_BOUNDED",
+      "outcome_ids": [
+        "OUT-AIDC-EATON-NACOGDOCHES-CAPACITY-ADDED-001",
+        "OUT-AIDC-CALVERT-AWS-PROJECT-CANCELLED-001"
+      ]
+    },
+    {
+      "dimension": "RELIEF_OR_INVALIDATOR_OUTCOME",
+      "status": "COVERED_REAL_PRIMARY_BOUNDED",
+      "outcome_ids": [
+        "OUT-AIDC-LOUDOUN-ONSITE-GAS-SUBSTITUTION-SUCCEEDED-001"
+      ]
+    },
+    {
+      "dimension": "BENEFICIARY_CAPTURE_OUTCOME",
+      "status": "COVERED_REAL_PRIMARY_BOUNDED",
+      "outcome_ids": [
+        "OUT-AIDC-EATON-DATACENTER-ORDER-CAPTURE-Q1-2026-001",
+        "OUT-AIDC-GEV-DATACENTER-ORDER-CAPTURE-H1-2026-001"
+      ]
+    }
+  ],
+  "label_diversity": [
+    "CAPACITY_ADDED",
+    "PROJECT_CANCELLED",
+    "SUBSTITUTION_SUCCEEDED",
+    "BENEFICIARY_CAPTURE_CONFIRMED"
+  ],
+  "real_primary_outcome_records_total": 6,
+  "core_evaluation_dimensions_covered": 3,
+  "core_evaluation_dimensions_required": 3,
+  "numeric_acceptance_sample_threshold_invented": false,
+  "coverage_status": "CORE_REAL_OUTCOME_DIMENSIONS_COVERED",
+  "semantic_limits": [
+    "Coverage diversity does not make ordinary replay ready.",
+    "Coverage diversity does not authorize canonical constraints or beneficiary qualification.",
+    "No claim is made that five records are statistically sufficient for production evaluation.",
+    "Constraint-resolution outcomes remain absent.",
+    "Batch017 adds one primary-source production/shipment outcome as supplemental context; core evaluation dimension coverage remains the bounded Batch016 3/3 result.",
+    "The added historical outcome is not a direct constraint match, constraint resolution, beneficiary capture, or ordinary-replay-admitted case."
+  ],
+  "predecessor_matrix": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH016_AI_DATA_CENTER_POWER_INFRASTRUCTURE_REAL_OUTCOME_COVERAGE_MATRIX_V001",
+  "supplemental_outcomes": [
+    {
+      "outcome_id": "OUT-AIDC-SCHNEIDER-EL-PASO-DC-CUSTOMER-SHIPMENT-001",
+      "label": "CAPACITY_ADDED",
+      "status": "REAL_PRIMARY_SUPPLEMENTAL_NOT_COUNTED_AS_DIRECT_CONSTRAINT_OR_BENEFICIARY_MATCH",
+      "evaluation_mapping": "SUPPLEMENTAL_CONTEXT_ONLY"
+    }
+  ]
+}
