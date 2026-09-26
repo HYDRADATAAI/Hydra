@@ -57,7 +57,7 @@ A record may enter this tier only when it has:
 
 Numeric confidence is **not** required for this tier. As a result, lead time and outcome-class counts are valid, while calibration metrics such as Brier score are disabled.
 
-Batch 009 expands the classified-gold corpus to six cases while preserving the three Batch 008 records unchanged. All six are currently conservatively mapped to `PARTIAL_REALIZATION`.
+Batch 010 expands the classified-gold corpus to nine cases while preserving the predecessor records unchanged. All nine are currently conservatively mapped to `PARTIAL_REALIZATION`.
 
 ### Scored gold, calibrated
 
@@ -156,7 +156,7 @@ The expansion reuses the existing confidence and outcome-mapping governance unch
 
 Current classified-gold state:
 
-- 6 uncalibrated classified cases;
+- 9 uncalibrated classified cases;
 - 0 calibrated scored-gold cases;
 - Brier score disabled.
 
