@@ -126,7 +126,7 @@
     {
       "dimension": "historical_case_classification",
       "evidence": {
-        "classification_coverage": 1,
+        "classification_coverage": 1.0,
         "classified_cases": 22,
         "partial_realization": 17,
         "unevaluable": 5
