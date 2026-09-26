@@ -1,0 +1,60 @@
+{
+  "schema_version": "1.0",
+  "batch_id": "HYDRA_CONSTRAINT_REPLAY_OUTCOME_MAPPING_BATCH011_20260926",
+  "rule_set_id": "POSITIVE_CONSTRAINT_RULESET_V1",
+  "declared_at": "2026-09-26T14:20:00Z",
+  "policy": "Batch 011 reuses POSITIVE_CONSTRAINT_RULESET_V1 unchanged. No case-specific numeric threshold or hindsight rule is introduced.",
+  "cases": [
+    {
+      "case_id": "us-pdvsa-sanctions-2019",
+      "mechanism_observed": true,
+      "direction_consistent": true,
+      "explicit_numeric_target_defined": false,
+      "target_met": null,
+      "explicit_horizon_defined": false,
+      "horizon_met": null,
+      "causal_attribution_clean": false,
+      "outcome_observation_complete": true,
+      "contradiction_open": false,
+      "evidence_source_ids": [
+        "pdvsa-eia-2019-05-20-hypothesis",
+        "pdvsa-opec-2019-12-11-outcome"
+      ],
+      "rationale": "Venezuelan crude production continued declining in the expected direction, but EIA explicitly identified sanctions alongside power outages, mismanagement, staffing and service-company losses, so single-cause attribution to PDVSA sanctions is not asserted."
+    },
+    {
+      "case_id": "germany-uniper-nationalization-2022",
+      "mechanism_observed": true,
+      "direction_consistent": true,
+      "explicit_numeric_target_defined": false,
+      "target_met": null,
+      "explicit_horizon_defined": false,
+      "horizon_met": null,
+      "causal_attribution_clean": false,
+      "outcome_observation_complete": true,
+      "contradiction_open": false,
+      "evidence_source_ids": [
+        "uniper-ec-2022-12-21-hypothesis",
+        "uniper-2024-02-28-outcome"
+      ],
+      "rationale": "Uniper's financial position improved dramatically in 2023, consistent with stabilization, but Uniper attributed the result to several factors including commodity-price changes, hedging, gas-portfolio optimization and non-recurrence of replacement-procurement costs; recapitalisation is therefore not treated as the sole cause."
+    },
+    {
+      "case_id": "us-chips-act-2022",
+      "mechanism_observed": true,
+      "direction_consistent": true,
+      "explicit_numeric_target_defined": false,
+      "target_met": null,
+      "explicit_horizon_defined": true,
+      "horizon_met": null,
+      "causal_attribution_clean": false,
+      "outcome_observation_complete": false,
+      "contradiction_open": false,
+      "evidence_source_ids": [
+        "chips-bcg-2021-04-01-hypothesis",
+        "chips-commerce-2024-08-09-outcome"
+      ],
+      "rationale": "By August 2024 the CHIPS program had generated substantial proposed investment and new-facility commitments in the expected direction, but the historical hypothesis used a ten-year horizon and the admitted evidence is an interim implementation snapshot rather than a complete outcome window."
+    }
+  ]
+}
