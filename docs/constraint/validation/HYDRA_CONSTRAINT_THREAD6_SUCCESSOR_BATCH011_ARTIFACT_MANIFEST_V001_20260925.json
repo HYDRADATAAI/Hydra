@@ -3,7 +3,7 @@
   "record_id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH011_ARTIFACT_MANIFEST_V001",
   "as_of": "2026-09-25",
   "repository": "HYDRADATAAI/Hydra",
-  "base_head": "f8e13decb4109a01caed8f5bf92a3a0e99b02c67",
+  "base_head": "02935e8d8ef4d86600eec781f7ddbda40ce99f5a",
   "predecessor_batch": {
     "id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH010",
     "commit": "e986a32641dac4d874095ac6d04af44546e2554b",
@@ -14,6 +14,7 @@
     "scope": "T1_TO_T2_PERSISTED_CHAIN_OF_CUSTODY",
     "batch008_raw_store_history_preserved": true,
     "batch010_claim_beneficiary_history_preserved": true,
+    "batch010_manifest_v002_consumed": true,
     "in_memory_record_authority_removed": true,
     "integration_validator_made_successor_aware": true
   },
@@ -37,16 +38,6 @@
       "path": "constraint-t1-raw-artifact-store/pyproject.toml",
       "predecessor_git_blob_sha": "2c1163d3dbb62e7ef790d967bd2f5834a1871a91",
       "successor_git_blob_sha": "c597639479c7be82570806b034fd0f1690822f56"
-    },
-    {
-      "path": "tools/validate_constraint_first_slice_successor.py",
-      "predecessor_git_blob_sha": "856fd25fc177137602b450236c2f6523cf4751de",
-      "successor_git_blob_sha": "f7f12e09f404c74195570851eb42eeb41ea55a1e"
-    },
-    {
-      "path": "tools/test_constraint_first_slice_adversarial.py",
-      "predecessor_git_blob_sha": "c38bbeadbb1c27d83c225f1778ce04a4dc4af93b",
-      "successor_git_blob_sha": "64101a3644d46bce716f82fe19e5894965342fe4"
     }
   ],
   "artifacts": [
@@ -67,14 +58,6 @@
       "git_blob_sha": "c597639479c7be82570806b034fd0f1690822f56"
     },
     {
-      "path": "tools/validate_constraint_first_slice_successor.py",
-      "git_blob_sha": "f7f12e09f404c74195570851eb42eeb41ea55a1e"
-    },
-    {
-      "path": "tools/test_constraint_first_slice_adversarial.py",
-      "git_blob_sha": "64101a3644d46bce716f82fe19e5894965342fe4"
-    },
-    {
       "path": "docs/constraint/implementation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH011_T1_T2_PERSISTED_CHAIN_OF_CUSTODY_CONTRACT_V001_20260925.json",
       "git_blob_sha": "25276f3bac6b5763bf829555321b9e861917c42e"
     },
@@ -89,6 +72,16 @@
     {
       "path": "docs/constraint/validation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH011_T1_T2_CHAIN_OF_CUSTODY_HARDENING_REPORT_V001_20260925.md",
       "git_blob_sha": "e61d256db5e3f7a0bfe6ddfa901c9e4f4b92cab4"
+    }
+  ],
+  "excluded_operational_tools": [
+    {
+      "path": "tools/validate_constraint_first_slice_successor.py",
+      "reason": "cross-batch operational validator evolves independently and must not create a self-referential manifest digest cycle"
+    },
+    {
+      "path": "tools/test_constraint_first_slice_adversarial.py",
+      "reason": "cross-batch hostile-test harness evolves independently and must not create a self-referential manifest digest cycle"
     }
   ],
   "expected": {
