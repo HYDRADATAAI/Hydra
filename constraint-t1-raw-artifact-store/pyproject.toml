@@ -5,9 +5,6 @@ description = "Private immutable raw-artifact persistence for HYDRA Constraint T
 requires-python = ">=3.11"
 dependencies = []
 
-[project.scripts]
-hydra-constraint-t1-first-slice = "hydra_constraint_t1_raw.first_slice_cli:main"
-
 [tool.hydra]
 owner = "PIPELINE_T1_SOURCE_ACQUISITION"
 network-acquisition = false
