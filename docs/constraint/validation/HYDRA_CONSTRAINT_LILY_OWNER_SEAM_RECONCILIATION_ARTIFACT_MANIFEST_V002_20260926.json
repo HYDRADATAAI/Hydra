@@ -1,0 +1,69 @@
+{
+  "schema_version": "hydra-constraint-lily-owner-seam-reconciliation-manifest/v2",
+  "record_id": "HYDRA_CONSTRAINT_LILY_OWNER_SEAM_RECONCILIATION_ARTIFACT_MANIFEST_V002_20260926",
+  "as_of": "2026-09-26",
+  "scope": "REBASED_UNIQUE_T5_T6_TEMPORAL_IDENTITY_OWNER_SEAM_ONLY",
+  "rebased_from_pr": 56,
+  "authority_inputs": {
+    "batch010_t5_candidates": {
+      "path": "docs/constraint/first_slice/ai_data_center_power_infrastructure_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH010_AI_DATA_CENTER_POWER_INFRASTRUCTURE_T5_CANDIDATE_PROPOSALS_V001_20260925.json",
+      "git_blob_sha": "112cf49941031ad51ff7cd2e1b8da096d8627b84"
+    },
+    "batch015_typed_confidence": {
+      "path": "docs/constraint/first_slice/ai_data_center_power_infrastructure_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH015_AI_DATA_CENTER_POWER_INFRASTRUCTURE_TYPED_CONFIDENCE_OVERLAY_V001_20260925.json",
+      "git_blob_sha": "012f6a2536d23ff4007186f79f28d2ce6519bfad"
+    },
+    "batch016_strict_acceptance": {
+      "path": "docs/constraint/first_slice/ai_data_center_power_infrastructure_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH016_AI_DATA_CENTER_POWER_INFRASTRUCTURE_STRICT_ACCEPTANCE_GATE_V001_20260925.json",
+      "git_blob_sha": "22800b455f3b9ba3fb87f74e5fa4e0f36b5d5f89"
+    },
+    "persisted_custody_hardening_commit": "288c06e86aca58256875183d18fa425b7adbf594"
+  },
+  "artifacts": [
+    {
+      "path": "docs/constraint/first_slice/ai_data_center_power_infrastructure_v1/HYDRA_CONSTRAINT_LILY_OWNER_SEAM_RECONCILIATION_T5_CANDIDATE_TEMPORAL_IDENTITY_OVERLAY_V002_20260926.json",
+      "git_blob_sha": "fc5cc1d08316ee81f18d2d2384ab7fc202c06e5d"
+    },
+    {
+      "path": "docs/constraint/architecture/HYDRA_CONSTRAINT_LILY_OWNER_SEAM_RECONCILIATION_STATUS_V002_20260926.json",
+      "git_blob_sha": "01a4cd25b99ecdf0d4a8fda241282c5ecd0625ce"
+    },
+    {
+      "path": "docs/constraint/validation/HYDRA_CONSTRAINT_LILY_OWNER_SEAM_RECONCILIATION_REPORT_V002_20260926.md",
+      "git_blob_sha": "2f115a250918f446d3501cda3058be8035716bb5"
+    }
+  ],
+  "excluded_operational_tools": [
+    {
+      "path": "t6-fail-closed-validator/src/hydra_t6_failclosed/owner_seam_conformance.py",
+      "reason": "operational conformance code may evolve without rewriting owner-seam evidence"
+    },
+    {
+      "path": "t6-fail-closed-validator/tests/test_lily_owner_seam_rebase_v2.py",
+      "reason": "hostile/unit tests are operational validation rather than authority content"
+    },
+    {
+      "path": "tools/validate_constraint_lily_owner_seams.py",
+      "reason": "standalone validator is operational validation rather than authority content"
+    },
+    {
+      "path": ".github/workflows/constraint-owner-seam-conformance.yml",
+      "reason": "CI orchestration is operational rather than authority content"
+    }
+  ],
+  "boundaries": {
+    "t1_custody_reimplemented": false,
+    "raw_source_materialization_claimed": false,
+    "confidence_semantics_reimplemented": false,
+    "numeric_confidence_invented": false,
+    "canonical_constraints_minted": 0,
+    "qualified_beneficiaries_minted": 0,
+    "ordinary_replay_promoted": false,
+    "native_t5_t6_admission_claimed": false
+  },
+  "expected": {
+    "owner_seam_conformance": "PASS",
+    "first_serious_constraint_run": "BLOCKED",
+    "first_slice_repo_expansion": "HOLD"
+  }
+}
