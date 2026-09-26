@@ -1,0 +1,89 @@
+{
+  "schema_version": "hydra-constraint-thread6-successor-manifest/v1",
+  "record_id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH010_ARTIFACT_MANIFEST_V001",
+  "as_of": "2026-09-25",
+  "repository": "HYDRADATAAI/Hydra",
+  "base_head": "9ef0ced19ac77ee495c0921a8531375d53a09f86",
+  "predecessor_batch": {
+    "id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH009",
+    "commit": "717ab7153891dbf58a3d40252f3c34e255c88649",
+    "preservation": "IMMUTABLE_NOT_REWRITTEN"
+  },
+  "owner_namespace": "PIPELINE_T1_SOURCE_ACQUISITION",
+  "hardening_transition": {
+    "scope": "T1_TO_T2_PERSISTED_CHAIN_OF_CUSTODY",
+    "historical_batch008_manifest_preserved": true,
+    "historical_batch009_closure_preserved": true,
+    "in_memory_record_authority_removed": true
+  },
+  "superseded_artifacts": [
+    {
+      "path": "constraint-t1-raw-artifact-store/src/hydra_constraint_t1_raw/store.py",
+      "predecessor_git_blob_sha": "c360aff06500ef19ac2f76e3b5efb9ef7debd90d",
+      "successor_git_blob_sha": "040af0ee154e3cf6e64a145125fc1254ce170902"
+    },
+    {
+      "path": "constraint-t1-raw-artifact-store/tests/test_store.py",
+      "predecessor_git_blob_sha": "4a2bbd00189ac7b62f338cf7a21062f35ba1c31f",
+      "successor_git_blob_sha": "da24ccc223900e345c5e1fb4fc92ae35db87f467"
+    },
+    {
+      "path": "constraint-t1-raw-artifact-store/README.md",
+      "predecessor_git_blob_sha": "df498d35dc3acdfb2fbef95fac1e1505c80105c8",
+      "successor_git_blob_sha": "5958840f95811a147758913bce8e42419ed55750"
+    },
+    {
+      "path": "constraint-t1-raw-artifact-store/pyproject.toml",
+      "predecessor_git_blob_sha": "2c1163d3dbb62e7ef790d967bd2f5834a1871a91",
+      "successor_git_blob_sha": "c597639479c7be82570806b034fd0f1690822f56"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "constraint-t1-raw-artifact-store/src/hydra_constraint_t1_raw/store.py",
+      "git_blob_sha": "040af0ee154e3cf6e64a145125fc1254ce170902"
+    },
+    {
+      "path": "constraint-t1-raw-artifact-store/tests/test_store.py",
+      "git_blob_sha": "da24ccc223900e345c5e1fb4fc92ae35db87f467"
+    },
+    {
+      "path": "constraint-t1-raw-artifact-store/README.md",
+      "git_blob_sha": "5958840f95811a147758913bce8e42419ed55750"
+    },
+    {
+      "path": "constraint-t1-raw-artifact-store/pyproject.toml",
+      "git_blob_sha": "c597639479c7be82570806b034fd0f1690822f56"
+    },
+    {
+      "path": "tools/validate_constraint_first_slice_successor.py",
+      "git_blob_sha": "6c9949af9a8168fa2e77866b7e973c69cfe5a0f3"
+    },
+    {
+      "path": "docs/constraint/implementation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH010_T1_T2_PERSISTED_CHAIN_OF_CUSTODY_CONTRACT_V001_20260925.json",
+      "git_blob_sha": "99aa27111773f9c21984165ddbfc131f4aad1849"
+    },
+    {
+      "path": "docs/constraint/validation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH010_T1_T2_CHAIN_OF_CUSTODY_STATUS_V001_20260925.json",
+      "git_blob_sha": "a3b398cfbab31f8df662255180987d08cde39151"
+    },
+    {
+      "path": "docs/constraint/architecture/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH010_MASTER_STATUS_V001_20260925.json",
+      "git_blob_sha": "f2d7d75aa1de62528c6f2f068b30535d1bffbcc2"
+    },
+    {
+      "path": "docs/constraint/validation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH010_T1_T2_CHAIN_OF_CUSTODY_HARDENING_REPORT_V001_20260925.md",
+      "git_blob_sha": "37868dfb031001ed6590142ec4b0b2d1af787ab6"
+    }
+  ],
+  "expected": {
+    "persisted_receipt_identity_required": "YES",
+    "persisted_release_identity_required": "YES",
+    "forged_in_memory_release_authority": "NO",
+    "forged_receipt_disposition_upgrade": "BLOCKED",
+    "original_first_slice_source_gaps_closed": "YES",
+    "real_raw_artifacts_materialized": "NO",
+    "implementation_admitted": "NO",
+    "first_serious_constraint_run": "BLOCKED"
+  }
+}
