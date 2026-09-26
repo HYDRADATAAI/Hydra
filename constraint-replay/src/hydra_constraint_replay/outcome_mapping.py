@@ -51,8 +51,14 @@ class OutcomeMappingInputs:
             raise OutcomeMappingError(f"{self.case_id}: target_met required when target is defined")
         if not self.explicit_numeric_target_defined and self.target_met is not None:
             raise OutcomeMappingError(f"{self.case_id}: target_met forbidden without explicit target")
-        if self.explicit_horizon_defined and self.horizon_met is None:
-            raise OutcomeMappingError(f"{self.case_id}: horizon_met required when horizon is defined")
+        if (
+            self.explicit_horizon_defined
+            and self.horizon_met is None
+            and self.outcome_observation_complete
+        ):
+            raise OutcomeMappingError(
+                f"{self.case_id}: horizon_met required when a defined horizon has a complete outcome window"
+            )
         if not self.explicit_horizon_defined and self.horizon_met is not None:
             raise OutcomeMappingError(f"{self.case_id}: horizon_met forbidden without explicit horizon")
         if not self.evidence_source_ids or len(self.evidence_source_ids)!=len(set(self.evidence_source_ids)):
