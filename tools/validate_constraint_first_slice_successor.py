@@ -49,6 +49,9 @@ FILES = {
     "batch013_case_matrix": SLICE / "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH013_AI_DATA_CENTER_POWER_INFRASTRUCTURE_REQUIRED_CASE_MATRIX_V001_20260925.json",
     "batch013_beneficiary_overlay": SLICE / "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH013_AI_DATA_CENTER_POWER_INFRASTRUCTURE_EATON_TRANSFORMER_PREQUALIFICATION_OVERLAY_V001_20260925.json",
     "batch013_master": ARCH / "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH013_MASTER_STATUS_V001_20260925.json",
+    "batch015_custody_contract": IMPL / "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH015_T1_T2_PERSISTED_CHAIN_OF_CUSTODY_CONTRACT_V001_20260925.json",
+    "batch015_custody_status": VALIDATION / "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH015_T1_T2_CHAIN_OF_CUSTODY_STATUS_V001_20260925.json",
+    "batch015_master": ARCH / "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH015_MASTER_STATUS_V001_20260925.json",
 }
 
 MANIFESTS = [
@@ -57,6 +60,7 @@ MANIFESTS = [
 ] + [
     VALIDATION / "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH010_ARTIFACT_MANIFEST_V002_20260925.json"
 ]
+BATCH015_MANIFEST = VALIDATION / "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH015_ARTIFACT_MANIFEST_V001_20260925.json"
 
 SLICE_ID = "AI_DATA_CENTER_POWER_INFRASTRUCTURE_V1"
 ADMISSION_BLOCKER = "CI-TEST-008-BLOCKER-001B-NATIVE-T5-T6-SIGNED-ADMISSION-RECEIPT-ABSENT"
@@ -106,10 +110,32 @@ def git_blob_sha(path: Path) -> str:
     return result.stdout.strip()
 
 
+def _batch015_supersessions() -> dict[str, dict[str, str]]:
+    manifest = load_json(BATCH015_MANIFEST)
+    rows = manifest.get("superseded_artifacts")
+    require(isinstance(rows, list) and rows, "Batch015 superseded_artifacts missing")
+    result: dict[str, dict[str, str]] = {}
+    for row in rows:
+        require(isinstance(row, dict), "Batch015 supersession entry invalid")
+        relative = row.get("path")
+        predecessor = row.get("predecessor_git_blob_sha")
+        successor = row.get("successor_git_blob_sha")
+        require(isinstance(relative, str) and relative, "Batch015 supersession path missing")
+        require(isinstance(predecessor, str) and len(predecessor) == 40, f"Batch015 predecessor blob invalid: {relative}")
+        require(isinstance(successor, str) and len(successor) == 40, f"Batch015 successor blob invalid: {relative}")
+        require(relative not in result, f"duplicate Batch015 supersession path: {relative}")
+        result[relative] = {
+            "predecessor_git_blob_sha": predecessor,
+            "successor_git_blob_sha": successor,
+        }
+    return result
+
+
 def validate_manifest(manifest_path: Path) -> int:
     manifest = load_json(manifest_path)
     artifacts = manifest.get("artifacts")
     require(isinstance(artifacts, list) and artifacts, f"manifest artifacts missing: {manifest_path.name}")
+    supersessions = _batch015_supersessions()
     count = 0
     for entry in artifacts:
         require(isinstance(entry, dict), f"invalid manifest entry: {manifest_path.name}")
@@ -120,7 +146,20 @@ def validate_manifest(manifest_path: Path) -> int:
         artifact = ROOT / relative
         require(artifact.is_file(), f"manifest member missing: {relative}")
         actual = git_blob_sha(artifact)
-        require(actual == expected, f"manifest blob mismatch: {relative}: expected={expected} actual={actual}")
+        if actual != expected:
+            transition = supersessions.get(relative)
+            require(
+                transition is not None,
+                f"manifest blob mismatch without explicit Batch015 supersession: {relative}: expected={expected} actual={actual}",
+            )
+            require(
+                transition["predecessor_git_blob_sha"] == expected,
+                f"Batch015 supersession predecessor mismatch: {relative}",
+            )
+            require(
+                transition["successor_git_blob_sha"] == actual,
+                f"Batch015 supersession successor mismatch: {relative}",
+            )
         count += 1
     return count
 
@@ -155,6 +194,9 @@ def main() -> int:
     matrix13 = docs["batch013_case_matrix"]
     beneficiary13 = docs["batch013_beneficiary_overlay"]
     master13 = docs["batch013_master"]
+    custody15 = docs["batch015_custody_contract"]
+    custody_status15 = docs["batch015_custody_status"]
+    master15 = docs["batch015_master"]
 
     # First-slice identity must remain stable across the domain artifacts.
     for name, doc in (
@@ -431,7 +473,65 @@ def main() -> int:
     }
     require(required == expected_required, f"ordinary T2 eligibility contract drifted: {sorted(required)}")
 
+    # Batch015 hardens ordinary T1->T2 release authority without closing raw materialization.
+    custody_required = set(custody15.get("ordinary_t2_eligibility_requires", []))
+    require(
+        custody_required
+        == {
+            "VALID_RAW_ARTIFACT_BYTES",
+            "MATCHING_ARTIFACT_SHA256",
+            "SOURCE_ID",
+            "SOURCE_VERSION_ID",
+            "ACQUIRED_AT",
+            "AVAILABLE_AT",
+            "ELIGIBLE_PROCESSING_DISPOSITION",
+            "EXACT_PERSISTED_SOURCE_VERSION_RECEIPT",
+            "EXACT_PERSISTED_RELEASE_MANIFEST",
+            "EXACT_RELEASE_MEMBERSHIP",
+        },
+        f"Batch015 custody requirements drifted: {sorted(custody_required)}",
+    )
+    custody_semantics = custody15.get("authority_semantics")
+    require(isinstance(custody_semantics, dict), "Batch015 custody semantics missing")
+    require(
+        custody_semantics.get("caller_supplied_in_memory_receipt_authoritative") is False,
+        "Batch015 in-memory receipt authority unexpectedly enabled",
+    )
+    require(
+        custody_semantics.get("caller_supplied_in_memory_release_manifest_authoritative") is False,
+        "Batch015 in-memory release authority unexpectedly enabled",
+    )
+    require(
+        custody_semantics.get("persisted_record_identity_required") is True,
+        "Batch015 persisted identity requirement removed",
+    )
+
+    custody_results15 = custody_status15.get("results")
+    require(isinstance(custody_results15, dict), "Batch015 custody status missing")
+    require(custody_results15.get("PERSISTED_RECEIPT_IDENTITY_REQUIRED") == "YES", "Batch015 persisted receipt identity not ready")
+    require(custody_results15.get("PERSISTED_RELEASE_IDENTITY_REQUIRED") == "YES", "Batch015 persisted release identity not ready")
+    require(custody_results15.get("FORGED_IN_MEMORY_RELEASE_AUTHORITY") == "NO", "Batch015 forged release became authoritative")
+    require(custody_results15.get("FORGED_RECEIPT_DISPOSITION_UPGRADE") == "BLOCKED", "Batch015 forged disposition upgrade not blocked")
+    require(custody_results15.get("FIRST_SLICE_REAL_RAW_ARTIFACTS_MATERIALIZED") == "NO", "Batch015 falsely materialized real raw sources")
+    require(custody_results15.get("IMPLEMENTATION_ADMITTED") == "NO", "Batch015 falsely admits implementation")
+    require(custody_results15.get("FULL_CONSTRAINT_RUN_READY") == "NO", "Batch015 falsely claims full-run readiness")
+    require(custody_results15.get("FIRST_SERIOUS_CONSTRAINT_RUN") == "BLOCKED", "Batch015 falsely claims serious-run readiness")
+
+    readiness15 = master15.get("readiness")
+    require(isinstance(readiness15, dict), "Batch015 master readiness missing")
+    require(readiness15["T1_T2_PERSISTED_CHAIN_OF_CUSTODY_READY"].get("status") == "YES", "Batch015 master lost custody readiness")
+    require(readiness15["FIRST_SLICE_RAW_ARTIFACTS_MATERIALIZED"].get("status") == "NO", "Batch015 master falsely materializes raw artifacts")
+    require(readiness15["IMPLEMENTATION_ADMITTED"].get("status") == "NO", "Batch015 master falsely admits implementation")
+    require(readiness15["FULL_CONSTRAINT_RUN_READY"].get("status") == "NO", "Batch015 master falsely claims full run ready")
+    require(master15.get("first_serious_constraint_run") == "BLOCKED", "Batch015 master falsely allows serious run")
+    require(
+        master15.get("next_repo_executable_lane")
+        == "FIRST-SLICE-TYPED-CONFIDENCE-AND-EVALUATION-READINESS-CLOSURE",
+        "Batch015 next repo lane drifted",
+    )
+
     manifest_members = sum(validate_manifest(path) for path in MANIFESTS)
+    manifest_members += validate_manifest(BATCH015_MANIFEST)
 
     print("CONSTRAINT_FIRST_SLICE_INTEGRATION_VALIDATION=PASS")
     print(f"SLICE_ID={SLICE_ID}")
@@ -456,8 +556,9 @@ def main() -> int:
     print("REQUIRED_FUNCTIONAL_CASES_COVERED=10")
     print("CANONICAL_CONSTRAINTS_MINTED=0")
     print("QUALIFIED_BENEFICIARIES_MINTED=0")
+    print("T1_T2_PERSISTED_CHAIN_OF_CUSTODY_READY=YES")
     print("FIRST_SERIOUS_CONSTRAINT_RUN=BLOCKED")
-    print("NEXT_REPO_EXECUTABLE_LANE=FIRST-SLICE-STRICT-ACCEPTANCE-GATE-AND-BLOCKER-REPORT")
+    print("NEXT_REPO_EXECUTABLE_LANE=FIRST-SLICE-TYPED-CONFIDENCE-AND-EVALUATION-READINESS-CLOSURE")
     return 0
 
 
