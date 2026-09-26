@@ -208,6 +208,39 @@ Both the replay workflow and full policy/physical/replay workflow regenerate the
 
 Calibration remains explicitly blocked because no current case has admissible numeric historical confidence provenance.
 
+## Batch 016 read-only query integration
+
+The frozen Batch 015 replay is now exposed through a deterministic **read-only** query surface:
+
+`hydra_constraint_replay.ConstraintReplayQueryService`
+
+Supported operations:
+
+- `summary`
+- `integrity`
+- exact `case` lookup
+- filtered `list_cases`
+
+The service validates the Batch 015 execution manifest and its pinned artifacts before serving any query.
+
+Every response explicitly disables:
+
+- canonical promotion;
+- canonical-store mutation;
+- external actions;
+- model training;
+- ranking;
+- trading.
+
+CLI:
+
+```bash
+python constraint-replay/scripts/query_HYDRA_CONSTRAINT_BATCH016_readonly_replay_20260926.py summary
+python constraint-replay/scripts/query_HYDRA_CONSTRAINT_BATCH016_readonly_replay_20260926.py case suez-ever-given-2021
+python constraint-replay/scripts/query_HYDRA_CONSTRAINT_BATCH016_readonly_replay_20260926.py list --outcome-class UNEVALUABLE
+```
+
+The public T6 validator remains explicitly dormant and is not activated or runtime-bound by this query surface.
 ## Run
 
 ```bash
@@ -223,10 +256,11 @@ Upstream Constraint domains emit provenance-bearing evidence with stable evidenc
 
 ## Next integration gate
 
-Continue only where evidence closes a real blocker:
-- historical confidence/probability provenance for the three enriched candidates;
-- audited outcome-class mapping rules declared before score assignment;
-- additional quantitative outcome series where they improve causal discrimination;
-- promotion of only defensible cases into scored gold.
+Classification is complete for the current 22-case corpus, Batch 015 is the frozen deterministic aggregate replay, and Batch 016 provides read-only query access.
 
-The target remains a serious 20–40+ **scored** historical-case corpus, but replay-ready source count alone is not treated as equivalent to scored gold.
+Next work should move to:
+- broader multi-domain Constraint orchestration/reporting;
+- an authority-safe central consumer of physical + policy + replay state;
+- or authentic historical numeric confidence provenance for calibrated replay.
+
+Do not create more classification batches merely to create activity.
