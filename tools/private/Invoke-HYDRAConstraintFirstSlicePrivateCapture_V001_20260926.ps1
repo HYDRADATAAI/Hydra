@@ -157,7 +157,7 @@ foreach ($Source in $Registry.sources) {
 
             Assert-OutsideRepo -CandidatePath $HarPath -RepositoryPath $RepoRoot -Label ($HarParameter.TrimStart("-"))
             if (-not (Test-Path -LiteralPath $HarPath -PathType Leaf)) {
-                throw "Sanitized HAR file not found for $SourceId: $HarPath"
+                throw "Sanitized HAR file not found for ${SourceId}: $HarPath"
             }
 
             $BrowserCaptureMetadata = Join-Path $PrivateMetadataRoot ("HYDRA_CONSTRAINT_BROWSER_RESPONSE_CAPTURE_" + $MetadataStem + "_" + $RunStamp + ".json")
