@@ -114,6 +114,22 @@ The run:
 
 That behavior is intentional: missing provenance is not converted into invented data merely to make a pipeline appear green.
 
+## Governed historical Constraint replay query
+
+The current public Constraint history work includes a deterministic, read-only query surface over a frozen 22-case historical replay.
+
+The replay state is:
+- 22/22 current historical cases classified;
+- 17 `PARTIAL_REALIZATION`;
+- 5 `UNEVALUABLE`;
+- 0 calibrated cases;
+- 82 point-in-time replay cuts.
+
+The Batch 015 aggregate replay is reproduced in CI from pinned inputs. Batch 016 adds exact case lookup, aggregate summary, filtered case listing, and integrity queries over that frozen result.
+
+This interface is deliberately **read-only**. It does not authorize canonical mutation, ranking, model training, trading, external actions, or T6 activation.
+
+See [`constraint-replay/`](constraint-replay/) for the replay contracts, run artifact, query service, CLI, tests, and provenance reports.
 ## Public data-engineering pipeline sample
 
 A second runnable public example lives in [`market-data-pipeline-sample/`](market-data-pipeline-sample/). It uses **synthetic, non-live** records to demonstrate a compact end-to-end data pipeline:
