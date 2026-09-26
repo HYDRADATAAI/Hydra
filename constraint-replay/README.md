@@ -57,7 +57,7 @@ A record may enter this tier only when it has:
 
 Numeric confidence is **not** required for this tier. As a result, lead time and outcome-class counts are valid, while calibration metrics such as Brier score are disabled.
 
-Batch 012 expands the classified-gold corpus to fifteen cases while preserving predecessor records unchanged. Fourteen are `PARTIAL_REALIZATION`; CHIPS remains `UNEVALUABLE` because its explicit ten-year horizon remains open.
+Batch 013 expands the classified-gold corpus to eighteen cases while preserving predecessor records unchanged. Sixteen are `PARTIAL_REALIZATION`; CHIPS and the contested rare-earths implementation case are `UNEVALUABLE`.
 
 ### Scored gold, calibrated
 
@@ -156,10 +156,10 @@ The expansion reuses the existing confidence and outcome-mapping governance unch
 
 Current classified-gold state:
 
-- 15 uncalibrated classified cases;
+- 18 uncalibrated classified cases;
 - 0 calibrated scored-gold cases;
-- 14 PARTIAL_REALIZATION;
-- 1 UNEVALUABLE open-horizon case;
+- 16 PARTIAL_REALIZATION;
+- 2 UNEVALUABLE cases (one open horizon, one open compliance contradiction);
 - Brier score disabled.
 
 The predecessor Batch 008 records are regression-protected from semantic rewriting.
