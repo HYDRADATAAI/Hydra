@@ -153,7 +153,7 @@ class Batch016ReadOnlyQueryTests(unittest.TestCase):
             run_rel=manifest["output"]["path"]
             run_path=temp_root/run_rel
             run=json.loads(run_path.read_text(encoding="utf-8"))
-            run["run_status"]="FAIL"
+            run["coverage"]["case_count"]=999
             run_path.write_text(json.dumps(run,sort_keys=True),encoding="utf-8")
 
             with self.assertRaisesRegex(
