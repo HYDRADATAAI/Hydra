@@ -1,0 +1,48 @@
+{
+  "scope": "Repository audit only; not completed ecosystem",
+  "base_commit": "eb193a76c0ecb0e04190581be628506421e1c2e8",
+  "evidence_pins": [
+    {
+      "commit": "eb193a76c0ecb0e04190581be628506421e1c2e8",
+      "path": "docs/constraint/authority/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH001_AUTHORITY_MAP_V001_20260925.json",
+      "sha256": "500fe1c48424c22684e5bf0ee931bf1e2480918d54f67e5436548dc7ae4a22aa"
+    },
+    {
+      "commit": "eb193a76c0ecb0e04190581be628506421e1c2e8",
+      "path": "docs/constraint/architecture/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH014_MASTER_STATUS_V001_20260925.json",
+      "sha256": "628132d6d84b13e21ca9689102a39b343a745387789a27568373aea0816ae15a"
+    },
+    {
+      "commit": "eb193a76c0ecb0e04190581be628506421e1c2e8",
+      "path": "docs/constraint/validation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH014_STRICT_ACCEPTANCE_GATE_REPORT_V001_20260925.md",
+      "sha256": "577f77ca80810890d0dba03094f03f880c16d9024d632480541bface5c4de702"
+    }
+  ],
+  "SEMICONDUCTOR_ADVANCED_PACKAGING_SLICE": "BLOCKED",
+  "SEMANTIC_DUPLICATION_CREATED": "NO",
+  "counts_scope": "New populated records in this pass only, not existing repository totals",
+  "counts": {
+    "FACILITIES_POPULATED": 0,
+    "SUPPLIERS_POPULATED": 0,
+    "MATERIALS_POPULATED": 0,
+    "DEPENDENCY_EDGES": 0,
+    "CONSTRAINTS_FORMED": 0,
+    "CONSTRAINTS_MIGRATED": 0,
+    "CONSTRAINTS_INVALIDATED": 0,
+    "BENEFICIARY_CANDIDATES": 0,
+    "OUTCOMES_CAPTURED": 0,
+    "CAPABILITY_LEDGER_UPDATES": 0
+  },
+  "CROSS_SLICE_AI_SEMICONDUCTOR_POWER_GRAPH": "FAIL",
+  "HISTORICAL_REPLAY": "BLOCKED",
+  "NO_LOOKAHEAD": "NOT_RUN",
+  "DETERMINISTIC_REPLAY": "NOT_RUN",
+  "BLOCKERS": [
+    "OWNER_CONTRACT_CONTENT_UNAVAILABLE: Thread3 closure bundle is referenced by hash but its full content is not in the audited main checkout.",
+    "FIRST_SLICE_ACCEPTANCE_BLOCKED: Batch014 requires native admission, raw source materialization, typed confidence and ordinary replay/evaluation.",
+    "GEOGRAPHY_IDENTITY_AND_LINEAGE_SEAMS_UNRESOLVED: branch closure report explicitly preserves these gaps.",
+    "BRANCH_INTEGRATION_UNRESOLVED: physical/policy/replay and owner overlay branches are not established as admitted mainline owners.",
+    "SEMICONDUCTOR_EVIDENCE_NOT_POPULATED: no slice-specific frozen source bodies, facility corpus or historical outcomes were created by this audit."
+  ],
+  "NEXT_RECOMMENDED_ACTION": "Provide the hash-matching Thread3 closure bundle and canonical identity/lineage owner implementations in the HYDRA working repository for exact field/relation mapping."
+}

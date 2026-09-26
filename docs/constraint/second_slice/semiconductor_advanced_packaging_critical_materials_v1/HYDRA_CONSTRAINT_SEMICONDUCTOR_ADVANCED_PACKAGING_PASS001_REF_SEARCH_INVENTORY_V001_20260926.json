@@ -1,0 +1,1148 @@
+{
+  "pattern": "semiconductor|packaging|HBM|qualification|capacity_nameplate|geography|MASTER_CLOSURE_BUNDLE",
+  "scope": "All fetched remote branch tips; matches are discovery evidence, not proof of semantic equivalence. Not private filesystem or every historical commit.",
+  "refs": [
+    {
+      "ref": "refs/remotes/origin/HEAD",
+      "commit": "eb193a76c0ecb0e04190581be628506421e1c2e8",
+      "matching_paths": [
+        "refs/remotes/origin/HEAD:.gitignore",
+        "refs/remotes/origin/HEAD:docs/constraint/architecture/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH001_CAPABILITY_LEDGER_LINKAGE_V001_20260925.json",
+        "refs/remotes/origin/HEAD:docs/constraint/architecture/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH013_CAPABILITY_LEDGER_DELTA_V001_20260925.json",
+        "refs/remotes/origin/HEAD:docs/constraint/architecture/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH013_MASTER_STATUS_V001_20260925.json",
+        "refs/remotes/origin/HEAD:docs/constraint/authority/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH001_AUTHORITY_MAP_V001_20260925.json",
+        "refs/remotes/origin/HEAD:docs/constraint/authority/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH001_STALE_SUPERSEDED_REGISTER_V001_20260925.json",
+        "refs/remotes/origin/HEAD:docs/constraint/first_slice/ai_data_center_power_infrastructure_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH003_AI_DATA_CENTER_POWER_INFRASTRUCTURE_FIELD_MATRIX_V001_20260925.json",
+        "refs/remotes/origin/HEAD:docs/constraint/first_slice/ai_data_center_power_infrastructure_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH010_AI_DATA_CENTER_POWER_INFRASTRUCTURE_BENEFICIARY_EVALUATIONS_V001_20260925.json",
+        "refs/remotes/origin/HEAD:docs/constraint/first_slice/ai_data_center_power_infrastructure_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH010_AI_DATA_CENTER_POWER_INFRASTRUCTURE_T5_CANDIDATE_PROPOSALS_V001_20260925.json",
+        "refs/remotes/origin/HEAD:docs/constraint/first_slice/ai_data_center_power_infrastructure_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH012_AI_DATA_CENTER_POWER_INFRASTRUCTURE_OUTCOME_RECORDS_SUPPLEMENT_V001_20260925.json",
+        "refs/remotes/origin/HEAD:docs/constraint/first_slice/ai_data_center_power_infrastructure_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH013_AI_DATA_CENTER_POWER_INFRASTRUCTURE_EATON_TRANSFORMER_PREQUALIFICATION_OVERLAY_V001_20260925.json",
+        "refs/remotes/origin/HEAD:docs/constraint/first_slice/ai_data_center_power_infrastructure_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH013_AI_DATA_CENTER_POWER_INFRASTRUCTURE_REQUIRED_CASE_001_002_006_CLOSURE_V001_20260925.json",
+        "refs/remotes/origin/HEAD:docs/constraint/first_slice/ai_data_center_power_infrastructure_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH013_AI_DATA_CENTER_POWER_INFRASTRUCTURE_REQUIRED_CASE_MATRIX_V001_20260925.json",
+        "refs/remotes/origin/HEAD:docs/constraint/first_slice/ai_data_center_power_infrastructure_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH014_AI_DATA_CENTER_POWER_INFRASTRUCTURE_STRICT_ACCEPTANCE_GATE_V001_20260925.json",
+        "refs/remotes/origin/HEAD:docs/constraint/implementation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH002_NATIVE_T5_T6_ADMISSION_CONTRACT_V001_20260925.json",
+        "refs/remotes/origin/HEAD:docs/constraint/validation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH001_ARTIFACT_MANIFEST_V001_20260925.json",
+        "refs/remotes/origin/HEAD:docs/constraint/validation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH001_RECONCILIATION_REPORT_V001_20260925.md",
+        "refs/remotes/origin/HEAD:docs/constraint/validation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH003_AI_DATA_CENTER_POWER_INFRASTRUCTURE_POPULATION_REPORT_V001_20260925.md",
+        "refs/remotes/origin/HEAD:docs/constraint/validation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH013_ARTIFACT_MANIFEST_V001_20260925.json",
+        "refs/remotes/origin/HEAD:docs/constraint/validation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH013_REQUIRED_CASE_MATRIX_CLOSURE_REPORT_V001_20260925.md",
+        "refs/remotes/origin/HEAD:t6-fail-closed-validator/tests/test_first_slice_claim_candidate_beneficiary_population.py",
+        "refs/remotes/origin/HEAD:t6-fail-closed-validator/tests/test_first_slice_required_case_closure.py",
+        "refs/remotes/origin/HEAD:tools/nyx_test_constraint_successor_chain_adversarial.py",
+        "refs/remotes/origin/HEAD:tools/nyx_validate_constraint_successor_chain.py",
+        "refs/remotes/origin/HEAD:tools/test_constraint_first_slice_adversarial.py",
+        "refs/remotes/origin/HEAD:tools/validate_constraint_first_slice_successor.py"
+      ],
+      "search_exit": 0
+    },
+    {
+      "ref": "refs/remotes/origin/career-sql-proof-v1",
+      "commit": "93656b2f771dab60a81c0f411dae3dd7cbef667e",
+      "matching_paths": [
+        "refs/remotes/origin/career-sql-proof-v1:.gitignore",
+        "refs/remotes/origin/career-sql-proof-v1:docs/constraint/architecture/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH001_CAPABILITY_LEDGER_LINKAGE_V001_20260925.json",
+        "refs/remotes/origin/career-sql-proof-v1:docs/constraint/authority/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH001_AUTHORITY_MAP_V001_20260925.json",
+        "refs/remotes/origin/career-sql-proof-v1:docs/constraint/authority/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH001_STALE_SUPERSEDED_REGISTER_V001_20260925.json",
+        "refs/remotes/origin/career-sql-proof-v1:docs/constraint/implementation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH002_NATIVE_T5_T6_ADMISSION_CONTRACT_V001_20260925.json",
+        "refs/remotes/origin/career-sql-proof-v1:docs/constraint/validation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH001_ARTIFACT_MANIFEST_V001_20260925.json",
+        "refs/remotes/origin/career-sql-proof-v1:docs/constraint/validation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH001_RECONCILIATION_REPORT_V001_20260925.md"
+      ],
+      "search_exit": 0
+    },
+    {
+      "ref": "refs/remotes/origin/codex/hydra-market-pipeline-fix",
+      "commit": "f922f1a5c87cd8ed1452e1fa18468d3fb15b84fa",
+      "matching_paths": [
+        "refs/remotes/origin/codex/hydra-market-pipeline-fix:.gitignore",
+        "refs/remotes/origin/codex/hydra-market-pipeline-fix:docs/constraint/architecture/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH001_CAPABILITY_LEDGER_LINKAGE_V001_20260925.json",
+        "refs/remotes/origin/codex/hydra-market-pipeline-fix:docs/constraint/authority/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH001_AUTHORITY_MAP_V001_20260925.json",
+        "refs/remotes/origin/codex/hydra-market-pipeline-fix:docs/constraint/authority/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH001_STALE_SUPERSEDED_REGISTER_V001_20260925.json",
+        "refs/remotes/origin/codex/hydra-market-pipeline-fix:docs/constraint/validation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH001_ARTIFACT_MANIFEST_V001_20260925.json",
+        "refs/remotes/origin/codex/hydra-market-pipeline-fix:docs/constraint/validation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH001_RECONCILIATION_REPORT_V001_20260925.md"
+      ],
+      "search_exit": 0
+    },
+    {
+      "ref": "refs/remotes/origin/codex/restore-public-pipeline-fixture",
+      "commit": "831bc7b4cbcbeae8ec14ad78371c91f799b7f0d1",
+      "matching_paths": [
+        "refs/remotes/origin/codex/restore-public-pipeline-fixture:.gitignore"
+      ],
+      "search_exit": 0
+    },
+    {
+      "ref": "refs/remotes/origin/codex/t1-persisted-chain-of-custody",
+      "commit": "da50186d7665492496e36f410825e717e67ac976",
+      "matching_paths": [
+        "refs/remotes/origin/codex/t1-persisted-chain-of-custody:.gitignore",
+        "refs/remotes/origin/codex/t1-persisted-chain-of-custody:docs/constraint/architecture/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH001_CAPABILITY_LEDGER_LINKAGE_V001_20260925.json",
+        "refs/remotes/origin/codex/t1-persisted-chain-of-custody:docs/constraint/authority/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH001_AUTHORITY_MAP_V001_20260925.json",
+        "refs/remotes/origin/codex/t1-persisted-chain-of-custody:docs/constraint/authority/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH001_STALE_SUPERSEDED_REGISTER_V001_20260925.json",
+        "refs/remotes/origin/codex/t1-persisted-chain-of-custody:docs/constraint/first_slice/ai_data_center_power_infrastructure_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH003_AI_DATA_CENTER_POWER_INFRASTRUCTURE_FIELD_MATRIX_V001_20260925.json",
+        "refs/remotes/origin/codex/t1-persisted-chain-of-custody:docs/constraint/implementation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH002_NATIVE_T5_T6_ADMISSION_CONTRACT_V001_20260925.json",
+        "refs/remotes/origin/codex/t1-persisted-chain-of-custody:docs/constraint/validation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH001_ARTIFACT_MANIFEST_V001_20260925.json",
+        "refs/remotes/origin/codex/t1-persisted-chain-of-custody:docs/constraint/validation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH001_RECONCILIATION_REPORT_V001_20260925.md",
+        "refs/remotes/origin/codex/t1-persisted-chain-of-custody:docs/constraint/validation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH003_AI_DATA_CENTER_POWER_INFRASTRUCTURE_POPULATION_REPORT_V001_20260925.md"
+      ],
+      "search_exit": 0
+    },
+    {
+      "ref": "refs/remotes/origin/codex/t1-persisted-chain-of-custody-batch011",
+      "commit": "362e7ab9a69d77fe49c4325adc885312913d87aa",
+      "matching_paths": [
+        "refs/remotes/origin/codex/t1-persisted-chain-of-custody-batch011:.gitignore",
+        "refs/remotes/origin/codex/t1-persisted-chain-of-custody-batch011:docs/constraint/architecture/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH001_CAPABILITY_LEDGER_LINKAGE_V001_20260925.json",
+        "refs/remotes/origin/codex/t1-persisted-chain-of-custody-batch011:docs/constraint/authority/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH001_AUTHORITY_MAP_V001_20260925.json",
+        "refs/remotes/origin/codex/t1-persisted-chain-of-custody-batch011:docs/constraint/authority/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH001_STALE_SUPERSEDED_REGISTER_V001_20260925.json",
+        "refs/remotes/origin/codex/t1-persisted-chain-of-custody-batch011:docs/constraint/first_slice/ai_data_center_power_infrastructure_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH003_AI_DATA_CENTER_POWER_INFRASTRUCTURE_FIELD_MATRIX_V001_20260925.json",
+        "refs/remotes/origin/codex/t1-persisted-chain-of-custody-batch011:docs/constraint/first_slice/ai_data_center_power_infrastructure_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH010_AI_DATA_CENTER_POWER_INFRASTRUCTURE_BENEFICIARY_EVALUATIONS_V001_20260925.json",
+        "refs/remotes/origin/codex/t1-persisted-chain-of-custody-batch011:docs/constraint/first_slice/ai_data_center_power_infrastructure_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH010_AI_DATA_CENTER_POWER_INFRASTRUCTURE_T5_CANDIDATE_PROPOSALS_V001_20260925.json",
+        "refs/remotes/origin/codex/t1-persisted-chain-of-custody-batch011:docs/constraint/implementation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH002_NATIVE_T5_T6_ADMISSION_CONTRACT_V001_20260925.json",
+        "refs/remotes/origin/codex/t1-persisted-chain-of-custody-batch011:docs/constraint/validation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH001_ARTIFACT_MANIFEST_V001_20260925.json",
+        "refs/remotes/origin/codex/t1-persisted-chain-of-custody-batch011:docs/constraint/validation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH001_RECONCILIATION_REPORT_V001_20260925.md",
+        "refs/remotes/origin/codex/t1-persisted-chain-of-custody-batch011:docs/constraint/validation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH003_AI_DATA_CENTER_POWER_INFRASTRUCTURE_POPULATION_REPORT_V001_20260925.md",
+        "refs/remotes/origin/codex/t1-persisted-chain-of-custody-batch011:t6-fail-closed-validator/tests/test_first_slice_claim_candidate_beneficiary_population.py",
+        "refs/remotes/origin/codex/t1-persisted-chain-of-custody-batch011:tools/test_constraint_first_slice_adversarial.py",
+        "refs/remotes/origin/codex/t1-persisted-chain-of-custody-batch011:tools/validate_constraint_first_slice_successor.py"
+      ],
+      "search_exit": 0
+    },
+    {
+      "ref": "refs/remotes/origin/codex/t1-private-store-symlink-boundary",
+      "commit": "55a039bba50b7e6660953da8a8d9873c590f067d",
+      "matching_paths": [
+        "refs/remotes/origin/codex/t1-private-store-symlink-boundary:.gitignore",
+        "refs/remotes/origin/codex/t1-private-store-symlink-boundary:docs/constraint/architecture/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH001_CAPABILITY_LEDGER_LINKAGE_V001_20260925.json",
+        "refs/remotes/origin/codex/t1-private-store-symlink-boundary:docs/constraint/authority/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH001_AUTHORITY_MAP_V001_20260925.json",
+        "refs/remotes/origin/codex/t1-private-store-symlink-boundary:docs/constraint/authority/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH001_STALE_SUPERSEDED_REGISTER_V001_20260925.json",
+        "refs/remotes/origin/codex/t1-private-store-symlink-boundary:docs/constraint/first_slice/ai_data_center_power_infrastructure_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH003_AI_DATA_CENTER_POWER_INFRASTRUCTURE_FIELD_MATRIX_V001_20260925.json",
+        "refs/remotes/origin/codex/t1-private-store-symlink-boundary:docs/constraint/implementation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH002_NATIVE_T5_T6_ADMISSION_CONTRACT_V001_20260925.json",
+        "refs/remotes/origin/codex/t1-private-store-symlink-boundary:docs/constraint/validation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH001_ARTIFACT_MANIFEST_V001_20260925.json",
+        "refs/remotes/origin/codex/t1-private-store-symlink-boundary:docs/constraint/validation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH001_RECONCILIATION_REPORT_V001_20260925.md",
+        "refs/remotes/origin/codex/t1-private-store-symlink-boundary:docs/constraint/validation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH003_AI_DATA_CENTER_POWER_INFRASTRUCTURE_POPULATION_REPORT_V001_20260925.md"
+      ],
+      "search_exit": 0
+    },
+    {
+      "ref": "refs/remotes/origin/codex/t6-adversarial-parser-fuzz-hardening",
+      "commit": "28d4fa30ac81bb92ff35b2e2dcfca69752756e18",
+      "matching_paths": [
+        "refs/remotes/origin/codex/t6-adversarial-parser-fuzz-hardening:.gitignore",
+        "refs/remotes/origin/codex/t6-adversarial-parser-fuzz-hardening:docs/constraint/architecture/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH001_CAPABILITY_LEDGER_LINKAGE_V001_20260925.json",
+        "refs/remotes/origin/codex/t6-adversarial-parser-fuzz-hardening:docs/constraint/authority/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH001_AUTHORITY_MAP_V001_20260925.json",
+        "refs/remotes/origin/codex/t6-adversarial-parser-fuzz-hardening:docs/constraint/authority/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH001_STALE_SUPERSEDED_REGISTER_V001_20260925.json",
+        "refs/remotes/origin/codex/t6-adversarial-parser-fuzz-hardening:docs/constraint/implementation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH002_NATIVE_T5_T6_ADMISSION_CONTRACT_V001_20260925.json",
+        "refs/remotes/origin/codex/t6-adversarial-parser-fuzz-hardening:docs/constraint/validation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH001_ARTIFACT_MANIFEST_V001_20260925.json",
+        "refs/remotes/origin/codex/t6-adversarial-parser-fuzz-hardening:docs/constraint/validation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH001_RECONCILIATION_REPORT_V001_20260925.md"
+      ],
+      "search_exit": 0
+    },
+    {
+      "ref": "refs/remotes/origin/codex/t6-ambiguous-context-fail-closed",
+      "commit": "aab6fe2ebab20ca2285399a9ca12cd7c94278b8a",
+      "matching_paths": [
+        "refs/remotes/origin/codex/t6-ambiguous-context-fail-closed:.gitignore",
+        "refs/remotes/origin/codex/t6-ambiguous-context-fail-closed:docs/constraint/architecture/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH001_CAPABILITY_LEDGER_LINKAGE_V001_20260925.json",
+        "refs/remotes/origin/codex/t6-ambiguous-context-fail-closed:docs/constraint/authority/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH001_AUTHORITY_MAP_V001_20260925.json",
+        "refs/remotes/origin/codex/t6-ambiguous-context-fail-closed:docs/constraint/authority/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH001_STALE_SUPERSEDED_REGISTER_V001_20260925.json",
+        "refs/remotes/origin/codex/t6-ambiguous-context-fail-closed:docs/constraint/validation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH001_ARTIFACT_MANIFEST_V001_20260925.json",
+        "refs/remotes/origin/codex/t6-ambiguous-context-fail-closed:docs/constraint/validation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH001_RECONCILIATION_REPORT_V001_20260925.md"
+      ],
+      "search_exit": 0
+    },
+    {
+      "ref": "refs/remotes/origin/codex/t6-authority-fail-closed-tests",
+      "commit": "447946b9faa0cbb62bb75c0eb9964b908268347b",
+      "matching_paths": [
+        "refs/remotes/origin/codex/t6-authority-fail-closed-tests:.gitignore",
+        "refs/remotes/origin/codex/t6-authority-fail-closed-tests:archive/internal-build-history/thread4_public_alignment_20260924/NYX_CI_PIPELINE_PARALLEL_HARDENING_T1_T5_BATCH67_HOST_BUILD_READY_V001 (1).zip",
+        "refs/remotes/origin/codex/t6-authority-fail-closed-tests:archive/internal-build-history/thread4_public_alignment_20260924/NYX_CI_PIPELINE_PARALLEL_HARDENING_T1_T5_BATCH67_HOST_BUILD_READY_V001 (2).zip",
+        "refs/remotes/origin/codex/t6-authority-fail-closed-tests:archive/internal-build-history/thread4_public_alignment_20260924/NYX_CI_PIPELINE_PARALLEL_HARDENING_T1_T5_BATCH67_HOST_BUILD_READY_V001.zip",
+        "refs/remotes/origin/codex/t6-authority-fail-closed-tests:archive/internal-build-history/thread4_public_alignment_20260924/NYX_CI_PIPELINE_PARALLEL_HARDENING_T1_T5_BATCH68_HOST_BUILD_READY_V001.zip"
+      ],
+      "search_exit": 0
+    },
+    {
+      "ref": "refs/remotes/origin/codex/t6-authority-role-binding",
+      "commit": "5e18624910d2e53ca016f954db1d13eac8fc9a6a",
+      "matching_paths": [
+        "refs/remotes/origin/codex/t6-authority-role-binding:.gitignore",
+        "refs/remotes/origin/codex/t6-authority-role-binding:docs/constraint/architecture/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH001_CAPABILITY_LEDGER_LINKAGE_V001_20260925.json",
+        "refs/remotes/origin/codex/t6-authority-role-binding:docs/constraint/authority/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH001_AUTHORITY_MAP_V001_20260925.json",
+        "refs/remotes/origin/codex/t6-authority-role-binding:docs/constraint/authority/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH001_STALE_SUPERSEDED_REGISTER_V001_20260925.json",
+        "refs/remotes/origin/codex/t6-authority-role-binding:docs/constraint/first_slice/ai_data_center_power_infrastructure_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH003_AI_DATA_CENTER_POWER_INFRASTRUCTURE_FIELD_MATRIX_V001_20260925.json",
+        "refs/remotes/origin/codex/t6-authority-role-binding:docs/constraint/implementation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH002_NATIVE_T5_T6_ADMISSION_CONTRACT_V001_20260925.json",
+        "refs/remotes/origin/codex/t6-authority-role-binding:docs/constraint/validation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH001_ARTIFACT_MANIFEST_V001_20260925.json",
+        "refs/remotes/origin/codex/t6-authority-role-binding:docs/constraint/validation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH001_RECONCILIATION_REPORT_V001_20260925.md",
+        "refs/remotes/origin/codex/t6-authority-role-binding:docs/constraint/validation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH003_AI_DATA_CENTER_POWER_INFRASTRUCTURE_POPULATION_REPORT_V001_20260925.md"
+      ],
+      "search_exit": 0
+    },
+    {
+      "ref": "refs/remotes/origin/codex/t6-authority-smuggling-hardening",
+      "commit": "c0f73cfabdd86d179778fc9d1499a8b76948db18",
+      "matching_paths": [
+        "refs/remotes/origin/codex/t6-authority-smuggling-hardening:.gitignore",
+        "refs/remotes/origin/codex/t6-authority-smuggling-hardening:archive/internal-build-history/thread4_public_alignment_20260924/NYX_CI_PIPELINE_PARALLEL_HARDENING_T1_T5_BATCH67_HOST_BUILD_READY_V001 (1).zip",
+        "refs/remotes/origin/codex/t6-authority-smuggling-hardening:archive/internal-build-history/thread4_public_alignment_20260924/NYX_CI_PIPELINE_PARALLEL_HARDENING_T1_T5_BATCH67_HOST_BUILD_READY_V001 (2).zip",
+        "refs/remotes/origin/codex/t6-authority-smuggling-hardening:archive/internal-build-history/thread4_public_alignment_20260924/NYX_CI_PIPELINE_PARALLEL_HARDENING_T1_T5_BATCH67_HOST_BUILD_READY_V001.zip",
+        "refs/remotes/origin/codex/t6-authority-smuggling-hardening:archive/internal-build-history/thread4_public_alignment_20260924/NYX_CI_PIPELINE_PARALLEL_HARDENING_T1_T5_BATCH68_HOST_BUILD_READY_V001.zip"
+      ],
+      "search_exit": 0
+    },
+    {
+      "ref": "refs/remotes/origin/codex/t6-camelcase-smuggling-repair",
+      "commit": "7d83fa0d1f6fd8823ca7c677e892b34285ad2eb1",
+      "matching_paths": [
+        "refs/remotes/origin/codex/t6-camelcase-smuggling-repair:.gitignore",
+        "refs/remotes/origin/codex/t6-camelcase-smuggling-repair:NYX_CI_PIPELINE_PARALLEL_HARDENING_T1_T5_BATCH67_HOST_BUILD_READY_V001 (1).zip",
+        "refs/remotes/origin/codex/t6-camelcase-smuggling-repair:NYX_CI_PIPELINE_PARALLEL_HARDENING_T1_T5_BATCH67_HOST_BUILD_READY_V001 (2).zip",
+        "refs/remotes/origin/codex/t6-camelcase-smuggling-repair:NYX_CI_PIPELINE_PARALLEL_HARDENING_T1_T5_BATCH67_HOST_BUILD_READY_V001.zip",
+        "refs/remotes/origin/codex/t6-camelcase-smuggling-repair:NYX_CI_PIPELINE_PARALLEL_HARDENING_T1_T5_BATCH68_HOST_BUILD_READY_V001.zip"
+      ],
+      "search_exit": 0
+    },
+    {
+      "ref": "refs/remotes/origin/codex/t6-candidate-structure-fail-closed",
+      "commit": "36449ea1ab066d83016f7195521b9398d79dff81",
+      "matching_paths": [
+        "refs/remotes/origin/codex/t6-candidate-structure-fail-closed:.gitignore",
+        "refs/remotes/origin/codex/t6-candidate-structure-fail-closed:docs/constraint/architecture/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH001_CAPABILITY_LEDGER_LINKAGE_V001_20260925.json",
+        "refs/remotes/origin/codex/t6-candidate-structure-fail-closed:docs/constraint/authority/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH001_AUTHORITY_MAP_V001_20260925.json",
+        "refs/remotes/origin/codex/t6-candidate-structure-fail-closed:docs/constraint/authority/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH001_STALE_SUPERSEDED_REGISTER_V001_20260925.json",
+        "refs/remotes/origin/codex/t6-candidate-structure-fail-closed:docs/constraint/validation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH001_ARTIFACT_MANIFEST_V001_20260925.json",
+        "refs/remotes/origin/codex/t6-candidate-structure-fail-closed:docs/constraint/validation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH001_RECONCILIATION_REPORT_V001_20260925.md"
+      ],
+      "search_exit": 0
+    },
+    {
+      "ref": "refs/remotes/origin/codex/t6-clock-fail-closed",
+      "commit": "a1557db1350d4f7c6f78e4e02ad5ad65de6ce1a7",
+      "matching_paths": [
+        "refs/remotes/origin/codex/t6-clock-fail-closed:.gitignore",
+        "refs/remotes/origin/codex/t6-clock-fail-closed:docs/constraint/architecture/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH001_CAPABILITY_LEDGER_LINKAGE_V001_20260925.json",
+        "refs/remotes/origin/codex/t6-clock-fail-closed:docs/constraint/authority/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH001_AUTHORITY_MAP_V001_20260925.json",
+        "refs/remotes/origin/codex/t6-clock-fail-closed:docs/constraint/authority/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH001_STALE_SUPERSEDED_REGISTER_V001_20260925.json",
+        "refs/remotes/origin/codex/t6-clock-fail-closed:docs/constraint/validation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH001_ARTIFACT_MANIFEST_V001_20260925.json",
+        "refs/remotes/origin/codex/t6-clock-fail-closed:docs/constraint/validation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH001_RECONCILIATION_REPORT_V001_20260925.md"
+      ],
+      "search_exit": 0
+    },
+    {
+      "ref": "refs/remotes/origin/codex/t6-dense-confusable-hardening",
+      "commit": "76ab3b76cb0119e91d0141211095e02db45735b7",
+      "matching_paths": [
+        "refs/remotes/origin/codex/t6-dense-confusable-hardening:.gitignore",
+        "refs/remotes/origin/codex/t6-dense-confusable-hardening:archive/internal-build-history/thread4_public_alignment_20260924/NYX_CI_PIPELINE_PARALLEL_HARDENING_T1_T5_BATCH67_HOST_BUILD_READY_V001 (1).zip",
+        "refs/remotes/origin/codex/t6-dense-confusable-hardening:archive/internal-build-history/thread4_public_alignment_20260924/NYX_CI_PIPELINE_PARALLEL_HARDENING_T1_T5_BATCH67_HOST_BUILD_READY_V001 (2).zip",
+        "refs/remotes/origin/codex/t6-dense-confusable-hardening:archive/internal-build-history/thread4_public_alignment_20260924/NYX_CI_PIPELINE_PARALLEL_HARDENING_T1_T5_BATCH67_HOST_BUILD_READY_V001.zip",
+        "refs/remotes/origin/codex/t6-dense-confusable-hardening:archive/internal-build-history/thread4_public_alignment_20260924/NYX_CI_PIPELINE_PARALLEL_HARDENING_T1_T5_BATCH68_HOST_BUILD_READY_V001.zip"
+      ],
+      "search_exit": 0
+    },
+    {
+      "ref": "refs/remotes/origin/codex/t6-dense-confusable-mainline-hardening",
+      "commit": "debf4651dfbd9cfe7ec7102781376350f482c430",
+      "matching_paths": [
+        "refs/remotes/origin/codex/t6-dense-confusable-mainline-hardening:.gitignore",
+        "refs/remotes/origin/codex/t6-dense-confusable-mainline-hardening:docs/constraint/architecture/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH001_CAPABILITY_LEDGER_LINKAGE_V001_20260925.json",
+        "refs/remotes/origin/codex/t6-dense-confusable-mainline-hardening:docs/constraint/authority/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH001_AUTHORITY_MAP_V001_20260925.json",
+        "refs/remotes/origin/codex/t6-dense-confusable-mainline-hardening:docs/constraint/authority/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH001_STALE_SUPERSEDED_REGISTER_V001_20260925.json",
+        "refs/remotes/origin/codex/t6-dense-confusable-mainline-hardening:docs/constraint/implementation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH002_NATIVE_T5_T6_ADMISSION_CONTRACT_V001_20260925.json",
+        "refs/remotes/origin/codex/t6-dense-confusable-mainline-hardening:docs/constraint/validation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH001_ARTIFACT_MANIFEST_V001_20260925.json",
+        "refs/remotes/origin/codex/t6-dense-confusable-mainline-hardening:docs/constraint/validation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH001_RECONCILIATION_REPORT_V001_20260925.md"
+      ],
+      "search_exit": 0
+    },
+    {
+      "ref": "refs/remotes/origin/codex/t6-document-depth-fail-closed",
+      "commit": "3c6f04e1c069248e0c7adb39d5663df0dce488b8",
+      "matching_paths": [
+        "refs/remotes/origin/codex/t6-document-depth-fail-closed:.gitignore",
+        "refs/remotes/origin/codex/t6-document-depth-fail-closed:archive/internal-build-history/thread4_public_alignment_20260924/NYX_CI_PIPELINE_PARALLEL_HARDENING_T1_T5_BATCH67_HOST_BUILD_READY_V001 (1).zip",
+        "refs/remotes/origin/codex/t6-document-depth-fail-closed:archive/internal-build-history/thread4_public_alignment_20260924/NYX_CI_PIPELINE_PARALLEL_HARDENING_T1_T5_BATCH67_HOST_BUILD_READY_V001 (2).zip",
+        "refs/remotes/origin/codex/t6-document-depth-fail-closed:archive/internal-build-history/thread4_public_alignment_20260924/NYX_CI_PIPELINE_PARALLEL_HARDENING_T1_T5_BATCH67_HOST_BUILD_READY_V001.zip",
+        "refs/remotes/origin/codex/t6-document-depth-fail-closed:archive/internal-build-history/thread4_public_alignment_20260924/NYX_CI_PIPELINE_PARALLEL_HARDENING_T1_T5_BATCH68_HOST_BUILD_READY_V001.zip"
+      ],
+      "search_exit": 0
+    },
+    {
+      "ref": "refs/remotes/origin/codex/t6-failclosed-regression-coverage",
+      "commit": "d9f406bac11a448bae82d3ee96a5d9a0ee2d4565",
+      "matching_paths": [
+        "refs/remotes/origin/codex/t6-failclosed-regression-coverage:.gitignore",
+        "refs/remotes/origin/codex/t6-failclosed-regression-coverage:docs/constraint/architecture/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH001_CAPABILITY_LEDGER_LINKAGE_V001_20260925.json",
+        "refs/remotes/origin/codex/t6-failclosed-regression-coverage:docs/constraint/authority/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH001_AUTHORITY_MAP_V001_20260925.json",
+        "refs/remotes/origin/codex/t6-failclosed-regression-coverage:docs/constraint/authority/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH001_STALE_SUPERSEDED_REGISTER_V001_20260925.json",
+        "refs/remotes/origin/codex/t6-failclosed-regression-coverage:docs/constraint/implementation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH002_NATIVE_T5_T6_ADMISSION_CONTRACT_V001_20260925.json",
+        "refs/remotes/origin/codex/t6-failclosed-regression-coverage:docs/constraint/validation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH001_ARTIFACT_MANIFEST_V001_20260925.json",
+        "refs/remotes/origin/codex/t6-failclosed-regression-coverage:docs/constraint/validation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH001_RECONCILIATION_REPORT_V001_20260925.md"
+      ],
+      "search_exit": 0
+    },
+    {
+      "ref": "refs/remotes/origin/codex/t6-handoff-contract-tests",
+      "commit": "c3d42cd1a50c11ec8c79847125d5235aa607f31d",
+      "matching_paths": [
+        "refs/remotes/origin/codex/t6-handoff-contract-tests:.gitignore",
+        "refs/remotes/origin/codex/t6-handoff-contract-tests:archive/internal-build-history/thread4_public_alignment_20260924/NYX_CI_PIPELINE_PARALLEL_HARDENING_T1_T5_BATCH67_HOST_BUILD_READY_V001 (1).zip",
+        "refs/remotes/origin/codex/t6-handoff-contract-tests:archive/internal-build-history/thread4_public_alignment_20260924/NYX_CI_PIPELINE_PARALLEL_HARDENING_T1_T5_BATCH67_HOST_BUILD_READY_V001 (2).zip",
+        "refs/remotes/origin/codex/t6-handoff-contract-tests:archive/internal-build-history/thread4_public_alignment_20260924/NYX_CI_PIPELINE_PARALLEL_HARDENING_T1_T5_BATCH67_HOST_BUILD_READY_V001.zip",
+        "refs/remotes/origin/codex/t6-handoff-contract-tests:archive/internal-build-history/thread4_public_alignment_20260924/NYX_CI_PIPELINE_PARALLEL_HARDENING_T1_T5_BATCH68_HOST_BUILD_READY_V001.zip"
+      ],
+      "search_exit": 0
+    },
+    {
+      "ref": "refs/remotes/origin/codex/t6-native-admission-explicit-inert-authority",
+      "commit": "b007ec5e76efca7c4c8518e9b844a0d64a790bb2",
+      "matching_paths": [
+        "refs/remotes/origin/codex/t6-native-admission-explicit-inert-authority:.gitignore",
+        "refs/remotes/origin/codex/t6-native-admission-explicit-inert-authority:docs/constraint/architecture/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH001_CAPABILITY_LEDGER_LINKAGE_V001_20260925.json",
+        "refs/remotes/origin/codex/t6-native-admission-explicit-inert-authority:docs/constraint/authority/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH001_AUTHORITY_MAP_V001_20260925.json",
+        "refs/remotes/origin/codex/t6-native-admission-explicit-inert-authority:docs/constraint/authority/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH001_STALE_SUPERSEDED_REGISTER_V001_20260925.json",
+        "refs/remotes/origin/codex/t6-native-admission-explicit-inert-authority:docs/constraint/first_slice/ai_data_center_power_infrastructure_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH003_AI_DATA_CENTER_POWER_INFRASTRUCTURE_FIELD_MATRIX_V001_20260925.json",
+        "refs/remotes/origin/codex/t6-native-admission-explicit-inert-authority:docs/constraint/implementation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH002_NATIVE_T5_T6_ADMISSION_CONTRACT_V001_20260925.json",
+        "refs/remotes/origin/codex/t6-native-admission-explicit-inert-authority:docs/constraint/validation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH001_ARTIFACT_MANIFEST_V001_20260925.json",
+        "refs/remotes/origin/codex/t6-native-admission-explicit-inert-authority:docs/constraint/validation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH001_RECONCILIATION_REPORT_V001_20260925.md",
+        "refs/remotes/origin/codex/t6-native-admission-explicit-inert-authority:docs/constraint/validation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH003_AI_DATA_CENTER_POWER_INFRASTRUCTURE_POPULATION_REPORT_V001_20260925.md"
+      ],
+      "search_exit": 0
+    },
+    {
+      "ref": "refs/remotes/origin/codex/t6-native-admission-receipt-hardening",
+      "commit": "36a2e86ef5bab9c88bc5881570e46eecf951079b",
+      "matching_paths": [
+        "refs/remotes/origin/codex/t6-native-admission-receipt-hardening:.gitignore",
+        "refs/remotes/origin/codex/t6-native-admission-receipt-hardening:docs/constraint/architecture/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH001_CAPABILITY_LEDGER_LINKAGE_V001_20260925.json",
+        "refs/remotes/origin/codex/t6-native-admission-receipt-hardening:docs/constraint/authority/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH001_AUTHORITY_MAP_V001_20260925.json",
+        "refs/remotes/origin/codex/t6-native-admission-receipt-hardening:docs/constraint/authority/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH001_STALE_SUPERSEDED_REGISTER_V001_20260925.json",
+        "refs/remotes/origin/codex/t6-native-admission-receipt-hardening:docs/constraint/first_slice/ai_data_center_power_infrastructure_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH003_AI_DATA_CENTER_POWER_INFRASTRUCTURE_FIELD_MATRIX_V001_20260925.json",
+        "refs/remotes/origin/codex/t6-native-admission-receipt-hardening:docs/constraint/implementation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH002_NATIVE_T5_T6_ADMISSION_CONTRACT_V001_20260925.json",
+        "refs/remotes/origin/codex/t6-native-admission-receipt-hardening:docs/constraint/validation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH001_ARTIFACT_MANIFEST_V001_20260925.json",
+        "refs/remotes/origin/codex/t6-native-admission-receipt-hardening:docs/constraint/validation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH001_RECONCILIATION_REPORT_V001_20260925.md",
+        "refs/remotes/origin/codex/t6-native-admission-receipt-hardening:docs/constraint/validation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH003_AI_DATA_CENTER_POWER_INFRASTRUCTURE_POPULATION_REPORT_V001_20260925.md"
+      ],
+      "search_exit": 0
+    },
+    {
+      "ref": "refs/remotes/origin/codex/t6-pending-hardening-reconciliation",
+      "commit": "cc4480e08883563ee528698b2cdbc1ebd249a46a",
+      "matching_paths": [
+        "refs/remotes/origin/codex/t6-pending-hardening-reconciliation:.gitignore",
+        "refs/remotes/origin/codex/t6-pending-hardening-reconciliation:docs/constraint/architecture/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH001_CAPABILITY_LEDGER_LINKAGE_V001_20260925.json",
+        "refs/remotes/origin/codex/t6-pending-hardening-reconciliation:docs/constraint/authority/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH001_AUTHORITY_MAP_V001_20260925.json",
+        "refs/remotes/origin/codex/t6-pending-hardening-reconciliation:docs/constraint/authority/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH001_STALE_SUPERSEDED_REGISTER_V001_20260925.json",
+        "refs/remotes/origin/codex/t6-pending-hardening-reconciliation:docs/constraint/first_slice/ai_data_center_power_infrastructure_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH003_AI_DATA_CENTER_POWER_INFRASTRUCTURE_FIELD_MATRIX_V001_20260925.json",
+        "refs/remotes/origin/codex/t6-pending-hardening-reconciliation:docs/constraint/implementation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH002_NATIVE_T5_T6_ADMISSION_CONTRACT_V001_20260925.json",
+        "refs/remotes/origin/codex/t6-pending-hardening-reconciliation:docs/constraint/validation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH001_ARTIFACT_MANIFEST_V001_20260925.json",
+        "refs/remotes/origin/codex/t6-pending-hardening-reconciliation:docs/constraint/validation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH001_RECONCILIATION_REPORT_V001_20260925.md",
+        "refs/remotes/origin/codex/t6-pending-hardening-reconciliation:docs/constraint/validation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH003_AI_DATA_CENTER_POWER_INFRASTRUCTURE_POPULATION_REPORT_V001_20260925.md"
+      ],
+      "search_exit": 0
+    },
+    {
+      "ref": "refs/remotes/origin/codex/t6-service-orchestration-regressions",
+      "commit": "3f1bee0bf05c032ba0da121d5109bc51d8ff5313",
+      "matching_paths": [
+        "refs/remotes/origin/codex/t6-service-orchestration-regressions:.gitignore",
+        "refs/remotes/origin/codex/t6-service-orchestration-regressions:docs/constraint/architecture/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH001_CAPABILITY_LEDGER_LINKAGE_V001_20260925.json",
+        "refs/remotes/origin/codex/t6-service-orchestration-regressions:docs/constraint/authority/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH001_AUTHORITY_MAP_V001_20260925.json",
+        "refs/remotes/origin/codex/t6-service-orchestration-regressions:docs/constraint/authority/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH001_STALE_SUPERSEDED_REGISTER_V001_20260925.json",
+        "refs/remotes/origin/codex/t6-service-orchestration-regressions:docs/constraint/first_slice/ai_data_center_power_infrastructure_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH003_AI_DATA_CENTER_POWER_INFRASTRUCTURE_FIELD_MATRIX_V001_20260925.json",
+        "refs/remotes/origin/codex/t6-service-orchestration-regressions:docs/constraint/implementation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH002_NATIVE_T5_T6_ADMISSION_CONTRACT_V001_20260925.json",
+        "refs/remotes/origin/codex/t6-service-orchestration-regressions:docs/constraint/validation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH001_ARTIFACT_MANIFEST_V001_20260925.json",
+        "refs/remotes/origin/codex/t6-service-orchestration-regressions:docs/constraint/validation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH001_RECONCILIATION_REPORT_V001_20260925.md",
+        "refs/remotes/origin/codex/t6-service-orchestration-regressions:docs/constraint/validation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH003_AI_DATA_CENTER_POWER_INFRASTRUCTURE_POPULATION_REPORT_V001_20260925.md"
+      ],
+      "search_exit": 0
+    },
+    {
+      "ref": "refs/remotes/origin/codex/t6-successor-batch004-pit-acquisition-capture",
+      "commit": "50bcd0ee8f772a3eb67497198a72eb36f7bb65f8",
+      "matching_paths": [
+        "refs/remotes/origin/codex/t6-successor-batch004-pit-acquisition-capture:.gitignore",
+        "refs/remotes/origin/codex/t6-successor-batch004-pit-acquisition-capture:docs/constraint/architecture/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH001_CAPABILITY_LEDGER_LINKAGE_V001_20260925.json",
+        "refs/remotes/origin/codex/t6-successor-batch004-pit-acquisition-capture:docs/constraint/authority/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH001_AUTHORITY_MAP_V001_20260925.json",
+        "refs/remotes/origin/codex/t6-successor-batch004-pit-acquisition-capture:docs/constraint/authority/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH001_STALE_SUPERSEDED_REGISTER_V001_20260925.json",
+        "refs/remotes/origin/codex/t6-successor-batch004-pit-acquisition-capture:docs/constraint/first_slice/ai_data_center_power_infrastructure_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH003_AI_DATA_CENTER_POWER_INFRASTRUCTURE_FIELD_MATRIX_V001_20260925.json",
+        "refs/remotes/origin/codex/t6-successor-batch004-pit-acquisition-capture:docs/constraint/implementation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH002_NATIVE_T5_T6_ADMISSION_CONTRACT_V001_20260925.json",
+        "refs/remotes/origin/codex/t6-successor-batch004-pit-acquisition-capture:docs/constraint/validation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH001_ARTIFACT_MANIFEST_V001_20260925.json",
+        "refs/remotes/origin/codex/t6-successor-batch004-pit-acquisition-capture:docs/constraint/validation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH001_RECONCILIATION_REPORT_V001_20260925.md",
+        "refs/remotes/origin/codex/t6-successor-batch004-pit-acquisition-capture:docs/constraint/validation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH003_AI_DATA_CENTER_POWER_INFRASTRUCTURE_POPULATION_REPORT_V001_20260925.md"
+      ],
+      "search_exit": 0
+    },
+    {
+      "ref": "refs/remotes/origin/codex/t6-successor-batch005-source-temporal-audit",
+      "commit": "905c63e5f72a7cbf5ba77c12e8984ed896d8c65a",
+      "matching_paths": [
+        "refs/remotes/origin/codex/t6-successor-batch005-source-temporal-audit:.gitignore",
+        "refs/remotes/origin/codex/t6-successor-batch005-source-temporal-audit:docs/constraint/architecture/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH001_CAPABILITY_LEDGER_LINKAGE_V001_20260925.json",
+        "refs/remotes/origin/codex/t6-successor-batch005-source-temporal-audit:docs/constraint/authority/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH001_AUTHORITY_MAP_V001_20260925.json",
+        "refs/remotes/origin/codex/t6-successor-batch005-source-temporal-audit:docs/constraint/authority/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH001_STALE_SUPERSEDED_REGISTER_V001_20260925.json",
+        "refs/remotes/origin/codex/t6-successor-batch005-source-temporal-audit:docs/constraint/first_slice/ai_data_center_power_infrastructure_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH003_AI_DATA_CENTER_POWER_INFRASTRUCTURE_FIELD_MATRIX_V001_20260925.json",
+        "refs/remotes/origin/codex/t6-successor-batch005-source-temporal-audit:docs/constraint/implementation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH002_NATIVE_T5_T6_ADMISSION_CONTRACT_V001_20260925.json",
+        "refs/remotes/origin/codex/t6-successor-batch005-source-temporal-audit:docs/constraint/validation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH001_ARTIFACT_MANIFEST_V001_20260925.json",
+        "refs/remotes/origin/codex/t6-successor-batch005-source-temporal-audit:docs/constraint/validation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH001_RECONCILIATION_REPORT_V001_20260925.md",
+        "refs/remotes/origin/codex/t6-successor-batch005-source-temporal-audit:docs/constraint/validation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH003_AI_DATA_CENTER_POWER_INFRASTRUCTURE_POPULATION_REPORT_V001_20260925.md"
+      ],
+      "search_exit": 0
+    },
+    {
+      "ref": "refs/remotes/origin/codex/t6-successor-batch006-close-switchgear-land-gaps",
+      "commit": "03991026cc19eb1cc32973e6d547f78382a96a5a",
+      "matching_paths": [
+        "refs/remotes/origin/codex/t6-successor-batch006-close-switchgear-land-gaps:.gitignore",
+        "refs/remotes/origin/codex/t6-successor-batch006-close-switchgear-land-gaps:docs/constraint/architecture/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH001_CAPABILITY_LEDGER_LINKAGE_V001_20260925.json",
+        "refs/remotes/origin/codex/t6-successor-batch006-close-switchgear-land-gaps:docs/constraint/authority/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH001_AUTHORITY_MAP_V001_20260925.json",
+        "refs/remotes/origin/codex/t6-successor-batch006-close-switchgear-land-gaps:docs/constraint/authority/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH001_STALE_SUPERSEDED_REGISTER_V001_20260925.json",
+        "refs/remotes/origin/codex/t6-successor-batch006-close-switchgear-land-gaps:docs/constraint/first_slice/ai_data_center_power_infrastructure_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH003_AI_DATA_CENTER_POWER_INFRASTRUCTURE_FIELD_MATRIX_V001_20260925.json",
+        "refs/remotes/origin/codex/t6-successor-batch006-close-switchgear-land-gaps:docs/constraint/implementation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH002_NATIVE_T5_T6_ADMISSION_CONTRACT_V001_20260925.json",
+        "refs/remotes/origin/codex/t6-successor-batch006-close-switchgear-land-gaps:docs/constraint/validation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH001_ARTIFACT_MANIFEST_V001_20260925.json",
+        "refs/remotes/origin/codex/t6-successor-batch006-close-switchgear-land-gaps:docs/constraint/validation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH001_RECONCILIATION_REPORT_V001_20260925.md",
+        "refs/remotes/origin/codex/t6-successor-batch006-close-switchgear-land-gaps:docs/constraint/validation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH003_AI_DATA_CENTER_POWER_INFRASTRUCTURE_POPULATION_REPORT_V001_20260925.md"
+      ],
+      "search_exit": 0
+    },
+    {
+      "ref": "refs/remotes/origin/codex/t6-successor-batch007-close-fiber-source-gap",
+      "commit": "b705740b729833bf0134f2cc8658be9bba363891",
+      "matching_paths": [
+        "refs/remotes/origin/codex/t6-successor-batch007-close-fiber-source-gap:.gitignore",
+        "refs/remotes/origin/codex/t6-successor-batch007-close-fiber-source-gap:docs/constraint/architecture/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH001_CAPABILITY_LEDGER_LINKAGE_V001_20260925.json",
+        "refs/remotes/origin/codex/t6-successor-batch007-close-fiber-source-gap:docs/constraint/authority/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH001_AUTHORITY_MAP_V001_20260925.json",
+        "refs/remotes/origin/codex/t6-successor-batch007-close-fiber-source-gap:docs/constraint/authority/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH001_STALE_SUPERSEDED_REGISTER_V001_20260925.json",
+        "refs/remotes/origin/codex/t6-successor-batch007-close-fiber-source-gap:docs/constraint/first_slice/ai_data_center_power_infrastructure_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH003_AI_DATA_CENTER_POWER_INFRASTRUCTURE_FIELD_MATRIX_V001_20260925.json",
+        "refs/remotes/origin/codex/t6-successor-batch007-close-fiber-source-gap:docs/constraint/implementation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH002_NATIVE_T5_T6_ADMISSION_CONTRACT_V001_20260925.json",
+        "refs/remotes/origin/codex/t6-successor-batch007-close-fiber-source-gap:docs/constraint/validation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH001_ARTIFACT_MANIFEST_V001_20260925.json",
+        "refs/remotes/origin/codex/t6-successor-batch007-close-fiber-source-gap:docs/constraint/validation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH001_RECONCILIATION_REPORT_V001_20260925.md",
+        "refs/remotes/origin/codex/t6-successor-batch007-close-fiber-source-gap:docs/constraint/validation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH003_AI_DATA_CENTER_POWER_INFRASTRUCTURE_POPULATION_REPORT_V001_20260925.md"
+      ],
+      "search_exit": 0
+    },
+    {
+      "ref": "refs/remotes/origin/codex/t6-verifier-error-fail-closed",
+      "commit": "5840339d8077cf59d246a79df2d48e1ae42ebd3a",
+      "matching_paths": [
+        "refs/remotes/origin/codex/t6-verifier-error-fail-closed:.gitignore",
+        "refs/remotes/origin/codex/t6-verifier-error-fail-closed:docs/constraint/architecture/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH001_CAPABILITY_LEDGER_LINKAGE_V001_20260925.json",
+        "refs/remotes/origin/codex/t6-verifier-error-fail-closed:docs/constraint/authority/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH001_AUTHORITY_MAP_V001_20260925.json",
+        "refs/remotes/origin/codex/t6-verifier-error-fail-closed:docs/constraint/authority/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH001_STALE_SUPERSEDED_REGISTER_V001_20260925.json",
+        "refs/remotes/origin/codex/t6-verifier-error-fail-closed:docs/constraint/validation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH001_ARTIFACT_MANIFEST_V001_20260925.json",
+        "refs/remotes/origin/codex/t6-verifier-error-fail-closed:docs/constraint/validation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH001_RECONCILIATION_REPORT_V001_20260925.md"
+      ],
+      "search_exit": 0
+    },
+    {
+      "ref": "refs/remotes/origin/constraint-geopolitical-policy-historical-20260925",
+      "commit": "19f7f35b5ae8ecfb851052f390bbfe3d75a589bf",
+      "matching_paths": [
+        "refs/remotes/origin/constraint-geopolitical-policy-historical-20260925:.gitignore",
+        "refs/remotes/origin/constraint-geopolitical-policy-historical-20260925:archive/internal-build-history/thread4_public_alignment_20260924/NYX_CI_PIPELINE_PARALLEL_HARDENING_T1_T5_BATCH67_HOST_BUILD_READY_V001 (1).zip",
+        "refs/remotes/origin/constraint-geopolitical-policy-historical-20260925:archive/internal-build-history/thread4_public_alignment_20260924/NYX_CI_PIPELINE_PARALLEL_HARDENING_T1_T5_BATCH67_HOST_BUILD_READY_V001 (2).zip",
+        "refs/remotes/origin/constraint-geopolitical-policy-historical-20260925:archive/internal-build-history/thread4_public_alignment_20260924/NYX_CI_PIPELINE_PARALLEL_HARDENING_T1_T5_BATCH67_HOST_BUILD_READY_V001.zip",
+        "refs/remotes/origin/constraint-geopolitical-policy-historical-20260925:archive/internal-build-history/thread4_public_alignment_20260924/NYX_CI_PIPELINE_PARALLEL_HARDENING_T1_T5_BATCH68_HOST_BUILD_READY_V001.zip",
+        "refs/remotes/origin/constraint-geopolitical-policy-historical-20260925:constraint-geopolitical-policy/README.md",
+        "refs/remotes/origin/constraint-geopolitical-policy-historical-20260925:constraint-geopolitical-policy/data/sourced_historical_cases.json",
+        "refs/remotes/origin/constraint-geopolitical-policy-historical-20260925:constraint-geopolitical-policy/tests/test_policy_history.py",
+        "refs/remotes/origin/constraint-geopolitical-policy-historical-20260925:constraint-geopolitical-policy/tests/test_sourced_case_studies.py",
+        "refs/remotes/origin/constraint-geopolitical-policy-historical-20260925:constraint-physical-dependency/README.md",
+        "refs/remotes/origin/constraint-geopolitical-policy-historical-20260925:constraint-physical-dependency/data/eia_refinery_regional_capacity_2020_2025.csv",
+        "refs/remotes/origin/constraint-geopolitical-policy-historical-20260925:constraint-physical-dependency/data/eia_us_refinery_capacity_2020_2026.csv",
+        "refs/remotes/origin/constraint-geopolitical-policy-historical-20260925:constraint-physical-dependency/data/eia_us_refinery_utilization_2020_2025.csv",
+        "refs/remotes/origin/constraint-geopolitical-policy-historical-20260925:constraint-physical-dependency/data/historical_physical_dependency.schema.json",
+        "refs/remotes/origin/constraint-geopolitical-policy-historical-20260925:constraint-physical-dependency/data/sourced_policy_case_physical_graph.json",
+        "refs/remotes/origin/constraint-geopolitical-policy-historical-20260925:constraint-physical-dependency/src/hydra_constraint_physical/models.py",
+        "refs/remotes/origin/constraint-geopolitical-policy-historical-20260925:constraint-physical-dependency/src/hydra_constraint_physical/validation.py",
+        "refs/remotes/origin/constraint-geopolitical-policy-historical-20260925:constraint-physical-dependency/tests/test_sourced_policy_case_graph.py",
+        "refs/remotes/origin/constraint-geopolitical-policy-historical-20260925:constraint-replay/EVALUATION_REPORT.md",
+        "refs/remotes/origin/constraint-geopolitical-policy-historical-20260925:constraint-replay/README.md",
+        "refs/remotes/origin/constraint-geopolitical-policy-historical-20260925:constraint-replay/contracts/replay_case.schema.json",
+        "refs/remotes/origin/constraint-geopolitical-policy-historical-20260925:constraint-replay/src/hydra_constraint_replay/models.py"
+      ],
+      "search_exit": 0
+    },
+    {
+      "ref": "refs/remotes/origin/constraint-geopolitical-policy-historical-batch2-20260925",
+      "commit": "2407b3e19196c105c99544751b4ddd5616017349",
+      "matching_paths": [
+        "refs/remotes/origin/constraint-geopolitical-policy-historical-batch2-20260925:.gitignore",
+        "refs/remotes/origin/constraint-geopolitical-policy-historical-batch2-20260925:archive/internal-build-history/thread4_public_alignment_20260924/NYX_CI_PIPELINE_PARALLEL_HARDENING_T1_T5_BATCH67_HOST_BUILD_READY_V001 (1).zip",
+        "refs/remotes/origin/constraint-geopolitical-policy-historical-batch2-20260925:archive/internal-build-history/thread4_public_alignment_20260924/NYX_CI_PIPELINE_PARALLEL_HARDENING_T1_T5_BATCH67_HOST_BUILD_READY_V001 (2).zip",
+        "refs/remotes/origin/constraint-geopolitical-policy-historical-batch2-20260925:archive/internal-build-history/thread4_public_alignment_20260924/NYX_CI_PIPELINE_PARALLEL_HARDENING_T1_T5_BATCH67_HOST_BUILD_READY_V001.zip",
+        "refs/remotes/origin/constraint-geopolitical-policy-historical-batch2-20260925:archive/internal-build-history/thread4_public_alignment_20260924/NYX_CI_PIPELINE_PARALLEL_HARDENING_T1_T5_BATCH68_HOST_BUILD_READY_V001.zip",
+        "refs/remotes/origin/constraint-geopolitical-policy-historical-batch2-20260925:constraint-geopolitical-policy/README.md",
+        "refs/remotes/origin/constraint-geopolitical-policy-historical-batch2-20260925:constraint-geopolitical-policy/data/sourced_historical_cases.json",
+        "refs/remotes/origin/constraint-geopolitical-policy-historical-batch2-20260925:constraint-geopolitical-policy/tests/test_policy_history.py",
+        "refs/remotes/origin/constraint-geopolitical-policy-historical-batch2-20260925:constraint-geopolitical-policy/tests/test_sourced_case_studies.py",
+        "refs/remotes/origin/constraint-geopolitical-policy-historical-batch2-20260925:constraint-physical-dependency/README.md",
+        "refs/remotes/origin/constraint-geopolitical-policy-historical-batch2-20260925:constraint-physical-dependency/data/eia_refinery_regional_capacity_2020_2025.csv",
+        "refs/remotes/origin/constraint-geopolitical-policy-historical-batch2-20260925:constraint-physical-dependency/data/eia_us_refinery_capacity_2020_2026.csv",
+        "refs/remotes/origin/constraint-geopolitical-policy-historical-batch2-20260925:constraint-physical-dependency/data/eia_us_refinery_utilization_2020_2025.csv",
+        "refs/remotes/origin/constraint-geopolitical-policy-historical-batch2-20260925:constraint-physical-dependency/data/historical_physical_dependency.schema.json",
+        "refs/remotes/origin/constraint-geopolitical-policy-historical-batch2-20260925:constraint-physical-dependency/data/sourced_policy_case_physical_graph.json",
+        "refs/remotes/origin/constraint-geopolitical-policy-historical-batch2-20260925:constraint-physical-dependency/src/hydra_constraint_physical/models.py",
+        "refs/remotes/origin/constraint-geopolitical-policy-historical-batch2-20260925:constraint-physical-dependency/src/hydra_constraint_physical/validation.py",
+        "refs/remotes/origin/constraint-geopolitical-policy-historical-batch2-20260925:constraint-physical-dependency/tests/test_sourced_policy_case_graph.py",
+        "refs/remotes/origin/constraint-geopolitical-policy-historical-batch2-20260925:constraint-replay/EVALUATION_REPORT.md",
+        "refs/remotes/origin/constraint-geopolitical-policy-historical-batch2-20260925:constraint-replay/README.md",
+        "refs/remotes/origin/constraint-geopolitical-policy-historical-batch2-20260925:constraint-replay/contracts/replay_case.schema.json",
+        "refs/remotes/origin/constraint-geopolitical-policy-historical-batch2-20260925:constraint-replay/src/hydra_constraint_replay/models.py"
+      ],
+      "search_exit": 0
+    },
+    {
+      "ref": "refs/remotes/origin/constraint-geopolitical-policy-historical-batch3-20260925",
+      "commit": "59f57a83e704220f09c2436df988f575ebc708f5",
+      "matching_paths": [
+        "refs/remotes/origin/constraint-geopolitical-policy-historical-batch3-20260925:.gitignore",
+        "refs/remotes/origin/constraint-geopolitical-policy-historical-batch3-20260925:archive/internal-build-history/thread4_public_alignment_20260924/NYX_CI_PIPELINE_PARALLEL_HARDENING_T1_T5_BATCH67_HOST_BUILD_READY_V001 (1).zip",
+        "refs/remotes/origin/constraint-geopolitical-policy-historical-batch3-20260925:archive/internal-build-history/thread4_public_alignment_20260924/NYX_CI_PIPELINE_PARALLEL_HARDENING_T1_T5_BATCH67_HOST_BUILD_READY_V001 (2).zip",
+        "refs/remotes/origin/constraint-geopolitical-policy-historical-batch3-20260925:archive/internal-build-history/thread4_public_alignment_20260924/NYX_CI_PIPELINE_PARALLEL_HARDENING_T1_T5_BATCH67_HOST_BUILD_READY_V001.zip",
+        "refs/remotes/origin/constraint-geopolitical-policy-historical-batch3-20260925:archive/internal-build-history/thread4_public_alignment_20260924/NYX_CI_PIPELINE_PARALLEL_HARDENING_T1_T5_BATCH68_HOST_BUILD_READY_V001.zip",
+        "refs/remotes/origin/constraint-geopolitical-policy-historical-batch3-20260925:constraint-geopolitical-policy/README.md",
+        "refs/remotes/origin/constraint-geopolitical-policy-historical-batch3-20260925:constraint-geopolitical-policy/data/sourced_historical_cases.json",
+        "refs/remotes/origin/constraint-geopolitical-policy-historical-batch3-20260925:constraint-geopolitical-policy/tests/test_policy_history.py",
+        "refs/remotes/origin/constraint-geopolitical-policy-historical-batch3-20260925:constraint-geopolitical-policy/tests/test_sourced_case_studies.py",
+        "refs/remotes/origin/constraint-geopolitical-policy-historical-batch3-20260925:constraint-physical-dependency/README.md",
+        "refs/remotes/origin/constraint-geopolitical-policy-historical-batch3-20260925:constraint-physical-dependency/data/eia_refinery_regional_capacity_2020_2025.csv",
+        "refs/remotes/origin/constraint-geopolitical-policy-historical-batch3-20260925:constraint-physical-dependency/data/eia_us_refinery_capacity_2020_2026.csv",
+        "refs/remotes/origin/constraint-geopolitical-policy-historical-batch3-20260925:constraint-physical-dependency/data/eia_us_refinery_utilization_2020_2025.csv",
+        "refs/remotes/origin/constraint-geopolitical-policy-historical-batch3-20260925:constraint-physical-dependency/data/historical_physical_dependency.schema.json",
+        "refs/remotes/origin/constraint-geopolitical-policy-historical-batch3-20260925:constraint-physical-dependency/data/sourced_policy_case_physical_graph.json",
+        "refs/remotes/origin/constraint-geopolitical-policy-historical-batch3-20260925:constraint-physical-dependency/src/hydra_constraint_physical/models.py",
+        "refs/remotes/origin/constraint-geopolitical-policy-historical-batch3-20260925:constraint-physical-dependency/src/hydra_constraint_physical/validation.py",
+        "refs/remotes/origin/constraint-geopolitical-policy-historical-batch3-20260925:constraint-physical-dependency/tests/test_sourced_policy_case_graph.py",
+        "refs/remotes/origin/constraint-geopolitical-policy-historical-batch3-20260925:constraint-replay/EVALUATION_REPORT.md",
+        "refs/remotes/origin/constraint-geopolitical-policy-historical-batch3-20260925:constraint-replay/README.md",
+        "refs/remotes/origin/constraint-geopolitical-policy-historical-batch3-20260925:constraint-replay/contracts/replay_case.schema.json",
+        "refs/remotes/origin/constraint-geopolitical-policy-historical-batch3-20260925:constraint-replay/src/hydra_constraint_replay/models.py"
+      ],
+      "search_exit": 0
+    },
+    {
+      "ref": "refs/remotes/origin/constraint-geopolitical-policy-historical-batch4-20260925",
+      "commit": "bbce5ef7fbfc6e9fdc36b30cc0b3f89ef0e5f4a8",
+      "matching_paths": [
+        "refs/remotes/origin/constraint-geopolitical-policy-historical-batch4-20260925:.gitignore",
+        "refs/remotes/origin/constraint-geopolitical-policy-historical-batch4-20260925:archive/internal-build-history/thread4_public_alignment_20260924/NYX_CI_PIPELINE_PARALLEL_HARDENING_T1_T5_BATCH67_HOST_BUILD_READY_V001 (1).zip",
+        "refs/remotes/origin/constraint-geopolitical-policy-historical-batch4-20260925:archive/internal-build-history/thread4_public_alignment_20260924/NYX_CI_PIPELINE_PARALLEL_HARDENING_T1_T5_BATCH67_HOST_BUILD_READY_V001 (2).zip",
+        "refs/remotes/origin/constraint-geopolitical-policy-historical-batch4-20260925:archive/internal-build-history/thread4_public_alignment_20260924/NYX_CI_PIPELINE_PARALLEL_HARDENING_T1_T5_BATCH67_HOST_BUILD_READY_V001.zip",
+        "refs/remotes/origin/constraint-geopolitical-policy-historical-batch4-20260925:archive/internal-build-history/thread4_public_alignment_20260924/NYX_CI_PIPELINE_PARALLEL_HARDENING_T1_T5_BATCH68_HOST_BUILD_READY_V001.zip",
+        "refs/remotes/origin/constraint-geopolitical-policy-historical-batch4-20260925:constraint-geopolitical-policy/README.md",
+        "refs/remotes/origin/constraint-geopolitical-policy-historical-batch4-20260925:constraint-geopolitical-policy/data/HYDRA_CONSTRAINT_GEOPOLITICAL_POLICY_BATCH004_SOURCED_HISTORICAL_CASES_20260925.json",
+        "refs/remotes/origin/constraint-geopolitical-policy-historical-batch4-20260925:constraint-geopolitical-policy/data/sourced_historical_cases.json",
+        "refs/remotes/origin/constraint-geopolitical-policy-historical-batch4-20260925:constraint-geopolitical-policy/docs/HYDRA_CONSTRAINT_GEOPOLITICAL_POLICY_BATCH004_STATE_TRANSITION_CAPACITY_REPORT_20260925.md",
+        "refs/remotes/origin/constraint-geopolitical-policy-historical-batch4-20260925:constraint-geopolitical-policy/tests/test_HYDRA_CONSTRAINT_GEOPOLITICAL_POLICY_BATCH004_end_to_end_20260925.py",
+        "refs/remotes/origin/constraint-geopolitical-policy-historical-batch4-20260925:constraint-geopolitical-policy/tests/test_policy_history.py",
+        "refs/remotes/origin/constraint-geopolitical-policy-historical-batch4-20260925:constraint-geopolitical-policy/tests/test_sourced_case_studies.py",
+        "refs/remotes/origin/constraint-geopolitical-policy-historical-batch4-20260925:constraint-physical-dependency/README.md",
+        "refs/remotes/origin/constraint-geopolitical-policy-historical-batch4-20260925:constraint-physical-dependency/data/HYDRA_CONSTRAINT_PHYSICAL_POLICY_BATCH004_SOURCE_REGISTER_20260925.md",
+        "refs/remotes/origin/constraint-geopolitical-policy-historical-batch4-20260925:constraint-physical-dependency/data/HYDRA_CONSTRAINT_PHYSICAL_POLICY_GRAPH_BATCH004_SOURCED_20260925.json",
+        "refs/remotes/origin/constraint-geopolitical-policy-historical-batch4-20260925:constraint-physical-dependency/data/eia_refinery_regional_capacity_2020_2025.csv",
+        "refs/remotes/origin/constraint-geopolitical-policy-historical-batch4-20260925:constraint-physical-dependency/data/eia_us_refinery_capacity_2020_2026.csv",
+        "refs/remotes/origin/constraint-geopolitical-policy-historical-batch4-20260925:constraint-physical-dependency/data/eia_us_refinery_utilization_2020_2025.csv",
+        "refs/remotes/origin/constraint-geopolitical-policy-historical-batch4-20260925:constraint-physical-dependency/data/historical_physical_dependency.schema.json",
+        "refs/remotes/origin/constraint-geopolitical-policy-historical-batch4-20260925:constraint-physical-dependency/data/sourced_policy_case_physical_graph.json",
+        "refs/remotes/origin/constraint-geopolitical-policy-historical-batch4-20260925:constraint-physical-dependency/src/hydra_constraint_physical/models.py",
+        "refs/remotes/origin/constraint-geopolitical-policy-historical-batch4-20260925:constraint-physical-dependency/src/hydra_constraint_physical/sourced_case_graph.py",
+        "refs/remotes/origin/constraint-geopolitical-policy-historical-batch4-20260925:constraint-physical-dependency/src/hydra_constraint_physical/validation.py",
+        "refs/remotes/origin/constraint-geopolitical-policy-historical-batch4-20260925:constraint-physical-dependency/tests/test_sourced_policy_case_graph.py",
+        "refs/remotes/origin/constraint-geopolitical-policy-historical-batch4-20260925:constraint-replay/EVALUATION_REPORT.md",
+        "refs/remotes/origin/constraint-geopolitical-policy-historical-batch4-20260925:constraint-replay/README.md",
+        "refs/remotes/origin/constraint-geopolitical-policy-historical-batch4-20260925:constraint-replay/contracts/replay_case.schema.json",
+        "refs/remotes/origin/constraint-geopolitical-policy-historical-batch4-20260925:constraint-replay/src/hydra_constraint_replay/models.py"
+      ],
+      "search_exit": 0
+    },
+    {
+      "ref": "refs/remotes/origin/constraint-geopolitical-policy-historical-batch5-20260925",
+      "commit": "d6340be61c820f9f9e589dd4509f46ae75af7afe",
+      "matching_paths": [
+        "refs/remotes/origin/constraint-geopolitical-policy-historical-batch5-20260925:.gitignore",
+        "refs/remotes/origin/constraint-geopolitical-policy-historical-batch5-20260925:archive/internal-build-history/thread4_public_alignment_20260924/NYX_CI_PIPELINE_PARALLEL_HARDENING_T1_T5_BATCH67_HOST_BUILD_READY_V001 (1).zip",
+        "refs/remotes/origin/constraint-geopolitical-policy-historical-batch5-20260925:archive/internal-build-history/thread4_public_alignment_20260924/NYX_CI_PIPELINE_PARALLEL_HARDENING_T1_T5_BATCH67_HOST_BUILD_READY_V001 (2).zip",
+        "refs/remotes/origin/constraint-geopolitical-policy-historical-batch5-20260925:archive/internal-build-history/thread4_public_alignment_20260924/NYX_CI_PIPELINE_PARALLEL_HARDENING_T1_T5_BATCH67_HOST_BUILD_READY_V001.zip",
+        "refs/remotes/origin/constraint-geopolitical-policy-historical-batch5-20260925:archive/internal-build-history/thread4_public_alignment_20260924/NYX_CI_PIPELINE_PARALLEL_HARDENING_T1_T5_BATCH68_HOST_BUILD_READY_V001.zip",
+        "refs/remotes/origin/constraint-geopolitical-policy-historical-batch5-20260925:constraint-geopolitical-policy/README.md",
+        "refs/remotes/origin/constraint-geopolitical-policy-historical-batch5-20260925:constraint-geopolitical-policy/data/HYDRA_CONSTRAINT_GEOPOLITICAL_POLICY_BATCH004_SOURCED_HISTORICAL_CASES_20260925.json",
+        "refs/remotes/origin/constraint-geopolitical-policy-historical-batch5-20260925:constraint-geopolitical-policy/data/sourced_historical_cases.json",
+        "refs/remotes/origin/constraint-geopolitical-policy-historical-batch5-20260925:constraint-geopolitical-policy/docs/HYDRA_CONSTRAINT_GEOPOLITICAL_POLICY_BATCH004_STATE_TRANSITION_CAPACITY_REPORT_20260925.md",
+        "refs/remotes/origin/constraint-geopolitical-policy-historical-batch5-20260925:constraint-geopolitical-policy/tests/test_HYDRA_CONSTRAINT_GEOPOLITICAL_POLICY_BATCH004_end_to_end_20260925.py",
+        "refs/remotes/origin/constraint-geopolitical-policy-historical-batch5-20260925:constraint-geopolitical-policy/tests/test_policy_history.py",
+        "refs/remotes/origin/constraint-geopolitical-policy-historical-batch5-20260925:constraint-geopolitical-policy/tests/test_sourced_case_studies.py",
+        "refs/remotes/origin/constraint-geopolitical-policy-historical-batch5-20260925:constraint-physical-dependency/README.md",
+        "refs/remotes/origin/constraint-geopolitical-policy-historical-batch5-20260925:constraint-physical-dependency/data/HYDRA_CONSTRAINT_PHYSICAL_POLICY_BATCH004_SOURCE_REGISTER_20260925.md",
+        "refs/remotes/origin/constraint-geopolitical-policy-historical-batch5-20260925:constraint-physical-dependency/data/HYDRA_CONSTRAINT_PHYSICAL_POLICY_GRAPH_BATCH004_SOURCED_20260925.json",
+        "refs/remotes/origin/constraint-geopolitical-policy-historical-batch5-20260925:constraint-physical-dependency/data/eia_refinery_regional_capacity_2020_2025.csv",
+        "refs/remotes/origin/constraint-geopolitical-policy-historical-batch5-20260925:constraint-physical-dependency/data/eia_us_refinery_capacity_2020_2026.csv",
+        "refs/remotes/origin/constraint-geopolitical-policy-historical-batch5-20260925:constraint-physical-dependency/data/eia_us_refinery_utilization_2020_2025.csv",
+        "refs/remotes/origin/constraint-geopolitical-policy-historical-batch5-20260925:constraint-physical-dependency/data/historical_physical_dependency.schema.json",
+        "refs/remotes/origin/constraint-geopolitical-policy-historical-batch5-20260925:constraint-physical-dependency/data/sourced_policy_case_physical_graph.json",
+        "refs/remotes/origin/constraint-geopolitical-policy-historical-batch5-20260925:constraint-physical-dependency/src/hydra_constraint_physical/models.py",
+        "refs/remotes/origin/constraint-geopolitical-policy-historical-batch5-20260925:constraint-physical-dependency/src/hydra_constraint_physical/sourced_case_graph.py",
+        "refs/remotes/origin/constraint-geopolitical-policy-historical-batch5-20260925:constraint-physical-dependency/src/hydra_constraint_physical/validation.py",
+        "refs/remotes/origin/constraint-geopolitical-policy-historical-batch5-20260925:constraint-physical-dependency/tests/test_sourced_policy_case_graph.py",
+        "refs/remotes/origin/constraint-geopolitical-policy-historical-batch5-20260925:constraint-replay/EVALUATION_REPORT.md",
+        "refs/remotes/origin/constraint-geopolitical-policy-historical-batch5-20260925:constraint-replay/README.md",
+        "refs/remotes/origin/constraint-geopolitical-policy-historical-batch5-20260925:constraint-replay/contracts/replay_case.schema.json",
+        "refs/remotes/origin/constraint-geopolitical-policy-historical-batch5-20260925:constraint-replay/corpus/HYDRA_CONSTRAINT_REPLAY_READY_CORPUS_BATCH005_20260925.jsonl",
+        "refs/remotes/origin/constraint-geopolitical-policy-historical-batch5-20260925:constraint-replay/src/hydra_constraint_replay/models.py"
+      ],
+      "search_exit": 0
+    },
+    {
+      "ref": "refs/remotes/origin/constraint-historical-replay-20260925",
+      "commit": "e5e4dec5598ecfe422fe4cf3138a4bb87936ff5e",
+      "matching_paths": [
+        "refs/remotes/origin/constraint-historical-replay-20260925:.gitignore",
+        "refs/remotes/origin/constraint-historical-replay-20260925:archive/internal-build-history/thread4_public_alignment_20260924/NYX_CI_PIPELINE_PARALLEL_HARDENING_T1_T5_BATCH67_HOST_BUILD_READY_V001 (1).zip",
+        "refs/remotes/origin/constraint-historical-replay-20260925:archive/internal-build-history/thread4_public_alignment_20260924/NYX_CI_PIPELINE_PARALLEL_HARDENING_T1_T5_BATCH67_HOST_BUILD_READY_V001 (2).zip",
+        "refs/remotes/origin/constraint-historical-replay-20260925:archive/internal-build-history/thread4_public_alignment_20260924/NYX_CI_PIPELINE_PARALLEL_HARDENING_T1_T5_BATCH67_HOST_BUILD_READY_V001.zip",
+        "refs/remotes/origin/constraint-historical-replay-20260925:archive/internal-build-history/thread4_public_alignment_20260924/NYX_CI_PIPELINE_PARALLEL_HARDENING_T1_T5_BATCH68_HOST_BUILD_READY_V001.zip",
+        "refs/remotes/origin/constraint-historical-replay-20260925:constraint-replay/EVALUATION_REPORT.md",
+        "refs/remotes/origin/constraint-historical-replay-20260925:constraint-replay/README.md",
+        "refs/remotes/origin/constraint-historical-replay-20260925:constraint-replay/contracts/replay_case.schema.json",
+        "refs/remotes/origin/constraint-historical-replay-20260925:constraint-replay/src/hydra_constraint_replay/models.py"
+      ],
+      "search_exit": 0
+    },
+    {
+      "ref": "refs/remotes/origin/constraint-replay-outcome-enrichment-batch7-20260926",
+      "commit": "4573fda6bf0c602789d0bd8aef9bb972a26ba3f8",
+      "matching_paths": [
+        "refs/remotes/origin/constraint-replay-outcome-enrichment-batch7-20260926:.gitignore",
+        "refs/remotes/origin/constraint-replay-outcome-enrichment-batch7-20260926:archive/internal-build-history/thread4_public_alignment_20260924/NYX_CI_PIPELINE_PARALLEL_HARDENING_T1_T5_BATCH67_HOST_BUILD_READY_V001 (1).zip",
+        "refs/remotes/origin/constraint-replay-outcome-enrichment-batch7-20260926:archive/internal-build-history/thread4_public_alignment_20260924/NYX_CI_PIPELINE_PARALLEL_HARDENING_T1_T5_BATCH67_HOST_BUILD_READY_V001 (2).zip",
+        "refs/remotes/origin/constraint-replay-outcome-enrichment-batch7-20260926:archive/internal-build-history/thread4_public_alignment_20260924/NYX_CI_PIPELINE_PARALLEL_HARDENING_T1_T5_BATCH67_HOST_BUILD_READY_V001.zip",
+        "refs/remotes/origin/constraint-replay-outcome-enrichment-batch7-20260926:archive/internal-build-history/thread4_public_alignment_20260924/NYX_CI_PIPELINE_PARALLEL_HARDENING_T1_T5_BATCH68_HOST_BUILD_READY_V001.zip",
+        "refs/remotes/origin/constraint-replay-outcome-enrichment-batch7-20260926:constraint-geopolitical-policy/README.md",
+        "refs/remotes/origin/constraint-replay-outcome-enrichment-batch7-20260926:constraint-geopolitical-policy/data/HYDRA_CONSTRAINT_GEOPOLITICAL_POLICY_BATCH004_SOURCED_HISTORICAL_CASES_20260925.json",
+        "refs/remotes/origin/constraint-replay-outcome-enrichment-batch7-20260926:constraint-geopolitical-policy/data/sourced_historical_cases.json",
+        "refs/remotes/origin/constraint-replay-outcome-enrichment-batch7-20260926:constraint-geopolitical-policy/docs/HYDRA_CONSTRAINT_GEOPOLITICAL_POLICY_BATCH004_STATE_TRANSITION_CAPACITY_REPORT_20260925.md",
+        "refs/remotes/origin/constraint-replay-outcome-enrichment-batch7-20260926:constraint-geopolitical-policy/tests/test_HYDRA_CONSTRAINT_GEOPOLITICAL_POLICY_BATCH004_end_to_end_20260925.py",
+        "refs/remotes/origin/constraint-replay-outcome-enrichment-batch7-20260926:constraint-geopolitical-policy/tests/test_policy_history.py",
+        "refs/remotes/origin/constraint-replay-outcome-enrichment-batch7-20260926:constraint-geopolitical-policy/tests/test_sourced_case_studies.py",
+        "refs/remotes/origin/constraint-replay-outcome-enrichment-batch7-20260926:constraint-physical-dependency/README.md",
+        "refs/remotes/origin/constraint-replay-outcome-enrichment-batch7-20260926:constraint-physical-dependency/data/HYDRA_CONSTRAINT_PHYSICAL_POLICY_BATCH004_SOURCE_REGISTER_20260925.md",
+        "refs/remotes/origin/constraint-replay-outcome-enrichment-batch7-20260926:constraint-physical-dependency/data/HYDRA_CONSTRAINT_PHYSICAL_POLICY_GRAPH_BATCH004_SOURCED_20260925.json",
+        "refs/remotes/origin/constraint-replay-outcome-enrichment-batch7-20260926:constraint-physical-dependency/data/eia_refinery_regional_capacity_2020_2025.csv",
+        "refs/remotes/origin/constraint-replay-outcome-enrichment-batch7-20260926:constraint-physical-dependency/data/eia_us_refinery_capacity_2020_2026.csv",
+        "refs/remotes/origin/constraint-replay-outcome-enrichment-batch7-20260926:constraint-physical-dependency/data/eia_us_refinery_utilization_2020_2025.csv",
+        "refs/remotes/origin/constraint-replay-outcome-enrichment-batch7-20260926:constraint-physical-dependency/data/historical_physical_dependency.schema.json",
+        "refs/remotes/origin/constraint-replay-outcome-enrichment-batch7-20260926:constraint-physical-dependency/data/sourced_policy_case_physical_graph.json",
+        "refs/remotes/origin/constraint-replay-outcome-enrichment-batch7-20260926:constraint-physical-dependency/src/hydra_constraint_physical/models.py",
+        "refs/remotes/origin/constraint-replay-outcome-enrichment-batch7-20260926:constraint-physical-dependency/src/hydra_constraint_physical/sourced_case_graph.py",
+        "refs/remotes/origin/constraint-replay-outcome-enrichment-batch7-20260926:constraint-physical-dependency/src/hydra_constraint_physical/validation.py",
+        "refs/remotes/origin/constraint-replay-outcome-enrichment-batch7-20260926:constraint-physical-dependency/tests/test_sourced_policy_case_graph.py",
+        "refs/remotes/origin/constraint-replay-outcome-enrichment-batch7-20260926:constraint-replay/EVALUATION_REPORT.md",
+        "refs/remotes/origin/constraint-replay-outcome-enrichment-batch7-20260926:constraint-replay/README.md",
+        "refs/remotes/origin/constraint-replay-outcome-enrichment-batch7-20260926:constraint-replay/contracts/replay_case.schema.json",
+        "refs/remotes/origin/constraint-replay-outcome-enrichment-batch7-20260926:constraint-replay/corpus/HYDRA_CONSTRAINT_REPLAY_PROMOTION_AUDIT_BATCH006_20260925.json",
+        "refs/remotes/origin/constraint-replay-outcome-enrichment-batch7-20260926:constraint-replay/corpus/HYDRA_CONSTRAINT_REPLAY_PROMOTION_AUDIT_BATCH007_20260926.json",
+        "refs/remotes/origin/constraint-replay-outcome-enrichment-batch7-20260926:constraint-replay/corpus/HYDRA_CONSTRAINT_REPLAY_READY_CORPUS_BATCH005_20260925.jsonl",
+        "refs/remotes/origin/constraint-replay-outcome-enrichment-batch7-20260926:constraint-replay/src/hydra_constraint_replay/models.py"
+      ],
+      "search_exit": 0
+    },
+    {
+      "ref": "refs/remotes/origin/constraint-replay-promotion-audit-batch6-20260925",
+      "commit": "14c9a8e3a7f65546311fa424250dd0bada1ac82c",
+      "matching_paths": [
+        "refs/remotes/origin/constraint-replay-promotion-audit-batch6-20260925:.gitignore",
+        "refs/remotes/origin/constraint-replay-promotion-audit-batch6-20260925:archive/internal-build-history/thread4_public_alignment_20260924/NYX_CI_PIPELINE_PARALLEL_HARDENING_T1_T5_BATCH67_HOST_BUILD_READY_V001 (1).zip",
+        "refs/remotes/origin/constraint-replay-promotion-audit-batch6-20260925:archive/internal-build-history/thread4_public_alignment_20260924/NYX_CI_PIPELINE_PARALLEL_HARDENING_T1_T5_BATCH67_HOST_BUILD_READY_V001 (2).zip",
+        "refs/remotes/origin/constraint-replay-promotion-audit-batch6-20260925:archive/internal-build-history/thread4_public_alignment_20260924/NYX_CI_PIPELINE_PARALLEL_HARDENING_T1_T5_BATCH67_HOST_BUILD_READY_V001.zip",
+        "refs/remotes/origin/constraint-replay-promotion-audit-batch6-20260925:archive/internal-build-history/thread4_public_alignment_20260924/NYX_CI_PIPELINE_PARALLEL_HARDENING_T1_T5_BATCH68_HOST_BUILD_READY_V001.zip",
+        "refs/remotes/origin/constraint-replay-promotion-audit-batch6-20260925:constraint-geopolitical-policy/README.md",
+        "refs/remotes/origin/constraint-replay-promotion-audit-batch6-20260925:constraint-geopolitical-policy/data/HYDRA_CONSTRAINT_GEOPOLITICAL_POLICY_BATCH004_SOURCED_HISTORICAL_CASES_20260925.json",
+        "refs/remotes/origin/constraint-replay-promotion-audit-batch6-20260925:constraint-geopolitical-policy/data/sourced_historical_cases.json",
+        "refs/remotes/origin/constraint-replay-promotion-audit-batch6-20260925:constraint-geopolitical-policy/docs/HYDRA_CONSTRAINT_GEOPOLITICAL_POLICY_BATCH004_STATE_TRANSITION_CAPACITY_REPORT_20260925.md",
+        "refs/remotes/origin/constraint-replay-promotion-audit-batch6-20260925:constraint-geopolitical-policy/tests/test_HYDRA_CONSTRAINT_GEOPOLITICAL_POLICY_BATCH004_end_to_end_20260925.py",
+        "refs/remotes/origin/constraint-replay-promotion-audit-batch6-20260925:constraint-geopolitical-policy/tests/test_policy_history.py",
+        "refs/remotes/origin/constraint-replay-promotion-audit-batch6-20260925:constraint-geopolitical-policy/tests/test_sourced_case_studies.py",
+        "refs/remotes/origin/constraint-replay-promotion-audit-batch6-20260925:constraint-physical-dependency/README.md",
+        "refs/remotes/origin/constraint-replay-promotion-audit-batch6-20260925:constraint-physical-dependency/data/HYDRA_CONSTRAINT_PHYSICAL_POLICY_BATCH004_SOURCE_REGISTER_20260925.md",
+        "refs/remotes/origin/constraint-replay-promotion-audit-batch6-20260925:constraint-physical-dependency/data/HYDRA_CONSTRAINT_PHYSICAL_POLICY_GRAPH_BATCH004_SOURCED_20260925.json",
+        "refs/remotes/origin/constraint-replay-promotion-audit-batch6-20260925:constraint-physical-dependency/data/eia_refinery_regional_capacity_2020_2025.csv",
+        "refs/remotes/origin/constraint-replay-promotion-audit-batch6-20260925:constraint-physical-dependency/data/eia_us_refinery_capacity_2020_2026.csv",
+        "refs/remotes/origin/constraint-replay-promotion-audit-batch6-20260925:constraint-physical-dependency/data/eia_us_refinery_utilization_2020_2025.csv",
+        "refs/remotes/origin/constraint-replay-promotion-audit-batch6-20260925:constraint-physical-dependency/data/historical_physical_dependency.schema.json",
+        "refs/remotes/origin/constraint-replay-promotion-audit-batch6-20260925:constraint-physical-dependency/data/sourced_policy_case_physical_graph.json",
+        "refs/remotes/origin/constraint-replay-promotion-audit-batch6-20260925:constraint-physical-dependency/src/hydra_constraint_physical/models.py",
+        "refs/remotes/origin/constraint-replay-promotion-audit-batch6-20260925:constraint-physical-dependency/src/hydra_constraint_physical/sourced_case_graph.py",
+        "refs/remotes/origin/constraint-replay-promotion-audit-batch6-20260925:constraint-physical-dependency/src/hydra_constraint_physical/validation.py",
+        "refs/remotes/origin/constraint-replay-promotion-audit-batch6-20260925:constraint-physical-dependency/tests/test_sourced_policy_case_graph.py",
+        "refs/remotes/origin/constraint-replay-promotion-audit-batch6-20260925:constraint-replay/EVALUATION_REPORT.md",
+        "refs/remotes/origin/constraint-replay-promotion-audit-batch6-20260925:constraint-replay/README.md",
+        "refs/remotes/origin/constraint-replay-promotion-audit-batch6-20260925:constraint-replay/contracts/replay_case.schema.json",
+        "refs/remotes/origin/constraint-replay-promotion-audit-batch6-20260925:constraint-replay/corpus/HYDRA_CONSTRAINT_REPLAY_PROMOTION_AUDIT_BATCH006_20260925.json",
+        "refs/remotes/origin/constraint-replay-promotion-audit-batch6-20260925:constraint-replay/corpus/HYDRA_CONSTRAINT_REPLAY_READY_CORPUS_BATCH005_20260925.jsonl",
+        "refs/remotes/origin/constraint-replay-promotion-audit-batch6-20260925:constraint-replay/src/hydra_constraint_replay/models.py"
+      ],
+      "search_exit": 0
+    },
+    {
+      "ref": "refs/remotes/origin/constraint-t6-successor-batch011-outcome-shadow-replay-20260925",
+      "commit": "117a4129eb23e3196ddcba9c4b43c694dbefb124",
+      "matching_paths": [
+        "refs/remotes/origin/constraint-t6-successor-batch011-outcome-shadow-replay-20260925:.gitignore",
+        "refs/remotes/origin/constraint-t6-successor-batch011-outcome-shadow-replay-20260925:docs/constraint/architecture/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH001_CAPABILITY_LEDGER_LINKAGE_V001_20260925.json",
+        "refs/remotes/origin/constraint-t6-successor-batch011-outcome-shadow-replay-20260925:docs/constraint/authority/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH001_AUTHORITY_MAP_V001_20260925.json",
+        "refs/remotes/origin/constraint-t6-successor-batch011-outcome-shadow-replay-20260925:docs/constraint/authority/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH001_STALE_SUPERSEDED_REGISTER_V001_20260925.json",
+        "refs/remotes/origin/constraint-t6-successor-batch011-outcome-shadow-replay-20260925:docs/constraint/first_slice/ai_data_center_power_infrastructure_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH003_AI_DATA_CENTER_POWER_INFRASTRUCTURE_FIELD_MATRIX_V001_20260925.json",
+        "refs/remotes/origin/constraint-t6-successor-batch011-outcome-shadow-replay-20260925:docs/constraint/first_slice/ai_data_center_power_infrastructure_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH010_AI_DATA_CENTER_POWER_INFRASTRUCTURE_BENEFICIARY_EVALUATIONS_V001_20260925.json",
+        "refs/remotes/origin/constraint-t6-successor-batch011-outcome-shadow-replay-20260925:docs/constraint/first_slice/ai_data_center_power_infrastructure_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH010_AI_DATA_CENTER_POWER_INFRASTRUCTURE_T5_CANDIDATE_PROPOSALS_V001_20260925.json",
+        "refs/remotes/origin/constraint-t6-successor-batch011-outcome-shadow-replay-20260925:docs/constraint/implementation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH002_NATIVE_T5_T6_ADMISSION_CONTRACT_V001_20260925.json",
+        "refs/remotes/origin/constraint-t6-successor-batch011-outcome-shadow-replay-20260925:docs/constraint/validation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH001_ARTIFACT_MANIFEST_V001_20260925.json",
+        "refs/remotes/origin/constraint-t6-successor-batch011-outcome-shadow-replay-20260925:docs/constraint/validation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH001_RECONCILIATION_REPORT_V001_20260925.md",
+        "refs/remotes/origin/constraint-t6-successor-batch011-outcome-shadow-replay-20260925:docs/constraint/validation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH003_AI_DATA_CENTER_POWER_INFRASTRUCTURE_POPULATION_REPORT_V001_20260925.md",
+        "refs/remotes/origin/constraint-t6-successor-batch011-outcome-shadow-replay-20260925:t6-fail-closed-validator/tests/test_first_slice_claim_candidate_beneficiary_population.py",
+        "refs/remotes/origin/constraint-t6-successor-batch011-outcome-shadow-replay-20260925:tools/test_constraint_first_slice_adversarial.py",
+        "refs/remotes/origin/constraint-t6-successor-batch011-outcome-shadow-replay-20260925:tools/validate_constraint_first_slice_successor.py"
+      ],
+      "search_exit": 0
+    },
+    {
+      "ref": "refs/remotes/origin/constraint-t6-successor-batch012-historical-cases-20260925",
+      "commit": "89d2e77971a51353ea64305259b684935e2d310e",
+      "matching_paths": [
+        "refs/remotes/origin/constraint-t6-successor-batch012-historical-cases-20260925:.gitignore",
+        "refs/remotes/origin/constraint-t6-successor-batch012-historical-cases-20260925:docs/constraint/architecture/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH001_CAPABILITY_LEDGER_LINKAGE_V001_20260925.json",
+        "refs/remotes/origin/constraint-t6-successor-batch012-historical-cases-20260925:docs/constraint/authority/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH001_AUTHORITY_MAP_V001_20260925.json",
+        "refs/remotes/origin/constraint-t6-successor-batch012-historical-cases-20260925:docs/constraint/authority/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH001_STALE_SUPERSEDED_REGISTER_V001_20260925.json",
+        "refs/remotes/origin/constraint-t6-successor-batch012-historical-cases-20260925:docs/constraint/first_slice/ai_data_center_power_infrastructure_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH003_AI_DATA_CENTER_POWER_INFRASTRUCTURE_FIELD_MATRIX_V001_20260925.json",
+        "refs/remotes/origin/constraint-t6-successor-batch012-historical-cases-20260925:docs/constraint/first_slice/ai_data_center_power_infrastructure_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH010_AI_DATA_CENTER_POWER_INFRASTRUCTURE_BENEFICIARY_EVALUATIONS_V001_20260925.json",
+        "refs/remotes/origin/constraint-t6-successor-batch012-historical-cases-20260925:docs/constraint/first_slice/ai_data_center_power_infrastructure_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH010_AI_DATA_CENTER_POWER_INFRASTRUCTURE_T5_CANDIDATE_PROPOSALS_V001_20260925.json",
+        "refs/remotes/origin/constraint-t6-successor-batch012-historical-cases-20260925:docs/constraint/first_slice/ai_data_center_power_infrastructure_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH012_AI_DATA_CENTER_POWER_INFRASTRUCTURE_OUTCOME_RECORDS_SUPPLEMENT_V001_20260925.json",
+        "refs/remotes/origin/constraint-t6-successor-batch012-historical-cases-20260925:docs/constraint/implementation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH002_NATIVE_T5_T6_ADMISSION_CONTRACT_V001_20260925.json",
+        "refs/remotes/origin/constraint-t6-successor-batch012-historical-cases-20260925:docs/constraint/validation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH001_ARTIFACT_MANIFEST_V001_20260925.json",
+        "refs/remotes/origin/constraint-t6-successor-batch012-historical-cases-20260925:docs/constraint/validation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH001_RECONCILIATION_REPORT_V001_20260925.md",
+        "refs/remotes/origin/constraint-t6-successor-batch012-historical-cases-20260925:docs/constraint/validation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH003_AI_DATA_CENTER_POWER_INFRASTRUCTURE_POPULATION_REPORT_V001_20260925.md",
+        "refs/remotes/origin/constraint-t6-successor-batch012-historical-cases-20260925:t6-fail-closed-validator/tests/test_first_slice_claim_candidate_beneficiary_population.py",
+        "refs/remotes/origin/constraint-t6-successor-batch012-historical-cases-20260925:tools/test_constraint_first_slice_adversarial.py",
+        "refs/remotes/origin/constraint-t6-successor-batch012-historical-cases-20260925:tools/validate_constraint_first_slice_successor.py"
+      ],
+      "search_exit": 0
+    },
+    {
+      "ref": "refs/remotes/origin/constraint-t6-successor-batch013-required-case-closure-20260925",
+      "commit": "2fe3d54b9a51d3b6b291293d6cecc2c97de2126e",
+      "matching_paths": [
+        "refs/remotes/origin/constraint-t6-successor-batch013-required-case-closure-20260925:.gitignore",
+        "refs/remotes/origin/constraint-t6-successor-batch013-required-case-closure-20260925:docs/constraint/architecture/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH001_CAPABILITY_LEDGER_LINKAGE_V001_20260925.json",
+        "refs/remotes/origin/constraint-t6-successor-batch013-required-case-closure-20260925:docs/constraint/architecture/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH013_CAPABILITY_LEDGER_DELTA_V001_20260925.json",
+        "refs/remotes/origin/constraint-t6-successor-batch013-required-case-closure-20260925:docs/constraint/architecture/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH013_MASTER_STATUS_V001_20260925.json",
+        "refs/remotes/origin/constraint-t6-successor-batch013-required-case-closure-20260925:docs/constraint/authority/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH001_AUTHORITY_MAP_V001_20260925.json",
+        "refs/remotes/origin/constraint-t6-successor-batch013-required-case-closure-20260925:docs/constraint/authority/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH001_STALE_SUPERSEDED_REGISTER_V001_20260925.json",
+        "refs/remotes/origin/constraint-t6-successor-batch013-required-case-closure-20260925:docs/constraint/first_slice/ai_data_center_power_infrastructure_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH003_AI_DATA_CENTER_POWER_INFRASTRUCTURE_FIELD_MATRIX_V001_20260925.json",
+        "refs/remotes/origin/constraint-t6-successor-batch013-required-case-closure-20260925:docs/constraint/first_slice/ai_data_center_power_infrastructure_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH010_AI_DATA_CENTER_POWER_INFRASTRUCTURE_BENEFICIARY_EVALUATIONS_V001_20260925.json",
+        "refs/remotes/origin/constraint-t6-successor-batch013-required-case-closure-20260925:docs/constraint/first_slice/ai_data_center_power_infrastructure_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH010_AI_DATA_CENTER_POWER_INFRASTRUCTURE_T5_CANDIDATE_PROPOSALS_V001_20260925.json",
+        "refs/remotes/origin/constraint-t6-successor-batch013-required-case-closure-20260925:docs/constraint/first_slice/ai_data_center_power_infrastructure_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH012_AI_DATA_CENTER_POWER_INFRASTRUCTURE_OUTCOME_RECORDS_SUPPLEMENT_V001_20260925.json",
+        "refs/remotes/origin/constraint-t6-successor-batch013-required-case-closure-20260925:docs/constraint/first_slice/ai_data_center_power_infrastructure_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH013_AI_DATA_CENTER_POWER_INFRASTRUCTURE_EATON_TRANSFORMER_PREQUALIFICATION_OVERLAY_V001_20260925.json",
+        "refs/remotes/origin/constraint-t6-successor-batch013-required-case-closure-20260925:docs/constraint/first_slice/ai_data_center_power_infrastructure_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH013_AI_DATA_CENTER_POWER_INFRASTRUCTURE_REQUIRED_CASE_001_002_006_CLOSURE_V001_20260925.json",
+        "refs/remotes/origin/constraint-t6-successor-batch013-required-case-closure-20260925:docs/constraint/first_slice/ai_data_center_power_infrastructure_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH013_AI_DATA_CENTER_POWER_INFRASTRUCTURE_REQUIRED_CASE_MATRIX_V001_20260925.json",
+        "refs/remotes/origin/constraint-t6-successor-batch013-required-case-closure-20260925:docs/constraint/implementation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH002_NATIVE_T5_T6_ADMISSION_CONTRACT_V001_20260925.json",
+        "refs/remotes/origin/constraint-t6-successor-batch013-required-case-closure-20260925:docs/constraint/validation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH001_ARTIFACT_MANIFEST_V001_20260925.json",
+        "refs/remotes/origin/constraint-t6-successor-batch013-required-case-closure-20260925:docs/constraint/validation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH001_RECONCILIATION_REPORT_V001_20260925.md",
+        "refs/remotes/origin/constraint-t6-successor-batch013-required-case-closure-20260925:docs/constraint/validation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH003_AI_DATA_CENTER_POWER_INFRASTRUCTURE_POPULATION_REPORT_V001_20260925.md",
+        "refs/remotes/origin/constraint-t6-successor-batch013-required-case-closure-20260925:docs/constraint/validation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH013_ARTIFACT_MANIFEST_V001_20260925.json",
+        "refs/remotes/origin/constraint-t6-successor-batch013-required-case-closure-20260925:docs/constraint/validation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH013_REQUIRED_CASE_MATRIX_CLOSURE_REPORT_V001_20260925.md",
+        "refs/remotes/origin/constraint-t6-successor-batch013-required-case-closure-20260925:t6-fail-closed-validator/tests/test_first_slice_claim_candidate_beneficiary_population.py",
+        "refs/remotes/origin/constraint-t6-successor-batch013-required-case-closure-20260925:t6-fail-closed-validator/tests/test_first_slice_required_case_closure.py",
+        "refs/remotes/origin/constraint-t6-successor-batch013-required-case-closure-20260925:tools/test_constraint_first_slice_adversarial.py",
+        "refs/remotes/origin/constraint-t6-successor-batch013-required-case-closure-20260925:tools/validate_constraint_first_slice_successor.py"
+      ],
+      "search_exit": 0
+    },
+    {
+      "ref": "refs/remotes/origin/constraint-t6-successor-batch014-strict-acceptance-20260925",
+      "commit": "0c0fe5424bfcb73542bbfddf6d0afe8200d5df10",
+      "matching_paths": [
+        "refs/remotes/origin/constraint-t6-successor-batch014-strict-acceptance-20260925:.gitignore",
+        "refs/remotes/origin/constraint-t6-successor-batch014-strict-acceptance-20260925:docs/constraint/architecture/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH001_CAPABILITY_LEDGER_LINKAGE_V001_20260925.json",
+        "refs/remotes/origin/constraint-t6-successor-batch014-strict-acceptance-20260925:docs/constraint/architecture/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH013_CAPABILITY_LEDGER_DELTA_V001_20260925.json",
+        "refs/remotes/origin/constraint-t6-successor-batch014-strict-acceptance-20260925:docs/constraint/architecture/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH013_MASTER_STATUS_V001_20260925.json",
+        "refs/remotes/origin/constraint-t6-successor-batch014-strict-acceptance-20260925:docs/constraint/authority/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH001_AUTHORITY_MAP_V001_20260925.json",
+        "refs/remotes/origin/constraint-t6-successor-batch014-strict-acceptance-20260925:docs/constraint/authority/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH001_STALE_SUPERSEDED_REGISTER_V001_20260925.json",
+        "refs/remotes/origin/constraint-t6-successor-batch014-strict-acceptance-20260925:docs/constraint/first_slice/ai_data_center_power_infrastructure_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH003_AI_DATA_CENTER_POWER_INFRASTRUCTURE_FIELD_MATRIX_V001_20260925.json",
+        "refs/remotes/origin/constraint-t6-successor-batch014-strict-acceptance-20260925:docs/constraint/first_slice/ai_data_center_power_infrastructure_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH010_AI_DATA_CENTER_POWER_INFRASTRUCTURE_BENEFICIARY_EVALUATIONS_V001_20260925.json",
+        "refs/remotes/origin/constraint-t6-successor-batch014-strict-acceptance-20260925:docs/constraint/first_slice/ai_data_center_power_infrastructure_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH010_AI_DATA_CENTER_POWER_INFRASTRUCTURE_T5_CANDIDATE_PROPOSALS_V001_20260925.json",
+        "refs/remotes/origin/constraint-t6-successor-batch014-strict-acceptance-20260925:docs/constraint/first_slice/ai_data_center_power_infrastructure_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH012_AI_DATA_CENTER_POWER_INFRASTRUCTURE_OUTCOME_RECORDS_SUPPLEMENT_V001_20260925.json",
+        "refs/remotes/origin/constraint-t6-successor-batch014-strict-acceptance-20260925:docs/constraint/first_slice/ai_data_center_power_infrastructure_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH013_AI_DATA_CENTER_POWER_INFRASTRUCTURE_EATON_TRANSFORMER_PREQUALIFICATION_OVERLAY_V001_20260925.json",
+        "refs/remotes/origin/constraint-t6-successor-batch014-strict-acceptance-20260925:docs/constraint/first_slice/ai_data_center_power_infrastructure_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH013_AI_DATA_CENTER_POWER_INFRASTRUCTURE_REQUIRED_CASE_001_002_006_CLOSURE_V001_20260925.json",
+        "refs/remotes/origin/constraint-t6-successor-batch014-strict-acceptance-20260925:docs/constraint/first_slice/ai_data_center_power_infrastructure_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH013_AI_DATA_CENTER_POWER_INFRASTRUCTURE_REQUIRED_CASE_MATRIX_V001_20260925.json",
+        "refs/remotes/origin/constraint-t6-successor-batch014-strict-acceptance-20260925:docs/constraint/first_slice/ai_data_center_power_infrastructure_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH014_AI_DATA_CENTER_POWER_INFRASTRUCTURE_STRICT_ACCEPTANCE_GATE_V001_20260925.json",
+        "refs/remotes/origin/constraint-t6-successor-batch014-strict-acceptance-20260925:docs/constraint/implementation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH002_NATIVE_T5_T6_ADMISSION_CONTRACT_V001_20260925.json",
+        "refs/remotes/origin/constraint-t6-successor-batch014-strict-acceptance-20260925:docs/constraint/validation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH001_ARTIFACT_MANIFEST_V001_20260925.json",
+        "refs/remotes/origin/constraint-t6-successor-batch014-strict-acceptance-20260925:docs/constraint/validation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH001_RECONCILIATION_REPORT_V001_20260925.md",
+        "refs/remotes/origin/constraint-t6-successor-batch014-strict-acceptance-20260925:docs/constraint/validation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH003_AI_DATA_CENTER_POWER_INFRASTRUCTURE_POPULATION_REPORT_V001_20260925.md",
+        "refs/remotes/origin/constraint-t6-successor-batch014-strict-acceptance-20260925:docs/constraint/validation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH013_ARTIFACT_MANIFEST_V001_20260925.json",
+        "refs/remotes/origin/constraint-t6-successor-batch014-strict-acceptance-20260925:docs/constraint/validation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH013_REQUIRED_CASE_MATRIX_CLOSURE_REPORT_V001_20260925.md",
+        "refs/remotes/origin/constraint-t6-successor-batch014-strict-acceptance-20260925:docs/constraint/validation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH014_AI_DATA_CENTER_POWER_INFRASTRUCTURE_STRICT_ACCEPTANCE_REPORT_V001_20260925.md",
+        "refs/remotes/origin/constraint-t6-successor-batch014-strict-acceptance-20260925:t6-fail-closed-validator/tests/test_first_slice_claim_candidate_beneficiary_population.py",
+        "refs/remotes/origin/constraint-t6-successor-batch014-strict-acceptance-20260925:t6-fail-closed-validator/tests/test_first_slice_required_case_closure.py",
+        "refs/remotes/origin/constraint-t6-successor-batch014-strict-acceptance-20260925:t6-fail-closed-validator/tests/test_first_slice_strict_acceptance.py",
+        "refs/remotes/origin/constraint-t6-successor-batch014-strict-acceptance-20260925:tools/nyx_test_constraint_successor_chain_adversarial.py",
+        "refs/remotes/origin/constraint-t6-successor-batch014-strict-acceptance-20260925:tools/nyx_validate_constraint_successor_chain.py",
+        "refs/remotes/origin/constraint-t6-successor-batch014-strict-acceptance-20260925:tools/test_constraint_first_slice_adversarial.py",
+        "refs/remotes/origin/constraint-t6-successor-batch014-strict-acceptance-20260925:tools/validate_constraint_first_slice_successor.py"
+      ],
+      "search_exit": 0
+    },
+    {
+      "ref": "refs/remotes/origin/constraint/lily-domain-reconciliation-closure-20260925",
+      "commit": "425ea997853e69bc41265fa1f142112cc7161329",
+      "matching_paths": [
+        "refs/remotes/origin/constraint/lily-domain-reconciliation-closure-20260925:.gitignore",
+        "refs/remotes/origin/constraint/lily-domain-reconciliation-closure-20260925:archive/internal-build-history/thread4_public_alignment_20260924/NYX_CI_PIPELINE_PARALLEL_HARDENING_T1_T5_BATCH67_HOST_BUILD_READY_V001 (1).zip",
+        "refs/remotes/origin/constraint/lily-domain-reconciliation-closure-20260925:archive/internal-build-history/thread4_public_alignment_20260924/NYX_CI_PIPELINE_PARALLEL_HARDENING_T1_T5_BATCH67_HOST_BUILD_READY_V001 (2).zip",
+        "refs/remotes/origin/constraint/lily-domain-reconciliation-closure-20260925:archive/internal-build-history/thread4_public_alignment_20260924/NYX_CI_PIPELINE_PARALLEL_HARDENING_T1_T5_BATCH67_HOST_BUILD_READY_V001.zip",
+        "refs/remotes/origin/constraint/lily-domain-reconciliation-closure-20260925:archive/internal-build-history/thread4_public_alignment_20260924/NYX_CI_PIPELINE_PARALLEL_HARDENING_T1_T5_BATCH68_HOST_BUILD_READY_V001.zip",
+        "refs/remotes/origin/constraint/lily-domain-reconciliation-closure-20260925:constraint-geopolitical-policy/README.md",
+        "refs/remotes/origin/constraint/lily-domain-reconciliation-closure-20260925:constraint-geopolitical-policy/data/HYDRA_CONSTRAINT_GEOPOLITICAL_POLICY_BATCH004_SOURCED_HISTORICAL_CASES_20260925.json",
+        "refs/remotes/origin/constraint/lily-domain-reconciliation-closure-20260925:constraint-geopolitical-policy/data/sourced_historical_cases.json",
+        "refs/remotes/origin/constraint/lily-domain-reconciliation-closure-20260925:constraint-geopolitical-policy/docs/HYDRA_CONSTRAINT_GEOPOLITICAL_POLICY_BATCH004_STATE_TRANSITION_CAPACITY_REPORT_20260925.md",
+        "refs/remotes/origin/constraint/lily-domain-reconciliation-closure-20260925:constraint-geopolitical-policy/tests/test_HYDRA_CONSTRAINT_GEOPOLITICAL_POLICY_BATCH004_end_to_end_20260925.py",
+        "refs/remotes/origin/constraint/lily-domain-reconciliation-closure-20260925:constraint-geopolitical-policy/tests/test_HYDRA_CONSTRAINT_LILY_DOMAIN_RECONCILIATION_CLOSURE_20260925.py",
+        "refs/remotes/origin/constraint/lily-domain-reconciliation-closure-20260925:constraint-geopolitical-policy/tests/test_policy_history.py",
+        "refs/remotes/origin/constraint/lily-domain-reconciliation-closure-20260925:constraint-geopolitical-policy/tests/test_sourced_case_studies.py",
+        "refs/remotes/origin/constraint/lily-domain-reconciliation-closure-20260925:constraint-physical-dependency/README.md",
+        "refs/remotes/origin/constraint/lily-domain-reconciliation-closure-20260925:constraint-physical-dependency/data/HYDRA_CONSTRAINT_PHYSICAL_POLICY_BATCH004_SOURCE_REGISTER_20260925.md",
+        "refs/remotes/origin/constraint/lily-domain-reconciliation-closure-20260925:constraint-physical-dependency/data/HYDRA_CONSTRAINT_PHYSICAL_POLICY_GRAPH_BATCH004_SOURCED_20260925.json",
+        "refs/remotes/origin/constraint/lily-domain-reconciliation-closure-20260925:constraint-physical-dependency/data/eia_refinery_regional_capacity_2020_2025.csv",
+        "refs/remotes/origin/constraint/lily-domain-reconciliation-closure-20260925:constraint-physical-dependency/data/eia_us_refinery_capacity_2020_2026.csv",
+        "refs/remotes/origin/constraint/lily-domain-reconciliation-closure-20260925:constraint-physical-dependency/data/eia_us_refinery_utilization_2020_2025.csv",
+        "refs/remotes/origin/constraint/lily-domain-reconciliation-closure-20260925:constraint-physical-dependency/data/historical_physical_dependency.schema.json",
+        "refs/remotes/origin/constraint/lily-domain-reconciliation-closure-20260925:constraint-physical-dependency/data/sourced_policy_case_physical_graph.json",
+        "refs/remotes/origin/constraint/lily-domain-reconciliation-closure-20260925:constraint-physical-dependency/docs/HYDRA_CONSTRAINT_LILY_DOMAIN_RECONCILIATION_CLOSURE_REPORT_20260925.md",
+        "refs/remotes/origin/constraint/lily-domain-reconciliation-closure-20260925:constraint-physical-dependency/src/hydra_constraint_physical/models.py",
+        "refs/remotes/origin/constraint/lily-domain-reconciliation-closure-20260925:constraint-physical-dependency/src/hydra_constraint_physical/sourced_case_graph.py",
+        "refs/remotes/origin/constraint/lily-domain-reconciliation-closure-20260925:constraint-physical-dependency/src/hydra_constraint_physical/validation.py",
+        "refs/remotes/origin/constraint/lily-domain-reconciliation-closure-20260925:constraint-physical-dependency/tests/test_physical_graph.py",
+        "refs/remotes/origin/constraint/lily-domain-reconciliation-closure-20260925:constraint-physical-dependency/tests/test_sourced_policy_case_graph.py",
+        "refs/remotes/origin/constraint/lily-domain-reconciliation-closure-20260925:constraint-replay/EVALUATION_REPORT.md",
+        "refs/remotes/origin/constraint/lily-domain-reconciliation-closure-20260925:constraint-replay/README.md",
+        "refs/remotes/origin/constraint/lily-domain-reconciliation-closure-20260925:constraint-replay/contracts/replay_case.schema.json",
+        "refs/remotes/origin/constraint/lily-domain-reconciliation-closure-20260925:constraint-replay/corpus/HYDRA_CONSTRAINT_REPLAY_READY_CORPUS_BATCH005_20260925.jsonl",
+        "refs/remotes/origin/constraint/lily-domain-reconciliation-closure-20260925:constraint-replay/src/hydra_constraint_replay/models.py"
+      ],
+      "search_exit": 0
+    },
+    {
+      "ref": "refs/remotes/origin/constraint/lily-owner-seam-reconciliation-v1-20260926",
+      "commit": "ee3c1b8179f77830547d5ed69589fb425d7d614e",
+      "matching_paths": [
+        "refs/remotes/origin/constraint/lily-owner-seam-reconciliation-v1-20260926:.gitignore",
+        "refs/remotes/origin/constraint/lily-owner-seam-reconciliation-v1-20260926:docs/constraint/architecture/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH001_CAPABILITY_LEDGER_LINKAGE_V001_20260925.json",
+        "refs/remotes/origin/constraint/lily-owner-seam-reconciliation-v1-20260926:docs/constraint/architecture/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH013_CAPABILITY_LEDGER_DELTA_V001_20260925.json",
+        "refs/remotes/origin/constraint/lily-owner-seam-reconciliation-v1-20260926:docs/constraint/architecture/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH013_MASTER_STATUS_V001_20260925.json",
+        "refs/remotes/origin/constraint/lily-owner-seam-reconciliation-v1-20260926:docs/constraint/authority/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH001_AUTHORITY_MAP_V001_20260925.json",
+        "refs/remotes/origin/constraint/lily-owner-seam-reconciliation-v1-20260926:docs/constraint/authority/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH001_STALE_SUPERSEDED_REGISTER_V001_20260925.json",
+        "refs/remotes/origin/constraint/lily-owner-seam-reconciliation-v1-20260926:docs/constraint/first_slice/ai_data_center_power_infrastructure_v1/HYDRA_CONSTRAINT_LILY_OWNER_SEAM_RECONCILIATION_T5_CANDIDATE_TEMPORAL_IDENTITY_OVERLAY_V001_20260926.json",
+        "refs/remotes/origin/constraint/lily-owner-seam-reconciliation-v1-20260926:docs/constraint/first_slice/ai_data_center_power_infrastructure_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH003_AI_DATA_CENTER_POWER_INFRASTRUCTURE_FIELD_MATRIX_V001_20260925.json",
+        "refs/remotes/origin/constraint/lily-owner-seam-reconciliation-v1-20260926:docs/constraint/first_slice/ai_data_center_power_infrastructure_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH010_AI_DATA_CENTER_POWER_INFRASTRUCTURE_BENEFICIARY_EVALUATIONS_V001_20260925.json",
+        "refs/remotes/origin/constraint/lily-owner-seam-reconciliation-v1-20260926:docs/constraint/first_slice/ai_data_center_power_infrastructure_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH010_AI_DATA_CENTER_POWER_INFRASTRUCTURE_T5_CANDIDATE_PROPOSALS_V001_20260925.json",
+        "refs/remotes/origin/constraint/lily-owner-seam-reconciliation-v1-20260926:docs/constraint/first_slice/ai_data_center_power_infrastructure_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH012_AI_DATA_CENTER_POWER_INFRASTRUCTURE_OUTCOME_RECORDS_SUPPLEMENT_V001_20260925.json",
+        "refs/remotes/origin/constraint/lily-owner-seam-reconciliation-v1-20260926:docs/constraint/first_slice/ai_data_center_power_infrastructure_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH013_AI_DATA_CENTER_POWER_INFRASTRUCTURE_EATON_TRANSFORMER_PREQUALIFICATION_OVERLAY_V001_20260925.json",
+        "refs/remotes/origin/constraint/lily-owner-seam-reconciliation-v1-20260926:docs/constraint/first_slice/ai_data_center_power_infrastructure_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH013_AI_DATA_CENTER_POWER_INFRASTRUCTURE_REQUIRED_CASE_001_002_006_CLOSURE_V001_20260925.json",
+        "refs/remotes/origin/constraint/lily-owner-seam-reconciliation-v1-20260926:docs/constraint/first_slice/ai_data_center_power_infrastructure_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH013_AI_DATA_CENTER_POWER_INFRASTRUCTURE_REQUIRED_CASE_MATRIX_V001_20260925.json",
+        "refs/remotes/origin/constraint/lily-owner-seam-reconciliation-v1-20260926:docs/constraint/first_slice/ai_data_center_power_infrastructure_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH014_AI_DATA_CENTER_POWER_INFRASTRUCTURE_STRICT_ACCEPTANCE_GATE_V001_20260925.json",
+        "refs/remotes/origin/constraint/lily-owner-seam-reconciliation-v1-20260926:docs/constraint/implementation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH002_NATIVE_T5_T6_ADMISSION_CONTRACT_V001_20260925.json",
+        "refs/remotes/origin/constraint/lily-owner-seam-reconciliation-v1-20260926:docs/constraint/validation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH001_ARTIFACT_MANIFEST_V001_20260925.json",
+        "refs/remotes/origin/constraint/lily-owner-seam-reconciliation-v1-20260926:docs/constraint/validation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH001_RECONCILIATION_REPORT_V001_20260925.md",
+        "refs/remotes/origin/constraint/lily-owner-seam-reconciliation-v1-20260926:docs/constraint/validation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH003_AI_DATA_CENTER_POWER_INFRASTRUCTURE_POPULATION_REPORT_V001_20260925.md",
+        "refs/remotes/origin/constraint/lily-owner-seam-reconciliation-v1-20260926:docs/constraint/validation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH013_ARTIFACT_MANIFEST_V001_20260925.json",
+        "refs/remotes/origin/constraint/lily-owner-seam-reconciliation-v1-20260926:docs/constraint/validation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH013_REQUIRED_CASE_MATRIX_CLOSURE_REPORT_V001_20260925.md",
+        "refs/remotes/origin/constraint/lily-owner-seam-reconciliation-v1-20260926:docs/constraint/validation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH014_AI_DATA_CENTER_POWER_INFRASTRUCTURE_STRICT_ACCEPTANCE_REPORT_V001_20260925.md",
+        "refs/remotes/origin/constraint/lily-owner-seam-reconciliation-v1-20260926:t6-fail-closed-validator/src/hydra_t6_failclosed/owner_seam_conformance.py",
+        "refs/remotes/origin/constraint/lily-owner-seam-reconciliation-v1-20260926:t6-fail-closed-validator/tests/test_first_slice_claim_candidate_beneficiary_population.py",
+        "refs/remotes/origin/constraint/lily-owner-seam-reconciliation-v1-20260926:t6-fail-closed-validator/tests/test_first_slice_required_case_closure.py",
+        "refs/remotes/origin/constraint/lily-owner-seam-reconciliation-v1-20260926:t6-fail-closed-validator/tests/test_first_slice_strict_acceptance.py",
+        "refs/remotes/origin/constraint/lily-owner-seam-reconciliation-v1-20260926:tools/nyx_test_constraint_successor_chain_adversarial.py",
+        "refs/remotes/origin/constraint/lily-owner-seam-reconciliation-v1-20260926:tools/nyx_validate_constraint_successor_chain.py",
+        "refs/remotes/origin/constraint/lily-owner-seam-reconciliation-v1-20260926:tools/test_constraint_first_slice_adversarial.py",
+        "refs/remotes/origin/constraint/lily-owner-seam-reconciliation-v1-20260926:tools/validate_constraint_first_slice_successor.py"
+      ],
+      "search_exit": 0
+    },
+    {
+      "ref": "refs/remotes/origin/constraint/physical-dependency-graph-v1",
+      "commit": "cc53a77bec31a17800f7f431a7cd83771864edd2",
+      "matching_paths": [
+        "refs/remotes/origin/constraint/physical-dependency-graph-v1:.gitignore",
+        "refs/remotes/origin/constraint/physical-dependency-graph-v1:archive/internal-build-history/thread4_public_alignment_20260924/NYX_CI_PIPELINE_PARALLEL_HARDENING_T1_T5_BATCH67_HOST_BUILD_READY_V001 (1).zip",
+        "refs/remotes/origin/constraint/physical-dependency-graph-v1:archive/internal-build-history/thread4_public_alignment_20260924/NYX_CI_PIPELINE_PARALLEL_HARDENING_T1_T5_BATCH67_HOST_BUILD_READY_V001 (2).zip",
+        "refs/remotes/origin/constraint/physical-dependency-graph-v1:archive/internal-build-history/thread4_public_alignment_20260924/NYX_CI_PIPELINE_PARALLEL_HARDENING_T1_T5_BATCH67_HOST_BUILD_READY_V001.zip",
+        "refs/remotes/origin/constraint/physical-dependency-graph-v1:archive/internal-build-history/thread4_public_alignment_20260924/NYX_CI_PIPELINE_PARALLEL_HARDENING_T1_T5_BATCH68_HOST_BUILD_READY_V001.zip",
+        "refs/remotes/origin/constraint/physical-dependency-graph-v1:constraint-physical-dependency/README.md",
+        "refs/remotes/origin/constraint/physical-dependency-graph-v1:constraint-physical-dependency/data/eia_refinery_regional_capacity_2020_2025.csv",
+        "refs/remotes/origin/constraint/physical-dependency-graph-v1:constraint-physical-dependency/data/eia_us_refinery_capacity_2020_2026.csv",
+        "refs/remotes/origin/constraint/physical-dependency-graph-v1:constraint-physical-dependency/data/eia_us_refinery_utilization_2020_2025.csv",
+        "refs/remotes/origin/constraint/physical-dependency-graph-v1:constraint-physical-dependency/data/historical_physical_dependency.schema.json",
+        "refs/remotes/origin/constraint/physical-dependency-graph-v1:constraint-physical-dependency/data/sourced_policy_case_physical_graph.json",
+        "refs/remotes/origin/constraint/physical-dependency-graph-v1:constraint-physical-dependency/src/hydra_constraint_physical/models.py",
+        "refs/remotes/origin/constraint/physical-dependency-graph-v1:constraint-physical-dependency/src/hydra_constraint_physical/validation.py",
+        "refs/remotes/origin/constraint/physical-dependency-graph-v1:constraint-physical-dependency/tests/test_sourced_policy_case_graph.py"
+      ],
+      "search_exit": 0
+    },
+    {
+      "ref": "refs/remotes/origin/main",
+      "commit": "eb193a76c0ecb0e04190581be628506421e1c2e8",
+      "matching_paths": [
+        "refs/remotes/origin/main:.gitignore",
+        "refs/remotes/origin/main:docs/constraint/architecture/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH001_CAPABILITY_LEDGER_LINKAGE_V001_20260925.json",
+        "refs/remotes/origin/main:docs/constraint/architecture/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH013_CAPABILITY_LEDGER_DELTA_V001_20260925.json",
+        "refs/remotes/origin/main:docs/constraint/architecture/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH013_MASTER_STATUS_V001_20260925.json",
+        "refs/remotes/origin/main:docs/constraint/authority/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH001_AUTHORITY_MAP_V001_20260925.json",
+        "refs/remotes/origin/main:docs/constraint/authority/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH001_STALE_SUPERSEDED_REGISTER_V001_20260925.json",
+        "refs/remotes/origin/main:docs/constraint/first_slice/ai_data_center_power_infrastructure_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH003_AI_DATA_CENTER_POWER_INFRASTRUCTURE_FIELD_MATRIX_V001_20260925.json",
+        "refs/remotes/origin/main:docs/constraint/first_slice/ai_data_center_power_infrastructure_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH010_AI_DATA_CENTER_POWER_INFRASTRUCTURE_BENEFICIARY_EVALUATIONS_V001_20260925.json",
+        "refs/remotes/origin/main:docs/constraint/first_slice/ai_data_center_power_infrastructure_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH010_AI_DATA_CENTER_POWER_INFRASTRUCTURE_T5_CANDIDATE_PROPOSALS_V001_20260925.json",
+        "refs/remotes/origin/main:docs/constraint/first_slice/ai_data_center_power_infrastructure_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH012_AI_DATA_CENTER_POWER_INFRASTRUCTURE_OUTCOME_RECORDS_SUPPLEMENT_V001_20260925.json",
+        "refs/remotes/origin/main:docs/constraint/first_slice/ai_data_center_power_infrastructure_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH013_AI_DATA_CENTER_POWER_INFRASTRUCTURE_EATON_TRANSFORMER_PREQUALIFICATION_OVERLAY_V001_20260925.json",
+        "refs/remotes/origin/main:docs/constraint/first_slice/ai_data_center_power_infrastructure_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH013_AI_DATA_CENTER_POWER_INFRASTRUCTURE_REQUIRED_CASE_001_002_006_CLOSURE_V001_20260925.json",
+        "refs/remotes/origin/main:docs/constraint/first_slice/ai_data_center_power_infrastructure_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH013_AI_DATA_CENTER_POWER_INFRASTRUCTURE_REQUIRED_CASE_MATRIX_V001_20260925.json",
+        "refs/remotes/origin/main:docs/constraint/first_slice/ai_data_center_power_infrastructure_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH014_AI_DATA_CENTER_POWER_INFRASTRUCTURE_STRICT_ACCEPTANCE_GATE_V001_20260925.json",
+        "refs/remotes/origin/main:docs/constraint/implementation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH002_NATIVE_T5_T6_ADMISSION_CONTRACT_V001_20260925.json",
+        "refs/remotes/origin/main:docs/constraint/validation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH001_ARTIFACT_MANIFEST_V001_20260925.json",
+        "refs/remotes/origin/main:docs/constraint/validation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH001_RECONCILIATION_REPORT_V001_20260925.md",
+        "refs/remotes/origin/main:docs/constraint/validation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH003_AI_DATA_CENTER_POWER_INFRASTRUCTURE_POPULATION_REPORT_V001_20260925.md",
+        "refs/remotes/origin/main:docs/constraint/validation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH013_ARTIFACT_MANIFEST_V001_20260925.json",
+        "refs/remotes/origin/main:docs/constraint/validation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH013_REQUIRED_CASE_MATRIX_CLOSURE_REPORT_V001_20260925.md",
+        "refs/remotes/origin/main:t6-fail-closed-validator/tests/test_first_slice_claim_candidate_beneficiary_population.py",
+        "refs/remotes/origin/main:t6-fail-closed-validator/tests/test_first_slice_required_case_closure.py",
+        "refs/remotes/origin/main:tools/nyx_test_constraint_successor_chain_adversarial.py",
+        "refs/remotes/origin/main:tools/nyx_validate_constraint_successor_chain.py",
+        "refs/remotes/origin/main:tools/test_constraint_first_slice_adversarial.py",
+        "refs/remotes/origin/main:tools/validate_constraint_first_slice_successor.py"
+      ],
+      "search_exit": 0
+    },
+    {
+      "ref": "refs/remotes/origin/nyx/constraint-batch009-current-state-v001",
+      "commit": "4173aa517588cc3f2ed4248574c320ac929df376",
+      "matching_paths": [
+        "refs/remotes/origin/nyx/constraint-batch009-current-state-v001:.gitignore",
+        "refs/remotes/origin/nyx/constraint-batch009-current-state-v001:docs/constraint/architecture/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH001_CAPABILITY_LEDGER_LINKAGE_V001_20260925.json",
+        "refs/remotes/origin/nyx/constraint-batch009-current-state-v001:docs/constraint/authority/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH001_AUTHORITY_MAP_V001_20260925.json",
+        "refs/remotes/origin/nyx/constraint-batch009-current-state-v001:docs/constraint/authority/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH001_STALE_SUPERSEDED_REGISTER_V001_20260925.json",
+        "refs/remotes/origin/nyx/constraint-batch009-current-state-v001:docs/constraint/first_slice/ai_data_center_power_infrastructure_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH003_AI_DATA_CENTER_POWER_INFRASTRUCTURE_FIELD_MATRIX_V001_20260925.json",
+        "refs/remotes/origin/nyx/constraint-batch009-current-state-v001:docs/constraint/implementation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH002_NATIVE_T5_T6_ADMISSION_CONTRACT_V001_20260925.json",
+        "refs/remotes/origin/nyx/constraint-batch009-current-state-v001:docs/constraint/validation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH001_ARTIFACT_MANIFEST_V001_20260925.json",
+        "refs/remotes/origin/nyx/constraint-batch009-current-state-v001:docs/constraint/validation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH001_RECONCILIATION_REPORT_V001_20260925.md",
+        "refs/remotes/origin/nyx/constraint-batch009-current-state-v001:docs/constraint/validation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH003_AI_DATA_CENTER_POWER_INFRASTRUCTURE_POPULATION_REPORT_V001_20260925.md",
+        "refs/remotes/origin/nyx/constraint-batch009-current-state-v001:tools/test_constraint_first_slice_adversarial.py",
+        "refs/remotes/origin/nyx/constraint-batch009-current-state-v001:tools/validate_constraint_first_slice_successor.py"
+      ],
+      "search_exit": 0
+    },
+    {
+      "ref": "refs/remotes/origin/nyx/constraint-cross-batch-guard-v001",
+      "commit": "99594c5b350b78b95aa44b182f299744e408d682",
+      "matching_paths": [
+        "refs/remotes/origin/nyx/constraint-cross-batch-guard-v001:.gitignore",
+        "refs/remotes/origin/nyx/constraint-cross-batch-guard-v001:docs/constraint/architecture/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH001_CAPABILITY_LEDGER_LINKAGE_V001_20260925.json",
+        "refs/remotes/origin/nyx/constraint-cross-batch-guard-v001:docs/constraint/authority/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH001_AUTHORITY_MAP_V001_20260925.json",
+        "refs/remotes/origin/nyx/constraint-cross-batch-guard-v001:docs/constraint/authority/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH001_STALE_SUPERSEDED_REGISTER_V001_20260925.json",
+        "refs/remotes/origin/nyx/constraint-cross-batch-guard-v001:docs/constraint/first_slice/ai_data_center_power_infrastructure_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH003_AI_DATA_CENTER_POWER_INFRASTRUCTURE_FIELD_MATRIX_V001_20260925.json",
+        "refs/remotes/origin/nyx/constraint-cross-batch-guard-v001:docs/constraint/first_slice/ai_data_center_power_infrastructure_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH010_AI_DATA_CENTER_POWER_INFRASTRUCTURE_BENEFICIARY_EVALUATIONS_V001_20260925.json",
+        "refs/remotes/origin/nyx/constraint-cross-batch-guard-v001:docs/constraint/first_slice/ai_data_center_power_infrastructure_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH010_AI_DATA_CENTER_POWER_INFRASTRUCTURE_T5_CANDIDATE_PROPOSALS_V001_20260925.json",
+        "refs/remotes/origin/nyx/constraint-cross-batch-guard-v001:docs/constraint/first_slice/ai_data_center_power_infrastructure_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH012_AI_DATA_CENTER_POWER_INFRASTRUCTURE_OUTCOME_RECORDS_SUPPLEMENT_V001_20260925.json",
+        "refs/remotes/origin/nyx/constraint-cross-batch-guard-v001:docs/constraint/implementation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH002_NATIVE_T5_T6_ADMISSION_CONTRACT_V001_20260925.json",
+        "refs/remotes/origin/nyx/constraint-cross-batch-guard-v001:docs/constraint/validation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH001_ARTIFACT_MANIFEST_V001_20260925.json",
+        "refs/remotes/origin/nyx/constraint-cross-batch-guard-v001:docs/constraint/validation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH001_RECONCILIATION_REPORT_V001_20260925.md",
+        "refs/remotes/origin/nyx/constraint-cross-batch-guard-v001:docs/constraint/validation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH003_AI_DATA_CENTER_POWER_INFRASTRUCTURE_POPULATION_REPORT_V001_20260925.md",
+        "refs/remotes/origin/nyx/constraint-cross-batch-guard-v001:t6-fail-closed-validator/tests/test_first_slice_claim_candidate_beneficiary_population.py",
+        "refs/remotes/origin/nyx/constraint-cross-batch-guard-v001:tools/nyx_test_constraint_successor_chain_adversarial.py",
+        "refs/remotes/origin/nyx/constraint-cross-batch-guard-v001:tools/nyx_validate_constraint_successor_chain.py",
+        "refs/remotes/origin/nyx/constraint-cross-batch-guard-v001:tools/test_constraint_first_slice_adversarial.py",
+        "refs/remotes/origin/nyx/constraint-cross-batch-guard-v001:tools/validate_constraint_first_slice_successor.py"
+      ],
+      "search_exit": 0
+    },
+    {
+      "ref": "refs/remotes/origin/nyx/constraint-first-slice-hostile-v001",
+      "commit": "8aecf45ee0f55bcfdd16a9ad3393b154dd7b75c2",
+      "matching_paths": [
+        "refs/remotes/origin/nyx/constraint-first-slice-hostile-v001:.gitignore",
+        "refs/remotes/origin/nyx/constraint-first-slice-hostile-v001:docs/constraint/architecture/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH001_CAPABILITY_LEDGER_LINKAGE_V001_20260925.json",
+        "refs/remotes/origin/nyx/constraint-first-slice-hostile-v001:docs/constraint/authority/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH001_AUTHORITY_MAP_V001_20260925.json",
+        "refs/remotes/origin/nyx/constraint-first-slice-hostile-v001:docs/constraint/authority/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH001_STALE_SUPERSEDED_REGISTER_V001_20260925.json",
+        "refs/remotes/origin/nyx/constraint-first-slice-hostile-v001:docs/constraint/first_slice/ai_data_center_power_infrastructure_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH003_AI_DATA_CENTER_POWER_INFRASTRUCTURE_FIELD_MATRIX_V001_20260925.json",
+        "refs/remotes/origin/nyx/constraint-first-slice-hostile-v001:docs/constraint/implementation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH002_NATIVE_T5_T6_ADMISSION_CONTRACT_V001_20260925.json",
+        "refs/remotes/origin/nyx/constraint-first-slice-hostile-v001:docs/constraint/validation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH001_ARTIFACT_MANIFEST_V001_20260925.json",
+        "refs/remotes/origin/nyx/constraint-first-slice-hostile-v001:docs/constraint/validation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH001_RECONCILIATION_REPORT_V001_20260925.md",
+        "refs/remotes/origin/nyx/constraint-first-slice-hostile-v001:docs/constraint/validation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH003_AI_DATA_CENTER_POWER_INFRASTRUCTURE_POPULATION_REPORT_V001_20260925.md"
+      ],
+      "search_exit": 0
+    },
+    {
+      "ref": "refs/remotes/origin/nyx/constraint-first-slice-integration-v001",
+      "commit": "dad8e508d3c900ab4c0e6560e76a3dd37223941b",
+      "matching_paths": [
+        "refs/remotes/origin/nyx/constraint-first-slice-integration-v001:.gitignore",
+        "refs/remotes/origin/nyx/constraint-first-slice-integration-v001:docs/constraint/architecture/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH001_CAPABILITY_LEDGER_LINKAGE_V001_20260925.json",
+        "refs/remotes/origin/nyx/constraint-first-slice-integration-v001:docs/constraint/authority/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH001_AUTHORITY_MAP_V001_20260925.json",
+        "refs/remotes/origin/nyx/constraint-first-slice-integration-v001:docs/constraint/authority/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH001_STALE_SUPERSEDED_REGISTER_V001_20260925.json",
+        "refs/remotes/origin/nyx/constraint-first-slice-integration-v001:docs/constraint/first_slice/ai_data_center_power_infrastructure_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH003_AI_DATA_CENTER_POWER_INFRASTRUCTURE_FIELD_MATRIX_V001_20260925.json",
+        "refs/remotes/origin/nyx/constraint-first-slice-integration-v001:docs/constraint/implementation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH002_NATIVE_T5_T6_ADMISSION_CONTRACT_V001_20260925.json",
+        "refs/remotes/origin/nyx/constraint-first-slice-integration-v001:docs/constraint/validation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH001_ARTIFACT_MANIFEST_V001_20260925.json",
+        "refs/remotes/origin/nyx/constraint-first-slice-integration-v001:docs/constraint/validation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH001_RECONCILIATION_REPORT_V001_20260925.md",
+        "refs/remotes/origin/nyx/constraint-first-slice-integration-v001:docs/constraint/validation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH003_AI_DATA_CENTER_POWER_INFRASTRUCTURE_POPULATION_REPORT_V001_20260925.md"
+      ],
+      "search_exit": 0
+    },
+    {
+      "ref": "refs/remotes/origin/nyx/constraint-successor-dynamic-guard-v001",
+      "commit": "5466d76d2165e24e5f7054b060b212ac29484feb",
+      "matching_paths": [
+        "refs/remotes/origin/nyx/constraint-successor-dynamic-guard-v001:.gitignore",
+        "refs/remotes/origin/nyx/constraint-successor-dynamic-guard-v001:docs/constraint/architecture/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH001_CAPABILITY_LEDGER_LINKAGE_V001_20260925.json",
+        "refs/remotes/origin/nyx/constraint-successor-dynamic-guard-v001:docs/constraint/authority/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH001_AUTHORITY_MAP_V001_20260925.json",
+        "refs/remotes/origin/nyx/constraint-successor-dynamic-guard-v001:docs/constraint/authority/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH001_STALE_SUPERSEDED_REGISTER_V001_20260925.json",
+        "refs/remotes/origin/nyx/constraint-successor-dynamic-guard-v001:docs/constraint/first_slice/ai_data_center_power_infrastructure_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH003_AI_DATA_CENTER_POWER_INFRASTRUCTURE_FIELD_MATRIX_V001_20260925.json",
+        "refs/remotes/origin/nyx/constraint-successor-dynamic-guard-v001:docs/constraint/first_slice/ai_data_center_power_infrastructure_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH010_AI_DATA_CENTER_POWER_INFRASTRUCTURE_BENEFICIARY_EVALUATIONS_V001_20260925.json",
+        "refs/remotes/origin/nyx/constraint-successor-dynamic-guard-v001:docs/constraint/first_slice/ai_data_center_power_infrastructure_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH010_AI_DATA_CENTER_POWER_INFRASTRUCTURE_T5_CANDIDATE_PROPOSALS_V001_20260925.json",
+        "refs/remotes/origin/nyx/constraint-successor-dynamic-guard-v001:docs/constraint/implementation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH002_NATIVE_T5_T6_ADMISSION_CONTRACT_V001_20260925.json",
+        "refs/remotes/origin/nyx/constraint-successor-dynamic-guard-v001:docs/constraint/validation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH001_ARTIFACT_MANIFEST_V001_20260925.json",
+        "refs/remotes/origin/nyx/constraint-successor-dynamic-guard-v001:docs/constraint/validation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH001_RECONCILIATION_REPORT_V001_20260925.md",
+        "refs/remotes/origin/nyx/constraint-successor-dynamic-guard-v001:docs/constraint/validation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH003_AI_DATA_CENTER_POWER_INFRASTRUCTURE_POPULATION_REPORT_V001_20260925.md",
+        "refs/remotes/origin/nyx/constraint-successor-dynamic-guard-v001:t6-fail-closed-validator/tests/test_first_slice_claim_candidate_beneficiary_population.py",
+        "refs/remotes/origin/nyx/constraint-successor-dynamic-guard-v001:tools/test_constraint_first_slice_adversarial.py",
+        "refs/remotes/origin/nyx/constraint-successor-dynamic-guard-v001:tools/validate_constraint_first_slice_successor.py"
+      ],
+      "search_exit": 0
+    },
+    {
+      "ref": "refs/remotes/origin/nyx/constraint-successor-dynamic-guard-v002",
+      "commit": "e2c0906fbf7083b300286b3aa525b89c52e3b0e1",
+      "matching_paths": [
+        "refs/remotes/origin/nyx/constraint-successor-dynamic-guard-v002:.gitignore",
+        "refs/remotes/origin/nyx/constraint-successor-dynamic-guard-v002:docs/constraint/architecture/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH001_CAPABILITY_LEDGER_LINKAGE_V001_20260925.json",
+        "refs/remotes/origin/nyx/constraint-successor-dynamic-guard-v002:docs/constraint/authority/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH001_AUTHORITY_MAP_V001_20260925.json",
+        "refs/remotes/origin/nyx/constraint-successor-dynamic-guard-v002:docs/constraint/authority/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH001_STALE_SUPERSEDED_REGISTER_V001_20260925.json",
+        "refs/remotes/origin/nyx/constraint-successor-dynamic-guard-v002:docs/constraint/first_slice/ai_data_center_power_infrastructure_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH003_AI_DATA_CENTER_POWER_INFRASTRUCTURE_FIELD_MATRIX_V001_20260925.json",
+        "refs/remotes/origin/nyx/constraint-successor-dynamic-guard-v002:docs/constraint/first_slice/ai_data_center_power_infrastructure_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH010_AI_DATA_CENTER_POWER_INFRASTRUCTURE_BENEFICIARY_EVALUATIONS_V001_20260925.json",
+        "refs/remotes/origin/nyx/constraint-successor-dynamic-guard-v002:docs/constraint/first_slice/ai_data_center_power_infrastructure_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH010_AI_DATA_CENTER_POWER_INFRASTRUCTURE_T5_CANDIDATE_PROPOSALS_V001_20260925.json",
+        "refs/remotes/origin/nyx/constraint-successor-dynamic-guard-v002:docs/constraint/implementation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH002_NATIVE_T5_T6_ADMISSION_CONTRACT_V001_20260925.json",
+        "refs/remotes/origin/nyx/constraint-successor-dynamic-guard-v002:docs/constraint/validation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH001_ARTIFACT_MANIFEST_V001_20260925.json",
+        "refs/remotes/origin/nyx/constraint-successor-dynamic-guard-v002:docs/constraint/validation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH001_RECONCILIATION_REPORT_V001_20260925.md",
+        "refs/remotes/origin/nyx/constraint-successor-dynamic-guard-v002:docs/constraint/validation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH003_AI_DATA_CENTER_POWER_INFRASTRUCTURE_POPULATION_REPORT_V001_20260925.md",
+        "refs/remotes/origin/nyx/constraint-successor-dynamic-guard-v002:t6-fail-closed-validator/tests/test_first_slice_claim_candidate_beneficiary_population.py",
+        "refs/remotes/origin/nyx/constraint-successor-dynamic-guard-v002:tools/test_constraint_first_slice_adversarial.py",
+        "refs/remotes/origin/nyx/constraint-successor-dynamic-guard-v002:tools/validate_constraint_first_slice_successor.py"
+      ],
+      "search_exit": 0
+    },
+    {
+      "ref": "refs/remotes/origin/public-data-engineering-contract-sync-20260924",
+      "commit": "a681424ccfe04a7dffcb122096f4ded8d82a2dcb",
+      "matching_paths": [
+        "refs/remotes/origin/public-data-engineering-contract-sync-20260924:.gitignore",
+        "refs/remotes/origin/public-data-engineering-contract-sync-20260924:archive/internal-build-history/thread4_public_alignment_20260924/NYX_CI_PIPELINE_PARALLEL_HARDENING_T1_T5_BATCH67_HOST_BUILD_READY_V001 (1).zip",
+        "refs/remotes/origin/public-data-engineering-contract-sync-20260924:archive/internal-build-history/thread4_public_alignment_20260924/NYX_CI_PIPELINE_PARALLEL_HARDENING_T1_T5_BATCH67_HOST_BUILD_READY_V001 (2).zip",
+        "refs/remotes/origin/public-data-engineering-contract-sync-20260924:archive/internal-build-history/thread4_public_alignment_20260924/NYX_CI_PIPELINE_PARALLEL_HARDENING_T1_T5_BATCH67_HOST_BUILD_READY_V001.zip",
+        "refs/remotes/origin/public-data-engineering-contract-sync-20260924:archive/internal-build-history/thread4_public_alignment_20260924/NYX_CI_PIPELINE_PARALLEL_HARDENING_T1_T5_BATCH68_HOST_BUILD_READY_V001.zip"
+      ],
+      "search_exit": 0
+    },
+    {
+      "ref": "refs/remotes/origin/public-data-engineering-sample-20260924",
+      "commit": "c7e2bfd64da1e181289ba3729ecc2af888652d99",
+      "matching_paths": [
+        "refs/remotes/origin/public-data-engineering-sample-20260924:.gitignore",
+        "refs/remotes/origin/public-data-engineering-sample-20260924:archive/internal-build-history/thread4_public_alignment_20260924/NYX_CI_PIPELINE_PARALLEL_HARDENING_T1_T5_BATCH67_HOST_BUILD_READY_V001 (1).zip",
+        "refs/remotes/origin/public-data-engineering-sample-20260924:archive/internal-build-history/thread4_public_alignment_20260924/NYX_CI_PIPELINE_PARALLEL_HARDENING_T1_T5_BATCH67_HOST_BUILD_READY_V001 (2).zip",
+        "refs/remotes/origin/public-data-engineering-sample-20260924:archive/internal-build-history/thread4_public_alignment_20260924/NYX_CI_PIPELINE_PARALLEL_HARDENING_T1_T5_BATCH67_HOST_BUILD_READY_V001.zip",
+        "refs/remotes/origin/public-data-engineering-sample-20260924:archive/internal-build-history/thread4_public_alignment_20260924/NYX_CI_PIPELINE_PARALLEL_HARDENING_T1_T5_BATCH68_HOST_BUILD_READY_V001.zip"
+      ],
+      "search_exit": 0
+    },
+    {
+      "ref": "refs/remotes/origin/thread4-ci-evidence-20260924",
+      "commit": "e267c1148ac1920f9118ade3743c64d62d8fa160",
+      "matching_paths": [
+        "refs/remotes/origin/thread4-ci-evidence-20260924:.gitignore",
+        "refs/remotes/origin/thread4-ci-evidence-20260924:archive/internal-build-history/thread4_public_alignment_20260924/NYX_CI_PIPELINE_PARALLEL_HARDENING_T1_T5_BATCH67_HOST_BUILD_READY_V001 (1).zip",
+        "refs/remotes/origin/thread4-ci-evidence-20260924:archive/internal-build-history/thread4_public_alignment_20260924/NYX_CI_PIPELINE_PARALLEL_HARDENING_T1_T5_BATCH67_HOST_BUILD_READY_V001 (2).zip",
+        "refs/remotes/origin/thread4-ci-evidence-20260924:archive/internal-build-history/thread4_public_alignment_20260924/NYX_CI_PIPELINE_PARALLEL_HARDENING_T1_T5_BATCH67_HOST_BUILD_READY_V001.zip",
+        "refs/remotes/origin/thread4-ci-evidence-20260924:archive/internal-build-history/thread4_public_alignment_20260924/NYX_CI_PIPELINE_PARALLEL_HARDENING_T1_T5_BATCH68_HOST_BUILD_READY_V001.zip"
+      ],
+      "search_exit": 0
+    },
+    {
+      "ref": "refs/remotes/origin/thread4-code-evidence-navigation-20260924",
+      "commit": "ef2660312be7be85e24793bfaa1fd0a0405dab5e",
+      "matching_paths": [
+        "refs/remotes/origin/thread4-code-evidence-navigation-20260924:.gitignore",
+        "refs/remotes/origin/thread4-code-evidence-navigation-20260924:archive/internal-build-history/thread4_public_alignment_20260924/NYX_CI_PIPELINE_PARALLEL_HARDENING_T1_T5_BATCH67_HOST_BUILD_READY_V001 (1).zip",
+        "refs/remotes/origin/thread4-code-evidence-navigation-20260924:archive/internal-build-history/thread4_public_alignment_20260924/NYX_CI_PIPELINE_PARALLEL_HARDENING_T1_T5_BATCH67_HOST_BUILD_READY_V001 (2).zip",
+        "refs/remotes/origin/thread4-code-evidence-navigation-20260924:archive/internal-build-history/thread4_public_alignment_20260924/NYX_CI_PIPELINE_PARALLEL_HARDENING_T1_T5_BATCH67_HOST_BUILD_READY_V001.zip",
+        "refs/remotes/origin/thread4-code-evidence-navigation-20260924:archive/internal-build-history/thread4_public_alignment_20260924/NYX_CI_PIPELINE_PARALLEL_HARDENING_T1_T5_BATCH68_HOST_BUILD_READY_V001.zip"
+      ],
+      "search_exit": 0
+    },
+    {
+      "ref": "refs/remotes/origin/thread4-public-alignment-direct-20260924",
+      "commit": "12216a5ad2669a0b26cc78df58c90c4e8cfefcc7",
+      "matching_paths": [
+        "refs/remotes/origin/thread4-public-alignment-direct-20260924:.gitignore",
+        "refs/remotes/origin/thread4-public-alignment-direct-20260924:archive/internal-build-history/thread4_public_alignment_20260924/NYX_CI_PIPELINE_PARALLEL_HARDENING_T1_T5_BATCH67_HOST_BUILD_READY_V001 (1).zip",
+        "refs/remotes/origin/thread4-public-alignment-direct-20260924:archive/internal-build-history/thread4_public_alignment_20260924/NYX_CI_PIPELINE_PARALLEL_HARDENING_T1_T5_BATCH67_HOST_BUILD_READY_V001 (2).zip",
+        "refs/remotes/origin/thread4-public-alignment-direct-20260924:archive/internal-build-history/thread4_public_alignment_20260924/NYX_CI_PIPELINE_PARALLEL_HARDENING_T1_T5_BATCH67_HOST_BUILD_READY_V001.zip",
+        "refs/remotes/origin/thread4-public-alignment-direct-20260924:archive/internal-build-history/thread4_public_alignment_20260924/NYX_CI_PIPELINE_PARALLEL_HARDENING_T1_T5_BATCH68_HOST_BUILD_READY_V001.zip"
+      ],
+      "search_exit": 0
+    },
+    {
+      "ref": "refs/remotes/origin/thread4-public-repository-validation-20260924",
+      "commit": "a322dd3b65eedf197d6254c8038c21c31085f20f",
+      "matching_paths": [
+        "refs/remotes/origin/thread4-public-repository-validation-20260924:.gitignore",
+        "refs/remotes/origin/thread4-public-repository-validation-20260924:archive/internal-build-history/thread4_public_alignment_20260924/NYX_CI_PIPELINE_PARALLEL_HARDENING_T1_T5_BATCH67_HOST_BUILD_READY_V001 (1).zip",
+        "refs/remotes/origin/thread4-public-repository-validation-20260924:archive/internal-build-history/thread4_public_alignment_20260924/NYX_CI_PIPELINE_PARALLEL_HARDENING_T1_T5_BATCH67_HOST_BUILD_READY_V001 (2).zip",
+        "refs/remotes/origin/thread4-public-repository-validation-20260924:archive/internal-build-history/thread4_public_alignment_20260924/NYX_CI_PIPELINE_PARALLEL_HARDENING_T1_T5_BATCH67_HOST_BUILD_READY_V001.zip",
+        "refs/remotes/origin/thread4-public-repository-validation-20260924:archive/internal-build-history/thread4_public_alignment_20260924/NYX_CI_PIPELINE_PARALLEL_HARDENING_T1_T5_BATCH68_HOST_BUILD_READY_V001.zip"
+      ],
+      "search_exit": 0
+    },
+    {
+      "ref": "refs/remotes/origin/thread4-recruiter-cleanliness-pass2-20260924",
+      "commit": "db4ce05c5e1b5a1b778f0cfbf16284cf2affd1f7",
+      "matching_paths": [
+        "refs/remotes/origin/thread4-recruiter-cleanliness-pass2-20260924:.gitignore",
+        "refs/remotes/origin/thread4-recruiter-cleanliness-pass2-20260924:archive/internal-build-history/thread4_public_alignment_20260924/NYX_CI_PIPELINE_PARALLEL_HARDENING_T1_T5_BATCH67_HOST_BUILD_READY_V001 (1).zip",
+        "refs/remotes/origin/thread4-recruiter-cleanliness-pass2-20260924:archive/internal-build-history/thread4_public_alignment_20260924/NYX_CI_PIPELINE_PARALLEL_HARDENING_T1_T5_BATCH67_HOST_BUILD_READY_V001 (2).zip",
+        "refs/remotes/origin/thread4-recruiter-cleanliness-pass2-20260924:archive/internal-build-history/thread4_public_alignment_20260924/NYX_CI_PIPELINE_PARALLEL_HARDENING_T1_T5_BATCH67_HOST_BUILD_READY_V001.zip",
+        "refs/remotes/origin/thread4-recruiter-cleanliness-pass2-20260924:archive/internal-build-history/thread4_public_alignment_20260924/NYX_CI_PIPELINE_PARALLEL_HARDENING_T1_T5_BATCH68_HOST_BUILD_READY_V001.zip"
+      ],
+      "search_exit": 0
+    },
+    {
+      "ref": "refs/remotes/origin/thread4-validator-evidence-depth-20260924",
+      "commit": "14606a8dcb8ded251fd8ac43c34748f5797fa02f",
+      "matching_paths": [
+        "refs/remotes/origin/thread4-validator-evidence-depth-20260924:.gitignore",
+        "refs/remotes/origin/thread4-validator-evidence-depth-20260924:archive/internal-build-history/thread4_public_alignment_20260924/NYX_CI_PIPELINE_PARALLEL_HARDENING_T1_T5_BATCH67_HOST_BUILD_READY_V001 (1).zip",
+        "refs/remotes/origin/thread4-validator-evidence-depth-20260924:archive/internal-build-history/thread4_public_alignment_20260924/NYX_CI_PIPELINE_PARALLEL_HARDENING_T1_T5_BATCH67_HOST_BUILD_READY_V001 (2).zip",
+        "refs/remotes/origin/thread4-validator-evidence-depth-20260924:archive/internal-build-history/thread4_public_alignment_20260924/NYX_CI_PIPELINE_PARALLEL_HARDENING_T1_T5_BATCH67_HOST_BUILD_READY_V001.zip",
+        "refs/remotes/origin/thread4-validator-evidence-depth-20260924:archive/internal-build-history/thread4_public_alignment_20260924/NYX_CI_PIPELINE_PARALLEL_HARDENING_T1_T5_BATCH68_HOST_BUILD_READY_V001.zip"
+      ],
+      "search_exit": 0
+    },
+    {
+      "ref": "refs/remotes/origin/thread4-validator-public-api-polish-20260924",
+      "commit": "48eab7b5a91b71634353638bd68b1197610edcbc",
+      "matching_paths": [
+        "refs/remotes/origin/thread4-validator-public-api-polish-20260924:.gitignore",
+        "refs/remotes/origin/thread4-validator-public-api-polish-20260924:archive/internal-build-history/thread4_public_alignment_20260924/NYX_CI_PIPELINE_PARALLEL_HARDENING_T1_T5_BATCH67_HOST_BUILD_READY_V001 (1).zip",
+        "refs/remotes/origin/thread4-validator-public-api-polish-20260924:archive/internal-build-history/thread4_public_alignment_20260924/NYX_CI_PIPELINE_PARALLEL_HARDENING_T1_T5_BATCH67_HOST_BUILD_READY_V001 (2).zip",
+        "refs/remotes/origin/thread4-validator-public-api-polish-20260924:archive/internal-build-history/thread4_public_alignment_20260924/NYX_CI_PIPELINE_PARALLEL_HARDENING_T1_T5_BATCH67_HOST_BUILD_READY_V001.zip",
+        "refs/remotes/origin/thread4-validator-public-api-polish-20260924:archive/internal-build-history/thread4_public_alignment_20260924/NYX_CI_PIPELINE_PARALLEL_HARDENING_T1_T5_BATCH68_HOST_BUILD_READY_V001.zip"
+      ],
+      "search_exit": 0
+    }
+  ]
+}
