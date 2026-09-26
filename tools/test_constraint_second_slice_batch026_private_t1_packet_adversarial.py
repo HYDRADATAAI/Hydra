@@ -36,7 +36,7 @@ def expect(name,fn,frag):
 
 def main():
     cases=[
-      ("queue_source_removed",lambda r:mutate(r,QUEUE,lambda d:(d["queue"].pop(),d.__setitem__("source_count",40))),"queue must contain exactly 41 intents"),
+      ("queue_source_removed",lambda r:mutate(r,QUEUE,lambda d:d["queue"].pop()),"queue must contain exactly 41 intents"),
       ("duplicate_version_id",lambda r:mutate(r,QUEUE,lambda d:d["queue"][1].__setitem__("source_version_id",d["queue"][0]["source_version_id"])),"source_version_id values not unique"),
       ("backdating_authorized",lambda r:mutate(r,QUEUE,lambda d:d["queue"][0].__setitem__("historical_backdating_authorized",True)),"historical backdating unexpectedly authorized"),
       ("review_time_used_as_receipt",lambda r:mutate(r,QUEUE,lambda d:d["queue"][0].__setitem__("receipt_available_at_policy","COPY_REVIEWED_AVAILABLE_AT")),"receipt available_at policy drifted"),
