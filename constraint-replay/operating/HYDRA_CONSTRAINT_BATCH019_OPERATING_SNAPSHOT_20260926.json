@@ -99,7 +99,7 @@
     {
       "dimension": "historical_case_classification",
       "evidence": {
-        "classification_coverage": 1,
+        "classification_coverage": 1.0,
         "classified_cases": 22,
         "partial_realization": 17,
         "unevaluable": 5
@@ -253,7 +253,7 @@
     }
   ],
   "schema_version": "1.0",
-  "snapshot_digest_sha256": "99fc9235e146e87ed716d3f55484ae8c0ed66ce5ab28e7225e0dd1f5712aa6ef",
+  "snapshot_digest_sha256": "4e6d3de489457c125d27aa243f983891c0ee988a4b0671b6d496d4c00125fa03",
   "source_run_digest_sha256": "db28edfea01800cf85dd234edb99d003d0a185ab39f7ba8cd31af416542890f1",
   "taxonomy_supplement": {
     "case_id": "ukraine-war-agricultural-supply-shock-2022-taxonomy-supplement",
