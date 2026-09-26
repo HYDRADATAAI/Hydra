@@ -1,0 +1,36 @@
+{
+  "schema_version": "hydra-constraint-first-slice-required-case-overlay/v1",
+  "record_id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH011_AI_DATA_CENTER_POWER_INFRASTRUCTURE_REQUIRED_CASES_OUTCOME_REPLAY_OVERLAY_V001",
+  "as_of": "2026-09-25",
+  "predecessor_batch": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH010",
+  "slice_id": "AI_DATA_CENTER_POWER_INFRASTRUCTURE_V1",
+  "updates": [
+    {
+      "case_id": 7,
+      "name": "CONSTRAINT_RELIEF",
+      "predecessor_status": "PARTIAL_OR_UNMATERIALIZED",
+      "successor_status": "COVERED_BOUNDED_CAPACITY_RELIEF_OUTCOME",
+      "evidence_ids": [
+        "OUT-AIDC-EATON-NACOGDOCHES-CAPACITY-ADDED-001"
+      ],
+      "limit": "CAPACITY_ADDITION_IS_OBSERVED; CONSTRAINT_RESOLUTION_IS_NOT_PROVEN"
+    },
+    {
+      "case_id": 8,
+      "name": "HISTORICAL_NO_LOOKAHEAD",
+      "predecessor_status": "PARTIAL",
+      "successor_status": "COVERED_SHADOW_NORMALIZED_FIXTURE_ONLY",
+      "evidence_ids": [
+        "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH011_AI_DATA_CENTER_POWER_INFRASTRUCTURE_SHADOW_REPLAY_PACKET_V001"
+      ],
+      "limit": "ORDINARY_RAW_ARTIFACT_REPLAY_REMAINS_BLOCKED"
+    }
+  ],
+  "remaining_real_case_gaps": [
+    "CASE_1_PROJECT_SPECIFIC_TRUE_CAPACITY_CONSTRAINT",
+    "CASE_2_MATCHED_FALSE_CONSTRAINT_PRIMARY_COUNTEREVIDENCE",
+    "CASE_4_REAL_CONTRADICTION",
+    "CASE_6_FULLY_QUALIFIED_AND_CAPTURED_BENEFICIARY",
+    "CASE_10_REAL_CANCELLED_PROJECT"
+  ]
+}

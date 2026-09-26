@@ -36,6 +36,10 @@ FILES = {
     "batch010_candidates": SLICE / "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH010_AI_DATA_CENTER_POWER_INFRASTRUCTURE_T5_CANDIDATE_PROPOSALS_V001_20260925.json",
     "batch010_beneficiaries": SLICE / "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH010_AI_DATA_CENTER_POWER_INFRASTRUCTURE_BENEFICIARY_EVALUATIONS_V001_20260925.json",
     "batch010_master": ARCH / "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH010_MASTER_STATUS_V001_20260925.json",
+    "batch011_outcomes": SLICE / "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH011_AI_DATA_CENTER_POWER_INFRASTRUCTURE_OUTCOME_RECORDS_V001_20260925.json",
+    "batch011_replay": SLICE / "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH011_AI_DATA_CENTER_POWER_INFRASTRUCTURE_SHADOW_REPLAY_PACKET_V001_20260925.json",
+    "batch011_receipt": SLICE / "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH011_AI_DATA_CENTER_POWER_INFRASTRUCTURE_DETERMINISM_RECEIPT_V001_20260925.json",
+    "batch011_master": ARCH / "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH011_MASTER_STATUS_V001_20260925.json",
 }
 
 MANIFESTS = [
@@ -129,6 +133,10 @@ def main() -> int:
     current_candidates = docs["batch010_candidates"]
     current_beneficiaries = docs["batch010_beneficiaries"]
     current_master = docs["batch010_master"]
+    outcome11 = docs["batch011_outcomes"]
+    replay11 = docs["batch011_replay"]
+    receipt11 = docs["batch011_receipt"]
+    master11 = docs["batch011_master"]
 
     # First-slice identity must remain stable across the domain artifacts.
     for name, doc in (
@@ -290,6 +298,29 @@ def main() -> int:
     require(current_readiness["FULL_CONSTRAINT_RUN_READY"].get("status") == "NO", "Batch010 master falsely claims full-run readiness")
     require(current_master.get("first_serious_constraint_run") == "BLOCKED", "Batch010 master falsely claims serious-run readiness")
 
+    # Batch011 advances historical outcomes from EMPTY to THIN and proves only a normalized shadow replay.
+    outcome_rows = outcome11.get("records")
+    require(isinstance(outcome_rows, list) and len(outcome_rows) == 1, "Batch011 outcome count drifted")
+    outcome = outcome_rows[0]
+    require(outcome.get("outcome_label") == "CAPACITY_ADDED", "Batch011 outcome label drifted")
+    require(outcome.get("hydra_available_at") == "2026-09-26T01:57:00Z", "Batch011 outcome availability drifted")
+    require(outcome11.get("counts", {}).get("constraint_resolutions") == 0, "Batch011 falsely resolves constraint")
+    require(outcome11.get("counts", {}).get("beneficiary_capture_confirmed") == 0, "Batch011 falsely confirms beneficiary capture")
+    require(replay11.get("replay_mode") == "SHADOW_NORMALIZED_FIXTURE", "Batch011 replay mode drifted")
+    require(replay11.get("ordinary_replay_eligible") is False, "Batch011 falsely grants ordinary replay")
+    require(replay11.get("source_version_hash_status") == "BLOCKED_RAW_SOURCE_BODY_NOT_MATERIALIZED", "Batch011 raw hash blocker drifted")
+    require(all(w.get("future_leak_test") == "PASS" for w in replay11.get("windows", [])), "Batch011 future-leak receipt failed")
+    require(receipt11.get("repeat_execution_match") is True, "Batch011 determinism receipt failed")
+    require(receipt11.get("future_leak_test") == "PASS", "Batch011 no-lookahead receipt failed")
+    require(receipt11.get("ordinary_replay_determinism_claimed") is False, "Batch011 overclaims ordinary determinism")
+    readiness11 = master11.get("readiness")
+    require(isinstance(readiness11, dict), "Batch011 master readiness missing")
+    require(readiness11["REAL_OUTCOME_RECORDS"].get("count") == 1, "Batch011 master outcome count drifted")
+    require(readiness11["SHADOW_NO_LOOKAHEAD"].get("status") == "PASS", "Batch011 shadow no-lookahead drifted")
+    require(readiness11["SHADOW_DETERMINISM"].get("status") == "PASS", "Batch011 shadow determinism drifted")
+    require(readiness11["POINT_IN_TIME_REPLAY_READY"].get("status") == "NO_ORDINARY", "Batch011 falsely claims ordinary replay")
+    require(master11.get("first_serious_constraint_run") == "BLOCKED", "Batch011 falsely claims serious-run readiness")
+
     # Raw-store contract must remain private and require the full ordinary T2 lineage envelope.
     boundary = raw_contract.get("public_repository_boundary")
     contract = raw_contract.get("artifact_contract")
@@ -324,8 +355,13 @@ def main() -> int:
     print("QUALIFIED_BENEFICIARIES=0")
     print("IMPLEMENTATION_ADMITTED=NO")
     print("REAL_NINE_SOURCE_MATERIALIZATION=NO")
+    print("REAL_OUTCOMES_CAPTURED=1")
+    print("SHADOW_REPLAY_FIXTURE=PASS")
+    print("SHADOW_NO_LOOKAHEAD=PASS")
+    print("SHADOW_DETERMINISM=PASS")
+    print("ORDINARY_HISTORICAL_REPLAY=BLOCKED")
     print("FIRST_SERIOUS_CONSTRAINT_RUN=BLOCKED")
-    print(f"NEXT_POPULATION_BLOCKER={RAW_MATERIALIZATION_BLOCKER}")
+    print("NEXT_REPO_EXECUTABLE_LANE=FIRST-SLICE-CONTRADICTION-CANCELLED-PROJECT-AND-MATCHED-HISTORICAL-CASE-POPULATION")
     return 0
 
 
