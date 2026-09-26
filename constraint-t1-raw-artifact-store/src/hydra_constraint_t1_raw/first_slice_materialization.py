@@ -42,7 +42,8 @@ def _dt(value: str, label: str) -> datetime:
 
 def _load_json(path: str | Path) -> dict[str, Any]:
     try:
-        value = json.loads(Path(path).read_text(encoding="utf-8"))
+        # Accept the BOM emitted by Windows PowerShell 5.1 as well as plain UTF-8.
+        value = json.loads(Path(path).read_text(encoding="utf-8-sig"))
     except Exception as exc:
         raise FirstSliceMaterializationError(f"unable to load JSON: {path}") from exc
     if not isinstance(value, dict):
