@@ -439,7 +439,7 @@ def main() -> int:
         ("false_canonical_mint", case_false_canonical_mint, "Batch010 falsely minted canonical constraints"),
         ("candidate_becomes_ordinary_t6", case_candidate_becomes_ordinary_t6, "unexpectedly canonicalized"),
         ("relief_auto_invalidates", case_relief_auto_invalidates, "automatically invalidates constraint"),
-        ("false_beneficiary_qualification", case_false_beneficiary_qualification, "unexpectedly qualified"),
+        ("false_beneficiary_qualification", case_false_beneficiary_qualification, "Batch010 qualified relationship count is not zero"),
         ("batch011_outcome_overclaim", case_batch011_outcome_overclaim, "Batch011 outcome label drifted"),
         ("batch011_future_leak", case_batch011_future_leak, "Batch011 pre-window claim boundary drifted"),
         ("batch011_ordinary_replay_promoted", case_batch011_ordinary_replay_promoted, "Batch011 ordinary replay unexpectedly enabled"),
