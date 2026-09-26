@@ -1,0 +1,334 @@
+{
+  "schema_version": "1.0",
+  "batch_id": "HYDRA_CONSTRAINT_REPLAY_OUTCOME_ENRICHMENT_BATCH007_20260926",
+  "evidence_digest_scope": "sha256(normalized_evidence UTF-8)",
+  "policy": "Outcome enrichment is downstream of the immutable Batch 005 replay corpus. It may resolve hypothesis/outcome blockers but may not create confidence values without separately sourced historical confidence provenance.",
+  "sources": [
+    {
+      "source_id": "suez-spglobal-2021-03-26-hypothesis",
+      "role": "HISTORICAL_HYPOTHESIS",
+      "publisher": "S&P Global",
+      "url": "https://www.spglobal.com/energy/en/news-research/latest-news/shipping/032621-suez-logjam-continues-to-grow-as-efforts-to-refloat-grounded-ship-persist",
+      "published_at": "2021-03-26T15:41:00Z",
+      "available_at": "2021-03-26T15:41:00Z",
+      "normalized_evidence": "On 26 March 2021, S&P Global reported that around 240 ships were poised to transit the Suez chokepoint, that some vessels were diverting, and that market watchers expected the backlog caused by the closure to take weeks to clear while freight rates on tankers and containers had risen sharply.",
+      "evidence_digest": "sha256:1211ae20093431bab8e9893591062f3747d44a51c51a6d374cb7aca4f0826972"
+    },
+    {
+      "source_id": "suez-sca-2021-03-31-traffic",
+      "role": "OUTCOME",
+      "publisher": "Suez Canal Authority",
+      "url": "https://www.suezcanal.gov.eg/Arabic/MediaCenter/News/Pages/31-3-2021.aspx",
+      "published_at": "2021-03-31T23:59:59Z",
+      "available_at": "2021-03-31T23:59:59Z",
+      "observed_at": "2021-03-31T23:59:59Z",
+      "normalized_evidence": "On 31 March 2021, the Suez Canal Authority reported that 81 ships transited the canal that day with total net tonnage of 4.8 million tons while the canal operated around the clock to clear waiting vessels.",
+      "evidence_digest": "sha256:3d3b61fb6f585efaa65806118baa4031f5c9d8973bb135cc17a0ca56d56f0f0a"
+    },
+    {
+      "source_id": "suez-unctad-2021-04-23-freight",
+      "role": "OUTCOME",
+      "publisher": "UN Trade and Development (UNCTAD)",
+      "url": "https://unctad.org/news/shipping-during-covid-19-why-container-freight-rates-have-surged",
+      "published_at": "2021-04-23T23:59:59Z",
+      "available_at": "2021-04-23T23:59:59Z",
+      "observed_at": "2021-04-23T23:59:59Z",
+      "normalized_evidence": "On 23 April 2021, UNCTAD reported that the Ever Given blockage of the Suez Canal for almost a week triggered a new surge in container spot freight rates after rates had begun to settle from pandemic-era highs.",
+      "evidence_digest": "sha256:af09fd210a354fbd186ba7bca970407e408d4b8384d258de81fddba38cf8cbc7"
+    },
+    {
+      "source_id": "bsgi-imf-2022-07-26-hypothesis",
+      "role": "HISTORICAL_HYPOTHESIS",
+      "publisher": "International Monetary Fund",
+      "url": "https://www.imf.org/en/publications/weo/issues/2022/07/26/world-economic-outlook-update-july-2022",
+      "published_at": "2022-07-26T23:59:59Z",
+      "available_at": "2022-07-26T23:59:59Z",
+      "normalized_evidence": "In its 26 July 2022 World Economic Outlook Update, the IMF warned that further barriers to food trade or a poor harvest risked additional hardship, famine or unrest, and stated that these risks could be allayed by easing logistical hurdles created by the war in Ukraine, including the Black Sea blockade.",
+      "evidence_digest": "sha256:c593da1839c31402eb8ef6c42394d56493f1fb00802d64238ca5e25e088edcb0"
+    },
+    {
+      "source_id": "bsgi-fao-2022-08-05-prices",
+      "role": "OUTCOME",
+      "publisher": "Food and Agriculture Organization of the United Nations",
+      "url": "https://www.fao.org/newsroom/detail/global-food-commodity-prices-decline-in-july/",
+      "published_at": "2022-08-05T23:59:59Z",
+      "available_at": "2022-08-05T23:59:59Z",
+      "observed_at": "2022-08-05T23:59:59Z",
+      "normalized_evidence": "On 5 August 2022, FAO reported that its Food Price Index averaged 140.9 points in July, down 8.6 percent from June; the Cereal Price Index fell 11.5 percent, world wheat prices fell as much as 14.5 percent and maize prices fell 10.7 percent, with the Black Sea export agreement cited as one contributing factor alongside other market and seasonal factors.",
+      "evidence_digest": "sha256:0f7ce18b39577a5bb42b8a1d4aced7947d9a3838c9d2f421764c49c4c3ce31fe"
+    },
+    {
+      "source_id": "bsgi-un-2022-11-01-tonnage",
+      "role": "OUTCOME",
+      "publisher": "United Nations Joint Coordination Centre",
+      "url": "https://www.un.org/en/black-sea-grain-initiative/information-note-1-november-2022",
+      "published_at": "2022-11-01T23:59:59Z",
+      "available_at": "2022-11-01T23:59:59Z",
+      "observed_at": "2022-11-01T23:59:59Z",
+      "normalized_evidence": "On 1 November 2022, the United Nations Joint Coordination Centre reported that 9,729,083 metric tons of grains and foodstuffs had moved from Ukrainian ports under the Black Sea Grain Initiative.",
+      "evidence_digest": "sha256:04a183b6262f13351bca6da3a3a4e79c3dea7939ac076d1602582789cfd8ed3c"
+    },
+    {
+      "source_id": "bsgi-un-2023-05-26-series",
+      "role": "OUTCOME",
+      "publisher": "United Nations Joint Coordination Centre",
+      "url": "https://www.un.org/en/node/206207",
+      "published_at": "2023-06-01T23:59:59Z",
+      "available_at": "2023-06-01T23:59:59Z",
+      "observed_at": "2023-05-26T23:59:59Z",
+      "normalized_evidence": "On 26 May 2023, the United Nations reported cumulative Black Sea Grain Initiative exports of 30,288,930 metric tonnes and published monthly export totals including 1,573,290 tonnes in August 2022, 3,913,484 in September, 4,241,809 in October, 2,611,506 in November, 3,740,616 in December, 3,023,926 in January 2023, 3,393,366 in February, 3,933,607 in March and 2,785,455 in April.",
+      "evidence_digest": "sha256:6bc09c2b6e6dfeab4985cf7bbab85de6a998fa0e1a64919a2bd6b709fa037a2e"
+    },
+    {
+      "source_id": "wilhelm-bnetza-2022-09-29-hypothesis",
+      "role": "HISTORICAL_HYPOTHESIS",
+      "publisher": "Bundesnetzagentur",
+      "url": "https://www.bundesnetzagentur.de/SharedDocs/Pressemitteilungen/EN/2022/20220929_FSRU.html",
+      "published_at": "2022-09-29T23:59:59Z",
+      "available_at": "2022-09-29T23:59:59Z",
+      "normalized_evidence": "On 29 September 2022, the Bundesnetzagentur stated that the federally chartered FSRUs at Brunsbuettel and Wilhelmshaven would already help secure gas supply in winter 2022-2023 and that the objective was to use the terminals to as high a degree as possible once operational.",
+      "evidence_digest": "sha256:59556aa2f477b6444b793549d7b1b93a18e319302de3134be8fbdf94a45cc42f"
+    },
+    {
+      "source_id": "wilhelm-uniper-2023-01-03-firstcargo",
+      "role": "OUTCOME",
+      "publisher": "Uniper",
+      "url": "https://www.uniper.energy/news/first-lng-cargo-arrives-at-germanys-lng-terminal-in-wilhelmshaven",
+      "published_at": "2023-01-03T10:00:00Z",
+      "available_at": "2023-01-03T10:00:00Z",
+      "observed_at": "2023-01-03T10:00:00Z",
+      "normalized_evidence": "On 3 January 2023, Uniper reported delivery of the first full LNG cargo to Wilhelmshaven: approximately 170,000 cubic metres of LNG corresponding to 97,147,000 cubic metres of natural gas.",
+      "evidence_digest": "sha256:c892bf8c84ed13b36f55db6cd17a59e8aa411e275947d46df59d194aa97f5b61"
+    },
+    {
+      "source_id": "wilhelm-uniper-2023-12-15-year1",
+      "role": "OUTCOME",
+      "publisher": "Uniper",
+      "url": "https://www.uniper.energy/news/germanys-first-lng-terminal-in-wilhelmshaven-looks-back-on-one-year-of-operation",
+      "published_at": "2023-12-15T13:52:00Z",
+      "available_at": "2023-12-15T13:52:00Z",
+      "observed_at": "2023-12-15T13:52:00Z",
+      "normalized_evidence": "On 15 December 2023, Uniper reported that since commissioning the Wilhelmshaven terminal had received 42 LNG carriers delivering around 7 million cubic metres of LNG, converted into around 4 billion cubic metres of natural gas and fed into the German gas grid, covering around 6 percent of German gas consumption in 2023.",
+      "evidence_digest": "sha256:06c0e07ec33dce2a39ab67432eeae21fe940b9d231716682cc969973850540ae"
+    }
+  ],
+  "cases": [
+    {
+      "case_id": "suez-ever-given-2021",
+      "historical_hypothesis_source_ids": [
+        "suez-spglobal-2021-03-26-hypothesis"
+      ],
+      "outcome_source_ids": [
+        "suez-sca-2021-03-31-traffic",
+        "suez-unctad-2021-04-23-freight"
+      ],
+      "hypothesis_available_at": "2021-03-26T15:41:00Z",
+      "hypothesis_statement": "During the blockage, an independent shipping-market source expected the backlog to take weeks to clear and reported sharply higher freight rates as vessels diverted or waited.",
+      "metrics": [
+        {
+          "metric_id": "suez-clearing-day-vessels",
+          "source_id": "suez-sca-2021-03-31-traffic",
+          "observed_at": "2021-03-31T23:59:59Z",
+          "metric": "vessels_transited_day",
+          "value": 81,
+          "unit": "vessels"
+        },
+        {
+          "metric_id": "suez-clearing-day-net-tonnage",
+          "source_id": "suez-sca-2021-03-31-traffic",
+          "observed_at": "2021-03-31T23:59:59Z",
+          "metric": "net_tonnage_transited_day",
+          "value": 4.8,
+          "unit": "million_net_tons"
+        }
+      ],
+      "qualitative_outcomes": [
+        {
+          "source_id": "suez-unctad-2021-04-23-freight",
+          "statement": "UNCTAD attributed a new surge in container spot freight rates to the blockage as one factor in an already disrupted freight market."
+        }
+      ],
+      "hypothesis_independence_basis": "S&P Global is distinct from the Suez Canal Authority and UNCTAD outcome publishers and published during the blockage before the admitted post-blockage outcome sources."
+    },
+    {
+      "case_id": "black-sea-grain-corridor-2022",
+      "historical_hypothesis_source_ids": [
+        "bsgi-imf-2022-07-26-hypothesis"
+      ],
+      "outcome_source_ids": [
+        "bsgi-fao-2022-08-05-prices",
+        "bsgi-un-2022-11-01-tonnage",
+        "bsgi-un-2023-05-26-series"
+      ],
+      "hypothesis_available_at": "2022-07-26T23:59:59Z",
+      "hypothesis_statement": "An independent IMF outlook identified the Black Sea blockade as a logistical hurdle whose easing could reduce food-crisis risks.",
+      "metrics": [
+        {
+          "metric_id": "bsgi-july-fao-food-index",
+          "source_id": "bsgi-fao-2022-08-05-prices",
+          "observed_at": "2022-08-05T23:59:59Z",
+          "metric": "fao_food_price_index",
+          "value": 140.9,
+          "unit": "index_points"
+        },
+        {
+          "metric_id": "bsgi-july-food-index-mom",
+          "source_id": "bsgi-fao-2022-08-05-prices",
+          "observed_at": "2022-08-05T23:59:59Z",
+          "metric": "fao_food_price_index_month_over_month",
+          "value": -8.6,
+          "unit": "percent"
+        },
+        {
+          "metric_id": "bsgi-july-cereal-index-mom",
+          "source_id": "bsgi-fao-2022-08-05-prices",
+          "observed_at": "2022-08-05T23:59:59Z",
+          "metric": "fao_cereal_price_index_month_over_month",
+          "value": -11.5,
+          "unit": "percent"
+        },
+        {
+          "metric_id": "bsgi-july-wheat-price-change",
+          "source_id": "bsgi-fao-2022-08-05-prices",
+          "observed_at": "2022-08-05T23:59:59Z",
+          "metric": "world_wheat_price_change",
+          "value": -14.5,
+          "unit": "percent"
+        },
+        {
+          "metric_id": "bsgi-july-maize-price-change",
+          "source_id": "bsgi-fao-2022-08-05-prices",
+          "observed_at": "2022-08-05T23:59:59Z",
+          "metric": "world_maize_price_change",
+          "value": -10.7,
+          "unit": "percent"
+        },
+        {
+          "metric_id": "bsgi-cumulative-tonnage-2022-11-01",
+          "source_id": "bsgi-un-2022-11-01-tonnage",
+          "observed_at": "2022-11-01T23:59:59Z",
+          "metric": "cumulative_exports",
+          "value": 9729083,
+          "unit": "metric_tonnes"
+        },
+        {
+          "metric_id": "bsgi-cumulative-tonnage-2023-05-26",
+          "source_id": "bsgi-un-2023-05-26-series",
+          "observed_at": "2023-05-26T23:59:59Z",
+          "metric": "cumulative_exports",
+          "value": 30288930,
+          "unit": "metric_tonnes"
+        }
+      ],
+      "time_series": [
+        {
+          "series_id": "bsgi-monthly-exports",
+          "source_id": "bsgi-un-2023-05-26-series",
+          "unit": "metric_tonnes",
+          "points": [
+            {
+              "period": "2022-08",
+              "value": 1573290
+            },
+            {
+              "period": "2022-09",
+              "value": 3913484
+            },
+            {
+              "period": "2022-10",
+              "value": 4241809
+            },
+            {
+              "period": "2022-11",
+              "value": 2611506
+            },
+            {
+              "period": "2022-12",
+              "value": 3740616
+            },
+            {
+              "period": "2023-01",
+              "value": 3023926
+            },
+            {
+              "period": "2023-02",
+              "value": 3393366
+            },
+            {
+              "period": "2023-03",
+              "value": 3933607
+            },
+            {
+              "period": "2023-04",
+              "value": 2785455
+            }
+          ]
+        }
+      ],
+      "hypothesis_independence_basis": "The IMF is distinct from the FAO and UN Joint Coordination Centre outcome publishers and published its mechanism assessment before the admitted August 2022 and later outcome sources."
+    },
+    {
+      "case_id": "germany-wilhelmshaven-lng-commissioning-2022-2023",
+      "historical_hypothesis_source_ids": [
+        "wilhelm-bnetza-2022-09-29-hypothesis"
+      ],
+      "outcome_source_ids": [
+        "wilhelm-uniper-2023-01-03-firstcargo",
+        "wilhelm-uniper-2023-12-15-year1"
+      ],
+      "hypothesis_available_at": "2022-09-29T23:59:59Z",
+      "hypothesis_statement": "Before commissioning, Germany's independent network regulator stated that the Wilhelmshaven/Brunsbuettel FSRUs would contribute to winter gas security and were intended for high utilization.",
+      "metrics": [
+        {
+          "metric_id": "wilhelm-first-cargo-lng-volume",
+          "source_id": "wilhelm-uniper-2023-01-03-firstcargo",
+          "observed_at": "2023-01-03T10:00:00Z",
+          "metric": "first_full_cargo_lng_volume",
+          "value": 170000,
+          "unit": "cubic_metres_LNG"
+        },
+        {
+          "metric_id": "wilhelm-first-cargo-natural-gas-equivalent",
+          "source_id": "wilhelm-uniper-2023-01-03-firstcargo",
+          "observed_at": "2023-01-03T10:00:00Z",
+          "metric": "first_full_cargo_natural_gas_equivalent",
+          "value": 97147000,
+          "unit": "cubic_metres_natural_gas"
+        },
+        {
+          "metric_id": "wilhelm-year1-carriers",
+          "source_id": "wilhelm-uniper-2023-12-15-year1",
+          "observed_at": "2023-12-15T13:52:00Z",
+          "metric": "lng_carriers_received",
+          "value": 42,
+          "unit": "carriers"
+        },
+        {
+          "metric_id": "wilhelm-year1-lng-delivered",
+          "source_id": "wilhelm-uniper-2023-12-15-year1",
+          "observed_at": "2023-12-15T13:52:00Z",
+          "metric": "lng_delivered",
+          "value": 7,
+          "unit": "million_cubic_metres_LNG"
+        },
+        {
+          "metric_id": "wilhelm-year1-natural-gas-fed-grid",
+          "source_id": "wilhelm-uniper-2023-12-15-year1",
+          "observed_at": "2023-12-15T13:52:00Z",
+          "metric": "natural_gas_fed_to_grid",
+          "value": 4,
+          "unit": "billion_cubic_metres_natural_gas"
+        },
+        {
+          "metric_id": "wilhelm-year1-german-gas-consumption-share",
+          "source_id": "wilhelm-uniper-2023-12-15-year1",
+          "observed_at": "2023-12-15T13:52:00Z",
+          "metric": "share_of_german_gas_consumption_2023",
+          "value": 6,
+          "unit": "percent"
+        }
+      ],
+      "hypothesis_independence_basis": "Bundesnetzagentur is a regulator distinct from terminal operator Uniper and published its pre-operation supply-security assessment before the admitted cargo and first-year outcome sources."
+    }
+  ]
+}
