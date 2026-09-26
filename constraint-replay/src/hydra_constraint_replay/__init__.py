@@ -51,12 +51,6 @@ from .outcome_mapping import (
     map_positive_constraint_outcome,
 )
 from .end_to_end import EndToEndReplayError, run_classified_replay_e2e
-from .multidomain import (
-    ConstraintMultiDomainQueryService,
-    MultiDomainQueryError,
-    MULTIDOMAIN_CONTRACT_VERSION,
-    MULTIDOMAIN_MODE,
-)
 from .query import (
     ConstraintQueryError,
     ConstraintReplayQueryService,
@@ -90,8 +84,6 @@ __all__ = [
     "POSITIVE_CONSTRAINT_RULESET_V1","load_outcome_mapping_bundle",
     "map_positive_constraint_outcome",
     "EndToEndReplayError","run_classified_replay_e2e",
-    "ConstraintMultiDomainQueryService","MultiDomainQueryError",
-    "MULTIDOMAIN_CONTRACT_VERSION","MULTIDOMAIN_MODE",
     "ConstraintQueryError","ConstraintReplayQueryService",
     "QUERY_CONTRACT_VERSION","QUERY_MODE","READ_ONLY_CAPABILITIES",
     "CLASSIFIED_GOLD_TIER","NO_NUMERIC_CONFIDENCE","ClassifiedGoldError",
