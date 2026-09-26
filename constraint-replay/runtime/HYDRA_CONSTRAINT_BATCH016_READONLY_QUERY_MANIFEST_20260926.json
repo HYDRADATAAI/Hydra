@@ -63,5 +63,9 @@
     "t6_fail_closed_validator_status": "DORMANT_NOT_ACTIVATED",
     "query_surface_activates_t6": false,
     "query_surface_registers_runtime_binding": false
+  },
+  "acceptance": {
+    "path": "constraint-replay/runtime/HYDRA_CONSTRAINT_BATCH016_READONLY_QUERY_ACCEPTANCE_20260926.json",
+    "git_blob_sha": "da881c229116528b7be0a7416f1671a48fa89e32"
   }
 }
