@@ -8,13 +8,15 @@ It does not replace T1 custody, persisted receipt/release identity, the exact-ni
 
 ## Normal Windows workflow
 
-Run:
+The canonical normal workflow is Python-only:
 
 ```powershell
-powershell -ExecutionPolicy Bypass -File .\tools\private\Invoke-HYDRAConstraintFirstSliceAutomatedBrowserCapture_V001_20260926.ps1 -AuthorizedPublicAcquisition -AuthorizedPublicAcquisition
+python .\tools\private\HYDRA_CONSTRAINT_T1_WINDOWS_PYTHON_BROWSER_CAPTURE_BOOTSTRAP_V001_20260926.py --authorized-public-acquisition
 ```
 
-The launcher creates a Python virtual environment only under `D:\HYDRA_PRIVATE\constraint\browser-runtime`, installs the Python Playwright client there when absent, and uses an already-installed Chrome or Edge browser. It does not download a Playwright browser build.
+The Python bootstrap is anchored to its own repository path, rejects audit/snapshot clones, enables Git long-path support, fast-forwards the canonical capture branch, creates or reuses the private Playwright virtual environment under `D:\HYDRA\_PRIVATE\constraint\browser-runtime`, installs only the Python Playwright client when absent, and invokes the authoritative browser runner.
+
+The PowerShell launcher remains available for compatibility, but it is not required for the normal workflow.
 
 The browser is headed by default. A dedicated browser profile is stored only under the private root. The runner does not export or replay browser credentials or session material.
 
@@ -36,7 +38,7 @@ For every registered source the runner requires:
 - block/challenge/interstitial rejection for HTML;
 - source-specific body markers for the three previously blocked HTML sources.
 
-The response body, capture manifest, generated capture plan, sanitized attestation, and replay-lineage packet are written only under `D:\HYDRA_PRIVATE\constraint`.
+The response body, capture manifest, generated capture plan, sanitized attestation, and replay-lineage packet are written only under `D:\HYDRA\_PRIVATE\constraint`.
 
 ## Existing authority reused
 
@@ -75,3 +77,12 @@ The Python browser runner writes a private, non-authoritative capture journal af
 If the controlled browser/context is closed while a source is in progress, the runner may relaunch the installed Chrome/Edge session and retry that same registered source up to two times by default. This does not bypass a challenge or substitute a source.
 
 The journal is marked `t1_release_written=true` only after all nine sources complete and the existing materializer, sanitized attestation validator, deterministic replay-lineage builder, post-capture sanitized status builder, and final post-output validation all pass.
+
+
+## Resume behavior
+
+Unless `--fresh` is supplied, the Python runner automatically looks for the latest incomplete automated-browser capture journal in the private metadata root. Every candidate journal remains non-authoritative and is revalidated before reuse.
+
+Resume accepts only a journal whose entries are an exact prefix of the authoritative nine-source order. For every reused source the runner revalidates exact source ID and registered URL, HTTP 200 metadata, content type, redirect chain, source-version identity, timezone-aware acquisition timestamp, byte length, staged-body existence, SHA-256, and HTML/PDF body rules.
+
+A tampered body, locator drift, identity drift, duplicate or out-of-order journal entry, missing staged body, or completed release fails closed. A resumed run reuses a previously established release identity so downstream materialization retries remain idempotent.
