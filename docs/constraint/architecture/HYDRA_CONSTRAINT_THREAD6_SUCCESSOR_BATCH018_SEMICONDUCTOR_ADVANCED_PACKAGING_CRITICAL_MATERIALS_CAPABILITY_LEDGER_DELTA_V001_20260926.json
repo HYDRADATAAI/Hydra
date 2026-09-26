@@ -1,0 +1,83 @@
+{
+  "schema_version": "hydra-constraint-capability-ledger-delta/v1",
+  "record_id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH018_SEMICONDUCTOR_ADVANCED_PACKAGING_CRITICAL_MATERIALS_CAPABILITY_LEDGER_DELTA_V001",
+  "as_of": "2026-09-26",
+  "slice_id": "SEMICONDUCTOR_ADVANCED_PACKAGING_CRITICAL_MATERIALS_V1",
+  "predecessor_batch": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH017",
+  "changes": [
+    {
+      "capability": "semiconductor_source_authority",
+      "prior": "EMPTY",
+      "current": "READY_INITIAL",
+      "basis": "6 primary reviewed sources + P0/P1/P2 authority registry"
+    },
+    {
+      "capability": "semiconductor_suppliers_entities",
+      "prior": "EMPTY_PUBLIC_REPO",
+      "current": "PARTIAL",
+      "basis": "NVIDIA, Micron, SK hynix, TSMC"
+    },
+    {
+      "capability": "semiconductor_products_technologies",
+      "prior": "EMPTY_PUBLIC_REPO",
+      "current": "PARTIAL",
+      "basis": "7 HBM/accelerator/CoWoS nodes"
+    },
+    {
+      "capability": "capacity_state_separation",
+      "prior": "EXTENSION_REQUIRED",
+      "current": "PASS_INITIAL",
+      "basis": "BOOKED/RAMPING/OPERATIONAL/FULLY_LOADED observations"
+    },
+    {
+      "capability": "yield_modeling",
+      "prior": "EXTENSION_REQUIRED",
+      "current": "PASS_INITIAL_UNQUANTIFIED",
+      "basis": "Micron ramping yield represented separately with null value"
+    },
+    {
+      "capability": "qualification_modeling",
+      "prior": "EXTENSION_REQUIRED",
+      "current": "PASS_INITIAL",
+      "basis": "product/customer qualification observations separated from capacity"
+    },
+    {
+      "capability": "constraint_formation",
+      "prior": "EMPTY_SLICE2",
+      "current": "YES_SHADOW_2",
+      "basis": "bounded CoWoS and HBM supply candidates"
+    },
+    {
+      "capability": "cross_slice_ai_semiconductor_power",
+      "prior": "REQUIRED_NOT_BUILT",
+      "current": "PARTIAL_AI_TO_SEMICONDUCTOR",
+      "basis": "one supported cross-slice AI-demand edge"
+    },
+    {
+      "capability": "semiconductor_facilities",
+      "prior": "EMPTY_PUBLIC_REPO",
+      "current": "EMPTY_PUBLIC_REPO",
+      "basis": "No facility population added"
+    },
+    {
+      "capability": "critical_materials",
+      "prior": "EMPTY_PUBLIC_REPO",
+      "current": "EMPTY_PUBLIC_REPO",
+      "basis": "No material population added"
+    },
+    {
+      "capability": "semiconductor_historical_replay",
+      "prior": "EMPTY",
+      "current": "EMPTY",
+      "basis": "Raw source versions not materialized"
+    },
+    {
+      "capability": "semiconductor_historical_outcomes",
+      "prior": "EMPTY",
+      "current": "EMPTY",
+      "basis": "No outcome records added"
+    }
+  ],
+  "population_upgrade_count": 7,
+  "rule": "ONLY_EVIDENCE_BACKED_SLICE_CAPABILITIES_ADVANCE"
+}
