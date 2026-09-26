@@ -183,6 +183,26 @@ class ConstraintReplayQueryService:
             raise ConstraintQueryError("Batch 015 unevaluable count mismatch")
         if expected.get("brier_score") != calibration.get("brier_score"):
             raise ConstraintQueryError("Batch 015 Brier-state mismatch")
+        run_integrity = self._run.get("integrity")
+        if not isinstance(run_integrity, Mapping):
+            raise ConstraintQueryError("Batch 015 run integrity section is missing")
+        required_green = {
+            "replay_ready_case_set_equals_classified_case_set": True,
+            "replay_ready_case_set_equals_promotion_case_set": True,
+            "replay_source_bundle_pins_valid": True,
+            "classified_artifact_pins_valid": True,
+            "classification_blockers_remaining": 0,
+            "calibrated_cases_present": 0,
+        }
+        for key, expected_value in required_green.items():
+            if run_integrity.get(key) != expected_value:
+                raise ConstraintQueryError(
+                    f"Batch 015 integrity invariant failed: {key}"
+                )
+        if calibration.get("status") != "BLOCKED_NO_ADMISSIBLE_NUMERIC_CONFIDENCE":
+            raise ConstraintQueryError("Batch 015 calibration state is unsupported")
+        if calibration.get("calibrated_case_count") != 0:
+            raise ConstraintQueryError("Batch 015 unexpectedly contains calibrated cases")
 
         return {
             "manifest_path": self._manifest_relative,
