@@ -397,11 +397,13 @@ def run(args: argparse.Namespace) -> int:
     materializer_src = repo_root / MATERIALIZER_SRC_RELATIVE_PATH
     attestation_validator = repo_root / ATTESTATION_VALIDATOR_RELATIVE_PATH
     replay_builder = repo_root / REPLAY_BUILDER_RELATIVE_PATH
+    post_capture_status_builder = repo_root / POST_CAPTURE_STATUS_BUILDER_RELATIVE_PATH
     for label, path in (
         ("authoritative source registry", registry_path),
         ("authoritative T1 materializer source", materializer_src),
         ("sanitized attestation validator", attestation_validator),
         ("deterministic replay-lineage builder", replay_builder),
+        ("post-capture sanitized status builder", post_capture_status_builder),
     ):
         if not path.exists():
             raise CaptureError(f"{label} not found: {path}")
@@ -500,6 +502,9 @@ def run(args: argparse.Namespace) -> int:
     replay_path = metadata_root / (
         f"HYDRA_CONSTRAINT_FIRST_SLICE_REPLAY_LINEAGE_PACKET_{run_stamp}.json"
     )
+    post_capture_status_path = metadata_root / (
+        f"HYDRA_CONSTRAINT_FIRST_SLICE_POST_CAPTURE_SANITIZED_STATUS_{run_stamp}.json"
+    )
     _write_json(plan_path, capture_plan)
 
     env = os.environ.copy()
@@ -555,6 +560,20 @@ def run(args: argparse.Namespace) -> int:
         env=env,
         label="deterministic replay-lineage builder",
     )
+    _run_checked(
+        [
+            sys.executable,
+            str(post_capture_status_builder),
+            "--attestation",
+            str(attestation_path),
+            "--registry",
+            str(registry_path),
+            "--output",
+            str(post_capture_status_path),
+        ],
+        env=env,
+        label="post-capture sanitized status builder",
+    )
     _validate_post_outputs(attestation_path, replay_path)
 
     print(f"SOURCE_CAPTURE={EXPECTED_SOURCE_COUNT}/{EXPECTED_SOURCE_COUNT}")
@@ -562,6 +581,7 @@ def run(args: argparse.Namespace) -> int:
     print("ATTESTATION=PASS")
     print("SOURCE_VERSION_HASH_LINEAGE=PASS")
     print("REPLAY_LINEAGE=PASS")
+    print("POST_CAPTURE_SANITIZED_STATUS=PASS")
     print("STRICT_HISTORICAL_REPLAY=BLOCKED")
     print("NATIVE_T5_T6_ADMISSION=BLOCKED")
     print("RAW_SOURCE_PUBLICATION=NO")
@@ -574,7 +594,7 @@ def build_parser() -> argparse.ArgumentParser:
         description=(
             "Capture the authoritative HYDRA Constraint first-slice registry with an installed "
             "Chrome/Edge browser, then invoke the existing T1 materializer, attestation validator, "
-            "and deterministic replay-lineage builder."
+            "deterministic replay-lineage builder, and post-capture sanitized status gate."
         )
     )
     parser.add_argument("--repo-root", default=str(default_repo))
