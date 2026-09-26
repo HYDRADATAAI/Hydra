@@ -11,7 +11,10 @@ captured through an authorized or reviewed acquisition path.
 ## Safety and public-repo boundary
 
 Raw source bytes must live in a private HYDRA data root outside the public Git
-repository. The store rejects a private root nested inside the public repo.
+repository. The store rejects a private root nested inside the public repo and
+resolves every object, receipt, and release path before use so descendant
+symlinks cannot redirect private storage into the public repository or outside
+the configured private root.
 
 The public repository contains only persistence code, schemas/contracts,
 synthetic tests, and status/manifests. It does not publish third-party source
@@ -21,11 +24,11 @@ bodies.
 
 - SHA-256 content-addressed raw objects.
 - Atomic immutable writes.
-- Immutable per-source-version receipts.
+- Immutable per-source-version receipts, with eligibility bound to the exact persisted receipt record.
 - Explicit source_id versus source_version_id.
 - acquired_at and available_at retained separately.
-- Deterministic T1 release manifests.
-- Release membership required for ordinary T1-to-T2 eligibility.
+- Deterministic immutable T1 release manifests.
+- Ordinary T1-to-T2 eligibility requires the exact persisted release manifest; a valid in-memory lookalike is insufficient.
 - Quarantine and ineligible dispositions fail closed.
 - No URL fetching or live-source authority.
 
