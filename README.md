@@ -130,6 +130,25 @@ The Batch 015 aggregate replay is reproduced in CI from pinned inputs. Batch 016
 This interface is deliberately **read-only**. It does not authorize canonical mutation, ranking, model training, trading, external actions, or T6 activation.
 
 See [`constraint-replay/`](constraint-replay/) for the replay contracts, run artifact, query service, CLI, tests, and provenance reports.
+## Constraint operating status
+
+The current governed historical Constraint stack now has a deterministic operating/readiness snapshot generated from the joined replay + policy + physical view.
+
+For the current declared historical scope:
+
+- historical classification: **FULL** (22/22 cases);
+- deterministic replay execution: **FULL**;
+- policy → physical binding: **FULL**;
+- read-only query/orchestration: **FULL**;
+- event-taxonomy sourced breadth: **THIN** (17/18 event types; `SUPPLY_AFFECTING_CONFLICT` has no sourced case);
+- probabilistic calibration: **EMPTY**;
+- live/current public Constraint ingestion: **MISSING**;
+- canonical mutation runtime: **MISSING intentionally**;
+- T6 activation: **MISSING intentionally / dormant**.
+
+The operating layer remains read-only and does not authorize canonical mutation, ranking, model training, trading, external effects, or T6 activation.
+
+See [`constraint-replay/`](constraint-replay/) for the Batch 018 operating snapshot, manifest, report, tests, and CLI.
 ## Public data-engineering pipeline sample
 
 A second runnable public example lives in [`market-data-pipeline-sample/`](market-data-pipeline-sample/). It uses **synthetic, non-live** records to demonstrate a compact end-to-end data pipeline:

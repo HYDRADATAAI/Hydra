@@ -241,7 +241,43 @@ python constraint-replay/scripts/query_HYDRA_CONSTRAINT_BATCH016_readonly_replay
 ```
 
 The public T6 validator remains explicitly dormant and is not activated or runtime-bound by this query surface.
-## Batch 017 multi-domain read-only orchestration\n\nBatch 017 composes the frozen replay/query state with the authoritative historical policy and physical packages without duplicating their schemas.\n\nThe orchestrator:\n\n- loads four validated policy bundles;\n- loads their four paired sourced physical graphs;\n- materializes the 31 executable policy events;\n- validates 51 policy → physical bindings across 47 canonical physical entity IDs;\n- requires exact 22-case equality with the Batch 015 replay state;\n- exposes read-only summary, integrity, case, entity-usage, and cross-domain case-list queries.\n\nThe four source pairs remain separate; Batch 017 does not create a synthetic cross-batch physical mega-graph.\n\nThe public T6 validator remains dormant and is not called or runtime-bound.\n\nCLI:\n\n```bash\npython constraint-replay/scripts/query_HYDRA_CONSTRAINT_BATCH017_multidomain_readonly_20260926.py summary\npython constraint-replay/scripts/query_HYDRA_CONSTRAINT_BATCH017_multidomain_readonly_20260926.py case suez-ever-given-2021 --max-depth 3\npython constraint-replay/scripts/query_HYDRA_CONSTRAINT_BATCH017_multidomain_readonly_20260926.py entity infrastructure:suez-canal --max-depth 3\n```\n## Run
+## Batch 017 multi-domain read-only orchestration\n\nBatch 017 composes the frozen replay/query state with the authoritative historical policy and physical packages without duplicating their schemas.\n\nThe orchestrator:\n\n- loads four validated policy bundles;\n- loads their four paired sourced physical graphs;\n- materializes the 31 executable policy events;\n- validates 51 policy → physical bindings across 47 canonical physical entity IDs;\n- requires exact 22-case equality with the Batch 015 replay state;\n- exposes read-only summary, integrity, case, entity-usage, and cross-domain case-list queries.\n\nThe four source pairs remain separate; Batch 017 does not create a synthetic cross-batch physical mega-graph.\n\nThe public T6 validator remains dormant and is not called or runtime-bound.\n\nCLI:\n\n```bash\npython constraint-replay/scripts/query_HYDRA_CONSTRAINT_BATCH017_multidomain_readonly_20260926.py summary\npython constraint-replay/scripts/query_HYDRA_CONSTRAINT_BATCH017_multidomain_readonly_20260926.py case suez-ever-given-2021 --max-depth 3\npython constraint-replay/scripts/query_HYDRA_CONSTRAINT_BATCH017_multidomain_readonly_20260926.py entity infrastructure:suez-canal --max-depth 3\n```\n## Batch 018 operating/readiness snapshot
+
+Batch 018 generates the current deterministic operating view over the Batch 017 joined historical Constraint state.
+
+Current readiness distribution:
+
+- 4 `FULL` dimensions;
+- 1 `THIN` dimension;
+- 1 `EMPTY` dimension;
+- 3 `MISSING` dimensions;
+- 1 `DUPLICATE_STALE` dimension.
+
+Current full-scope dimensions:
+
+- historical classification for the current 22-case corpus;
+- deterministic Batch 015 historical replay execution;
+- policy → physical binding for the current corpus;
+- read-only replay/multi-domain query access.
+
+Explicit blockers remain for:
+
+- missing sourced `SUPPLY_AFFECTING_CONFLICT` coverage;
+- probabilistic calibration;
+- live/current public Constraint ingestion;
+- canonical mutation authority;
+- T6 activation.
+
+`EVALUATION_REPORT.md` is retained as historical foundation evidence but is classified `DUPLICATE_STALE` for current operating status because it predates population of the governed historical corpus.
+
+Canonical snapshot:
+
+`operating/HYDRA_CONSTRAINT_BATCH018_OPERATING_SNAPSHOT_20260926.json`
+
+Snapshot digest:
+
+`6d767e34f1f644ae5e4716d907c887425fdce0c15fbf521af530d5e50f0891b0`
+## Run
 
 ```bash
 cd constraint-replay
