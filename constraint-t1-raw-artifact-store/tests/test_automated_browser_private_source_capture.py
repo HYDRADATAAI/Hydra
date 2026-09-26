@@ -167,6 +167,8 @@ class AutomatedBrowserPrivateSourceCaptureTests(unittest.TestCase):
             "HYDRA_CONSTRAINT_T1_AUTOMATED_BROWSER_FIRST_SLICE_CAPTURE_V001_20260926.py",
             text,
         )
+        self.assertIn("AuthorizedPublicAcquisition", text)
+        self.assertIn("--authorized-public-acquisition", text)
         self.assertNotIn("SanitizedHar", text)
         self.assertNotIn("playwright install", text.lower())
 
