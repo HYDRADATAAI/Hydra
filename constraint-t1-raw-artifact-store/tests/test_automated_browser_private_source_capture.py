@@ -111,6 +111,119 @@ class AutomatedBrowserPrivateSourceCaptureTests(unittest.TestCase):
         self.assertIn("CAPTURE_JOURNAL_SCHEMA", text)
         self.assertIn("t1_release_written", text)
 
+    def _resume_fixture(self, root: Path) -> tuple[list[dict], Path, Path, bytes]:
+        repo_root = root / "repo"
+        repo_root.mkdir()
+        capture_dir = root / "capture"
+        capture_dir.mkdir()
+        body = b"<!doctype html><html><body>" + b"x" * 700 + b"</body></html>"
+        body_path = capture_dir / "SRC-0.html"
+        body_path.write_bytes(body)
+        locator = "https://example.com/source-0.html"
+        sources = [
+            {"source_id": "SRC-0", "url": locator},
+            {"source_id": "SRC-1", "url": "https://example.com/source-1.html"},
+        ]
+        journal_path = root / "journal.json"
+        journal = {
+            "schema_version": capture.CAPTURE_JOURNAL_SCHEMA,
+            "slice_id": capture.EXPECTED_SLICE_ID,
+            "run_stamp": "20260926T200000000000Z",
+            "capture_dir": str(capture_dir),
+            "created_at": "2026-09-26T20:00:00Z",
+            "updated_at": "2026-09-26T20:00:01Z",
+            "authoritative": False,
+            "t1_release_written": False,
+            "entries": [
+                {
+                    "source_id": "SRC-0",
+                    "source_locator": locator,
+                    "source_version_id": "SV-SRC-0-TEST",
+                    "acquired_at": "2026-09-26T20:00:00Z",
+                    "http_status": 200,
+                    "content_type": "text/html",
+                    "byte_length": len(body),
+                    "artifact_sha256": __import__("hashlib").sha256(body).hexdigest(),
+                    "body_path": str(body_path),
+                    "capture_method": "PLAYWRIGHT_INSTALLED_BROWSER_MAIN_DOCUMENT",
+                    "browser_channel": "chrome",
+                    "redirect_chain": [locator],
+                }
+            ],
+        }
+        import json
+        journal_path.write_text(json.dumps(journal), encoding="utf-8")
+        return sources, repo_root, journal_path, body
+
+    def test_resume_journal_revalidates_exact_staged_bytes(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            sources, repo_root, journal_path, _ = self._resume_fixture(Path(tmp))
+            journal, capture_dir, captures = capture._load_resume_journal(
+                journal_path=journal_path,
+                sources=sources,
+                public_repo_root=repo_root,
+            )
+            self.assertFalse(journal["t1_release_written"])
+            self.assertTrue(capture_dir.is_dir())
+            self.assertEqual([row.source_id for row in captures], ["SRC-0"])
+
+    def test_resume_journal_rejects_tampered_staged_body(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            sources, repo_root, journal_path, _ = self._resume_fixture(Path(tmp))
+            import json
+            journal = json.loads(journal_path.read_text(encoding="utf-8"))
+            Path(journal["entries"][0]["body_path"]).write_bytes(b"tampered")
+            with self.assertRaisesRegex(capture.CaptureError, "byte length|SHA-256"):
+                capture._load_resume_journal(
+                    journal_path=journal_path,
+                    sources=sources,
+                    public_repo_root=repo_root,
+                )
+
+    def test_resume_journal_must_be_authoritative_source_order_prefix(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            sources, repo_root, journal_path, _ = self._resume_fixture(Path(tmp))
+            import json
+            journal = json.loads(journal_path.read_text(encoding="utf-8"))
+            journal["entries"][0]["source_id"] = "SRC-1"
+            journal["entries"][0]["source_locator"] = sources[1]["url"]
+            journal["entries"][0]["redirect_chain"] = [sources[1]["url"]]
+            journal_path.write_text(json.dumps(journal), encoding="utf-8")
+            with self.assertRaisesRegex(capture.CaptureError, "prefix"):
+                capture._load_resume_journal(
+                    journal_path=journal_path,
+                    sources=sources,
+                    public_repo_root=repo_root,
+                )
+
+    def test_latest_incomplete_journal_ignores_completed_release(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            import json
+            older = root / "HYDRA_CONSTRAINT_FIRST_SLICE_AUTOMATED_BROWSER_CAPTURE_JOURNAL_20260926T200000Z.json"
+            newer = root / "HYDRA_CONSTRAINT_FIRST_SLICE_AUTOMATED_BROWSER_CAPTURE_JOURNAL_20260926T210000Z.json"
+            base = {
+                "schema_version": capture.CAPTURE_JOURNAL_SCHEMA,
+                "slice_id": capture.EXPECTED_SLICE_ID,
+            }
+            older.write_text(
+                json.dumps({**base, "t1_release_written": False}),
+                encoding="utf-8",
+            )
+            newer.write_text(
+                json.dumps({**base, "t1_release_written": True}),
+                encoding="utf-8",
+            )
+            self.assertEqual(capture._find_latest_incomplete_journal(root), older)
+
+    def test_parser_supports_explicit_resume_or_fresh(self) -> None:
+        parser = capture.build_parser()
+        resumed = parser.parse_args(["--resume-journal", "x.json"])
+        self.assertEqual(resumed.resume_journal, "x.json")
+        self.assertFalse(resumed.fresh)
+        fresh = parser.parse_args(["--fresh"])
+        self.assertTrue(fresh.fresh)
+
     def test_registry_requires_exact_nine_unique_source_ids_and_locators(self) -> None:
         rows = nine_sources()
         self.assertEqual(len(capture.validate_registry(registry(rows))), 9)
