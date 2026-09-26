@@ -20,6 +20,7 @@ SLICE = ROOT / "docs/constraint/first_slice/ai_data_center_power_infrastructure_
 VALIDATION = ROOT / "docs/constraint/validation"
 ARCH = ROOT / "docs/constraint/architecture"
 IMPL = ROOT / "docs/constraint/implementation"
+CUSTODY_SUPERSESSION = IMPL / "HYDRA_CONSTRAINT_T1_T2_PERSISTED_CUSTODY_SUPERSESSION_V001_20260926.json"
 
 FILES = {
     "source_registry": SLICE / "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH003_AI_DATA_CENTER_POWER_INFRASTRUCTURE_SOURCE_REGISTRY_V001_20260925.json",
@@ -106,7 +107,40 @@ def git_blob_sha(path: Path) -> str:
     return result.stdout.strip()
 
 
-def validate_manifest(manifest_path: Path) -> int:
+def load_supersessions(path: Path) -> dict[str, dict[str, str]]:
+    doc = load_json(path)
+    require(doc.get("acceptance_effect") == "NONE", "custody supersession must not change acceptance state")
+    require(doc.get("raw_source_materialization_claimed") is False, "custody supersession falsely claims raw materialization")
+    require(doc.get("network_acquisition_authorized") is False, "custody supersession unexpectedly authorizes network acquisition")
+    require(doc.get("ordinary_replay_promoted") is False, "custody supersession unexpectedly promotes ordinary replay")
+    require(
+        doc.get("canonical_constraint_or_beneficiary_admission_promoted") is False,
+        "custody supersession unexpectedly promotes canonical admission",
+    )
+    rows = doc.get("superseded_artifacts")
+    require(isinstance(rows, list) and rows, "custody supersession artifact map missing")
+    result: dict[str, dict[str, str]] = {}
+    for row in rows:
+        require(isinstance(row, dict), "invalid custody supersession entry")
+        relative = row.get("path")
+        predecessor = row.get("predecessor_git_blob_sha")
+        successor = row.get("successor_git_blob_sha")
+        require(isinstance(relative, str) and relative, "custody supersession path missing")
+        require(isinstance(predecessor, str) and len(predecessor) == 40, f"invalid custody predecessor blob: {relative}")
+        require(isinstance(successor, str) and len(successor) == 40, f"invalid custody successor blob: {relative}")
+        require(relative not in result, f"duplicate custody supersession path: {relative}")
+        result[relative] = {
+            "predecessor_git_blob_sha": predecessor,
+            "successor_git_blob_sha": successor,
+        }
+    return result
+
+
+def validate_manifest(
+    manifest_path: Path,
+    *,
+    supersessions: dict[str, dict[str, str]],
+) -> int:
     manifest = load_json(manifest_path)
     artifacts = manifest.get("artifacts")
     require(isinstance(artifacts, list) and artifacts, f"manifest artifacts missing: {manifest_path.name}")
@@ -120,7 +154,20 @@ def validate_manifest(manifest_path: Path) -> int:
         artifact = ROOT / relative
         require(artifact.is_file(), f"manifest member missing: {relative}")
         actual = git_blob_sha(artifact)
-        require(actual == expected, f"manifest blob mismatch: {relative}: expected={expected} actual={actual}")
+        if actual != expected:
+            transition = supersessions.get(relative)
+            require(
+                transition is not None,
+                f"manifest blob mismatch without declared supersession: {relative}: expected={expected} actual={actual}",
+            )
+            require(
+                transition["predecessor_git_blob_sha"] == expected,
+                f"custody supersession predecessor mismatch: {relative}",
+            )
+            require(
+                transition["successor_git_blob_sha"] == actual,
+                f"custody supersession successor mismatch: {relative}",
+            )
         count += 1
     return count
 
@@ -431,7 +478,11 @@ def main() -> int:
     }
     require(required == expected_required, f"ordinary T2 eligibility contract drifted: {sorted(required)}")
 
-    manifest_members = sum(validate_manifest(path) for path in MANIFESTS)
+    custody_supersessions = load_supersessions(CUSTODY_SUPERSESSION)
+    manifest_members = sum(
+        validate_manifest(path, supersessions=custody_supersessions)
+        for path in MANIFESTS
+    )
 
     print("CONSTRAINT_FIRST_SLICE_INTEGRATION_VALIDATION=PASS")
     print(f"SLICE_ID={SLICE_ID}")
