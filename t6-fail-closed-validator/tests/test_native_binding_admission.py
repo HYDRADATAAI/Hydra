@@ -112,6 +112,10 @@ class NativeT5T6AdmissionTests(unittest.TestCase):
         self.assertFalse(result.runtime_activation_authorized)
         self.assertFalse(result.canonical_promotion_authorized)
         self.assertFalse(result.live_source_authorized)
+        self.assertFalse(result.model_training_authorized)
+        self.assertFalse(result.trading_authorized)
+        self.assertFalse(result.to_dict()["model_training_authorized"])
+        self.assertFalse(result.to_dict()["trading_authorized"])
 
     def test_exact_signed_receipt_admits_only_the_implementation_artifact(self) -> None:
         manifest = self.manifest()
@@ -121,6 +125,10 @@ class NativeT5T6AdmissionTests(unittest.TestCase):
         self.assertFalse(result.runtime_activation_authorized)
         self.assertFalse(result.canonical_promotion_authorized)
         self.assertFalse(result.live_source_authorized)
+        self.assertFalse(result.model_training_authorized)
+        self.assertFalse(result.trading_authorized)
+        self.assertFalse(result.to_dict()["model_training_authorized"])
+        self.assertFalse(result.to_dict()["trading_authorized"])
 
     def test_tampered_manifest_is_not_admitted_by_old_receipt(self) -> None:
         manifest = self.manifest()
