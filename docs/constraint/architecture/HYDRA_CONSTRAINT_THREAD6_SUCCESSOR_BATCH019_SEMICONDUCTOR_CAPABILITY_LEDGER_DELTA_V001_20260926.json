@@ -1,0 +1,58 @@
+{
+  "schema_version": "hydra-constraint-capability-ledger-delta/v1",
+  "record_id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH019_SEMICONDUCTOR_CAPABILITY_LEDGER_DELTA_V001",
+  "as_of": "2026-09-26",
+  "slice_id": "SEMICONDUCTOR_ADVANCED_PACKAGING_CRITICAL_MATERIALS_V1",
+  "predecessor_batch": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH018",
+  "changes": [
+    {
+      "capability": "semiconductor_source_authority",
+      "prior": "READY_INITIAL",
+      "current": "READY_EXTENDED",
+      "basis": "10 additional primary/current authoritative source records under conservative current-review availability"
+    },
+    {
+      "capability": "semiconductor_facilities",
+      "prior": "EMPTY_PUBLIC_REPO",
+      "current": "PARTIAL_3",
+      "basis": "TSMC Advanced Backend Fab 6, TSMC Arizona first fab, Amkor Vietnam"
+    },
+    {
+      "capability": "critical_materials",
+      "prior": "EMPTY_PUBLIC_REPO",
+      "current": "PARTIAL_STAGE_CHAIN",
+      "basis": "silica/quartzite -> silicon metal -> high-purity polysilicon -> monocrystalline ingot -> silicon wafer; quartz crucible process input"
+    },
+    {
+      "capability": "semiconductor_equipment",
+      "prior": "POPULATION_REQUIRED",
+      "current": "PARTIAL_2",
+      "basis": "ASML NXT:2050i and NXT:2100i with bounded policy-access event"
+    },
+    {
+      "capability": "qualification_modeling",
+      "prior": "PASS_INITIAL",
+      "current": "PASS_DEEPENED",
+      "basis": "NVIDIA qualification-time dependency plus predecessor Micron in-progress qualification"
+    },
+    {
+      "capability": "semiconductor_historical_outcomes",
+      "prior": "EMPTY",
+      "current": "PARTIAL_SHADOW_1",
+      "basis": "TSMC Arizona 2023 plan versus Q4 2024 earlier-than-scheduled N4 HVM outcome"
+    },
+    {
+      "capability": "semiconductor_historical_replay",
+      "prior": "EMPTY",
+      "current": "BLOCKED",
+      "basis": "new source bodies still not raw-materialized; current review cannot backfill historical available_at"
+    },
+    {
+      "capability": "required_case_matrix",
+      "prior": "2_OF_14",
+      "current": "2_OF_14",
+      "basis": "Cases 4/5/6/9 prerequisite population improved but not falsely closed"
+    }
+  ],
+  "rule": "POPULATION_DEPTH_ADVANCES_WITHOUT_REPLAY_OR_CASE_PROMOTION_WHEN_EVIDENCE_IS_INCOMPLETE"
+}
