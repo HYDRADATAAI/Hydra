@@ -65,7 +65,9 @@ The native-binding gate requires all of the following before it can return
 
 Missing authority fails closed. A valid implementation-admission receipt still
 does **not** authorize runtime activation, canonical promotion, live-source
-acquisition, model training, or trading.
+acquisition, model training, or trading. The admission result surface reports
+each of those authorities explicitly as false rather than leaving any of them
+implicit.
 
 ## Safety boundary
 
