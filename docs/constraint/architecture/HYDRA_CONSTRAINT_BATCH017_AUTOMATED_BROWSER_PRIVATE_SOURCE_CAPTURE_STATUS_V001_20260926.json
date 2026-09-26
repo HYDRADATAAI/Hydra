@@ -20,7 +20,8 @@
     "raw_body_publication": false,
     "challenge_bypass": false,
     "historical_available_at_backdating": false,
-    "canonical_t5_t6_promotion": false
+    "canonical_t5_t6_promotion": false,
+    "post_capture_sanitized_status_builder_reused": true
   },
   "fail_closed_on": [
     "WRONG_URL",
@@ -41,7 +42,14 @@
     "ATTESTATION=PASS",
     "SOURCE_VERSION_HASH_LINEAGE=PASS",
     "REPLAY_LINEAGE=PASS",
+    "POST_CAPTURE_SANITIZED_STATUS=PASS",
     "STRICT_HISTORICAL_REPLAY=BLOCKED",
     "NATIVE_T5_T6_ADMISSION=BLOCKED"
-  ]
+  ],
+  "branch_reconciliation": {
+    "canonical_execution_pr": 65,
+    "source_discovery_pr": 64,
+    "post_capture_gate_reconciled_from_pr": 66,
+    "manual_har_preflight_pr_superseded": 73
+  }
 }
