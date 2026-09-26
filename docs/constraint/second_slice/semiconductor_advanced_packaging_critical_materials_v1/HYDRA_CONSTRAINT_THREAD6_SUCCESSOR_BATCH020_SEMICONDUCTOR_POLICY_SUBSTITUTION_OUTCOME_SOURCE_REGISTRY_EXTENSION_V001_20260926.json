@@ -1,0 +1,137 @@
+{
+  "schema_version": "hydra-constraint-second-slice-source-registry-extension/v1",
+  "record_id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH020_SEMICONDUCTOR_POLICY_SUBSTITUTION_OUTCOME_SOURCE_REGISTRY_EXTENSION_V001",
+  "as_of": "2026-09-26",
+  "slice_id": "SEMICONDUCTOR_ADVANCED_PACKAGING_CRITICAL_MATERIALS_V1",
+  "predecessor_source_registry": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH019_SEMICONDUCTOR_FACILITY_MATERIAL_EQUIPMENT_SOURCE_REGISTRY_EXTENSION_V001",
+  "capture_mode": "CURRENT_REVIEW_CONSERVATIVE_AVAILABILITY",
+  "capture_completed_at": null,
+  "source_content_persisted": false,
+  "reused_source_ids": [
+    "SRC-SEMI-TSMC-ANNUAL-REPORT-2024",
+    "SRC-SEMI-MICRON-Q2FY25-REMARKS-2025-03-20",
+    "SRC-SEMI-SKHYNIX-HBM-SOLDOUT-2024-02-21",
+    "SRC-SEMI-SKHYNIX-HBM3E-VOLUME-2024-03-19"
+  ],
+  "sources": [
+    {
+      "source_id": "SRC-SEMI-B020-TSMC-ARIZONA-ANNOUNCEMENT-2020-05-15",
+      "publisher": "TSMC",
+      "title": "TSMC Announces Intention to Build and Operate an Advanced Semiconductor Fab in the United States",
+      "url": "https://pr.tsmc.com/english/news/2033",
+      "publication_date": "2020-05-15",
+      "publication_date_precision": "DAY",
+      "source_family": "COMPANY_PRODUCTION_OR_QUALIFICATION_RELEASE",
+      "roles": [
+        "FACILITY_PLAN",
+        "CAPACITY_PLAN",
+        "RAMP_TARGET"
+      ],
+      "acquired_at": null,
+      "available_at": null,
+      "availability_basis": null,
+      "ordinary_raw_lineage_eligible": false
+    },
+    {
+      "source_id": "SRC-SEMI-B020-TSMC-Q2-2023-TRANSCRIPT-2023-07-20",
+      "publisher": "TSMC",
+      "title": "Q2 2023 Taiwan Semiconductor Manufacturing Co Ltd Earnings Call",
+      "url": "https://investor.tsmc.com/english/encrypt/files/encrypt_file/reports/2023-07/7ec677062ca442e429b632ccd6d4f31ad53b1ce7/TSMC%202Q23%20Transcript.pdf",
+      "publication_date": "2023-07-20",
+      "publication_date_precision": "DAY",
+      "source_family": "COMPANY_EARNINGS_AND_PREPARED_REMARKS",
+      "roles": [
+        "FACILITY_DELAY",
+        "RAMP_REVISION",
+        "LABOR_INSTALLATION_CONSTRAINT"
+      ],
+      "acquired_at": null,
+      "available_at": null,
+      "availability_basis": null,
+      "ordinary_raw_lineage_eligible": false
+    },
+    {
+      "source_id": "SRC-SEMI-B020-BIS-FDP-HBM-SME-IFR-2024-12-02",
+      "publisher": "U.S. Bureau of Industry and Security / Federal Register",
+      "title": "Foreign-Produced Direct Product Rule Additions, and Refinements to Controls for Advanced Computing and Semiconductor Manufacturing Items",
+      "url": "https://public-inspection.federalregister.gov/2024-28270.pdf",
+      "publication_date": "2024-12-05",
+      "publication_date_precision": "DAY",
+      "public_inspection_date": "2024-12-02",
+      "source_family": "GOVERNMENT_OR_REGULATOR",
+      "roles": [
+        "POLICY",
+        "EXPORT_CONTROL",
+        "HBM",
+        "SEMICONDUCTOR_MANUFACTURING_EQUIPMENT",
+        "EFFECTIVE_DATE",
+        "COMPLIANCE_DATE"
+      ],
+      "acquired_at": null,
+      "available_at": null,
+      "availability_basis": null,
+      "ordinary_raw_lineage_eligible": false
+    },
+    {
+      "source_id": "SRC-SEMI-B020-BIS-HBM-SME-PRESS-2024-12-02",
+      "publisher": "U.S. Bureau of Industry and Security",
+      "title": "Commerce Strengthens Export Controls to Restrict China's Capability to Produce Advanced Semiconductors for Military Applications",
+      "url": "https://www.bis.gov/press-release/commerce-strengthens-export-controls-restrict-chinas-capability-produce-advanced-semiconductors-military",
+      "publication_date": "2024-12-02",
+      "publication_date_precision": "DAY",
+      "source_family": "GOVERNMENT_OR_REGULATOR",
+      "roles": [
+        "POLICY_SUMMARY",
+        "HBM",
+        "SEMICONDUCTOR_MANUFACTURING_EQUIPMENT"
+      ],
+      "acquired_at": null,
+      "available_at": null,
+      "availability_basis": null,
+      "ordinary_raw_lineage_eligible": false
+    },
+    {
+      "source_id": "SRC-SEMI-B020-SAMSUNG-HBM3E12H-2024-02-27",
+      "publisher": "Samsung Electronics",
+      "title": "Samsung Develops Industry-First 36GB HBM3E 12H DRAM",
+      "url": "https://news.samsung.com/global/samsung-develops-industry-first-36gb-hbm3e-12h-dram",
+      "publication_date": "2024-02-27",
+      "publication_date_precision": "DAY",
+      "source_family": "COMPANY_PRODUCTION_OR_QUALIFICATION_RELEASE",
+      "roles": [
+        "HBM_PRODUCT_DEVELOPMENT",
+        "SAMPLING",
+        "FUTURE_MASS_PRODUCTION_PLAN"
+      ],
+      "acquired_at": null,
+      "available_at": null,
+      "availability_basis": null,
+      "ordinary_raw_lineage_eligible": false
+    },
+    {
+      "source_id": "SRC-SEMI-B020-SAMSUNG-Q1-2024-RESULTS-2024-04-30",
+      "publisher": "Samsung Electronics",
+      "title": "Samsung Electronics Announces First Quarter 2024 Results",
+      "url": "https://news.samsung.com/global/samsung-electronics-announces-first-quarter-2024-results",
+      "publication_date": "2024-04-30",
+      "publication_date_precision": "DAY",
+      "source_family": "COMPANY_EARNINGS_AND_PREPARED_REMARKS",
+      "roles": [
+        "HBM3E_8H_MASS_PRODUCTION",
+        "HBM3E_12H_PLAN",
+        "HBM_SUPPLY_EXPANSION"
+      ],
+      "acquired_at": null,
+      "available_at": null,
+      "availability_basis": null,
+      "ordinary_raw_lineage_eligible": false
+    }
+  ],
+  "rules": [
+    "CURRENT_REVIEW_DOES_NOT_CREATE_HISTORICAL_RAW_LINEAGE",
+    "PUBLICATION_DATE_OR_PUBLIC_INSPECTION_DATE_DOES_NOT_EQUAL_HYDRA_AVAILABLE_AT",
+    "POLICY_EFFECTIVE_DATE_AND_COMPLIANCE_DATE_ARE_DISTINCT",
+    "PRODUCT_DEVELOPMENT_OR_MASS_PRODUCTION_DOES_NOT_PROVE_SPARE_QUALIFIED_ADDRESSABLE_CAPACITY",
+    "REVISED_RAMP_TARGET_DOES_NOT_ERASE_ORIGINAL_RAMP_TARGET"
+  ]
+}
