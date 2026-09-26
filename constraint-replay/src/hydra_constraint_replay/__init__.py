@@ -21,6 +21,16 @@ from .promotion import (
     load_promotion_audits,
     summarize_promotion,
 )
+from .outcome_evidence import (
+    CaseOutcomeEnrichment,
+    EnrichmentSource,
+    EvidenceRole,
+    OutcomeEvidenceError,
+    OutcomeMetric,
+    OutcomeSeries,
+    OutcomeSeriesPoint,
+    load_outcome_enrichment_bundle,
+)
 
 __all__ = [
     "Evidence","Hypothesis","Outcome","ReplayCase","LeakageError","replay_case",
@@ -30,4 +40,6 @@ __all__ = [
     "OutcomeEvidenceLevel","PromotionAudit","PromotionDecision","PromotionError",
     "PromotionStage","assert_scored_gold_eligible","evaluate_promotion",
     "load_promotion_audits","summarize_promotion",
+    "CaseOutcomeEnrichment","EnrichmentSource","EvidenceRole","OutcomeEvidenceError",
+    "OutcomeMetric","OutcomeSeries","OutcomeSeriesPoint","load_outcome_enrichment_bundle",
 ]
