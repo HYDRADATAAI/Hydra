@@ -92,6 +92,7 @@ def main()->int:
     authority=d["authority"]
     require(authority.get("parallel_architecture_authorized") is False,"parallel architecture unexpectedly authorized")
     owners={r.get("owner") for r in authority.get("authorities",[])}
+    require(all(not (isinstance(o,str) and o.startswith("THREAD_")) for o in owners),"ambiguous bare THREAD_N owner introduced")
     for owner in (
       "PIPELINE_T1_SOURCE_ACQUISITION","PIPELINE_T2_EVIDENCE_NORMALIZATION","PIPELINE_T3_SEMANTIC_EXTRACTION",
       "PIPELINE_T4_TRUST_GOVERNANCE","PIPELINE_T5_CONSTRAINT_FORMATION","PIPELINE_T6_CANONICAL_CANDIDATE_GOVERNANCE",
@@ -99,7 +100,6 @@ def main()->int:
       "LILY_THREAD_4_BABY_ML_CONTRACT","LILY_THREAD_5_SOURCE_COVERAGE","LILY_THREAD_6_ARCHITECTURE_REGISTER"
     ):
         require(owner in owners,f"authority owner missing: {owner}")
-    require(all(not (isinstance(o,str) and o.startswith("THREAD_")) for o in owners),"ambiguous bare THREAD_N owner introduced")
 
     status=d["status"]
     results=status.get("results",{})
