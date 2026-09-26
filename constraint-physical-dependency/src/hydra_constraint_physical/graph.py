@@ -18,10 +18,12 @@ class DependencyGraph:
                     nodes.append(Node(n.node_id,n.kind,n.name,n.country_code,snaps,n.provenance))
                 continue
 
-            # Identity-only nodes have no validity interval. When provenance
-            # exists, do not expose the identity before any evidence for it
-            # was historically knowable.
-            if knowledge_cutoff is not None and n.provenance:
+            # Identity-only nodes have no validity interval. In a knowledge-
+            # bounded replay they must have provenance that was actually
+            # knowable by the cutoff; otherwise the identity is UNKNOWN.
+            if knowledge_cutoff is not None:
+                if not n.provenance:
+                    continue
                 if min(p.known_at for p in n.provenance) > knowledge_cutoff:
                     continue
             nodes.append(n)
@@ -30,6 +32,61 @@ class DependencyGraph:
         edges=[e for e in self.edges.values()
                if e.source_id in ids and e.target_id in ids and e.active_as_of(when,knowledge_cutoff)]
         return DependencyGraph(nodes,edges)
+
+    def reference_state_as_of(
+        self,
+        entity_id: str,
+        when: date,
+        knowledge_cutoff: date | None = None,
+    ) -> str:
+        """Return PRESENT, ABSENT, or UNKNOWN without collapsing missing history.
+
+        UNKNOWN means the graph lacks historically admissible evidence for a
+        substantive presence/absence conclusion at the requested cutoff.
+        ABSENT is returned only when a historically knowable validity interval
+        places the reference outside its effective period.
+        """
+        if entity_id in self.nodes:
+            node=self.nodes[entity_id]
+            if node.snapshots:
+                known=[
+                    s for s in node.snapshots
+                    if knowledge_cutoff is None
+                    or (s.known_at is not None and s.known_at <= knowledge_cutoff)
+                ]
+                if not known:
+                    return "UNKNOWN"
+                if any(
+                    s.valid_from <= when and (s.valid_to is None or when < s.valid_to)
+                    for s in known
+                ):
+                    return "PRESENT"
+                if any(s.valid_from > when for s in known):
+                    return "ABSENT"
+                if any(s.valid_to is not None and s.valid_to <= when for s in known):
+                    return "ABSENT"
+                return "UNKNOWN"
+
+            if not node.provenance:
+                return "UNKNOWN"
+            if knowledge_cutoff is None:
+                return "PRESENT"
+            return (
+                "PRESENT"
+                if min(p.known_at for p in node.provenance) <= knowledge_cutoff
+                else "UNKNOWN"
+            )
+
+        if entity_id in self.edges:
+            edge=self.edges[entity_id]
+            if knowledge_cutoff is not None:
+                if edge.known_at is None or edge.known_at > knowledge_cutoff:
+                    return "UNKNOWN"
+            if edge.valid_from <= when and (edge.valid_to is None or when < edge.valid_to):
+                return "PRESENT"
+            return "ABSENT"
+
+        return "UNKNOWN"
 
     def resolve_reference(
         self,
