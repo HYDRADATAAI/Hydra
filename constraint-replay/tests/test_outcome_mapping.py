@@ -79,6 +79,25 @@ class OutcomeMappingGovernanceTests(unittest.TestCase):
         )
         self.assertEqual("UNEVALUABLE",map_positive_constraint_outcome(synthetic).outcome_class)
 
+    def test_incomplete_explicit_horizon_can_remain_open_and_unevaluable(self):
+        r=self.records[0]
+        synthetic=type(r)(
+            case_id="synthetic-open-horizon-test",
+            rule_set_id=r.rule_set_id,
+            mechanism_observed=True,
+            direction_consistent=True,
+            explicit_numeric_target_defined=False,
+            target_met=None,
+            explicit_horizon_defined=True,
+            horizon_met=None,
+            causal_attribution_clean=False,
+            outcome_observation_complete=False,
+            contradiction_open=False,
+            evidence_source_ids=("synthetic-source",),
+            rationale="Synthetic contract test only.",
+        )
+        self.assertEqual("UNEVALUABLE",map_positive_constraint_outcome(synthetic).outcome_class)
+
     def test_wrong_timing_requires_explicit_horizon(self):
         r=self.records[0]
         synthetic=type(r)(
