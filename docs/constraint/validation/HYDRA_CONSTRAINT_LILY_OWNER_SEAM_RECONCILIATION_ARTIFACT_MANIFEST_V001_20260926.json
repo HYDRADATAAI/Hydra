@@ -1,0 +1,69 @@
+{
+  "schema_version": "hydra-constraint-lily-owner-seam-reconciliation-manifest/v1",
+  "record_id": "HYDRA_CONSTRAINT_LILY_OWNER_SEAM_RECONCILIATION_ARTIFACT_MANIFEST_V001_20260926",
+  "as_of": "2026-09-26",
+  "pull_request": 56,
+  "branch": "constraint/lily-owner-seam-reconciliation-v1-20260926",
+  "stacked_base": "constraint-t6-successor-batch014-strict-acceptance-20260925",
+  "authority_inputs": {
+    "batch010_claim_registry": {
+      "path": "docs/constraint/first_slice/ai_data_center_power_infrastructure_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH010_AI_DATA_CENTER_POWER_INFRASTRUCTURE_CLAIM_REGISTRY_V001_20260925.json",
+      "git_blob_sha": "13cb776549b43c777a04b47f43557e60b5b7b961"
+    },
+    "batch010_t5_candidates": {
+      "path": "docs/constraint/first_slice/ai_data_center_power_infrastructure_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH010_AI_DATA_CENTER_POWER_INFRASTRUCTURE_T5_CANDIDATE_PROPOSALS_V001_20260925.json",
+      "git_blob_sha": "112cf49941031ad51ff7cd2e1b8da096d8627b84"
+    },
+    "batch010_t6_beneficiaries": {
+      "path": "docs/constraint/first_slice/ai_data_center_power_infrastructure_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH010_AI_DATA_CENTER_POWER_INFRASTRUCTURE_BENEFICIARY_EVALUATIONS_V001_20260925.json",
+      "git_blob_sha": "43245bd562d92987d934791ee2595f9e53d79db4"
+    },
+    "batch013_eaton_prequalification": {
+      "path": "docs/constraint/first_slice/ai_data_center_power_infrastructure_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH013_AI_DATA_CENTER_POWER_INFRASTRUCTURE_EATON_TRANSFORMER_PREQUALIFICATION_OVERLAY_V001_20260925.json",
+      "git_blob_sha": "1a3225167ed6b90b5f8d75be62dd027fa68214c4"
+    },
+    "batch014_strict_acceptance": {
+      "path": "docs/constraint/first_slice/ai_data_center_power_infrastructure_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH014_AI_DATA_CENTER_POWER_INFRASTRUCTURE_STRICT_ACCEPTANCE_GATE_V001_20260925.json",
+      "git_blob_sha": "6a33b43c021a845f74a8c0d2d75917f1a7f7b060"
+    },
+    "canonical_beneficiary_policy": "LILY_THREAD_3_MASTER_CLOSURE_BUNDLE@ab7e4c05c9210a90256b8cdea89eeb9f3bb551453dfe13ebfe44616f750cb366"
+  },
+  "artifacts": {
+    "ci_workflow": {
+      "path": ".github/workflows/constraint-first-slice-integration.yml",
+      "git_blob_sha": "a494c4dab0c62f6a2d0f7edffd61dd200039c887"
+    },
+    "candidate_temporal_identity_overlay": {
+      "path": "docs/constraint/first_slice/ai_data_center_power_infrastructure_v1/HYDRA_CONSTRAINT_LILY_OWNER_SEAM_RECONCILIATION_T5_CANDIDATE_TEMPORAL_IDENTITY_OVERLAY_V001_20260926.json",
+      "git_blob_sha": "edea203dc438be0039258cfe02873a16ebe36ac3"
+    },
+    "conformance_module": {
+      "path": "t6-fail-closed-validator/src/hydra_t6_failclosed/owner_seam_conformance.py",
+      "git_blob_sha": "1bb0192fa25e7372718e261353ab77865b86d5c6"
+    },
+    "adversarial_tests": {
+      "path": "t6-fail-closed-validator/tests/test_lily_owner_seam_reconciliation_v1.py",
+      "git_blob_sha": "00709fc37a5740ce33bf0a6b722ca14f0855188f"
+    },
+    "standalone_validator": {
+      "path": "tools/validate_constraint_lily_owner_seams.py",
+      "git_blob_sha": "a2693c8f26122253650c8e22d7d743ccd3d587de"
+    },
+    "status": {
+      "path": "docs/constraint/architecture/HYDRA_CONSTRAINT_LILY_OWNER_SEAM_RECONCILIATION_STATUS_V001_20260926.json",
+      "git_blob_sha": "65cdc3992f934b4491ba98cb84c872a085a1b0c1"
+    },
+    "report": {
+      "path": "docs/constraint/validation/HYDRA_CONSTRAINT_LILY_OWNER_SEAM_RECONCILIATION_REPORT_V001_20260926.md",
+      "git_blob_sha": "517df4fe795cf0e92a7dcf52b3b4e85fda95420c"
+    }
+  },
+  "integrity_rules": [
+    "PREDECESSOR_ARTIFACTS_ARE_IMMUTABLE",
+    "SUCCESSOR_OVERLAY_HAS_OWN_AVAILABILITY_TIME",
+    "NO_CANONICAL_CONSTRAINT_OR_QUALIFIED_BENEFICIARY_IS_MINTED",
+    "MISSING_CONFIDENCE_REMAINS_NOT_EVALUATED",
+    "UNKNOWN_EFFECTIVE_INTERVAL_REMAINS_UNKNOWN",
+    "RAW_LINEAGE_AND_NATIVE_ADMISSION_BLOCKERS_REMAIN_ENFORCED"
+  ]
+}
