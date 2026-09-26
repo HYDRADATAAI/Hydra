@@ -14,6 +14,8 @@ from hydra_constraint_t1_raw.browser_response_capture import (
 
 
 URL = "https://emp.lbl.gov/publications/queued-2025-edition-characteristics"
+FERC_URL = "https://www.ferc.gov/news-events/news/fact-sheet-improvements-generator-interconnection-procedures-and-agreements"
+PJM_URL = "https://insidelines.pjm.com/2025-year-in-review-planning-prepares-for-burgeoning-electricity-demand/"
 
 
 def har_entry(*, url=URL, status=200, mime="text/html", body="<html><h1>Queued Up: 2025 Edition</h1></html>", headers=None, encoding=None):
@@ -48,6 +50,53 @@ class BrowserResponseCaptureTests(unittest.TestCase):
         self.assertFalse(metadata["rendered_dom_used"])
         self.assertFalse(metadata["linked_file_substituted"])
         self.assertFalse(metadata["cloudflare_bypass_attempted"])
+
+    def test_ferc_exact_registered_response_and_title_marker_are_accepted(self):
+        title = "Fact Sheet | Improvements to Generator Interconnection Procedures and Agreements"
+        body, metadata = extract_exact_response(
+            har=har(har_entry(url=FERC_URL, body=f"<html><h1>{title}</h1></html>")),
+            exact_url=FERC_URL,
+            expected_mime_prefix="text/html",
+            expected_text=title,
+        )
+        self.assertIn(title.encode("utf-8"), body)
+        self.assertEqual(FERC_URL, metadata["exact_url"])
+        self.assertEqual(200, metadata["status"])
+
+    def test_pjm_exact_registered_response_and_title_marker_are_accepted(self):
+        title = "2025 Year in Review: Planning Prepares for Burgeoning Electricity Demand"
+        body, metadata = extract_exact_response(
+            har=har(har_entry(url=PJM_URL, body=f"<html><h1>{title}</h1></html>")),
+            exact_url=PJM_URL,
+            expected_mime_prefix="text/html",
+            expected_text=title,
+        )
+        self.assertIn(title.encode("utf-8"), body)
+        self.assertEqual(PJM_URL, metadata["exact_url"])
+        self.assertEqual(200, metadata["status"])
+
+    def test_ferc_or_pjm_alternate_url_cannot_substitute(self):
+        cases = [
+            (
+                FERC_URL,
+                "https://www.ferc.gov/news-events/news/some-other-interconnection-page",
+                "Fact Sheet | Improvements to Generator Interconnection Procedures and Agreements",
+            ),
+            (
+                PJM_URL,
+                "https://www.pjm.com/some-related-year-in-review.pdf",
+                "2025 Year in Review: Planning Prepares for Burgeoning Electricity Demand",
+            ),
+        ]
+        for exact_url, alternate_url, title in cases:
+            with self.subTest(exact_url=exact_url):
+                with self.assertRaisesRegex(BrowserResponseCaptureError, "exact registered URL not present"):
+                    extract_exact_response(
+                        har=har(har_entry(url=alternate_url, body=f"<html>{title}</html>")),
+                        exact_url=exact_url,
+                        expected_mime_prefix="text/html",
+                        expected_text=title,
+                    )
 
     def test_base64_har_content_is_decoded(self):
         raw = b"<html>Queued Up: 2025 Edition</html>"
