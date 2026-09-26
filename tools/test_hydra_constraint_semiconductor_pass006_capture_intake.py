@@ -37,7 +37,7 @@ class IntakeTests(unittest.TestCase):
                 when = '2026-09-26T21:00:00Z' if mutation == 'future' else '2026-09-26T23:00:00Z'
                 if mutation == 'none':
                     result = intake(store, mapping, release_id='SYNTHETIC-PASS006', created_at=when)
-                    self.assertEqual(len(result['members']), 10)
+                    self.assertEqual(len(result['members']), 20)
                     self.assertEqual(store.validate_stored_release_manifest(result), ())
                 else:
                     with self.assertRaises((ValueError, FileNotFoundError)):

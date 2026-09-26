@@ -1,0 +1,56 @@
+{
+  "schema_version": "hydra-constraint-second-slice-required-case-progress/v1",
+  "record_id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH019_SEMICONDUCTOR_REQUIRED_CASE_PROGRESS_V001",
+  "as_of": "2026-09-26",
+  "slice_id": "SEMICONDUCTOR_ADVANCED_PACKAGING_CRITICAL_MATERIALS_V1",
+  "predecessor_overlay": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH018_SEMICONDUCTOR_ADVANCED_PACKAGING_CRITICAL_MATERIALS_REQUIRED_CASE_OVERLAY_V001",
+  "covered_case_count_before": 2,
+  "covered_case_count_after": 2,
+  "progress": [
+    {
+      "case_id": 4,
+      "name": "TOOL_BOTTLENECK",
+      "progress_state": "PREREQUISITE_EQUIPMENT_AND_POLICY_POPULATION_ADDED_NOT_COVERED",
+      "reason": "Equipment identities and an access-policy event are populated, but no evidence yet proves specialized-tool delay caused effective-capacity delay."
+    },
+    {
+      "case_id": 5,
+      "name": "MATERIAL_BOTTLENECK",
+      "progress_state": "RESOURCE_TO_SEMICONDUCTOR_GRADE_CHAIN_ADDED_NOT_COVERED",
+      "reason": "Silica/quartzite to high-purity silicon/wafer stage distinctions are now explicit, but no bounded historical material bottleneck is yet proven."
+    },
+    {
+      "case_id": 6,
+      "name": "QUALIFICATION_BOTTLENECK",
+      "progress_state": "QUALIFICATION_GATE_POPULATED_NOT_COVERED",
+      "reason": "Qualification time and Micron in-progress qualification are represented, but no alternate nominal capacity relief case is yet proven."
+    },
+    {
+      "case_id": 9,
+      "name": "EXPORT_POLICY_EVENT",
+      "progress_state": "POLICY_ACCESS_EVENT_POPULATED_NOT_COVERED",
+      "reason": "ASML partial license revocation is populated, but exact effective timing and replay/no-lookahead proof remain unresolved."
+    },
+    {
+      "case_id": 13,
+      "name": "FAILED_CAPACITY_RAMP",
+      "progress_state": "SUCCESSFUL_EARLY_RAMP_OUTCOME_ADDED_CASE_STILL_GAP",
+      "reason": "Arizona provides a real plan-versus-outcome ramp record, but it is not a failed capacity ramp and therefore does not satisfy Case 13."
+    }
+  ],
+  "remaining_gap_case_ids": [
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14
+  ],
+  "rule": "PREREQUISITE_POPULATION_OR_ADJACENT_EVIDENCE_DOES_NOT_EQUAL_CASE_COVERAGE"
+}

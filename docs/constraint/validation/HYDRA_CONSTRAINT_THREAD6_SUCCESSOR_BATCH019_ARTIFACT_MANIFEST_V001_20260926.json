@@ -1,0 +1,83 @@
+{
+  "schema_version": "hydra-constraint-thread6-successor-manifest/v1",
+  "record_id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH019_ARTIFACT_MANIFEST_V001",
+  "as_of": "2026-09-26",
+  "repository": "HYDRADATAAI/Hydra",
+  "base_head": "35322222fe67598017eb3506ea52fb27cd00c9fa",
+  "predecessor_batch": {
+    "id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH018",
+    "preservation": "IMMUTABLE_NOT_REWRITTEN"
+  },
+  "slice_id": "SEMICONDUCTOR_ADVANCED_PACKAGING_CRITICAL_MATERIALS_V1",
+  "result": "PASS_FACILITY_MATERIAL_EQUIPMENT_QUALIFICATION_DEEPENING_PARTIAL",
+  "artifacts": [
+    {
+      "path": "docs/constraint/second_slice/semiconductor_advanced_packaging_critical_materials_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH019_SEMICONDUCTOR_FACILITY_MATERIAL_EQUIPMENT_SOURCE_REGISTRY_EXTENSION_V001_20260926.json",
+      "git_blob_sha": "742a9c28c47bb010725d66488ff0bed32e8c9e7b"
+    },
+    {
+      "path": "docs/constraint/second_slice/semiconductor_advanced_packaging_critical_materials_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH019_SEMICONDUCTOR_FACILITY_MATERIAL_EQUIPMENT_EVIDENCE_SUPPLEMENT_V001_20260926.json",
+      "git_blob_sha": "60d63cbfb7052a652728fd362744cc3b8b06f1ec"
+    },
+    {
+      "path": "docs/constraint/second_slice/semiconductor_advanced_packaging_critical_materials_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH019_SEMICONDUCTOR_FACILITY_MATERIAL_EQUIPMENT_QUALIFICATION_OVERLAY_V001_20260926.json",
+      "git_blob_sha": "b7be4318487ec6cfd71c37dc30bc75b8fd7287aa"
+    },
+    {
+      "path": "docs/constraint/second_slice/semiconductor_advanced_packaging_critical_materials_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH019_SEMICONDUCTOR_FACILITY_MATERIAL_EQUIPMENT_GRAPH_OVERLAY_V001_20260926.json",
+      "git_blob_sha": "06069da8d8f4fab05c2859ccaa9cb54000237eea"
+    },
+    {
+      "path": "docs/constraint/second_slice/semiconductor_advanced_packaging_critical_materials_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH019_SEMICONDUCTOR_HISTORICAL_OUTCOME_OVERLAY_V001_20260926.json",
+      "git_blob_sha": "52a2cb61505e99e7e310b54979fe7c09ec10bdc3"
+    },
+    {
+      "path": "docs/constraint/second_slice/semiconductor_advanced_packaging_critical_materials_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH019_SEMICONDUCTOR_REQUIRED_CASE_PROGRESS_V001_20260926.json",
+      "git_blob_sha": "8dd54f6a5802df4d8dad1cc0c7d265ca0d3e95bb"
+    },
+    {
+      "path": "docs/constraint/second_slice/semiconductor_advanced_packaging_critical_materials_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH019_SEMICONDUCTOR_FACILITY_MATERIAL_EQUIPMENT_QUALIFICATION_STATUS_V001_20260926.json",
+      "git_blob_sha": "acc94cd7a3ae105fdddb76ca3e71826165ef98ed"
+    },
+    {
+      "path": "docs/constraint/architecture/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH019_SEMICONDUCTOR_CAPABILITY_LEDGER_DELTA_V001_20260926.json",
+      "git_blob_sha": "ab2d0449b72e41a9f52e3ef5691046e3a9f4384b"
+    },
+    {
+      "path": "docs/constraint/architecture/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH019_MASTER_STATUS_V001_20260926.json",
+      "git_blob_sha": "a4427973bc36b6ab69c0eaf1cd2ed568714e201e"
+    },
+    {
+      "path": "docs/constraint/validation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH019_SEMICONDUCTOR_FACILITY_MATERIAL_EQUIPMENT_QUALIFICATION_REPORT_V001_20260926.md",
+      "git_blob_sha": "8209417b2a6ce1d73f85eaef4b17b83d3ca9c110"
+    }
+  ],
+  "excluded_operational_tools": [
+    {
+      "path": "tools/validate_constraint_second_slice_batch019_facility_material_equipment.py",
+      "reason": "operational validator"
+    },
+    {
+      "path": "tools/test_constraint_second_slice_batch019_facility_material_equipment_adversarial.py",
+      "reason": "hostile harness"
+    },
+    {
+      "path": ".github/workflows/constraint-second-slice.yml",
+      "reason": "CI orchestration"
+    }
+  ],
+  "expected": {
+    "primary_sources_added": 10,
+    "evidence_observations_added": 14,
+    "facilities_added": 3,
+    "equipment_nodes_added": 2,
+    "material_stage_nodes_added": 6,
+    "qualification_observations_added": 2,
+    "dependency_edges_added": 29,
+    "outcomes_captured_shadow": 1,
+    "required_cases_covered": "2/14",
+    "historical_replay": "BLOCKED",
+    "first_semiconductor_run": "BLOCKED",
+    "next_repo_executable_lane": "SECOND-SLICE-POLICY-SUBSTITUTION-OUTCOME-AND-REQUIRED-CASE-DEPTH"
+  }
+}
