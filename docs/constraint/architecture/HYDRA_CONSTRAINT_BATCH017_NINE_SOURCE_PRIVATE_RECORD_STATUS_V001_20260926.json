@@ -34,22 +34,20 @@
   "validation": {
     "T1_PRIVATE_RECORD_TESTS": {
       "status": "PASS",
-      "count": 37,
-      "run_id": 36248540382
+      "count": 42,
+      "run_id": 36249770006
     },
     "FIRST_SLICE_INTEGRATION": {
       "status": "PASS",
-      "run_id": 36248540364
+      "run_id": 36249769988
     },
     "PUBLIC_REPOSITORY_HYGIENE": {
       "status": "PASS",
-      "run_id": 36248540288
+      "run_id": 36249770075
     },
     "NYX_SUCCESSOR_GUARD": {
-      "status": "INHERITED_BASE_FAILURE",
-      "run_id": 36248540252,
-      "reason": "BATCH017_REAL_OUTCOME_REPORT_BLOB_MISMATCH_ALREADY_PRESENT_ON_PR62",
-      "source_lane_change_required": false
+      "status": "PASS",
+      "run_id": 36249770009
     }
   },
   "remaining_source_private_dependencies": [
