@@ -73,6 +73,18 @@
     {
       "path": "tools/validate_constraint_first_slice_successor.py",
       "git_blob_sha": "533df376581b5fdab068dba4e4b172f90645bdba"
+    },
+    {
+      "path": "constraint-t1-raw-artifact-store/src/hydra_constraint_t1_raw/replay_lineage.py",
+      "git_blob_sha": "2548dd4759c82bd11112f10a71f6529c87b9036d"
+    },
+    {
+      "path": "constraint-t1-raw-artifact-store/tests/test_first_slice_replay_lineage.py",
+      "git_blob_sha": "83ec8ca4d92ac90bdbfaf3484dc608c341d1b63e"
+    },
+    {
+      "path": "tools/build_constraint_t1_first_slice_replay_lineage.py",
+      "git_blob_sha": "dc521a34552bd8fc6e863e8073a4913d45f5d3bd"
     }
   ],
   "runtime_execution_claim": "NOT_EXECUTED_BY_GITHUB_CI_PRIVATE_WINDOWS_BROWSER_REQUIRED",
@@ -84,5 +96,7 @@
     73
   ],
   "windows_powershell5_bootstrap_probe": "PACKAGE_MARKER_NO_NATIVE_IMPORT_PROBE",
-  "windows_powershell5_native_stderr_termination_regression_covered": true
+  "windows_powershell5_native_stderr_termination_regression_covered": true,
+  "replay_lineage_authority_reconciled_from": "constraint/t1-private-record-source-discovery-20260926",
+  "replay_lineage_runtime_dependency_present": true
 }
