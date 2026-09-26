@@ -1,0 +1,19 @@
+{
+  "schema_version": "hydra-constraint-second-slice-yield-constraint-evaluation/v1",
+  "record_id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH022_SEMICONDUCTOR_HBM_YIELD_CONSTRAINT_EVALUATION_V001",
+  "as_of": "2026-09-26",
+  "slice_id": "SEMICONDUCTOR_ADVANCED_PACKAGING_CRITICAL_MATERIALS_V1",
+  "evaluation": {
+    "case_id": 3,
+    "evidence_ids": [
+      "EV-SEMI-B022-SKHYNIX-HBM-YIELD-COMPLEXITY",
+      "EV-SEMI-MICRON-HBM3E12H-RAMP-YIELD-2025"
+    ],
+    "yield_separation_proven": true,
+    "mass_production_complexity_proven": true,
+    "numeric_yield_available": false,
+    "binding_effective_output_constraint_proven": false,
+    "coverage_state": "PROGRESS_ONLY_NOT_COVERED",
+    "reason": "Primary evidence shows yield is a distinct mass-production limiter and actively ramped/optimized, but reviewed evidence does not prove a bounded episode where nominal/nameplate capacity was sufficient while effective usable output was bindingly restricted by yield."
+  }
+}

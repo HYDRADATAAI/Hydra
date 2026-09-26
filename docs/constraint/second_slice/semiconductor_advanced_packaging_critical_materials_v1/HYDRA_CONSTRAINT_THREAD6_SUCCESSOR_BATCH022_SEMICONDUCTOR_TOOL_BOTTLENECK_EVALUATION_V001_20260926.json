@@ -1,0 +1,23 @@
+{
+  "schema_version": "hydra-constraint-second-slice-tool-bottleneck-evaluation/v1",
+  "record_id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH022_SEMICONDUCTOR_TOOL_BOTTLENECK_EVALUATION_V001",
+  "as_of": "2026-09-26",
+  "slice_id": "SEMICONDUCTOR_ADVANCED_PACKAGING_CRITICAL_MATERIALS_V1",
+  "evaluation": {
+    "case_id": 4,
+    "bottleneck_type": "BACKEND_TEST_EQUIPMENT_SHORTAGE",
+    "constrained_scope": "TSMC backend tester/packaging capacity allocation for customer products",
+    "observed_shortage_evidence": [
+      "EV-SEMI-B022-TSMC-TESTER-SHORTAGE-2026"
+    ],
+    "lead_time_dependency_evidence": [
+      "EV-SEMI-B022-TSMC-EQUIPMENT-LONG-CYCLES"
+    ],
+    "limiting_mechanism": "Specialized semiconductor equipment availability can become a backend capacity bottleneck; TSMC specifically reported tester shortage requiring incremental CapEx.",
+    "specific_fab_delay_proven": false,
+    "case_variant": "REAL_TOOL_BOTTLENECK_WITHOUT_SPECIFIC_FAB_COMPLETION_DELAY",
+    "coverage_state": "COVERED_REVIEWED_SHADOW_REAL_PRIMARY_BOUNDED",
+    "canonical_constraint_minted": false,
+    "ordinary_t6_eligible": false
+  }
+}
