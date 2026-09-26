@@ -19,7 +19,7 @@
     "historical_available_at_backdating": false,
     "canonical_t5_t6_promotion": false
   },
-  "canonical_one_command": "powershell -ExecutionPolicy Bypass -File .\\\\tools\\\\private\\\\Invoke-HYDRAConstraintFirstSliceAutomatedBrowserCapture_V001_20260926.ps1",
+  "canonical_one_command": "powershell -ExecutionPolicy Bypass -File .\\\\tools\\\\private\\\\Invoke-HYDRAConstraintFirstSliceAutomatedBrowserCapture_V001_20260926.ps1 -AuthorizedPublicAcquisition",
   "remaining_runtime_dependency": "EXECUTE_REAL_WINDOWS_BROWSER_CAPTURE_AGAINST_PRIVATE_ROOT",
   "private_root": "D:\\\\HYDRA\\\\_PRIVATE\\\\constraint"
 }
