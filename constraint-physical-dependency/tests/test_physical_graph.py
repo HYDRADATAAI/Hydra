@@ -27,7 +27,9 @@ def test_trace_and_impact():
 def test_point_in_time_blocks_lookahead():
     g=fixture()
     assert "r" not in g.as_of(date(2019,1,15),knowledge_cutoff=date(2019,1,15)).nodes
-    assert "r" in g.as_of(date(2019,3,1),knowledge_cutoff=date(2019,3,1)).nodes
+    # The snapshot predates its source knowledge; both clocks must pass.
+    assert "r" not in g.as_of(date(2019,3,1),knowledge_cutoff=date(2019,3,1)).nodes
+    assert "r" in g.as_of(date(2020,1,1),knowledge_cutoff=date(2020,1,1)).nodes
 
 def test_substitution_time_and_validation():
     g=fixture()
@@ -43,7 +45,8 @@ def test_hhi():
 def test_point_in_time_reference_resolver():
     g=fixture()
     assert g.resolve_reference("e1", date(2019,1,15), date(2019,1,15)) is None
-    kind,obj=g.resolve_reference("e1", date(2019,3,1), date(2019,3,1))
+    assert g.resolve_reference("e1", date(2019,3,1), date(2019,3,1)) is None
+    kind,obj=g.resolve_reference("e1", date(2020,1,1), date(2020,1,1))
     assert kind=="edge" and obj.edge_id=="e1"
 
 def test_identity_only_node_respects_provenance_knowledge_cutoff():

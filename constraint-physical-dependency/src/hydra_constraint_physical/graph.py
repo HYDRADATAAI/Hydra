@@ -1,6 +1,7 @@
 from __future__ import annotations
 from collections import defaultdict, deque
 from datetime import date
+from dataclasses import replace
 from math import fsum
 from .models import Edge, Node
 
@@ -10,28 +11,30 @@ class DependencyGraph:
         self.edges = {e.edge_id: e for e in (edges or [])}
 
     def as_of(self, when: date, knowledge_cutoff: date | None = None) -> "DependencyGraph":
+        def visible_provenance(item):
+            if knowledge_cutoff is None:
+                return item.provenance
+            return tuple(p for p in item.provenance if p.known_at <= knowledge_cutoff)
+
         nodes = []
         for n in self.nodes.values():
-            snaps = tuple(s for s in n.snapshots if s.active_as_of(when, knowledge_cutoff))
-            if n.snapshots:
-                if snaps:
-                    nodes.append(Node(n.node_id,n.kind,n.name,n.country_code,snaps,n.provenance))
+            provenance = visible_provenance(n)
+            if knowledge_cutoff is not None and not provenance:
                 continue
+            snaps = tuple(s for s in n.snapshots if s.active_as_of(when, knowledge_cutoff))
+            if n.snapshots and not snaps:
+                continue
+            nodes.append(replace(n, snapshots=snaps, provenance=provenance))
 
-            # Identity-only nodes have no validity interval. In a knowledge-
-            # bounded replay they must have provenance that was actually
-            # knowable by the cutoff; otherwise the identity is UNKNOWN.
-            if knowledge_cutoff is not None:
-                if not n.provenance:
-                    continue
-                if min(p.known_at for p in n.provenance) > knowledge_cutoff:
-                    continue
-            nodes.append(n)
-
-        ids={n.node_id for n in nodes}
-        edges=[e for e in self.edges.values()
-               if e.source_id in ids and e.target_id in ids and e.active_as_of(when,knowledge_cutoff)]
-        return DependencyGraph(nodes,edges)
+        ids = {n.node_id for n in nodes}
+        edges = []
+        for e in self.edges.values():
+            provenance = visible_provenance(e)
+            if knowledge_cutoff is not None and not provenance:
+                continue
+            if e.source_id in ids and e.target_id in ids and e.active_as_of(when, knowledge_cutoff):
+                edges.append(replace(e, provenance=provenance))
+        return DependencyGraph(nodes, edges)
 
     def reference_state_as_of(
         self,
@@ -48,6 +51,10 @@ class DependencyGraph:
         """
         if entity_id in self.nodes:
             node=self.nodes[entity_id]
+            if not node.provenance or (knowledge_cutoff is not None and not any(
+                p.known_at <= knowledge_cutoff for p in node.provenance
+            )):
+                return "UNKNOWN"
             if node.snapshots:
                 known=[
                     s for s in node.snapshots
@@ -79,11 +86,18 @@ class DependencyGraph:
 
         if entity_id in self.edges:
             edge=self.edges[entity_id]
+            if not edge.provenance or (knowledge_cutoff is not None and not any(
+                p.known_at <= knowledge_cutoff for p in edge.provenance
+            )):
+                return "UNKNOWN"
             if knowledge_cutoff is not None:
                 if edge.known_at is None or edge.known_at > knowledge_cutoff:
                     return "UNKNOWN"
             if edge.valid_from <= when and (edge.valid_to is None or when < edge.valid_to):
-                return "PRESENT"
+                # An individually valid edge cannot establish a relationship
+                # whose endpoint identities are unavailable in this view.
+                view = self.as_of(when, knowledge_cutoff)
+                return "PRESENT" if entity_id in view.edges else "UNKNOWN"
             return "ABSENT"
 
         return "UNKNOWN"

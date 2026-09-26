@@ -26,7 +26,7 @@ jobs:
         run: |
           python -m compileall -q constraint-physical-dependency/src constraint-replay/src constraint-geopolitical-policy/src
       - name: Test physical foundation
-        run: python -m unittest discover -s constraint-physical-dependency/tests -p "test_*.py" -v
+        run: python -m pytest -q constraint-physical-dependency/tests
       - name: Test replay foundation
         run: python -m pytest -q constraint-replay/tests
       - name: Test policy and cross-layer integration
