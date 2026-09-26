@@ -59,6 +59,13 @@ try {
             $attestationFile = Get-ChildItem (Join-Path $caseRoot "metadata") -Filter "*ATTESTATION*.json"
             $attestation = Get-Content $attestationFile.FullName -Raw | ConvertFrom-Json
             if ($attestation.materialized_source_count -ne 9 -or $attestation.strict_historical_replay_promoted) { throw "Invalid synthetic attestation" }
+            $statusPath = Join-Path $caseRoot "synthetic-public-status.json"
+            & python (Join-Path $SourceRepo "tools/build_constraint_t1_post_capture_public_status.py") --attestation $attestationFile.FullName --registry $registryPath --output $statusPath
+            if ($LASTEXITCODE -ne 0) { throw "Synthetic post-capture status failed" }
+            $status = Get-Content $statusPath -Raw | ConvertFrom-Json
+            if ($status.source_count -ne 9 -or $status.canonical_admission_promoted -or $status.native_signed_t5_t6_receipt_present -or $status.strict_historical_replay_promoted) { throw "Post-capture status promoted authority" }
+            if ($status.still_blocked.ORDINARY_POINT_IN_TIME_REPLAY_READY -ne "NO") { throw "Post-capture status promoted replay" }
+
         }
     }
     Write-Output "SYNTHETIC_CAPTURE_RESPONSE_TESTS=PASS"

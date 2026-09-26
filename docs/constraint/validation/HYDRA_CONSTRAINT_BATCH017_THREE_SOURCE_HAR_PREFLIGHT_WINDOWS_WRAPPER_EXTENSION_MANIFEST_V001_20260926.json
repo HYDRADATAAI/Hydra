@@ -1,0 +1,32 @@
+{
+  "schema_version": "hydra-constraint-batch017-three-source-har-preflight-wrapper-extension-manifest/v1",
+  "record_id": "HYDRA_CONSTRAINT_BATCH017_THREE_SOURCE_HAR_PREFLIGHT_WINDOWS_WRAPPER_EXTENSION_MANIFEST_V001_20260926",
+  "as_of": "2026-09-26",
+  "repository": "HYDRADATAAI/Hydra",
+  "stacked_on_pr": 73,
+  "branch": "constraint/t1-three-har-preflight-gate-20260926",
+  "purpose": "WINDOWS_OPERATOR_WRAPPER_FOR_READ_ONLY_THREE_HAR_PREFLIGHT",
+  "predecessor_preflight_manifest": "HYDRA_CONSTRAINT_BATCH017_THREE_SOURCE_HAR_PREFLIGHT_ARTIFACT_MANIFEST_V001_20260926",
+  "predecessor_artifacts_rewritten": false,
+  "capture_plan_created": false,
+  "t1_object_created": false,
+  "t1_receipt_created": false,
+  "t1_release_created": false,
+  "artifacts": [
+    {
+      "path": "tools/private/Test-HYDRAConstraintThreeSourceSanitizedHarPreflight_V001_20260926.ps1",
+      "git_blob_sha": "eb83fa91e5c21d139f7210e60095f602d234d888"
+    },
+    {
+      "path": "constraint-t1-raw-artifact-store/tests/test_three_source_har_preflight_wrapper.py",
+      "git_blob_sha": "f55b71a5816ffa3ef9e48b45d954fd48b7098c39"
+    }
+  ],
+  "expected": {
+    "default_private_har_paths": true,
+    "all_three_hars_must_exist": true,
+    "invokes_read_only_python_preflight_only": true,
+    "no_t1_materializer_invocation": true,
+    "no_release_creation": true
+  }
+}
