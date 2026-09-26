@@ -62,19 +62,26 @@ REQUIRED_PATHS = (
     "market-data-pipeline-sample/README.md",
     "market-data-pipeline-sample/pyproject.toml",
     "market-data-pipeline-sample/config/symbol_aliases.json",
+    "market-data-pipeline-sample/config/backfill_plan.json",
+    "market-data-pipeline-sample/contracts/backfill_plan.schema.json",
     "market-data-pipeline-sample/contracts/input_contract.json",
     "market-data-pipeline-sample/contracts/normalized_event.schema.json",
     "market-data-pipeline-sample/contracts/quarantine_record.schema.json",
     "market-data-pipeline-sample/data/raw/synthetic_market_events.csv",
+    "market-data-pipeline-sample/data/raw/synthetic_market_events_day2.csv",
     "market-data-pipeline-sample/src/hydra_market_pipeline/__init__.py",
     "market-data-pipeline-sample/src/hydra_market_pipeline/__main__.py",
     "market-data-pipeline-sample/src/hydra_market_pipeline/cli.py",
     "market-data-pipeline-sample/src/hydra_market_pipeline/hashing.py",
     "market-data-pipeline-sample/src/hydra_market_pipeline/models.py",
+    "market-data-pipeline-sample/src/hydra_market_pipeline/operations.py",
+    "market-data-pipeline-sample/src/hydra_market_pipeline/operations_cli.py",
     "market-data-pipeline-sample/src/hydra_market_pipeline/pipeline.py",
     "market-data-pipeline-sample/src/hydra_market_pipeline/writers.py",
     "market-data-pipeline-sample/tests/test_contract_files.py",
     "market-data-pipeline-sample/tests/test_pipeline.py",
+    "market-data-pipeline-sample/tests/test_operations.py",
+    "market-data-pipeline-sample/run_recovery_demo.py",
 )
 
 FORBIDDEN_ACTIVE_PATHS = (
@@ -224,6 +231,8 @@ def validate_ci_contract(errors: list[str]) -> None:
         "PYTHONPATH: src",
         "python -m unittest discover -s tests -t . -v",
         "--output-dir build/demo",
+        "python run_recovery_demo.py --output-dir build/operations",
+        "OPERATIONS_RECEIPT=PASS",
         "actions/upload-artifact@v4",
     )
     for fragment in pipeline_fragments:

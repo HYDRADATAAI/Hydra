@@ -1,0 +1,15 @@
+{
+  "inputs": [
+    {
+      "path": "../data/raw/synthetic_market_events.csv",
+      "source_id": "synthetic-market-observations-2026-09-24"
+    },
+    {
+      "path": "../data/raw/synthetic_market_events_day2.csv",
+      "source_id": "synthetic-market-observations-2026-09-25"
+    }
+  ],
+  "max_partitions": 4,
+  "max_total_source_bytes": 20000,
+  "schema_version": "hydra-market-backfill-plan/v1"
+}
