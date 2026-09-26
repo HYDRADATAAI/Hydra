@@ -26,3 +26,11 @@ powershell.exe -NoProfile -File .\tools\private\Invoke-HYDRAConstraintFirstSlice
 4. Review that sanitized status before publishing it. Do not publish the capture plan, HARs, raw bodies, or private receipts.
 
 A missing HAR or failed acquisition is a blocker, not permission to substitute a source or manufacture an outcome. A valid capture attestation supports current custody and source-version hashes; it does not establish historical availability or signed T5/T6 authority.
+
+## Manifest reconciliation
+
+The report's introducing commit, de10beb, already stores blob 881c82941acf129e5fa2060f6d828afbbee98544. The V001 Batch017 manifest recorded a different hash. V002 corrects that pin against the introducing commit, preserves V001, and changes no report or outcome bytes.
+
+The V002 private-record supersession map retains all four existing transitions and adds the exact Batch008 workflow-to-Windows-CI transition. Its predecessor map remains unchanged. The first-slice validator now selects this explicit revision.
+
+Both formerly failing validators pass locally with these revisions. This is manifest repair only; external admission and capture blockers are unchanged.
