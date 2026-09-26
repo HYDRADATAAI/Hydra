@@ -1,0 +1,31 @@
+{
+  "schema_version": "hydra-constraint-batch017-three-source-har-preflight-status/v1",
+  "record_id": "HYDRA_CONSTRAINT_BATCH017_THREE_SOURCE_HAR_PREFLIGHT_STATUS_V001_20260926",
+  "as_of": "2026-09-26",
+  "stacked_on_pr": 65,
+  "slice_id": "AI_DATA_CENTER_POWER_INFRASTRUCTURE_V1",
+  "scope": "THREE_PRIVATE_HAR_PREFLIGHT_ONLY",
+  "current_capture_state": {
+    "exact_source_bodies_staged": 6,
+    "missing_exact_response_bodies": 3,
+    "missing_source_ids": [
+      "SRC-LBNL-QUEUED-UP-2025",
+      "SRC-FERC-ORDER-2023-FACT-SHEET",
+      "SRC-PJM-2025-YEAR-IN-REVIEW-2026-01-08"
+    ],
+    "capture_plan_written": false,
+    "t1_objects_written": false,
+    "t1_receipts_written": false,
+    "t1_release_written": false
+  },
+  "preflight_capability": {
+    "exact_three_source_validation_ready": true,
+    "raw_body_copy_performed": false,
+    "optional_private_summary_supported": true,
+    "public_repo_summary_allowed": false,
+    "ordinary_replay_promotion_allowed": false,
+    "canonical_admission_promotion_allowed": false
+  },
+  "next_action": "OBTAIN_THREE_SANITIZED_HARS_IN_AUTHORIZED_DESKTOP_BROWSER_THEN_RUN_PREFLIGHT",
+  "readiness": "WAITING_FOR_THREE_PRIVATE_SANITIZED_HARS"
+}
