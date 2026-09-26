@@ -345,6 +345,73 @@ def case_false_beneficiary_qualification(root: Path) -> None:
     )
 
 
+def case_batch011_outcome_overclaim(root: Path) -> None:
+    relative = (
+        "docs/constraint/first_slice/ai_data_center_power_infrastructure_v1/"
+        "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH011_AI_DATA_CENTER_POWER_INFRASTRUCTURE_"
+        "OUTCOME_RECORDS_V001_20260925.json"
+    )
+    mutate_json(
+        root,
+        relative,
+        lambda doc: doc["records"][0].__setitem__(
+            "outcome_label", "CONSTRAINT_RESOLVED"
+        ),
+        manifest_name=manifest_name_for_batch(11),
+    )
+
+
+def case_batch011_future_leak(root: Path) -> None:
+    relative = (
+        "docs/constraint/first_slice/ai_data_center_power_infrastructure_v1/"
+        "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH011_AI_DATA_CENTER_POWER_INFRASTRUCTURE_"
+        "SHADOW_REPLAY_PACKET_V001_20260925.json"
+    )
+
+    def mutate(doc: dict) -> None:
+        pre = next(
+            row
+            for row in doc["windows"]
+            if row["window_id"] == "PRE_BATCH010_SUPPLIER_AVAILABILITY"
+        )
+        pre["expected_graph_state"]["eligible_claim_ids"].append("CLM-AIDC-005")
+
+    mutate_json(
+        root,
+        relative,
+        mutate,
+        manifest_name=manifest_name_for_batch(11),
+    )
+
+
+def case_batch011_ordinary_replay_promoted(root: Path) -> None:
+    relative = (
+        "docs/constraint/first_slice/ai_data_center_power_infrastructure_v1/"
+        "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH011_AI_DATA_CENTER_POWER_INFRASTRUCTURE_"
+        "SHADOW_REPLAY_PACKET_V001_20260925.json"
+    )
+    mutate_json(
+        root,
+        relative,
+        lambda doc: doc.__setitem__("ordinary_replay_eligible", True),
+        manifest_name=manifest_name_for_batch(11),
+    )
+
+
+def case_batch011_determinism_falsified(root: Path) -> None:
+    relative = (
+        "docs/constraint/first_slice/ai_data_center_power_infrastructure_v1/"
+        "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH011_AI_DATA_CENTER_POWER_INFRASTRUCTURE_"
+        "DETERMINISM_RECEIPT_V001_20260925.json"
+    )
+    mutate_json(
+        root,
+        relative,
+        lambda doc: doc.__setitem__("repeat_execution_match", False),
+        manifest_name=manifest_name_for_batch(11),
+    )
+
+
 def case_latest_master_falsely_ready(root: Path) -> None:
     batch, master_path = latest_master()
     relative = master_path.relative_to(ROOT).as_posix()
@@ -373,6 +440,10 @@ def main() -> int:
         ("candidate_becomes_ordinary_t6", case_candidate_becomes_ordinary_t6, "unexpectedly canonicalized"),
         ("relief_auto_invalidates", case_relief_auto_invalidates, "automatically invalidates constraint"),
         ("false_beneficiary_qualification", case_false_beneficiary_qualification, "unexpectedly qualified"),
+        ("batch011_outcome_overclaim", case_batch011_outcome_overclaim, "Batch011 outcome label drifted"),
+        ("batch011_future_leak", case_batch011_future_leak, "Batch011 pre-window claim boundary drifted"),
+        ("batch011_ordinary_replay_promoted", case_batch011_ordinary_replay_promoted, "Batch011 ordinary replay unexpectedly enabled"),
+        ("batch011_determinism_falsified", case_batch011_determinism_falsified, "Batch011 determinism repeat execution drifted"),
         ("latest_master_falsely_ready", case_latest_master_falsely_ready, "latest master falsely claims full-run readiness"),
     ]
     for name, mutator, expected in cases:
