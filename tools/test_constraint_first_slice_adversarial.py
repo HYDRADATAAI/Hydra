@@ -17,7 +17,7 @@ VALIDATOR = ROOT / "tools/validate_constraint_first_slice_successor.py"
 VALIDATION_DIR = ROOT / "docs/constraint/validation"
 
 MANIFEST_NAMES = [
-    f"HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH00{n}_ARTIFACT_MANIFEST_V001_20260925.json"
+    f"HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH{n:03d}_ARTIFACT_MANIFEST_V001_20260925.json"
     for n in range(3, 11)
 ]
 
