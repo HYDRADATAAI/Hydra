@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Hostile mutation matrix for Batch016 real-outcome coverage closure."""
+"""Hostile mutation matrix for Batch016 closure and Batch017 outcome evidence."""
 
 from __future__ import annotations
 
@@ -8,7 +8,7 @@ import os
 import shutil
 import subprocess
 import sys
-import tempfile
+import uuid
 from pathlib import Path
 from typing import Callable
 
@@ -21,10 +21,16 @@ EVAL = "docs/constraint/first_slice/ai_data_center_power_infrastructure_v1/HYDRA
 GATE = "docs/constraint/first_slice/ai_data_center_power_infrastructure_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH016_AI_DATA_CENTER_POWER_INFRASTRUCTURE_STRICT_ACCEPTANCE_GATE_V001_20260925.json"
 BLOCKERS = "docs/constraint/first_slice/ai_data_center_power_infrastructure_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH016_AI_DATA_CENTER_POWER_INFRASTRUCTURE_BLOCKER_REGISTER_V001_20260925.json"
 MASTER = "docs/constraint/architecture/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH016_MASTER_STATUS_V001_20260925.json"
+OUTCOMES17 = "docs/constraint/first_slice/ai_data_center_power_infrastructure_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH017_AI_DATA_CENTER_POWER_INFRASTRUCTURE_OUTCOME_RECORDS_SUPPLEMENT_V001_20260925.json"
+COVERAGE17 = "docs/constraint/first_slice/ai_data_center_power_infrastructure_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH017_AI_DATA_CENTER_POWER_INFRASTRUCTURE_REAL_OUTCOME_COVERAGE_MATRIX_V001_20260925.json"
+GATE17 = "docs/constraint/first_slice/ai_data_center_power_infrastructure_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH017_AI_DATA_CENTER_POWER_INFRASTRUCTURE_STRICT_ACCEPTANCE_GATE_V001_20260925.json"
+BLOCKERS17 = "docs/constraint/first_slice/ai_data_center_power_infrastructure_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH017_AI_DATA_CENTER_POWER_INFRASTRUCTURE_BLOCKER_REGISTER_V001_20260925.json"
+TRACKER17 = "docs/constraint/architecture/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH017_NYX_ASSIGNMENT_TRACKER_V001_20260925.json"
 
 
 def make_sandbox() -> Path:
-    temp = Path(tempfile.mkdtemp(prefix="hydra-outcome-hostile-"))
+    temp = ROOT / f".tmp-hydra-outcome-hostile-{uuid.uuid4().hex}"
+    temp.mkdir()
     shutil.copytree(ROOT / "docs/constraint", temp / "docs/constraint", dirs_exist_ok=True)
     return temp
 
@@ -105,6 +111,44 @@ def case_master_full_ready(root: Path) -> None:
     mutate(root, MASTER, change)
 
 
+def case_schneider_beneficiary_capture_overclaimed(root: Path) -> None:
+    mutate(root, OUTCOMES17, lambda doc: doc["records"][0].__setitem__("outcome_label", "BENEFICIARY_CAPTURE_CONFIRMED"))
+
+
+def case_schneider_direct_candidate_match(root: Path) -> None:
+    mutate(root, OUTCOMES17, lambda doc: doc["records"][0].__setitem__("related_constraint_candidate_id", "T5C-AIDC-AMER-SWITCHGEAR-LEADTIME-001"))
+
+
+def case_schneider_ordinary_replay(root: Path) -> None:
+    mutate(root, OUTCOMES17, lambda doc: doc["records"][0].__setitem__("ordinary_replay_eligible", True))
+
+
+def case_schneider_availability_backdated(root: Path) -> None:
+    mutate(root, OUTCOMES17, lambda doc: doc["records"][0].__setitem__("hydra_available_at", "2023-09-14T00:00:00Z"))
+
+
+def case_schneider_constraint_resolution_fabricated(root: Path) -> None:
+    mutate(root, OUTCOMES17, lambda doc: doc["records"][0].__setitem__("outcome_label", "CONSTRAINT_RESOLVED"))
+
+
+def case_batch017_reopens_eval1(root: Path) -> None:
+    def change(doc: dict) -> None:
+        doc["blocking_items"].append({"blocker_id": "ACCEPT-014-EVAL-001-REAL-OUTCOME-COVERAGE-THIN", "dimension": "EVALUATION_READY", "repo_executable": True})
+    mutate(root, BLOCKERS17, change)
+
+
+def case_batch017_threshold_invented(root: Path) -> None:
+    mutate(root, COVERAGE17, lambda doc: doc.__setitem__("numeric_acceptance_sample_threshold_invented", True))
+
+
+def case_batch017_replay_ready(root: Path) -> None:
+    mutate(root, GATE17, lambda doc: doc["dimensions"]["REPLAY_READY"].__setitem__("status", "READY"))
+
+
+def case_tracker_owner_changed(root: Path) -> None:
+    mutate(root, TRACKER17, lambda doc: doc.__setitem__("owner", "LILY"))
+
+
 def main() -> int:
     cases = [
         ("substitution_generalized", case_substitution_generalized, "Loudoun substitution scope was generalized"),
@@ -117,6 +161,15 @@ def main() -> int:
         ("repo_blocker_reappears", case_repo_blocker_reappears, "still reports repo-executable first-slice blockers"),
         ("evaluation_ready", case_evaluation_ready, "evaluation gate falsely ready"),
         ("master_full_ready", case_master_full_ready, "master falsely full-run ready"),
+        ("schneider_beneficiary_capture_overclaimed", case_schneider_beneficiary_capture_overclaimed, "Schneider outcome label drifted"),
+        ("schneider_direct_candidate_match", case_schneider_direct_candidate_match, "Schneider supplemental outcome was directly matched"),
+        ("schneider_ordinary_replay", case_schneider_ordinary_replay, "Schneider outcome unexpectedly ordinary-replay eligible"),
+        ("schneider_availability_backdated", case_schneider_availability_backdated, "Schneider Hydra availability was backdated"),
+        ("schneider_constraint_resolution_fabricated", case_schneider_constraint_resolution_fabricated, "Schneider outcome label drifted"),
+        ("batch017_reopens_eval1", case_batch017_reopens_eval1, "Batch017 thin-outcome blocker was reopened"),
+        ("batch017_threshold_invented", case_batch017_threshold_invented, "invented an acceptance threshold"),
+        ("batch017_replay_ready", case_batch017_replay_ready, "Batch017 falsely clears replay blockers"),
+        ("tracker_owner_changed", case_tracker_owner_changed, "NYX assignment tracker owner drifted"),
     ]
     for name, fn, fragment in cases:
         expect_failure(name, fn, fragment)
