@@ -2,6 +2,7 @@ import hashlib
 import unittest
 from pathlib import Path
 
+from hydra_constraint_replay.corpus import load_replay_ready_corpus
 from hydra_constraint_replay.classified_gold import (
     load_classified_gold_corpus,
     summarize_classified_gold,
@@ -30,6 +31,7 @@ ENRICH=ROOT/"constraint-replay"/"corpus"/"HYDRA_CONSTRAINT_REPLAY_OUTCOME_ENRICH
 CONF=ROOT/"constraint-replay"/"corpus"/"HYDRA_CONSTRAINT_REPLAY_CONFIDENCE_ADMISSIBILITY_BATCH009_20260926.json"
 MAP=ROOT/"constraint-replay"/"corpus"/"HYDRA_CONSTRAINT_REPLAY_OUTCOME_MAPPING_BATCH009_20260926.json"
 AUDIT=ROOT/"constraint-replay"/"corpus"/"HYDRA_CONSTRAINT_REPLAY_PROMOTION_AUDIT_BATCH009_20260926.json"
+REPLAY_READY=ROOT/"constraint-replay"/"corpus"/"HYDRA_CONSTRAINT_REPLAY_READY_CORPUS_BATCH005_20260925.jsonl"
 
 
 def git_blob_sha(path: Path) -> str:
@@ -46,6 +48,7 @@ class ClassifiedGoldBatch009ExpansionTests(unittest.TestCase):
         cls.confidence,cls.mappings=load_confidence_audit(CONF)
         cls.declared_at,cls.mapping_inputs=load_outcome_mapping_bundle(MAP)
         cls.audits=load_promotion_audits(AUDIT)
+        cls.replay_ready=load_replay_ready_corpus(REPLAY_READY)
 
     def test_expands_from_three_to_six_without_rewriting_predecessors(self):
         self.assertEqual(3,len(self.old))
@@ -68,6 +71,20 @@ class ClassifiedGoldBatch009ExpansionTests(unittest.TestCase):
             for path,sha in record.source_artifact_pins:
                 with self.subTest(case=record.case_id,path=path):
                     self.assertEqual(sha,git_blob_sha(ROOT/path))
+
+    def test_new_cases_already_exist_in_replay_ready_corpus(self):
+        replay_ids={r["case_id"] for r in self.replay_ready}
+        new_ids={r.case_id for r in self.new}-{r.case_id for r in self.old}
+        self.assertTrue(new_ids <= replay_ids)
+
+    def test_mapping_evidence_equals_admitted_enrichment_sources(self):
+        enrich={e.case_id:e for e in self.enrichments}
+        mappings={m.case_id:m for m in self.mapping_inputs}
+        for case_id,enrichment in enrich.items():
+            admitted=set(enrichment.historical_hypothesis_source_ids)
+            admitted.update(enrichment.outcome_source_ids)
+            with self.subTest(case=case_id):
+                self.assertEqual(admitted,set(mappings[case_id].evidence_source_ids))
 
     def test_new_case_set_is_exact(self):
         old_ids={r.case_id for r in self.old}
