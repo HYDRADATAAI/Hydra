@@ -62,6 +62,7 @@ class CaseOutcomeEnrichment:
     outcome_source_ids: tuple[str, ...]
     hypothesis_available_at: datetime
     hypothesis_statement: str
+    hypothesis_independence_basis: str
     metrics: tuple[OutcomeMetric, ...]
     time_series: tuple[OutcomeSeries, ...] = ()
     qualitative_outcomes: tuple[dict[str, str], ...] = ()
@@ -164,6 +165,13 @@ def load_outcome_enrichment_bundle(
         statement=item.get("hypothesis_statement")
         if not isinstance(statement,str) or not statement:
             raise OutcomeEvidenceError(f"{cid}: hypothesis_statement required")
+        independence=item.get("hypothesis_independence_basis")
+        if not isinstance(independence,str) or not independence:
+            raise OutcomeEvidenceError(f"{cid}: hypothesis_independence_basis required")
+        hypothesis_publishers={sources[sid].publisher for sid in hypothesis_ids}
+        outcome_publishers={sources[sid].publisher for sid in outcome_ids}
+        if hypothesis_publishers & outcome_publishers:
+            raise OutcomeEvidenceError(f"{cid}: hypothesis and outcome publishers overlap")
 
         metrics=[]
         for m in item.get("metrics",[]):
@@ -232,6 +240,7 @@ def load_outcome_enrichment_bundle(
             outcome_source_ids=outcome_ids,
             hypothesis_available_at=hypothesis_available,
             hypothesis_statement=statement,
+            hypothesis_independence_basis=independence,
             metrics=tuple(metrics),
             time_series=tuple(series),
             qualitative_outcomes=tuple(qualitative),
