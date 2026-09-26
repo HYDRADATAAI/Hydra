@@ -277,6 +277,40 @@ Canonical snapshot:
 Snapshot digest:
 
 `6d767e34f1f644ae5e4716d907c887425fdce0c15fbf521af530d5e50f0891b0`
+## Batch 019 policy taxonomy closure
+
+Batch 019 closes the final sourced policy-event taxonomy gap with a separately pinned `SUPPLY_AFFECTING_CONFLICT` supplement.
+
+Current taxonomy breadth:
+
+- 18 event types in the policy taxonomy;
+- 18 event types with at least one sourced historical example;
+- missing event types: none.
+
+The supplement uses the 2022 Ukraine agricultural/commodity supply shock and is validated through the normal policy and physical loaders.
+
+Important scope boundary:
+
+- the frozen Batch 015 replay corpus remains **22 cases**;
+- the Batch 019 supplement is **not** a 23rd replay/classification case;
+- the supplement exists only to close policy event-type breadth;
+- calibration, live ingestion, canonical mutation authority, and T6 activation remain unchanged.
+
+Successor operating snapshot:
+
+`operating/HYDRA_CONSTRAINT_BATCH019_OPERATING_SNAPSHOT_20260926.json`
+
+Snapshot digest:
+
+`99fc9235e146e87ed716d3f55484ae8c0ed66ce5ab28e7225e0dd1f5712aa6ef`
+
+Current readiness distribution after taxonomy closure:
+
+- 5 `FULL` dimensions;
+- 0 `THIN` dimensions;
+- 1 `EMPTY` dimension;
+- 3 `MISSING` dimensions;
+- 1 `DUPLICATE_STALE` dimension.
 ## Run
 
 ```bash
@@ -292,11 +326,13 @@ Upstream Constraint domains emit provenance-bearing evidence with stable evidenc
 
 ## Next integration gate
 
-Classification is complete for the current 22-case corpus, Batch 015 is the frozen deterministic aggregate replay, and Batch 016 provides read-only query access.
+Classification remains complete for the frozen 22-case replay corpus, the Batch 015 replay is deterministic, Batch 017 provides multi-domain read-only orchestration, Batch 018 provides operating/readiness reporting, and Batch 019 closes sourced policy-event taxonomy breadth at 18/18.
 
-Next work should move to:
-- broader multi-domain Constraint orchestration/reporting;
-- an authority-safe central consumer of physical + policy + replay state;
-- or authentic historical numeric confidence provenance for calibrated replay.
+Remaining material gaps are now:
+- authentic historical numeric confidence provenance for calibrated replay;
+- live/current Constraint ingestion with source-authority proof;
+- canonical mutation authority, if separately authorized;
+- T6 activation, if separately authorized;
+- integration of additional authoritative Constraint domains beyond the current policy/physical/replay stack.
 
-Do not create more classification batches merely to create activity.
+Do not add more event-type coverage batches merely to create activity.
