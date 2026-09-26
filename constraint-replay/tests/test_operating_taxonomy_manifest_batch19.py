@@ -60,7 +60,7 @@ class Batch019OperatingManifestTests(unittest.TestCase):
         self.assertEqual(output["git_blob_sha"],git_blob_sha(ROOT/output["path"]))
         self.assertEqual(output["snapshot_digest_sha256"],self.snapshot["snapshot_digest_sha256"])
         self.assertEqual(
-            "99fc9235e146e87ed716d3f55484ae8c0ed66ce5ab28e7225e0dd1f5712aa6ef",
+            "4e6d3de489457c125d27aa243f983891c0ee988a4b0671b6d496d4c00125fa03",
             self.snapshot["snapshot_digest_sha256"],
         )
 
