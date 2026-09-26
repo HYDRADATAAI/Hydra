@@ -139,9 +139,28 @@ foreach ($Source in $Registry.sources) {
     try {
         $Response = Invoke-WebRequest `
             -Uri $Uri `
-            -OutFile $Destination `
             -MaximumRedirection 10 `
             -UseBasicParsing
+
+        if ($null -eq $Response -or $null -eq $Response.Headers) {
+            throw "Missing response metadata for $SourceId"
+        }
+        $ObservedContentType = [string]$Response.Headers["Content-Type"]
+        $ObservedMediaType = ($ObservedContentType.Split(";")[0]).Trim()
+        if (-not $ObservedMediaType.Equals($ExpectedContentType, [System.StringComparison]::OrdinalIgnoreCase)) {
+            throw "Unexpected or missing Content-Type for $SourceId"
+        }
+        if ($null -eq $Response.RawContentStream) {
+            throw "Missing response body stream for $SourceId"
+        }
+        $Response.RawContentStream.Position = 0
+        $OutputStream = [System.IO.File]::Create($Destination)
+        try {
+            $Response.RawContentStream.CopyTo($OutputStream)
+        }
+        finally {
+            $OutputStream.Dispose()
+        }
     }
     catch {
         if (Test-Path -LiteralPath $Destination -PathType Leaf) {
@@ -200,17 +219,6 @@ foreach ($Source in $Registry.sources) {
     $Item = Get-Item -LiteralPath $Destination
     if ($Item.Length -le 0) {
         throw "Captured file is empty for $SourceId"
-    }
-
-    $ObservedContentType = $null
-    if (-not $UsedBrowserHar -and $null -ne $Response -and $null -ne $Response.Headers -and $Response.Headers["Content-Type"]) {
-        $ObservedContentType = [string]$Response.Headers["Content-Type"]
-    }
-    if (
-        $ObservedContentType -and
-        -not $ObservedContentType.StartsWith($ExpectedContentType, [System.StringComparison]::OrdinalIgnoreCase)
-    ) {
-        throw "Unexpected Content-Type for $SourceId. Expected prefix $ExpectedContentType, observed $ObservedContentType"
     }
 
     $Hash = (Get-FileHash -LiteralPath $Destination -Algorithm SHA256).Hash.ToLowerInvariant()
