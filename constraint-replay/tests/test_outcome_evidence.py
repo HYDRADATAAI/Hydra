@@ -86,6 +86,20 @@ class OutcomeEvidenceTests(unittest.TestCase):
             with self.assertRaisesRegex(OutcomeEvidenceError,"not prior to outcome evidence"):
                 load_outcome_enrichment_bundle(p)
 
+    def test_overlapping_hypothesis_and_outcome_publishers_fail_closed(self):
+        raw=json.loads(BUNDLE.read_text(encoding="utf-8"))
+        case=raw["cases"][0]
+        hyp_id=case["historical_hypothesis_source_ids"][0]
+        out_id=case["outcome_source_ids"][0]
+        hyp=next(s for s in raw["sources"] if s["source_id"]==hyp_id)
+        out=next(s for s in raw["sources"] if s["source_id"]==out_id)
+        out["publisher"]=hyp["publisher"]
+        with tempfile.TemporaryDirectory() as td:
+            p=Path(td)/"bad.json"
+            p.write_text(json.dumps(raw),encoding="utf-8")
+            with self.assertRaisesRegex(OutcomeEvidenceError,"publishers overlap"):
+                load_outcome_enrichment_bundle(p)
+
     def test_metric_source_role_fails_closed(self):
         raw=json.loads(BUNDLE.read_text(encoding="utf-8"))
         case=raw["cases"][0]
