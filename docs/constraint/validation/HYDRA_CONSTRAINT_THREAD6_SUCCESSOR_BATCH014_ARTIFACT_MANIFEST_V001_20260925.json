@@ -17,16 +17,18 @@
     "canonical_constraint_fabricated": false,
     "qualified_beneficiary_fabricated": false,
     "raw_lineage_fabricated": false,
-    "second_ecosystem_opened": false
+    "second_ecosystem_opened": false,
+    "persisted_receipt_release_identity_required": true,
+    "caller_supplied_in_memory_release_authority": false
   },
   "artifacts": [
     {
       "path": "docs/constraint/first_slice/ai_data_center_power_infrastructure_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH014_AI_DATA_CENTER_POWER_INFRASTRUCTURE_STRICT_ACCEPTANCE_GATE_V001_20260925.json",
-      "git_blob_sha": "6a33b43c021a845f74a8c0d2d75917f1a7f7b060"
+      "git_blob_sha": "2a93426cf9eac1faf20180ec6a4982645f0a0687"
     },
     {
       "path": "docs/constraint/first_slice/ai_data_center_power_infrastructure_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH014_AI_DATA_CENTER_POWER_INFRASTRUCTURE_FINAL_RETURN_V001_20260925.json",
-      "git_blob_sha": "aea894c742dde14b3e2762061f5281538080b4b5"
+      "git_blob_sha": "60185df678a1a03b9b4fedfa11173e6800cd5d45"
     },
     {
       "path": "docs/constraint/architecture/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH014_AI_DATA_CENTER_POWER_INFRASTRUCTURE_CAPABILITY_LEDGER_CURRENT_SUMMARY_V001_20260925.json",
@@ -34,24 +36,40 @@
     },
     {
       "path": "docs/constraint/architecture/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH014_MASTER_STATUS_V001_20260925.json",
-      "git_blob_sha": "e1a78a7502cd75b398ddbdeba7d157b645c9fbc4"
+      "git_blob_sha": "de5602896d997229e877774fa9fd2541dd3bb4ea"
     },
     {
       "path": "docs/constraint/validation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH014_AI_DATA_CENTER_POWER_INFRASTRUCTURE_STRICT_ACCEPTANCE_REPORT_V001_20260925.md",
-      "git_blob_sha": "b1c481a8522cf99c4502b96cd3735158a41be2bb"
+      "git_blob_sha": "0fc3ba810620dcb94321223fe937c734cef6f8d8"
     },
     {
       "path": "t6-fail-closed-validator/tests/test_first_slice_strict_acceptance.py",
-      "git_blob_sha": "cae21e08001c672cd0a8c252bcb75a50158fe5d9"
+      "git_blob_sha": "f831e17e7ef44b7ff5fe532c3fe15c4e2f8be824"
     },
     {
       "path": "tools/validate_constraint_first_slice_successor.py",
-      "git_blob_sha": "3e664825b4ab0bf4cc14e329913bddb340bea002"
+      "git_blob_sha": "f086c66f149fafbf295c0dbb6c70d06d338e13d9"
+    },
+    {
+      "path": "constraint-t1-raw-artifact-store/src/hydra_constraint_t1_raw/store.py",
+      "git_blob_sha": "040af0ee154e3cf6e64a145125fc1254ce170902"
+    },
+    {
+      "path": "constraint-t1-raw-artifact-store/tests/test_store.py",
+      "git_blob_sha": "da24ccc223900e345c5e1fb4fc92ae35db87f467"
+    },
+    {
+      "path": "constraint-t1-raw-artifact-store/README.md",
+      "git_blob_sha": "5958840f95811a147758913bce8e42419ed55750"
+    },
+    {
+      "path": "constraint-t1-raw-artifact-store/pyproject.toml",
+      "git_blob_sha": "c597639479c7be82570806b034fd0f1690822f56"
     }
   ],
   "expected": {
     "strict_result": "BLOCKED",
-    "strict_gate_pass_count": 8,
+    "strict_gate_pass_count": 9,
     "strict_gate_fail_count": 7,
     "real_source_data_used": "YES",
     "historical_replay": "BLOCKED",
@@ -64,6 +82,36 @@
     "qualified_beneficiaries": 0,
     "outcomes_captured": 2,
     "capability_ledger_updates": 4,
-    "hard_stop_second_ecosystem": true
-  }
+    "hard_stop_second_ecosystem": true,
+    "persisted_t1_chain_of_custody": "PASS",
+    "caller_supplied_in_memory_release_authority": "NO"
+  },
+  "hardening_transition": {
+    "scope": "T1_TO_T2_PERSISTED_CHAIN_OF_CUSTODY",
+    "historical_batch008_store_manifest_preserved": true,
+    "ordinary_eligibility_requires_exact_persisted_receipt": true,
+    "ordinary_eligibility_requires_exact_persisted_release": true
+  },
+  "superseded_artifacts": [
+    {
+      "path": "constraint-t1-raw-artifact-store/src/hydra_constraint_t1_raw/store.py",
+      "predecessor_git_blob_sha": "c360aff06500ef19ac2f76e3b5efb9ef7debd90d",
+      "successor_git_blob_sha": "040af0ee154e3cf6e64a145125fc1254ce170902"
+    },
+    {
+      "path": "constraint-t1-raw-artifact-store/tests/test_store.py",
+      "predecessor_git_blob_sha": "4a2bbd00189ac7b62f338cf7a21062f35ba1c31f",
+      "successor_git_blob_sha": "da24ccc223900e345c5e1fb4fc92ae35db87f467"
+    },
+    {
+      "path": "constraint-t1-raw-artifact-store/README.md",
+      "predecessor_git_blob_sha": "df498d35dc3acdfb2fbef95fac1e1505c80105c8",
+      "successor_git_blob_sha": "5958840f95811a147758913bce8e42419ed55750"
+    },
+    {
+      "path": "constraint-t1-raw-artifact-store/pyproject.toml",
+      "predecessor_git_blob_sha": "2c1163d3dbb62e7ef790d967bd2f5834a1871a91",
+      "successor_git_blob_sha": "c597639479c7be82570806b034fd0f1690822f56"
+    }
+  ]
 }
