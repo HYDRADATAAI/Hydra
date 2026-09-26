@@ -56,14 +56,30 @@ if (-not (Test-Path -LiteralPath $VenvPython -PathType Leaf)) {
     }
 }
 
-& $VenvPython -c "import playwright" 2>$null
-if ($LASTEXITCODE -ne 0) {
+$PlaywrightPackageMarker = Join-Path $VenvRoot "Lib\site-packages\playwright\__init__.py"
+if (-not (Test-Path -LiteralPath $PlaywrightPackageMarker -PathType Leaf)) {
     if ($NoBootstrap) {
         throw "Playwright is absent from the private runtime and -NoBootstrap was specified."
     }
-    & $VenvPython -m pip install --disable-pip-version-check --requirement $Requirements
-    if ($LASTEXITCODE -ne 0) {
-        throw "Unable to install Playwright into the private runtime."
+
+    $PreviousErrorActionPreference = $ErrorActionPreference
+    try {
+        # Windows PowerShell 5 converts native stderr into ErrorRecord objects.
+        # Temporarily prevent ordinary pip stderr/progress from becoming a terminating
+        # NativeCommandError while still enforcing the process exit code below.
+        $ErrorActionPreference = "Continue"
+        & $VenvPython -m pip install --disable-pip-version-check --requirement $Requirements
+        $PipExitCode = $LASTEXITCODE
+    }
+    finally {
+        $ErrorActionPreference = $PreviousErrorActionPreference
+    }
+
+    if ($PipExitCode -ne 0) {
+        throw "Unable to install Playwright into the private runtime (exit code $PipExitCode)."
+    }
+    if (-not (Test-Path -LiteralPath $PlaywrightPackageMarker -PathType Leaf)) {
+        throw "Playwright install completed but the expected private-runtime package marker is missing: $PlaywrightPackageMarker"
     }
 }
 
