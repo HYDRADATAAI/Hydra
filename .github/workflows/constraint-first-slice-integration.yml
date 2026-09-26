@@ -8,6 +8,8 @@ on:
       - "t6-fail-closed-validator/**"
       - "tools/validate_constraint_first_slice_successor.py"
       - "tools/test_constraint_first_slice_adversarial.py"
+      - "tools/validate_constraint_first_slice_acceptance_gate.py"
+      - "tools/test_constraint_first_slice_acceptance_gate_adversarial.py"
       - ".github/workflows/constraint-first-slice-integration.yml"
   push:
     branches:
@@ -18,6 +20,8 @@ on:
       - "t6-fail-closed-validator/**"
       - "tools/validate_constraint_first_slice_successor.py"
       - "tools/test_constraint_first_slice_adversarial.py"
+      - "tools/validate_constraint_first_slice_acceptance_gate.py"
+      - "tools/test_constraint_first_slice_acceptance_gate_adversarial.py"
       - ".github/workflows/constraint-first-slice-integration.yml"
 
 permissions:
@@ -40,3 +44,9 @@ jobs:
 
       - name: Run hostile mutation matrix
         run: python tools/test_constraint_first_slice_adversarial.py
+
+      - name: Validate strict first-slice acceptance gate
+        run: python tools/validate_constraint_first_slice_acceptance_gate.py
+
+      - name: Run strict acceptance hostile matrix
+        run: python tools/test_constraint_first_slice_acceptance_gate_adversarial.py
