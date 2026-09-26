@@ -1,3 +1,4 @@
+import hashlib
 import unittest
 from pathlib import Path
 
@@ -31,6 +32,11 @@ MAP=ROOT/"constraint-replay"/"corpus"/"HYDRA_CONSTRAINT_REPLAY_OUTCOME_MAPPING_B
 AUDIT=ROOT/"constraint-replay"/"corpus"/"HYDRA_CONSTRAINT_REPLAY_PROMOTION_AUDIT_BATCH009_20260926.json"
 
 
+def git_blob_sha(path: Path) -> str:
+    payload=path.read_bytes()
+    return hashlib.sha1(f"blob {len(payload)}\\0".encode()+payload).hexdigest()
+
+
 class ClassifiedGoldBatch009ExpansionTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
@@ -49,6 +55,19 @@ class ClassifiedGoldBatch009ExpansionTests(unittest.TestCase):
         for case_id,record in old_by.items():
             with self.subTest(case=case_id):
                 self.assertEqual(record,new_by[case_id])
+
+    def test_batch9_source_pins_match_checked_out_bytes(self):
+        new_ids={
+            "us-section232-steel-tariff-2018",
+            "eu-russian-oil-import-restrictions-2022",
+            "panama-canal-drought-transit-policy-2023",
+        }
+        for record in self.new:
+            if record.case_id not in new_ids:
+                continue
+            for path,sha in record.source_artifact_pins:
+                with self.subTest(case=record.case_id,path=path):
+                    self.assertEqual(sha,git_blob_sha(ROOT/path))
 
     def test_new_case_set_is_exact(self):
         old_ids={r.case_id for r in self.old}
