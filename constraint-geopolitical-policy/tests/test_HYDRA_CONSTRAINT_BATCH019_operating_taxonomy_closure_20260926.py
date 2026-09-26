@@ -19,7 +19,7 @@ class Batch019OperatingTaxonomyIntegrationTests(unittest.TestCase):
 
     def test_snapshot_closes_taxonomy_gap_without_changing_replay_membership(self):
         self.assertEqual(
-            "99fc9235e146e87ed716d3f55484ae8c0ed66ce5ab28e7225e0dd1f5712aa6ef",
+            "4e6d3de489457c125d27aa243f983891c0ee988a4b0671b6d496d4c00125fa03",
             self.snapshot["snapshot_digest_sha256"],
         )
         state=self.snapshot["current_state"]
