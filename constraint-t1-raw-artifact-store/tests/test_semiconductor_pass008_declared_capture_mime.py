@@ -3,7 +3,10 @@ import hashlib
 from pathlib import Path
 import tempfile
 import unittest
-from test_automated_browser_private_source_capture import capture, nine_sources, registry
+if __package__:
+    from .test_automated_browser_private_source_capture import capture, nine_sources, registry
+else:
+    from test_automated_browser_private_source_capture import capture, nine_sources, registry
 
 URL = 'https://example.com/static-files/extensionless-document'
 PDF = b'%PDF-1.7\n' + b'0' * 1100

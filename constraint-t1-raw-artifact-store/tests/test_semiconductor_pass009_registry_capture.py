@@ -8,7 +8,10 @@ import tempfile
 from types import SimpleNamespace
 import unittest
 from unittest.mock import patch
-from test_automated_browser_private_source_capture import capture, ROOT
+if __package__:
+    from .test_automated_browser_private_source_capture import capture, ROOT
+else:
+    from test_automated_browser_private_source_capture import capture, ROOT
 
 SLICE = 'SEMICONDUCTOR_ADVANCED_PACKAGING_CRITICAL_MATERIALS_V1'
 
