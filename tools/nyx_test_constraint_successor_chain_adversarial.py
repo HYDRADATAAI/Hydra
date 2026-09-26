@@ -9,7 +9,7 @@ import re
 import shutil
 import subprocess
 import sys
-import tempfile
+import uuid
 from pathlib import Path
 from typing import Callable
 
@@ -83,7 +83,8 @@ def copy_file(relative: str, destination_root: Path) -> None:
 
 
 def make_sandbox() -> Path:
-    temp = Path(tempfile.mkdtemp(prefix="hydra-constraint-hostile-"))
+    temp = ROOT / f".tmp-hydra-constraint-hostile-{uuid.uuid4().hex}"
+    temp.mkdir()
     shutil.copytree(ROOT / "docs/constraint", temp / "docs/constraint", dirs_exist_ok=True)
 
     # Copy non-doc members needed by current manifest validation.

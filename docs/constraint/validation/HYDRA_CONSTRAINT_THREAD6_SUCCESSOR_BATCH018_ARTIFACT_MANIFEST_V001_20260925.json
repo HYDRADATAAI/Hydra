@@ -1,0 +1,97 @@
+{
+  "schema_version": "hydra-constraint-thread6-successor-manifest/v1",
+  "record_id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH018_ARTIFACT_MANIFEST_V001",
+  "as_of": "2026-09-26",
+  "repository": "HYDRADATAAI/Hydra",
+  "base_head": "9ea283a7c4775543069a657a3c01684d92606692",
+  "predecessor_batch": {
+    "id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH017",
+    "commit": "9ea283a7c4775543069a657a3c01684d92606692",
+    "preservation": "IMMUTABLE_NOT_REWRITTEN"
+  },
+  "slice_id": "AI_DATA_CENTER_POWER_INFRASTRUCTURE_V1",
+  "result": "PASS_SUPPLEMENTAL_REAL_OUTCOME_RECORDED_EXTERNAL_GATES_REMAIN",
+  "artifacts": [
+    {
+      "path": "docs/constraint/first_slice/ai_data_center_power_infrastructure_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH018_AI_DATA_CENTER_POWER_INFRASTRUCTURE_OUTCOME_SOURCE_REGISTRY_EXTENSION_V001_20260925.json",
+      "git_blob_sha": "b84a30ee6df631da389b7e2661b465790a28b5e1"
+    },
+    {
+      "path": "docs/constraint/first_slice/ai_data_center_power_infrastructure_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH018_AI_DATA_CENTER_POWER_INFRASTRUCTURE_OUTCOME_RECORDS_SUPPLEMENT_V001_20260925.json",
+      "git_blob_sha": "4ba3bfbb8f38bb4cd5fc1c8d941b0d4e665e806f"
+    },
+    {
+      "path": "docs/constraint/first_slice/ai_data_center_power_infrastructure_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH018_AI_DATA_CENTER_POWER_INFRASTRUCTURE_REAL_OUTCOME_COVERAGE_MATRIX_V001_20260925.json",
+      "git_blob_sha": "586d3ea75fc664a4db6ea5b5a376bd623b522dc5"
+    },
+    {
+      "path": "docs/constraint/first_slice/ai_data_center_power_infrastructure_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH018_AI_DATA_CENTER_POWER_INFRASTRUCTURE_EVALUATION_PROTOCOL_V001_20260925.json",
+      "git_blob_sha": "fe173a8427c71def2fce8ceb128ffdb2d19d5430"
+    },
+    {
+      "path": "docs/constraint/first_slice/ai_data_center_power_infrastructure_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH018_AI_DATA_CENTER_POWER_INFRASTRUCTURE_STRICT_ACCEPTANCE_GATE_V001_20260925.json",
+      "git_blob_sha": "107dd5f8da38aaf5d8bdc20c7e251a9c27852049"
+    },
+    {
+      "path": "docs/constraint/first_slice/ai_data_center_power_infrastructure_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH018_AI_DATA_CENTER_POWER_INFRASTRUCTURE_BLOCKER_REGISTER_V001_20260925.json",
+      "git_blob_sha": "7ad64a6faa6feef55acec2b7d1eb040f8917e41a"
+    },
+    {
+      "path": "docs/constraint/architecture/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH018_NYX_ASSIGNMENT_TRACKER_V001_20260925.json",
+      "git_blob_sha": "adb5e28156144d60916a956fda5ae538ce81bfb8"
+    },
+    {
+      "path": "docs/constraint/architecture/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH018_MASTER_STATUS_V001_20260925.json",
+      "git_blob_sha": "a40227f6de387485eea31e2e52d8678d6efca59f"
+    },
+    {
+      "path": "docs/constraint/validation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH018_REAL_OUTCOME_EVIDENCE_SUPPLEMENT_REPORT_V001_20260925.md",
+      "git_blob_sha": "fc7bbe446bcf9d1c9f4dbf2ee70ccefc0bbe97ff"
+    },
+    {
+      "path": "docs/constraint/validation/NYX_CONSTRAINT_PR58_PR62_PR61_RECONCILIATION_20260926.md",
+      "git_blob_sha": "f6ae8d66013d902ea89e293eab0eb0dc2e024f54"
+    },
+    {
+      "path": "docs/constraint/first_slice/ai_data_center_power_infrastructure_v1/HYDRA_CONSTRAINT_LILY_OWNER_SEAM_RECONCILIATION_T5_CANDIDATE_TEMPORAL_IDENTITY_OVERLAY_V001_20260926.json",
+      "git_blob_sha": "edea203dc438be0039258cfe02873a16ebe36ac3"
+    }
+  ],
+  "excluded_operational_tools": [
+    {
+      "path": "tools/validate_constraint_first_slice_outcome_coverage.py",
+      "reason": "operational validator may evolve without manifest self-reference"
+    },
+    {
+      "path": "tools/test_constraint_first_slice_outcome_coverage_adversarial.py",
+      "reason": "hostile-test harness may evolve without manifest self-reference"
+    },
+    {
+      "path": ".github/workflows/constraint-first-slice-integration.yml",
+      "reason": "CI orchestration is operational rather than domain authority content"
+    }
+  ],
+  "expected": {
+    "real_outcome_records": 6,
+    "batch018_outcomes_added": 1,
+    "core_evaluation_outcome_dimensions_covered": "3/3_RETAINED_FROM_BATCH016",
+    "accept_014_eval_001": "CLOSED_BY_BATCH016_RETAINED",
+    "repo_executable_blockers": 0,
+    "implementation_admitted": "NO",
+    "ordinary_replay_ready": "NO",
+    "full_constraint_run_allowed": false,
+    "first_serious_constraint_run": "BLOCKED",
+    "nyx_lane": "FIRST-SLICE-REAL-OUTCOME-COVERAGE-EXPANSION",
+    "nyx_assignment_status": "COMPLETED_IN_BATCH018",
+    "next_repo_executable_lane": "NONE_FIRST_SLICE_ACCEPTANCE_REQUIRES_PRIVATE_RAW_MATERIALIZATION_AND_NATIVE_ADMISSION"
+  },
+  "integration_origins": {
+    "custody_pr": 58,
+    "custody_head": "9ea283a7c4775543069a657a3c01684d92606692",
+    "outcome_pr": 62,
+    "outcome_head": "e15909dcaf53518c09d3fa1be2423f3c13558492",
+    "renumbering": "PR62 proposed Batch017 is Batch018 after persisted custody Batch017; predecessor artifacts remain unchanged.",
+    "shadow_replay_pr": 61,
+    "shadow_replay_head": "fc29f73debd9987b571eb7052da8be9424bd36f9"
+  }
+}
