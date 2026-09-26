@@ -1,0 +1,64 @@
+{
+  "schema_version": "hydra-constraint-thread6-master-status/v1",
+  "record_id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH025_MASTER_STATUS_V001",
+  "as_of": "2026-09-26",
+  "predecessor": {
+    "record_id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH024_MASTER_STATUS_V001",
+    "mutation": "NONE"
+  },
+  "active_verticals": {
+    "AI_DATA_CENTER_POWER_INFRASTRUCTURE_V1": {
+      "status": "PUBLIC_REPO_SIDE_EXHAUSTED_EXTERNAL_GATES_REMAIN",
+      "first_serious_constraint_run": "BLOCKED"
+    },
+    "SEMICONDUCTOR_ADVANCED_PACKAGING_CRITICAL_MATERIALS_V1": {
+      "status": "PUBLIC_REPO_ACCEPTANCE_BLOCKERS_EXHAUSTED_EXTERNAL_GATES_REMAIN",
+      "first_serious_constraint_run": "BLOCKED"
+    }
+  },
+  "readiness": {
+    "SEMANTIC_ARCHITECTURE_READY": {
+      "status": "YES"
+    },
+    "SECOND_SLICE_REQUIRED_CASES": {
+      "status": "PARTIAL_EXTERNAL_ONLY",
+      "covered": 13,
+      "total": 14
+    },
+    "SECOND_SLICE_REPO_EXECUTABLE_REQUIRED_CASE_GAPS": {
+      "status": "NONE"
+    },
+    "SECOND_SLICE_CROSS_SLICE_GRAPH_ACCEPTANCE": {
+      "status": "PASS_CONTINUOUS_CHAIN"
+    },
+    "SECOND_SLICE_PROVENANCE_READY": {
+      "status": "NO"
+    },
+    "SECOND_SLICE_ORIGINAL_AS_OF_READY": {
+      "status": "NO"
+    },
+    "SECOND_SLICE_NO_LOOKAHEAD_READY": {
+      "status": "NO_ORDINARY"
+    },
+    "SECOND_SLICE_DETERMINISTIC_REPLAY_READY": {
+      "status": "NO"
+    },
+    "SECOND_SLICE_IMPLEMENTATION_ADMITTED": {
+      "status": "NO"
+    },
+    "FULL_CONSTRAINT_RUN_READY": {
+      "status": "NO"
+    }
+  },
+  "repo_executable_acceptance_blockers": [],
+  "external_or_private_acceptance_blockers": [
+    "SEMICONDUCTOR-SLICE-006-RAW-SOURCE-VERSIONS-NOT-MATERIALIZED",
+    "SEMI-ACCEPT-024-LINEAGE-001-SOURCE_VERSION_HASHES_T1_RELEASE_MEMBERSHIP_INCOMPLETE",
+    "SEMI-ACCEPT-024-REPLAY-001-ORDINARY_HISTORICAL_REPLAY_NOT_READY",
+    "SEMI-ACCEPT-024-CASE12-001-HISTORICAL_NO_LOOKAHEAD_NOT_ORDINARY_PROVEN",
+    "CI-TEST-008-BLOCKER-001B-NATIVE-T5-T6-SIGNED-ADMISSION-RECEIPT-ABSENT",
+    "CANONICAL-T5-T6-CONSTRAINT-AND-BENEFICIARY-ADMISSION-NOT-AUTHORIZED"
+  ],
+  "first_serious_constraint_run": "BLOCKED",
+  "next_repo_executable_lane": "NONE_SECOND_SLICE_ACCEPTANCE_REQUIRES_PRIVATE_RAW_MATERIALIZATION_AND_NATIVE_ADMISSION"
+}

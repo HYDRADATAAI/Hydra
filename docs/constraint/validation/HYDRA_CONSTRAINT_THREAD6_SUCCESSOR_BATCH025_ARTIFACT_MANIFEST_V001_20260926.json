@@ -1,0 +1,75 @@
+{
+  "schema_version": "hydra-constraint-thread6-successor-manifest/v1",
+  "record_id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH025_ARTIFACT_MANIFEST_V001",
+  "as_of": "2026-09-26",
+  "repository": "HYDRADATAAI/Hydra",
+  "base_head": "609522c8b1b3c2f58913758b6a912c231a7709e6",
+  "predecessor_batch": {
+    "id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH024",
+    "preservation": "IMMUTABLE_NOT_REWRITTEN"
+  },
+  "slice_id": "SEMICONDUCTOR_ADVANCED_PACKAGING_CRITICAL_MATERIALS_V1",
+  "result": "PASS_CONTINUOUS_CROSS_SLICE_GRAPH_REPO_ACCEPTANCE_BLOCKERS_CLOSED",
+  "artifacts": [
+    {
+      "path": "docs/constraint/second_slice/semiconductor_advanced_packaging_critical_materials_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH025_SEMICONDUCTOR_CONTINUOUS_CROSS_SLICE_SOURCE_REGISTRY_V001_20260926.json",
+      "git_blob_sha": "78b8203b38e672a7f3a663f5810230c3c1fd7035"
+    },
+    {
+      "path": "docs/constraint/second_slice/semiconductor_advanced_packaging_critical_materials_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH025_SEMICONDUCTOR_CONTINUOUS_CROSS_SLICE_EVIDENCE_V001_20260926.json",
+      "git_blob_sha": "0c00cb6afbf565e4bbfbb9824152fe5f14996017"
+    },
+    {
+      "path": "docs/constraint/second_slice/semiconductor_advanced_packaging_critical_materials_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH025_CONTINUOUS_AI_SEMICONDUCTOR_POWER_GRAPH_OVERLAY_V001_20260926.json",
+      "git_blob_sha": "463e7b6027b87d6c3f412e27b79e3edc23a42d89"
+    },
+    {
+      "path": "docs/constraint/second_slice/semiconductor_advanced_packaging_critical_materials_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH025_SEMICONDUCTOR_STRICT_ACCEPTANCE_GATE_V001_20260926.json",
+      "git_blob_sha": "654130cb2a71124d9974a481a8c31f1b1bbc21f1"
+    },
+    {
+      "path": "docs/constraint/second_slice/semiconductor_advanced_packaging_critical_materials_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH025_SEMICONDUCTOR_ACCEPTANCE_BLOCKER_REGISTER_V001_20260926.json",
+      "git_blob_sha": "93e989bb921c5fa3fa7be502f6436b070a2bfef8"
+    },
+    {
+      "path": "docs/constraint/second_slice/semiconductor_advanced_packaging_critical_materials_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH025_SEMICONDUCTOR_CONTINUOUS_CROSS_SLICE_GRAPH_STATUS_V001_20260926.json",
+      "git_blob_sha": "13472bebc072d5a71c2c97e6b4c454aacbcf0c69"
+    },
+    {
+      "path": "docs/constraint/architecture/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH025_MASTER_STATUS_V001_20260926.json",
+      "git_blob_sha": "a8502801fd0a95bf8d00c91982a85ccf9417e934"
+    },
+    {
+      "path": "docs/constraint/architecture/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH025_SEMICONDUCTOR_CAPABILITY_LEDGER_DELTA_V001_20260926.json",
+      "git_blob_sha": "9d7de49be5715e2fc4a6042e048bd98eb0f81a02"
+    },
+    {
+      "path": "docs/constraint/validation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH025_SEMICONDUCTOR_CONTINUOUS_CROSS_SLICE_GRAPH_REPORT_V001_20260926.md",
+      "git_blob_sha": "31c5dc104a4aa35bcbad2698d3cc25d2c46c700d"
+    }
+  ],
+  "excluded_operational_tools": [
+    {
+      "path": "tools/validate_constraint_second_slice_batch025_continuous_graph.py",
+      "reason": "operational validator may evolve"
+    },
+    {
+      "path": "tools/test_constraint_second_slice_batch025_continuous_graph_adversarial.py",
+      "reason": "hostile validation harness may evolve"
+    },
+    {
+      "path": ".github/workflows/constraint-second-slice.yml",
+      "reason": "CI orchestration is not domain authority content"
+    }
+  ],
+  "expected": {
+    "continuous_ai_semiconductor_power_chain": "PASS",
+    "repo_executable_acceptance_blockers": 0,
+    "external_or_private_acceptance_blockers": 6,
+    "required_cases_covered": "13/14",
+    "remaining_required_case": 12,
+    "historical_replay": "BLOCKED",
+    "first_semiconductor_run": "BLOCKED",
+    "next_repo_executable_lane": "NONE_SECOND_SLICE_ACCEPTANCE_REQUIRES_PRIVATE_RAW_MATERIALIZATION_AND_NATIVE_ADMISSION"
+  }
+}

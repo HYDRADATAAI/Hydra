@@ -115,3 +115,7 @@ jobs:
         run: python tools/validate_constraint_second_slice_batch024_acceptance_gate.py
       - name: Run Batch024 hostile matrix
         run: python tools/test_constraint_second_slice_batch024_acceptance_gate_adversarial.py
+      - name: Validate Batch025 continuous cross-slice graph
+        run: python tools/validate_constraint_second_slice_batch025_continuous_graph.py
+      - name: Run Batch025 hostile matrix
+        run: python tools/test_constraint_second_slice_batch025_continuous_graph_adversarial.py
