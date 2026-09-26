@@ -82,6 +82,11 @@ class Batch018AdversarialTests(unittest.TestCase):
         docs["master"]["first_serious_constraint_run"] = "ALLOWED"
         self.assertRejected(docs, "first serious Constraint run escaped BLOCKED")
 
+    def test_manifest_cannot_promote_replay(self):
+        docs = self.mutated()
+        docs["manifest"]["expected"]["historical_replay"] = "READY"
+        self.assertRejected(docs, "manifest: historical replay promoted")
+
     def test_material_population_cannot_appear_without_batch018_evidence(self):
         docs = self.mutated()
         docs["population"]["material_records"] = [{
