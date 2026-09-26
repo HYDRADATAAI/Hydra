@@ -71,5 +71,9 @@
     "status": "DORMANT_NOT_ACTIVATED",
     "runtime_binding_created": false,
     "activation_authority_granted": false
+  },
+  "ci_contract": {
+    "path": ".github/workflows/constraint-policy-taxonomy-closure.yml",
+    "git_blob_sha": "48a26a0d28cf6cbccd5d3b5872e530b6af5ae6bf"
   }
 }
