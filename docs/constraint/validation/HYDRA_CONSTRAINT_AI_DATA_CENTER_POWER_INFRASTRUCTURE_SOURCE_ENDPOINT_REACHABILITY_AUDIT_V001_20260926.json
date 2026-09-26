@@ -1,0 +1,62 @@
+{
+  "schema_version": "hydra-constraint-source-endpoint-reachability-audit/v1",
+  "record_id": "HYDRA_CONSTRAINT_AI_DATA_CENTER_POWER_INFRASTRUCTURE_SOURCE_ENDPOINT_REACHABILITY_AUDIT_V001_20260926",
+  "observed_at": "2026-09-26T12:47:00Z",
+  "slice_id": "AI_DATA_CENTER_POWER_INFRASTRUCTURE_V1",
+  "method": "PUBLIC_ENDPOINT_OPEN_PROBE_NO_RAW_BYTES_PERSISTED",
+  "t1_acquisition": false,
+  "closes_raw_materialization_blocker": false,
+  "sources": [
+    {
+      "source_id": "SRC-LBNL-DC-ENERGY-2025-UPDATE",
+      "status": "REACHABLE",
+      "observed_content_type": "text/html"
+    },
+    {
+      "source_id": "SRC-EIA-DC-DEMAND-2026-03-12",
+      "status": "REACHABLE",
+      "observed_content_type": "text/html"
+    },
+    {
+      "source_id": "SRC-LBNL-QUEUED-UP-2025",
+      "status": "REACHABLE",
+      "observed_content_type": "text/html"
+    },
+    {
+      "source_id": "SRC-FERC-ORDER-2023-FACT-SHEET",
+      "status": "REACHABLE",
+      "observed_content_type": "text/html"
+    },
+    {
+      "source_id": "SRC-DOE-LPT-RESILIENCE-2024",
+      "status": "REACHABLE",
+      "observed_content_type": "application/pdf"
+    },
+    {
+      "source_id": "SRC-DOE-DISTRIBUTION-TRANSFORMER-WEBINAR-2026",
+      "status": "REACHABLE",
+      "observed_content_type": "text/html"
+    },
+    {
+      "source_id": "SRC-LBNL-DATA-CENTER-WATER-2025",
+      "status": "REACHABLE",
+      "observed_content_type": "text/html"
+    },
+    {
+      "source_id": "SRC-NERC-LTRA-2025",
+      "status": "REACHABLE",
+      "observed_content_type": "application/pdf"
+    },
+    {
+      "source_id": "SRC-PJM-2025-YEAR-IN-REVIEW-2026-01-08",
+      "status": "REACHABLE",
+      "observed_content_type": "text/html"
+    }
+  ],
+  "result": {
+    "reachable_count": 9,
+    "unreachable_count": 0,
+    "raw_materialized_count": 0
+  },
+  "guardrail": "ENDPOINT_REACHABILITY_IS_NOT_SOURCE_VERSION_CUSTODY_OR_HISTORICAL_AVAILABILITY"
+}

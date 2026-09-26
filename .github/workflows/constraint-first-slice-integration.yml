@@ -7,6 +7,7 @@ on:
       - "constraint-t1-raw-artifact-store/**"
       - "t6-fail-closed-validator/**"
       - "tools/validate_constraint_first_slice_successor.py"
+      - "tools/validate_constraint_lily_owner_seams.py"
       - "tools/test_constraint_first_slice_adversarial.py"
       - ".github/workflows/constraint-first-slice-integration.yml"
   push:
@@ -17,6 +18,7 @@ on:
       - "constraint-t1-raw-artifact-store/**"
       - "t6-fail-closed-validator/**"
       - "tools/validate_constraint_first_slice_successor.py"
+      - "tools/validate_constraint_lily_owner_seams.py"
       - "tools/test_constraint_first_slice_adversarial.py"
       - ".github/workflows/constraint-first-slice-integration.yml"
 
@@ -37,6 +39,9 @@ jobs:
 
       - name: Validate successor first-slice integration
         run: python tools/validate_constraint_first_slice_successor.py
+
+      - name: Validate Lily T5/T6 owner seams
+        run: python tools/validate_constraint_lily_owner_seams.py
 
       - name: Run hostile mutation matrix
         run: python tools/test_constraint_first_slice_adversarial.py

@@ -1,0 +1,89 @@
+{
+  "schema_version": "hydra-constraint-lily-owner-seam-reconciliation/v1",
+  "record_id": "HYDRA_CONSTRAINT_LILY_OWNER_SEAM_RECONCILIATION_T5_CANDIDATE_TEMPORAL_IDENTITY_OVERLAY_V001_20260926",
+  "slice_id": "AI_DATA_CENTER_POWER_INFRASTRUCTURE_V1",
+  "overlay_available_at": "2026-09-26T12:47:00Z",
+  "mode": "SUCCESSOR_SEMANTIC_OVERLAY_NO_PREDECESSOR_REWRITE",
+  "predecessor": {
+    "record_id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH010_AI_DATA_CENTER_POWER_INFRASTRUCTURE_T5_CANDIDATE_PROPOSALS_V001",
+    "path": "docs/constraint/first_slice/ai_data_center_power_infrastructure_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH010_AI_DATA_CENTER_POWER_INFRASTRUCTURE_T5_CANDIDATE_PROPOSALS_V001_20260925.json",
+    "git_blob_sha": "112cf49941031ad51ff7cd2e1b8da096d8627b84",
+    "mutation": "NONE"
+  },
+  "authority_bindings": {
+    "t5_t6_seam": "LILY_THREAD_1_BATCH4_DECISIONS_89_90_92_117_118_119",
+    "canonical_beneficiary_policy": "LILY_THREAD_3_MASTER_CLOSURE_BUNDLE@ab7e4c05c9210a90256b8cdea89eeb9f3bb551453dfe13ebfe44616f750cb366",
+    "post_closure_owner_reconciliation": "LILY_THREAD_1_BATCH11_DECISIONS_330_339_341_342",
+    "strict_acceptance_predecessor": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH014_AI_DATA_CENTER_POWER_INFRASTRUCTURE_STRICT_ACCEPTANCE_GATE_V001"
+  },
+  "rules": [
+    "T5_CANDIDATE_ID_IS_NOT_T6_CANONICAL_CONSTRAINT_ID",
+    "MISSING_FORMATION_CONFIDENCE_IS_NOT_ZERO_CONFIDENCE",
+    "UNKNOWN_EFFECTIVE_SCOPE_IS_NOT_BACKFILLED_FROM_CURRENT_LABEL",
+    "CANONICAL_IDENTITY_NOT_EVALUATED_IS_NOT_RESOLVED_DISTINCT_OR_MERGED",
+    "OVERLAY_AVAILABILITY_IS_NOT_BACKDATED_TO_PREDECESSOR_EVIDENCE_TIME",
+    "INCOMPLETE_T1_T2_LINEAGE_REMAINS_BLOCKING",
+    "NO_CANONICAL_OR_BENEFICIARY_AUTHORITY_IS_MINTED_BY_THIS_OVERLAY"
+  ],
+  "original_candidate_availability_reconstructed": false,
+  "candidates": [
+    {
+      "constraint_candidate_id": "T5C-AIDC-US-INTERCONNECTION-THROUGHPUT-001",
+      "available_at": "2026-09-26T12:47:00Z",
+      "effective_from": null,
+      "effective_to": null,
+      "effective_state": "UNRESOLVED_NOT_FABRICATED",
+      "formation_confidence": null,
+      "formation_confidence_state": "NOT_EVALUATED",
+      "canonical_constraint_id": null,
+      "canonical_identity_state": "NOT_EVALUATED",
+      "lineage_state": "BLOCKED_INCOMPLETE_T1_T2",
+      "ordinary_t6_eligible": false,
+      "source_ineligibility_reasons": [
+        "PIT-002B-FIRST-SLICE-NINE-SOURCE-RAW-CAPTURE-MATERIALIZATION",
+        "CI-TEST-008-BLOCKER-001B-NATIVE-T5-T6-SIGNED-ADMISSION-RECEIPT-ABSENT"
+      ]
+    },
+    {
+      "constraint_candidate_id": "T5C-AIDC-US-TRANSFORMER-SUPPLY-001",
+      "available_at": "2026-09-26T12:47:00Z",
+      "effective_from": null,
+      "effective_to": null,
+      "effective_state": "UNRESOLVED_NOT_FABRICATED",
+      "formation_confidence": null,
+      "formation_confidence_state": "NOT_EVALUATED",
+      "canonical_constraint_id": null,
+      "canonical_identity_state": "NOT_EVALUATED",
+      "lineage_state": "BLOCKED_INCOMPLETE_T1_T2",
+      "ordinary_t6_eligible": false,
+      "source_ineligibility_reasons": [
+        "PIT-002B-FIRST-SLICE-NINE-SOURCE-RAW-CAPTURE-MATERIALIZATION",
+        "CI-TEST-008-BLOCKER-001B-NATIVE-T5-T6-SIGNED-ADMISSION-RECEIPT-ABSENT"
+      ]
+    },
+    {
+      "constraint_candidate_id": "T5C-AIDC-AMER-SWITCHGEAR-LEADTIME-001",
+      "available_at": "2026-09-26T12:47:00Z",
+      "effective_from": null,
+      "effective_to": null,
+      "effective_state": "UNRESOLVED_NOT_FABRICATED",
+      "formation_confidence": null,
+      "formation_confidence_state": "NOT_EVALUATED",
+      "canonical_constraint_id": null,
+      "canonical_identity_state": "NOT_EVALUATED",
+      "lineage_state": "BLOCKED_INCOMPLETE_T1_T2",
+      "ordinary_t6_eligible": false,
+      "source_ineligibility_reasons": [
+        "PIT-002B-FIRST-SLICE-NINE-SOURCE-RAW-CAPTURE-MATERIALIZATION",
+        "CI-TEST-008-BLOCKER-001B-NATIVE-T5-T6-SIGNED-ADMISSION-RECEIPT-ABSENT"
+      ]
+    }
+  ],
+  "result": {
+    "predecessor_rewritten": false,
+    "canonical_constraints_minted": 0,
+    "qualified_beneficiaries_minted": 0,
+    "ordinary_t6_candidates_admitted": 0,
+    "seam_state": "EXPLICIT_FAIL_CLOSED_OVERLAY"
+  }
+}

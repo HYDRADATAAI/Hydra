@@ -1,0 +1,79 @@
+{
+  "schema_version": "hydra-constraint-lily-owner-seam-reconciliation-status/v1",
+  "record_id": "HYDRA_CONSTRAINT_LILY_OWNER_SEAM_RECONCILIATION_STATUS_V001_20260926",
+  "as_of": "2026-09-26",
+  "scope": "T5_T6_OWNER_SEAM_CONFORMANCE_FOR_AI_DATA_CENTER_POWER_INFRASTRUCTURE_V1",
+  "stacked_on": {
+    "record_id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH014_MASTER_STATUS_V001",
+    "branch": "constraint-t6-successor-batch014-strict-acceptance-20260925",
+    "base_sha_at_pr_open": "b113f65e9881107b8a026e486bfdd96ca5675b41"
+  },
+  "authority_reuse": {
+    "t5_constraint_formation": "PIPELINE_T5_CONSTRAINT_FORMATION",
+    "t6_canonical_beneficiary": "PIPELINE_T6_CANONICAL_CANDIDATE_GOVERNANCE",
+    "canonical_beneficiary_policy": "LILY_THREAD_3_MASTER_CLOSURE_BUNDLE@ab7e4c05c9210a90256b8cdea89eeb9f3bb551453dfe13ebfe44616f750cb366",
+    "t1_t2_persisted_chain_of_custody": "READY_PER_BATCH014"
+  },
+  "reconciliation_results": {
+    "BATCH010_PREDECESSOR_REWRITTEN": "NO",
+    "T5_CANDIDATE_TEMPORAL_AVAILABILITY_EXPLICIT": "YES_SUCCESSOR_OVERLAY_ONLY",
+    "T5_FORMATION_CONFIDENCE_STATE_EXPLICIT": "YES_NOT_EVALUATED",
+    "T5_EFFECTIVE_INTERVAL_FABRICATED": "NO",
+    "T5_CANONICAL_IDENTITY_STATE_EXPLICIT": "YES_NOT_EVALUATED",
+    "T5_ORDINARY_T6_ELIGIBLE_COUNT": 0,
+    "CANONICAL_CONSTRAINTS_MINTED": 0,
+    "T6_BENEFICIARY_EVALUATIONS": 4,
+    "QUALIFIED_BENEFICIARIES_MINTED": 0,
+    "T1_T2_PERSISTED_CHAIN_OF_CUSTODY_READY": "YES",
+    "FIRST_SLICE_RAW_SOURCE_BODIES_MATERIALIZED": "NO",
+    "ORDINARY_POINT_IN_TIME_REPLAY_READY": "NO",
+    "NATIVE_T5_T6_ADMISSION_READY": "NO",
+    "FIRST_SERIOUS_CONSTRAINT_RUN": "BLOCKED"
+  },
+  "ci_evidence": {
+    "pull_request": 56,
+    "code_head_sha": "307e64f6f3216c0e48ca8bc9aa80ace953c13911",
+    "t6_fail_closed_validator": {
+      "run_id": 36243474345,
+      "run_number": 58,
+      "result": "PASS",
+      "test_count": 147
+    },
+    "constraint_first_slice_integration": {
+      "run_id": 36243474341,
+      "run_number": 27,
+      "result": "PASS",
+      "owner_seam_conformance": "PASS",
+      "hostile_mutation_matrix": "PASS"
+    },
+    "nyx_successor_chain_guard": {
+      "run_id": 36243474348,
+      "run_number": 10,
+      "result": "PASS",
+      "hostile_mutation_matrix": "PASS"
+    },
+    "public_repository_validation": {
+      "run_id": 36243474337,
+      "run_number": 60,
+      "result": "PASS"
+    },
+    "public_repository_hygiene": {
+      "run_id": 36243474336,
+      "run_number": 141,
+      "result": "PASS"
+    }
+  },
+  "remaining_first_slice_blockers": [
+    "PIT-002B-FIRST-SLICE-NINE-SOURCE-RAW-CAPTURE-MATERIALIZATION",
+    "CI-TEST-008-BLOCKER-001B-NATIVE-T5-T6-SIGNED-ADMISSION-RECEIPT-ABSENT",
+    "ORDINARY-POINT-IN-TIME-REPLAY-SOURCE-VERSION-HASHES-INCOMPLETE",
+    "CANONICAL-T5-T6-CONSTRAINT-AND-BENEFICIARY-ADMISSION-NOT-AUTHORIZED"
+  ],
+  "cross_lane_dependency": {
+    "historical_geography_physical_domain_pr": 46,
+    "state": "OPEN_SEPARATE_STACK_NOT_CONSUMED_BY_THIS_OWNER_SEAM_PR",
+    "rule": "DO_NOT_COPY_OR_REIMPLEMENT_PHYSICAL_DOMAIN_TO_FORCE_BRANCH_CONVERGENCE"
+  },
+  "truthful_readiness": "REPLAYABLE_WITH_BLOCKERS",
+  "next_action": "MATERIALIZE_AND_BIND_REAL_T1_SOURCE_VERSIONS_THEN_RUN_NATIVE_T5_T6_ADMISSION; MERGE/REBASE PHYSICAL_DOMAIN_ONLY_THROUGH_NORMAL_REPOSITORY_INTEGRATION"
+}
