@@ -5,7 +5,7 @@
   "slice_id": "SEMICONDUCTOR_ADVANCED_PACKAGING_CRITICAL_MATERIALS_V1",
   "predecessor_source_registry": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH018_SEMICONDUCTOR_ADVANCED_PACKAGING_CRITICAL_MATERIALS_SOURCE_REGISTRY_V001",
   "capture_mode": "CURRENT_REVIEW_CONSERVATIVE_AVAILABILITY",
-  "capture_completed_at": null,
+  "capture_completed_at": "2026-09-26T21:17:39Z",
   "source_content_persisted": false,
   "reused_source_ids": [
     "SRC-SEMI-TSMC-ANNUAL-REPORT-2024",
@@ -26,9 +26,9 @@
         "CAPACITY",
         "TESTING"
       ],
-      "acquired_at": null,
-      "available_at": null,
-      "availability_basis": null,
+      "acquired_at": "2026-09-26T21:17:39Z",
+      "available_at": "2026-09-26T21:17:39Z",
+      "availability_basis": "HYDRA_FIRST_DEFENSIBLE_GITHUB_REVIEW_ARTIFACT_COMMIT",
       "ordinary_raw_lineage_eligible": false
     },
     {
@@ -45,9 +45,9 @@
         "FAB_RAMP_PLAN",
         "EQUIPMENT_INSTALLATION"
       ],
-      "acquired_at": null,
-      "available_at": null,
-      "availability_basis": null,
+      "acquired_at": "2026-09-26T21:17:39Z",
+      "available_at": "2026-09-26T21:17:39Z",
+      "availability_basis": "HYDRA_FIRST_DEFENSIBLE_GITHUB_REVIEW_ARTIFACT_COMMIT",
       "ordinary_raw_lineage_eligible": false
     },
     {
@@ -64,9 +64,9 @@
         "ADVANCED_PACKAGING",
         "MEMORY_PACKAGING"
       ],
-      "acquired_at": null,
-      "available_at": null,
-      "availability_basis": null,
+      "acquired_at": "2026-09-26T21:17:39Z",
+      "available_at": "2026-09-26T21:17:39Z",
+      "availability_basis": "HYDRA_FIRST_DEFENSIBLE_GITHUB_REVIEW_ARTIFACT_COMMIT",
       "ordinary_raw_lineage_eligible": false
     },
     {
@@ -82,9 +82,9 @@
         "EXPORT_CONTROL",
         "POLICY"
       ],
-      "acquired_at": null,
-      "available_at": null,
-      "availability_basis": null,
+      "acquired_at": "2026-09-26T21:17:39Z",
+      "available_at": "2026-09-26T21:17:39Z",
+      "availability_basis": "HYDRA_FIRST_DEFENSIBLE_GITHUB_REVIEW_ARTIFACT_COMMIT",
       "ordinary_raw_lineage_eligible": false
     },
     {
@@ -101,9 +101,9 @@
         "ADVANCED_LOGIC",
         "DRAM"
       ],
-      "acquired_at": null,
-      "available_at": null,
-      "availability_basis": null,
+      "acquired_at": "2026-09-26T21:17:39Z",
+      "available_at": "2026-09-26T21:17:39Z",
+      "availability_basis": "HYDRA_FIRST_DEFENSIBLE_GITHUB_REVIEW_ARTIFACT_COMMIT",
       "ordinary_raw_lineage_eligible": false
     },
     {
@@ -120,9 +120,9 @@
         "ADVANCED_LOGIC",
         "MEMORY"
       ],
-      "acquired_at": null,
-      "available_at": null,
-      "availability_basis": null,
+      "acquired_at": "2026-09-26T21:17:39Z",
+      "available_at": "2026-09-26T21:17:39Z",
+      "availability_basis": "HYDRA_FIRST_DEFENSIBLE_GITHUB_REVIEW_ARTIFACT_COMMIT",
       "ordinary_raw_lineage_eligible": false
     },
     {
@@ -139,9 +139,9 @@
         "SILICON_PROCESSING",
         "SEMICONDUCTOR_MATERIAL"
       ],
-      "acquired_at": null,
-      "available_at": null,
-      "availability_basis": null,
+      "acquired_at": "2026-09-26T21:17:39Z",
+      "available_at": "2026-09-26T21:17:39Z",
+      "availability_basis": "HYDRA_FIRST_DEFENSIBLE_GITHUB_REVIEW_ARTIFACT_COMMIT",
       "ordinary_raw_lineage_eligible": false
     },
     {
@@ -157,9 +157,9 @@
         "GEOGRAPHIC_CONCENTRATION",
         "SILICON_MATERIALS"
       ],
-      "acquired_at": null,
-      "available_at": null,
-      "availability_basis": null,
+      "acquired_at": "2026-09-26T21:17:39Z",
+      "available_at": "2026-09-26T21:17:39Z",
+      "availability_basis": "HYDRA_FIRST_DEFENSIBLE_GITHUB_REVIEW_ARTIFACT_COMMIT",
       "ordinary_raw_lineage_eligible": false
     },
     {
@@ -176,9 +176,9 @@
         "CRYSTAL_GROWTH",
         "SILICON_WAFER"
       ],
-      "acquired_at": null,
-      "available_at": null,
-      "availability_basis": null,
+      "acquired_at": "2026-09-26T21:17:39Z",
+      "available_at": "2026-09-26T21:17:39Z",
+      "availability_basis": "HYDRA_FIRST_DEFENSIBLE_GITHUB_REVIEW_ARTIFACT_COMMIT",
       "ordinary_raw_lineage_eligible": false
     },
     {
@@ -197,9 +197,9 @@
         "QUALIFICATION",
         "LEAD_TIME"
       ],
-      "acquired_at": null,
-      "available_at": null,
-      "availability_basis": null,
+      "acquired_at": "2026-09-26T21:17:39Z",
+      "available_at": "2026-09-26T21:17:39Z",
+      "availability_basis": "HYDRA_FIRST_DEFENSIBLE_GITHUB_REVIEW_ARTIFACT_COMMIT",
       "ordinary_raw_lineage_eligible": false
     }
   ],
