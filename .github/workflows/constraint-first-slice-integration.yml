@@ -1,0 +1,37 @@
+name: Constraint first-slice integration
+
+on:
+  pull_request:
+    paths:
+      - "docs/constraint/**"
+      - "constraint-t1-raw-artifact-store/**"
+      - "t6-fail-closed-validator/**"
+      - "tools/validate_constraint_first_slice_successor.py"
+      - ".github/workflows/constraint-first-slice-integration.yml"
+  push:
+    branches:
+      - main
+    paths:
+      - "docs/constraint/**"
+      - "constraint-t1-raw-artifact-store/**"
+      - "t6-fail-closed-validator/**"
+      - "tools/validate_constraint_first_slice_successor.py"
+      - ".github/workflows/constraint-first-slice-integration.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Validate successor first-slice integration
+        run: python tools/validate_constraint_first_slice_successor.py
