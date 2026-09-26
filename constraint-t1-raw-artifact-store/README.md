@@ -39,3 +39,35 @@ Set PYTHONPATH to the package src directory, then run:
 python -m hydra_constraint_t1_raw.cli --private-root D:\HYDRA_PRIVATE\constraint\raw --public-repo-root C:\HYDRA --input-file C:\captures\source.bin --source-id SRC-EXAMPLE --source-version-id SV-EXAMPLE-001 --content-type application/octet-stream --source-locator reviewed-manual-capture --acquired-at 2026-09-25T23:52:01.573251Z --available-at 2026-09-25T23:52:01.573251Z
 
 The command persists only the supplied local file. It does not acquire remote content.
+
+## Complete first-slice materialization
+
+For the AI/data-center power first slice, use the reviewed nine-source capture-plan
+template in:
+
+`docs/constraint/implementation/HYDRA_CONSTRAINT_AI_DATA_CENTER_POWER_INFRASTRUCTURE_PRIVATE_T1_CAPTURE_PLAN_TEMPLATE_V001_20260926.json`
+
+Capture the source bytes through an authorized/reviewed path into a private staging
+directory outside Git, replace every template placeholder with the exact local
+capture path, a unique source-version ID, and the actual acquisition timestamp,
+then run:
+
+```bash
+hydra-constraint-t1-first-slice \
+  --registry docs/constraint/first_slice/ai_data_center_power_infrastructure_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH003_AI_DATA_CENTER_POWER_INFRASTRUCTURE_SOURCE_REGISTRY_V001_20260925.json \
+  --capture-plan C:\\HYDRA_PRIVATE\\constraint\\capture-plan.json \
+  --private-root D:\\HYDRA_PRIVATE\\constraint\\raw \
+  --public-repo-root C:\\HYDRA \
+  --attestation-output D:\\HYDRA_PRIVATE\\constraint\\first-slice-materialization-attestation.json
+```
+
+The batch materializer is network-blind. It requires the capture set to match the
+source registry exactly, rejects source-locator substitution, rejects raw input
+files located inside the public repository, writes exact persisted receipts and
+one exact persisted release manifest, and verifies ordinary T1→T2 eligibility
+against those persisted records.
+
+This first materialization mode is intentionally conservative:
+`AVAILABLE_AT = ACQUIRED_AT`. It does not backdate current bytes to a publication
+date and does not promote strict historical replay. Historical availability
+requires a separate provenance-bearing proof.
