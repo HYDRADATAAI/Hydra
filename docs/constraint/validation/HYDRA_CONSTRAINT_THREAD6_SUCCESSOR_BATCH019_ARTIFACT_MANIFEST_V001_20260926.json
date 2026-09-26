@@ -3,7 +3,7 @@
   "record_id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH019_ARTIFACT_MANIFEST_V001",
   "as_of": "2026-09-26",
   "repository": "HYDRADATAAI/Hydra",
-  "base_head": "677f87cc54a2af43b834b44979df4f607508461a",
+  "base_head": "35322222fe67598017eb3506ea52fb27cd00c9fa",
   "predecessor_batch": {
     "id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH018",
     "preservation": "IMMUTABLE_NOT_REWRITTEN"
