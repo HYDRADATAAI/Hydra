@@ -1,0 +1,89 @@
+{
+  "schema_version": "hydra-constraint-thread6-successor-manifest/v1",
+  "record_id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH020_ARTIFACT_MANIFEST_V001",
+  "as_of": "2026-09-26",
+  "repository": "HYDRADATAAI/Hydra",
+  "base_head": "56728be35094d44c5b7172c366f4924ebba10ac3",
+  "predecessor_batch": {
+    "id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH019",
+    "preservation": "IMMUTABLE_NOT_REWRITTEN"
+  },
+  "slice_id": "SEMICONDUCTOR_ADVANCED_PACKAGING_CRITICAL_MATERIALS_V1",
+  "result": "PASS_POLICY_SUBSTITUTION_OUTCOME_REQUIRED_CASE_DEPTH_PARTIAL",
+  "artifacts": [
+    {
+      "path": "docs/constraint/second_slice/semiconductor_advanced_packaging_critical_materials_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH020_SEMICONDUCTOR_POLICY_SUBSTITUTION_OUTCOME_SOURCE_REGISTRY_EXTENSION_V001_20260926.json",
+      "git_blob_sha": "3ee1fb061e49a54fb7897e54b1dcc83d6918bbbb"
+    },
+    {
+      "path": "docs/constraint/second_slice/semiconductor_advanced_packaging_critical_materials_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH020_SEMICONDUCTOR_POLICY_SUBSTITUTION_OUTCOME_EVIDENCE_SUPPLEMENT_V001_20260926.json",
+      "git_blob_sha": "7fc521ab15b503550faabe38ff8d7e8f3227e01d"
+    },
+    {
+      "path": "docs/constraint/second_slice/semiconductor_advanced_packaging_critical_materials_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH020_SEMICONDUCTOR_EXPORT_POLICY_TIMELINE_OVERLAY_V001_20260926.json",
+      "git_blob_sha": "166ffbacf77b9494943c44be0e5fe3ed81845bc8"
+    },
+    {
+      "path": "docs/constraint/second_slice/semiconductor_advanced_packaging_critical_materials_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH020_TSMC_ARIZONA_RAMP_HISTORY_OUTCOME_OVERLAY_V001_20260926.json",
+      "git_blob_sha": "16d851cfdc65acaecf36b89870c2da7ee5481c34"
+    },
+    {
+      "path": "docs/constraint/second_slice/semiconductor_advanced_packaging_critical_materials_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH020_SEMICONDUCTOR_SUBSTITUTION_EVALUATION_V001_20260926.json",
+      "git_blob_sha": "c8b856eb98f8e8e3964993ef44c8468db634f46a"
+    },
+    {
+      "path": "docs/constraint/second_slice/semiconductor_advanced_packaging_critical_materials_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH020_SEMICONDUCTOR_FALSE_BENEFICIARY_EVALUATION_V001_20260926.json",
+      "git_blob_sha": "d7bd86abf0a6e6a01e70f62d23b6aebcd552c70f"
+    },
+    {
+      "path": "docs/constraint/second_slice/semiconductor_advanced_packaging_critical_materials_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH020_SEMICONDUCTOR_REQUIRED_CASE_OVERLAY_V001_20260926.json",
+      "git_blob_sha": "8c81955558f6f8998d8d90b1223980bbf97d64dd"
+    },
+    {
+      "path": "docs/constraint/second_slice/semiconductor_advanced_packaging_critical_materials_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH020_SEMICONDUCTOR_POLICY_SUBSTITUTION_OUTCOME_STATUS_V001_20260926.json",
+      "git_blob_sha": "eae93c0aa66f84c3a1bc7acbcea3b827f5e95e7c"
+    },
+    {
+      "path": "docs/constraint/architecture/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH020_SEMICONDUCTOR_CAPABILITY_LEDGER_DELTA_V001_20260926.json",
+      "git_blob_sha": "666646d129ae65a0f430c3c3ffa9509164756c6c"
+    },
+    {
+      "path": "docs/constraint/architecture/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH020_MASTER_STATUS_V001_20260926.json",
+      "git_blob_sha": "10d649123dde272a4856b77fafa9328b10eccdfd"
+    },
+    {
+      "path": "docs/constraint/validation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH020_SEMICONDUCTOR_POLICY_SUBSTITUTION_OUTCOME_REQUIRED_CASE_REPORT_V001_20260926.md",
+      "git_blob_sha": "92e77eee14c213b0bb7c5ac3b6e3e0985c38741b"
+    }
+  ],
+  "excluded_operational_tools": [
+    {
+      "path": "tools/validate_constraint_second_slice_batch020_policy_outcomes_cases.py",
+      "reason": "operational validator"
+    },
+    {
+      "path": "tools/test_constraint_second_slice_batch020_policy_outcomes_cases_adversarial.py",
+      "reason": "hostile harness"
+    },
+    {
+      "path": ".github/workflows/constraint-second-slice.yml",
+      "reason": "CI orchestration"
+    }
+  ],
+  "expected": {
+    "primary_sources_added": 6,
+    "evidence_observations_added": 6,
+    "false_beneficiaries_rejected": 1,
+    "qualified_beneficiaries_added": 0,
+    "qualified_substitutions_added": 0,
+    "required_cases_covered": "5/14",
+    "new_required_cases_covered": [
+      7,
+      9,
+      13
+    ],
+    "historical_replay": "BLOCKED",
+    "first_semiconductor_run": "BLOCKED",
+    "next_repo_executable_lane": "SECOND-SLICE-VALID-BENEFICIARY-SUBSTITUTION-MIGRATION-AND-CROSS-SLICE-POWER-DEPTH"
+  }
+}
