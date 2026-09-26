@@ -1,0 +1,64 @@
+{
+  "schema_version": "hydra-constraint-thread6-successor-manifest/v1",
+  "record_id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH009_ARTIFACT_MANIFEST_V001",
+  "as_of": "2026-09-25",
+  "repository": "HYDRADATAAI/Hydra",
+  "base_head": "a962c8ecf6b796a16f11995c0949fb2fd0d931a7",
+  "predecessor_batch": {
+    "id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH008",
+    "commit": "a962c8ecf6b796a16f11995c0949fb2fd0d931a7",
+    "preservation": "IMMUTABLE_NOT_REWRITTEN"
+  },
+  "slice_id": "AI_DATA_CENTER_POWER_INFRASTRUCTURE_V1",
+  "blocker_transition": {
+    "closed_blocker": "SOURCE-GAP-FIBER-CONNECTIVITY-CAPACITY",
+    "original_frozen_source_gap_fields_remaining": 0
+  },
+  "semantic_boundary": {
+    "fiber_field_status": "POPULATED_BOUNDED_SITE_AND_PROVIDER_PROFILE",
+    "universal_site_capacity_claim": false,
+    "provider_capacity_misattributed_to_paducah": false
+  },
+  "artifacts": [
+    {
+      "path": "docs/constraint/first_slice/ai_data_center_power_infrastructure_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH009_AI_DATA_CENTER_POWER_INFRASTRUCTURE_SOURCE_REGISTRY_EXTENSION_V001_20260925.json",
+      "git_blob_sha": "a79b5f1ddca23473f897d95b473e6bf0859efb4d"
+    },
+    {
+      "path": "docs/constraint/first_slice/ai_data_center_power_infrastructure_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH009_AI_DATA_CENTER_POWER_INFRASTRUCTURE_FIBER_EVIDENCE_SUPPLEMENT_V001_20260925.json",
+      "git_blob_sha": "af4c4c70dc00a56b2e8ce29bbf753017a804beda"
+    },
+    {
+      "path": "docs/constraint/first_slice/ai_data_center_power_infrastructure_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH009_AI_DATA_CENTER_POWER_INFRASTRUCTURE_FIBER_FIELD_OVERLAY_V001_20260925.json",
+      "git_blob_sha": "2de9bcf2966b477972782ae5eeebe26ca9681cb2"
+    },
+    {
+      "path": "docs/constraint/first_slice/ai_data_center_power_infrastructure_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH009_AI_DATA_CENTER_POWER_INFRASTRUCTURE_FIBER_GRAPH_OVERLAY_V001_20260925.json",
+      "git_blob_sha": "a35acd5a1a474d43d8e19535a276d619deac8f8c"
+    },
+    {
+      "path": "docs/constraint/first_slice/ai_data_center_power_infrastructure_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH009_AI_DATA_CENTER_POWER_INFRASTRUCTURE_SOURCE_GAP_STATUS_V001_20260925.json",
+      "git_blob_sha": "6c61ed0e9c9c9cb33a7869baf29ce639644efad1"
+    },
+    {
+      "path": "docs/constraint/architecture/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH009_MASTER_STATUS_V001_20260925.json",
+      "git_blob_sha": "3a484e0439d996901917a58b0d697c762aa7c1d1"
+    },
+    {
+      "path": "docs/constraint/validation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH009_FIBER_CONNECTIVITY_CLOSURE_REPORT_V001_20260925.md",
+      "git_blob_sha": "b789fa6902a519ae8264a5c5b521ba0ce6844e97"
+    },
+    {
+      "path": "t6-fail-closed-validator/tests/test_first_slice_fiber_capacity_closure.py",
+      "git_blob_sha": "b8ca6fe593a8b5f661e09b946c11613364e3311f"
+    }
+  ],
+  "expected": {
+    "original_first_slice_source_gaps_closed": "YES",
+    "domain_data_populated": "PARTIAL",
+    "real_raw_artifacts_materialized": "NO",
+    "implementation_admitted": "NO",
+    "first_serious_constraint_run": "BLOCKED",
+    "next_repo_executable_lane": "FIRST-SLICE-CONSTRAINT-AND-BENEFICIARY-CLAIM-POPULATION"
+  }
+}

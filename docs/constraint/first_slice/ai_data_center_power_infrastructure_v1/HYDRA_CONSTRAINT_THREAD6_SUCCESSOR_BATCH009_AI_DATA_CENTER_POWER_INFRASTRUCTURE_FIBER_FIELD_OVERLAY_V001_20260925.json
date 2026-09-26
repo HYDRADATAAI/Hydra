@@ -1,0 +1,42 @@
+{
+  "schema_version": "hydra-constraint-first-slice-field-population-overlay/v1",
+  "record_id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH009_AI_DATA_CENTER_POWER_INFRASTRUCTURE_FIBER_FIELD_OVERLAY_V001",
+  "as_of": "2026-09-25",
+  "predecessor_field_overlay": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH006_AI_DATA_CENTER_POWER_INFRASTRUCTURE_FIELD_POPULATION_OVERLAY_V001",
+  "slice_id": "AI_DATA_CENTER_POWER_INFRASTRUCTURE_V1",
+  "field_updates": [
+    {
+      "field_name": "fiber_connectivity_capacity",
+      "predecessor_status": "SOURCE_GAP",
+      "successor_status": "POPULATED_BOUNDED_SITE_AND_PROVIDER_PROFILE",
+      "value": {
+        "profile_type": "BOUNDED_SITE_AND_PROVIDER_CONNECTIVITY_PROFILE",
+        "site_access_example": {
+          "site": "DOE Paducah Site, Kentucky",
+          "fiber_connectivity": "EXISTING",
+          "exact_site_capacity": "UNSPECIFIED"
+        },
+        "provider_capacity_example": {
+          "provider": "Lumen Technologies",
+          "service_family": "Wavelength RapidRoutes",
+          "advertised_connection_speeds_gbps": [
+            100,
+            400
+          ],
+          "planned_400g_wavelength_route_miles": 100000,
+          "capacity_locations_minimum": 300,
+          "metro_markets": 25,
+          "cloud_onramps_minimum": 125
+        }
+      },
+      "evidence_ids": [
+        "EV-DOE-PADUCAH-EXISTING-FIBER-CONNECTIVITY-2026",
+        "EV-LUMEN-RAPIDROUTES-100G-400G-CAPACITY-2025"
+      ],
+      "scope": "DOE_PADUCAH_SITE_PLUS_LUMEN_U.S._PROVIDER_FOOTPRINT",
+      "uncertainty": "NOT_UNIVERSAL; DOES_NOT_ASSERT_EXACT_CAPACITY_AT_PADUCAH_OR_ALL_DATA_CENTER_SITES"
+    }
+  ],
+  "source_gap_count_before": 1,
+  "source_gap_count_after": 0
+}
