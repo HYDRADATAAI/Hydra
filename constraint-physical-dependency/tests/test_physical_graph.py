@@ -5,11 +5,11 @@ P=Provenance("fixture","https://example.invalid/source","fixture",date(2026,9,25
 
 def fixture():
     nodes=[
-      Node("r","resource","Resource",snapshots=(Snapshot(date(2019,1,1),known_at=date(2019,2,1)),)),
-      Node("p","processing","Processor"),
-      Node("m","manufacturing","Manufacturer"),
-      Node("s","substitute","Substitute"),
-      Node("b","beneficiary","Beneficiary"),
+      Node("r","resource","Resource",snapshots=(Snapshot(date(2019,1,1),known_at=date(2019,2,1)),),provenance=(P,)),
+      Node("p","processing","Processor",provenance=(P,)),
+      Node("m","manufacturing","Manufacturer",provenance=(P,)),
+      Node("s","substitute","Substitute",provenance=(P,)),
+      Node("b","beneficiary","Beneficiary",provenance=(P,)),
     ]
     edges=[
       Edge("e1","r","p","feeds",date(2019,1,1),known_at=date(2019,2,1),share=.7,provenance=(P,)),
@@ -37,7 +37,7 @@ def test_substitution_time_and_validation():
 def test_hhi():
     p=P
     g=fixture()
-    g.edges["e5"]=Edge("e5","s","p","feeds",date(2019,1,1),share=.3,provenance=(p,))
+    g.edges["e5"]=Edge("e5","s","p","feeds",date(2019,1,1),known_at=date(2019,2,1),share=.3,provenance=(p,))
     assert round(g.hhi("p","feeds"),2)==.58
 
 def test_point_in_time_reference_resolver():
@@ -55,3 +55,50 @@ def test_identity_only_node_respects_provenance_knowledge_cutoff():
     assert g.resolve_reference("future",date(2020,1,1),date(2020,1,1)) is None
     kind,obj=g.resolve_reference("future",date(2026,1,1),date(2026,1,1))
     assert kind=="node" and obj.node_id=="future"
+
+def test_missing_knowledge_time_fails_closed_in_replay_view():
+    node=Node(
+        "n","resource","Unknown-time resource",
+        snapshots=(Snapshot(date(2019,1,1),known_at=None),),
+        provenance=(P,),
+    )
+    edge=Edge(
+        "missing-time-edge","n","target","supplies",date(2019,1,1),
+        known_at=None,provenance=(P,),
+    )
+    target=Node("target","company","Target",provenance=(P,))
+    g=DependencyGraph([node,target],[edge])
+    view=g.as_of(date(2020,1,1),knowledge_cutoff=date(2020,1,1))
+    assert "n" not in view.nodes
+    assert "missing-time-edge" not in view.edges
+    errors=validate_graph(g)
+    assert "n: snapshot missing known_at" in errors
+    assert "missing-time-edge: missing known_at" in errors
+
+def test_unprovenanced_identity_does_not_enter_knowledge_bounded_replay():
+    g=DependencyGraph([Node("orphan","infrastructure","Unprovenanced asset")],[])
+    assert g.reference_state_as_of("orphan",date(2020,1,1),date(2020,1,1))=="UNKNOWN"
+    assert g.resolve_reference("orphan",date(2020,1,1),date(2020,1,1)) is None
+    assert "orphan: missing provenance" in validate_graph(g)
+
+def test_reference_state_preserves_unknown_absent_present_distinction():
+    future_known=Provenance(
+        "commission-plan","https://example.invalid/plan","fixture",
+        date(2026,9,25),date(2020,1,10)
+    )
+    node=Node(
+        "plant","infrastructure","Plant",
+        snapshots=(Snapshot(
+            date(2020,2,1),date(2020,3,1),known_at=date(2020,1,10)
+        ),),
+        provenance=(future_known,),
+    )
+    g=DependencyGraph([node],[])
+    assert g.reference_state_as_of("plant",date(2020,1,5),date(2020,1,5))=="UNKNOWN"
+    assert g.reference_state_as_of("plant",date(2020,1,20),date(2020,1,20))=="ABSENT"
+    assert g.reference_state_as_of("plant",date(2020,2,15),date(2020,2,15))=="PRESENT"
+    assert g.reference_state_as_of("plant",date(2020,3,2),date(2020,3,2))=="ABSENT"
+
+def test_unsupported_node_kind_is_not_silently_admitted():
+    g=DependencyGraph([Node("geo","geography","Unowned geography identity",provenance=(P,))],[])
+    assert "geo: unknown node kind geography" in validate_graph(g)
