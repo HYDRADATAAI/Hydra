@@ -1,0 +1,33 @@
+{
+  "schema_version": "hydra-constraint-first-slice-negative-control-fixture/v1",
+  "record_id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH013_AI_DATA_CENTER_POWER_INFRASTRUCTURE_FALSE_CONSTRAINT_NEGATIVE_CONTROL_V001",
+  "as_of": "2026-09-25",
+  "predecessor_batch": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH012",
+  "slice_id": "AI_DATA_CENTER_POWER_INFRASTRUCTURE_V1",
+  "synthetic_fixture": true,
+  "not_historical_evidence": true,
+  "do_not_ingest_as_claim": true,
+  "fixture_id": "NEG-AIDC-CASE02-PADUCAH-FIBER-ABSENCE-001",
+  "untrusted_assertion": "The DOE Paducah Site has no usable fiber connectivity, therefore fiber absence is a proven blocking constraint for AI/data-center development.",
+  "primary_counterevidence_ids": [
+    "EV-DOE-PADUCAH-EXISTING-FIBER-CONNECTIVITY-2026"
+  ],
+  "contextual_provider_evidence_ids": [
+    "EV-LUMEN-RAPIDROUTES-100G-400G-CAPACITY-2025"
+  ],
+  "governed_evaluation": {
+    "constraint_promotion": "NO",
+    "invalidator_recorded": true,
+    "invalidator_reason": "PRIMARY_SITE_SOURCE_STATES_EXISTING_FIBER_CONNECTIVITY",
+    "exact_site_capacity_state": "UNKNOWN_UNSPECIFIED",
+    "adequate_numeric_capacity_claimed": false,
+    "zero_capacity_imputed": false,
+    "expected_state": "NO_FALSE_PROMOTION_RETAIN_CAPACITY_UNKNOWN"
+  },
+  "semantic_limits": [
+    "This is a synthetic adversarial assertion used to exercise the false-constraint firewall.",
+    "It is not presented as a real historical article or report.",
+    "Existing connectivity does not prove any particular Gbps/Tbps capacity at Paducah.",
+    "Provider-wide Lumen capacity must not be misattributed to the Paducah site."
+  ]
+}

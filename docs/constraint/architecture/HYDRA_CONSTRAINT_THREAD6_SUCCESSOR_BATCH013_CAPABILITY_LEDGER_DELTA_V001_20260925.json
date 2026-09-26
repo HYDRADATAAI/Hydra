@@ -1,0 +1,45 @@
+{
+  "schema_version": "hydra-constraint-capability-ledger-delta/v1",
+  "record_id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH013_CAPABILITY_LEDGER_DELTA_V001",
+  "as_of": "2026-09-25",
+  "predecessor": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH012_CAPABILITY_LEDGER_DELTA_V001",
+  "slice_id": "AI_DATA_CENTER_POWER_INFRASTRUCTURE_V1",
+  "updates": [
+    {
+      "capability": "beneficiaries",
+      "prior_status": "THIN",
+      "successor_status": "PARTIALLY_POPULATED",
+      "basis": [
+        "Four blocked beneficiary evaluations exist from Batch010",
+        "One real-input shadow prequalification pattern is now fully exercised without canonical promotion"
+      ]
+    },
+    {
+      "capability": "evaluation",
+      "prior_status": "THIN",
+      "successor_status": "PARTIALLY_POPULATED",
+      "basis": [
+        "All ten required functional cases now have governed expected-state coverage",
+        "Case2 is explicitly synthetic negative-control and Case8 is shadow replay, so STRONG is not justified"
+      ]
+    }
+  ],
+  "unchanged": [
+    {
+      "capability": "historical_states_replay",
+      "status": "THIN",
+      "reason": "ORDINARY_RAW_SOURCE_REPLAY_REMAINS_BLOCKED"
+    },
+    {
+      "capability": "historical_outcomes",
+      "status": "THIN",
+      "reason": "ONLY_TWO_REAL_OUTCOMES_CAPTURED"
+    },
+    {
+      "capability": "chains",
+      "status": "THIN",
+      "reason": "SHADOW_CANDIDATES_ARE_NOT_CANONICALLY_ADMITTED"
+    }
+  ],
+  "update_count": 2
+}

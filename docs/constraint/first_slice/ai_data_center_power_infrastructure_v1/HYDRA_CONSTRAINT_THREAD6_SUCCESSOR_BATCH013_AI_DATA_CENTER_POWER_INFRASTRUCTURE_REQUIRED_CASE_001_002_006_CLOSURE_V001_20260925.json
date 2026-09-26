@@ -1,0 +1,78 @@
+{
+  "schema_version": "hydra-constraint-first-slice-required-case-closure/v1",
+  "record_id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH013_AI_DATA_CENTER_POWER_INFRASTRUCTURE_REQUIRED_CASE_001_002_006_CLOSURE_V001",
+  "as_of": "2026-09-25",
+  "predecessor_batch": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH012",
+  "slice_id": "AI_DATA_CENTER_POWER_INFRASTRUCTURE_V1",
+  "cases": [
+    {
+      "case_id": 1,
+      "name": "TRUE_CAPACITY_CONSTRAINT",
+      "prior_status": "PARTIAL_STRENGTHENED_REAL_LOCALIZED_CONSTRAINT",
+      "successor_status": "COVERED_REVIEWED_SHADOW_NAMED_PROJECT_CAPACITY_LIMIT",
+      "project": "AWS Cumulus data center campus adjacent to Susquehanna",
+      "project_plan_evidence_id": "EV-TALEN-AWS-CAMPUS-960MW-DEVELOPMENT-MILESTONES-2024",
+      "limiting_evidence_id": "EV-FERC-SUSQUEHANNA-480MW-AMENDED-ISA-REJECTED-2024",
+      "limiting_mechanism": "GENERATION_DELIVERABILITY_VIOLATIONS_REQUIRING_SYSTEM_UPGRADES",
+      "governed_result": "CONSTRAINT_CANDIDATE_CASE_EVIDENCE_SUPPORTED",
+      "named_project": true,
+      "planned_power_state_mw": 960,
+      "current_unconditional_960mw_transfer_supported": false,
+      "missed_energization_date_asserted": false,
+      "canonical_constraint_minted": false,
+      "semantic_limit": "FERC/PJM evidence supports a capacity-limited path to the planned 960 MW state; it does not establish a missed contractual energization date or cancel the campus."
+    },
+    {
+      "case_id": 2,
+      "name": "FALSE_CONSTRAINT",
+      "prior_status": "GAP",
+      "successor_status": "COVERED_SYNTHETIC_NEGATIVE_CONTROL_WITH_REAL_PRIMARY_COUNTEREVIDENCE",
+      "fixture_id": "NEG-AIDC-CASE02-PADUCAH-FIBER-ABSENCE-001",
+      "primary_counterevidence_ids": [
+        "EV-DOE-PADUCAH-EXISTING-FIBER-CONNECTIVITY-2026"
+      ],
+      "governed_result": "NO_CONSTRAINT_PROMOTION",
+      "invalidator_recorded": true,
+      "unknown_preserved": true,
+      "historical_reporting_example_claimed": false
+    },
+    {
+      "case_id": 6,
+      "name": "VALID_BENEFICIARY",
+      "prior_status": "PARTIAL",
+      "successor_status": "COVERED_SHADOW_PREQUALIFICATION_INPUT_PATTERN",
+      "existing_relationship_id": "BEN-AIDC-EATON-TRANSFORMER-001",
+      "linked_constraint_candidate_id": "T5C-AIDC-US-TRANSFORMER-SUPPLY-001",
+      "constraint_evidence_ids": [
+        "EV-DOE-LPT-SUPPLY",
+        "EV-DOE-TRANSFORMER-LEAD-TIMES"
+      ],
+      "beneficiary_evidence_ids": [
+        "CLM-AIDC-005"
+      ],
+      "evidence_roles_separated": true,
+      "input_tests": {
+        "constraint_exists_shadow": true,
+        "entity_connects_to_constrained_system": true,
+        "economic_transmission_mechanism_exists": true,
+        "relevant_product_evidenced": true,
+        "operational_capacity_expansion_evidenced": true,
+        "applicable_us_customer_geography_evidenced": true,
+        "adverse_evidence_preserved": true
+      },
+      "supporting_facts": [
+        "The Nacogdoches expansion was completed and production began.",
+        "Eaton states the expansion more than doubled U.S. production capacity for voltage regulators and three-phase transformers.",
+        "The same new production lines had a first shipment to Oncor, evidencing an active U.S. utility customer relationship."
+      ],
+      "adverse_evidence": [
+        "The cited first shipment is a voltage regulator, not independent proof of a three-phase-transformer qualification event for Oncor.",
+        "Constraint-driven price, margin, revenue, or beneficiary capture is not established.",
+        "The parent T5 constraint candidate remains ordinary-T6 ineligible."
+      ],
+      "shadow_candidate_pattern_satisfied": true,
+      "canonical_qualification_state": "BLOCKED",
+      "qualified_relationship_minted": false
+    }
+  ]
+}

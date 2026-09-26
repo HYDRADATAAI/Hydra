@@ -44,6 +44,11 @@ FILES = {
     "batch012_outcomes": SLICE / "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH012_AI_DATA_CENTER_POWER_INFRASTRUCTURE_OUTCOME_RECORDS_SUPPLEMENT_V001_20260925.json",
     "batch012_case_overlay": SLICE / "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH012_AI_DATA_CENTER_POWER_INFRASTRUCTURE_REQUIRED_CASES_HISTORICAL_CLOSURE_OVERLAY_V001_20260925.json",
     "batch012_master": ARCH / "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH012_MASTER_STATUS_V001_20260925.json",
+    "batch013_negative_control": SLICE / "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH013_AI_DATA_CENTER_POWER_INFRASTRUCTURE_FALSE_CONSTRAINT_NEGATIVE_CONTROL_V001_20260925.json",
+    "batch013_case_closure": SLICE / "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH013_AI_DATA_CENTER_POWER_INFRASTRUCTURE_REQUIRED_CASE_001_002_006_CLOSURE_V001_20260925.json",
+    "batch013_case_matrix": SLICE / "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH013_AI_DATA_CENTER_POWER_INFRASTRUCTURE_REQUIRED_CASE_MATRIX_V001_20260925.json",
+    "batch013_beneficiary_overlay": SLICE / "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH013_AI_DATA_CENTER_POWER_INFRASTRUCTURE_EATON_TRANSFORMER_PREQUALIFICATION_OVERLAY_V001_20260925.json",
+    "batch013_master": ARCH / "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH013_MASTER_STATUS_V001_20260925.json",
 }
 
 MANIFESTS = [
@@ -145,6 +150,11 @@ def main() -> int:
     outcomes12 = docs["batch012_outcomes"]
     overlay12 = docs["batch012_case_overlay"]
     master12 = docs["batch012_master"]
+    negative13 = docs["batch013_negative_control"]
+    closure13 = docs["batch013_case_closure"]
+    matrix13 = docs["batch013_case_matrix"]
+    beneficiary13 = docs["batch013_beneficiary_overlay"]
+    master13 = docs["batch013_master"]
 
     # First-slice identity must remain stable across the domain artifacts.
     for name, doc in (
@@ -362,6 +372,45 @@ def main() -> int:
     require(readiness12["IMPLEMENTATION_ADMITTED"].get("status") == "NO", "Batch012 falsely admits implementation")
     require(master12.get("first_serious_constraint_run") == "BLOCKED", "Batch012 falsely claims serious-run readiness")
 
+    # Batch013 completes the functional case matrix without converting case coverage into admission.
+    require(negative13.get("synthetic_fixture") is True, "Batch013 negative control lost synthetic marker")
+    require(negative13.get("not_historical_evidence") is True, "Batch013 synthetic assertion was relabelled historical evidence")
+    require(negative13.get("do_not_ingest_as_claim") is True, "Batch013 synthetic assertion became ingestible claim")
+    neg_eval = negative13.get("governed_evaluation")
+    require(isinstance(neg_eval, dict) and neg_eval.get("constraint_promotion") == "NO", "Batch013 false-constraint fixture promoted constraint")
+    require(neg_eval.get("exact_site_capacity_state") == "UNKNOWN_UNSPECIFIED", "Batch013 fabricated Paducah exact fiber capacity")
+    require(neg_eval.get("adequate_numeric_capacity_claimed") is False, "Batch013 fabricated adequate numeric capacity")
+
+    closure_rows13 = closure13.get("cases")
+    require(isinstance(closure_rows13, list) and {row.get("case_id") for row in closure_rows13} == {1,2,6}, "Batch013 closure case set drifted")
+    by_case13 = {row["case_id"]: row for row in closure_rows13}
+    require(by_case13[1].get("named_project") is True, "Batch013 case1 lost named-project binding")
+    require(by_case13[1].get("missed_energization_date_asserted") is False, "Batch013 fabricated missed energization date")
+    require(by_case13[1].get("canonical_constraint_minted") is False, "Batch013 minted canonical constraint")
+    require(by_case13[2].get("governed_result") == "NO_CONSTRAINT_PROMOTION", "Batch013 case2 false promotion")
+    require(by_case13[2].get("historical_reporting_example_claimed") is False, "Batch013 fabricated historical reporting example")
+    require(by_case13[6].get("shadow_candidate_pattern_satisfied") is True, "Batch013 case6 shadow inputs not satisfied")
+    require(by_case13[6].get("canonical_qualification_state") == "BLOCKED", "Batch013 case6 escaped canonical qualification gate")
+    require(by_case13[6].get("qualified_relationship_minted") is False, "Batch013 minted qualified beneficiary")
+
+    require(matrix13.get("functional_case_coverage_count") == 10, "Batch013 functional case count drifted")
+    require(matrix13.get("ordinary_replay_admitted_case_count") == 0, "Batch013 falsely admitted cases to ordinary replay")
+    require({row.get("case_id") for row in matrix13.get("cases", [])} == set(range(1,11)), "Batch013 required case matrix incomplete")
+
+    require(beneficiary13.get("canonical_qualification_state") == "BLOCKED", "Batch013 beneficiary overlay falsely qualified relationship")
+    require(beneficiary13.get("canonical_constraint_id") is None, "Batch013 beneficiary overlay references canonical constraint")
+    require(beneficiary13.get("ordinary_t6_eligible") is False, "Batch013 beneficiary overlay escaped ordinary T6 gate")
+    require(beneficiary13.get("evidence_roles", {}).get("economic_capture") == [], "Batch013 fabricated beneficiary economic capture")
+
+    readiness13 = master13.get("readiness")
+    require(isinstance(readiness13, dict), "Batch013 master readiness missing")
+    require(readiness13["REQUIRED_FUNCTIONAL_CASE_MATRIX"].get("count") == 10, "Batch013 master case count drifted")
+    require(readiness13["QUALIFIED_BENEFICIARY_RELATIONSHIPS"].get("status") == "NO", "Batch013 master falsely claims qualified beneficiary")
+    require(readiness13["CANONICAL_CONSTRAINTS_MINTED"].get("status") == "NO", "Batch013 master falsely claims canonical constraint")
+    require(readiness13["POINT_IN_TIME_REPLAY_READY"].get("status") == "NO_ORDINARY", "Batch013 master falsely claims ordinary replay")
+    require(readiness13["LINEAGE_COMPLETE"].get("status") == "NO", "Batch013 master falsely claims lineage complete")
+    require(master13.get("first_serious_constraint_run") == "BLOCKED", "Batch013 falsely claims serious-run readiness")
+
     # Raw-store contract must remain private and require the full ordinary T2 lineage envelope.
     boundary = raw_contract.get("public_repository_boundary")
     contract = raw_contract.get("artifact_contract")
@@ -404,8 +453,11 @@ def main() -> int:
     print("REAL_CONTRADICTION_CASE=YES_REVIEWED_SHADOW")
     print("REAL_CANCELLED_PROJECT_CASE=YES_REVIEWED_SHADOW")
     print("REAL_OUTCOMES_CAPTURED_TOTAL=2")
+    print("REQUIRED_FUNCTIONAL_CASES_COVERED=10")
+    print("CANONICAL_CONSTRAINTS_MINTED=0")
+    print("QUALIFIED_BENEFICIARIES_MINTED=0")
     print("FIRST_SERIOUS_CONSTRAINT_RUN=BLOCKED")
-    print("NEXT_REPO_EXECUTABLE_LANE=FIRST-SLICE-REMAINING-CASE-001-002-006-EVIDENCE-CLOSURE")
+    print("NEXT_REPO_EXECUTABLE_LANE=FIRST-SLICE-STRICT-ACCEPTANCE-GATE-AND-BLOCKER-REPORT")
     return 0
 
 
