@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import importlib.util
+import shutil
+import subprocess
 import sys
 import tempfile
 import unittest
@@ -13,6 +15,12 @@ TOOL = (
     / "tools"
     / "private"
     / "HYDRA_CONSTRAINT_T1_AUTOMATED_BROWSER_FIRST_SLICE_CAPTURE_V001_20260926.py"
+)
+LAUNCHER = (
+    ROOT
+    / "tools"
+    / "private"
+    / "Invoke-HYDRAConstraintFirstSliceAutomatedBrowserCapture_V001_20260926.ps1"
 )
 SPEC = importlib.util.spec_from_file_location("hydra_constraint_automated_browser_capture", TOOL)
 assert SPEC is not None and SPEC.loader is not None
@@ -137,6 +145,40 @@ class AutomatedBrowserPrivateSourceCaptureTests(unittest.TestCase):
                 observed_content_type="application/pdf",
                 body=b"not-a-pdf" + b"x" * 2048,
             )
+
+    def test_windows_launcher_uses_private_runtime_and_no_manual_har(self) -> None:
+        text = LAUNCHER.read_text(encoding="utf-8")
+        self.assertIn(r'D:\HYDRA\_PRIVATE\constraint', text)
+        self.assertIn(
+            "HYDRA_CONSTRAINT_T1_AUTOMATED_BROWSER_FIRST_SLICE_CAPTURE_V001_20260926.py",
+            text,
+        )
+        self.assertNotIn("SanitizedHar", text)
+        self.assertNotIn("playwright install", text.lower())
+
+    def test_windows_launcher_powershell_syntax_when_pwsh_available(self) -> None:
+        pwsh = shutil.which("pwsh")
+        if pwsh is None:
+            self.skipTest("pwsh is not available")
+        launcher = str(LAUNCHER).replace("'", "''")
+        script = (
+            "$tokens=$null; $errors=$null; "
+            "[System.Management.Automation.Language.Parser]::ParseFile("
+            f"'{launcher}',[ref]$tokens,[ref]$errors) | Out-Null; "
+            "if ($errors.Count -gt 0) { "
+            "$errors | ForEach-Object { Write-Error $_.Message }; exit 1 }; exit 0"
+        )
+        completed = subprocess.run(
+            [pwsh, "-NoProfile", "-Command", script],
+            check=False,
+            capture_output=True,
+            text=True,
+        )
+        self.assertEqual(
+            completed.returncode,
+            0,
+            msg=(completed.stdout + "\n" + completed.stderr),
+        )
 
     def test_capture_plan_never_supplies_available_at(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
