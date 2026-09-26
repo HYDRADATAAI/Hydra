@@ -1,0 +1,43 @@
+{
+  "schema_version": "hydra-constraint-thread6-t1-t2-persisted-chain-of-custody-contract/v1",
+  "record_id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH017_T1_T2_PERSISTED_CHAIN_OF_CUSTODY_CONTRACT_V001",
+  "as_of": "2026-09-26",
+  "predecessor_batch": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH016",
+  "owner_namespace": "PIPELINE_T1_SOURCE_ACQUISITION",
+  "historical_authority_preserved": {
+    "batch008_raw_store_contract": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH008_T1_RAW_ARTIFACT_PERSISTENCE_CONTRACT_V001",
+    "mutation": "NONE"
+  },
+  "ordinary_t2_eligibility_requires": [
+    "VALID_RAW_ARTIFACT_BYTES",
+    "MATCHING_ARTIFACT_SHA256",
+    "SOURCE_ID",
+    "SOURCE_VERSION_ID",
+    "ACQUIRED_AT",
+    "AVAILABLE_AT",
+    "ELIGIBLE_PROCESSING_DISPOSITION",
+    "EXACT_PERSISTED_SOURCE_VERSION_RECEIPT",
+    "EXACT_PERSISTED_RELEASE_MANIFEST",
+    "EXACT_RELEASE_MEMBERSHIP"
+  ],
+  "authority_semantics": {
+    "caller_supplied_in_memory_receipt_authoritative": false,
+    "caller_supplied_in_memory_release_manifest_authoritative": false,
+    "self_consistent_recomputed_digest_sufficient": false,
+    "persisted_record_identity_required": true
+  },
+  "private_boundary": {
+    "raw_source_bytes_allowed_in_public_repo": false,
+    "private_raw_root_required": true,
+    "symlink_redirect_into_public_repo_allowed": false,
+    "symlink_escape_outside_private_root_allowed": false
+  },
+  "fail_closed_rules": {
+    "missing_persisted_receipt_blocks_eligibility": true,
+    "persisted_receipt_mismatch_blocks_eligibility": true,
+    "missing_persisted_release_blocks_eligibility": true,
+    "persisted_release_mismatch_blocks_eligibility": true,
+    "quarantined_receipt_cannot_be_upgraded_by_reconstruction": true,
+    "release_creation_requires_exact_persisted_receipts": true
+  }
+}
