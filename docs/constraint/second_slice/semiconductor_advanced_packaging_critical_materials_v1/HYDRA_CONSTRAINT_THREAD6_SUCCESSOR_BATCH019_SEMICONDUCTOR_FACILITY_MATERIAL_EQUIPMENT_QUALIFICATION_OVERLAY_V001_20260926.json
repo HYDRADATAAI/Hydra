@@ -1,0 +1,302 @@
+{
+  "schema_version": "hydra-constraint-second-slice-facility-material-equipment-qualification-overlay/v1",
+  "record_id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH019_SEMICONDUCTOR_FACILITY_MATERIAL_EQUIPMENT_QUALIFICATION_OVERLAY_V001",
+  "as_of": "2026-09-26",
+  "slice_id": "SEMICONDUCTOR_ADVANCED_PACKAGING_CRITICAL_MATERIALS_V1",
+  "predecessor_batch": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH018",
+  "available_at": "2026-09-26T21:17:39Z",
+  "companies_added": [
+    {
+      "entity_id": "ENTITY-AMKOR",
+      "entity_type": "COMPANY",
+      "label": "Amkor Technology, Inc.",
+      "evidence_ids": [
+        "EV-SEMI-B019-AMKOR-VIETNAM-OPENING-2023"
+      ]
+    },
+    {
+      "entity_id": "ENTITY-ASML",
+      "entity_type": "COMPANY",
+      "label": "ASML Holding N.V.",
+      "evidence_ids": [
+        "EV-SEMI-B019-ASML-NXT2050I-EQUIPMENT",
+        "EV-SEMI-B019-ASML-NXT2100I-EQUIPMENT",
+        "EV-SEMI-B019-ASML-LICENSE-REVOCATION"
+      ]
+    },
+    {
+      "entity_id": "ENTITY-SUMCO",
+      "entity_type": "COMPANY",
+      "label": "SUMCO Corporation",
+      "evidence_ids": [
+        "EV-SEMI-B019-SUMCO-POLYSILICON-INGOT",
+        "EV-SEMI-B019-SUMCO-WAFER-SEMICONDUCTOR"
+      ]
+    }
+  ],
+  "geographies_added": [
+    {
+      "entity_id": "GEO-ZHUNAN-SCIENCE-PARK-TAIWAN",
+      "entity_type": "GEOGRAPHY",
+      "label": "Zhunan Science Park, Taiwan"
+    },
+    {
+      "entity_id": "GEO-ARIZONA-US",
+      "entity_type": "GEOGRAPHY",
+      "label": "Arizona, United States"
+    },
+    {
+      "entity_id": "GEO-BAC-NINH-VIETNAM",
+      "entity_type": "GEOGRAPHY",
+      "label": "Bac Ninh, Vietnam"
+    },
+    {
+      "entity_id": "GEO-PRC",
+      "entity_type": "GEOGRAPHY",
+      "label": "People's Republic of China"
+    }
+  ],
+  "facilities_added": [
+    {
+      "facility_id": "FAC-SEMI-TSMC-AP6-ZHUNAN",
+      "entity_type": "FACILITY",
+      "label": "TSMC Advanced Backend Fab 6",
+      "facility_type": "ADVANCED_PACKAGING_AND_TEST",
+      "facility_owner_id": "ENTITY-TSMC",
+      "geography_id": "GEO-ZHUNAN-SCIENCE-PARK-TAIWAN",
+      "lifecycle_state": "OPENED_PREPARED_FOR_MASS_PRODUCTION",
+      "effective_from": "2023-06-08",
+      "stated_design_capacity": [
+        {
+          "value_min_exclusive": 1000000,
+          "unit": "12_INCH_WAFER_EQUIVALENT_3DFABRIC_PROCESSES_PER_YEAR"
+        },
+        {
+          "value_min_exclusive": 10000000,
+          "unit": "TESTING_HOURS_PER_YEAR"
+        }
+      ],
+      "available_capacity": null,
+      "evidence_ids": [
+        "EV-SEMI-B019-TSMC-AP6-OPENED-2023",
+        "EV-SEMI-B019-TSMC-AP6-DESIGN-CAPACITY-2023"
+      ],
+      "semantic_limit": "STATED_DESIGN_CAPACITY_NE_AVAILABLE_OR_UNBOOKED_CAPACITY"
+    },
+    {
+      "facility_id": "FAC-SEMI-TSMC-ARIZONA-FIRST-FAB",
+      "entity_type": "FACILITY",
+      "label": "TSMC Arizona first fab",
+      "facility_type": "SEMICONDUCTOR_FAB",
+      "facility_owner_id": "ENTITY-TSMC",
+      "geography_id": "GEO-ARIZONA-US",
+      "lifecycle_state": "OPERATIONAL_HIGH_VOLUME_PRODUCTION",
+      "process_id": "TECH-TSMC-N4",
+      "effective_from": "2024-Q4",
+      "installed_capacity": null,
+      "available_capacity": null,
+      "effective_capacity": null,
+      "evidence_ids": [
+        "EV-SEMI-B019-TSMC-ARIZONA-PLAN-2023",
+        "EV-SEMI-B019-TSMC-ARIZONA-ACTUAL-2024"
+      ],
+      "semantic_limit": "HVM_STATE_NE_DISCLOSED_AVAILABLE_CAPACITY"
+    },
+    {
+      "facility_id": "FAC-SEMI-AMKOR-VIETNAM-BAC-NINH",
+      "entity_type": "FACILITY",
+      "label": "Amkor Vietnam factory",
+      "facility_type": "SEMICONDUCTOR_PACKAGING_AND_TEST",
+      "facility_owner_id": "ENTITY-AMKOR",
+      "geography_id": "GEO-BAC-NINH-VIETNAM",
+      "lifecycle_state": "OPENED_PHASED_RAMP",
+      "effective_from": "2023-10-11",
+      "planned_cleanroom_area_at_completion": {
+        "value": 200000,
+        "unit": "SQUARE_METERS"
+      },
+      "available_capacity": null,
+      "evidence_ids": [
+        "EV-SEMI-B019-AMKOR-VIETNAM-OPENING-2023"
+      ],
+      "semantic_limit": "PLANNED_CLEANROOM_AREA_NE_PRODUCTION_CAPACITY"
+    }
+  ],
+  "equipment_added": [
+    {
+      "equipment_id": "EQUIP-ASML-NXT2050I",
+      "entity_type": "EQUIPMENT",
+      "label": "ASML TWINSCAN NXT:2050i",
+      "equipment_type": "DUV_IMMERSION_LITHOGRAPHY",
+      "supplier_id": "ENTITY-ASML",
+      "equipment_installed_state": "UNKNOWN_NOT_FACILITY_SPECIFIC",
+      "equipment_qualification_state": "PRODUCT_CAPABILITY_DOCUMENTED_CURRENT",
+      "evidence_ids": [
+        "EV-SEMI-B019-ASML-NXT2050I-EQUIPMENT",
+        "EV-SEMI-B019-ASML-LICENSE-REVOCATION"
+      ]
+    },
+    {
+      "equipment_id": "EQUIP-ASML-NXT2100I",
+      "entity_type": "EQUIPMENT",
+      "label": "ASML TWINSCAN NXT:2100i",
+      "equipment_type": "DUV_IMMERSION_LITHOGRAPHY",
+      "supplier_id": "ENTITY-ASML",
+      "equipment_installed_state": "UNKNOWN_NOT_FACILITY_SPECIFIC",
+      "equipment_qualification_state": "PRODUCT_CAPABILITY_DOCUMENTED_CURRENT",
+      "evidence_ids": [
+        "EV-SEMI-B019-ASML-NXT2100I-EQUIPMENT",
+        "EV-SEMI-B019-ASML-LICENSE-REVOCATION"
+      ]
+    }
+  ],
+  "materials_added": [
+    {
+      "material_id": "MAT-SILICA-QUARTZITE",
+      "entity_type": "GEOLOGICAL_FEEDSTOCK",
+      "label": "Silica / quartzite",
+      "material_stage": "GEOLOGICAL_FEEDSTOCK",
+      "material_grade": "UNSPECIFIED_NATURAL_RESOURCE",
+      "evidence_ids": [
+        "EV-SEMI-B019-USGS-SILICON-RESOURCE-CHAIN",
+        "EV-SEMI-B019-USGS-SILICON-CONCENTRATION-2023"
+      ]
+    },
+    {
+      "material_id": "MAT-SILICON-METAL",
+      "entity_type": "PROCESSED_MATERIAL",
+      "label": "Silicon metal",
+      "material_stage": "PRIMARY_PROCESSING",
+      "material_grade": "METALLURGICAL_OR_BROAD_SILICON_MATERIAL",
+      "evidence_ids": [
+        "EV-SEMI-B019-USGS-SILICON-RESOURCE-CHAIN",
+        "EV-SEMI-B019-USGS-SILICON-CONCENTRATION-2023"
+      ]
+    },
+    {
+      "material_id": "MAT-HIGH-PURITY-POLYSILICON",
+      "entity_type": "PROCESSED_MATERIAL",
+      "label": "High-purity polysilicon",
+      "material_stage": "SEMICONDUCTOR_INPUT",
+      "material_grade": "HIGH_PURITY_PPB_SCALE_METAL_IMPURITIES_DESCRIBED",
+      "evidence_ids": [
+        "EV-SEMI-B019-SUMCO-POLYSILICON-INGOT"
+      ]
+    },
+    {
+      "material_id": "MAT-MONOCRYSTALLINE-SILICON-INGOT",
+      "entity_type": "PROCESSED_MATERIAL",
+      "label": "Monocrystalline silicon ingot",
+      "material_stage": "WAFER_PRECURSOR",
+      "material_grade": "SEMICONDUCTOR_WAFER_PRECURSOR",
+      "evidence_ids": [
+        "EV-SEMI-B019-SUMCO-POLYSILICON-INGOT"
+      ]
+    },
+    {
+      "material_id": "MAT-SILICON-WAFER",
+      "entity_type": "PROCESSED_MATERIAL",
+      "label": "Silicon wafer",
+      "material_stage": "SEMICONDUCTOR_SUBSTRATE",
+      "material_grade": "SEMICONDUCTOR_WAFER",
+      "evidence_ids": [
+        "EV-SEMI-B019-SUMCO-WAFER-SEMICONDUCTOR"
+      ]
+    },
+    {
+      "material_id": "MAT-QUARTZ-CRUCIBLE",
+      "entity_type": "PROCESS_INPUT",
+      "label": "Quartz crucible",
+      "material_stage": "CRYSTAL_GROWTH_PROCESS_INPUT",
+      "material_grade": "UNSPECIFIED",
+      "evidence_ids": [
+        "EV-SEMI-B019-SUMCO-POLYSILICON-INGOT"
+      ]
+    }
+  ],
+  "technologies_and_processes_added": [
+    {
+      "entity_id": "TECH-TSMC-N4",
+      "entity_type": "PROCESS_TECHNOLOGY",
+      "label": "TSMC N4",
+      "process_generation": "N4",
+      "evidence_ids": [
+        "EV-SEMI-B019-TSMC-ARIZONA-PLAN-2023",
+        "EV-SEMI-B019-TSMC-ARIZONA-ACTUAL-2024"
+      ]
+    },
+    {
+      "entity_id": "TECH-AMKOR-ADVANCED-SIP",
+      "entity_type": "PACKAGING_TECHNOLOGY_CLASS",
+      "label": "Advanced System in Package",
+      "evidence_ids": [
+        "EV-SEMI-B019-AMKOR-VIETNAM-OPENING-2023"
+      ]
+    },
+    {
+      "entity_id": "PROCESS-CZ-CRYSTAL-GROWTH",
+      "entity_type": "MANUFACTURING_PROCESS",
+      "label": "Czochralski monocrystalline silicon growth",
+      "evidence_ids": [
+        "EV-SEMI-B019-SUMCO-POLYSILICON-INGOT"
+      ]
+    },
+    {
+      "entity_id": "PROCESS-NEW-PRODUCT-QUALIFICATION",
+      "entity_type": "QUALIFICATION_PROCESS",
+      "label": "New product qualification",
+      "evidence_ids": [
+        "EV-SEMI-B019-NVIDIA-QUALIFICATION-LEADTIME-2024"
+      ]
+    }
+  ],
+  "qualification_observations": [
+    {
+      "observation_id": "QUALOBS-NVIDIA-NEW-PRODUCT-2024-001",
+      "entity_id": "ENTITY-NVIDIA",
+      "qualification_type": "NEW_PRODUCT_QUALIFICATION",
+      "qualification_state": "TIME_REQUIRED_UNQUANTIFIED",
+      "qualification_start": null,
+      "qualification_complete": null,
+      "evidence_ids": [
+        "EV-SEMI-B019-NVIDIA-QUALIFICATION-LEADTIME-2024"
+      ],
+      "semantic_limit": "NO_SPECIFIC_DURATION_OR_ALTERNATE_SUPPLIER_QUALIFICATION_PROVEN"
+    },
+    {
+      "observation_id": "QUALOBS-MICRON-HBM3E12H-2025-B019-REF",
+      "entity_id": "ENTITY-MICRON",
+      "product_id": "PRODUCT-MICRON-HBM3E-12H",
+      "qualification_type": "PRODUCT_AND_CUSTOMER_QUALIFICATION",
+      "qualification_state": "ADDITIONAL_PLATFORM_AND_CUSTOMER_QUALIFICATION_IN_PROGRESS",
+      "predecessor_observation_id": "CAPOBS-MICRON-HBM3E12H-RAMP-001",
+      "evidence_ids": [
+        "EV-SEMI-MICRON-NVIDIA-DESIGNIN-2025"
+      ],
+      "semantic_limit": "PREDECESSOR_OBSERVATION_REUSED_NOT_DUPLICATED_AS_NEW_CAPACITY"
+    }
+  ],
+  "policy_events_added": [
+    {
+      "event_id": "POLICY-ASML-NXT-LICENSE-REVOCATION-2024",
+      "entity_type": "POLICY_EVENT",
+      "label": "Partial revocation of ASML NXT:2050i and NXT:2100i shipment license",
+      "effective_at": null,
+      "known_at": "2026-09-26T21:17:39Z",
+      "target_geography_id": "GEO-PRC",
+      "evidence_ids": [
+        "EV-SEMI-B019-ASML-LICENSE-REVOCATION"
+      ],
+      "semantic_limit": "EXACT_EFFECTIVE_TIME_UNRESOLVED; CURRENT_HYDRA_KNOWN_AT_ONLY"
+    }
+  ],
+  "semantic_firewalls": [
+    "STATED_DESIGN_CAPACITY_NE_AVAILABLE_CAPACITY",
+    "PLANNED_CLEANROOM_AREA_NE_PRODUCTION_CAPACITY",
+    "BROAD_SILICON_PRODUCTION_SHARE_NE_SEMICONDUCTOR_GRADE_SILICON_SHARE",
+    "RAW_RESOURCE_NE_HIGH_PURITY_PROCESSED_MATERIAL",
+    "PRODUCT_DOCUMENTATION_NE_FACILITY_INSTALLATION",
+    "PARTIAL_EXPORT_LICENSE_REVOCATION_NE_COMPLETE_SUPPLY_CUTOFF",
+    "QUALIFICATION_TIME_EXISTS_NE_KNOWN_QUALIFICATION_DURATION"
+  ]
+}

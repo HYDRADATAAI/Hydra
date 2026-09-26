@@ -1,0 +1,319 @@
+{
+  "schema_version": "hydra-constraint-second-slice-graph-overlay/v1",
+  "record_id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH019_SEMICONDUCTOR_FACILITY_MATERIAL_EQUIPMENT_GRAPH_OVERLAY_V001",
+  "as_of": "2026-09-26",
+  "slice_id": "SEMICONDUCTOR_ADVANCED_PACKAGING_CRITICAL_MATERIALS_V1",
+  "predecessor_graph": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH018_SEMICONDUCTOR_ADVANCED_PACKAGING_CRITICAL_MATERIALS_GRAPH_SEED_V001",
+  "graph_status": "EVIDENCE_BACKED_REVIEWED_SHADOW_PARTIAL_NOT_REPLAY_READY",
+  "nodes_added": [
+    "ENTITY-AMKOR",
+    "ENTITY-ASML",
+    "ENTITY-SUMCO",
+    "FAC-SEMI-TSMC-AP6-ZHUNAN",
+    "FAC-SEMI-TSMC-ARIZONA-FIRST-FAB",
+    "FAC-SEMI-AMKOR-VIETNAM-BAC-NINH",
+    "GEO-ZHUNAN-SCIENCE-PARK-TAIWAN",
+    "GEO-ARIZONA-US",
+    "GEO-BAC-NINH-VIETNAM",
+    "GEO-PRC",
+    "EQUIP-ASML-NXT2050I",
+    "EQUIP-ASML-NXT2100I",
+    "MAT-SILICA-QUARTZITE",
+    "MAT-SILICON-METAL",
+    "MAT-HIGH-PURITY-POLYSILICON",
+    "MAT-MONOCRYSTALLINE-SILICON-INGOT",
+    "MAT-SILICON-WAFER",
+    "MAT-QUARTZ-CRUCIBLE",
+    "TECH-TSMC-N4",
+    "TECH-AMKOR-ADVANCED-SIP",
+    "PROCESS-CZ-CRYSTAL-GROWTH",
+    "PROCESS-NEW-PRODUCT-QUALIFICATION",
+    "CLASS-SEMICONDUCTOR-DEVICE",
+    "POLICY-ASML-NXT-LICENSE-REVOCATION-2024"
+  ],
+  "edges_added": [
+    {
+      "edge_id": "SEMI-B019-E001",
+      "from": "ENTITY-TSMC",
+      "relation": "OPERATES",
+      "to": "FAC-SEMI-TSMC-AP6-ZHUNAN",
+      "evidence_ids": [
+        "EV-SEMI-B019-TSMC-AP6-OPENED-2023"
+      ]
+    },
+    {
+      "edge_id": "SEMI-B019-E002",
+      "from": "FAC-SEMI-TSMC-AP6-ZHUNAN",
+      "relation": "LOCATED_IN",
+      "to": "GEO-ZHUNAN-SCIENCE-PARK-TAIWAN",
+      "evidence_ids": [
+        "EV-SEMI-B019-TSMC-AP6-OPENED-2023"
+      ]
+    },
+    {
+      "edge_id": "SEMI-B019-E003",
+      "from": "FAC-SEMI-TSMC-AP6-ZHUNAN",
+      "relation": "SUPPORTS_PACKAGING_TECHNOLOGY",
+      "to": "TECH-TSMC-COWOS",
+      "evidence_ids": [
+        "EV-SEMI-B019-TSMC-AP6-OPENED-2023"
+      ],
+      "semantic_limit": "CAPABILITY_SUPPORT_NE_SPARE_CAPACITY"
+    },
+    {
+      "edge_id": "SEMI-B019-E004",
+      "from": "ENTITY-TSMC",
+      "relation": "OPERATES",
+      "to": "FAC-SEMI-TSMC-ARIZONA-FIRST-FAB",
+      "evidence_ids": [
+        "EV-SEMI-B019-TSMC-ARIZONA-PLAN-2023",
+        "EV-SEMI-B019-TSMC-ARIZONA-ACTUAL-2024"
+      ]
+    },
+    {
+      "edge_id": "SEMI-B019-E005",
+      "from": "FAC-SEMI-TSMC-ARIZONA-FIRST-FAB",
+      "relation": "LOCATED_IN",
+      "to": "GEO-ARIZONA-US",
+      "evidence_ids": [
+        "EV-SEMI-B019-TSMC-ARIZONA-ACTUAL-2024"
+      ]
+    },
+    {
+      "edge_id": "SEMI-B019-E006",
+      "from": "FAC-SEMI-TSMC-ARIZONA-FIRST-FAB",
+      "relation": "HIGH_VOLUME_PRODUCTION_OF",
+      "to": "TECH-TSMC-N4",
+      "evidence_ids": [
+        "EV-SEMI-B019-TSMC-ARIZONA-ACTUAL-2024"
+      ],
+      "effective_from": "2024-Q4"
+    },
+    {
+      "edge_id": "SEMI-B019-E007",
+      "from": "ENTITY-AMKOR",
+      "relation": "OPERATES",
+      "to": "FAC-SEMI-AMKOR-VIETNAM-BAC-NINH",
+      "evidence_ids": [
+        "EV-SEMI-B019-AMKOR-VIETNAM-OPENING-2023"
+      ]
+    },
+    {
+      "edge_id": "SEMI-B019-E008",
+      "from": "FAC-SEMI-AMKOR-VIETNAM-BAC-NINH",
+      "relation": "LOCATED_IN",
+      "to": "GEO-BAC-NINH-VIETNAM",
+      "evidence_ids": [
+        "EV-SEMI-B019-AMKOR-VIETNAM-OPENING-2023"
+      ]
+    },
+    {
+      "edge_id": "SEMI-B019-E009",
+      "from": "FAC-SEMI-AMKOR-VIETNAM-BAC-NINH",
+      "relation": "BEGINS_WITH_PACKAGING_CAPABILITY",
+      "to": "TECH-AMKOR-ADVANCED-SIP",
+      "evidence_ids": [
+        "EV-SEMI-B019-AMKOR-VIETNAM-OPENING-2023"
+      ]
+    },
+    {
+      "edge_id": "SEMI-B019-E010",
+      "from": "ENTITY-ASML",
+      "relation": "PROVIDES_EQUIPMENT",
+      "to": "EQUIP-ASML-NXT2050I",
+      "evidence_ids": [
+        "EV-SEMI-B019-ASML-NXT2050I-EQUIPMENT"
+      ]
+    },
+    {
+      "edge_id": "SEMI-B019-E011",
+      "from": "ENTITY-ASML",
+      "relation": "PROVIDES_EQUIPMENT",
+      "to": "EQUIP-ASML-NXT2100I",
+      "evidence_ids": [
+        "EV-SEMI-B019-ASML-NXT2100I-EQUIPMENT"
+      ]
+    },
+    {
+      "edge_id": "SEMI-B019-E012",
+      "from": "EQUIP-ASML-NXT2050I",
+      "relation": "SUPPORTS_VOLUME_PRODUCTION_OF",
+      "to": "CLASS-SEMICONDUCTOR-DEVICE",
+      "evidence_ids": [
+        "EV-SEMI-B019-ASML-NXT2050I-EQUIPMENT"
+      ],
+      "scope": "ADVANCED_LOGIC_AND_DRAM"
+    },
+    {
+      "edge_id": "SEMI-B019-E013",
+      "from": "EQUIP-ASML-NXT2100I",
+      "relation": "SUPPORTS_PRODUCTION_OF",
+      "to": "CLASS-SEMICONDUCTOR-DEVICE",
+      "evidence_ids": [
+        "EV-SEMI-B019-ASML-NXT2100I-EQUIPMENT"
+      ],
+      "scope": "ADVANCED_MEMORY_AND_LOGIC"
+    },
+    {
+      "edge_id": "SEMI-B019-E014",
+      "from": "POLICY-ASML-NXT-LICENSE-REVOCATION-2024",
+      "relation": "AFFECTS_LICENSED_SHIPMENT_OF",
+      "to": "EQUIP-ASML-NXT2050I",
+      "evidence_ids": [
+        "EV-SEMI-B019-ASML-LICENSE-REVOCATION"
+      ],
+      "semantic_limit": "PARTIAL_REVOCATION"
+    },
+    {
+      "edge_id": "SEMI-B019-E015",
+      "from": "POLICY-ASML-NXT-LICENSE-REVOCATION-2024",
+      "relation": "AFFECTS_LICENSED_SHIPMENT_OF",
+      "to": "EQUIP-ASML-NXT2100I",
+      "evidence_ids": [
+        "EV-SEMI-B019-ASML-LICENSE-REVOCATION"
+      ],
+      "semantic_limit": "PARTIAL_REVOCATION"
+    },
+    {
+      "edge_id": "SEMI-B019-E016",
+      "from": "POLICY-ASML-NXT-LICENSE-REVOCATION-2024",
+      "relation": "AFFECTS_CUSTOMERS_IN",
+      "to": "GEO-PRC",
+      "evidence_ids": [
+        "EV-SEMI-B019-ASML-LICENSE-REVOCATION"
+      ],
+      "semantic_limit": "SMALL_NUMBER_OF_CUSTOMERS; NOT_COMPLETE_CUTOFF"
+    },
+    {
+      "edge_id": "SEMI-B019-E017",
+      "from": "MAT-SILICA-QUARTZITE",
+      "relation": "FEEDSTOCK_FOR",
+      "to": "MAT-SILICON-METAL",
+      "evidence_ids": [
+        "EV-SEMI-B019-USGS-SILICON-RESOURCE-CHAIN"
+      ]
+    },
+    {
+      "edge_id": "SEMI-B019-E018",
+      "from": "MAT-SILICON-METAL",
+      "relation": "UPSTREAM_OF_HIGH_PURITY_PROCESSING",
+      "to": "MAT-HIGH-PURITY-POLYSILICON",
+      "evidence_ids": [
+        "EV-SEMI-B019-USGS-SILICON-RESOURCE-CHAIN",
+        "EV-SEMI-B019-SUMCO-POLYSILICON-INGOT"
+      ],
+      "semantic_limit": "CHAIN_BRIDGE_DOES_NOT_QUANTIFY_YIELD_OR_CAPACITY"
+    },
+    {
+      "edge_id": "SEMI-B019-E019",
+      "from": "MAT-HIGH-PURITY-POLYSILICON",
+      "relation": "RAW_MATERIAL_FOR",
+      "to": "PROCESS-CZ-CRYSTAL-GROWTH",
+      "evidence_ids": [
+        "EV-SEMI-B019-SUMCO-POLYSILICON-INGOT"
+      ]
+    },
+    {
+      "edge_id": "SEMI-B019-E020",
+      "from": "MAT-QUARTZ-CRUCIBLE",
+      "relation": "PROCESS_INPUT_TO",
+      "to": "PROCESS-CZ-CRYSTAL-GROWTH",
+      "evidence_ids": [
+        "EV-SEMI-B019-SUMCO-POLYSILICON-INGOT"
+      ]
+    },
+    {
+      "edge_id": "SEMI-B019-E021",
+      "from": "PROCESS-CZ-CRYSTAL-GROWTH",
+      "relation": "PRODUCES",
+      "to": "MAT-MONOCRYSTALLINE-SILICON-INGOT",
+      "evidence_ids": [
+        "EV-SEMI-B019-SUMCO-POLYSILICON-INGOT"
+      ]
+    },
+    {
+      "edge_id": "SEMI-B019-E022",
+      "from": "MAT-MONOCRYSTALLINE-SILICON-INGOT",
+      "relation": "PROCESSED_INTO",
+      "to": "MAT-SILICON-WAFER",
+      "evidence_ids": [
+        "EV-SEMI-B019-SUMCO-WAFER-SEMICONDUCTOR"
+      ]
+    },
+    {
+      "edge_id": "SEMI-B019-E023",
+      "from": "MAT-SILICON-WAFER",
+      "relation": "SUBSTRATE_FOR",
+      "to": "CLASS-SEMICONDUCTOR-DEVICE",
+      "evidence_ids": [
+        "EV-SEMI-B019-SUMCO-WAFER-SEMICONDUCTOR"
+      ]
+    },
+    {
+      "edge_id": "SEMI-B019-E024",
+      "from": "ENTITY-SUMCO",
+      "relation": "PRODUCES",
+      "to": "MAT-SILICON-WAFER",
+      "evidence_ids": [
+        "EV-SEMI-B019-SUMCO-WAFER-SEMICONDUCTOR"
+      ]
+    },
+    {
+      "edge_id": "SEMI-B019-E025",
+      "from": "GEO-PRC",
+      "relation": "MAJOR_PRODUCTION_CONCENTRATION_FOR",
+      "to": "MAT-SILICON-METAL",
+      "evidence_ids": [
+        "EV-SEMI-B019-USGS-SILICON-CONCENTRATION-2023"
+      ],
+      "scope": "BROAD_SILICON_MATERIALS_2023",
+      "semantic_limit": "NOT_SEMICONDUCTOR_GRADE_SHARE"
+    },
+    {
+      "edge_id": "SEMI-B019-E026",
+      "from": "ENTITY-NVIDIA",
+      "relation": "USES_FOUNDRY_SUPPLIER",
+      "to": "ENTITY-TSMC",
+      "evidence_ids": [
+        "EV-SEMI-B019-NVIDIA-SUPPLY-CHAIN-2024"
+      ]
+    },
+    {
+      "edge_id": "SEMI-B019-E027",
+      "from": "ENTITY-NVIDIA",
+      "relation": "USES_PACKAGING_TECHNOLOGY",
+      "to": "TECH-TSMC-COWOS",
+      "evidence_ids": [
+        "EV-SEMI-B019-NVIDIA-SUPPLY-CHAIN-2024"
+      ]
+    },
+    {
+      "edge_id": "SEMI-B019-E028",
+      "from": "ENTITY-NVIDIA",
+      "relation": "HAS_QUALIFICATION_TIME_DEPENDENCY",
+      "to": "PROCESS-NEW-PRODUCT-QUALIFICATION",
+      "evidence_ids": [
+        "EV-SEMI-B019-NVIDIA-QUALIFICATION-LEADTIME-2024"
+      ],
+      "semantic_limit": "DURATION_UNQUANTIFIED"
+    },
+    {
+      "edge_id": "SEMI-B019-E029",
+      "from": "PRODUCT-MICRON-HBM3E-12H",
+      "relation": "SUBJECT_TO",
+      "to": "PROCESS-NEW-PRODUCT-QUALIFICATION",
+      "evidence_ids": [
+        "EV-SEMI-MICRON-NVIDIA-DESIGNIN-2025"
+      ],
+      "status": "SUPPORTED_BY_PREDECESSOR_EVIDENCE"
+    }
+  ],
+  "edges_added_count": 29,
+  "rules": [
+    "NO_NEW_EDGE_WITHOUT_EVIDENCE",
+    "PREDECESSOR_NODE_AND_EVIDENCE_REUSE_IS_EXPLICIT",
+    "RESOURCE_CONCENTRATION_DOES_NOT_IMPLY_SEMICONDUCTOR_GRADE_CONCENTRATION",
+    "POLICY_ACCESS_CHANGE_DOES_NOT_IMPLY_TOTAL_CUTOFF",
+    "QUALIFICATION_GATE_DOES_NOT_HAVE_INVENTED_DURATION"
+  ]
+}

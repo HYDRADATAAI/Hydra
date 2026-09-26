@@ -1,0 +1,213 @@
+{
+  "schema_version": "hydra-constraint-second-slice-source-registry-extension/v1",
+  "record_id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH019_SEMICONDUCTOR_FACILITY_MATERIAL_EQUIPMENT_SOURCE_REGISTRY_EXTENSION_V001",
+  "as_of": "2026-09-26",
+  "slice_id": "SEMICONDUCTOR_ADVANCED_PACKAGING_CRITICAL_MATERIALS_V1",
+  "predecessor_source_registry": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH018_SEMICONDUCTOR_ADVANCED_PACKAGING_CRITICAL_MATERIALS_SOURCE_REGISTRY_V001",
+  "capture_mode": "CURRENT_REVIEW_CONSERVATIVE_AVAILABILITY",
+  "capture_completed_at": "2026-09-26T21:17:39Z",
+  "source_content_persisted": false,
+  "reused_source_ids": [
+    "SRC-SEMI-TSMC-ANNUAL-REPORT-2024",
+    "SRC-SEMI-MICRON-Q2FY25-REMARKS-2025-03-20"
+  ],
+  "sources": [
+    {
+      "source_id": "SRC-SEMI-TSMC-AP6-OPENING-2023-06-08",
+      "publisher": "TSMC",
+      "title": "TSMC Announces the Opening of Advanced Backend Fab 6, Marking a Milestone in the Expansion of 3DFabric System Integration Technology",
+      "url": "https://pr.tsmc.com/english/news/3033",
+      "publication_date": "2023-06-08",
+      "publication_date_precision": "DAY",
+      "source_family": "COMPANY_PRODUCTION_OR_QUALIFICATION_RELEASE",
+      "roles": [
+        "FACILITY",
+        "ADVANCED_PACKAGING",
+        "CAPACITY",
+        "TESTING"
+      ],
+      "acquired_at": "2026-09-26T21:17:39Z",
+      "available_at": "2026-09-26T21:17:39Z",
+      "availability_basis": "HYDRA_FIRST_DEFENSIBLE_GITHUB_REVIEW_ARTIFACT_COMMIT",
+      "ordinary_raw_lineage_eligible": false
+    },
+    {
+      "source_id": "SRC-SEMI-TSMC-ANNUAL-REPORT-2023",
+      "publisher": "TSMC",
+      "title": "TSMC 2023 Annual Report",
+      "url": "https://investor.tsmc.com/static/annualReports/2023/english/index.html",
+      "publication_date": null,
+      "publication_date_precision": "UNRESOLVED_ANNUAL_REPORT_PUBLICATION_DATE",
+      "report_year": 2023,
+      "source_family": "COMPANY_ANNUAL_REPORT_OR_REGULATORY_FILING",
+      "roles": [
+        "FACILITY",
+        "FAB_RAMP_PLAN",
+        "EQUIPMENT_INSTALLATION"
+      ],
+      "acquired_at": "2026-09-26T21:17:39Z",
+      "available_at": "2026-09-26T21:17:39Z",
+      "availability_basis": "HYDRA_FIRST_DEFENSIBLE_GITHUB_REVIEW_ARTIFACT_COMMIT",
+      "ordinary_raw_lineage_eligible": false
+    },
+    {
+      "source_id": "SRC-SEMI-AMKOR-VIETNAM-OPENING-2023-10-10",
+      "publisher": "Amkor Technology",
+      "title": "Amkor's Newest Factory Set to Open in Vietnam on October 11, 2023",
+      "url": "https://ir.amkor.com/news-releases/news-release-details/amkors-newest-factory-set-open-vietnam-october-11-2023",
+      "publication_date": "2023-10-10",
+      "publication_date_precision": "DAY",
+      "source_family": "COMPANY_PRODUCTION_OR_QUALIFICATION_RELEASE",
+      "roles": [
+        "FACILITY",
+        "OSAT",
+        "ADVANCED_PACKAGING",
+        "MEMORY_PACKAGING"
+      ],
+      "acquired_at": "2026-09-26T21:17:39Z",
+      "available_at": "2026-09-26T21:17:39Z",
+      "availability_basis": "HYDRA_FIRST_DEFENSIBLE_GITHUB_REVIEW_ARTIFACT_COMMIT",
+      "ordinary_raw_lineage_eligible": false
+    },
+    {
+      "source_id": "SRC-SEMI-ASML-LICENSE-REVOCATION-2024-01-01",
+      "publisher": "ASML",
+      "title": "Statement regarding partial revocation export license",
+      "url": "https://www.asml.com/en/news/press-releases/2023/statement-regarding-partial-revocation-export-license",
+      "publication_date": "2024-01-01",
+      "publication_date_precision": "DAY",
+      "source_family": "COMPANY_REGULATORY_STATEMENT",
+      "roles": [
+        "EQUIPMENT",
+        "EXPORT_CONTROL",
+        "POLICY"
+      ],
+      "acquired_at": "2026-09-26T21:17:39Z",
+      "available_at": "2026-09-26T21:17:39Z",
+      "availability_basis": "HYDRA_FIRST_DEFENSIBLE_GITHUB_REVIEW_ARTIFACT_COMMIT",
+      "ordinary_raw_lineage_eligible": false
+    },
+    {
+      "source_id": "SRC-SEMI-ASML-NXT2050I-CURRENT",
+      "publisher": "ASML",
+      "title": "TWINSCAN NXT:2050i - DUV lithography machines",
+      "url": "https://www.asml.com/en/products/duv-lithography-systems/twinscan-nxt2050i",
+      "publication_date": null,
+      "publication_date_precision": "UNRESOLVED_CURRENT_DOCUMENTATION",
+      "source_family": "COMPANY_TECHNICAL_DOCUMENTATION",
+      "roles": [
+        "EQUIPMENT",
+        "DUV_IMMERSION",
+        "ADVANCED_LOGIC",
+        "DRAM"
+      ],
+      "acquired_at": "2026-09-26T21:17:39Z",
+      "available_at": "2026-09-26T21:17:39Z",
+      "availability_basis": "HYDRA_FIRST_DEFENSIBLE_GITHUB_REVIEW_ARTIFACT_COMMIT",
+      "ordinary_raw_lineage_eligible": false
+    },
+    {
+      "source_id": "SRC-SEMI-ASML-NXT2100I-CURRENT",
+      "publisher": "ASML",
+      "title": "TWINSCAN NXT:2100i - DUV lithography machines",
+      "url": "https://www.asml.com/en/products/duv-lithography-systems/twinscan-nxt2100i",
+      "publication_date": null,
+      "publication_date_precision": "UNRESOLVED_CURRENT_DOCUMENTATION",
+      "source_family": "COMPANY_TECHNICAL_DOCUMENTATION",
+      "roles": [
+        "EQUIPMENT",
+        "DUV_IMMERSION",
+        "ADVANCED_LOGIC",
+        "MEMORY"
+      ],
+      "acquired_at": "2026-09-26T21:17:39Z",
+      "available_at": "2026-09-26T21:17:39Z",
+      "availability_basis": "HYDRA_FIRST_DEFENSIBLE_GITHUB_REVIEW_ARTIFACT_COMMIT",
+      "ordinary_raw_lineage_eligible": false
+    },
+    {
+      "source_id": "SRC-SEMI-USGS-SILICON-INFO-CURRENT",
+      "publisher": "U.S. Geological Survey",
+      "title": "Silicon Statistics and Information",
+      "url": "https://www.usgs.gov/centers/national-minerals-information-center/silicon-statistics-and-information",
+      "publication_date": null,
+      "publication_date_precision": "UNRESOLVED_CURRENT_DOCUMENTATION",
+      "source_family": "GOVERNMENT_OR_REGULATOR",
+      "roles": [
+        "GEOLOGY",
+        "RESOURCE",
+        "SILICON_PROCESSING",
+        "SEMICONDUCTOR_MATERIAL"
+      ],
+      "acquired_at": "2026-09-26T21:17:39Z",
+      "available_at": "2026-09-26T21:17:39Z",
+      "availability_basis": "HYDRA_FIRST_DEFENSIBLE_GITHUB_REVIEW_ARTIFACT_COMMIT",
+      "ordinary_raw_lineage_eligible": false
+    },
+    {
+      "source_id": "SRC-SEMI-USGS-MCS-SILICON-2024-01-31",
+      "publisher": "U.S. Geological Survey",
+      "title": "Mineral Commodity Summaries 2024 - Silicon",
+      "url": "https://pubs.usgs.gov/periodicals/mcs2024/mcs2024.pdf",
+      "publication_date": "2024-01-31",
+      "publication_date_precision": "DAY",
+      "source_family": "GOVERNMENT_OR_REGULATOR",
+      "roles": [
+        "RESOURCE",
+        "GEOGRAPHIC_CONCENTRATION",
+        "SILICON_MATERIALS"
+      ],
+      "acquired_at": "2026-09-26T21:17:39Z",
+      "available_at": "2026-09-26T21:17:39Z",
+      "availability_basis": "HYDRA_FIRST_DEFENSIBLE_GITHUB_REVIEW_ARTIFACT_COMMIT",
+      "ordinary_raw_lineage_eligible": false
+    },
+    {
+      "source_id": "SRC-SEMI-SUMCO-WAFER-PROCESS-CURRENT",
+      "publisher": "SUMCO Corporation",
+      "title": "Production Processes",
+      "url": "https://www.sumcosi.com/english/products/process/",
+      "publication_date": null,
+      "publication_date_precision": "UNRESOLVED_CURRENT_DOCUMENTATION",
+      "source_family": "COMPANY_TECHNICAL_DOCUMENTATION",
+      "roles": [
+        "MATERIAL",
+        "POLYSILICON",
+        "CRYSTAL_GROWTH",
+        "SILICON_WAFER"
+      ],
+      "acquired_at": "2026-09-26T21:17:39Z",
+      "available_at": "2026-09-26T21:17:39Z",
+      "availability_basis": "HYDRA_FIRST_DEFENSIBLE_GITHUB_REVIEW_ARTIFACT_COMMIT",
+      "ordinary_raw_lineage_eligible": false
+    },
+    {
+      "source_id": "SRC-SEMI-NVIDIA-FY2024-10K-2024-02-21",
+      "publisher": "U.S. Securities and Exchange Commission / NVIDIA",
+      "title": "NVIDIA Corporation Form 10-K for fiscal year ended January 28, 2024",
+      "url": "https://www.sec.gov/Archives/edgar/data/1045810/000104581024000029/nvda-20240128.htm",
+      "publication_date": "2024-02-21",
+      "publication_date_precision": "DAY",
+      "source_family": "COMPANY_ANNUAL_REPORT_OR_REGULATORY_FILING",
+      "roles": [
+        "SUPPLY_CHAIN",
+        "FOUNDRY",
+        "MEMORY",
+        "PACKAGING",
+        "QUALIFICATION",
+        "LEAD_TIME"
+      ],
+      "acquired_at": "2026-09-26T21:17:39Z",
+      "available_at": "2026-09-26T21:17:39Z",
+      "availability_basis": "HYDRA_FIRST_DEFENSIBLE_GITHUB_REVIEW_ARTIFACT_COMMIT",
+      "ordinary_raw_lineage_eligible": false
+    }
+  ],
+  "rules": [
+    "CURRENT_REVIEW_DOES_NOT_CREATE_HISTORICAL_RAW_LINEAGE",
+    "PUBLICATION_DATE_DOES_NOT_EQUAL_HYDRA_AVAILABLE_AT",
+    "DESIGN_CAPACITY_OR_PLANNED_CLEANROOM_DOES_NOT_EQUAL_AVAILABLE_CAPACITY",
+    "RAW_SILICA_OR_SILICON_MATERIALS_DO_NOT_EQUAL_SEMICONDUCTOR_GRADE_WAFER_SUPPLY",
+    "EQUIPMENT_PRODUCT_EXISTENCE_DOES_NOT_EQUAL_CUSTOMER_ACCESS_OR_QUALIFICATION"
+  ]
+}
