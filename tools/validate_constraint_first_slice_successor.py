@@ -9,12 +9,13 @@ facts, admission authority, live-source state, or replay readiness.
 from __future__ import annotations
 
 import json
+import os
 import subprocess
 import sys
 from pathlib import Path
 from typing import Any
 
-ROOT = Path(__file__).resolve().parents[1]
+ROOT = Path(os.environ.get("HYDRA_REPO_ROOT", Path(__file__).resolve().parents[1])).resolve()
 SLICE = ROOT / "docs/constraint/first_slice/ai_data_center_power_infrastructure_v1"
 VALIDATION = ROOT / "docs/constraint/validation"
 ARCH = ROOT / "docs/constraint/architecture"
