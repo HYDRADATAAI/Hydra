@@ -40,6 +40,10 @@ FILES = {
     "batch011_replay": SLICE / "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH011_AI_DATA_CENTER_POWER_INFRASTRUCTURE_SHADOW_REPLAY_PACKET_V001_20260925.json",
     "batch011_receipt": SLICE / "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH011_AI_DATA_CENTER_POWER_INFRASTRUCTURE_DETERMINISM_RECEIPT_V001_20260925.json",
     "batch011_master": ARCH / "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH011_MASTER_STATUS_V001_20260925.json",
+    "batch012_cases": SLICE / "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH012_AI_DATA_CENTER_POWER_INFRASTRUCTURE_HISTORICAL_CASE_REGISTRY_V001_20260925.json",
+    "batch012_outcomes": SLICE / "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH012_AI_DATA_CENTER_POWER_INFRASTRUCTURE_OUTCOME_RECORDS_SUPPLEMENT_V001_20260925.json",
+    "batch012_case_overlay": SLICE / "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH012_AI_DATA_CENTER_POWER_INFRASTRUCTURE_REQUIRED_CASES_HISTORICAL_CLOSURE_OVERLAY_V001_20260925.json",
+    "batch012_master": ARCH / "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH012_MASTER_STATUS_V001_20260925.json",
 }
 
 MANIFESTS = [
@@ -137,6 +141,10 @@ def main() -> int:
     replay11 = docs["batch011_replay"]
     receipt11 = docs["batch011_receipt"]
     master11 = docs["batch011_master"]
+    cases12 = docs["batch012_cases"]
+    outcomes12 = docs["batch012_outcomes"]
+    overlay12 = docs["batch012_case_overlay"]
+    master12 = docs["batch012_master"]
 
     # First-slice identity must remain stable across the domain artifacts.
     for name, doc in (
@@ -321,6 +329,39 @@ def main() -> int:
     require(readiness11["POINT_IN_TIME_REPLAY_READY"].get("status") == "NO_ORDINARY", "Batch011 falsely claims ordinary replay")
     require(master11.get("first_serious_constraint_run") == "BLOCKED", "Batch011 falsely claims serious-run readiness")
 
+    # Batch012 closes real contradiction and cancelled-project case coverage without backdating availability.
+    case_rows12 = cases12.get("records")
+    require(isinstance(case_rows12, list) and {row.get("required_case_id") for row in case_rows12} == {1, 4, 10}, "Batch012 historical-case set drifted")
+    by_case12 = {row["required_case_id"]: row for row in case_rows12}
+    require(by_case12[1].get("status") == "PARTIAL_STRENGTHENED_REAL_LOCALIZED_CONSTRAINT", "Batch012 falsely closes project-specific case1")
+    require(by_case12[1].get("overpromotion_prohibited") is True, "Batch012 case1 overpromotion firewall removed")
+    require(by_case12[4].get("status") == "COVERED_REVIEWED_SHADOW", "Batch012 contradiction case not covered")
+    require(by_case12[4].get("contradiction_state") == "PRESERVE_BOTH_SCOPE_STATES_NO_FABRICATED_CONSENSUS", "Batch012 contradiction consensus was fabricated")
+    require(by_case12[4].get("ordinary_replay_eligible") is False, "Batch012 contradiction silently admitted to ordinary replay")
+    require(by_case12[10].get("status") == "COVERED_REVIEWED_SHADOW", "Batch012 cancelled-project case not covered")
+    require(by_case12[10].get("prior_state_preserved") is True, "Batch012 cancelled project lost prior history")
+    require(by_case12[10].get("historical_rewrite") is False, "Batch012 cancelled project rewrote history")
+
+    rows12 = outcomes12.get("records")
+    require(isinstance(rows12, list) and len(rows12) == 1, "Batch012 outcome supplement count drifted")
+    require(rows12[0].get("outcome_label") == "PROJECT_CANCELLED", "Batch012 cancelled-project outcome label drifted")
+    require(rows12[0].get("hydra_available_at") is None, "Batch012 fabricated exact historical Hydra availability")
+    require(rows12[0].get("ordinary_replay_eligible") is False, "Batch012 cancellation silently admitted to ordinary replay")
+    require(outcomes12.get("current_slice_outcome_count_after") == 2, "Batch012 total outcome count drifted")
+
+    case_state12 = overlay12.get("current_case_state")
+    require(isinstance(case_state12, dict), "Batch012 case state missing")
+    require(set(case_state12.get("gap", [])) == {2}, "Batch012 gap queue drifted")
+    require(set(case_state12.get("partial", [])) == {1, 6}, "Batch012 partial case queue drifted")
+
+    readiness12 = master12.get("readiness")
+    require(isinstance(readiness12, dict), "Batch012 master readiness missing")
+    require(readiness12["REAL_CONTRADICTION_CASE"].get("status") == "YES_REVIEWED_SHADOW", "Batch012 master contradiction state drifted")
+    require(readiness12["REAL_CANCELLED_PROJECT_CASE"].get("status") == "YES_REVIEWED_SHADOW", "Batch012 master cancelled-project state drifted")
+    require(readiness12["POINT_IN_TIME_REPLAY_READY"].get("status") == "NO_ORDINARY", "Batch012 falsely claims ordinary replay")
+    require(readiness12["IMPLEMENTATION_ADMITTED"].get("status") == "NO", "Batch012 falsely admits implementation")
+    require(master12.get("first_serious_constraint_run") == "BLOCKED", "Batch012 falsely claims serious-run readiness")
+
     # Raw-store contract must remain private and require the full ordinary T2 lineage envelope.
     boundary = raw_contract.get("public_repository_boundary")
     contract = raw_contract.get("artifact_contract")
@@ -360,8 +401,11 @@ def main() -> int:
     print("SHADOW_NO_LOOKAHEAD=PASS")
     print("SHADOW_DETERMINISM=PASS")
     print("ORDINARY_HISTORICAL_REPLAY=BLOCKED")
+    print("REAL_CONTRADICTION_CASE=YES_REVIEWED_SHADOW")
+    print("REAL_CANCELLED_PROJECT_CASE=YES_REVIEWED_SHADOW")
+    print("REAL_OUTCOMES_CAPTURED_TOTAL=2")
     print("FIRST_SERIOUS_CONSTRAINT_RUN=BLOCKED")
-    print("NEXT_REPO_EXECUTABLE_LANE=FIRST-SLICE-CONTRADICTION-CANCELLED-PROJECT-AND-MATCHED-HISTORICAL-CASE-POPULATION")
+    print("NEXT_REPO_EXECUTABLE_LANE=FIRST-SLICE-REMAINING-CASE-001-002-006-EVIDENCE-CLOSURE")
     return 0
 
 
