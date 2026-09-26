@@ -66,3 +66,12 @@ RAW_SOURCE_PUBLICATION=NO
 ```
 
 No successful source-capture result is claimed by repository CI because CI does not possess the private Windows browser/profile or private source bodies.
+
+
+## Failure recovery
+
+The Python browser runner writes a private, non-authoritative capture journal after every accepted source under the private metadata root. The journal records exact source identity, locator, acquisition time, HTTP status, content type, byte length, SHA-256, browser channel, redirect chain, and private staged-body path. It is not a T1 release.
+
+If the controlled browser/context is closed while a source is in progress, the runner may relaunch the installed Chrome/Edge session and retry that same registered source up to two times by default. This does not bypass a challenge or substitute a source.
+
+The journal is marked `t1_release_written=true` only after all nine sources complete and the existing materializer, sanitized attestation validator, deterministic replay-lineage builder, post-capture sanitized status builder, and final post-output validation all pass.
