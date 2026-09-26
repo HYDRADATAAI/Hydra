@@ -24,7 +24,7 @@
     },
     {
       "path": "tools/private/HYDRA_CONSTRAINT_T1_AUTOMATED_BROWSER_FIRST_SLICE_CAPTURE_V001_20260926.py",
-      "git_blob_sha": "25f989f52ea91ce88f9b9cb0e4c7d3db35a7d18d"
+      "git_blob_sha": "f8962824631db35f1e1fd7752fd2893a956b0c00"
     },
     {
       "path": "tools/private/Invoke-HYDRAConstraintFirstSliceAutomatedBrowserCapture_V001_20260926.ps1",
@@ -36,7 +36,7 @@
     },
     {
       "path": "constraint-t1-raw-artifact-store/tests/test_automated_browser_private_source_capture.py",
-      "git_blob_sha": "0e03e30c4ea0f0431c1ac8d5a05250f23a24a80c"
+      "git_blob_sha": "013165e95ff1217945c3f1bcce3627f13ec24bde"
     },
     {
       "path": "constraint-t1-raw-artifact-store/tests/test_automated_browser_capture_launcher.py",
@@ -98,5 +98,18 @@
   "windows_powershell5_bootstrap_probe": "PACKAGE_MARKER_NO_NATIVE_IMPORT_PROBE",
   "windows_powershell5_native_stderr_termination_regression_covered": true,
   "replay_lineage_authority_reconciled_from": "constraint/t1-private-record-source-discovery-20260926",
-  "replay_lineage_runtime_dependency_present": true
+  "replay_lineage_runtime_dependency_present": true,
+  "browser_target_closed_recovery": {
+    "enabled": true,
+    "default_restart_retries": 2,
+    "scope": "CURRENT_SOURCE_ONLY",
+    "bypass_behavior": false
+  },
+  "incremental_private_capture_journal": {
+    "enabled": true,
+    "authoritative": false,
+    "write_after_each_accepted_source": true,
+    "release_complete_only_after_downstream_validation": true
+  },
+  "post_capture_validation_signature_reconciled": true
 }
