@@ -36,7 +36,7 @@ REPLAY_READY=ROOT/"constraint-replay"/"corpus"/"HYDRA_CONSTRAINT_REPLAY_READY_CO
 
 def git_blob_sha(path: Path) -> str:
     payload=path.read_bytes()
-    return hashlib.sha1(f"blob {len(payload)}\\0".encode()+payload).hexdigest()
+    return hashlib.sha1(f"blob {len(payload)}\0".encode()+payload).hexdigest()
 
 
 class ClassifiedGoldBatch009ExpansionTests(unittest.TestCase):
