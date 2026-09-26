@@ -1,0 +1,79 @@
+{
+  "schema_version": "1.0",
+  "batch_id": "HYDRA_CONSTRAINT_OPERATING_BATCH019_TAXONOMY_CLOSURE_20260926",
+  "contract_version": "hydra-constraint-operating-report/v2",
+  "mode": "READ_ONLY_CONSTRAINT_OPERATING_V2",
+  "source_run_digest_sha256": "db28edfea01800cf85dd234edb99d003d0a185ab39f7ba8cd31af416542890f1",
+  "implementation": {
+    "module": {
+      "path": "constraint-replay/src/hydra_constraint_replay/operating_taxonomy.py",
+      "git_blob_sha": "000120a40820cdbe9a39474a52d2471632a9ca86"
+    },
+    "cli": {
+      "path": "constraint-replay/scripts/report_HYDRA_CONSTRAINT_BATCH019_operating_taxonomy_20260926.py",
+      "git_blob_sha": "a5d2f3a87f793269ea638a4d9060865970b5b144"
+    }
+  },
+  "source_authority": {
+    "batch018_manifest": {
+      "path": "constraint-replay/operating/HYDRA_CONSTRAINT_BATCH018_OPERATING_MANIFEST_20260926.json",
+      "git_blob_sha": "ffb3c20d17ead6431f1670b11794387bfd5696ac"
+    },
+    "batch018_snapshot": {
+      "path": "constraint-replay/operating/HYDRA_CONSTRAINT_BATCH018_OPERATING_SNAPSHOT_20260926.json",
+      "git_blob_sha": "8d2e4ce22ac972cc825866de845acab752d5a064"
+    }
+  },
+  "taxonomy_supplement": {
+    "policy": {
+      "path": "constraint-geopolitical-policy/data/HYDRA_CONSTRAINT_GEOPOLITICAL_POLICY_BATCH019_SUPPLY_AFFECTING_CONFLICT_20260926.json",
+      "git_blob_sha": "b1549278d2616471de3268bbb65958297782ed15"
+    },
+    "physical": {
+      "path": "constraint-physical-dependency/data/HYDRA_CONSTRAINT_PHYSICAL_POLICY_BATCH019_SUPPLY_AFFECTING_CONFLICT_20260926.json",
+      "git_blob_sha": "7307f68811ef147c721559e3aaf462ce2c171ff4"
+    },
+    "replay_case_membership": "EXCLUDED_FROM_FROZEN_BATCH015_REPLAY"
+  },
+  "snapshot_output": {
+    "path": "constraint-replay/operating/HYDRA_CONSTRAINT_BATCH019_OPERATING_SNAPSHOT_20260926.json",
+    "git_blob_sha": "589e21b3156cda90bb824485d10c20cb60910577",
+    "snapshot_digest_sha256": "4e6d3de489457c125d27aa243f983891c0ee988a4b0671b6d496d4c00125fa03"
+  },
+  "expected": {
+    "base_case_count": 22,
+    "base_policy_event_count": 31,
+    "base_policy_observation_count": 9,
+    "base_physical_binding_count": 51,
+    "supplement_case_count": 1,
+    "supplement_event_count": 1,
+    "supplement_observation_count": 1,
+    "supplement_physical_binding_count": 3,
+    "taxonomy_event_type_count": 18,
+    "taxonomy_sourced_event_type_count": 18,
+    "missing_event_types": [],
+    "readiness_status_counts": {
+      "FULL": 5,
+      "EMPTY": 1,
+      "MISSING": 3,
+      "DUPLICATE_STALE": 1
+    }
+  },
+  "read_only_capabilities": {
+    "canonical_promotion_authorized": false,
+    "canonical_store_mutation_authorized": false,
+    "external_actions_authorized": false,
+    "model_training_authorized": false,
+    "ranking_authorized": false,
+    "trading_authorized": false
+  },
+  "t6_boundary": {
+    "status": "DORMANT_NOT_ACTIVATED",
+    "runtime_binding_created": false,
+    "activation_authority_granted": false
+  },
+  "ci_contract": {
+    "path": ".github/workflows/constraint-policy-taxonomy-closure.yml",
+    "git_blob_sha": "48a26a0d28cf6cbccd5d3b5872e530b6af5ae6bf"
+  }
+}
