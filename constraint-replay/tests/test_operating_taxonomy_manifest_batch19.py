@@ -64,6 +64,10 @@ class Batch019OperatingManifestTests(unittest.TestCase):
             self.snapshot["snapshot_digest_sha256"],
         )
 
+    def test_taxonomy_closure_workflow_pin_matches(self):
+        item=self.manifest["ci_contract"]
+        self.assertEqual(item["git_blob_sha"],git_blob_sha(ROOT/item["path"]))
+
     def test_taxonomy_is_fully_sourced(self):
         expected=self.manifest["expected"]
         self.assertEqual(18,expected["taxonomy_event_type_count"])
