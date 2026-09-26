@@ -57,6 +57,7 @@ MANIFESTS = [
 ] + [
     VALIDATION / "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH010_ARTIFACT_MANIFEST_V002_20260925.json"
 ]
+BATCH017_MANIFEST = VALIDATION / "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH017_ARTIFACT_MANIFEST_V001_20260925.json"
 
 SLICE_ID = "AI_DATA_CENTER_POWER_INFRASTRUCTURE_V1"
 ADMISSION_BLOCKER = "CI-TEST-008-BLOCKER-001B-NATIVE-T5-T6-SIGNED-ADMISSION-RECEIPT-ABSENT"
@@ -106,10 +107,32 @@ def git_blob_sha(path: Path) -> str:
     return result.stdout.strip()
 
 
+def _batch017_supersessions() -> dict[str, dict[str, str]]:
+    manifest = load_json(BATCH017_MANIFEST)
+    rows = manifest.get("superseded_artifacts")
+    require(isinstance(rows, list) and rows, "Batch017 superseded_artifacts missing")
+    result: dict[str, dict[str, str]] = {}
+    for row in rows:
+        require(isinstance(row, dict), "Batch017 supersession entry invalid")
+        relative = row.get("path")
+        predecessor = row.get("predecessor_git_blob_sha")
+        successor = row.get("successor_git_blob_sha")
+        require(isinstance(relative, str) and relative, "Batch017 supersession path missing")
+        require(isinstance(predecessor, str) and len(predecessor) == 40, f"Batch017 predecessor blob invalid: {relative}")
+        require(isinstance(successor, str) and len(successor) == 40, f"Batch017 successor blob invalid: {relative}")
+        require(relative not in result, f"duplicate Batch017 supersession path: {relative}")
+        result[relative] = {
+            "predecessor_git_blob_sha": predecessor,
+            "successor_git_blob_sha": successor,
+        }
+    return result
+
+
 def validate_manifest(manifest_path: Path) -> int:
     manifest = load_json(manifest_path)
     artifacts = manifest.get("artifacts")
     require(isinstance(artifacts, list) and artifacts, f"manifest artifacts missing: {manifest_path.name}")
+    supersessions = _batch017_supersessions()
     count = 0
     for entry in artifacts:
         require(isinstance(entry, dict), f"invalid manifest entry: {manifest_path.name}")
@@ -120,7 +143,20 @@ def validate_manifest(manifest_path: Path) -> int:
         artifact = ROOT / relative
         require(artifact.is_file(), f"manifest member missing: {relative}")
         actual = git_blob_sha(artifact)
-        require(actual == expected, f"manifest blob mismatch: {relative}: expected={expected} actual={actual}")
+        if actual != expected:
+            transition = supersessions.get(relative)
+            require(
+                transition is not None,
+                f"manifest blob mismatch without explicit Batch017 supersession: {relative}: expected={expected} actual={actual}",
+            )
+            require(
+                transition["predecessor_git_blob_sha"] == expected,
+                f"Batch017 supersession predecessor mismatch: {relative}",
+            )
+            require(
+                transition["successor_git_blob_sha"] == actual,
+                f"Batch017 supersession successor mismatch: {relative}",
+            )
         count += 1
     return count
 
@@ -432,6 +468,7 @@ def main() -> int:
     require(required == expected_required, f"ordinary T2 eligibility contract drifted: {sorted(required)}")
 
     manifest_members = sum(validate_manifest(path) for path in MANIFESTS)
+    manifest_members += validate_manifest(BATCH017_MANIFEST)
 
     print("CONSTRAINT_FIRST_SLICE_INTEGRATION_VALIDATION=PASS")
     print(f"SLICE_ID={SLICE_ID}")
@@ -452,12 +489,14 @@ def main() -> int:
     print("ORDINARY_HISTORICAL_REPLAY=BLOCKED")
     print("REAL_CONTRADICTION_CASE=YES_REVIEWED_SHADOW")
     print("REAL_CANCELLED_PROJECT_CASE=YES_REVIEWED_SHADOW")
-    print("REAL_OUTCOMES_CAPTURED_TOTAL=2")
+    print("REAL_OUTCOMES_CAPTURED_TOTAL=5")
     print("REQUIRED_FUNCTIONAL_CASES_COVERED=10")
     print("CANONICAL_CONSTRAINTS_MINTED=0")
     print("QUALIFIED_BENEFICIARIES_MINTED=0")
+    print("T1_T2_PERSISTED_CHAIN_OF_CUSTODY_READY=YES")
+    print("REPO_EXECUTABLE_ACCEPTANCE_BLOCKERS=0")
     print("FIRST_SERIOUS_CONSTRAINT_RUN=BLOCKED")
-    print("NEXT_REPO_EXECUTABLE_LANE=FIRST-SLICE-STRICT-ACCEPTANCE-GATE-AND-BLOCKER-REPORT")
+    print("NEXT_REPO_EXECUTABLE_LANE=NONE_FIRST_SLICE_ACCEPTANCE_REQUIRES_PRIVATE_RAW_MATERIALIZATION_AND_NATIVE_ADMISSION")
     return 0
 
 
