@@ -1,0 +1,23 @@
+suite_id,suite_name,priority,required_for_semantic_pass
+T3-ID,Canonical identity,CRITICAL,YES
+T3-SCOPE,Local/systemic/overlap,HIGH,YES
+T3-MERGE,Canonical merge,CRITICAL,YES
+T3-SPLIT,Canonical split,CRITICAL,YES
+T3-LIFE,Lifecycle,CRITICAL,YES
+T3-DEGRADE,Degradation/anti-flapping,HIGH,YES
+T3-CONFLICT,Candidate-level conflict,HIGH,YES
+T3-EVID,Duplicate/independence,CRITICAL,YES
+T3-DERIVE,Direct/derived support,CRITICAL,YES
+T3-DAG,Support graph firewall,CRITICAL,YES
+T3-TIME,Historical/derivation time,CRITICAL,YES
+T3-BEN,Beneficiary causal chain,CRITICAL,YES
+T3-BLOCK,Beneficiary blockers,CRITICAL,YES
+T3-BPATH,Multiple capture paths,HIGH,YES
+T3-ENTITY,Entity/parent/JV,CRITICAL,YES
+T3-CORP,Corporate actions,HIGH,YES
+T3-CAP,Facility/shared capacity,CRITICAL,YES
+T3-NULL,Null/empty/zero/N-A,CRITICAL,YES
+T3-VERS,Version/revision,HIGH,YES
+T3-EXPORT,Downstream export,CRITICAL,YES
+T3-BML,Baby-ML boundary,CRITICAL,YES
+T3-XAUTH,Cross-thread authority,CRITICAL,YES

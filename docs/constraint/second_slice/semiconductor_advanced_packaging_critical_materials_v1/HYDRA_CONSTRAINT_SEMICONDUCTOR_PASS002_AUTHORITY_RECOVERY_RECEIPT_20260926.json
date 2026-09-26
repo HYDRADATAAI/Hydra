@@ -1,0 +1,24 @@
+{
+  "authority_bytes": "PASS",
+  "master_sha256": "ab7e4c05c9210a90256b8cdea89eeb9f3bb551453dfe13ebfe44616f750cb366",
+  "manifest_member_checks": 29,
+  "runtime_conformance": "NOT_RUN",
+  "semiconductor_admission": "BLOCKED",
+  "corrupted_archive_rejected": "PASS",
+  "pass_id": "HYDRA_CONSTRAINT_SEMICONDUCTOR_PASS002_THREAD3_AUTHORITY_RECOVERY_20260926",
+  "predecessor_commit": "08e798d",
+  "cleared_blockers": [
+    "OWNER_CONTRACT_CONTENT_UNAVAILABLE: THREAD3"
+  ],
+  "remaining_blockers": [
+    "NATIVE_IDENTITY_PROVENANCE_OWNER_INTEGRATION",
+    "FIRST_SLICE_ACCEPTANCE_BLOCKED",
+    "BRANCH_INTEGRATION_UNRESOLVED",
+    "SEMICONDUCTOR_EVIDENCE_NOT_POPULATED",
+    "DETAILED_CAPACITY_YIELD_QUALIFICATION_MAPPING_UNRESOLVED"
+  ],
+  "no_lookahead": "NOT_RUN",
+  "deterministic_replay": "NOT_RUN",
+  "new_populated_records": 0,
+  "capability_ledger_upgrades": 0
+}

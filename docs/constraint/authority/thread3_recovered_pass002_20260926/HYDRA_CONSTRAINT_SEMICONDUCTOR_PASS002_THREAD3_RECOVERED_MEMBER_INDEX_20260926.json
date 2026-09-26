@@ -1,0 +1,57 @@
+{
+  "scope": "Byte-preserving readable copies, not new semantic authority",
+  "source_library_file_id": "libfile_d8ca8b15f7408191aeb48c506ceff608",
+  "original_filename": "LILY_THREAD_3_MASTER_CLOSURE_BUNDLE.zip",
+  "archive_path": "docs/constraint/authority/thread3_recovered_pass002_20260926/HYDRA_CONSTRAINT_SEMICONDUCTOR_PASS002_THREAD3_ORIGINAL_CLOSURE_BUNDLE_20260926.zip",
+  "archive_sha256": "ab7e4c05c9210a90256b8cdea89eeb9f3bb551453dfe13ebfe44616f750cb366",
+  "readable_copies": [
+    {
+      "archive_member": "BATCH_PACKAGES/LILY_THREAD_3_BATCH_7_FINAL_CLOSURE.zip",
+      "nested_member": "LILY_THREAD_3_BATCH_7_FINAL_AUTHORITATIVE_CONTRACT.md",
+      "repository_path": "docs/constraint/authority/thread3_recovered_pass002_20260926/HYDRA_CONSTRAINT_SEMICONDUCTOR_PASS002_THREAD3_LILY_THREAD_3_BATCH_7_FINAL_AUTHORITATIVE_CONTRACT.md",
+      "sha256": "3197303353f597cfb252abd8c93abb30b8444c94019cce8bae4de5f4762618cb"
+    },
+    {
+      "archive_member": "BATCH_PACKAGES/LILY_THREAD_3_BATCH_7_FINAL_CLOSURE.zip",
+      "nested_member": "LILY_TO_NYX_THREAD_3_FINAL_HANDOFF.md",
+      "repository_path": "docs/constraint/authority/thread3_recovered_pass002_20260926/HYDRA_CONSTRAINT_SEMICONDUCTOR_PASS002_THREAD3_LILY_TO_NYX_THREAD_3_FINAL_HANDOFF.md",
+      "sha256": "205747cfcd2a4510066dfc4e3f363a0b8b61e7b5484a79adbd9fc22c794bad58"
+    },
+    {
+      "archive_member": "BATCH_PACKAGES/LILY_THREAD_3_BATCH_8_CROSS_THREAD_RECONCILIATION.zip",
+      "nested_member": "LILY_THREAD_3_BATCH_8_CROSS_THREAD_RECONCILIATION_DELTA.md",
+      "repository_path": "docs/constraint/authority/thread3_recovered_pass002_20260926/HYDRA_CONSTRAINT_SEMICONDUCTOR_PASS002_THREAD3_LILY_THREAD_3_BATCH_8_CROSS_THREAD_RECONCILIATION_DELTA.md",
+      "sha256": "229252bceace8fd45b71246bca3a19b901f26c49bf586c99640b76db12a3303c"
+    },
+    {
+      "archive_member": "BATCH_PACKAGES/LILY_THREAD_3_BATCH_8_CROSS_THREAD_RECONCILIATION.zip",
+      "nested_member": "THREAD6_REGISTER_DELTA_FROM_THREAD3_BATCH8.csv",
+      "repository_path": "docs/constraint/authority/thread3_recovered_pass002_20260926/HYDRA_CONSTRAINT_SEMICONDUCTOR_PASS002_THREAD3_THREAD6_REGISTER_DELTA_FROM_THREAD3_BATCH8.csv",
+      "sha256": "0cc03919154357d5318ea419c578ebecf37ff7856e73ef245993b76365b0b82f"
+    },
+    {
+      "archive_member": "BATCH_PACKAGES/LILY_THREAD_3_BATCH_8_CROSS_THREAD_RECONCILIATION.zip",
+      "nested_member": "NYX_THREAD3_FINAL_AUTHORITY_PIN.md",
+      "repository_path": "docs/constraint/authority/thread3_recovered_pass002_20260926/HYDRA_CONSTRAINT_SEMICONDUCTOR_PASS002_THREAD3_NYX_THREAD3_FINAL_AUTHORITY_PIN.md",
+      "sha256": "167f6020a4d6be12008461e2d65b347b415e0f095eb123b452e4d97edb2543df"
+    },
+    {
+      "archive_member": "BATCH_PACKAGES/LILY_THREAD_3_BATCH_9_NYX_CONFORMANCE_CAMPAIGN.zip",
+      "nested_member": "LILY_THREAD_3_BATCH_9_NYX_CONFORMANCE_CAMPAIGN_SPEC.md",
+      "repository_path": "docs/constraint/authority/thread3_recovered_pass002_20260926/HYDRA_CONSTRAINT_SEMICONDUCTOR_PASS002_THREAD3_LILY_THREAD_3_BATCH_9_NYX_CONFORMANCE_CAMPAIGN_SPEC.md",
+      "sha256": "85ffbaeb9e448967fe2b01ba11a715bc00788ac6a381190de5e5144c1dd32a84"
+    },
+    {
+      "archive_member": "BATCH_PACKAGES/LILY_THREAD_3_BATCH_9_NYX_CONFORMANCE_CAMPAIGN.zip",
+      "nested_member": "NYX_THREAD3_TEST_INVENTORY.csv",
+      "repository_path": "docs/constraint/authority/thread3_recovered_pass002_20260926/HYDRA_CONSTRAINT_SEMICONDUCTOR_PASS002_THREAD3_NYX_THREAD3_TEST_INVENTORY.csv",
+      "sha256": "203f65d0304fece57ac623e02838a253b1223f5d6a2ad16115129d181ffe9cac"
+    },
+    {
+      "archive_member": "BATCH_PACKAGES/LILY_THREAD_3_BATCH_9_NYX_CONFORMANCE_CAMPAIGN.zip",
+      "nested_member": "NYX_THREAD3_CAMPAIGN_AUTHORITY_PIN.md",
+      "repository_path": "docs/constraint/authority/thread3_recovered_pass002_20260926/HYDRA_CONSTRAINT_SEMICONDUCTOR_PASS002_THREAD3_NYX_THREAD3_CAMPAIGN_AUTHORITY_PIN.md",
+      "sha256": "6c7a0b3b19087cbc4566dc27c95992d4e8e7d185e04bc7636e6c21b3a0c51c1c"
+    }
+  ]
+}
