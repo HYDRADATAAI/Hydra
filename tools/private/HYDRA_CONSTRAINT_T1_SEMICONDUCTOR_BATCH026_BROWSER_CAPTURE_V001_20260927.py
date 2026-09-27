@@ -38,6 +38,32 @@ BLOCKED_SOURCE_STATUS = "BLOCKED_BY_OPERATOR"
 SIDECAR_SCHEMA = "hydra-semiconductor-private-capture-sidecar/v1"
 JOURNAL_SCHEMA = "hydra-constraint-semiconductor-batch026-browser-capture-journal/v1"
 
+# Explicit authorization is limited to these four queued TSMC PDFs whose raw
+# request-context acquisition returned HTTP 403. Keep the complete identity
+# tuple so an ID reused with a different locator or source version cannot
+# inherit the fallback.
+B030_AUTHORIZED_TSMC_BROWSER_FALLBACKS = {
+    "SRC-SEMI-TSMC-Q1-2025-TRANSCRIPT-2025-04-17": (
+        "SV-SEMI-B026-006",
+        "https://investor.tsmc.com/schinese/encrypt/files/encrypt_file/reports/2025-04/"
+        "7630274eecc1197a4e3ea6a415f44a47204fe10a/TSMC%201Q25%20Transcript.pdf",
+    ),
+    "SRC-SEMI-B020-TSMC-Q2-2023-TRANSCRIPT-2023-07-20": (
+        "SV-SEMI-B026-022",
+        "https://investor.tsmc.com/english/encrypt/files/encrypt_file/reports/2023-07/"
+        "7ec677062ca442e429b632ccd6d4f31ad53b1ce7/TSMC%202Q23%20Transcript.pdf",
+    ),
+    "SRC-SEMI-B022-TSMC-2025-ANNUAL-EQUIPMENT-RISK": (
+        "SV-SEMI-B026-036",
+        "https://investor.tsmc.com/sites/ir/annual-report/2025/2025%20Annual%20Report.E.pdf",
+    ),
+    "SRC-SEMI-B022-TSMC-Q2-2026-TRANSCRIPT-2026-07-16": (
+        "SV-SEMI-B026-037",
+        "https://investor.tsmc.com/english/encrypt/files/encrypt_file/reports/2026-07/"
+        "57b65edbfe6e480e74abe202be983ecbde79e934/TSMC%202Q26%20Transcript.pdf",
+    ),
+}
+
 HTML_BLOCK_MARKERS = (
     b"attention required! | cloudflare",
     b"just a moment...",
@@ -568,6 +594,21 @@ def is_target_closed_error(exc: BaseException) -> bool:
     )
 
 
+def is_authorized_tsmc_browser_fallback_source(
+    *,
+    item: Mapping[str, Any],
+    capture_locator: str,
+) -> bool:
+    identity = B030_AUTHORIZED_TSMC_BROWSER_FALLBACKS.get(str(item.get("source_id") or ""))
+    return bool(
+        identity is not None
+        and item.get("source_version_id") == identity[0]
+        and item.get("source_locator") == identity[1]
+        and item.get("content_type_hint") == "application/pdf"
+        and capture_locator == identity[1]
+    )
+
+
 def capture_one(
     *,
     context: Any,
@@ -596,6 +637,7 @@ def capture_one(
     page.on("response", on_response)
     navigation_error: Exception | None = None
     is_pdf = str(item["content_type_hint"]) == "application/pdf"
+    navigation_response: Any | None = None
     try:
         if is_pdf:
             print(f"PDF_NAV_BEGIN {source_id} -> {locator}", flush=True)
@@ -611,6 +653,7 @@ def capture_one(
             finally:
                 if main_response is not None and all(candidate is not main_response for candidate in responses):
                     responses.append(main_response)
+                navigation_response = main_response
                 response_status = getattr(main_response, "status", None)
                 print(
                     f"PDF_NAV_COMPLETE {source_id} -> {locator} "
@@ -635,6 +678,8 @@ def capture_one(
                 body_response = response
                 api_response: Any | None = None
                 request_chain: tuple[str, ...] | None = None
+                raw_api_attempt: dict[str, Any] | None = None
+                fallback_provenance: dict[str, Any] | None = None
                 try:
                     if is_pdf:
                         print(f"PDF_RAW_REQUEST_BEGIN {source_id} -> {locator}", flush=True)
@@ -644,12 +689,60 @@ def capture_one(
                             policy=redirect_policy,
                             timeout_milliseconds=max(1, navigation_timeout_seconds) * 1000,
                         )
-                        body_response = api_response
+                        raw_api_attempt = {
+                            "http_status": int(api_response.status),
+                            "response_url": str(api_response.url),
+                            "redirect_chain": list(request_chain),
+                            "content_type": response_header_value(api_response, "content-type"),
+                            "content_length": response_header_value(api_response, "content-length"),
+                        }
+                        if (
+                            raw_api_attempt["http_status"] == 403
+                            and is_authorized_tsmc_browser_fallback_source(
+                                item=item,
+                                capture_locator=locator,
+                            )
+                        ):
+                            navigation_status = getattr(navigation_response, "status", None)
+                            if navigation_response is None or navigation_status != 200:
+                                raise CaptureError(
+                                    f"{source_id}: authorized browser fallback requires HTTP 200 "
+                                    f"navigation response, observed {navigation_status!r}"
+                                )
+                            body_response = navigation_response
+                            navigation_chain = redirect_chain(navigation_response)
+                            fallback_provenance = {
+                                "primary_attempt": {
+                                    "method": "playwright_request_context_get",
+                                    "http_status": raw_api_attempt["http_status"],
+                                    "response_url": raw_api_attempt["response_url"],
+                                    "redirect_chain": raw_api_attempt["redirect_chain"],
+                                    "content_type": raw_api_attempt["content_type"],
+                                    "content_length": raw_api_attempt["content_length"],
+                                },
+                                "accepted_response": {
+                                    "method": "playwright_main_navigation_response",
+                                    "http_status": int(navigation_response.status),
+                                    "response_url": str(navigation_response.url),
+                                    "redirect_chain": list(navigation_chain),
+                                },
+                            }
+                            dispose_api_response(api_response)
+                            api_response = None
+                            request_chain = None
+                            print(
+                                f"PDF_BROWSER_FALLBACK {source_id} -> {locator} "
+                                "primary_api_status=403 navigation_status=200",
+                                flush=True,
+                            )
+                        else:
+                            body_response = api_response
                         print(
                             f"PDF_RAW_RESPONSE_COMPLETE {source_id} -> {locator} "
-                            f"status={body_response.status} final_url={body_response.url} "
-                            f"redirect_chain={list(request_chain)!r} "
-                            f"content_length={response_header_value(body_response, 'content-length')!r}",
+                            f"status={raw_api_attempt['http_status']} "
+                            f"final_url={raw_api_attempt['response_url']} "
+                            f"redirect_chain={raw_api_attempt['redirect_chain']!r} "
+                            f"content_length={raw_api_attempt['content_length']!r}",
                             flush=True,
                         )
                         print(f"PDF_BODY_BEGIN {source_id} -> {locator}", flush=True)
@@ -698,7 +791,14 @@ def capture_one(
                 except Exception as exc:
                     if api_response is not None:
                         dispose_api_response(api_response)
-                    last_rejection = str(exc)
+                    if raw_api_attempt is not None:
+                        last_rejection = (
+                            f"{exc}; prior raw API request returned HTTP "
+                            f"{raw_api_attempt['http_status']} at "
+                            f"{raw_api_attempt['response_url']!r} and was not accepted"
+                        )
+                    else:
+                        last_rejection = str(exc)
                     continue
 
                 if api_response is not None:
@@ -718,7 +818,7 @@ def capture_one(
                     "historical_backdating_authorized": False,
                 }
                 write_json(sidecar_path, sidecar)
-                return {
+                receipt = {
                     "source_id": source_id,
                     "source_version_id": item["source_version_id"],
                     "registered_source_locator": item["source_locator"],
@@ -736,6 +836,9 @@ def capture_one(
                     "final_response_url": final_url,
                     "status": "CAPTURED",
                 }
+                if fallback_provenance is not None:
+                    receipt["transport_provenance"] = fallback_provenance
+                return receipt
 
             if time.monotonic() >= deadline:
                 detail = last_rejection
