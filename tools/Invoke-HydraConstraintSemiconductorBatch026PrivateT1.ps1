@@ -2,10 +2,10 @@ param(
     [ValidateSet("ContractCheck","Prep","Status","Materialize","Verify","All")]
     [string]$Mode = "ContractCheck",
 
-    [string]$RepoRoot = "D:\HYDRA_GITHUB\Hydra",
-    [string]$PrivateRoot = "D:\HYDRA_PRIVATE\constraint\raw",
-    [string]$InboxRoot = "D:\HYDRA_PRIVATE\constraint\capture_inbox\semiconductor_batch026",
-    [string]$HandbackRoot = "D:\HYDRA_PRIVATE\constraint\handback"
+    [string]$RepoRoot,
+    [string]$PrivateRoot = "D:\HYDRA\_PRIVATE\constraint\raw",
+    [string]$InboxRoot = "D:\HYDRA\_PRIVATE\constraint\capture_inbox\semiconductor_batch026",
+    [string]$HandbackRoot = "D:\HYDRA\_PRIVATE\constraint\handback"
 )
 
 $ErrorActionPreference = "Stop"
@@ -22,6 +22,9 @@ function Require-Path([string]$PathValue, [string]$Label) {
     }
 }
 
+if (-not $RepoRoot) {
+    $RepoRoot = Join-Path $PSScriptRoot ".."
+}
 $RepoRoot = [System.IO.Path]::GetFullPath($RepoRoot)
 
 $QueuePath = Join-Path $RepoRoot "docs\constraint\second_slice\semiconductor_advanced_packaging_critical_materials_v1\HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH026_SEMICONDUCTOR_PRIVATE_T1_CAPTURE_QUEUE_V001_20260926.json"

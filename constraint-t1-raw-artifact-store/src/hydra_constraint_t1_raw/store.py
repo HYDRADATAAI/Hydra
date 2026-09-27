@@ -73,6 +73,10 @@ class RawArtifactStore:
         _require_safe_id(source_version_id, "source_version_id")
         _require_time(acquired_at, "acquired_at")
         _require_time(available_at, "available_at")
+        # v1 has no historical-availability evidence contract. Timestamp syntax
+        # and persisted hashes cannot authorize availability before acquisition.
+        if _availability_precedes_acquisition(acquired_at, available_at):
+            raise ValueError("availability_precedes_acquisition_without_evidence")
         if not isinstance(content_type, str) or not content_type.strip():
             raise ValueError("content_type must be a non-empty string")
         if not isinstance(source_locator, str) or not source_locator.strip():
@@ -147,6 +151,10 @@ class RawArtifactStore:
             issues.append("acquired_at_invalid")
         if not _is_zoned_time(receipt.get("available_at")):
             issues.append("available_at_invalid")
+        if (_is_zoned_time(receipt.get("acquired_at"))
+                and _is_zoned_time(receipt.get("available_at"))
+                and _availability_precedes_acquisition(receipt["acquired_at"], receipt["available_at"])):
+            issues.append("availability_precedes_acquisition_without_evidence")
         if receipt.get("processing_disposition") not in ALLOWED_DISPOSITIONS:
             issues.append("processing_disposition_invalid")
         if receipt.get("immutable") is not True:
@@ -401,6 +409,10 @@ def _is_safe_id(value: Any) -> bool:
 def _require_time(value: Any, label: str) -> None:
     if not _is_zoned_time(value):
         raise ValueError(f"{label} must be a timezone-aware ISO-8601 timestamp")
+
+
+def _availability_precedes_acquisition(acquired_at: str, available_at: str) -> bool:
+    return datetime.fromisoformat(available_at.replace("Z", "+00:00")) < datetime.fromisoformat(acquired_at.replace("Z", "+00:00"))
 
 
 def _is_zoned_time(value: Any) -> bool:

@@ -1,0 +1,70 @@
+{
+  "as_of": "2026-09-26",
+  "blocking_items": [
+    {
+      "blocker_id": "PIT-002B-FIRST-SLICE-NINE-SOURCE-RAW-CAPTURE-MATERIALIZATION",
+      "dimension": "PROVENANCE_READY_AND_HISTORICAL_AS_OF_READY",
+      "repo_executable": false,
+      "required_next_evidence": "Evidence binding each exact source version to availability no later than the intended historical case cutoff; current acquisition time, publication date, Date header, or Last-Modified alone is insufficient.",
+      "source_hash_inventory": "docs/constraint/first_slice/ai_data_center_power_infrastructure_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH018_AI_DATA_CENTER_POWER_INFRASTRUCTURE_SOURCE_HASH_INVENTORY_V001_20260926.json",
+      "state": "RAW_T1_MATERIALIZATION_COMPLETE_HISTORICAL_AVAILABILITY_EVIDENCE_INCOMPLETE"
+    },
+    {
+      "blocker_id": "CI-TEST-008-BLOCKER-001B-NATIVE-T5-T6-SIGNED-ADMISSION-RECEIPT-ABSENT",
+      "dimension": "IMPLEMENTATION_ADMITTED",
+      "repo_executable": false
+    },
+    {
+      "blocker_id": "CANONICAL-T5-T6-CONSTRAINT-AND-BENEFICIARY-ADMISSION-NOT-AUTHORIZED",
+      "depends_on": [
+        "CI-TEST-008-BLOCKER-001B-NATIVE-T5-T6-SIGNED-ADMISSION-RECEIPT-ABSENT"
+      ],
+      "dimension": "IMPLEMENTATION_ADMITTED",
+      "repo_executable": false
+    },
+    {
+      "blocker_id": "ACCEPT-014-EVAL-002-NO-ORDINARY-CANONICAL-OUTPUTS-TO-EVALUATE",
+      "depends_on": [
+        "CANONICAL-T5-T6-CONSTRAINT-AND-BENEFICIARY-ADMISSION-NOT-AUTHORIZED"
+      ],
+      "dimension": "EVALUATION_READY",
+      "repo_executable": false
+    },
+    {
+      "blocker_id": "ACCEPT-014-EVAL-003-ORDINARY-REPLAY-NOT-READY",
+      "depends_on": [
+        "PIT-002B-FIRST-SLICE-NINE-SOURCE-RAW-CAPTURE-MATERIALIZATION"
+      ],
+      "dimension": "EVALUATION_READY",
+      "repo_executable": false
+    }
+  ],
+  "closed_items": [
+    {
+      "blocker_id": "ACCEPT-014-CONF-001-TYPED-FORMATION-CONFIDENCE-NOT-POPULATED",
+      "state": "CLOSED_BY_BATCH015_EXPLICIT_TYPED_UNKNOWN"
+    },
+    {
+      "blocker_id": "ACCEPT-014-CONF-002-BENEFICIARY-CONFIDENCE-VALUES-NULL",
+      "state": "CLOSED_BY_BATCH015_EXPLICIT_TYPED_UNKNOWN"
+    },
+    {
+      "blocker_id": "ACCEPT-014-EVAL-001-REAL-OUTCOME-COVERAGE-THIN",
+      "state": "CLOSED_BY_BATCH016_CORE_REAL_OUTCOME_DIMENSION_COVERAGE"
+    },
+    {
+      "blocker_id": "ORDINARY-POINT-IN-TIME-REPLAY-SOURCE-VERSION-HASHES-INCOMPLETE",
+      "scope_limit": "This closes hash/receipt/release completeness at or after each conservative AVAILABLE_AT. It does not prove historical availability before capture.",
+      "state": "CLOSED_FOR_NINE_CAPTURED_SOURCE_VERSIONS_BY_EXACT_PERSISTED_HASH_RECEIPT_AND_RELEASE_INVENTORY"
+    }
+  ],
+  "first_serious_constraint_run": "BLOCKED",
+  "next_repo_executable_lane": "T5_TO_T6_ADMISSION_REVIEW_WITH_EXPLICIT_HISTORICAL_AVAILABILITY_LIMIT",
+  "predecessor_register": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH017_AI_DATA_CENTER_POWER_INFRASTRUCTURE_BLOCKER_REGISTER_V001",
+  "record_id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH018_AI_DATA_CENTER_POWER_INFRASTRUCTURE_BLOCKER_REGISTER_V001",
+  "repo_executable_blockers": [],
+  "schema_version": "hydra-constraint-first-slice-strict-blocker-register/v1",
+  "slice_id": "AI_DATA_CENTER_POWER_INFRASTRUCTURE_V1",
+  "source_version_hash_status": "ALL_NINE_COMPLETE",
+  "strict_historical_replay_status": "BLOCKED"
+}

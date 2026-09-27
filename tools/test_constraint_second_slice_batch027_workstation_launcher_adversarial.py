@@ -39,6 +39,7 @@ def main():
     cases=[
       ("mode_removed",lambda r:mutate_json(r,CONTRACT,lambda d:d["modes"].pop()),"launcher mode set/order drifted"),
       ("network_guarantee_removed",lambda r:mutate_json(r,CONTRACT,lambda d:d.__setitem__("guarantees",[x for x in d["guarantees"] if x!="NO_NETWORK_ACQUISITION"])),"launcher guarantees incomplete"),
+      ("fixed_repo_root_reintroduced",lambda r:mutate_text(r,LAUNCHER,lambda s:s.replace('[string]$RepoRoot,','[string]$RepoRoot = "D:\\STALE\\Hydra",')),"launcher must not hard-code a workstation repo root"),
       ("launcher_network_added",lambda r:mutate_text(r,LAUNCHER,lambda s:s+"\nInvoke-WebRequest https://example.com\n"),"launcher unexpectedly performs network acquisition"),
       ("mtime_inference_added",lambda r:mutate_text(r,LAUNCHER,lambda s:s+"\n# LastWriteTime\n"),"launcher infers capture timestamp from file metadata"),
       ("status_materialized_faked",lambda r:mutate_json(r,STATUS,lambda d:d["results"].__setitem__("RAW_SOURCE_VERSIONS_MATERIALIZED",41)),"Batch027 status metric drifted: RAW_SOURCE_VERSIONS_MATERIALIZED"),
