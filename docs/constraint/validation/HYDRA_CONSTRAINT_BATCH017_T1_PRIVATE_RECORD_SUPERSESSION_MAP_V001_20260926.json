@@ -1,0 +1,40 @@
+{
+  "schema_version": "hydra-constraint-t1-private-record-supersession-map/v1",
+  "record_id": "HYDRA_CONSTRAINT_BATCH017_T1_PRIVATE_RECORD_SUPERSESSION_MAP_V001_20260926",
+  "as_of": "2026-09-26",
+  "predecessor_manifest": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH008_ARTIFACT_MANIFEST_V001",
+  "scope": "T1_PERSISTED_PRIVATE_RECORD_CUSTODY_ONLY",
+  "predecessor_artifacts_rewritten": false,
+  "transitions": [
+    {
+      "path": "constraint-t1-raw-artifact-store/src/hydra_constraint_t1_raw/store.py",
+      "predecessor_git_blob_sha": "c360aff06500ef19ac2f76e3b5efb9ef7debd90d",
+      "successor_git_blob_sha": "040af0ee154e3cf6e64a145125fc1254ce170902",
+      "reason": "Require exact persisted receipt and release identity plus symlink-resolved private-root containment."
+    },
+    {
+      "path": "constraint-t1-raw-artifact-store/tests/test_store.py",
+      "predecessor_git_blob_sha": "4a2bbd00189ac7b62f338cf7a21062f35ba1c31f",
+      "successor_git_blob_sha": "da24ccc223900e345c5e1fb4fc92ae35db87f467",
+      "reason": "Regression coverage for persisted-record authority, quarantine reconstruction, release mismatch, and symlink escape."
+    },
+    {
+      "path": "constraint-t1-raw-artifact-store/README.md",
+      "predecessor_git_blob_sha": "df498d35dc3acdfb2fbef95fac1e1505c80105c8",
+      "successor_git_blob_sha": "5958840f95811a147758913bce8e42419ed55750",
+      "reason": "Document hardened private-record custody semantics without authorizing live acquisition."
+    },
+    {
+      "path": "constraint-t1-raw-artifact-store/pyproject.toml",
+      "predecessor_git_blob_sha": "2c1163d3dbb62e7ef790d967bd2f5834a1871a91",
+      "successor_git_blob_sha": "c597639479c7be82570806b034fd0f1690822f56",
+      "reason": "Advance private raw-store implementation version from 0.1.0 to 0.2.0 for persisted-custody hardening."
+    }
+  ],
+  "guardrails": [
+    "NO_RAW_SOURCE_BODY_PUBLISHED",
+    "NO_LIVE_NETWORK_ACQUISITION_AUTHORIZED",
+    "NO_ORDINARY_REPLAY_PROMOTION",
+    "NO_NATIVE_T5_T6_ADMISSION_CLAIM"
+  ]
+}
