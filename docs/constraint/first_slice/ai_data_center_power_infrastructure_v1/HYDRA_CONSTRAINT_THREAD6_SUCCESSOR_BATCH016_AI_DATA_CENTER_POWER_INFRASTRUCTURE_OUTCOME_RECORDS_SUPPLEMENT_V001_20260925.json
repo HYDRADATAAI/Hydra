@@ -45,7 +45,7 @@
       "entity_id": "ENTITY-EATON-PLC",
       "entity_name": "Eaton Corporation plc",
       "source_id": "SRC-EATON-Q1-2026-RESULTS-2026-05-05",
-      "observed_proposition": "Eaton reported Electrical Americas twelve-month rolling organic orders up 42%, explicitly driven by data-center momentum, alongside record Electrical Americas sales of $3.6 billion in Q1 2026.",
+      "observed_proposition": "Eaton reported Electrical Americas twelve-month rolling average organic orders up 42%, explicitly driven by data-center momentum, alongside record Electrical Americas sales of $3.6 billion in Q1 2026.",
       "real_world_effective_time": {
         "value": "2026-03-31",
         "status": "QUARTER_END_REPORTING_PERIOD"
