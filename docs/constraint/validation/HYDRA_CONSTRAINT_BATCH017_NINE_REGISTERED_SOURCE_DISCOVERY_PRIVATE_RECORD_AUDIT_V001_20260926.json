@@ -1,0 +1,94 @@
+{
+  "schema_version": "hydra-constraint-nine-source-discovery-private-record-audit/v1",
+  "record_id": "HYDRA_CONSTRAINT_BATCH017_NINE_REGISTERED_SOURCE_DISCOVERY_PRIVATE_RECORD_AUDIT_V001_20260926",
+  "as_of": "2026-09-26",
+  "predecessor_batch": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH017",
+  "slice_id": "AI_DATA_CENTER_POWER_INFRASTRUCTURE_V1",
+  "scope": "SOURCE_DISCOVERY_AND_PRIVATE_RECORD_PREPARATION_ONLY",
+  "live_source_authority_used": false,
+  "raw_source_bodies_published": false,
+  "ordinary_replay_claimed": false,
+  "canonical_admission_claimed": false,
+  "private_root": "D:\\HYDRA_PRIVATE\\constraint\\raw",
+  "discovery_result": {
+    "registered_source_count": 9,
+    "reachable_exact_locator_count": 9,
+    "missing_source_count": 0,
+    "locator_substitution_required_count": 0,
+    "source_discovery_complete": true,
+    "private_materialization_executed": false
+  },
+  "sources": [
+    {
+      "source_id": "SRC-LBNL-DC-ENERGY-2025-UPDATE",
+      "registered_locator": "https://eta-publications.lbl.gov/publications/united-states-data-center-energy-2025",
+      "observed_content_type": "text/html",
+      "discovery_state": "RESOLVED_EXACT_REGISTERED_LOCATOR",
+      "note": "Registered LBL publication page resolves; related downstream publication links do not replace the registered locator."
+    },
+    {
+      "source_id": "SRC-EIA-DC-DEMAND-2026-03-12",
+      "registered_locator": "https://www.eia.gov/todayinenergy/detail.php?id=67344",
+      "observed_content_type": "text/html",
+      "discovery_state": "RESOLVED_EXACT_REGISTERED_LOCATOR"
+    },
+    {
+      "source_id": "SRC-LBNL-QUEUED-UP-2025",
+      "registered_locator": "https://emp.lbl.gov/publications/queued-2025-edition-characteristics",
+      "observed_content_type": "text/html",
+      "discovery_state": "RESOLVED_EXACT_REGISTERED_LOCATOR",
+      "note": "Registered publication page resolves and exposes related report/data files; private capture must not silently substitute a related file for the registered locator."
+    },
+    {
+      "source_id": "SRC-FERC-ORDER-2023-FACT-SHEET",
+      "registered_locator": "https://www.ferc.gov/news-events/news/fact-sheet-improvements-generator-interconnection-procedures-and-agreements",
+      "observed_content_type": "text/html",
+      "discovery_state": "RESOLVED_EXACT_REGISTERED_LOCATOR"
+    },
+    {
+      "source_id": "SRC-DOE-LPT-RESILIENCE-2024",
+      "registered_locator": "https://www.energy.gov/sites/default/files/2024-10/EXEC-2022-001242%20-%20Large%20Power%20Transformer%20Resilience%20Report%20signed%20by%20Secretary%20Granholm%20on%207-10-24.pdf",
+      "observed_content_type": "application/pdf",
+      "discovery_state": "RESOLVED_EXACT_REGISTERED_LOCATOR",
+      "note": "Direct DOE PDF resolves; July 2024 remains document/cover date, not proof of historical available_at."
+    },
+    {
+      "source_id": "SRC-DOE-DISTRIBUTION-TRANSFORMER-WEBINAR-2026",
+      "registered_locator": "https://www.energy.gov/oe/distribution-transformer-webinar-text-alternative",
+      "observed_content_type": "text/html",
+      "discovery_state": "RESOLVED_EXACT_REGISTERED_LOCATOR",
+      "note": "DOE transcript page resolves; March 5 2026 is event date and remains distinct from publication/available_at."
+    },
+    {
+      "source_id": "SRC-LBNL-DATA-CENTER-WATER-2025",
+      "registered_locator": "https://eta-publications.lbl.gov/publications/water-use-data-center-workloads",
+      "observed_content_type": "text/html",
+      "discovery_state": "RESOLVED_EXACT_REGISTERED_LOCATOR"
+    },
+    {
+      "source_id": "SRC-NERC-LTRA-2025",
+      "registered_locator": "https://www.nerc.com/globalassets/our-work/assessments/nerc_ltra_2025.pdf",
+      "observed_content_type": "application/pdf",
+      "discovery_state": "RESOLVED_EXACT_REGISTERED_LOCATOR",
+      "note": "Exact registered PDF resolves. Assessment year remains 2025; existing Batch005 temporal correction records January 2026 report/release month."
+    },
+    {
+      "source_id": "SRC-PJM-2025-YEAR-IN-REVIEW-2026-01-08",
+      "registered_locator": "https://insidelines.pjm.com/2025-year-in-review-planning-prepares-for-burgeoning-electricity-demand/",
+      "observed_content_type": "text/html",
+      "discovery_state": "RESOLVED_EXACT_REGISTERED_LOCATOR"
+    }
+  ],
+  "temporal_guardrails": [
+    "CURRENT_REACHABILITY_IS_NOT_HISTORICAL_AVAILABLE_AT",
+    "PUBLICATION_OR_EVENT_DATE_IS_NOT_AUTOMATIC_AVAILABLE_AT",
+    "RELATED_REPORT_OR_DATA_FILE_DOES_NOT_REPLACE_REGISTERED_LOCATOR_WITHOUT_AUTHORITY",
+    "PRIVATE_CAPTURE_BYTES_AND_HASHES_MUST_BE_CREATED_IN_T1_PRIVATE_CUSTODY"
+  ],
+  "remaining_dependencies": [
+    "PIT-002B-FIRST-SLICE-NINE-SOURCE-RAW-CAPTURE-MATERIALIZATION",
+    "ORDINARY-POINT-IN-TIME-REPLAY-SOURCE-VERSION-HASHES-INCOMPLETE",
+    "CI-TEST-008-BLOCKER-001B-NATIVE-T5-T6-SIGNED-ADMISSION-RECEIPT-ABSENT"
+  ],
+  "next_action": "AUTHORIZED_PRIVATE_CAPTURE_TO_EXISTING_T1_ROOT_THEN_SANITIZED_ATTESTATION_VALIDATION"
+}
