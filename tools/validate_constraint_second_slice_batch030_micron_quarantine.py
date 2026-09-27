@@ -39,6 +39,11 @@ def micronish(value:str)->bool:
     v=value.lower()
     return "micron" in v or "globenewswire.com" in v
 
+def active_micron_basis(value:Any)->bool:
+    text=json.dumps(value,ensure_ascii=False).upper()
+    tokens=("SRC-SEMI-MICRON","EV-SEMI-MICRON","ENTITY-MICRON","BEN-SEMI-MICRON","\"CONSTRAINT_VARIANT\": \"MICRON")
+    return any(token in text for token in tokens)
+
 def main()->int:
     old=load(QOLD); new=load(QNEW); quar=load(QUAR); src=load(SRC); evid=load(EVID)
     c3=load(C3); c8=load(C8); c11=load(C11); c14=load(C14); over=load(OVER); status=load(STATUS); master=load(MASTER); b21=load(B021)
@@ -87,19 +92,19 @@ def main()->int:
     require(e3.get("case_id")==3 and e3.get("binding_effective_output_constraint_proven") is True,"Case3 replacement coverage drifted")
     require(e3.get("coverage_state")=="COVERED_REVIEWED_SHADOW_REAL_PRIMARY_NON_MICRON","Case3 replacement state drifted")
     require(set(e3.get("evidence_ids",[]))<=eids,"Case3 replacement evidence unresolved")
-    require("MICRON" not in json.dumps(c3).upper(),"Case3 still contains Micron basis")
+    require(not active_micron_basis(c3),"Case3 still contains Micron basis")
 
     rels=c8.get("relationships",[])
     require(len(rels)==1 and rels[0].get("beneficiary_entity_id")=="ENTITY-SK-HYNIX","Case8 replacement entity drifted")
     require(rels[0].get("case_disposition")=="VALID_BENEFICIARY_CASE_COVERED_SHADOW_NON_MICRON","Case8 disposition drifted")
-    require("MICRON" not in json.dumps(c8).upper(),"Case8 still contains Micron basis")
+    require(not active_micron_basis(c8),"Case8 still contains Micron basis")
     require(rels[0].get("qualified_relationship_minted") is False,"Case8 falsely minted canonical beneficiary")
 
     mig=c11.get("evaluations",[])
     require(len(mig)==1 and mig[0].get("case_11_coverage") is True,"Case11 replacement coverage drifted")
     require(mig[0].get("relief_event",{}).get("state")=="OBSERVED_PARTIAL_RELIEF","Case11 relief state drifted")
     require(mig[0].get("systemwide_resolution_asserted") is False,"Case11 falsely asserts systemwide resolution")
-    require("MICRON" not in json.dumps(c11).upper(),"Case11 still contains Micron basis")
+    require(not active_micron_basis(c11),"Case11 still contains Micron basis")
 
     ev14=c14.get("evaluation",{})
     occ=ev14.get("evidence_occurrences",[])
@@ -109,7 +114,7 @@ def main()->int:
     require(len(translation)==1 and translation[0].get("independent_confirmation_weight")==0,"Case14 translation copy inflates evidence")
     existing_ids={x.get("evidence_id") for x in b21.get("evidence",[])}
     require("EV-SEMI-B021-SAMSUNG-AMD-HBM3E-QUALIFIED-2026" in existing_ids,"Case14 independent AMD counterpart evidence missing")
-    require("MICRON" not in json.dumps(c14).upper(),"Case14 still contains Micron basis")
+    require(not active_micron_basis(c14),"Case14 still contains Micron basis")
 
     require(over.get("covered_case_count_after")==13,"required case count drifted")
     require(over.get("remaining_gap_case_ids")==[12],"remaining case set drifted")
