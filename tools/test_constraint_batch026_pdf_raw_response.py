@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import base64
 import contextlib
 import importlib.util
 import io
@@ -91,16 +92,58 @@ class FakeNavigationResponse:
         return self._body
 
 
+class FakeCDPSession:
+    def __init__(self, page: "FakePage") -> None:
+        self.page = page
+        self.handler: Any | None = None
+        self.fetch_enabled = False
+        self.detached = False
+
+    def on(self, event: str, callback: Any) -> None:
+        if event == "Fetch.requestPaused":
+            self.handler = callback
+
+    def send(self, method: str, _params: dict[str, Any] | None = None) -> dict[str, Any]:
+        if method == "Fetch.enable":
+            self.fetch_enabled = True
+        elif method == "Fetch.disable":
+            self.fetch_enabled = False
+        elif method == "Fetch.getResponseBody":
+            body = self.page.navigation_response._body or b""
+            return {"body": base64.b64encode(body).decode("ascii"), "base64Encoded": True}
+        return {}
+
+    def detach(self) -> None:
+        self.fetch_enabled = False
+        self.detached = True
+
+
 class FakePage:
     def __init__(self, navigation_response: FakeNavigationResponse) -> None:
         self.main_frame = object()
         self.navigation_response = navigation_response
         self.closed = False
+        self.goto_calls = 0
+        self.cdp_session: FakeCDPSession | None = None
 
     def on(self, _event: str, _callback: Any) -> None:
         return None
 
-    def goto(self, _url: str, **_kwargs: Any) -> FakeNavigationResponse:
+    def goto(self, url: str, **_kwargs: Any) -> FakeNavigationResponse:
+        self.goto_calls += 1
+        if self.cdp_session is not None and self.cdp_session.fetch_enabled:
+            response = self.navigation_response
+            self.cdp_session.handler(
+                {
+                    "requestId": "fake-request",
+                    "request": {"url": url},
+                    "responseStatusCode": response.status,
+                    "responseHeaders": [
+                        {"name": key, "value": value}
+                        for key, value in response.headers.items()
+                    ],
+                }
+            )
         return self.navigation_response
 
     def wait_for_timeout(self, _milliseconds: int) -> None:
@@ -117,6 +160,11 @@ class FakeCaptureContext:
 
     def new_page(self) -> FakePage:
         return self.page
+
+    def new_cdp_session(self, page: FakePage) -> FakeCDPSession:
+        session = FakeCDPSession(page)
+        page.cdp_session = session
+        return session
 
 
 class RawPDFResponseTests(unittest.TestCase):
@@ -346,7 +394,7 @@ class RawPDFResponseTests(unittest.TestCase):
                 result["source_id"],
             )
             self.assertTrue(api_response.disposed)
-            self.assertEqual(browser_response.body_calls, 1)
+            self.assertEqual(browser_response.body_calls, 0)
 
     def test_invalid_browser_fallback_redirect_mime_and_content_fail_closed(self) -> None:
         valid_pdf = b"%PDF-1.7\n" + (b"valid-looking body\n" * 100)
@@ -374,7 +422,7 @@ class RawPDFResponseTests(unittest.TestCase):
                 "content",
                 FakeNavigationResponse(
                     url=self.locator,
-                    headers={"Content-Type": "application/pdf", "Content-Length": "2048"},
+                    headers={"Content-Type": "application/pdf", "Content-Length": "3006"},
                     body=b"<html>" + (b"not a PDF " * 300),
                 ),
                 "invalid or suspiciously small PDF body",
@@ -398,7 +446,7 @@ class RawPDFResponseTests(unittest.TestCase):
                 self.assertFalse(capture_path.exists())
                 self.assertFalse(sidecar_path.exists())
                 self.assertTrue(api_response.disposed)
-                self.assertEqual(browser_response.body_calls, 0 if case_name == "redirect" else 1)
+                self.assertEqual(browser_response.body_calls, 0)
 
     def test_unauthorized_source_cannot_use_browser_200_fallback(self) -> None:
         api_response = self.forbidden_response()

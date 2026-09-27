@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import argparse
+import base64
 import hashlib
 import json
 import shutil
@@ -41,6 +42,71 @@ TSMC_BROWSER_403_FALLBACK_SOURCE_IDS = (
     "SRC-SEMI-B022-TSMC-Q2-2026-TRANSCRIPT-2026-07-16",
 )
 EXPECTED_TSMC_BROWSER_403_FALLBACK_SOURCE_COUNT = 4
+TSMC_LOCATOR_REMEDIATION_KIND = "TSMC_OFFICIAL_LOCATOR_CORRECTION"
+TSMC_LOCATOR_REMEDIATIONS: dict[str, dict[str, Any]] = {
+    "SRC-SEMI-TSMC-Q1-2025-TRANSCRIPT-2025-04-17": {
+        "remediation_kind": TSMC_LOCATOR_REMEDIATION_KIND,
+        "requested_locator": (
+            "https://investor.tsmc.com/schinese/encrypt/files/encrypt_file/reports/"
+            "2025-04/7630274eecc1197a4e3ea6a415f44a47204fe10a/"
+            "TSMC%201Q25%20Transcript.pdf"
+        ),
+        "effective_locator": (
+            "https://investor.tsmc.com/english/encrypt/files/encrypt_file/reports/"
+            "2025-04/7630274eecc1197a4e3ea6a415f44a47204fe10a/"
+            "TSMC%201Q25%20Transcript.pdf"
+        ),
+        "authority_page": "https://investor.tsmc.com/english/quarterly-results/2025/q1",
+        "document_title": "TSMC Q1 2025 Earnings Call",
+        "publication_date": "2025-04-17",
+    },
+    "SRC-SEMI-B020-TSMC-Q2-2023-TRANSCRIPT-2023-07-20": {
+        "remediation_kind": TSMC_LOCATOR_REMEDIATION_KIND,
+        "requested_locator": (
+            "https://investor.tsmc.com/english/encrypt/files/encrypt_file/reports/"
+            "2023-07/7ec677062ca442e429b632ccd6d4f31ad53b1ce7/"
+            "TSMC%202Q23%20Transcript.pdf"
+        ),
+        "effective_locator": (
+            "https://investor.tsmc.com/english/encrypt/files/encrypt_file/reports/"
+            "2023-07/7ec677062ca442e429b632ccd6d4f31ad53b1ce7/"
+            "TSMC%202Q23%20Transcript.pdf"
+        ),
+        "authority_page": "https://investor.tsmc.com/english/quarterly-results/2023/q2",
+        "document_title": "Q2 2023 Taiwan Semiconductor Manufacturing Co Ltd Earnings Call",
+        "publication_date": "2023-07-20",
+    },
+    "SRC-SEMI-B022-TSMC-2025-ANNUAL-EQUIPMENT-RISK": {
+        "remediation_kind": TSMC_LOCATOR_REMEDIATION_KIND,
+        "requested_locator": (
+            "https://investor.tsmc.com/sites/ir/annual-report/2025/"
+            "2025%20Annual%20Report.E.pdf"
+        ),
+        "effective_locator": (
+            "https://investor.tsmc.com/sites/ir/annual-report/2025/"
+            "2025%20TSMC%20Annual%20Report.E.pdf"
+        ),
+        "authority_page": "https://investor.tsmc.com/static/annualReports/2025/english/index.html",
+        "document_title": "TSMC 2025 Annual Report",
+        "publication_date": None,
+    },
+    "SRC-SEMI-B022-TSMC-Q2-2026-TRANSCRIPT-2026-07-16": {
+        "remediation_kind": TSMC_LOCATOR_REMEDIATION_KIND,
+        "requested_locator": (
+            "https://investor.tsmc.com/english/encrypt/files/encrypt_file/reports/"
+            "2026-07/57b65edbfe6e480e74abe202be983ecbde79e934/"
+            "TSMC%202Q26%20Transcript.pdf"
+        ),
+        "effective_locator": (
+            "https://investor.tsmc.com/english/encrypt/files/encrypt_file/reports/"
+            "2026-08/3e494f0c14dd0890f897aa044415e21d93486cc4/"
+            "TSMC%202Q26%20Transcript.pdf"
+        ),
+        "authority_page": "https://investor.tsmc.com/english/quarterly-results/2026/q2",
+        "document_title": "Q2 2026 Taiwan Semiconductor Manufacturing Co Ltd Earnings Call",
+        "publication_date": "2026-07-16",
+    },
+}
 BLOCKED_SOURCE_STATUS = "BLOCKED_BY_OPERATOR"
 SIDECAR_SCHEMA = "hydra-semiconductor-private-capture-sidecar/v1"
 JOURNAL_SCHEMA = "hydra-constraint-semiconductor-batch026-browser-capture-journal/v1"
@@ -120,6 +186,60 @@ def load_locator_remediations(doc: Mapping[str, Any]) -> dict[str, dict[str, Any
     return mapping
 
 
+def validate_tsmc_locator_remediation(
+    *,
+    item: Mapping[str, Any],
+    remediation: Mapping[str, Any],
+) -> str:
+    source_id = str(item.get("source_id") or "")
+    expected = TSMC_LOCATOR_REMEDIATIONS.get(source_id)
+    if source_id not in TSMC_BROWSER_403_FALLBACK_SOURCE_IDS or expected is None:
+        raise CaptureError(f"{source_id}: source is not authorized for TSMC locator remediation")
+
+    for field in ("requested_locator", "effective_locator", "authority_page"):
+        value = remediation.get(field)
+        parsed = urlparse(str(value or ""))
+        if parsed.scheme.lower() != "https" or normalize_host(str(value or "")) != "investor.tsmc.com":
+            raise CaptureError(f"{source_id}: TSMC locator remediation {field} is not on the approved official host")
+    if dict(remediation) != expected:
+        raise CaptureError(f"{source_id}: TSMC locator correction is not in the exact authorized mapping")
+    if item.get("source_locator") != expected["requested_locator"]:
+        raise CaptureError(f"{source_id}: registered TSMC source locator mismatch")
+    if item.get("title") != expected["document_title"]:
+        raise CaptureError(f"{source_id}: TSMC locator correction would change document identity")
+    if item.get("publication_date") != expected["publication_date"]:
+        raise CaptureError(f"{source_id}: TSMC locator correction would change publication date")
+    return str(expected["effective_locator"])
+
+
+def resolve_tsmc_effective_locator(
+    *,
+    item: Mapping[str, Any],
+    remediation: Mapping[str, Any],
+) -> str:
+    return validate_tsmc_locator_remediation(item=item, remediation=remediation)
+
+
+def locator_resolution_provenance(
+    *,
+    item: Mapping[str, Any],
+    effective_locator: str,
+    remediation: Mapping[str, Any] | None,
+) -> dict[str, Any] | None:
+    if remediation is None:
+        return None
+    resolved = validate_tsmc_locator_remediation(item=item, remediation=remediation)
+    if effective_locator != resolved:
+        raise CaptureError(f"{item['source_id']}: effective locator differs from its verified TSMC correction")
+    return {
+        "requested_locator": remediation["requested_locator"],
+        "effective_locator": remediation["effective_locator"],
+        "authority_page": remediation["authority_page"],
+        "document_title": remediation["document_title"],
+        "publication_date": remediation["publication_date"],
+    }
+
+
 def validate_effective_locator(
     *,
     item: Mapping[str, Any],
@@ -129,6 +249,11 @@ def validate_effective_locator(
     if remediation is None:
         if locator != item.get("source_locator"):
             raise CaptureError(f"{item['source_id']}: capture locator differs from registered locator")
+        return
+    if remediation.get("remediation_kind") == TSMC_LOCATOR_REMEDIATION_KIND:
+        effective_locator = validate_tsmc_locator_remediation(item=item, remediation=remediation)
+        if locator != effective_locator:
+            raise CaptureError(f"{item['source_id']}: capture locator differs from verified TSMC locator correction")
         return
 
     parsed = urlparse(locator)
@@ -530,7 +655,7 @@ def validate_existing_pair(
         for marker in HTML_BLOCK_MARKERS:
             if marker in lower:
                 raise CaptureError(f"{item['source_id']}: existing HTML contains challenge marker")
-    return {
+    result = {
         "source_id": item["source_id"],
         "source_version_id": item["source_version_id"],
         "registered_source_locator": item["source_locator"],
@@ -543,6 +668,13 @@ def validate_existing_pair(
         "artifact_sha256": hashlib.sha256(body).hexdigest(),
         "status": "RESUMED_EXISTING_VALID_PAIR",
     }
+    if remediation is not None and remediation.get("remediation_kind") == TSMC_LOCATOR_REMEDIATION_KIND:
+        result["locator_resolution"] = locator_resolution_provenance(
+            item=item,
+            effective_locator=sidecar["source_locator"],
+            remediation=remediation,
+        )
+    return result
 
 
 def launch_context(playwright: Any, *, private_root: Path, browser: str, headless: bool) -> tuple[Any, str]:
@@ -575,6 +707,132 @@ def is_target_closed_error(exc: BaseException) -> bool:
     )
 
 
+def capture_browser_pdf_response_after_403(
+    *,
+    context: Any,
+    page: Any,
+    exact_locator: str,
+    policy: str,
+    timeout_milliseconds: int,
+) -> tuple[Any, bytes, dict[str, Any]]:
+    create_cdp_session = getattr(context, "new_cdp_session", None)
+    if not callable(create_cdp_session):
+        raise CaptureError("Chromium response-stage capture is unavailable for the authorized TSMC fallback")
+    try:
+        cdp = create_cdp_session(page)
+    except Exception as exc:
+        raise CaptureError(f"unable to start TSMC response-stage capture: {exc}") from exc
+
+    captured: list[dict[str, Any]] = []
+
+    def response_headers(raw_headers: Any) -> dict[str, str]:
+        if not isinstance(raw_headers, list):
+            return {}
+        selected: dict[str, str] = {}
+        for header in raw_headers:
+            if not isinstance(header, Mapping):
+                continue
+            name = str(header.get("name") or "").lower()
+            if name in {"content-type", "content-length", "content-disposition", "location"}:
+                selected[name] = str(header.get("value") or "")[:300]
+        return selected
+
+    def on_request_paused(event: Mapping[str, Any]) -> None:
+        request = event.get("request")
+        request_url = str(request.get("url") or "") if isinstance(request, Mapping) else ""
+        if request_url == exact_locator:
+            row: dict[str, Any] = {
+                "url": request_url,
+                "http_status": int(event.get("responseStatusCode") or 0),
+                "headers": response_headers(event.get("responseHeaders")),
+            }
+            if row["http_status"] == 200:
+                try:
+                    response_body = cdp.send("Fetch.getResponseBody", {"requestId": event["requestId"]})
+                    encoded_body = str(response_body.get("body") or "")
+                    row["body"] = (
+                        base64.b64decode(encoded_body)
+                        if response_body.get("base64Encoded") is True
+                        else encoded_body.encode("utf-8")
+                    )
+                except Exception as exc:
+                    row["body_error"] = f"{type(exc).__name__}: {exc}"[:240]
+            captured.append(row)
+        try:
+            cdp.send("Fetch.continueRequest", {"requestId": event["requestId"]})
+        except Exception:
+            pass
+
+    try:
+        cdp.on("Fetch.requestPaused", on_request_paused)
+        cdp.send(
+            "Fetch.enable",
+            {"patterns": [{"urlPattern": exact_locator, "requestStage": "Response"}]},
+        )
+        navigation_response = page.goto(
+            exact_locator,
+            wait_until="load",
+            timeout=max(1, int(timeout_milliseconds)),
+        )
+        if navigation_response is None:
+            raise CaptureError("authorized TSMC browser retry did not produce a navigation response")
+        chain = redirect_chain(navigation_response)
+        validate_redirects(
+            exact_locator=exact_locator,
+            response_url=str(navigation_response.url),
+            chain=chain,
+            policy=policy,
+        )
+        if int(navigation_response.status) != 200:
+            raise CaptureError(
+                f"authorized TSMC browser retry requires HTTP 200, observed {navigation_response.status}"
+            )
+        matching = [
+            row for row in captured
+            if row.get("url") == str(navigation_response.url)
+            and row.get("http_status") == int(navigation_response.status)
+        ]
+        if not matching:
+            raise CaptureError("no exact HTTP 200 TSMC response-stage body was captured")
+        captured_response = matching[-1]
+        body = captured_response.get("body")
+        if not isinstance(body, bytes):
+            reason = captured_response.get("body_error") or "response-stage body is unavailable"
+            raise CaptureError(f"TSMC response-stage body was not captured: {reason}")
+        declared_length = captured_response.get("headers", {}).get("content-length")
+        if declared_length:
+            try:
+                expected_length = int(declared_length)
+            except ValueError as exc:
+                raise CaptureError("TSMC response-stage Content-Length is invalid") from exc
+            if expected_length != len(body):
+                raise CaptureError(
+                    "TSMC response-stage body length does not match Content-Length "
+                    f"({len(body)} != {expected_length})"
+                )
+        evidence = {
+            "transport": "CHROMIUM_FETCH_RESPONSE_STAGE",
+            "http_status": int(navigation_response.status),
+            "response_url": str(navigation_response.url),
+            "content_type": response_header_value(navigation_response, "content-type"),
+            "content_length": declared_length,
+            "redirect_chain": list(chain),
+            "byte_length": len(body),
+            "artifact_sha256": hashlib.sha256(body).hexdigest(),
+            "signature_hex": body[:16].hex(),
+        }
+        return navigation_response, body, evidence
+    finally:
+        try:
+            cdp.send("Fetch.disable")
+        except Exception:
+            pass
+        try:
+            cdp.detach()
+        except Exception:
+            pass
+
+
 def capture_one(
     *,
     context: Any,
@@ -586,14 +844,23 @@ def capture_one(
     redirect_policy: str,
     challenge_wait_seconds: int,
     navigation_timeout_seconds: int,
+    locator_remediation: Mapping[str, Any] | None = None,
 ) -> dict[str, Any]:
     source_id = str(item["source_id"])
     locator = str(capture_locator)
+    locator_resolution = locator_resolution_provenance(
+        item=item,
+        effective_locator=locator,
+        remediation=locator_remediation,
+    )
     page = context.new_page()
     responses: list[Any] = []
+    fallback_retry_active = False
 
     def on_response(response: Any) -> None:
         try:
+            if fallback_retry_active:
+                return
             request = response.request
             if request.is_navigation_request() and request.frame == page.main_frame:
                 responses.append(response)
@@ -642,8 +909,10 @@ def capture_one(
                 body_response = response
                 api_response: Any | None = None
                 request_chain: tuple[str, ...] | None = None
+                body_override: bytes | None = None
                 fallback_used = False
                 fallback_prior_attempt: dict[str, Any] | None = None
+                browser_fallback_evidence: dict[str, Any] | None = None
                 try:
                     if is_pdf:
                         print(f"PDF_RAW_REQUEST_BEGIN {source_id} -> {locator}", flush=True)
@@ -687,17 +956,37 @@ def capture_one(
                                 chain=browser_chain,
                                 policy=redirect_policy,
                             )
-                            body_response = response
-                            request_chain = None
-                            fallback_used = True
+                            browser_fallback_evidence = {
+                                "initial_navigation_status": browser_status,
+                                "initial_navigation_url": str(response.url),
+                                "initial_navigation_content_type": response_header_value(response, "content-type"),
+                                "initial_navigation_content_length": response_header_value(response, "content-length"),
+                                "initial_navigation_redirect_chain": list(browser_chain),
+                            }
                             print(
                                 f"PDF_BROWSER_403_FALLBACK_BEGIN {source_id} -> {locator} "
                                 f"api_status={raw_api_status} browser_status={browser_status} "
                                 f"browser_url={response.url}",
                                 flush=True,
                             )
+                            fallback_retry_active = True
+                            try:
+                                body_response, body_override, response_stage_evidence = (
+                                    capture_browser_pdf_response_after_403(
+                                        context=context,
+                                        page=page,
+                                        exact_locator=locator,
+                                        policy=redirect_policy,
+                                        timeout_milliseconds=max(1, navigation_timeout_seconds) * 1000,
+                                    )
+                                )
+                            finally:
+                                fallback_retry_active = False
+                            browser_fallback_evidence["validated_navigation_response"] = response_stage_evidence
+                            request_chain = tuple(response_stage_evidence["redirect_chain"])
+                            fallback_used = True
                         print(f"PDF_BODY_BEGIN {source_id} -> {locator}", flush=True)
-                    body = bytes(body_response.body())
+                    body = body_override if body_override is not None else bytes(body_response.body())
                     if is_pdf:
                         print(
                             f"PDF_BODY_COMPLETE {source_id} -> {locator} bytes={len(body)}",
@@ -787,9 +1076,12 @@ def capture_one(
                     "final_response_url": final_url,
                     "status": "CAPTURED",
                 }
+                if locator_resolution is not None:
+                    result["locator_resolution"] = locator_resolution
                 if fallback_used:
                     result["capture_transport"] = "BROWSER_NAVIGATION_RESPONSE_FALLBACK"
                     result["prior_failed_acquisition_attempt"] = fallback_prior_attempt
+                    result["browser_response_stage_evidence"] = browser_fallback_evidence
                 return result
 
             if time.monotonic() >= deadline:
@@ -805,7 +1097,6 @@ def capture_one(
             page.close()
         except Exception:
             pass
-
 
 def main() -> int:
     parser = argparse.ArgumentParser(description="HYDRA semiconductor Batch026 private browser capture adapter")
@@ -849,6 +1140,14 @@ def main() -> int:
     queue_ids = {item["source_id"] for item in queue}
     if not set(remediations).issubset(queue_ids):
         raise CaptureError("locator remediation references source outside Batch026 queue")
+    if set(TSMC_LOCATOR_REMEDIATIONS) != set(TSMC_BROWSER_403_FALLBACK_SOURCE_IDS):
+        raise CaptureError("TSMC locator remediation allowlist must match the exact four fallback sources")
+    if set(remediations) & set(TSMC_LOCATOR_REMEDIATIONS):
+        raise CaptureError("Micron and TSMC locator remediation sets must remain disjoint")
+    for item in queue:
+        tsmc_remediation = TSMC_LOCATOR_REMEDIATIONS.get(str(item["source_id"]))
+        if tsmc_remediation is not None:
+            validate_tsmc_locator_remediation(item=item, remediation=tsmc_remediation)
     inbox_root.mkdir(parents=True, exist_ok=True)
 
     journal_path = inbox_root / "HYDRA_CONSTRAINT_SEMI_B026_BROWSER_CAPTURE_JOURNAL_V001.json"
@@ -871,7 +1170,10 @@ def main() -> int:
             item=item,
             capture_path=capture_path,
             sidecar_path=sidecar_path,
-            remediation=remediations.get(item["source_id"]),
+            remediation=(
+                TSMC_LOCATOR_REMEDIATIONS.get(item["source_id"])
+                or remediations.get(item["source_id"])
+            ),
         )
         if existing is not None:
             entries.append(existing)
@@ -986,13 +1288,24 @@ def main() -> int:
                     capture_path = inbox_root / item["inbox_filename"]
                     sidecar_path = Path(str(capture_path) + ".capture.json")
                     try:
-                        remediation = remediations.get(source_id)
+                        micron_remediation = remediations.get(source_id)
+                        tsmc_remediation = TSMC_LOCATOR_REMEDIATIONS.get(source_id)
+                        remediation = tsmc_remediation or micron_remediation
                         capture_locator = str(item["source_locator"])
-                        if remediation is not None:
+                        if tsmc_remediation is not None:
+                            capture_locator = resolve_tsmc_effective_locator(
+                                item=item,
+                                remediation=tsmc_remediation,
+                            )
+                            print(
+                                f"LOCATOR_REMEDIATED {item['ordinal']:03d}/041 "
+                                f"{source_id} -> {capture_locator}"
+                            )
+                        elif micron_remediation is not None:
                             capture_locator = resolve_remediated_locator(
                                 context=context,
                                 item=item,
-                                remediation=remediation,
+                                remediation=micron_remediation,
                                 navigation_timeout_seconds=args.navigation_timeout_seconds,
                             )
                             print(
@@ -1009,6 +1322,7 @@ def main() -> int:
                             redirect_policy=args.redirect_policy,
                             challenge_wait_seconds=args.challenge_wait_seconds,
                             navigation_timeout_seconds=args.navigation_timeout_seconds,
+                            locator_remediation=tsmc_remediation,
                         )
                         captured_by_id[source_id] = row
                         print(
