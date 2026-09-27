@@ -145,7 +145,14 @@ def load_supersessions(path: Path) -> dict[str, dict[str, str]]:
             "NO_ORDINARY_REPLAY_PROMOTION", "NO_NATIVE_T5_T6_ADMISSION_CLAIM",
         }, "private supersession guardrails drifted")
         rows = private.get("transitions", [])
-        require(len(rows) == len(result), "private supersession transition count drifted")
+        expected_private_paths = {
+            "constraint-t1-raw-artifact-store/src/hydra_constraint_t1_raw/store.py",
+            "constraint-t1-raw-artifact-store/tests/test_store.py",
+            "constraint-t1-raw-artifact-store/README.md",
+            "constraint-t1-raw-artifact-store/pyproject.toml",
+        }
+        require(isinstance(rows, list) and len(rows) == len(expected_private_paths), "private supersession transition count drifted")
+        require({row.get("path") for row in rows} == expected_private_paths, "private supersession path set drifted")
         seen = set()
         for row in rows:
             relative = row.get("path")

@@ -22,6 +22,9 @@ class RestackSuccessorBindingTests(unittest.TestCase):
     def test_hostile_map_drift_is_rejected(self):
         original = guard.load_json
         changes = [
+            lambda d: d['transitions'].pop(),
+            lambda d: d['transitions'][0].update(path='t6-fail-closed-validator/src/hydra_t6_failclosed/pit_conservative_availability.py'),
+            lambda d: d['transitions'][0].update(successor_git_blob_sha='0'*40),
             lambda d: d['transitions'][2].update(successor_git_blob_sha='0'*40),
             lambda d: d['transitions'][2].update(predecessor_git_blob_sha='0'*40),
             lambda d: d['transitions'].append(copy.deepcopy(d['transitions'][2])),
