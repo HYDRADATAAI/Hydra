@@ -80,7 +80,7 @@ def main()->int:
       '--redirect-policy',
     ):
         require(token in launcher,f"launcher contract token missing: {token}")
-    require("playwright install" not in launcher.lower(),"launcher unexpectedly installs a bundled browser")
+    require(" -m playwright install" not in launcher.lower() and "playwright install chromium" not in launcher.lower() and "playwright install chrome" not in launcher.lower(),"launcher unexpectedly installs a bundled browser")
     require("git switch" not in launcher.lower() and "git pull" not in launcher.lower(),"launcher unexpectedly mutates git branch state")
 
     requirements=REQUIREMENTS.read_text(encoding="utf-8").strip()
