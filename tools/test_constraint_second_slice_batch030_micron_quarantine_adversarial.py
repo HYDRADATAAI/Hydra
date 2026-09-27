@@ -31,7 +31,7 @@ def expect(name,fn,frag):
  finally: shutil.rmtree(r,ignore_errors=True)
 def main():
  cases=[
-  ("micron_reinserted",lambda r:mut(r,Q,lambda d:d["queue"][0].__setitem__("source_id","SRC-SEMI-MICRON-REINSERTED")),"Micron-linked source_id escaped quarantine"),
+  ("micron_publisher_reinserted",lambda r:mut(r,Q,lambda d:d["queue"][0].__setitem__("publisher","Micron Technology")),"Micron publisher escaped quarantine"),
   ("micron_locator_reinserted",lambda r:mut(r,Q,lambda d:d["queue"][0].__setitem__("source_locator","https://investors.micron.com/example")),"Micron-linked locator escaped quarantine"),
   ("quarantine_retry_enabled",lambda r:mut(r,QUAR,lambda d:d.__setitem__("retry_authorized",True)),"Micron retry unexpectedly authorized"),
   ("quarantine_source_removed",lambda r:mut(r,QUAR,lambda d:d["quarantined"].pop()),"quarantine count drifted"),
