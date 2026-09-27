@@ -21,6 +21,20 @@ LOCATOR_OVERLAY_RELATIVE_PATH = Path(
 )
 EXPECTED_SLICE_ID = "SEMICONDUCTOR_ADVANCED_PACKAGING_CRITICAL_MATERIALS_V1"
 EXPECTED_SOURCE_COUNT = 41
+OPERATOR_BLOCKED_SOURCE_IDS = (
+    "SRC-SEMI-MICRON-Q2FY25-REMARKS-2025-03-20",
+    "SRC-SEMI-B021-MICRON-Q1FY26-REMARKS-2025-12-17",
+    "SRC-SEMI-B021-MICRON-Q3FY24-REMARKS-2024-06-26",
+    "SRC-SEMI-B021-MICRON-Q3FY25-REMARKS-2025-06-25",
+    "SRC-SEMI-B021-MICRON-Q4FY25-REMARKS-2025-09-23",
+    "SRC-SEMI-B022-GLOBENEWSWIRE-MICRON-HBM3E-2024-02-26",
+    "SRC-SEMI-B022-MICRON-HBM3E-VOLUME-2024-02-26",
+    "SRC-SEMI-B023-MICRON-Q1FY24-REMARKS-2023-12-20",
+    "SRC-SEMI-B023-MICRON-Q2FY26-MARKET-OUTLOOK-2026-03-18",
+)
+EXPECTED_BLOCKED_SOURCE_COUNT = 9
+EXPECTED_ELIGIBLE_SOURCE_COUNT = EXPECTED_SOURCE_COUNT - EXPECTED_BLOCKED_SOURCE_COUNT
+BLOCKED_SOURCE_STATUS = "BLOCKED_BY_OPERATOR"
 SIDECAR_SCHEMA = "hydra-semiconductor-private-capture-sidecar/v1"
 JOURNAL_SCHEMA = "hydra-constraint-semiconductor-batch026-browser-capture-journal/v1"
 
@@ -321,6 +335,50 @@ def validate_queue(queue_doc: Mapping[str, Any]) -> list[dict[str, Any]]:
     return normalized
 
 
+def partition_capture_queue(
+    queue: Sequence[Mapping[str, Any]],
+    blocked_source_ids: Sequence[str] = OPERATOR_BLOCKED_SOURCE_IDS,
+) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
+    if not isinstance(blocked_source_ids, (list, tuple)):
+        raise CaptureError("blocked-source set must be a list or tuple of source IDs")
+    blocked_ids = list(blocked_source_ids)
+    if any(not isinstance(source_id, str) or not source_id or source_id.strip() != source_id for source_id in blocked_ids):
+        raise CaptureError("blocked-source set contains a malformed source ID")
+    if len(set(blocked_ids)) != len(blocked_ids):
+        raise CaptureError("duplicate blocked source ID")
+
+    if len(OPERATOR_BLOCKED_SOURCE_IDS) != EXPECTED_BLOCKED_SOURCE_COUNT:
+        raise CaptureError("configured operator blocked-source count is invalid")
+    if len(set(OPERATOR_BLOCKED_SOURCE_IDS)) != len(OPERATOR_BLOCKED_SOURCE_IDS):
+        raise CaptureError("configured operator blocked-source set contains duplicates")
+    if len(queue) != EXPECTED_SOURCE_COUNT:
+        raise CaptureError(f"canonical queue must retain all {EXPECTED_SOURCE_COUNT} rows before exclusion")
+
+    queue_ids = {str(item["source_id"]) for item in queue}
+    requested_ids = set(blocked_ids)
+    unknown_ids = sorted(requested_ids - queue_ids)
+    if unknown_ids:
+        raise CaptureError(f"unknown blocked source ID(s): {unknown_ids}")
+
+    required_ids = set(OPERATOR_BLOCKED_SOURCE_IDS)
+    missing_ids = sorted(required_ids - requested_ids)
+    unexpected_ids = sorted(requested_ids - required_ids)
+    if missing_ids or unexpected_ids:
+        raise CaptureError(
+            "required blocked-source set mismatch: "
+            f"missing={missing_ids} unexpected={unexpected_ids}"
+        )
+
+    blocked_set = required_ids
+    blocked = [dict(item) for item in queue if item["source_id"] in blocked_set]
+    eligible = [dict(item) for item in queue if item["source_id"] not in blocked_set]
+    if len(blocked) != EXPECTED_BLOCKED_SOURCE_COUNT:
+        raise CaptureError("canonical queue does not contain every required blocked source")
+    if len(eligible) != EXPECTED_ELIGIBLE_SOURCE_COUNT:
+        raise CaptureError("canonical queue eligible-source accounting mismatch")
+    return blocked, eligible
+
+
 def validate_existing_pair(
     *,
     item: Mapping[str, Any],
@@ -583,6 +641,10 @@ def main() -> int:
     inbox_root = assert_outside_repo(Path(args.inbox_root), repo_root, "InboxRoot")
     queue_doc = load_json(repo_root / QUEUE_RELATIVE_PATH)
     queue = validate_queue(queue_doc)
+    blocked_items, eligible_items = partition_capture_queue(
+        queue,
+        blocked_source_ids=OPERATOR_BLOCKED_SOURCE_IDS,
+    )
     remediation_doc = load_json(repo_root / LOCATOR_OVERLAY_RELATIVE_PATH)
     remediations = load_locator_remediations(remediation_doc)
     queue_ids = {item["source_id"] for item in queue}
@@ -592,7 +654,7 @@ def main() -> int:
 
     journal_path = inbox_root / "HYDRA_CONSTRAINT_SEMI_B026_BROWSER_CAPTURE_JOURNAL_V001.json"
     if args.fresh:
-        for item in queue:
+        for item in eligible_items:
             capture_path = inbox_root / item["inbox_filename"]
             sidecar_path = Path(str(capture_path) + ".capture.json")
             if capture_path.exists():
@@ -603,8 +665,7 @@ def main() -> int:
             journal_path.unlink()
 
     entries: list[dict[str, Any]] = []
-    pending: list[dict[str, Any]] = []
-    for item in queue:
+    for item in eligible_items:
         capture_path = inbox_root / item["inbox_filename"]
         sidecar_path = Path(str(capture_path) + ".capture.json")
         existing = validate_existing_pair(
@@ -613,40 +674,97 @@ def main() -> int:
             sidecar_path=sidecar_path,
             remediation=remediations.get(item["source_id"]),
         )
-        if existing is None:
-            pending.append(item)
-        else:
+        if existing is not None:
             entries.append(existing)
 
-    journal = {
-        "schema_version": JOURNAL_SCHEMA,
-        "slice_id": EXPECTED_SLICE_ID,
-        "queue_record_id": queue_doc["record_id"],
-        "authoritative": False,
-        "network_acquisition_authorized": True,
-        "historical_backdating_authorized": False,
-        "redirect_policy": args.redirect_policy,
-        "expected_source_count": EXPECTED_SOURCE_COUNT,
-        "entries": entries,
-        "complete": len(pending) == 0,
-    }
-    write_json(journal_path, journal)
+    captured_by_id = {entry["source_id"]: entry for entry in entries}
+    attempted_source_ids: list[str] = []
+    failed_sources_by_id: dict[str, dict[str, str]] = {}
+    blocked_sources = [
+        {
+            "ordinal": item["ordinal"],
+            "source_id": item["source_id"],
+            "status": BLOCKED_SOURCE_STATUS,
+            "acquisition_attempted": False,
+        }
+        for item in blocked_items
+    ]
 
-    if not pending:
-        print("HYDRA_CONSTRAINT_SEMICONDUCTOR_BATCH026_BROWSER_CAPTURE=PASS")
-        print("CAPTURED_OR_RESUMED=41")
-        print("PENDING=0")
+    def write_journal() -> dict[str, Any]:
+        ordered_entries = [
+            captured_by_id[item["source_id"]]
+            for item in eligible_items
+            if item["source_id"] in captured_by_id
+        ]
+        failed_sources = [
+            failed_sources_by_id[item["source_id"]]
+            for item in eligible_items
+            if item["source_id"] in failed_sources_by_id
+        ]
+        terminal_ids = set(captured_by_id) | set(failed_sources_by_id)
+        pending_source_ids = [
+            item["source_id"] for item in eligible_items if item["source_id"] not in terminal_ids
+        ]
+        accounting = {
+            "total": len(queue),
+            "blocked_by_operator": len(blocked_items),
+            "eligible": len(eligible_items),
+            "attempted": len(attempted_source_ids),
+            "completed": len(ordered_entries),
+            "failed": len(failed_sources),
+            "pending": len(pending_source_ids),
+        }
+        journal = {
+            "schema_version": JOURNAL_SCHEMA,
+            "slice_id": EXPECTED_SLICE_ID,
+            "queue_record_id": queue_doc["record_id"],
+            "authoritative": False,
+            "network_acquisition_authorized": True,
+            "historical_backdating_authorized": False,
+            "redirect_policy": args.redirect_policy,
+            "expected_source_count": EXPECTED_SOURCE_COUNT,
+            "entries": ordered_entries,
+            "blocked_sources": blocked_sources,
+            "attempted_source_ids": list(attempted_source_ids),
+            "failed_sources": failed_sources,
+            "pending_source_ids": pending_source_ids,
+            "source_accounting": accounting,
+            "complete": len(ordered_entries) == len(queue),
+            "eligible_complete": len(ordered_entries) == len(eligible_items) and not failed_sources,
+            "execution_complete": not pending_source_ids,
+            "updated_at": utc_timestamp(),
+        }
+        write_json(journal_path, journal)
+        return journal
+
+    def print_accounting(journal: Mapping[str, Any]) -> None:
+        accounting = journal["source_accounting"]
+        print(f"TOTAL={accounting['total']}")
+        print(f"BLOCKED_BY_OPERATOR={accounting['blocked_by_operator']}")
+        print(f"ELIGIBLE={accounting['eligible']}")
+        print(f"ATTEMPTED={accounting['attempted']}")
+        print(f"COMPLETED={accounting['completed']}")
+        print(f"FAILED={accounting['failed']}")
+        print(f"PENDING={accounting['pending']}")
+
+    journal = write_journal()
+    print_accounting(journal)
+    print("BLOCKED_SOURCE_IDS=" + ",".join(item["source_id"] for item in blocked_items))
+
+    if not journal["source_accounting"]["pending"]:
+        status = "PASS_WITH_OPERATOR_BLOCKS" if blocked_items else "PASS"
+        print(f"HYDRA_CONSTRAINT_SEMICONDUCTOR_BATCH026_BROWSER_CAPTURE={status}")
+        print(f"CAPTURED_OR_RESUMED={journal['source_accounting']['completed']}")
         print(f"JOURNAL={journal_path}")
-        return 0
+        return 0 if journal["eligible_complete"] else 1
 
     try:
         from playwright.sync_api import sync_playwright
     except Exception as exc:
         raise CaptureError(f"Playwright Python client unavailable: {exc}") from exc
 
+    context = None
     with sync_playwright() as p:
-        context = None
-        browser_channel = ""
         try:
             context, browser_channel = launch_context(
                 p,
@@ -654,18 +772,22 @@ def main() -> int:
                 browser=args.browser,
                 headless=args.headless,
             )
-            captured_by_id = {entry["source_id"]: entry for entry in entries}
-            for item in queue:
-                if item["source_id"] in captured_by_id:
-                    print(f"RESUME_OK {item['ordinal']:03d}/041 {item['source_id']}")
+            for item in eligible_items:
+                source_id = item["source_id"]
+                if source_id in captured_by_id:
+                    print(f"RESUME_OK {item['ordinal']:03d}/041 {source_id}")
                     continue
 
-                attempts = 0
+                attempted_source_ids.append(source_id)
+                journal = write_journal()
+                failure_message: str | None = None
+                context_unavailable = False
+                restart_attempts = 0
                 while True:
                     capture_path = inbox_root / item["inbox_filename"]
                     sidecar_path = Path(str(capture_path) + ".capture.json")
                     try:
-                        remediation = remediations.get(item["source_id"])
+                        remediation = remediations.get(source_id)
                         capture_locator = str(item["source_locator"])
                         if remediation is not None:
                             capture_locator = resolve_remediated_locator(
@@ -676,7 +798,7 @@ def main() -> int:
                             )
                             print(
                                 f"LOCATOR_REMEDIATED {item['ordinal']:03d}/041 "
-                                f"{item['source_id']} -> {capture_locator}"
+                                f"{source_id} -> {capture_locator}"
                             )
                         row = capture_one(
                             context=context,
@@ -689,48 +811,47 @@ def main() -> int:
                             challenge_wait_seconds=args.challenge_wait_seconds,
                             navigation_timeout_seconds=args.navigation_timeout_seconds,
                         )
-                        captured_by_id[item["source_id"]] = row
+                        captured_by_id[source_id] = row
                         print(
-                            f"CAPTURE_OK {item['ordinal']:03d}/041 {item['source_id']} "
+                            f"CAPTURE_OK {item['ordinal']:03d}/041 {source_id} "
                             f"bytes={row['byte_length']} sha256={row['artifact_sha256']}"
                         )
                         break
                     except Exception as exc:
-                        if is_target_closed_error(exc) and attempts < max(0, args.browser_restart_retries):
-                            attempts += 1
+                        if is_target_closed_error(exc) and restart_attempts < max(0, args.browser_restart_retries):
+                            restart_attempts += 1
                             try:
                                 context.close()
                             except Exception:
                                 pass
-                            context, browser_channel = launch_context(
-                                p,
-                                private_root=private_root,
-                                browser=args.browser,
-                                headless=args.headless,
-                            )
-                            print(f"BROWSER_RESTART retry={attempts} source={item['source_id']}")
+                            try:
+                                context, browser_channel = launch_context(
+                                    p,
+                                    private_root=private_root,
+                                    browser=args.browser,
+                                    headless=args.headless,
+                                )
+                            except Exception as restart_exc:
+                                failure_message = (
+                                    f"{source_id}: browser restart failed after target closure: {restart_exc}"
+                                )
+                                context_unavailable = True
+                                break
+                            print(f"BROWSER_RESTART retry={restart_attempts} source={source_id}")
                             continue
-                        raise CaptureError(f"{item['source_id']}: capture failed: {exc}") from exc
+                        failure_message = f"{source_id}: capture failed: {exc}"
+                        break
 
-                ordered_entries = [
-                    captured_by_id[q["source_id"]]
-                    for q in queue
-                    if q["source_id"] in captured_by_id
-                ]
-                journal = {
-                    "schema_version": JOURNAL_SCHEMA,
-                    "slice_id": EXPECTED_SLICE_ID,
-                    "queue_record_id": queue_doc["record_id"],
-                    "authoritative": False,
-                    "network_acquisition_authorized": True,
-                    "historical_backdating_authorized": False,
-                    "redirect_policy": args.redirect_policy,
-                    "expected_source_count": EXPECTED_SOURCE_COUNT,
-                    "entries": ordered_entries,
-                    "complete": len(ordered_entries) == EXPECTED_SOURCE_COUNT,
-                    "updated_at": utc_timestamp(),
-                }
-                write_json(journal_path, journal)
+                if failure_message is not None:
+                    failed_sources_by_id[source_id] = {
+                        "source_id": source_id,
+                        "status": "FAILED",
+                        "error": failure_message,
+                    }
+                    print(f"CAPTURE_FAIL {item['ordinal']:03d}/041 {failure_message}")
+                journal = write_journal()
+                if context_unavailable:
+                    break
         finally:
             if context is not None:
                 try:
@@ -738,14 +859,19 @@ def main() -> int:
                 except Exception:
                     pass
 
-    final_entries = load_json(journal_path).get("entries", [])
-    if len(final_entries) != EXPECTED_SOURCE_COUNT:
-        raise CaptureError(f"capture incomplete after runner exit: {len(final_entries)}/{EXPECTED_SOURCE_COUNT}")
-
-    print("HYDRA_CONSTRAINT_SEMICONDUCTOR_BATCH026_BROWSER_CAPTURE=PASS")
-    print("CAPTURED_OR_RESUMED=41")
-    print("PENDING=0")
+    journal = load_json(journal_path)
+    print_accounting(journal)
+    accounting = journal["source_accounting"]
+    print(f"CAPTURED_OR_RESUMED={accounting['completed']}")
+    print(f"FAILED_SOURCE_IDS={','.join(row['source_id'] for row in journal['failed_sources'])}")
+    print(f"PENDING_SOURCE_IDS={','.join(journal['pending_source_ids'])}")
     print(f"JOURNAL={journal_path}")
+    if accounting["failed"] or accounting["pending"]:
+        print("HYDRA_CONSTRAINT_SEMICONDUCTOR_BATCH026_BROWSER_CAPTURE=FAIL")
+        return 1
+
+    status = "PASS_WITH_OPERATOR_BLOCKS" if blocked_items else "PASS"
+    print(f"HYDRA_CONSTRAINT_SEMICONDUCTOR_BATCH026_BROWSER_CAPTURE={status}")
     return 0
 
 
