@@ -22,7 +22,7 @@ function Require-Path([string]$PathValue, [string]$Label) {
     }
 }
 
-$RepoRoot = [System.IO.Path]::GetFullPath($RepoRoot)
+if (-not $RepoRoot) {\n    $RepoRoot = [System.IO.Path]::GetFullPath((Join-Path $PSScriptRoot ".."))\n} else {\n    $RepoRoot = [System.IO.Path]::GetFullPath($RepoRoot)\n}
 
 $QueuePath = Join-Path $RepoRoot "docs\constraint\second_slice\semiconductor_advanced_packaging_critical_materials_v1\HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH026_SEMICONDUCTOR_PRIVATE_T1_CAPTURE_QUEUE_V001_20260926.json"
 $Materializer = Join-Path $RepoRoot "tools\materialize_constraint_second_slice_batch026_private_t1.py"
