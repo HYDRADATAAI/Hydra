@@ -19,9 +19,9 @@ param(
 
     [string]$RepoRoot,
 
-    [string]$PrivateRoot = "D:\HYDRA_PRIVATE\constraint",
+    [string]$PrivateRoot = "D:\HYDRA\_PRIVATE\constraint",
 
-    [string]$InboxRoot = "D:\HYDRA_PRIVATE\constraint\capture_inbox\semiconductor_batch026",
+    [string]$InboxRoot = "D:\HYDRA\_PRIVATE\constraint\capture_inbox\semiconductor_batch026",
 
     [string]$BootstrapPython = "python",
 

@@ -123,6 +123,9 @@ class Batch018NineSourceCaptureEvidenceTests(unittest.TestCase):
         self.assertEqual("BLOCKED", self.master_status["first_serious_constraint_run"])
 
     def test_successor_artifact_manifest_binds_committed_blob_contents(self):
+        for artifact in self.artifact_manifest.get("superseded_artifacts", []):
+            actual = subprocess.check_output(["git", "hash-object", str(ROOT / artifact["path"])], cwd=ROOT, text=True).strip()
+            self.assertEqual(actual, artifact["successor_git_blob_sha"], artifact["path"])
         for artifact in self.artifact_manifest["artifacts"]:
             expected = subprocess.run(
                 [

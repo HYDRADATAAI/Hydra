@@ -27,6 +27,14 @@ def validate_conservative_availability_overlay(value: Mapping[str, Any]) -> tupl
         if not isinstance(record, Mapping):
             issues.append(Issue("availability_overlay_record_invalid", "record must be an object", path))
             continue
+        allowed = {
+            "source_id", "inherited_acquired_at", "conservative_available_at",
+            "availability_basis", "historical_backdating_authorized",
+            "publication_metadata_source", "source_content_persisted",
+            "temporal_original_as_of_eligible_from", "ordinary_replay_lineage_eligible",
+        }
+        if set(record) - allowed:
+            issues.append(Issue("availability_overlay_unsupported_fields", "v1 cannot authenticate additional temporal or authority claims", path))
         sid=record.get("source_id")
         if not isinstance(sid,str) or not sid:
             issues.append(Issue("availability_overlay_source_id_invalid", "source_id is required", f"{path}.source_id"))
@@ -54,6 +62,15 @@ def validate_conservative_availability_overlay(value: Mapping[str, Any]) -> tupl
 
 
 def temporally_eligible(record: Mapping[str, Any], query_time: datetime) -> bool:
+    # Direct callers must not bypass the overlay's acquisition and authority
+    # checks. This proves only conservative temporal eligibility, not timestamp
+    # authenticity, persisted custody, canonical admission, or runtime readiness.
+    if validate_conservative_availability_overlay({
+        "schema_version": OVERLAY_SCHEMA,
+        "historical_backdating_authorized": False,
+        "records": [record],
+    }):
+        return False
     available=_parse(record.get("conservative_available_at"))
     return available is not None and query_time.tzinfo is not None and available <= query_time
 

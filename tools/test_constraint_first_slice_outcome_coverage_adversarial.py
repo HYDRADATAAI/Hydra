@@ -15,6 +15,7 @@ from typing import Callable
 ROOT = Path(__file__).resolve().parents[1]
 VALIDATOR = ROOT / "tools/validate_constraint_first_slice_outcome_coverage.py"
 
+SOURCES = "docs/constraint/first_slice/ai_data_center_power_infrastructure_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH016_AI_DATA_CENTER_POWER_INFRASTRUCTURE_OUTCOME_SOURCE_REGISTRY_EXTENSION_V001_20260925.json"
 OUTCOMES = "docs/constraint/first_slice/ai_data_center_power_infrastructure_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH016_AI_DATA_CENTER_POWER_INFRASTRUCTURE_OUTCOME_RECORDS_SUPPLEMENT_V001_20260925.json"
 COVERAGE = "docs/constraint/first_slice/ai_data_center_power_infrastructure_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH016_AI_DATA_CENTER_POWER_INFRASTRUCTURE_REAL_OUTCOME_COVERAGE_MATRIX_V001_20260925.json"
 EVAL = "docs/constraint/first_slice/ai_data_center_power_infrastructure_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH016_AI_DATA_CENTER_POWER_INFRASTRUCTURE_EVALUATION_PROTOCOL_V001_20260925.json"
@@ -153,8 +154,28 @@ def case_tracker_owner_changed(root: Path) -> None:
     mutate(root, TRACKER17, lambda doc: doc.__setitem__("owner", "LILY"))
 
 
+def case_unverified_source_promoted(root: Path) -> None:
+    mutate(root, SOURCES, lambda doc: doc["sources"][1].__setitem__("acquisition_verification_status", "VERIFIED"))
+
+
+def case_unverified_source_known_at(root: Path) -> None:
+    mutate(root, SOURCES, lambda doc: doc["sources"][2].__setitem__("known_at", "2026-07-22T00:00:00Z"))
+
+
+def case_unverified_source_timestamp(root: Path) -> None:
+    mutate(root, SOURCES, lambda doc: doc["sources"][1].__setitem__("verified_acquired_at", "2026-09-26T13:11:19Z"))
+
+
+def case_outcome_temporal_promotion(root: Path) -> None:
+    mutate(root, OUTCOMES, lambda doc: doc["records"][1].__setitem__("known_at", "2026-05-05T00:00:00Z"))
+
+
 def main() -> int:
     cases = [
+        ("unverified_source_promoted", case_unverified_source_promoted, "unresolved acquisition was marked verified"),
+        ("unverified_source_known_at", case_unverified_source_known_at, "unresolved acquisition was promoted to known_at"),
+        ("unverified_source_timestamp", case_unverified_source_timestamp, "unresolved acquisition gained verified timestamp"),
+        ("outcome_temporal_promotion", case_outcome_temporal_promotion, "outcome gained unverified temporal authority"),
         ("substitution_generalized", case_substitution_generalized, "Loudoun substitution scope was generalized"),
         ("constraint_resolution_fabricated", case_constraint_resolution_fabricated, "fabricated constraint resolution"),
         ("eaton_causation_overstated", case_eaton_causation_overstated, "beneficiary capture causation was overstated"),

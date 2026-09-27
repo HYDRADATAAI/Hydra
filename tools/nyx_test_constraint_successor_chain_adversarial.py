@@ -39,16 +39,17 @@ def master_batch(path: Path) -> int:
 
 
 def current_manifest_paths() -> list[Path]:
-    grouped: dict[int, list[tuple[int, Path]]] = {}
+    grouped: dict[tuple[int, str], list[tuple[int, Path]]] = {}
     for path in VALIDATION_DIR.glob(
         "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH*_ARTIFACT_MANIFEST_V*_*.json"
     ):
         batch, revision = manifest_identity(path)
         if batch >= 3:
-            grouped.setdefault(batch, []).append((revision, path))
+            scope = json.loads(path.read_text(encoding="utf-8")).get("slice_id", "LEGACY_UNSCOPED")
+            grouped.setdefault((batch, scope), []).append((revision, path))
     return [
-        max(grouped[batch], key=lambda item: item[0])[1]
-        for batch in sorted(grouped)
+        max(grouped[key], key=lambda item: item[0])[1]
+        for key in sorted(grouped)
     ]
 
 
@@ -506,8 +507,154 @@ def case_latest_master_falsely_ready(root: Path) -> None:
     )
 
 
+def case_first_slice_batch017_pin_drift(root: Path) -> None:
+    relative = (
+        "docs/constraint/validation/"
+        "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH017_ARTIFACT_MANIFEST_V001_20260925.json"
+    )
+    mutate_json(root, relative, lambda doc: doc["artifacts"][4].__setitem__("git_blob_sha", "0" * 40))
+
+
+def case_second_slice_batch017_pin_drift(root: Path) -> None:
+    relative = (
+        "docs/constraint/validation/"
+        "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH017_ARTIFACT_MANIFEST_V001_20260926.json"
+    )
+    mutate_json(root, relative, lambda doc: doc["artifacts"][0].__setitem__("git_blob_sha", "0" * 40))
+
+
+def case_duplicate_same_slice_manifest(root: Path) -> None:
+    directory = root / "docs/constraint/validation"
+    original = directory / "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH017_ARTIFACT_MANIFEST_V001_20260925.json"
+    duplicate = directory / "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH017_ARTIFACT_MANIFEST_V001_20260928.json"
+    shutil.copy2(original, duplicate)
+
+
+def case_shared_batch_hidden_hash(root: Path) -> None:
+    case_first_slice_batch017_pin_drift(root)
+
+
+def case_same_scope_duplicate_manifest(root: Path) -> None:
+    case_duplicate_same_slice_manifest(root)
+def case_batch016_full_readiness_promoted(root: Path) -> None:
+    relative = (
+        "docs/constraint/architecture/"
+        "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH016_MASTER_STATUS_V001_20260925.json"
+    )
+
+    def mutate(doc: dict) -> None:
+        doc["readiness"]["FULL_CONSTRAINT_RUN_READY"]["status"] = "YES"
+
+    mutate_json(root, relative, mutate, manifest_name=manifest_name_for_batch(16))
+
+
+def case_batch026_source_count_drift(root: Path) -> None:
+    relative = (
+        "docs/constraint/second_slice/semiconductor_advanced_packaging_critical_materials_v1/"
+        "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH026_SEMICONDUCTOR_PRIVATE_T1_CAPTURE_QUEUE_V001_20260926.json"
+    )
+
+    mutate_json(
+        root,
+        relative,
+        lambda doc: doc["queue"].pop(),
+        manifest_name=manifest_name_for_batch(26),
+    )
+
+
+def case_batch027_predecessor_drift(root: Path) -> None:
+    relative = (
+        "docs/constraint/architecture/"
+        "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH027_MASTER_STATUS_V001_20260926.json"
+    )
+
+    def mutate(doc: dict) -> None:
+        doc["predecessor"]["record_id"] = "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH025_MASTER_STATUS_V001"
+
+    mutate_json(root, relative, mutate, manifest_name=manifest_name_for_batch(27))
+
+
+def case_batch028_raw_materialization_falsely_claimed(root: Path) -> None:
+    relative = (
+        "docs/constraint/second_slice/semiconductor_advanced_packaging_critical_materials_v1/"
+        "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH028_SEMICONDUCTOR_BROWSER_ACQUISITION_ADAPTER_STATUS_V001_20260927.json"
+    )
+
+    mutate_json(
+        root,
+        relative,
+        lambda doc: doc["results"].__setitem__("RAW_SOURCE_VERSIONS_MATERIALIZED", 1),
+        manifest_name=manifest_name_for_batch(28),
+    )
+
+
+def case_batch028_ordinary_t2_promoted(root: Path) -> None:
+    relative = (
+        "docs/constraint/architecture/"
+        "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH028_MASTER_STATUS_V001_20260927.json"
+    )
+
+    def mutate(doc: dict) -> None:
+        doc["readiness"]["SECOND_SLICE_ORDINARY_T2_ELIGIBILITY"]["status"] = "YES"
+
+    mutate_json(root, relative, mutate, manifest_name=manifest_name_for_batch(28))
+
+
+def case_batch028_full_readiness_promoted(root: Path) -> None:
+    relative = (
+        "docs/constraint/architecture/"
+        "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH028_MASTER_STATUS_V001_20260927.json"
+    )
+
+    def mutate(doc: dict) -> None:
+        doc["readiness"]["FULL_CONSTRAINT_RUN_READY"]["status"] = "YES"
+
+    mutate_json(root, relative, mutate, manifest_name=manifest_name_for_batch(28))
+
+
+def case_batch029_native_admission_falsely_granted(root: Path) -> None:
+    relative = (
+        "docs/constraint/architecture/"
+        "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH029_MASTER_STATUS_V001_20260927.json"
+    )
+
+    def mutate(doc: dict) -> None:
+        doc["readiness"]["SECOND_SLICE_IMPLEMENTATION_ADMITTED"]["status"] = "YES"
+
+    mutate_json(root, relative, mutate, manifest_name=manifest_name_for_batch(29))
+
+
+def case_batch029_locator_identity_drift(root: Path) -> None:
+    relative = (
+        "docs/constraint/second_slice/semiconductor_advanced_packaging_critical_materials_v1/"
+        "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH029_SEMICONDUCTOR_MICRON_CAPTURE_LOCATOR_REMEDIATION_V001_20260927.json"
+    )
+
+    def mutate(doc: dict) -> None:
+        doc["remediations"][0]["source_id"] = "SRC-SEMI-NVIDIA-HGX-COMPONENTS-2026"
+
+    mutate_json(root, relative, mutate, manifest_name=manifest_name_for_batch(29))
+
+
+def case_batch029_locator_provenance_drift(root: Path) -> None:
+    relative = (
+        "docs/constraint/second_slice/semiconductor_advanced_packaging_critical_materials_v1/"
+        "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH029_SEMICONDUCTOR_MICRON_CAPTURE_LOCATOR_REMEDIATION_V001_20260927.json"
+    )
+
+    def mutate(doc: dict) -> None:
+        doc["remediations"][0]["original_source_locator"] = "https://investors.micron.com/static-files/CHANGED"
+
+    mutate_json(root, relative, mutate, manifest_name=manifest_name_for_batch(29))
+
+
 def main() -> int:
     cases = [
+        ("duplicate_same_slice_manifest", case_duplicate_same_slice_manifest, "ambiguous current manifest"),
+        ("first_slice_batch017_pin_drift", case_first_slice_batch017_pin_drift, "immutable domain artifact blob mismatch"),
+        ("second_slice_batch017_pin_drift", case_second_slice_batch017_pin_drift, "immutable domain artifact blob mismatch"),
+        ("shared_batch_hidden_hash", case_shared_batch_hidden_hash, "immutable domain artifact blob mismatch"),
+        ("same_scope_duplicate_manifest", case_same_scope_duplicate_manifest, "ambiguous current manifest"),
         ("backdated_availability", case_backdated_availability, "conservative availability drift"),
         ("fiber_scope_overclaim", case_fiber_scope_overclaim, "fiber exact site capacity unexpectedly quantified"),
         ("admission_falsely_granted", case_admission_falsely_granted, "native implementation unexpectedly admitted"),
@@ -526,7 +673,16 @@ def main() -> int:
         ("batch012_cancelled_scope_generalized", case_batch012_cancelled_scope_generalized, "Batch012 cancelled-project scope was generalized"),
         ("batch012_true_case_falsely_closed", case_batch012_true_case_falsely_closed, "Batch012 case1 overlay falsely closed true-project case"),
         ("batch012_invents_available_at", case_batch012_invents_available_at, "Batch012 invented exact HYDRA available_at"),
-        ("latest_master_falsely_ready", case_latest_master_falsely_ready, "falsely claims full-run readiness"),
+        ("latest_master_falsely_ready", case_latest_master_falsely_ready, "Batch029 master FULL_CONSTRAINT_RUN_READY drifted"),
+        ("batch016_full_readiness_promoted", case_batch016_full_readiness_promoted, "Batch016 full-run readiness was promoted"),
+        ("batch026_source_count_drift", case_batch026_source_count_drift, "Batch026 queue ordinal set drifted"),
+        ("batch027_predecessor_drift", case_batch027_predecessor_drift, "Batch027 master predecessor drifted"),
+        ("batch028_raw_materialization_falsely_claimed", case_batch028_raw_materialization_falsely_claimed, "Batch028 falsely claims raw materialization"),
+        ("batch028_ordinary_t2_promoted", case_batch028_ordinary_t2_promoted, "Batch028 master SECOND_SLICE_ORDINARY_T2_ELIGIBILITY drifted"),
+        ("batch028_full_readiness_promoted", case_batch028_full_readiness_promoted, "Batch028 master FULL_CONSTRAINT_RUN_READY drifted"),
+        ("batch029_native_admission_falsely_granted", case_batch029_native_admission_falsely_granted, "Batch029 master SECOND_SLICE_IMPLEMENTATION_ADMITTED drifted"),
+        ("batch029_locator_identity_drift", case_batch029_locator_identity_drift, "Batch029 locator remediation identities drifted"),
+        ("batch029_locator_provenance_drift", case_batch029_locator_provenance_drift, "Batch029 locator provenance drifted"),
     ]
     for name, mutator, expected in cases:
         expect_failure(name, mutator, expected)

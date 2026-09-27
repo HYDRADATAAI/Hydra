@@ -1,5 +1,7 @@
 # ES Daily Plan V005
 
+> Historical generated fixture output. The `/workspace/HYDRA/tmp_v005_fixture/` inputs referenced below are not included in this repository. These paths record the original generation environment; they are not current workstation paths or repository-available source evidence. The recorded values below are preserved as historical output.
+
 Session date: `2025-03-26`
 Source: `/workspace/HYDRA/tmp_v005_fixture/source/es_context.csv`
 

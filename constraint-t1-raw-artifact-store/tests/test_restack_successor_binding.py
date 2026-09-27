@@ -17,11 +17,14 @@ class RestackSuccessorBindingTests(unittest.TestCase):
         row = rows['constraint-t1-raw-artifact-store/README.md']
         self.assertEqual('df498d35dc3acdfb2fbef95fac1e1505c80105c8', row['predecessor_git_blob_sha'])
         self.assertEqual('5958840f95811a147758913bce8e42419ed55750', row['intermediate_git_blob_sha'])
-        self.assertEqual('b3e9807604121e2e89977157525884af8292a975', row['successor_git_blob_sha'])
+        self.assertEqual('2e762c7919b0e8c3a1c36f4e83c4d423d729e34a', row['successor_git_blob_sha'])
 
     def test_hostile_map_drift_is_rejected(self):
         original = guard.load_json
         changes = [
+            lambda d: d['transitions'].pop(),
+            lambda d: d['transitions'][0].update(path='t6-fail-closed-validator/src/hydra_t6_failclosed/pit_conservative_availability.py'),
+            lambda d: d['transitions'][0].update(successor_git_blob_sha='0'*40),
             lambda d: d['transitions'][2].update(successor_git_blob_sha='0'*40),
             lambda d: d['transitions'][2].update(predecessor_git_blob_sha='0'*40),
             lambda d: d['transitions'].append(copy.deepcopy(d['transitions'][2])),
