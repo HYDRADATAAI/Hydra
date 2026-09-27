@@ -42,6 +42,7 @@ def main():
       ("host_allowlist_drift",lambda r:mutate_json(r,OVERLAY,lambda d:d["resolution_policy"].__setitem__("allowed_resolved_host","example.com")),"resolved host allowlist drifted"),
       ("quarter_path_drift",lambda r:mutate_json(r,OVERLAY,lambda d:d["remediations"][0].__setitem__("required_path_prefix","/621799436/files/doc_financials/2025/q3/")),"fiscal quarter path mismatch"),
       ("runner_search_engine",lambda r:mutate_text(r,RUNNER,lambda s:s+"\n# search engine\n"),"runner unexpectedly relies on search engine"),
+      ("runner_effective_locator_discarded",lambda r:mutate_text(r,RUNNER,lambda s:s.replace('locator = str(capture_locator)','locator = str(item["source_locator"])')),"runner capture_one ignores effective capture_locator"),
       ("status_materialized_faked",lambda r:mutate_json(r,STATUS,lambda d:d["results"].__setitem__("RAW_SOURCE_VERSIONS_MATERIALIZED",41)),"Batch029 status metric drifted: RAW_SOURCE_VERSIONS_MATERIALIZED"),
       ("master_replay_ready",lambda r:mutate_json(r,MASTER,lambda d:d["readiness"]["SECOND_SLICE_REPLAY_READY"].__setitem__("status","YES")),"master falsely claims replay ready"),
       ("master_full_ready",lambda r:mutate_json(r,MASTER,lambda d:d["readiness"]["FULL_CONSTRAINT_RUN_READY"].__setitem__("status","YES")),"master falsely full-run ready"),
