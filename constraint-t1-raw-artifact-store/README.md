@@ -36,6 +36,6 @@ bodies.
 
 Set PYTHONPATH to the package src directory, then run:
 
-python -m hydra_constraint_t1_raw.cli --private-root D:\HYDRA_PRIVATE\constraint\raw --public-repo-root C:\HYDRA --input-file C:\captures\source.bin --source-id SRC-EXAMPLE --source-version-id SV-EXAMPLE-001 --content-type application/octet-stream --source-locator reviewed-manual-capture --acquired-at 2026-09-25T23:52:01.573251Z --available-at 2026-09-25T23:52:01.573251Z
+python -m hydra_constraint_t1_raw.cli --private-root D:\HYDRA_PRIVATE\constraint\raw --public-repo-root D:\HYDRA_GITHUB\Hydra --input-file D:\HYDRA_PRIVATE\constraint\capture_inbox\source.bin --source-id SRC-EXAMPLE --source-version-id SV-EXAMPLE-001 --content-type application/octet-stream --source-locator reviewed-manual-capture --acquired-at 2026-09-25T23:52:01.573251Z --available-at 2026-09-25T23:52:01.573251Z
 
 The command persists only the supplied local file. It does not acquire remote content.

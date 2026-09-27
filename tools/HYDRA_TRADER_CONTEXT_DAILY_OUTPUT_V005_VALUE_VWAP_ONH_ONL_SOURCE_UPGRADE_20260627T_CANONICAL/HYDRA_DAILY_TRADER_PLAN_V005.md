@@ -1,5 +1,7 @@
 # HYDRA Daily Trader Plan V005
 
+> Historical generated fixture output. The `/workspace/HYDRA/tmp_v005_fixture/` inputs referenced below are not included in this repository. These paths record the original generation environment; they are not current workstation paths or repository-available source evidence. The recorded values below are preserved as historical output.
+
 Baby ML status: `FROZEN`
 Hidden-gem input: `/workspace/HYDRA/tmp_v005_fixture/hidden`
 V003 input: `/workspace/HYDRA/tmp_v005_fixture/v003`

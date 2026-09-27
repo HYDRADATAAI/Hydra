@@ -137,27 +137,34 @@ def master_batch(path: Path) -> int:
 
 
 def discover_current_manifests() -> list[Path]:
-    """Return the highest-revision manifest for each contiguous successor batch."""
+    """Select revisions within each batch/slice; never hide a sibling slice."""
 
-    grouped: dict[int, list[tuple[int, Path]]] = {}
+    grouped: dict[tuple[int, str], list[tuple[int, Path]]] = {}
     for path in VALIDATION.glob(
         "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH*_ARTIFACT_MANIFEST_V*_*.json"
     ):
         batch, revision = manifest_identity(path)
         if batch >= 3:
-            grouped.setdefault(batch, []).append((revision, path))
+            scope = load_json(path).get("slice_id", "")
+            require(isinstance(scope, str), f"manifest slice_id invalid: {path.name}")
+            grouped.setdefault((batch, scope), []).append((revision, path))
 
     require(grouped, "no successor manifests discovered")
-    highest_batch = max(grouped)
+    batches = {batch for batch, _ in grouped}
+    highest_batch = max(batches)
     expected_batches = set(range(3, highest_batch + 1))
     require(
-        set(grouped) == expected_batches,
-        f"successor manifest sequence has gaps: found={sorted(grouped)}",
+        batches == expected_batches,
+        f"successor manifest sequence has gaps: found={sorted(batches)}",
     )
 
     selected: list[Path] = []
-    for batch in sorted(grouped):
-        revision, path = max(grouped[batch], key=lambda item: item[0])
+    for batch, scope in sorted(grouped):
+        entries = grouped[(batch, scope)]
+        revision = max(item[0] for item in entries)
+        current = [path for rev, path in entries if rev == revision]
+        require(len(current) == 1, f"ambiguous current manifest: Batch{batch:03d} slice={scope!r}")
+        path = current[0]
         if revision > 1:
             doc = load_json(path)
             supersedes = doc.get("supersedes")
