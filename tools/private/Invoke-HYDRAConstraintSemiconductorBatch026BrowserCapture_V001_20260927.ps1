@@ -40,8 +40,8 @@ else {
     $RepoRoot = [System.IO.Path]::GetFullPath($RepoRoot)
 }
 
-$Runner = Join-Path $PSScriptRoot "HYDRA_CONSTRAINT_T1_SEMICONDUCTOR_BATCH026_BROWSER_CAPTURE_V001_20260927.py"
-$Requirements = Join-Path $PSScriptRoot "HYDRA_CONSTRAINT_T1_SEMICONDUCTOR_BATCH026_BROWSER_CAPTURE_REQUIREMENTS_V001_20260927.txt"
+$Runner = Join-Path $RepoRoot "tools\private\HYDRA_CONSTRAINT_T1_SEMICONDUCTOR_BATCH026_BROWSER_CAPTURE_V001_20260927.py"
+$Requirements = Join-Path $RepoRoot "tools\private\HYDRA_CONSTRAINT_T1_SEMICONDUCTOR_BATCH026_BROWSER_CAPTURE_REQUIREMENTS_V001_20260927.txt"
 $RuntimeRoot = Join-Path $PrivateRoot "browser-runtime"
 $VenvRoot = Join-Path $RuntimeRoot "playwright-venv"
 $VenvPython = Join-Path $VenvRoot "Scripts\python.exe"

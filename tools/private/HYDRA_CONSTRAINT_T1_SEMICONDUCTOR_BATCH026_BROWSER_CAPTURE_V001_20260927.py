@@ -668,6 +668,14 @@ def main() -> int:
         queue,
         blocked_source_ids=OPERATOR_BLOCKED_SOURCE_IDS,
     )
+    blocked_source_id_set = set(OPERATOR_BLOCKED_SOURCE_IDS)
+    leaked_source_ids = sorted(
+        blocked_source_id_set & {str(item["source_id"]) for item in eligible_items}
+    )
+    if leaked_source_ids:
+        raise CaptureError(
+            f"operator-blocked source leaked into acquisition queue: {leaked_source_ids}"
+        )
     remediation_doc = load_json(repo_root / LOCATOR_OVERLAY_RELATIVE_PATH)
     remediations = load_locator_remediations(remediation_doc)
     queue_ids = {item["source_id"] for item in queue}

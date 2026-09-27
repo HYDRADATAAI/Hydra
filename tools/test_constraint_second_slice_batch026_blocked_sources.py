@@ -17,6 +17,7 @@ from unittest.mock import patch
 
 ROOT = Path(__file__).resolve().parents[1]
 RUNNER = ROOT / "tools/private/HYDRA_CONSTRAINT_T1_SEMICONDUCTOR_BATCH026_BROWSER_CAPTURE_V001_20260927.py"
+LAUNCHER = ROOT / "tools/private/Invoke-HYDRAConstraintSemiconductorBatch026BrowserCapture_V001_20260927.ps1"
 QUEUE = ROOT / (
     "docs/constraint/second_slice/semiconductor_advanced_packaging_critical_materials_v1/"
     "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH026_SEMICONDUCTOR_PRIVATE_T1_CAPTURE_QUEUE_V001_20260926.json"
@@ -78,6 +79,43 @@ class BlockedSourceExecutionTest(unittest.TestCase):
             tuple(source_id for source_id in EXPECTED_BLOCKED_SOURCE_IDS),
         )
         self.assertEqual(len(blocked) + len(eligible), len(self.queue))
+
+    def test_launcher_uses_runner_from_explicit_repo_root(self) -> None:
+        launcher = LAUNCHER.read_text(encoding="utf-8")
+        self.assertIn(
+            '$Runner = Join-Path $RepoRoot "tools\\private\\HYDRA_CONSTRAINT_T1_SEMICONDUCTOR_BATCH026_BROWSER_CAPTURE_V001_20260927.py"',
+            launcher,
+        )
+        self.assertIn(
+            '$Requirements = Join-Path $RepoRoot "tools\\private\\HYDRA_CONSTRAINT_T1_SEMICONDUCTOR_BATCH026_BROWSER_CAPTURE_REQUIREMENTS_V001_20260927.txt"',
+            launcher,
+        )
+
+    def test_main_fails_closed_if_partition_leaks_blocked_source(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            temp_root = Path(temporary_directory)
+            inbox_root = temp_root / "inbox"
+            args = [
+                str(RUNNER),
+                "--authorized-public-acquisition",
+                "--repo-root", str(ROOT),
+                "--private-root", str(temp_root / "private"),
+                "--inbox-root", str(inbox_root),
+            ]
+            with (
+                patch.object(self.runner, "partition_capture_queue", return_value=([], self.queue)),
+                patch.object(self.runner, "launch_context") as launch_spy,
+                patch.object(self.runner, "capture_one") as capture_spy,
+                patch.object(sys, "argv", args),
+            ):
+                with self.assertRaisesRegex(
+                    self.runner.CaptureError,
+                    "operator-blocked source leaked into acquisition queue",
+                ):
+                    self.runner.main()
+            launch_spy.assert_not_called()
+            capture_spy.assert_not_called()
+            self.assertFalse(inbox_root.exists())
 
     def test_unknown_blocked_source_id_fails_closed(self) -> None:
         blocked = list(self.runner.OPERATOR_BLOCKED_SOURCE_IDS) + ["SRC-UNKNOWN"]
