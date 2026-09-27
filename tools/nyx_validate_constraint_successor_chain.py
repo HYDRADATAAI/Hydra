@@ -137,35 +137,29 @@ def master_batch(path: Path) -> int:
 
 
 def discover_current_manifests() -> list[Path]:
-    """Return the highest-revision manifest for each contiguous successor batch."""
-
-    grouped: dict[int, list[tuple[int, Path]]] = {}
+    """Validate each slice's latest revision, including shared batch numbers."""
+    grouped: dict[tuple[int, str], list[tuple[int, Path]]] = {}
     for path in VALIDATION.glob(
         "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH*_ARTIFACT_MANIFEST_V*_*.json"
     ):
         batch, revision = manifest_identity(path)
         if batch >= 3:
-            grouped.setdefault(batch, []).append((revision, path))
-
+            scope = load_json(path).get("slice_id", "LEGACY_UNSCOPED")
+            require(isinstance(scope, str) and scope, "manifest slice identity invalid")
+            grouped.setdefault((batch, scope), []).append((revision, path))
     require(grouped, "no successor manifests discovered")
-    highest_batch = max(grouped)
-    expected_batches = set(range(3, highest_batch + 1))
-    require(
-        set(grouped) == expected_batches,
-        f"successor manifest sequence has gaps: found={sorted(grouped)}",
-    )
-
+    batches = {key[0] for key in grouped}
+    require(batches == set(range(3, max(batches) + 1)), f"successor manifest sequence has gaps: found={sorted(batches)}")
     selected: list[Path] = []
-    for batch in sorted(grouped):
-        revision, path = max(grouped[batch], key=lambda item: item[0])
+    for (batch, scope), candidates in sorted(grouped.items()):
+        revision = max(item[0] for item in candidates)
+        matches = [path for rev, path in candidates if rev == revision]
+        require(len(matches) == 1, f"ambiguous current manifest: Batch{batch:03d} slice={scope}")
+        path = matches[0]
         if revision > 1:
-            doc = load_json(path)
-            supersedes = doc.get("supersedes")
-            require(
-                isinstance(supersedes, dict)
-                and supersedes.get("predecessor_preserved") is True,
-                f"Batch{batch:03d} revised manifest lacks preserved supersession boundary",
-            )
+            supersedes = load_json(path).get("supersedes")
+            require(isinstance(supersedes, dict) and supersedes.get("predecessor_preserved") is True,
+                    f"Batch{batch:03d} revised manifest lacks preserved supersession boundary")
         selected.append(path)
     return selected
 

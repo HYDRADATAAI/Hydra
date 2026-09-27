@@ -39,13 +39,14 @@ def master_batch(path: Path) -> int:
 
 
 def current_manifest_paths() -> list[Path]:
-    grouped: dict[int, list[tuple[int, Path]]] = {}
+    grouped: dict[tuple[int, str], list[tuple[int, Path]]] = {}
     for path in VALIDATION_DIR.glob(
         "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH*_ARTIFACT_MANIFEST_V*_*.json"
     ):
         batch, revision = manifest_identity(path)
         if batch >= 3:
-            grouped.setdefault(batch, []).append((revision, path))
+            scope = json.loads(path.read_text(encoding="utf-8")).get("slice_id", "LEGACY_UNSCOPED")
+            grouped.setdefault((batch, scope), []).append((revision, path))
     return [
         max(grouped[batch], key=lambda item: item[0])[1]
         for batch in sorted(grouped)
@@ -506,8 +507,23 @@ def case_latest_master_falsely_ready(root: Path) -> None:
     )
 
 
+def case_shared_batch_hidden_hash(root: Path) -> None:
+    path = root / "docs/constraint/validation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH017_ARTIFACT_MANIFEST_V001_20260925.json"
+    doc = json.loads(path.read_text())
+    doc["artifacts"][4]["git_blob_sha"] = "0" * 40
+    path.write_text(json.dumps(doc))
+
+
+def case_same_scope_duplicate_manifest(root: Path) -> None:
+    path = root / "docs/constraint/validation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH017_ARTIFACT_MANIFEST_V001_20260925.json"
+    duplicate = path.with_name(path.name.replace("20260925", "20260928"))
+    duplicate.write_bytes(path.read_bytes())
+
+
 def main() -> int:
     cases = [
+        ("shared_batch_hidden_hash", case_shared_batch_hidden_hash, "immutable domain artifact blob mismatch"),
+        ("same_scope_duplicate_manifest", case_same_scope_duplicate_manifest, "ambiguous current manifest"),
         ("backdated_availability", case_backdated_availability, "conservative availability drift"),
         ("fiber_scope_overclaim", case_fiber_scope_overclaim, "fiber exact site capacity unexpectedly quantified"),
         ("admission_falsely_granted", case_admission_falsely_granted, "native implementation unexpectedly admitted"),

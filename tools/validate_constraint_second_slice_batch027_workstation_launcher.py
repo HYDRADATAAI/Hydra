@@ -57,9 +57,12 @@ def main()->int:
       'HYDRA_CONSTRAINT_SEMI_B026_CAPTURE_CHECKLIST_V001.csv',
       'HYDRA_CONSTRAINT_SEMI_B026_PRIVATE_T1_HANDBACK_V001.json',
       '--dry-run',
+      'Join-Path $PSScriptRoot ".."',
+      'D:\\HYDRA\\_PRIVATE\\constraint\\raw',
       'historical_backdating_authorized = $false',
     ):
         require(token in text,f"launcher token missing: {token}")
+    require("HYDRA_GITHUB" not in text and "HYDRA_PRIVATE" not in text, "stale operational root restored")
     require("Invoke-WebRequest" not in text and "curl " not in text and "wget " not in text,"launcher unexpectedly performs network acquisition")
     require("LastWriteTime" not in text and "mtime" not in text.lower(),"launcher infers capture timestamp from file metadata")
 

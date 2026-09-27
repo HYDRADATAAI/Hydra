@@ -9,19 +9,19 @@
     {
       "path": "constraint-t1-raw-artifact-store/src/hydra_constraint_t1_raw/store.py",
       "predecessor_git_blob_sha": "c360aff06500ef19ac2f76e3b5efb9ef7debd90d",
-      "successor_git_blob_sha": "040af0ee154e3cf6e64a145125fc1254ce170902",
+      "successor_git_blob_sha": "e6b8757b7dc24039d93caf33a26c8d0e3373ee63",
       "reason": "Require exact persisted receipt and release identity plus symlink-resolved private-root containment."
     },
     {
       "path": "constraint-t1-raw-artifact-store/tests/test_store.py",
       "predecessor_git_blob_sha": "4a2bbd00189ac7b62f338cf7a21062f35ba1c31f",
-      "successor_git_blob_sha": "da24ccc223900e345c5e1fb4fc92ae35db87f467",
+      "successor_git_blob_sha": "32a4116e6872ef5a844c6c5f7411423817b45de6",
       "reason": "Regression coverage for persisted-record authority, quarantine reconstruction, release mismatch, and symlink escape."
     },
     {
       "path": "constraint-t1-raw-artifact-store/README.md",
       "predecessor_git_blob_sha": "df498d35dc3acdfb2fbef95fac1e1505c80105c8",
-      "successor_git_blob_sha": "b3e9807604121e2e89977157525884af8292a975",
+      "successor_git_blob_sha": "9a379ca017819356749d05d991d9fc289a1d4920",
       "reason": "Document hardened private-record custody and canonical raw-store path without authorizing live acquisition."
     },
     {

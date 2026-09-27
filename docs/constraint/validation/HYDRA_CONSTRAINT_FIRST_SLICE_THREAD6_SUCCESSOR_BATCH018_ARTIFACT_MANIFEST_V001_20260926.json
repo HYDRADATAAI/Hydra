@@ -1,7 +1,7 @@
 {
   "artifacts": [
     {
-      "git_blob_sha": "b3e9807604121e2e89977157525884af8292a975",
+      "git_blob_sha": "9a379ca017819356749d05d991d9fc289a1d4920",
       "path": "constraint-t1-raw-artifact-store/README.md"
     },
     {
@@ -89,7 +89,8 @@
     {
       "path": "constraint-t1-raw-artifact-store/README.md",
       "predecessor_git_blob_sha": "5958840f95811a147758913bce8e42419ed55750",
-      "successor_git_blob_sha": "b3e9807604121e2e89977157525884af8292a975"
+      "successor_git_blob_sha": "9a379ca017819356749d05d991d9fc289a1d4920",
+      "previous_successor_git_blob_sha": "b3e9807604121e2e89977157525884af8292a975"
     },
     {
       "path": "docs/constraint/implementation/HYDRA_CONSTRAINT_AI_DATA_CENTER_POWER_INFRASTRUCTURE_PRIVATE_T1_MATERIALIZATION_RUNBOOK_V001_20260926.md",
@@ -99,12 +100,27 @@
     {
       "path": "docs/constraint/validation/HYDRA_CONSTRAINT_BATCH017_T1_PRIVATE_RECORD_SUPERSESSION_MAP_V001_20260926.json",
       "predecessor_git_blob_sha": "dd672a59f40d6d864d59c7692f07358d524e3264",
-      "successor_git_blob_sha": "353ef2865deb5c3f7b2ad98efedb2452a06ce627"
+      "successor_git_blob_sha": "014697798ddf30fc24c915bcc304fd437129ae7d"
     },
     {
       "path": "tools/validate_constraint_first_slice_successor.py",
       "predecessor_git_blob_sha": "9b552f4ef6ef77680fea32b2f4b1ee8ac2a01053",
-      "successor_git_blob_sha": "6b932b0a774b11222c832d77f645462347738909"
+      "successor_git_blob_sha": "8b0dbb53831c96bb12e7b96812174297d5b687c5"
+    },
+    {
+      "path": "constraint-t1-raw-artifact-store/src/hydra_constraint_t1_raw/store.py",
+      "predecessor_git_blob_sha": "040af0ee154e3cf6e64a145125fc1254ce170902",
+      "successor_git_blob_sha": "e6b8757b7dc24039d93caf33a26c8d0e3373ee63"
+    },
+    {
+      "path": "constraint-t1-raw-artifact-store/tests/test_store.py",
+      "predecessor_git_blob_sha": "da24ccc223900e345c5e1fb4fc92ae35db87f467",
+      "successor_git_blob_sha": "32a4116e6872ef5a844c6c5f7411423817b45de6"
+    },
+    {
+      "path": "docs/constraint/implementation/HYDRA_CONSTRAINT_AI_DATA_CENTER_POWER_INFRASTRUCTURE_PRIVATE_T1_CAPTURE_PLAN_TEMPLATE_V001_20260926.json",
+      "predecessor_git_blob_sha": "6aac032f40e8da7c538ee9392b8bbcc2fc2b0443",
+      "successor_git_blob_sha": "686c18acae8fadb92c4a6e4d90b40ca5c3d1d975"
     }
   ]
 }

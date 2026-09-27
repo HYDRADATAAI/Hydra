@@ -73,6 +73,18 @@ def main() -> int:
         require(row.get("acquired_at") == row.get("available_at"), "Batch016 conservative availability drifted")
         require(row.get("historical_backdating_authorized") is False, "Batch016 historical backdating unexpectedly authorized")
         require(row.get("ordinary_raw_lineage_eligible") is False, "Batch016 source unexpectedly raw-lineage eligible")
+    # These two acquisition claims remain unverified. A stored timestamp is
+    # not acquisition evidence; absent classification defaults to unverified.
+    unresolved_ids = {
+        "SRC-EATON-Q1-2026-RESULTS-2026-05-05",
+        "SRC-GEV-Q2-2026-RESULTS-2026-07-22",
+    }
+    for row in source_rows:
+        if row.get("source_id") in unresolved_ids:
+            require(row.get("acquisition_verification_status", "TIMESTAMP_UNVERIFIED") == "TIMESTAMP_UNVERIFIED", "unresolved acquisition was marked verified")
+            require(row.get("verified_acquired_at") is None, "unresolved acquisition gained verified timestamp")
+            require(row.get("known_at") is None, "unresolved acquisition was promoted to known_at")
+            require(row.get("acquired_at") == "2026-09-26T13:11:19Z", "unverified acquisition claim was replaced or backdated")
     require(sources.get("runtime_live_source_authority_used") is False, "Batch016 falsely uses runtime live-source authority")
     require(sources.get("source_content_persisted") is False, "Batch016 falsely claims source content persistence")
 
@@ -101,6 +113,11 @@ def main() -> int:
         require(row.get("outcome_label") == "BENEFICIARY_CAPTURE_CONFIRMED", "beneficiary capture outcome label drifted")
         require(row.get("constraint_attribution_status") == "BOUNDED_NOT_EXCLUSIVE_CAUSATION", "beneficiary capture causation was overstated")
         require(row.get("beneficiary_relationship_id"), "beneficiary capture relationship missing")
+
+    for row in (eaton, gev):
+        require(row.get("acquisition_verification_status", "TIMESTAMP_UNVERIFIED") == "TIMESTAMP_UNVERIFIED", "outcome acquisition was marked verified")
+        require(row.get("verified_acquired_at") is None and row.get("known_at") is None, "outcome gained unverified temporal authority")
+        require(row.get("hydra_available_at") == "2026-09-26T13:11:19Z" and row.get("observed_at") == "2026-09-26T13:11:19Z", "outcome acquisition claim was replaced or backdated")
 
     # Outcome evidence does not retroactively qualify the Batch010 relationships.
     require(ben10.get("qualified_relationship_count") == 0, "Batch010 beneficiary history was retroactively qualified")

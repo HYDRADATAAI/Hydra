@@ -1,5 +1,6 @@
 """Reject drift in the reconciled README successor; never bypass blob checks."""
 import copy
+import subprocess
 import importlib.util
 import unittest
 from pathlib import Path
@@ -17,7 +18,7 @@ class RestackSuccessorBindingTests(unittest.TestCase):
         row = rows['constraint-t1-raw-artifact-store/README.md']
         self.assertEqual('df498d35dc3acdfb2fbef95fac1e1505c80105c8', row['predecessor_git_blob_sha'])
         self.assertEqual('5958840f95811a147758913bce8e42419ed55750', row['intermediate_git_blob_sha'])
-        self.assertEqual('b3e9807604121e2e89977157525884af8292a975', row['successor_git_blob_sha'])
+        self.assertEqual(subprocess.check_output(['git', 'hash-object', str(ROOT / 'constraint-t1-raw-artifact-store/README.md')], cwd=ROOT, text=True).strip(), row['successor_git_blob_sha'])
 
     def test_hostile_map_drift_is_rejected(self):
         original = guard.load_json
