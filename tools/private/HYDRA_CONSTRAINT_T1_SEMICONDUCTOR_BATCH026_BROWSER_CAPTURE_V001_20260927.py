@@ -224,9 +224,16 @@ def validate_redirects(*, exact_locator: str, response_url: str, chain: Sequence
             )
 
 
-def validate_body(*, item: Mapping[str, Any], response: Any, body: bytes, policy: str) -> tuple[str, tuple[str, ...], str]:
+def validate_body(
+    *,
+    item: Mapping[str, Any],
+    response: Any,
+    body: bytes,
+    policy: str,
+    effective_locator: str,
+) -> tuple[str, tuple[str, ...], str]:
     source_id = str(item["source_id"])
-    locator = capture_locator
+    locator = effective_locator
     expected = str(item["content_type_hint"])
     chain = redirect_chain(response)
     final_url = str(response.url)
@@ -460,6 +467,7 @@ def capture_one(
                         response=response,
                         body=body,
                         policy=redirect_policy,
+                        effective_locator=locator,
                     )
                 except Exception as exc:
                     last_rejection = str(exc)
