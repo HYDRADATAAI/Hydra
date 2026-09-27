@@ -3,6 +3,7 @@
 
 from __future__ import annotations
 import importlib.util
+import inspect
 import json
 import os
 from pathlib import Path
@@ -99,6 +100,9 @@ def main()->int:
     require('"capture_source_locator": receipt["source_locator"]' in handback_text,"handback missing capture locator")
 
     mod=import_runner()
+    body_sig=inspect.signature(mod.validate_body)
+    require("effective_locator" in body_sig.parameters,"runner validate_body missing effective_locator parameter")
+    require("effective_locator=locator" in runner_text,"runner capture path does not pass effective locator into body validation")
     sample=rows[0]
     item=qby[sample["source_id"]]
     valid=f"https://s25.q4cdn.com{sample['required_path_prefix']}Example-Prepared-Remarks.pdf"
