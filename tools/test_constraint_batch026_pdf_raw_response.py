@@ -331,11 +331,14 @@ class RawPDFResponseTests(unittest.TestCase):
             self.assertEqual(result["capture_locator"], self.locator)
             self.assertEqual(result["redirect_chain"], [self.locator])
             self.assertEqual(
-                result["raw_request_fallback_evidence"],
+                result["prior_failed_acquisition_attempt"],
                 {
-                    "original_raw_request_status": 403,
-                    "original_raw_request_url": self.locator,
-                    "browser_navigation_status": 200,
+                    "transport": "PLAYWRIGHT_API_REQUEST",
+                    "http_status": 403,
+                    "final_response_url": self.locator,
+                    "redirect_chain": [self.locator],
+                    "accepted": False,
+                    "reason": "HTTP_403_AUTHORIZED_TSMC_BROWSER_NAVIGATION_FALLBACK",
                 },
             )
             self.assertEqual(
@@ -391,11 +394,11 @@ class RawPDFResponseTests(unittest.TestCase):
                             capture_path=capture_path,
                             sidecar_path=sidecar_path,
                         )
-                self.assertIn("original raw HTTP 403", str(raised.exception))
+                self.assertIn("prior raw API request returned HTTP 403", str(raised.exception))
                 self.assertFalse(capture_path.exists())
                 self.assertFalse(sidecar_path.exists())
                 self.assertTrue(api_response.disposed)
-                self.assertEqual(browser_response.body_calls, 1)
+                self.assertEqual(browser_response.body_calls, 0 if case_name == "redirect" else 1)
 
     def test_unauthorized_source_cannot_use_browser_200_fallback(self) -> None:
         api_response = self.forbidden_response()
@@ -424,11 +427,11 @@ class RawPDFResponseTests(unittest.TestCase):
             self.assertEqual(browser_response.body_calls, 0)
 
     def test_fallback_allowlist_is_exactly_four_and_excludes_prohibited_micron_set(self) -> None:
-        self.assertEqual(runner.PDF_NAVIGATION_FALLBACK_SOURCE_IDS, self.authorized_fallback_source_ids)
-        self.assertEqual(len(runner.PDF_NAVIGATION_FALLBACK_SOURCE_IDS), 4)
+        self.assertEqual(set(runner.TSMC_BROWSER_403_FALLBACK_SOURCE_IDS), self.authorized_fallback_source_ids)
+        self.assertEqual(len(runner.TSMC_BROWSER_403_FALLBACK_SOURCE_IDS), 4)
         self.assertEqual(len(runner.OPERATOR_BLOCKED_SOURCE_IDS), 9)
         self.assertEqual(
-            set(runner.PDF_NAVIGATION_FALLBACK_SOURCE_IDS)
+            set(runner.TSMC_BROWSER_403_FALLBACK_SOURCE_IDS)
             & set(runner.OPERATOR_BLOCKED_SOURCE_IDS),
             set(),
         )
@@ -436,7 +439,7 @@ class RawPDFResponseTests(unittest.TestCase):
         blocked, eligible = runner.partition_capture_queue(queue)
         eligible_by_id = {item["source_id"]: item for item in eligible}
         self.assertEqual(
-            set(runner.PDF_NAVIGATION_FALLBACK_SOURCE_IDS),
+            set(runner.TSMC_BROWSER_403_FALLBACK_SOURCE_IDS),
             set(eligible_by_id) & self.authorized_fallback_source_ids,
         )
         self.assertEqual(
@@ -446,7 +449,7 @@ class RawPDFResponseTests(unittest.TestCase):
         self.assertTrue(
             all(
                 eligible_by_id[source_id]["content_type_hint"] == "application/pdf"
-                for source_id in runner.PDF_NAVIGATION_FALLBACK_SOURCE_IDS
+                for source_id in runner.TSMC_BROWSER_403_FALLBACK_SOURCE_IDS
             )
         )
 
@@ -458,7 +461,7 @@ class RawPDFResponseTests(unittest.TestCase):
             capture_path = Path(temporary_directory) / "source.pdf"
             sidecar_path = Path(str(capture_path) + ".capture.json")
             with contextlib.redirect_stdout(io.StringIO()):
-                with self.assertRaisesRegex(runner.CaptureError, "browser navigation HTTP 403"):
+                with self.assertRaisesRegex(runner.CaptureError, "authorized browser fallback requires HTTP 200"):
                     self.run_capture(
                         source_id=next(iter(sorted(self.authorized_fallback_source_ids))),
                         api_response=api_response,

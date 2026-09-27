@@ -34,14 +34,13 @@ OPERATOR_BLOCKED_SOURCE_IDS = (
 )
 EXPECTED_BLOCKED_SOURCE_COUNT = 9
 EXPECTED_ELIGIBLE_SOURCE_COUNT = EXPECTED_SOURCE_COUNT - EXPECTED_BLOCKED_SOURCE_COUNT
-PDF_NAVIGATION_FALLBACK_SOURCE_IDS = frozenset(
-    {
-        "SRC-SEMI-TSMC-Q1-2025-TRANSCRIPT-2025-04-17",
-        "SRC-SEMI-B020-TSMC-Q2-2023-TRANSCRIPT-2023-07-20",
-        "SRC-SEMI-B022-TSMC-2025-ANNUAL-EQUIPMENT-RISK",
-        "SRC-SEMI-B022-TSMC-Q2-2026-TRANSCRIPT-2026-07-16",
-    }
+TSMC_BROWSER_403_FALLBACK_SOURCE_IDS = (
+    "SRC-SEMI-TSMC-Q1-2025-TRANSCRIPT-2025-04-17",
+    "SRC-SEMI-B020-TSMC-Q2-2023-TRANSCRIPT-2023-07-20",
+    "SRC-SEMI-B022-TSMC-2025-ANNUAL-EQUIPMENT-RISK",
+    "SRC-SEMI-B022-TSMC-Q2-2026-TRANSCRIPT-2026-07-16",
 )
+EXPECTED_TSMC_BROWSER_403_FALLBACK_SOURCE_COUNT = 4
 BLOCKED_SOURCE_STATUS = "BLOCKED_BY_OPERATOR"
 SIDECAR_SCHEMA = "hydra-semiconductor-private-capture-sidecar/v1"
 JOURNAL_SCHEMA = "hydra-constraint-semiconductor-batch026-browser-capture-journal/v1"
@@ -603,7 +602,6 @@ def capture_one(
 
     page.on("response", on_response)
     navigation_error: Exception | None = None
-    pdf_navigation_response: Any | None = None
     is_pdf = str(item["content_type_hint"]) == "application/pdf"
     try:
         if is_pdf:
@@ -618,7 +616,6 @@ def capture_one(
             except Exception as exc:
                 navigation_error = exc
             finally:
-                pdf_navigation_response = main_response
                 if main_response is not None and all(candidate is not main_response for candidate in responses):
                     responses.append(main_response)
                 response_status = getattr(main_response, "status", None)
@@ -645,7 +642,8 @@ def capture_one(
                 body_response = response
                 api_response: Any | None = None
                 request_chain: tuple[str, ...] | None = None
-                fallback_evidence: dict[str, Any] | None = None
+                fallback_used = False
+                fallback_prior_attempt: dict[str, Any] | None = None
                 try:
                     if is_pdf:
                         print(f"PDF_RAW_REQUEST_BEGIN {source_id} -> {locator}", flush=True)
@@ -656,7 +654,6 @@ def capture_one(
                             timeout_milliseconds=max(1, navigation_timeout_seconds) * 1000,
                         )
                         body_response = api_response
-                        api_status = int(api_response.status)
                         print(
                             f"PDF_RAW_RESPONSE_COMPLETE {source_id} -> {locator} "
                             f"status={body_response.status} final_url={body_response.url} "
@@ -664,34 +661,39 @@ def capture_one(
                             f"content_length={response_header_value(body_response, 'content-length')!r}",
                             flush=True,
                         )
+                        raw_api_status = int(body_response.status)
                         if (
-                            api_status == 403
-                            and source_id in PDF_NAVIGATION_FALLBACK_SOURCE_IDS
+                            raw_api_status == 403
+                            and source_id in TSMC_BROWSER_403_FALLBACK_SOURCE_IDS
                         ):
-                            failed_api_url = str(api_response.url)
-                            fallback_evidence = {
-                                "original_raw_request_status": api_status,
-                                "original_raw_request_url": failed_api_url,
+                            fallback_prior_attempt = {
+                                "transport": "PLAYWRIGHT_API_REQUEST",
+                                "http_status": raw_api_status,
+                                "final_response_url": str(api_response.url),
+                                "redirect_chain": list(request_chain),
+                                "accepted": False,
+                                "reason": "HTTP_403_AUTHORIZED_TSMC_BROWSER_NAVIGATION_FALLBACK",
                             }
-                            dispose_api_response(api_response)
-                            api_response = None
-                            if pdf_navigation_response is None:
+                            browser_status = int(getattr(response, "status", 0))
+                            if browser_status != 200:
                                 raise CaptureError(
-                                    f"{source_id}: raw HTTP 403 at {failed_api_url!r}; "
-                                    "browser navigation response unavailable"
+                                    f"{source_id}: authorized browser fallback requires "
+                                    f"HTTP 200 navigation response, observed {browser_status}"
                                 )
-                            navigation_status = int(pdf_navigation_response.status)
-                            fallback_evidence["browser_navigation_status"] = navigation_status
-                            if navigation_status != 200:
-                                raise CaptureError(
-                                    f"{source_id}: raw HTTP 403 at {failed_api_url!r}; "
-                                    f"browser navigation HTTP {navigation_status} is not acceptable"
-                                )
-                            body_response = pdf_navigation_response
-                            request_chain = redirect_chain(pdf_navigation_response)
+                            browser_chain = redirect_chain(response)
+                            validate_redirects(
+                                exact_locator=locator,
+                                response_url=str(response.url),
+                                chain=browser_chain,
+                                policy=redirect_policy,
+                            )
+                            body_response = response
+                            request_chain = None
+                            fallback_used = True
                             print(
-                                f"PDF_NAVIGATION_RESPONSE_FALLBACK {source_id} -> {locator} "
-                                f"original_api_status={api_status} navigation_status={navigation_status}",
+                                f"PDF_BROWSER_403_FALLBACK_BEGIN {source_id} -> {locator} "
+                                f"api_status={raw_api_status} browser_status={browser_status} "
+                                f"browser_url={response.url}",
                                 flush=True,
                             )
                         print(f"PDF_BODY_BEGIN {source_id} -> {locator}", flush=True)
@@ -740,10 +742,11 @@ def capture_one(
                 except Exception as exc:
                     if api_response is not None:
                         dispose_api_response(api_response)
-                    if fallback_evidence is not None:
+                    if fallback_prior_attempt is not None:
                         last_rejection = (
-                            f"{exc}; browser fallback rejected after original raw HTTP 403 "
-                            f"at {fallback_evidence['original_raw_request_url']!r}"
+                            f"{exc}; prior raw API request returned HTTP "
+                            f"{fallback_prior_attempt['http_status']} at "
+                            f"{fallback_prior_attempt['final_response_url']!r} and was not accepted"
                         )
                     else:
                         last_rejection = str(exc)
@@ -784,8 +787,9 @@ def capture_one(
                     "final_response_url": final_url,
                     "status": "CAPTURED",
                 }
-                if fallback_evidence is not None:
-                    result["raw_request_fallback_evidence"] = fallback_evidence
+                if fallback_used:
+                    result["capture_transport"] = "BROWSER_NAVIGATION_RESPONSE_FALLBACK"
+                    result["prior_failed_acquisition_attempt"] = fallback_prior_attempt
                 return result
 
             if time.monotonic() >= deadline:
