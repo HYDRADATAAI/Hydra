@@ -16,6 +16,7 @@ on:
       - "docs/constraint/architecture/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH026_*.json"
       - "docs/constraint/architecture/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH027_*.json"
       - "docs/constraint/architecture/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH028_*.json"
+      - "docs/constraint/architecture/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH029_*.json"
       - "docs/constraint/validation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH019_*"
       - "docs/constraint/validation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH020_*"
       - "docs/constraint/validation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH021_*"
@@ -26,6 +27,7 @@ on:
       - "docs/constraint/validation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH026_*"
       - "docs/constraint/validation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH027_*"
       - "docs/constraint/validation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH028_*"
+      - "docs/constraint/validation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH029_*"
       - "tools/validate_constraint_second_slice_batch017_audit.py"
       - "tools/test_constraint_second_slice_batch017_audit_adversarial.py"
       - "tools/validate_constraint_second_slice_batch018_population.py"
@@ -57,6 +59,8 @@ on:
       - "tools/private/HYDRA_CONSTRAINT_T1_SEMICONDUCTOR_BATCH026_BROWSER_CAPTURE_REQUIREMENTS_V001_20260927.txt"
       - "tools/validate_constraint_second_slice_batch028_browser_adapter.py"
       - "tools/test_constraint_second_slice_batch028_browser_adapter_adversarial.py"
+      - "tools/validate_constraint_second_slice_batch029_locator_remediation.py"
+      - "tools/test_constraint_second_slice_batch029_locator_remediation_adversarial.py"
       - ".github/workflows/constraint-second-slice.yml"
   push:
     branches:
@@ -75,6 +79,7 @@ on:
       - "docs/constraint/architecture/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH026_*.json"
       - "docs/constraint/architecture/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH027_*.json"
       - "docs/constraint/architecture/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH028_*.json"
+      - "docs/constraint/architecture/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH029_*.json"
       - "docs/constraint/validation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH019_*"
       - "docs/constraint/validation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH020_*"
       - "docs/constraint/validation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH021_*"
@@ -85,6 +90,7 @@ on:
       - "docs/constraint/validation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH026_*"
       - "docs/constraint/validation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH027_*"
       - "docs/constraint/validation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH028_*"
+      - "docs/constraint/validation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH029_*"
       - "tools/validate_constraint_second_slice_batch017_audit.py"
       - "tools/test_constraint_second_slice_batch017_audit_adversarial.py"
       - "tools/validate_constraint_second_slice_batch018_population.py"
@@ -116,6 +122,8 @@ on:
       - "tools/private/HYDRA_CONSTRAINT_T1_SEMICONDUCTOR_BATCH026_BROWSER_CAPTURE_REQUIREMENTS_V001_20260927.txt"
       - "tools/validate_constraint_second_slice_batch028_browser_adapter.py"
       - "tools/test_constraint_second_slice_batch028_browser_adapter_adversarial.py"
+      - "tools/validate_constraint_second_slice_batch029_locator_remediation.py"
+      - "tools/test_constraint_second_slice_batch029_locator_remediation_adversarial.py"
       - ".github/workflows/constraint-second-slice.yml"
 
 permissions:
@@ -207,3 +215,12 @@ jobs:
             $errors | ForEach-Object { Write-Error $_.Message }
             exit 1
           }
+
+      - name: Validate Batch029 Micron locator remediation
+        run: python tools/validate_constraint_second_slice_batch029_locator_remediation.py
+
+      - name: Run Batch029 hostile matrix
+        run: python tools/test_constraint_second_slice_batch029_locator_remediation_adversarial.py
+
+      - name: Compile Batch029 patched acquisition and T1 tools
+        run: python -m py_compile tools/private/HYDRA_CONSTRAINT_T1_SEMICONDUCTOR_BATCH026_BROWSER_CAPTURE_V001_20260927.py tools/materialize_constraint_second_slice_batch026_private_t1.py tools/verify_constraint_second_slice_batch026_private_t1.py tools/build_constraint_second_slice_batch026_private_t1_handback.py

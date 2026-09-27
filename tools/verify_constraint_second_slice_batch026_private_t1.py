@@ -8,8 +8,10 @@ import json
 import sys
 from pathlib import Path
 from typing import Any
+from urllib.parse import urlparse
 
 QUEUE_REL = "docs/constraint/second_slice/semiconductor_advanced_packaging_critical_materials_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH026_SEMICONDUCTOR_PRIVATE_T1_CAPTURE_QUEUE_V001_20260926.json"
+LOCATOR_OVERLAY_REL = "docs/constraint/second_slice/semiconductor_advanced_packaging_critical_materials_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH029_SEMICONDUCTOR_MICRON_CAPTURE_LOCATOR_REMEDIATION_V001_20260927.json"
 
 
 def fail(message: str) -> None:
@@ -27,6 +29,26 @@ def load_json(path: Path) -> dict[str, Any]:
     return value
 
 
+def load_remediations(path: Path) -> dict[str, dict[str, Any]]:
+    doc = load_json(path)
+    rows = doc.get("remediations")
+    if not isinstance(rows, list):
+        fail("locator remediation rows missing")
+    return {row["source_id"]: row for row in rows if isinstance(row, dict) and isinstance(row.get("source_id"), str)}
+
+
+def locator_allowed(item: dict[str, Any], locator: str, remediation: dict[str, Any] | None) -> bool:
+    if remediation is None:
+        return locator == item["source_locator"]
+    parsed = urlparse(locator)
+    return (
+        parsed.scheme.lower() == "https"
+        and (parsed.hostname or "").lower() == "s25.q4cdn.com"
+        and isinstance(remediation.get("required_path_prefix"), str)
+        and parsed.path.startswith(remediation["required_path_prefix"])
+    )
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--repo-root", required=True)
@@ -41,6 +63,7 @@ def main() -> int:
     queue = queue_doc.get("queue")
     if not isinstance(queue, list) or len(queue) != 41:
         fail("queue must contain exactly 41 capture intents")
+    remediations = load_remediations(repo_root / LOCATOR_OVERLAY_REL)
 
     sys.path.insert(0, str(repo_root / "constraint-t1-raw-artifact-store" / "src"))
     from hydra_constraint_t1_raw.store import RawArtifactStore, is_ordinary_t2_eligible
@@ -60,7 +83,11 @@ def main() -> int:
         if issues:
             invalid.append((item["source_id"], ",".join(issues)))
             continue
-        if receipt.get("source_locator") != item["source_locator"]:
+        if not locator_allowed(
+            item,
+            str(receipt.get("source_locator") or ""),
+            remediations.get(item["source_id"]),
+        ):
             invalid.append((item["source_id"], "source_locator_mismatch"))
             continue
         if receipt.get("acquired_at") != receipt.get("available_at"):

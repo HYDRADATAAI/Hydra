@@ -13,8 +13,10 @@ import sys
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
+from urllib.parse import urlparse
 
 QUEUE_REL = "docs/constraint/second_slice/semiconductor_advanced_packaging_critical_materials_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH026_SEMICONDUCTOR_PRIVATE_T1_CAPTURE_QUEUE_V001_20260926.json"
+LOCATOR_OVERLAY_REL = "docs/constraint/second_slice/semiconductor_advanced_packaging_critical_materials_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH029_SEMICONDUCTOR_MICRON_CAPTURE_LOCATOR_REMEDIATION_V001_20260927.json"
 SIDECAR_SCHEMA = "hydra-semiconductor-private-capture-sidecar/v1"
 ALLOWED_HTML_TYPES = {"text/html", "multipart/related", "application/x-mimearchive"}
 
@@ -43,11 +45,40 @@ def load_json(path: Path) -> dict[str, Any]:
     return value
 
 
+def load_remediations(path: Path) -> dict[str, dict[str, Any]]:
+    doc = load_json(path)
+    rows = doc.get("remediations")
+    if not isinstance(rows, list):
+        fail("locator remediation rows missing")
+    result: dict[str, dict[str, Any]] = {}
+    for row in rows:
+        if not isinstance(row, dict) or not isinstance(row.get("source_id"), str):
+            fail("invalid locator remediation row")
+        result[row["source_id"]] = row
+    return result
+
+
+def locator_allowed(item: dict[str, Any], locator: str, remediation: dict[str, Any] | None) -> bool:
+    if remediation is None:
+        return locator == item["source_locator"]
+    parsed = urlparse(locator)
+    return (
+        parsed.scheme.lower() == "https"
+        and (parsed.hostname or "").lower() == "s25.q4cdn.com"
+        and isinstance(remediation.get("required_path_prefix"), str)
+        and parsed.path.startswith(remediation["required_path_prefix"])
+    )
+
+
 def sidecar_path(capture_path: Path) -> Path:
     return Path(str(capture_path) + ".capture.json")
 
 
-def validate_sidecar(item: dict[str, Any], sidecar: dict[str, Any]) -> tuple[str, str]:
+def validate_sidecar(
+    item: dict[str, Any],
+    sidecar: dict[str, Any],
+    remediation: dict[str, Any] | None,
+) -> tuple[str, str, str]:
     required = {
         "schema_version", "capture_intent_id", "source_id", "source_version_id",
         "source_locator", "capture_completed_at", "content_type",
@@ -57,9 +88,12 @@ def validate_sidecar(item: dict[str, Any], sidecar: dict[str, Any]) -> tuple[str
         fail(f"{item['source_id']}: sidecar field set invalid")
     if sidecar["schema_version"] != SIDECAR_SCHEMA:
         fail(f"{item['source_id']}: sidecar schema invalid")
-    for field in ("capture_intent_id", "source_id", "source_version_id", "source_locator"):
+    for field in ("capture_intent_id", "source_id", "source_version_id"):
         if sidecar[field] != item[field]:
             fail(f"{item['source_id']}: sidecar {field} mismatch")
+    source_locator = sidecar["source_locator"]
+    if not isinstance(source_locator, str) or not locator_allowed(item, source_locator, remediation):
+        fail(f"{item['source_id']}: sidecar source_locator is not allowed by locator-remediation policy")
     if sidecar["processing_disposition"] != "ELIGIBLE":
         fail(f"{item['source_id']}: sidecar disposition must be ELIGIBLE")
     if sidecar["historical_backdating_authorized"] is not False:
@@ -74,7 +108,7 @@ def validate_sidecar(item: dict[str, Any], sidecar: dict[str, Any]) -> tuple[str
         fail(f"{item['source_id']}: expected application/pdf")
     if hint == "text/html" and content_type not in ALLOWED_HTML_TYPES:
         fail(f"{item['source_id']}: expected HTML/MHTML content type")
-    return timestamp, content_type
+    return timestamp, content_type, source_locator
 
 
 def main() -> int:
@@ -97,9 +131,10 @@ def main() -> int:
     queue = queue_doc.get("queue")
     if not isinstance(queue, list) or len(queue) != 41:
         fail("queue must contain exactly 41 capture intents")
+    remediations = load_remediations(repo_root / LOCATOR_OVERLAY_REL)
 
     missing: list[str] = []
-    prepared: list[tuple[dict[str, Any], Path, dict[str, Any], str, str]] = []
+    prepared: list[tuple[dict[str, Any], Path, dict[str, Any], str, str, str]] = []
     for item in queue:
         capture_path = inbox_root / item["inbox_filename"]
         sc_path = sidecar_path(capture_path)
@@ -112,8 +147,12 @@ def main() -> int:
         if capture_path.stat().st_size <= 0:
             fail(f"{item['source_id']}: capture file is empty")
         sidecar = load_json(sc_path)
-        timestamp, content_type = validate_sidecar(item, sidecar)
-        prepared.append((item, capture_path, sidecar, timestamp, content_type))
+        timestamp, content_type, source_locator = validate_sidecar(
+            item,
+            sidecar,
+            remediations.get(item["source_id"]),
+        )
+        prepared.append((item, capture_path, sidecar, timestamp, content_type, source_locator))
 
     if missing:
         print("BATCH026_PRIVATE_T1_MATERIALIZATION=BLOCKED")
@@ -136,7 +175,7 @@ def main() -> int:
 
     store = RawArtifactStore(root=private_root, public_repo_root=repo_root)
     receipts = []
-    for item, capture_path, sidecar, timestamp, content_type in prepared:
+    for item, capture_path, sidecar, timestamp, content_type, source_locator in prepared:
         receipt = store.persist(
             raw_bytes=capture_path.read_bytes(),
             source_id=item["source_id"],
@@ -144,7 +183,7 @@ def main() -> int:
             content_type=content_type,
             acquired_at=timestamp,
             available_at=timestamp,
-            source_locator=item["source_locator"],
+            source_locator=source_locator,
             processing_disposition="ELIGIBLE",
         )
         issues = store.validate_receipt(receipt)

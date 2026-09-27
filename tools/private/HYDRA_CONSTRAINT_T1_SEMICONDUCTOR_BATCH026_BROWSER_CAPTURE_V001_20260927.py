@@ -15,6 +15,10 @@ QUEUE_RELATIVE_PATH = Path(
     "docs/constraint/second_slice/semiconductor_advanced_packaging_critical_materials_v1/"
     "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH026_SEMICONDUCTOR_PRIVATE_T1_CAPTURE_QUEUE_V001_20260926.json"
 )
+LOCATOR_OVERLAY_RELATIVE_PATH = Path(
+    "docs/constraint/second_slice/semiconductor_advanced_packaging_critical_materials_v1/"
+    "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH029_SEMICONDUCTOR_MICRON_CAPTURE_LOCATOR_REMEDIATION_V001_20260927.json"
+)
 EXPECTED_SLICE_ID = "SEMICONDUCTOR_ADVANCED_PACKAGING_CRITICAL_MATERIALS_V1"
 EXPECTED_SOURCE_COUNT = 41
 SIDECAR_SCHEMA = "hydra-semiconductor-private-capture-sidecar/v1"
@@ -75,6 +79,118 @@ def normalize_host(url: str) -> str:
     return host[4:] if host.startswith("www.") else host
 
 
+def load_locator_remediations(doc: Mapping[str, Any]) -> dict[str, dict[str, Any]]:
+    if doc.get("slice_id") != EXPECTED_SLICE_ID:
+        raise CaptureError("locator remediation slice_id mismatch")
+    rows = doc.get("remediations")
+    if not isinstance(rows, list):
+        raise CaptureError("locator remediation rows missing")
+    mapping: dict[str, dict[str, Any]] = {}
+    for row in rows:
+        if not isinstance(row, Mapping):
+            raise CaptureError("locator remediation row must be an object")
+        source_id = row.get("source_id")
+        if not isinstance(source_id, str) or not source_id:
+            raise CaptureError("locator remediation source_id missing")
+        if source_id in mapping:
+            raise CaptureError(f"duplicate locator remediation: {source_id}")
+        mapping[source_id] = dict(row)
+    return mapping
+
+
+def validate_effective_locator(
+    *,
+    item: Mapping[str, Any],
+    locator: str,
+    remediation: Mapping[str, Any] | None,
+) -> None:
+    if remediation is None:
+        if locator != item.get("source_locator"):
+            raise CaptureError(f"{item['source_id']}: capture locator differs from registered locator")
+        return
+
+    parsed = urlparse(locator)
+    if parsed.scheme.lower() != "https":
+        raise CaptureError(f"{item['source_id']}: remediated capture locator must be HTTPS")
+    if normalize_host(locator) != "s25.q4cdn.com":
+        raise CaptureError(f"{item['source_id']}: remediated capture locator host is not Micron Q4CDN")
+    prefix = remediation.get("required_path_prefix")
+    if not isinstance(prefix, str) or not parsed.path.startswith(prefix):
+        raise CaptureError(f"{item['source_id']}: remediated capture locator quarter path mismatch")
+
+
+def _matches_document_kind(*, href: str, text: str, kind: str) -> bool:
+    combined = (href + " " + text).lower().replace("_", " ").replace("-", " ")
+    if kind == "prepared_remarks":
+        return "prepared" in combined and "remark" in combined
+    if kind == "presentation":
+        return (
+            "presentation" in combined
+            or "earnings deck" in combined
+            or "earnings slides" in combined
+            or ("earning" in combined and "slide" in combined)
+        ) and "prepared" not in combined
+    raise CaptureError(f"unsupported locator-remediation document kind: {kind}")
+
+
+def resolve_remediated_locator(
+    *,
+    context: Any,
+    item: Mapping[str, Any],
+    remediation: Mapping[str, Any],
+    navigation_timeout_seconds: int,
+) -> str:
+    authority_page = "https://investors.micron.com/financials/quarterly-results/default.aspx"
+    page = context.new_page()
+    try:
+        page.goto(
+            authority_page,
+            wait_until="domcontentloaded",
+            timeout=max(1, navigation_timeout_seconds) * 1000,
+        )
+        page.wait_for_timeout(1500)
+        links = page.locator("a").evaluate_all(
+            """els => els.map(a => ({
+                href: a.href || "",
+                text: (a.innerText || a.textContent || "").trim()
+            }))"""
+        )
+    finally:
+        try:
+            page.close()
+        except Exception:
+            pass
+
+    candidates: list[str] = []
+    for raw in links:
+        if not isinstance(raw, dict):
+            continue
+        href = str(raw.get("href") or "")
+        text = str(raw.get("text") or "")
+        if not href:
+            continue
+        try:
+            validate_effective_locator(item=item, locator=href, remediation=remediation)
+        except CaptureError:
+            continue
+        if _matches_document_kind(
+            href=href,
+            text=text,
+            kind=str(remediation.get("document_kind")),
+        ):
+            candidates.append(href)
+
+    candidates = sorted(set(candidates))
+    if len(candidates) != 1:
+        raise CaptureError(
+            f"{item['source_id']}: official Micron quarterly-results resolver found "
+            f"{len(candidates)} matching capture locators: {candidates!r}"
+        )
+    resolved = candidates[0]
+    validate_effective_locator(item=item, locator=resolved, remediation=remediation)
+    return resolved
+
+
 def redirect_chain(response: Any) -> tuple[str, ...]:
     request = response.request
     chain: list[str] = []
@@ -110,7 +226,7 @@ def validate_redirects(*, exact_locator: str, response_url: str, chain: Sequence
 
 def validate_body(*, item: Mapping[str, Any], response: Any, body: bytes, policy: str) -> tuple[str, tuple[str, ...], str]:
     source_id = str(item["source_id"])
-    locator = str(item["source_locator"])
+    locator = capture_locator
     expected = str(item["content_type_hint"])
     chain = redirect_chain(response)
     final_url = str(response.url)
@@ -198,7 +314,13 @@ def validate_queue(queue_doc: Mapping[str, Any]) -> list[dict[str, Any]]:
     return normalized
 
 
-def validate_existing_pair(*, item: Mapping[str, Any], capture_path: Path, sidecar_path: Path) -> dict[str, Any] | None:
+def validate_existing_pair(
+    *,
+    item: Mapping[str, Any],
+    capture_path: Path,
+    sidecar_path: Path,
+    remediation: Mapping[str, Any] | None,
+) -> dict[str, Any] | None:
     file_exists = capture_path.is_file()
     sidecar_exists = sidecar_path.is_file()
     if not file_exists and not sidecar_exists:
@@ -218,9 +340,14 @@ def validate_existing_pair(*, item: Mapping[str, Any], capture_path: Path, sidec
         raise CaptureError(f"{item['source_id']}: existing sidecar field set invalid")
     if sidecar.get("schema_version") != SIDECAR_SCHEMA:
         raise CaptureError(f"{item['source_id']}: existing sidecar schema invalid")
-    for field in ("capture_intent_id", "source_id", "source_version_id", "source_locator"):
+    for field in ("capture_intent_id", "source_id", "source_version_id"):
         if sidecar.get(field) != item.get(field):
             raise CaptureError(f"{item['source_id']}: existing sidecar {field} mismatch")
+    validate_effective_locator(
+        item=item,
+        locator=str(sidecar.get("source_locator") or ""),
+        remediation=remediation,
+    )
     if sidecar.get("processing_disposition") != "ELIGIBLE":
         raise CaptureError(f"{item['source_id']}: existing sidecar disposition invalid")
     if sidecar.get("historical_backdating_authorized") is not False:
@@ -242,6 +369,8 @@ def validate_existing_pair(*, item: Mapping[str, Any], capture_path: Path, sidec
     return {
         "source_id": item["source_id"],
         "source_version_id": item["source_version_id"],
+        "registered_source_locator": item["source_locator"],
+        "capture_locator": sidecar["source_locator"],
         "capture_path": str(capture_path),
         "sidecar_path": str(sidecar_path),
         "capture_completed_at": sidecar["capture_completed_at"],
@@ -289,6 +418,7 @@ def capture_one(
     item: Mapping[str, Any],
     capture_path: Path,
     sidecar_path: Path,
+    capture_locator: str,
     redirect_policy: str,
     challenge_wait_seconds: int,
     navigation_timeout_seconds: int,
@@ -343,7 +473,7 @@ def capture_one(
                     "capture_intent_id": item["capture_intent_id"],
                     "source_id": item["source_id"],
                     "source_version_id": item["source_version_id"],
-                    "source_locator": item["source_locator"],
+                    "source_locator": locator,
                     "capture_completed_at": captured_at,
                     "content_type": content_type,
                     "processing_disposition": "ELIGIBLE",
@@ -353,6 +483,8 @@ def capture_one(
                 return {
                     "source_id": source_id,
                     "source_version_id": item["source_version_id"],
+                    "registered_source_locator": item["source_locator"],
+                    "capture_locator": locator,
                     "capture_path": str(capture_path),
                     "sidecar_path": str(sidecar_path),
                     "capture_completed_at": captured_at,
@@ -407,6 +539,11 @@ def main() -> int:
     inbox_root = assert_outside_repo(Path(args.inbox_root), repo_root, "InboxRoot")
     queue_doc = load_json(repo_root / QUEUE_RELATIVE_PATH)
     queue = validate_queue(queue_doc)
+    remediation_doc = load_json(repo_root / LOCATOR_OVERLAY_RELATIVE_PATH)
+    remediations = load_locator_remediations(remediation_doc)
+    queue_ids = {item["source_id"] for item in queue}
+    if not set(remediations).issubset(queue_ids):
+        raise CaptureError("locator remediation references source outside Batch026 queue")
     inbox_root.mkdir(parents=True, exist_ok=True)
 
     journal_path = inbox_root / "HYDRA_CONSTRAINT_SEMI_B026_BROWSER_CAPTURE_JOURNAL_V001.json"
@@ -426,7 +563,12 @@ def main() -> int:
     for item in queue:
         capture_path = inbox_root / item["inbox_filename"]
         sidecar_path = Path(str(capture_path) + ".capture.json")
-        existing = validate_existing_pair(item=item, capture_path=capture_path, sidecar_path=sidecar_path)
+        existing = validate_existing_pair(
+            item=item,
+            capture_path=capture_path,
+            sidecar_path=sidecar_path,
+            remediation=remediations.get(item["source_id"]),
+        )
         if existing is None:
             pending.append(item)
         else:
@@ -479,12 +621,26 @@ def main() -> int:
                     capture_path = inbox_root / item["inbox_filename"]
                     sidecar_path = Path(str(capture_path) + ".capture.json")
                     try:
+                        remediation = remediations.get(item["source_id"])
+                        capture_locator = str(item["source_locator"])
+                        if remediation is not None:
+                            capture_locator = resolve_remediated_locator(
+                                context=context,
+                                item=item,
+                                remediation=remediation,
+                                navigation_timeout_seconds=args.navigation_timeout_seconds,
+                            )
+                            print(
+                                f"LOCATOR_REMEDIATED {item['ordinal']:03d}/041 "
+                                f"{item['source_id']} -> {capture_locator}"
+                            )
                         row = capture_one(
                             context=context,
                             browser_channel=browser_channel,
                             item=item,
                             capture_path=capture_path,
                             sidecar_path=sidecar_path,
+                            capture_locator=capture_locator,
                             redirect_policy=args.redirect_policy,
                             challenge_wait_seconds=args.challenge_wait_seconds,
                             navigation_timeout_seconds=args.navigation_timeout_seconds,
