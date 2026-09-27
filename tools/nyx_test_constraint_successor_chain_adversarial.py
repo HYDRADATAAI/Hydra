@@ -673,7 +673,7 @@ def main() -> int:
         ("batch012_cancelled_scope_generalized", case_batch012_cancelled_scope_generalized, "Batch012 cancelled-project scope was generalized"),
         ("batch012_true_case_falsely_closed", case_batch012_true_case_falsely_closed, "Batch012 case1 overlay falsely closed true-project case"),
         ("batch012_invents_available_at", case_batch012_invents_available_at, "Batch012 invented exact HYDRA available_at"),
-        ("latest_master_falsely_ready", case_latest_master_falsely_ready, "Batch029 master FULL_CONSTRAINT_RUN_READY drifted"),
+        ("latest_master_falsely_ready", case_latest_master_falsely_ready, "latest master falsely claims full-run readiness"),
         ("batch016_full_readiness_promoted", case_batch016_full_readiness_promoted, "Batch016 full-run readiness was promoted"),
         ("batch026_source_count_drift", case_batch026_source_count_drift, "Batch026 queue ordinal set drifted"),
         ("batch027_predecessor_drift", case_batch027_predecessor_drift, "Batch027 master predecessor drifted"),
