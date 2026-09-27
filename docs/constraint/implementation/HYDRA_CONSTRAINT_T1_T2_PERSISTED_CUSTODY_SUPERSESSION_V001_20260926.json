@@ -33,12 +33,12 @@
     {
       "path": "t6-fail-closed-validator/src/hydra_t6_failclosed/pit_conservative_availability.py",
       "predecessor_git_blob_sha": "ab0ca489b8f851e147a7a8d411217f7f05b034c1",
-      "successor_git_blob_sha": "abb485ce177c7af2ca4eb3cbbfe08e0f270f02fc"
+      "successor_git_blob_sha": "caf36abf0b6cbb8ebae7b19a65aba0f96796672d"
     },
     {
       "path": "t6-fail-closed-validator/tests/test_pit_conservative_availability.py",
       "predecessor_git_blob_sha": "3d3b3681bc20bb57cd1493abef578a189a8703cd",
-      "successor_git_blob_sha": "dd0127eb2d3e0c3cfce87390e6ce6d3741565da6"
+      "successor_git_blob_sha": "8b773956010afc0cc502cfa3c4f266b7c31d2c6f"
     }
   ],
   "guardrails": [

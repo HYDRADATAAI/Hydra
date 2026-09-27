@@ -27,6 +27,14 @@ def validate_conservative_availability_overlay(value: Mapping[str, Any]) -> tupl
         if not isinstance(record, Mapping):
             issues.append(Issue("availability_overlay_record_invalid", "record must be an object", path))
             continue
+        allowed = {
+            "source_id", "inherited_acquired_at", "conservative_available_at",
+            "availability_basis", "historical_backdating_authorized",
+            "publication_metadata_source", "source_content_persisted",
+            "temporal_original_as_of_eligible_from", "ordinary_replay_lineage_eligible",
+        }
+        if set(record) - allowed:
+            issues.append(Issue("availability_overlay_unsupported_fields", "v1 cannot authenticate additional temporal or authority claims", path))
         sid=record.get("source_id")
         if not isinstance(sid,str) or not sid:
             issues.append(Issue("availability_overlay_source_id_invalid", "source_id is required", f"{path}.source_id"))

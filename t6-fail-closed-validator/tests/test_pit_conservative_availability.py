@@ -70,6 +70,16 @@ class ConservativeAvailabilityTests(unittest.TestCase):
                 del row[field]
                 self.assertFalse(temporally_eligible(row,datetime.fromisoformat("2026-09-27T00:00:00+00:00")))
 
+    def test_status_metadata_cannot_silently_be_ignored(self):
+        for field,value in (("acquisition_verification_status", "TIMESTAMP_UNVERIFIED"),
+                            ("timestamp_verified", True), ("canonical_admission", True),
+                            ("production_active", True)):
+            with self.subTest(field=field):
+                row=copy.deepcopy(self.overlay["records"][0]);row[field]=value
+                before=copy.deepcopy(row)
+                self.assertFalse(temporally_eligible(row,datetime.fromisoformat("2026-09-27T00:00:00+00:00")))
+                self.assertEqual(before,row)
+
     def test_batch004_history_is_preserved(self):
         self.assertTrue(all(row["available_at"] is None for row in self.batch004["records"]))
         self.assertFalse(self.overlay["predecessor_artifacts_rewritten"])

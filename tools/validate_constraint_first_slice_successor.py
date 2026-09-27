@@ -145,11 +145,12 @@ def load_supersessions(path: Path) -> dict[str, dict[str, str]]:
             "NO_ORDINARY_REPLAY_PROMOTION", "NO_NATIVE_T5_T6_ADMISSION_CLAIM",
         }, "private supersession guardrails drifted")
         rows = private.get("transitions", [])
-        require(len(rows) == len(result), "private supersession transition count drifted")
+        t1_paths = {relative for relative in result if relative.startswith("constraint-t1-raw-artifact-store/")}
+        require(len(rows) == len(t1_paths), "private supersession transition count drifted")
         seen = set()
         for row in rows:
             relative = row.get("path")
-            require(relative in result and relative not in seen, "private supersession path drifted")
+            require(relative in t1_paths and relative not in seen, "private supersession path drifted")
             seen.add(relative)
             previous = result[relative]
             require(row.get("predecessor_git_blob_sha") == previous["predecessor_git_blob_sha"], "private supersession predecessor mismatch")

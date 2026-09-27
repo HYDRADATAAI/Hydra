@@ -31,7 +31,7 @@
     {
       "path": "constraint-t1-raw-artifact-store/README.md",
       "predecessor_git_blob_sha": "df498d35dc3acdfb2fbef95fac1e1505c80105c8",
-      "successor_git_blob_sha": "ca56ea66e09b15c1daf4ec6eae89f529c1d97396"
+      "successor_git_blob_sha": "5958840f95811a147758913bce8e42419ed55750"
     },
     {
       "path": "constraint-t1-raw-artifact-store/pyproject.toml",
@@ -50,7 +50,7 @@
     },
     {
       "path": "constraint-t1-raw-artifact-store/README.md",
-      "git_blob_sha": "ca56ea66e09b15c1daf4ec6eae89f529c1d97396"
+      "git_blob_sha": "5958840f95811a147758913bce8e42419ed55750"
     },
     {
       "path": "constraint-t1-raw-artifact-store/pyproject.toml",
