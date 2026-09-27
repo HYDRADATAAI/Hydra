@@ -66,7 +66,7 @@ def main()->int:
     require("write_release_manifest" not in runner,"browser runner writes T1 release")
     require("is_ordinary_t2_eligible" not in runner,"browser runner performs ordinary-T2 admission")
     require("requests." not in runner and "urllib.request" not in runner,"browser runner added parallel HTTP acquisition")
-    require("historical_backdating_authorized": True" not in runner,"browser runner enables historical backdating")
+    require('"historical_backdating_authorized": True' not in runner,"browser runner enables historical backdating")
 
     launcher=LAUNCHER.read_text(encoding="utf-8")
     for token in (
