@@ -1,0 +1,51 @@
+{
+  "schema_version": "hydra-constraint-thread6-successor-manifest/v1",
+  "record_id": "HYDRA_CONSTRAINT_FIRST_SLICE_THREAD6_SUCCESSOR_BATCH019_ARTIFACT_MANIFEST_V001",
+  "as_of": "2026-09-27",
+  "repository": "HYDRADATAAI/Hydra",
+  "slice_id": "AI_DATA_CENTER_POWER_INFRASTRUCTURE_V1",
+  "predecessor_batch": {
+    "id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH018",
+    "reviewed_main_commit": "f94fd72e101200126c4f8d7e888ebee4187c86bd",
+    "preservation": "IMMUTABLE_NOT_REWRITTEN"
+  },
+  "result": "PASS_REVIEW_EXECUTED_FAIL_CLOSED",
+  "artifacts": [
+    {
+      "path": "docs/constraint/first_slice/ai_data_center_power_infrastructure_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH019_AI_DATA_CENTER_POWER_INFRASTRUCTURE_NATIVE_T5_T6_ADMISSION_REVIEW_V001_20260927.json",
+      "git_blob_sha": "9530b267e562e3058d6b4f8607c2cba18f06e35a"
+    },
+    {
+      "path": "docs/constraint/first_slice/ai_data_center_power_infrastructure_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH019_AI_DATA_CENTER_POWER_INFRASTRUCTURE_BLOCKER_REGISTER_V001_20260927.json",
+      "git_blob_sha": "bc6fc131a706fbb6b2b7a0b6ffa49a299bec5a2b"
+    },
+    {
+      "path": "docs/constraint/architecture/HYDRA_CONSTRAINT_FIRST_SLICE_THREAD6_SUCCESSOR_BATCH019_MASTER_STATUS_V001_20260927.json",
+      "git_blob_sha": "d061ff67c7c005c47e426277980ca2563e65fdde"
+    },
+    {
+      "path": "docs/constraint/validation/HYDRA_CONSTRAINT_FIRST_SLICE_THREAD6_SUCCESSOR_BATCH019_NATIVE_T5_T6_ADMISSION_REVIEW_REPORT_V001_20260927.md",
+      "git_blob_sha": "a2692c0aedadc32484613340c7592f7366cb3298"
+    }
+  ],
+  "expected": {
+    "exact_native_t5_t6_implementation_presented": false,
+    "signed_admission_receipt_present": false,
+    "implementation_admitted": false,
+    "runtime_activation_authorized": false,
+    "canonical_promotion_authorized": false,
+    "live_source_authorized": false,
+    "historical_availability_before_acquisition_proven": false,
+    "strict_historical_replay_allowed": false,
+    "canonical_constraints_minted": 0,
+    "qualified_beneficiaries_minted": 0,
+    "first_serious_constraint_run": "BLOCKED"
+  },
+  "authority_non_grants": [
+    "RUNTIME_ACTIVATION",
+    "CANONICAL_PROMOTION",
+    "LIVE_SOURCE_AUTHORITY",
+    "MODEL_TRAINING",
+    "TRADING"
+  ]
+}
