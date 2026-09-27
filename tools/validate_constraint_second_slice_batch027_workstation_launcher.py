@@ -60,7 +60,10 @@ def main()->int:
       'historical_backdating_authorized = $false',
     ):
         require(token in text,f"launcher token missing: {token}")
-    require('[string]$RepoRoot,' in text,"launcher must not hard-code a workstation repo root")\n    require('Join-Path $PSScriptRoot ".."' in text,"launcher missing location-relative repo-root resolution")\n    require("D:\\\\HYDRA_GITHUB\\\\Hydra" not in text and "D:\\\\HYDRA\\\\_GITHUB\\\\Hydra" not in text,"launcher hard-codes workstation repo root")\n    require("Invoke-WebRequest" not in text and "curl " not in text and "wget " not in text,"launcher unexpectedly performs network acquisition")
+    require('[string]$RepoRoot,' in text,"launcher must not hard-code a workstation repo root")
+    require('Join-Path $PSScriptRoot ".."' in text,"launcher missing location-relative repo-root resolution")
+    require("D:\\\\HYDRA_GITHUB\\\\Hydra" not in text and "D:\\\\HYDRA\\\\_GITHUB\\\\Hydra" not in text,"launcher hard-codes workstation repo root")
+    require("Invoke-WebRequest" not in text and "curl " not in text and "wget " not in text,"launcher unexpectedly performs network acquisition")
     require("LastWriteTime" not in text and "mtime" not in text.lower(),"launcher infers capture timestamp from file metadata")
 
     htext=HANDBACK.read_text(encoding="utf-8")
