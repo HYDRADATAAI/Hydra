@@ -1,3 +1,4 @@
+# B030 regression policy: fallback is limited to the four explicitly authorized TSMC PDF source IDs.
 from __future__ import annotations
 
 import contextlib
