@@ -52,15 +52,43 @@ class FakeRequestContext:
         return self.responses.pop(0)
 
 
-class FakeNavigationResponse:
-    status = 200
+class FakeNavigationRequest:
+    def __init__(self, url: str, redirected_from: "FakeNavigationRequest | None" = None) -> None:
+        self.url = url
+        self.redirected_from = redirected_from
 
-    def __init__(self) -> None:
+
+class FakeNavigationResponse:
+    def __init__(
+        self,
+        *,
+        status: int = 200,
+        url: str = "https://cdn.example.test/reports/source.pdf",
+        headers: dict[str, str] | None = None,
+        body: bytes | None = None,
+        redirected_from: FakeNavigationRequest | None = None,
+    ) -> None:
+        self.status = status
+        self.url = url
+        self.headers = {
+            key.lower(): value
+            for key, value in (
+                headers
+                or {
+                    "Content-Type": "application/pdf",
+                    "Content-Length": str(len(body or b"")),
+                }
+            ).items()
+        }
+        self.request = FakeNavigationRequest(url, redirected_from)
+        self._body = body
         self.body_calls = 0
 
     def body(self) -> bytes:
         self.body_calls += 1
-        raise AssertionError("Chromium PDF viewer body must not be used as the captured PDF")
+        if self._body is None:
+            raise AssertionError("Chromium PDF viewer body must not be used as the captured PDF")
+        return self._body
 
 
 class FakePage:
@@ -93,6 +121,12 @@ class FakeCaptureContext:
 
 class RawPDFResponseTests(unittest.TestCase):
     locator = "https://cdn.example.test/reports/source.pdf"
+    authorized_fallback_source_ids = {
+        "SRC-SEMI-TSMC-Q1-2025-TRANSCRIPT-2025-04-17",
+        "SRC-SEMI-B020-TSMC-Q2-2023-TRANSCRIPT-2023-07-20",
+        "SRC-SEMI-B022-TSMC-2025-ANNUAL-EQUIPMENT-RISK",
+        "SRC-SEMI-B022-TSMC-Q2-2026-TRANSCRIPT-2026-07-16",
+    }
 
     def pdf_response(self, *, url: str | None = None) -> FakeAPIResponse:
         body = b"%PDF-1.7\n" + (b"x" * 2048)
@@ -104,6 +138,48 @@ class RawPDFResponseTests(unittest.TestCase):
                 "Content-Length": str(len(body)),
             },
             body=body,
+        )
+
+    def forbidden_response(self) -> FakeAPIResponse:
+        return FakeAPIResponse(
+            status=403,
+            url=self.locator,
+            headers={"Content-Type": "text/html", "Content-Length": "6"},
+            body=b"denied",
+        )
+
+    def capture_item(self, source_id: str) -> dict[str, str]:
+        return {
+            "capture_intent_id": "intent-001",
+            "source_id": source_id,
+            "source_version_id": "version-001",
+            "source_locator": self.locator,
+            "inbox_filename": "source.pdf",
+            "content_type_hint": "application/pdf",
+        }
+
+    def run_capture(
+        self,
+        *,
+        source_id: str,
+        api_response: FakeAPIResponse,
+        browser_response: FakeNavigationResponse,
+        capture_path: Path,
+        sidecar_path: Path,
+    ) -> dict[str, Any]:
+        return runner.capture_one(
+            context=FakeCaptureContext(
+                FakeRequestContext([api_response]),
+                FakePage(browser_response),
+            ),
+            browser_channel="chrome",
+            item=self.capture_item(source_id),
+            capture_path=capture_path,
+            sidecar_path=sidecar_path,
+            capture_locator=self.locator,
+            redirect_policy="exact",
+            challenge_wait_seconds=0,
+            navigation_timeout_seconds=90,
         )
 
     def test_raw_pdf_fetch_is_bounded_and_disables_automatic_redirects(self) -> None:
@@ -198,14 +274,7 @@ class RawPDFResponseTests(unittest.TestCase):
             FakeRequestContext([raw_response]),
             FakePage(browser_response),
         )
-        item = {
-            "capture_intent_id": "intent-001",
-            "source_id": "SRC-PDF-TEST",
-            "source_version_id": "version-001",
-            "source_locator": self.locator,
-            "inbox_filename": "source.pdf",
-            "content_type_hint": "application/pdf",
-        }
+        item = self.capture_item("SRC-PDF-TEST")
 
         with tempfile.TemporaryDirectory() as temporary_directory:
             capture_path = Path(temporary_directory) / "source.pdf"
@@ -235,6 +304,172 @@ class RawPDFResponseTests(unittest.TestCase):
             )
             self.assertEqual(browser_response.body_calls, 0)
             self.assertTrue(raw_response.disposed)
+
+    def test_authorized_tsmc_403_uses_validated_browser_200_and_records_original_attempt(self) -> None:
+        api_response = self.forbidden_response()
+        body = b"%PDF-1.7\n" + (b"validated browser response\n" * 100)
+        browser_response = FakeNavigationResponse(
+            url=self.locator,
+            headers={"Content-Type": "application/pdf", "Content-Length": str(len(body))},
+            body=body,
+        )
+
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            capture_path = Path(temporary_directory) / "source.pdf"
+            sidecar_path = Path(str(capture_path) + ".capture.json")
+            with contextlib.redirect_stdout(io.StringIO()):
+                result = self.run_capture(
+                    source_id=next(iter(sorted(self.authorized_fallback_source_ids))),
+                    api_response=api_response,
+                    browser_response=browser_response,
+                    capture_path=capture_path,
+                    sidecar_path=sidecar_path,
+                )
+
+            self.assertEqual(capture_path.read_bytes(), body)
+            self.assertEqual(result["http_status"], 200)
+            self.assertEqual(result["capture_locator"], self.locator)
+            self.assertEqual(result["redirect_chain"], [self.locator])
+            self.assertEqual(
+                result["raw_request_fallback_evidence"],
+                {
+                    "original_raw_request_status": 403,
+                    "original_raw_request_url": self.locator,
+                    "browser_navigation_status": 200,
+                },
+            )
+            self.assertEqual(
+                json.loads(sidecar_path.read_text(encoding="utf-8"))["source_id"],
+                result["source_id"],
+            )
+            self.assertTrue(api_response.disposed)
+            self.assertEqual(browser_response.body_calls, 1)
+
+    def test_invalid_browser_fallback_redirect_mime_and_content_fail_closed(self) -> None:
+        valid_pdf = b"%PDF-1.7\n" + (b"valid-looking body\n" * 100)
+        cases = (
+            (
+                "redirect",
+                FakeNavigationResponse(
+                    url="https://elsewhere.example.test/reports/source.pdf",
+                    headers={"Content-Type": "application/pdf", "Content-Length": str(len(valid_pdf))},
+                    body=valid_pdf,
+                    redirected_from=FakeNavigationRequest(self.locator),
+                ),
+                "exact redirect policy rejected",
+            ),
+            (
+                "mime",
+                FakeNavigationResponse(
+                    url=self.locator,
+                    headers={"Content-Type": "text/html", "Content-Length": str(len(valid_pdf))},
+                    body=valid_pdf,
+                ),
+                "expected PDF content type",
+            ),
+            (
+                "content",
+                FakeNavigationResponse(
+                    url=self.locator,
+                    headers={"Content-Type": "application/pdf", "Content-Length": "2048"},
+                    body=b"<html>" + (b"not a PDF " * 300),
+                ),
+                "invalid or suspiciously small PDF body",
+            ),
+        )
+        for case_name, browser_response, expected_error in cases:
+            with self.subTest(case=case_name), tempfile.TemporaryDirectory() as temporary_directory:
+                api_response = self.forbidden_response()
+                capture_path = Path(temporary_directory) / "source.pdf"
+                sidecar_path = Path(str(capture_path) + ".capture.json")
+                with contextlib.redirect_stdout(io.StringIO()):
+                    with self.assertRaisesRegex(runner.CaptureError, expected_error) as raised:
+                        self.run_capture(
+                            source_id=next(iter(sorted(self.authorized_fallback_source_ids))),
+                            api_response=api_response,
+                            browser_response=browser_response,
+                            capture_path=capture_path,
+                            sidecar_path=sidecar_path,
+                        )
+                self.assertIn("original raw HTTP 403", str(raised.exception))
+                self.assertFalse(capture_path.exists())
+                self.assertFalse(sidecar_path.exists())
+                self.assertTrue(api_response.disposed)
+                self.assertEqual(browser_response.body_calls, 1)
+
+    def test_unauthorized_source_cannot_use_browser_200_fallback(self) -> None:
+        api_response = self.forbidden_response()
+        body = b"%PDF-1.7\n" + (b"valid PDF body\n" * 100)
+        browser_response = FakeNavigationResponse(
+            url=self.locator,
+            headers={"Content-Type": "application/pdf", "Content-Length": str(len(body))},
+            body=body,
+        )
+
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            capture_path = Path(temporary_directory) / "source.pdf"
+            sidecar_path = Path(str(capture_path) + ".capture.json")
+            with contextlib.redirect_stdout(io.StringIO()):
+                with self.assertRaisesRegex(runner.CaptureError, "HTTP status 403"):
+                    self.run_capture(
+                        source_id="SRC-PDF-NOT-AUTHORIZED",
+                        api_response=api_response,
+                        browser_response=browser_response,
+                        capture_path=capture_path,
+                        sidecar_path=sidecar_path,
+                    )
+            self.assertFalse(capture_path.exists())
+            self.assertFalse(sidecar_path.exists())
+            self.assertTrue(api_response.disposed)
+            self.assertEqual(browser_response.body_calls, 0)
+
+    def test_fallback_allowlist_is_exactly_four_and_excludes_prohibited_micron_set(self) -> None:
+        self.assertEqual(runner.PDF_NAVIGATION_FALLBACK_SOURCE_IDS, self.authorized_fallback_source_ids)
+        self.assertEqual(len(runner.PDF_NAVIGATION_FALLBACK_SOURCE_IDS), 4)
+        self.assertEqual(len(runner.OPERATOR_BLOCKED_SOURCE_IDS), 9)
+        self.assertEqual(
+            set(runner.PDF_NAVIGATION_FALLBACK_SOURCE_IDS)
+            & set(runner.OPERATOR_BLOCKED_SOURCE_IDS),
+            set(),
+        )
+        queue = runner.validate_queue(runner.load_json(ROOT / runner.QUEUE_RELATIVE_PATH))
+        blocked, eligible = runner.partition_capture_queue(queue)
+        eligible_by_id = {item["source_id"]: item for item in eligible}
+        self.assertEqual(
+            set(runner.PDF_NAVIGATION_FALLBACK_SOURCE_IDS),
+            set(eligible_by_id) & self.authorized_fallback_source_ids,
+        )
+        self.assertEqual(
+            {item["source_id"] for item in blocked},
+            set(runner.OPERATOR_BLOCKED_SOURCE_IDS),
+        )
+        self.assertTrue(
+            all(
+                eligible_by_id[source_id]["content_type_hint"] == "application/pdf"
+                for source_id in runner.PDF_NAVIGATION_FALLBACK_SOURCE_IDS
+            )
+        )
+
+    def test_navigation_non_200_after_authorized_403_fails_closed(self) -> None:
+        api_response = self.forbidden_response()
+        browser_response = FakeNavigationResponse(status=403, url=self.locator, body=b"denied")
+
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            capture_path = Path(temporary_directory) / "source.pdf"
+            sidecar_path = Path(str(capture_path) + ".capture.json")
+            with contextlib.redirect_stdout(io.StringIO()):
+                with self.assertRaisesRegex(runner.CaptureError, "browser navigation HTTP 403"):
+                    self.run_capture(
+                        source_id=next(iter(sorted(self.authorized_fallback_source_ids))),
+                        api_response=api_response,
+                        browser_response=browser_response,
+                        capture_path=capture_path,
+                        sidecar_path=sidecar_path,
+                    )
+            self.assertFalse(capture_path.exists())
+            self.assertFalse(sidecar_path.exists())
+            self.assertTrue(api_response.disposed)
+            self.assertEqual(browser_response.body_calls, 0)
 
 
 if __name__ == "__main__":
