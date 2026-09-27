@@ -445,11 +445,33 @@ def capture_one(
 
     page.on("response", on_response)
     navigation_error: Exception | None = None
+    is_pdf = str(item["content_type_hint"]) == "application/pdf"
     try:
-        try:
-            page.goto(locator, wait_until="commit", timeout=max(1, navigation_timeout_seconds) * 1000)
-        except Exception as exc:
-            navigation_error = exc
+        if is_pdf:
+            print(f"PDF_NAV_BEGIN {source_id} -> {locator}", flush=True)
+            main_response: Any | None = None
+            try:
+                main_response = page.goto(
+                    locator,
+                    wait_until="load",
+                    timeout=max(1, navigation_timeout_seconds) * 1000,
+                )
+            except Exception as exc:
+                navigation_error = exc
+            finally:
+                if main_response is not None and all(candidate is not main_response for candidate in responses):
+                    responses.append(main_response)
+                response_status = getattr(main_response, "status", None)
+                print(
+                    f"PDF_NAV_COMPLETE {source_id} -> {locator} "
+                    f"response_status={response_status} navigation_error={navigation_error!s}",
+                    flush=True,
+                )
+        else:
+            try:
+                page.goto(locator, wait_until="commit", timeout=max(1, navigation_timeout_seconds) * 1000)
+            except Exception as exc:
+                navigation_error = exc
 
         deadline = time.monotonic() + max(0, challenge_wait_seconds)
         last_rejection: str | None = None
@@ -461,7 +483,15 @@ def capture_one(
                     continue
                 seen.add(key)
                 try:
+                    if is_pdf:
+                        print(f"PDF_BODY_BEGIN {source_id} -> {locator}", flush=True)
                     body = bytes(response.body())
+                    if is_pdf:
+                        print(
+                            f"PDF_BODY_COMPLETE {source_id} -> {locator} bytes={len(body)}",
+                            flush=True,
+                        )
+                        print(f"PDF_VALIDATION_BEGIN {source_id} -> {locator}", flush=True)
                     content_type, chain, final_url = validate_body(
                         item=item,
                         response=response,
@@ -469,6 +499,12 @@ def capture_one(
                         policy=redirect_policy,
                         effective_locator=locator,
                     )
+                    if is_pdf:
+                        print(
+                            f"PDF_VALIDATION_COMPLETE {source_id} -> {locator} "
+                            f"content_type={content_type} status={response.status}",
+                            flush=True,
+                        )
                 except Exception as exc:
                     last_rejection = str(exc)
                     continue
