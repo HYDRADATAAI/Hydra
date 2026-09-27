@@ -61,6 +61,7 @@ on:
       - "tools/test_constraint_second_slice_batch028_browser_adapter_adversarial.py"
       - "tools/validate_constraint_second_slice_batch029_locator_remediation.py"
       - "tools/test_constraint_second_slice_batch029_locator_remediation_adversarial.py"
+      - "tools/test_constraint_second_slice_batch029_runtime_locator_handoff.py"
       - ".github/workflows/constraint-second-slice.yml"
   push:
     branches:
@@ -124,6 +125,7 @@ on:
       - "tools/test_constraint_second_slice_batch028_browser_adapter_adversarial.py"
       - "tools/validate_constraint_second_slice_batch029_locator_remediation.py"
       - "tools/test_constraint_second_slice_batch029_locator_remediation_adversarial.py"
+      - "tools/test_constraint_second_slice_batch029_runtime_locator_handoff.py"
       - ".github/workflows/constraint-second-slice.yml"
 
 permissions:
@@ -221,6 +223,9 @@ jobs:
 
       - name: Run Batch029 hostile matrix
         run: python tools/test_constraint_second_slice_batch029_locator_remediation_adversarial.py
+
+      - name: Run Batch029 runtime locator handoff regression
+        run: python tools/test_constraint_second_slice_batch029_runtime_locator_handoff.py
 
       - name: Compile Batch029 patched acquisition and T1 tools
         run: python -m py_compile tools/private/HYDRA_CONSTRAINT_T1_SEMICONDUCTOR_BATCH026_BROWSER_CAPTURE_V001_20260927.py tools/materialize_constraint_second_slice_batch026_private_t1.py tools/verify_constraint_second_slice_batch026_private_t1.py tools/build_constraint_second_slice_batch026_private_t1_handback.py
