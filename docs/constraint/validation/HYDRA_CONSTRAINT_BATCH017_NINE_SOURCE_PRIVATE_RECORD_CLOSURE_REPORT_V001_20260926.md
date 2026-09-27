@@ -1,8 +1,8 @@
 # HYDRA Constraint — Batch017 Nine-Source Discovery + Private-Record Closure
 ## Source/private-record dependency only — 2026-09-26
 
-PR: #64  
-Stacked on: Batch017 / PR #62  
+PR: #64\
+Stacked on: Batch017 / PR #62\
 Branch: `constraint/t1-private-record-source-discovery-20260926`
 
 ## Scope
