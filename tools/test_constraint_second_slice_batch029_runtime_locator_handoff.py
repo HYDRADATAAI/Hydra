@@ -195,6 +195,66 @@ class RuntimeLocatorHandoffTest(unittest.TestCase):
         self.assertEqual(page.goto_calls, [(locator, "commit", 12_000)])
         self.assertNotIn("PDF_", output)
 
+    def test_pdf_validation_rejection_logs_bounded_response_details(self) -> None:
+        runner = import_runner()
+        registered_locator = "https://investors.micron.com/static-files/stale-prepared-remarks.pdf"
+        capture_locator = (
+            "https://s25.q4cdn.com/621799436/files/doc_financials/2025/q2/"
+            "Micron_FY25_Q2_Prepared_Remarks_2-1.pdf"
+        )
+        body = b"%PDF-1.7\n" + b"x" * (536 - len(b"%PDF-1.7\n"))
+        item = {
+            "capture_intent_id": "intent-1",
+            "source_id": "SRC-SEMI-MICRON-Q2FY25-REMARKS-2025-03-20",
+            "source_version_id": "SV-SEMI-B026-001",
+            "source_locator": registered_locator,
+            "content_type_hint": "application/pdf",
+        }
+        page = FakePage(
+            emit_response_event=False,
+            content_type="application/pdf",
+            body=body,
+        )
+
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            capture_path = Path(temporary_directory) / "capture.pdf"
+            sidecar_path = Path(str(capture_path) + ".capture.json")
+            output = io.StringIO()
+            with contextlib.redirect_stdout(output), patch("builtins.print", wraps=print) as print_spy:
+                with self.assertRaisesRegex(
+                    runner.CaptureError,
+                    r"invalid or suspiciously small PDF body \(536 bytes\)",
+                ):
+                    runner.capture_one(
+                        context=FakeContext(page),
+                        browser_channel="fake",
+                        item=item,
+                        capture_path=capture_path,
+                        sidecar_path=sidecar_path,
+                        capture_locator=capture_locator,
+                        redirect_policy="exact",
+                        challenge_wait_seconds=0,
+                        navigation_timeout_seconds=12,
+                    )
+
+            self.assertFalse(capture_path.exists())
+            self.assertFalse(sidecar_path.exists())
+            rejection_calls = [
+                call for call in print_spy.call_args_list
+                if call.args and str(call.args[0]).startswith("PDF_VALIDATION_REJECTED")
+            ]
+            self.assertEqual(len(rejection_calls), 1)
+            rejection = str(rejection_calls[0].args[0])
+            self.assertIn(item["source_id"], rejection)
+            self.assertIn(capture_locator, rejection)
+            self.assertIn("response_status=200", rejection)
+            self.assertIn("content_type='application/pdf'", rejection)
+            self.assertIn("content_length='<missing>'", rejection)
+            self.assertIn("body_bytes=536", rejection)
+            self.assertIn("prefix_hex=255044462d312e370a", rejection)
+            self.assertIs(rejection_calls[0].kwargs.get("flush"), True)
+            self.assertIn("PDF_VALIDATION_REJECTED", output.getvalue())
+
 
 if __name__ == "__main__":
     unittest.main()

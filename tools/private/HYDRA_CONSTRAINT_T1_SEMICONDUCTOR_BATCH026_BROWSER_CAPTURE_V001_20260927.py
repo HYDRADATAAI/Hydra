@@ -550,13 +550,36 @@ def capture_one(
                             flush=True,
                         )
                         print(f"PDF_VALIDATION_BEGIN {source_id} -> {locator}", flush=True)
-                    content_type, chain, final_url = validate_body(
-                        item=item,
-                        response=response,
-                        body=body,
-                        policy=redirect_policy,
-                        effective_locator=locator,
-                    )
+                    try:
+                        content_type, chain, final_url = validate_body(
+                            item=item,
+                            response=response,
+                            body=body,
+                            policy=redirect_policy,
+                            effective_locator=locator,
+                        )
+                    except Exception as exc:
+                        if is_pdf:
+                            def diagnostic_header(name: str) -> str:
+                                try:
+                                    value = response.header_value(name)
+                                except Exception as header_exc:
+                                    return f"<unavailable:{type(header_exc).__name__}>"
+                                if value is None:
+                                    return "<missing>"
+                                text = str(value).replace("\r", "\\r").replace("\n", "\\n")
+                                return text[:128]
+
+                            print(
+                                f"PDF_VALIDATION_REJECTED {source_id} -> {locator} "
+                                f"response_status={getattr(response, 'status', None)!r} "
+                                f"content_type={diagnostic_header('content-type')!r} "
+                                f"content_length={diagnostic_header('content-length')!r} "
+                                f"body_bytes={len(body)} prefix_hex={body[:16].hex()} "
+                                f"reason={str(exc)[:240]!r}",
+                                flush=True,
+                            )
+                        raise
                     if is_pdf:
                         print(
                             f"PDF_VALIDATION_COMPLETE {source_id} -> {locator} "
