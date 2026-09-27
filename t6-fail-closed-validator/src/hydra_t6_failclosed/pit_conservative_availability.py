@@ -54,6 +54,15 @@ def validate_conservative_availability_overlay(value: Mapping[str, Any]) -> tupl
 
 
 def temporally_eligible(record: Mapping[str, Any], query_time: datetime) -> bool:
+    # Direct callers must not bypass the overlay's acquisition and authority
+    # checks. This proves only conservative temporal eligibility, not timestamp
+    # authenticity, persisted custody, canonical admission, or runtime readiness.
+    if validate_conservative_availability_overlay({
+        "schema_version": OVERLAY_SCHEMA,
+        "historical_backdating_authorized": False,
+        "records": [record],
+    }):
+        return False
     available=_parse(record.get("conservative_available_at"))
     return available is not None and query_time.tzinfo is not None and available <= query_time
 
