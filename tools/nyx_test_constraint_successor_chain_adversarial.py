@@ -39,16 +39,17 @@ def master_batch(path: Path) -> int:
 
 
 def current_manifest_paths() -> list[Path]:
-    grouped: dict[int, list[tuple[int, Path]]] = {}
+    grouped: dict[tuple[int, str], list[tuple[int, Path]]] = {}
     for path in VALIDATION_DIR.glob(
         "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH*_ARTIFACT_MANIFEST_V*_*.json"
     ):
         batch, revision = manifest_identity(path)
         if batch >= 3:
-            grouped.setdefault(batch, []).append((revision, path))
+            scope = json.loads(path.read_text(encoding="utf-8")).get("slice_id", "")
+            grouped.setdefault((batch, scope), []).append((revision, path))
     return [
-        max(grouped[batch], key=lambda item: item[0])[1]
-        for batch in sorted(grouped)
+        max(grouped[key], key=lambda item: item[0])[1]
+        for key in sorted(grouped)
     ]
 
 
@@ -506,8 +507,34 @@ def case_latest_master_falsely_ready(root: Path) -> None:
     )
 
 
+def case_first_slice_batch017_pin_drift(root: Path) -> None:
+    relative = (
+        "docs/constraint/validation/"
+        "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH017_ARTIFACT_MANIFEST_V001_20260925.json"
+    )
+    mutate_json(root, relative, lambda doc: doc["artifacts"][4].__setitem__("git_blob_sha", "0" * 40))
+
+
+def case_second_slice_batch017_pin_drift(root: Path) -> None:
+    relative = (
+        "docs/constraint/validation/"
+        "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH017_ARTIFACT_MANIFEST_V001_20260926.json"
+    )
+    mutate_json(root, relative, lambda doc: doc["artifacts"][0].__setitem__("git_blob_sha", "0" * 40))
+
+
+def case_duplicate_same_slice_manifest(root: Path) -> None:
+    directory = root / "docs/constraint/validation"
+    original = directory / "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH017_ARTIFACT_MANIFEST_V001_20260925.json"
+    duplicate = directory / "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH017_ARTIFACT_MANIFEST_V001_20260928.json"
+    shutil.copy2(original, duplicate)
+
+
 def main() -> int:
     cases = [
+        ("duplicate_same_slice_manifest", case_duplicate_same_slice_manifest, "ambiguous current manifest"),
+        ("first_slice_batch017_pin_drift", case_first_slice_batch017_pin_drift, "immutable domain artifact blob mismatch"),
+        ("second_slice_batch017_pin_drift", case_second_slice_batch017_pin_drift, "immutable domain artifact blob mismatch"),
         ("backdated_availability", case_backdated_availability, "conservative availability drift"),
         ("fiber_scope_overclaim", case_fiber_scope_overclaim, "fiber exact site capacity unexpectedly quantified"),
         ("admission_falsely_granted", case_admission_falsely_granted, "native implementation unexpectedly admitted"),
