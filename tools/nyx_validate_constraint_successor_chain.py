@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
-"""Read-only cross-batch integration guard for the Constraint first slice.
+"""Read-only cross-batch integration guard for the Constraint successor chain.
 
 NYX owns validation here, not domain population. This guard verifies successor
-continuity, bounded semantics, manifest integrity, and fail-closed readiness.
+continuity, bounded semantics, manifest integrity, and fail-closed readiness
+for the first slice and the Batch026-Batch029 semiconductor successor chain.
 It does not fetch source data, create claims, mint authority, activate runtime
 behavior, or promote canonical state.
 """
@@ -29,6 +30,9 @@ HISTORICAL_FIBER_BLOCKER = "SOURCE-GAP-FIBER-CONNECTIVITY-CAPACITY"
 BATCH009_NEXT = "FIRST-SLICE-CONSTRAINT-AND-BENEFICIARY-CLAIM-POPULATION"
 BATCH010_NEXT = "FIRST-SLICE-OUTCOME-LABEL-AND-REPLAY-FIXTURE-DESIGN"
 FIBER_STATUS = "POPULATED_BOUNDED_SITE_AND_PROVIDER_PROFILE"
+SEMICONDUCTOR_SLICE_ID = "SEMICONDUCTOR_ADVANCED_PACKAGING_CRITICAL_MATERIALS_V1"
+SEMICONDUCTOR_SOURCE_COUNT = 41
+SEMICONDUCTOR_LOCATOR_REMEDIATION_COUNT = 7
 
 MANIFEST_RE = re.compile(
     r"BATCH(?P<batch>\d{3})_ARTIFACT_MANIFEST_V(?P<revision>\d{3})_"
@@ -69,6 +73,76 @@ FILES = {
     "batch012_outcomes": SLICE / "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH012_AI_DATA_CENTER_POWER_INFRASTRUCTURE_OUTCOME_RECORDS_SUPPLEMENT_V001_20260925.json",
     "batch012_overlay": SLICE / "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH012_AI_DATA_CENTER_POWER_INFRASTRUCTURE_REQUIRED_CASES_HISTORICAL_CLOSURE_OVERLAY_V001_20260925.json",
     "batch012_master": ARCH / "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH012_MASTER_STATUS_V001_20260925.json",
+}
+
+SECOND_SLICE = ROOT / "docs/constraint/second_slice/semiconductor_advanced_packaging_critical_materials_v1"
+SECOND_SLICE_FILES = {
+    "batch016_master": ARCH / "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH016_MASTER_STATUS_V001_20260925.json",
+    "batch025_master": ARCH / "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH025_MASTER_STATUS_V001_20260926.json",
+    "batch026_queue": SECOND_SLICE / "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH026_SEMICONDUCTOR_PRIVATE_T1_CAPTURE_QUEUE_V001_20260926.json",
+    "batch026_contract": SECOND_SLICE / "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH026_SEMICONDUCTOR_PRIVATE_T1_MATERIALIZATION_CONTRACT_V001_20260926.json",
+    "batch026_status": SECOND_SLICE / "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH026_SEMICONDUCTOR_PRIVATE_T1_MATERIALIZATION_STATUS_V001_20260926.json",
+    "batch026_master": ARCH / "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH026_MASTER_STATUS_V001_20260926.json",
+    "batch027_contract": SECOND_SLICE / "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH027_SEMICONDUCTOR_WORKSTATION_EXECUTION_LAUNCHER_CONTRACT_V001_20260926.json",
+    "batch027_status": SECOND_SLICE / "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH027_SEMICONDUCTOR_WORKSTATION_EXECUTION_LAUNCHER_STATUS_V001_20260926.json",
+    "batch027_master": ARCH / "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH027_MASTER_STATUS_V001_20260926.json",
+    "batch028_contract": SECOND_SLICE / "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH028_SEMICONDUCTOR_BROWSER_ACQUISITION_ADAPTER_CONTRACT_V001_20260927.json",
+    "batch028_status": SECOND_SLICE / "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH028_SEMICONDUCTOR_BROWSER_ACQUISITION_ADAPTER_STATUS_V001_20260927.json",
+    "batch028_master": ARCH / "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH028_MASTER_STATUS_V001_20260927.json",
+    "batch029_remediation": SECOND_SLICE / "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH029_SEMICONDUCTOR_MICRON_CAPTURE_LOCATOR_REMEDIATION_V001_20260927.json",
+    "batch029_status": SECOND_SLICE / "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH029_SEMICONDUCTOR_MICRON_CAPTURE_LOCATOR_REMEDIATION_STATUS_V001_20260927.json",
+    "batch029_master": ARCH / "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH029_MASTER_STATUS_V001_20260927.json",
+}
+BATCH029_EXPECTED_REMEDIATIONS = {
+    "SRC-SEMI-MICRON-Q2FY25-REMARKS-2025-03-20": (
+        1,
+        "https://investors.micron.com/static-files/52ce0c07-49dc-4eab-b1d2-a67bde373bca",
+        2025,
+        "q2",
+        "prepared_remarks",
+    ),
+    "SRC-SEMI-B021-MICRON-Q1FY26-REMARKS-2025-12-17": (
+        26,
+        "https://investors.micron.com/static-files/088991c5-a249-4f66-a0a6-258d9b66f3f9",
+        2026,
+        "q1",
+        "prepared_remarks",
+    ),
+    "SRC-SEMI-B021-MICRON-Q3FY24-REMARKS-2024-06-26": (
+        27,
+        "https://investors.micron.com/static-files/4550f98c-1054-4847-a929-c17d520a0564",
+        2024,
+        "q3",
+        "prepared_remarks",
+    ),
+    "SRC-SEMI-B021-MICRON-Q3FY25-REMARKS-2025-06-25": (
+        28,
+        "https://investors.micron.com/static-files/39bb28c4-dd18-4097-a1fe-e5eb4956bcfc",
+        2025,
+        "q3",
+        "prepared_remarks",
+    ),
+    "SRC-SEMI-B021-MICRON-Q4FY25-REMARKS-2025-09-23": (
+        29,
+        "https://investors.micron.com/static-files/5ea95475-639b-4cfc-91fd-b9b4a2bb5e63",
+        2025,
+        "q4",
+        "prepared_remarks",
+    ),
+    "SRC-SEMI-B023-MICRON-Q1FY24-REMARKS-2023-12-20": (
+        39,
+        "https://investors.micron.com/static-files/4e2b9359-c174-49b6-9c68-2b938b3c33d2",
+        2024,
+        "q1",
+        "prepared_remarks",
+    ),
+    "SRC-SEMI-B023-MICRON-Q2FY26-MARKET-OUTLOOK-2026-03-18": (
+        40,
+        "https://investors.micron.com/static-files/9c0becf5-df56-4eec-bd67-453dda68b273",
+        2026,
+        "q2",
+        "presentation",
+    ),
 }
 
 
@@ -145,8 +219,8 @@ def discover_current_manifests() -> list[Path]:
     ):
         batch, revision = manifest_identity(path)
         if batch >= 3:
-            scope = load_json(path).get("slice_id", "")
-            require(isinstance(scope, str), f"manifest slice_id invalid: {path.name}")
+            scope = load_json(path).get("slice_id", "LEGACY_UNSCOPED")
+            require(isinstance(scope, str) and scope, f"manifest slice identity invalid: {path.name}")
             grouped.setdefault((batch, scope), []).append((revision, path))
 
     require(grouped, "no successor manifests discovered")
@@ -226,7 +300,217 @@ def validate_manifest(manifest_path: Path) -> tuple[int, int]:
     return count, shared_pin_divergence
 
 
+def validate_second_slice_successor_chain() -> tuple[int, int]:
+    """Check Batch026-Batch029 semantics in addition to manifest blob pins."""
+
+    docs = {name: load_json(path) for name, path in SECOND_SLICE_FILES.items()}
+    b16 = docs["batch016_master"]
+    b25 = docs["batch025_master"]
+    queue_doc = docs["batch026_queue"]
+    contract26 = docs["batch026_contract"]
+    status26 = docs["batch026_status"]
+    contract27 = docs["batch027_contract"]
+    status27 = docs["batch027_status"]
+    contract28 = docs["batch028_contract"]
+    status28 = docs["batch028_status"]
+    remediation29 = docs["batch029_remediation"]
+    status29 = docs["batch029_status"]
+
+    # Preserve Batch016's historical acceptance boundary. The detailed
+    # artifacts remain content-pinned by its manifest; this checks that its
+    # master has not been promoted past the blocked state.
+    r16 = b16.get("readiness")
+    require(isinstance(r16, dict), "Batch016 master readiness missing")
+    require(b16.get("acceptance_gate", {}).get("status") == "BLOCKED", "Batch016 acceptance gate was promoted")
+    require(r16["IMPLEMENTATION_ADMITTED"].get("status") == "NO", "Batch016 native admission was promoted")
+    require(r16["FIRST_SLICE_RAW_ARTIFACTS_MATERIALIZED"].get("status") == "NO", "Batch016 raw materialization history was rewritten")
+    require(r16["POINT_IN_TIME_REPLAY_READY"].get("status") == "NO_ORDINARY", "Batch016 ordinary replay history was promoted")
+    require(r16["FULL_CONSTRAINT_RUN_READY"].get("status") == "NO", "Batch016 full-run readiness was promoted")
+    require(b16.get("first_serious_constraint_run") == "BLOCKED", "Batch016 serious-run history was promoted")
+
+    # The queue and contract must describe the same fixed 41-intent packet.
+    queue = queue_doc.get("queue")
+    require(isinstance(queue, list), "Batch026 queue missing")
+    queue_source_ids = unique_ids(queue, "source_id", "Batch026 source")
+    unique_ids(queue, "capture_intent_id", "Batch026 capture intent")
+    queue_version_ids = unique_ids(queue, "source_version_id", "Batch026 source version")
+    expected_ordinals = list(range(1, SEMICONDUCTOR_SOURCE_COUNT + 1))
+    require(
+        [row.get("ordinal") for row in queue] == expected_ordinals,
+        "Batch026 queue ordinal set drifted",
+    )
+    require(
+        len(queue) == SEMICONDUCTOR_SOURCE_COUNT
+        and queue_doc.get("source_count") == SEMICONDUCTOR_SOURCE_COUNT
+        and len(queue_source_ids) == SEMICONDUCTOR_SOURCE_COUNT
+        and len(queue_version_ids) == SEMICONDUCTOR_SOURCE_COUNT,
+        "Batch026 source count drifted",
+    )
+    require(
+        contract26.get("source_count") == SEMICONDUCTOR_SOURCE_COUNT
+        and contract26.get("queue_record_id") == queue_doc.get("record_id"),
+        "Batch026 materialization contract drifted from queue",
+    )
+
+    expected_predecessors = {
+        26: "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH025",
+        27: "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH026",
+        28: "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH027",
+        29: "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH028",
+    }
+    contract_docs = {
+        26: [queue_doc, contract26, status26],
+        27: [contract27, status27],
+        28: [contract28, status28],
+        29: [remediation29, status29],
+    }
+    previous_master = b25
+    for batch in range(26, 30):
+        label = f"Batch{batch:03d}"
+        expected_predecessor = expected_predecessors[batch]
+        for artifact in contract_docs[batch]:
+            require(
+                artifact.get("slice_id") == SEMICONDUCTOR_SLICE_ID,
+                f"{label} slice identity drifted",
+            )
+            require(
+                artifact.get("predecessor_batch") == expected_predecessor,
+                f"{label} predecessor batch drifted",
+            )
+
+        master = docs[f"batch{batch:03d}_master"]
+        predecessor = master.get("predecessor")
+        require(isinstance(predecessor, dict), f"{label} master predecessor missing")
+        require(
+            predecessor.get("record_id") == previous_master.get("record_id")
+            and predecessor.get("mutation") == "NONE",
+            f"{label} master predecessor drifted",
+        )
+        readiness = master.get("readiness")
+        require(isinstance(readiness, dict), f"{label} master readiness missing")
+        for key, expected in (
+            ("SECOND_SLICE_RAW_SOURCE_VERSIONS", "NO"),
+            ("SECOND_SLICE_T1_RELEASE", "NO"),
+            ("SECOND_SLICE_ORDINARY_T2_ELIGIBILITY", "NO"),
+            ("SECOND_SLICE_REPLAY_READY", "NO"),
+            ("SECOND_SLICE_IMPLEMENTATION_ADMITTED", "NO"),
+            ("FULL_CONSTRAINT_RUN_READY", "NO"),
+        ):
+            require(
+                readiness.get(key, {}).get("status") == expected,
+                f"{label} master {key} drifted",
+            )
+        require(
+            master.get("first_serious_constraint_run") == "BLOCKED",
+            f"{label} serious-run status was promoted",
+        )
+        previous_master = master
+
+    # Packet, launcher, adapter and remediation status may report readiness
+    # for their bounded tooling, but cannot claim that capture or T1/T2 ran.
+    results26 = status26.get("results")
+    require(isinstance(results26, dict), "Batch026 materialization results missing")
+    require(
+        status26.get("result") == "PASS_PRIVATE_T1_EXECUTION_PACKET_READY_MATERIALIZATION_NOT_EXECUTED",
+        "Batch026 capture status was promoted",
+    )
+    require(results26.get("UNIQUE_SOURCE_CAPTURE_INTENTS") == SEMICONDUCTOR_SOURCE_COUNT, "Batch026 capture intent count drifted")
+    require(results26.get("SOURCE_VERSION_IDS_RESERVED") == SEMICONDUCTOR_SOURCE_COUNT, "Batch026 reserved source-version count drifted")
+    require(results26.get("RAW_SOURCE_VERSIONS_MATERIALIZED") == 0, "Batch026 falsely claims raw materialization")
+    require(results26.get("VALID_T1_RECEIPTS") == 0, "Batch026 falsely claims T1 receipts")
+    require(results26.get("T1_RELEASE_MANIFEST_PRESENT") == "NO", "Batch026 falsely claims T1 release")
+    require(results26.get("ORDINARY_T2_ELIGIBLE_SOURCES") == 0, "Batch026 falsely claims ordinary T2 eligibility")
+    require(results26.get("HISTORICAL_REPLAY") == "BLOCKED_PRIVATE_MATERIALIZATION_NOT_EXECUTED", "Batch026 replay status drifted")
+    require(results26.get("FIRST_SEMICONDUCTOR_RUN") == "BLOCKED", "Batch026 first-run status was promoted")
+    require(ADMISSION_BLOCKER in set(status26.get("blockers", [])), "Batch026 lost native admission blocker")
+
+    results27 = status27.get("results")
+    require(isinstance(results27, dict), "Batch027 launcher results missing")
+    require(status27.get("result") == "PASS_WORKSTATION_EXECUTION_LAUNCHER_READY_PRIVATE_CAPTURE_NOT_EXECUTED", "Batch027 capture status was promoted")
+    require(results27.get("EXPECTED_PRIVATE_SOURCE_COUNT") == SEMICONDUCTOR_SOURCE_COUNT, "Batch027 source count drifted")
+    require(results27.get("NETWORK_ACQUISITION_ADDED") == "NO", "Batch027 added network acquisition")
+    require(results27.get("RAW_SOURCE_VERSIONS_MATERIALIZED") == 0, "Batch027 falsely claims raw materialization")
+    require(results27.get("VALID_T1_RECEIPTS") == 0, "Batch027 falsely claims T1 receipts")
+    require(results27.get("T1_RELEASE_MANIFEST_PRESENT") == "NO", "Batch027 falsely claims T1 release")
+    require(results27.get("ORDINARY_T2_ELIGIBLE_SOURCES") == 0, "Batch027 falsely claims ordinary T2 eligibility")
+    require(results27.get("HISTORICAL_REPLAY") == "BLOCKED_PRIVATE_EXECUTION_NOT_RUN", "Batch027 replay status drifted")
+    require(results27.get("FIRST_SEMICONDUCTOR_RUN") == "BLOCKED", "Batch027 first-run status was promoted")
+
+    results28 = status28.get("results")
+    require(isinstance(results28, dict), "Batch028 adapter results missing")
+    require(status28.get("result") == "PASS_BROWSER_ACQUISITION_ADAPTER_READY_NOT_EXECUTED", "Batch028 capture status was promoted")
+    require(results28.get("EXPECTED_SOURCE_COUNT") == SEMICONDUCTOR_SOURCE_COUNT, "Batch028 source count drifted")
+    require(results28.get("EXPLICIT_ACQUISITION_AUTHORIZATION_REQUIRED") == "YES", "Batch028 authorization gate drifted")
+    require(results28.get("CROSS_ORIGIN_REDIRECT_ALLOWED") == "NO", "Batch028 cross-origin redirect gate drifted")
+    require(results28.get("T1_PERSISTENCE_PERFORMED_BY_ADAPTER") == "NO", "Batch028 adapter falsely claims T1 persistence")
+    require(results28.get("RAW_SOURCE_VERSIONS_MATERIALIZED") == 0, "Batch028 falsely claims raw materialization")
+    require(results28.get("VALID_T1_RECEIPTS") == 0, "Batch028 falsely claims T1 receipts")
+    require(results28.get("ORDINARY_T2_ELIGIBLE_SOURCES") == 0, "Batch028 falsely claims ordinary T2 eligibility")
+    require(results28.get("HISTORICAL_REPLAY") == "BLOCKED_ACQUISITION_NOT_EXECUTED", "Batch028 replay status drifted")
+    require(results28.get("FIRST_SEMICONDUCTOR_RUN") == "BLOCKED", "Batch028 first-run status was promoted")
+
+    # Bind each of the seven locator remediations to its immutable Batch026
+    # source identity and registered locator, including the expected quarter.
+    remediations = remediation29.get("remediations")
+    require(isinstance(remediations, list), "Batch029 remediation rows missing")
+    remediation_ids = unique_ids(remediations, "source_id", "Batch029 remediation source")
+    queue_by_source_id = {row["source_id"]: row for row in queue}
+    require(
+        remediation_ids == set(BATCH029_EXPECTED_REMEDIATIONS),
+        "Batch029 locator remediation identities drifted",
+    )
+    for row in remediations:
+        sid = row["source_id"]
+        ordinal, original_locator, fiscal_year, fiscal_quarter, document_kind = BATCH029_EXPECTED_REMEDIATIONS[sid]
+        queue_row = queue_by_source_id.get(sid)
+        require(isinstance(queue_row, dict), f"Batch029 remediation source is not in Batch026 queue: {sid}")
+        require(
+            row.get("ordinal") == ordinal
+            and row.get("original_source_locator") == original_locator
+            and queue_row.get("source_locator") == original_locator,
+            f"Batch029 locator provenance drifted for {sid}",
+        )
+        require(
+            row.get("fiscal_year") == fiscal_year
+            and row.get("fiscal_quarter") == fiscal_quarter
+            and row.get("document_kind") == document_kind,
+            f"Batch029 document identity drifted for {sid}",
+        )
+        expected_prefix = f"/621799436/files/doc_financials/{fiscal_year}/{fiscal_quarter}/"
+        require(
+            row.get("required_path_prefix") == expected_prefix,
+            f"Batch029 quarter path drifted for {sid}",
+        )
+
+    policy = remediation29.get("resolution_policy")
+    require(isinstance(policy, dict), "Batch029 resolution policy missing")
+    require(policy.get("allowed_resolved_host") == "s25.q4cdn.com", "Batch029 resolved host allowlist drifted")
+    require(policy.get("required_account_path_prefix") == "/621799436/files/doc_financials/", "Batch029 account path restriction drifted")
+    require(policy.get("https_required") is True, "Batch029 HTTPS requirement removed")
+    require(policy.get("cross_origin_redirect_after_resolution_allowed") is False, "Batch029 cross-origin resolution allowed")
+    require(policy.get("record_actual_resolved_locator_in_capture_sidecar") is True, "Batch029 actual-locator sidecar requirement removed")
+    require(policy.get("preserve_original_registered_locator_in_predecessor_queue") is True, "Batch029 original locator preservation removed")
+
+    results29 = status29.get("results")
+    require(isinstance(results29, dict), "Batch029 remediation results missing")
+    require(status29.get("result") == "PASS_MICRON_CAPTURE_LOCATOR_REMEDIATION_READY_NOT_EXECUTED", "Batch029 capture status was promoted")
+    require(results29.get("STALE_MICRON_REGISTERED_LOCATORS_REMEDIATED") == SEMICONDUCTOR_LOCATOR_REMEDIATION_COUNT, "Batch029 remediation count drifted")
+    require(results29.get("ORIGINAL_SOURCE_IDENTITIES_PRESERVED") == SEMICONDUCTOR_LOCATOR_REMEDIATION_COUNT, "Batch029 source identity preservation drifted")
+    require(results29.get("ORIGINAL_BATCH026_QUEUE_MUTATED") == "NO", "Batch029 claims Batch026 queue mutation")
+    require(results29.get("ORIGINAL_SOURCE_REGISTRIES_MUTATED") == "NO", "Batch029 claims predecessor registry mutation")
+    require(results29.get("ACTUAL_CAPTURE_LOCATOR_RECORDED_IN_SIDECAR") == "YES", "Batch029 sidecar provenance status drifted")
+    require(results29.get("REGISTERED_AND_CAPTURE_LOCATORS_BOTH_RECORDED_IN_HANDBACK") == "YES", "Batch029 handback locator provenance drifted")
+    require(results29.get("RAW_SOURCE_VERSIONS_MATERIALIZED") == 0, "Batch029 falsely claims raw materialization")
+    require(results29.get("VALID_T1_RECEIPTS") == 0, "Batch029 falsely claims T1 receipts")
+    require(results29.get("ORDINARY_T2_ELIGIBLE_SOURCES") == 0, "Batch029 falsely claims ordinary T2 eligibility")
+    require(results29.get("HISTORICAL_REPLAY") == "BLOCKED_CAPTURE_NOT_EXECUTED", "Batch029 replay status drifted")
+    require(results29.get("FIRST_SEMICONDUCTOR_RUN") == "BLOCKED", "Batch029 first-run status was promoted")
+
+    return len(queue_source_ids), len(remediation_ids)
+
+
 def main() -> int:
+    semiconductor_source_count, micron_locator_count = validate_second_slice_successor_chain()
     docs = {name: load_json(path) for name, path in FILES.items()}
 
     registry = docs["source_registry"]
@@ -905,6 +1189,8 @@ def main() -> int:
     print("CONSTRAINT_FIRST_SLICE_INTEGRATION_VALIDATION=PASS")
     print(f"SLICE_ID={SLICE_ID}")
     print(f"ORIGINAL_REGISTERED_SOURCE_COUNT={len(registry_ids)}")
+    print(f"SEMICONDUCTOR_CAPTURE_QUEUE_SOURCE_COUNT={semiconductor_source_count}")
+    print(f"MICRON_LOCATOR_REMEDIATION_COUNT={micron_locator_count}")
     print(f"FIBER_EXTENSION_SOURCE_COUNT={len(extension_ids)}")
     print(f"BATCH010_CLAIMS={len(claim_ids)}")
     print(f"BATCH010_CANDIDATES={len(candidate_ids)}")
