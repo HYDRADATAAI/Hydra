@@ -6,10 +6,10 @@ param(
  [ValidateSet("auto","chrome","msedge")][string]$Browser="auto",
  [ValidateSet("exact","same-origin")][string]$RedirectPolicy="exact",
  [string]$RepoRoot,
- [string]$PrivateRoot="D:\HYDRA_PRIVATE\constraint\raw",
- [string]$BrowserPrivateRoot="D:\HYDRA_PRIVATE\constraint",
- [string]$InboxRoot="D:\HYDRA_PRIVATE\constraint\capture_inbox\semiconductor_batch030",
- [string]$HandbackRoot="D:\HYDRA_PRIVATE\constraint\handback"
+ [string]$PrivateRoot="D:\HYDRA\_PRIVATE\constraint\raw",
+ [string]$BrowserPrivateRoot="D:\HYDRA\_PRIVATE\constraint",
+ [string]$InboxRoot="D:\HYDRA\_PRIVATE\constraint\capture_inbox\semiconductor_batch030",
+ [string]$HandbackRoot="D:\HYDRA\_PRIVATE\constraint\handback"
 )
 $ErrorActionPreference="Stop"
 if(-not $RepoRoot){$RepoRoot=[System.IO.Path]::GetFullPath((Join-Path $PSScriptRoot "..\.."))}else{$RepoRoot=[System.IO.Path]::GetFullPath($RepoRoot)}
