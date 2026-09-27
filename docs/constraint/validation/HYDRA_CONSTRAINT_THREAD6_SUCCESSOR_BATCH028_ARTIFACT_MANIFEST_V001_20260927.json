@@ -1,0 +1,71 @@
+{
+  "schema_version": "hydra-constraint-thread6-successor-manifest/v1",
+  "record_id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH028_ARTIFACT_MANIFEST_V001",
+  "as_of": "2026-09-27",
+  "repository": "HYDRADATAAI/Hydra",
+  "base_head": "61a8ba9ba471d985107f5df3a31d4401fc6801e6",
+  "predecessor_batch": {
+    "id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH027",
+    "preservation": "IMMUTABLE_NOT_REWRITTEN"
+  },
+  "slice_id": "SEMICONDUCTOR_ADVANCED_PACKAGING_CRITICAL_MATERIALS_V1",
+  "result": "PASS_BROWSER_ACQUISITION_ADAPTER_READY_NOT_EXECUTED",
+  "artifacts": [
+    {
+      "path": "docs/constraint/second_slice/semiconductor_advanced_packaging_critical_materials_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH028_SEMICONDUCTOR_BROWSER_ACQUISITION_ADAPTER_CONTRACT_V001_20260927.json",
+      "git_blob_sha": "b6895b465a18d942e3fa0e80e40553adf339c6e4"
+    },
+    {
+      "path": "docs/constraint/second_slice/semiconductor_advanced_packaging_critical_materials_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH028_SEMICONDUCTOR_BROWSER_ACQUISITION_ADAPTER_STATUS_V001_20260927.json",
+      "git_blob_sha": "9b98c56852ce8ae9be2c0de8e941b6666471aa0c"
+    },
+    {
+      "path": "docs/constraint/architecture/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH028_MASTER_STATUS_V001_20260927.json",
+      "git_blob_sha": "7ed315ee5c6b1741e4963ac541a3710975eb31dc"
+    },
+    {
+      "path": "docs/constraint/architecture/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH028_SEMICONDUCTOR_CAPABILITY_LEDGER_DELTA_V001_20260927.json",
+      "git_blob_sha": "058a95e43f29d720da8301268822eebb25278c1f"
+    },
+    {
+      "path": "docs/constraint/validation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH028_SEMICONDUCTOR_BROWSER_ACQUISITION_ADAPTER_REPORT_V001_20260927.md",
+      "git_blob_sha": "8dfeff5f86feb77be36a9ec92e8a14f435a66f3d"
+    }
+  ],
+  "excluded_operational_tools": [
+    {
+      "path": "tools/private/HYDRA_CONSTRAINT_T1_SEMICONDUCTOR_BATCH026_BROWSER_CAPTURE_V001_20260927.py",
+      "reason": "private-browser acquisition runner"
+    },
+    {
+      "path": "tools/private/Invoke-HYDRAConstraintSemiconductorBatch026BrowserCapture_V001_20260927.ps1",
+      "reason": "workstation browser acquisition launcher"
+    },
+    {
+      "path": "tools/private/HYDRA_CONSTRAINT_T1_SEMICONDUCTOR_BATCH026_BROWSER_CAPTURE_REQUIREMENTS_V001_20260927.txt",
+      "reason": "private runtime dependency pin"
+    },
+    {
+      "path": "tools/validate_constraint_second_slice_batch028_browser_adapter.py",
+      "reason": "public validator"
+    },
+    {
+      "path": "tools/test_constraint_second_slice_batch028_browser_adapter_adversarial.py",
+      "reason": "hostile test harness"
+    },
+    {
+      "path": ".github/workflows/constraint-second-slice.yml",
+      "reason": "CI orchestration"
+    }
+  ],
+  "expected": {
+    "browser_acquisition_adapter_ready": "YES",
+    "expected_source_count": 41,
+    "explicit_acquisition_authorization_required": "YES",
+    "default_redirect_policy": "exact",
+    "t1_persistence_performed_by_adapter": "NO",
+    "raw_source_versions_materialized": 0,
+    "first_semiconductor_run": "BLOCKED",
+    "next_required_action": "RUN_BATCH028_BROWSER_CAPTURE_IN_CLEAN_WORKTREE"
+  }
+}
