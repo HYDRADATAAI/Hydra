@@ -133,6 +133,32 @@ def load_supersessions(path: Path) -> dict[str, dict[str, str]]:
             "predecessor_git_blob_sha": predecessor,
             "successor_git_blob_sha": successor,
         }
+    # The first-slice capture PR changes only the operational README path.
+    # Keep the original custody edge and require the exact declared successor.
+    private_map = VALIDATION / "HYDRA_CONSTRAINT_BATCH017_T1_PRIVATE_RECORD_SUPERSESSION_MAP_V001_20260926.json"
+    if private_map.is_file():
+        private = load_json(private_map)
+        require(private.get("scope") == "T1_PERSISTED_PRIVATE_RECORD_CUSTODY_ONLY", "private supersession scope drifted")
+        require(private.get("predecessor_artifacts_rewritten") is False, "private supersession rewrites predecessor")
+        require(set(private.get("guardrails", [])) == {
+            "NO_RAW_SOURCE_BODY_PUBLISHED", "NO_LIVE_NETWORK_ACQUISITION_AUTHORIZED",
+            "NO_ORDINARY_REPLAY_PROMOTION", "NO_NATIVE_T5_T6_ADMISSION_CLAIM",
+        }, "private supersession guardrails drifted")
+        rows = private.get("transitions", [])
+        require(len(rows) == len(result), "private supersession transition count drifted")
+        seen = set()
+        for row in rows:
+            relative = row.get("path")
+            require(relative in result and relative not in seen, "private supersession path drifted")
+            seen.add(relative)
+            previous = result[relative]
+            require(row.get("predecessor_git_blob_sha") == previous["predecessor_git_blob_sha"], "private supersession predecessor mismatch")
+            successor = row.get("successor_git_blob_sha")
+            require(successor == git_blob_sha(ROOT / relative), f"private supersession successor mismatch: {relative}")
+            if successor != previous["successor_git_blob_sha"]:
+                require(relative == "constraint-t1-raw-artifact-store/README.md", "undeclared custody implementation change")
+                previous["intermediate_git_blob_sha"] = previous["successor_git_blob_sha"]
+                previous["successor_git_blob_sha"] = successor
     return result
 
 
@@ -161,7 +187,7 @@ def validate_manifest(
                 f"manifest blob mismatch without declared supersession: {relative}: expected={expected} actual={actual}",
             )
             require(
-                transition["predecessor_git_blob_sha"] == expected,
+                expected in {transition["predecessor_git_blob_sha"], transition.get("intermediate_git_blob_sha")},
                 f"custody supersession predecessor mismatch: {relative}",
             )
             require(

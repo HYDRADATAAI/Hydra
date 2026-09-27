@@ -1,0 +1,48 @@
+{
+  "as_of": "2026-09-26",
+  "predecessor": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH017",
+  "record_id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH018_CAPABILITY_LEDGER_DELTA_V001",
+  "related_evidence": [
+    "docs/constraint/first_slice/ai_data_center_power_infrastructure_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH018_AI_DATA_CENTER_POWER_INFRASTRUCTURE_SOURCE_HASH_INVENTORY_V001_20260926.json",
+    "docs/constraint/first_slice/ai_data_center_power_infrastructure_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH018_AI_DATA_CENTER_POWER_INFRASTRUCTURE_SOURCE_MATERIALIZATION_STATUS_V001_20260926.json",
+    "docs/constraint/validation/HYDRA_CONSTRAINT_BATCH018_T1_NINE_SOURCE_MATERIALIZATION_ATTESTATION_V001_20260926.json"
+  ],
+  "schema_version": "hydra-constraint-capability-ledger-delta/v1",
+  "slice_id": "AI_DATA_CENTER_POWER_INFRASTRUCTURE_V1",
+  "unchanged": [
+    {
+      "capability": "historical_states_replay",
+      "reason": "PRE_ACQUISITION_HISTORICAL_VERSION_AVAILABILITY_IS_UNPROVEN_FOR_THE_INTENDED_PIT_CUTOFFS",
+      "status": "THIN"
+    },
+    {
+      "capability": "implementation_admission",
+      "reason": "CI-TEST-008-BLOCKER-001B-NATIVE-T5-T6-SIGNED-ADMISSION-RECEIPT-ABSENT",
+      "status": "BLOCKED_BY_MISSING_AUTHORITY"
+    }
+  ],
+  "update_count": 2,
+  "updates": [
+    {
+      "basis": [
+        "All nine exact registered sources have browser-originated raw payloads in the canonical private T1 store",
+        "Every source has an immutable SHA-256 object, persisted version receipt, exact release membership, and ordinary T1-to-T2 eligibility",
+        "Sanitized public attestation and source hash inventory validate without raw bodies or absolute private object paths"
+      ],
+      "capability": "first_slice_raw_materialization",
+      "prior_status": "THIN",
+      "scope_limit": "Materialization/custody only; no historical availability before acquired_at is asserted",
+      "successor_status": "FULL"
+    },
+    {
+      "basis": [
+        "Nine of nine exact source-version hashes are bound to persisted receipts and the immutable T1 release",
+        "Every content-addressed object was re-read and verified by SHA-256 and byte length"
+      ],
+      "capability": "ordinary_replay_source_version_hashes",
+      "prior_status": "THIN",
+      "scope_limit": "Exact current source versions resolve at or after conservative available_at; historical cutoffs before acquisition remain blocked",
+      "successor_status": "FULL"
+    }
+  ]
+}

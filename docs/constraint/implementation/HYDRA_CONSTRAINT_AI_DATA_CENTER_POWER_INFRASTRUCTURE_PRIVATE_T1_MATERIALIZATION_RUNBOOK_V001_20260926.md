@@ -22,10 +22,10 @@ $env:PYTHONPATH = "$PWD\constraint-t1-raw-artifact-store\src"
 
 python -m hydra_constraint_t1_raw.first_slice_cli `
   --registry ".\docs\constraint\first_slice\ai_data_center_power_infrastructure_v1\HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH003_AI_DATA_CENTER_POWER_INFRASTRUCTURE_SOURCE_REGISTRY_V001_20260925.json" `
-  --capture-plan "D:\HYDRA_PRIVATE\constraint\capture-plan.json" `
-  --private-root "D:\HYDRA_PRIVATE\constraint\raw" `
+  --capture-plan "D:\HYDRA\_PRIVATE\constraint\metadata\HYDRA_CONSTRAINT_T1_FIRST_SLICE_PRIVATE_CAPTURE_PLAN_<RUN_ID>.json" `
+  --private-root "D:\HYDRA\_PRIVATE\constraint\raw" `
   --public-repo-root "$PWD" `
-  --attestation-output "D:\HYDRA_PRIVATE\constraint\first-slice-materialization-attestation.json"
+  --attestation-output "D:\HYDRA\_PRIVATE\constraint\metadata\HYDRA_CONSTRAINT_T1_FIRST_SLICE_MATERIALIZATION_ATTESTATION_<RUN_ID>.json"
 ```
 
 The command fails closed on missing/extra sources, locator substitution, raw files inside the public repository, caller-supplied/backdated `available_at`, release timestamps before acquisition, non-persisted receipt/release authority, and quarantine-as-eligible promotion.
@@ -36,7 +36,7 @@ The generated attestation contains hashes and source-version metadata, not raw b
 
 ```powershell
 python .\tools\validate_constraint_t1_first_slice_attestation.py `
-  --attestation "D:\HYDRA_PRIVATE\constraint\first-slice-materialization-attestation.json"
+  --attestation "D:\HYDRA\_PRIVATE\constraint\metadata\HYDRA_CONSTRAINT_T1_FIRST_SLICE_MATERIALIZATION_ATTESTATION_<RUN_ID>.json"
 ```
 
 Expected:
@@ -66,16 +66,16 @@ source-version/as-of membership packet without exposing raw bytes:
 
 ```powershell
 python .\tools\build_constraint_t1_first_slice_replay_lineage.py `
-  --attestation "D:\HYDRA_PRIVATE\constraint\first-slice-materialization-attestation.json" `
-  --output "D:\HYDRA_PRIVATE\constraint\first-slice-replay-lineage-packet.json"
+  --attestation "D:\HYDRA\_PRIVATE\constraint\metadata\HYDRA_CONSTRAINT_T1_FIRST_SLICE_MATERIALIZATION_ATTESTATION_<RUN_ID>.json" `
+  --output "D:\HYDRA\_PRIVATE\constraint\metadata\HYDRA_CONSTRAINT_T1_FIRST_SLICE_REPLAY_LINEAGE_PACKET_<RUN_ID>.json"
 ```
 
 Optional deterministic membership check at a specific as-of time:
 
 ```powershell
 python .\tools\build_constraint_t1_first_slice_replay_lineage.py `
-  --attestation "D:\HYDRA_PRIVATE\constraint\first-slice-materialization-attestation.json" `
-  --output "D:\HYDRA_PRIVATE\constraint\first-slice-replay-lineage-packet.json" `
+  --attestation "D:\HYDRA\_PRIVATE\constraint\metadata\HYDRA_CONSTRAINT_T1_FIRST_SLICE_MATERIALIZATION_ATTESTATION_<RUN_ID>.json" `
+  --output "D:\HYDRA\_PRIVATE\constraint\metadata\HYDRA_CONSTRAINT_T1_FIRST_SLICE_REPLAY_LINEAGE_PACKET_<RUN_ID>.json" `
   --as-of "2026-09-26T14:30:00Z"
 ```
 
