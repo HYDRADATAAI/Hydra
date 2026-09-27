@@ -1,0 +1,642 @@
+{
+  "schema_version": "nyx-closeout-reconciliation-validation/v1",
+  "main_sha": "3cafc16f6a42a2eeeefa74f66a223ca8594374a9",
+  "base_sha": "794dcdc87f60bdfc4c67d72fec6ec771d0c46669",
+  "prior_pr101_head": "d12368a3660ee853828b55a5ca54423a22fca95d",
+  "audit_source_head": "d1bba524bf43755cc09c05dd645fc15d48f6721d",
+  "python": "3.12.14",
+  "test_first": {
+    "command": [
+      "python",
+      "-m",
+      "unittest",
+      "discover",
+      "-s",
+      "constraint-t1-raw-artifact-store/tests",
+      "-p",
+      "test_first_slice*.py",
+      "-v"
+    ],
+    "tests": 22,
+    "baseline_failure_assertions_including_subtests": 11,
+    "repaired_exit_code": 0,
+    "baseline_log_sha256": "5a84b01aa2823de1110922090f48ff08e5a4b044df3189e7d21297e7c1e7ffbb",
+    "repaired_log_sha256": "5ac11d63aaaf486f5b9b12953b167dd1d0f9875770c3f2c00344257a6077a76b"
+  },
+  "source_changes": [
+    {
+      "path": "constraint-t1-raw-artifact-store/src/hydra_constraint_t1_raw/first_slice_materialization.py",
+      "before_git_blob_sha": "7f33e558792071b57283192dd3eee304a46da057",
+      "after_git_blob_sha": "ddb2341d023b3f094a518f7a932df31ab31eb6b2"
+    },
+    {
+      "path": "constraint-t1-raw-artifact-store/src/hydra_constraint_t1_raw/replay_lineage.py",
+      "before_git_blob_sha": "2548dd4759c82bd11112f10a71f6529c87b9036d",
+      "after_git_blob_sha": "1a71f06120a14b66135d0f500f680d4afeeffbc1"
+    },
+    {
+      "path": "constraint-t1-raw-artifact-store/tests/test_first_slice_materialization.py",
+      "before_git_blob_sha": "d7aed41b507a42309161129ee1b330e323f06abc",
+      "after_git_blob_sha": "7e50f35e190540d3b62b78d233aab119b12bb0a1"
+    },
+    {
+      "path": "constraint-t1-raw-artifact-store/tests/test_first_slice_replay_lineage.py",
+      "before_git_blob_sha": "83ec8ca4d92ac90bdbfaf3484dc608c341d1b63e",
+      "after_git_blob_sha": "6b0bf7a4ce75c7c1cbf797620e600bba922050f6"
+    },
+    {
+      "path": "docs/constraint/validation/HYDRA_CONSTRAINT_FIRST_SLICE_THREAD6_SUCCESSOR_BATCH018_ARTIFACT_MANIFEST_V001_20260926.json",
+      "before_git_blob_sha": "556ada9053f936d3381df914ddae5e1a02a6dc27",
+      "after_git_blob_sha": "11f66ba8ae8bad52a8e2dd67efef50d20c158224"
+    },
+    {
+      "path": "tools/nyx_test_constraint_successor_chain_adversarial.py",
+      "before_git_blob_sha": "481507539d53a301d703a16fcb753140d803ff6a",
+      "after_git_blob_sha": "c5229959f6b560edcabc55949244859130e07ffc"
+    }
+  ],
+  "results": [
+    {
+      "command": [
+        "python",
+        "tools/test_constraint_first_slice_acceptance_gate_adversarial.py"
+      ],
+      "cwd": ".",
+      "exit_code": 0,
+      "summary": [
+        "CONSTRAINT_FIRST_SLICE_STRICT_ACCEPTANCE_HOSTILE_MATRIX=PASS",
+        "HOSTILE_CASES=11"
+      ],
+      "log_sha256": "5e46a300cfa083da1cafa2b89c0cda7d22b5e7b7d062fb1cee7d7502681501c5"
+    },
+    {
+      "command": [
+        "python",
+        "tools/test_constraint_first_slice_adversarial.py"
+      ],
+      "cwd": ".",
+      "exit_code": 0,
+      "summary": [
+        "CONSTRAINT_FIRST_SLICE_HOSTILE_MUTATION_MATRIX=PASS",
+        "HOSTILE_CASES=9"
+      ],
+      "log_sha256": "b7657e1e7ba89d3dc53575630a5e2c6113bd7e3201b7934967464287f6803893"
+    },
+    {
+      "command": [
+        "python",
+        "tools/test_constraint_first_slice_confidence_evaluation_adversarial.py"
+      ],
+      "cwd": ".",
+      "exit_code": 0,
+      "summary": [
+        "CONSTRAINT_FIRST_SLICE_TYPED_CONFIDENCE_HOSTILE_MATRIX=PASS",
+        "HOSTILE_CASES=9"
+      ],
+      "log_sha256": "40cd810aa058a6310d8a0898a4a013539aff200892bdd81a7b2be2faedb496ab"
+    },
+    {
+      "command": [
+        "python",
+        "tools/test_constraint_first_slice_custody_adversarial.py"
+      ],
+      "cwd": ".",
+      "exit_code": 0,
+      "summary": [
+        "CONSTRAINT_FIRST_SLICE_PERSISTED_CUSTODY_HOSTILE_MATRIX=PASS",
+        "HOSTILE_CASES=7"
+      ],
+      "log_sha256": "44ae8fbc14d0bd26c0325583d8f0c4b120aa207b9ffb3aefa536a1269afd87c0"
+    },
+    {
+      "command": [
+        "python",
+        "tools/test_constraint_first_slice_outcome_coverage_adversarial.py"
+      ],
+      "cwd": ".",
+      "exit_code": 0,
+      "summary": [
+        "CONSTRAINT_FIRST_SLICE_REAL_OUTCOME_COVERAGE_HOSTILE_MATRIX=PASS",
+        "HOSTILE_CASES=24"
+      ],
+      "log_sha256": "e1ac94f8b27211f6a8cccaeab915753811f5f8ce31a5c54da27c2633ffeeb6aa"
+    },
+    {
+      "command": [
+        "python",
+        "tools/validate_constraint_first_slice_acceptance_gate.py"
+      ],
+      "cwd": ".",
+      "exit_code": 0,
+      "summary": [
+        "CONSTRAINT_FIRST_SLICE_STRICT_ACCEPTANCE_GATE=PASS"
+      ],
+      "log_sha256": "e4fd5b3ff76e5164af24558935024d6f8bfa057f7d644e6166821b4392cd349b"
+    },
+    {
+      "command": [
+        "python",
+        "tools/validate_constraint_first_slice_confidence_evaluation.py"
+      ],
+      "cwd": ".",
+      "exit_code": 0,
+      "summary": [
+        "CONSTRAINT_FIRST_SLICE_TYPED_CONFIDENCE_EVALUATION_VALIDATION=PASS"
+      ],
+      "log_sha256": "d6833d08a2c525e4c3a1983d3241f13f2d01ac5af0a5544f66598652ea84910e"
+    },
+    {
+      "command": [
+        "python",
+        "tools/validate_constraint_first_slice_custody.py"
+      ],
+      "cwd": ".",
+      "exit_code": 0,
+      "summary": [
+        "CONSTRAINT_FIRST_SLICE_PERSISTED_CUSTODY_VALIDATION=PASS"
+      ],
+      "log_sha256": "ae789cceaaac89cd57ac41e1e3c161eee871985910943e45ee5bd541b9ed6a37"
+    },
+    {
+      "command": [
+        "python",
+        "tools/validate_constraint_first_slice_outcome_coverage.py"
+      ],
+      "cwd": ".",
+      "exit_code": 0,
+      "summary": [
+        "CONSTRAINT_FIRST_SLICE_REAL_OUTCOME_COVERAGE_VALIDATION=PASS"
+      ],
+      "log_sha256": "cbee65ad8eb69687e6411c96b628834ea0acb7915f61b5321a750619cbfea668"
+    },
+    {
+      "command": [
+        "python",
+        "tools/validate_constraint_first_slice_successor.py"
+      ],
+      "cwd": ".",
+      "exit_code": 0,
+      "summary": [
+        "CONSTRAINT_FIRST_SLICE_INTEGRATION_VALIDATION=PASS",
+        "SHADOW_REPLAY_FIXTURE=PASS",
+        "SHADOW_NO_LOOKAHEAD=PASS",
+        "SHADOW_DETERMINISM=PASS"
+      ],
+      "log_sha256": "1da628fb941b6d181f80e9fc5d972e19a39431c62c73da696c9ca388e2fddaad"
+    },
+    {
+      "command": [
+        "python",
+        "tools/nyx_validate_constraint_successor_chain.py"
+      ],
+      "cwd": ".",
+      "exit_code": 0,
+      "summary": [
+        "CONSTRAINT_FIRST_SLICE_INTEGRATION_VALIDATION=PASS"
+      ],
+      "log_sha256": "58c196592d362bd4832dbfbf6f01f342c0a3dc4ca3403637d1477b729c3db509"
+    },
+    {
+      "command": [
+        "python",
+        "tools/nyx_test_constraint_successor_chain_adversarial.py"
+      ],
+      "cwd": ".",
+      "exit_code": 0,
+      "summary": [
+        "CONSTRAINT_FIRST_SLICE_HOSTILE_MUTATION_MATRIX=PASS",
+        "HOSTILE_CASES=22"
+      ],
+      "log_sha256": "0b1987f58d7e8bf0b21457a75c6ebf67418ef7e4c1b796e10c21a6edb2287a3a"
+    },
+    {
+      "command": [
+        "python",
+        "tools/validate_constraint_lily_owner_seams.py"
+      ],
+      "cwd": ".",
+      "exit_code": 0,
+      "summary": [
+        "CONSTRAINT_LILY_OWNER_SEAM_CONFORMANCE=PASS"
+      ],
+      "log_sha256": "5b8e80b9697e7c4c3c143688178896e6ddca20468ad7b079e27fc671d54ef9e4"
+    },
+    {
+      "command": [
+        "python",
+        "tools/validate_public_repository.py"
+      ],
+      "cwd": ".",
+      "exit_code": 0,
+      "summary": [
+        "PUBLIC_REPOSITORY_VALIDATION=PASS",
+        "FAIL_CLOSED_CONTRACT=PASS",
+        "MARKDOWN_LINKS=PASS",
+        "VALIDATOR_CI_CONTRACT=PASS",
+        "MARKET_PIPELINE_CI_CONTRACT=PASS",
+        "SQL_SAMPLE_CI_CONTRACT=PASS",
+        "AWS_SAMPLE_CI_CONTRACT=PASS",
+        "AWS_DEPLOY_WORKFLOW_CONTRACT=PASS",
+        "GOVERNED_INTELLIGENCE_SAFETY_CONTRACT=PASS",
+        "GOVERNED_INTELLIGENCE_CI_CONTRACT=PASS",
+        "AWS_TEMPLATE_CONTRACT=PASS"
+      ],
+      "log_sha256": "5a743c7dd6714c7bdd6092892cfdd2a8edbb0ee6cb9c79a457a77b15b06a0d5a"
+    },
+    {
+      "command": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "cwd": ".",
+      "exit_code": 0,
+      "summary": [],
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "command": [
+        "python",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests",
+        "-t",
+        ".",
+        "-v"
+      ],
+      "cwd": "constraint-t1-raw-artifact-store",
+      "exit_code": 0,
+      "summary": [
+        "Ran 59 tests in 0.250s",
+        "OK"
+      ],
+      "log_sha256": "02e739cfd6eb8ea50c9da48443bf10841706b1926a622a1e20f242639945adf8"
+    },
+    {
+      "command": [
+        "python",
+        "tools/test_constraint_second_slice_batch017_audit_adversarial.py"
+      ],
+      "cwd": ".",
+      "exit_code": 0,
+      "summary": [
+        "CONSTRAINT_SECOND_SLICE_BATCH017_AUDIT_HOSTILE_MATRIX=PASS",
+        "HOSTILE_CASES=10"
+      ],
+      "log_sha256": "db1efd5b9f1ca17d4ec33dff8e2ebb65aa274e3e6d5c4044158372fa1a2ebc52"
+    },
+    {
+      "command": [
+        "python",
+        "tools/test_constraint_second_slice_batch018_population_adversarial.py"
+      ],
+      "cwd": ".",
+      "exit_code": 0,
+      "summary": [
+        "CONSTRAINT_SECOND_SLICE_BATCH018_POPULATION_HOSTILE_MATRIX=PASS",
+        "HOSTILE_CASES=11"
+      ],
+      "log_sha256": "1a820994eaa4329c83575363515f268a12d58c477ffbaaaf10d532da8624486b"
+    },
+    {
+      "command": [
+        "python",
+        "tools/test_constraint_second_slice_batch019_facility_material_equipment_adversarial.py"
+      ],
+      "cwd": ".",
+      "exit_code": 0,
+      "summary": [
+        "Ran 15 tests in 0.015s",
+        "OK"
+      ],
+      "log_sha256": "cd718e54215dc9ad2963fc6b559a6eb5465f636d4af07d7f27ce78b7fb57e926"
+    },
+    {
+      "command": [
+        "python",
+        "tools/test_constraint_second_slice_batch020_policy_outcomes_cases_adversarial.py"
+      ],
+      "cwd": ".",
+      "exit_code": 0,
+      "summary": [
+        "Ran 15 tests in 0.011s",
+        "OK"
+      ],
+      "log_sha256": "474dae795f951822d9efb3cb10d4f6cb5ba05f2e84b3534f42c92c4745add0d8"
+    },
+    {
+      "command": [
+        "python",
+        "tools/test_constraint_second_slice_batch021_beneficiary_substitution_power_adversarial.py"
+      ],
+      "cwd": ".",
+      "exit_code": 0,
+      "summary": [
+        "CONSTRAINT_SECOND_SLICE_BATCH021_HOSTILE_MATRIX=PASS",
+        "HOSTILE_CASES=11"
+      ],
+      "log_sha256": "1394bbcfa11a6a65c51c5fb470819a56ff815d3d0dc1ca414b877a72182b90e7"
+    },
+    {
+      "command": [
+        "python",
+        "tools/test_constraint_second_slice_batch022_tool_material_duplicate_adversarial.py"
+      ],
+      "cwd": ".",
+      "exit_code": 0,
+      "summary": [
+        "CONSTRAINT_SECOND_SLICE_BATCH022_HOSTILE_MATRIX=PASS",
+        "HOSTILE_CASES=12"
+      ],
+      "log_sha256": "a2273b255db4a697dd8a02cbe34ea4beef99e38fea093a9cf90ac235785d54f7"
+    },
+    {
+      "command": [
+        "python",
+        "tools/test_constraint_second_slice_batch023_hbm_yield_migration_adversarial.py"
+      ],
+      "cwd": ".",
+      "exit_code": 0,
+      "summary": [
+        "CONSTRAINT_SECOND_SLICE_BATCH023_HOSTILE_MATRIX=PASS",
+        "HOSTILE_CASES=12"
+      ],
+      "log_sha256": "4f3e05c4db9cc7e6b59ae07cf7e0c4b9bf9c2ac6107287433d55677284a6117e"
+    },
+    {
+      "command": [
+        "python",
+        "tools/test_constraint_second_slice_batch024_acceptance_gate_adversarial.py"
+      ],
+      "cwd": ".",
+      "exit_code": 0,
+      "summary": [
+        "CONSTRAINT_SECOND_SLICE_BATCH024_HOSTILE_MATRIX=PASS",
+        "HOSTILE_CASES=12"
+      ],
+      "log_sha256": "86ee156cf8bb20bc7ef9716c903b939b48c3154320d41d043050d4e57c963569"
+    },
+    {
+      "command": [
+        "python",
+        "tools/test_constraint_second_slice_batch025_continuous_graph_adversarial.py"
+      ],
+      "cwd": ".",
+      "exit_code": 0,
+      "summary": [
+        "CONSTRAINT_SECOND_SLICE_BATCH025_HOSTILE_MATRIX=PASS",
+        "HOSTILE_CASES=12"
+      ],
+      "log_sha256": "70c2fd7f70d92af67f09644157011f9ce2603d00adc50dcc4611d8b17baf8a71"
+    },
+    {
+      "command": [
+        "python",
+        "tools/test_constraint_second_slice_batch026_private_t1_packet_adversarial.py"
+      ],
+      "cwd": ".",
+      "exit_code": 0,
+      "summary": [
+        "CONSTRAINT_SECOND_SLICE_BATCH026_HOSTILE_MATRIX=PASS",
+        "HOSTILE_CASES=10"
+      ],
+      "log_sha256": "4bf2bc0f6ffb3c4d3ca78f606900845ce51270487495984a0b9d8990863361ba"
+    },
+    {
+      "command": [
+        "python",
+        "tools/test_constraint_second_slice_batch027_workstation_launcher_adversarial.py"
+      ],
+      "cwd": ".",
+      "exit_code": 0,
+      "summary": [
+        "CONSTRAINT_SECOND_SLICE_BATCH027_HOSTILE_MATRIX=PASS",
+        "HOSTILE_CASES=8"
+      ],
+      "log_sha256": "850ac63905728ae27907f449928679d1d7cf7f6f8c6e92185969460daac78480"
+    },
+    {
+      "command": [
+        "python",
+        "tools/test_constraint_second_slice_batch028_browser_adapter_adversarial.py"
+      ],
+      "cwd": ".",
+      "exit_code": 0,
+      "summary": [
+        "CONSTRAINT_SECOND_SLICE_BATCH028_HOSTILE_MATRIX=PASS",
+        "HOSTILE_CASES=9"
+      ],
+      "log_sha256": "21d7c6f7320961e4af76446d13e7eb833670db31f71419ed9676722c2bc51878"
+    },
+    {
+      "command": [
+        "python",
+        "tools/test_constraint_second_slice_batch029_locator_remediation_adversarial.py"
+      ],
+      "cwd": ".",
+      "exit_code": 0,
+      "summary": [
+        "CONSTRAINT_SECOND_SLICE_BATCH029_HOSTILE_MATRIX=PASS",
+        "HOSTILE_CASES=8"
+      ],
+      "log_sha256": "ae06fc92b1db128688d241c4199174eb9dc6524033a7865204aad08478e2d008"
+    },
+    {
+      "command": [
+        "python",
+        "tools/validate_constraint_second_slice_batch017_audit.py"
+      ],
+      "cwd": ".",
+      "exit_code": 0,
+      "summary": [
+        "CONSTRAINT_SECOND_SLICE_BATCH017_AUDIT_VALIDATION=PASS"
+      ],
+      "log_sha256": "9af10794fdc31e1f8119b54ae25ff9c8296b7f9e2174765bf09d6cce66e2bed7"
+    },
+    {
+      "command": [
+        "python",
+        "tools/validate_constraint_second_slice_batch018_population.py"
+      ],
+      "cwd": ".",
+      "exit_code": 0,
+      "summary": [
+        "CONSTRAINT_SECOND_SLICE_BATCH018_POPULATION_VALIDATION=PASS"
+      ],
+      "log_sha256": "447cfc2fecb0894c3cfbfe3fb5f7c3ca6170693c9f302a417db17558a9f6df1d"
+    },
+    {
+      "command": [
+        "python",
+        "tools/validate_constraint_second_slice_batch019_facility_material_equipment.py"
+      ],
+      "cwd": ".",
+      "exit_code": 0,
+      "summary": [
+        "CONSTRAINT_SECOND_SLICE_BATCH019_VALIDATION=PASS"
+      ],
+      "log_sha256": "e4650d240431a5f7d579fef03e83c2dacb9cb399b18ab3aaebe83c3632375754"
+    },
+    {
+      "command": [
+        "python",
+        "tools/validate_constraint_second_slice_batch020_policy_outcomes_cases.py"
+      ],
+      "cwd": ".",
+      "exit_code": 0,
+      "summary": [
+        "CONSTRAINT_SECOND_SLICE_BATCH020_VALIDATION=PASS"
+      ],
+      "log_sha256": "6d81b57ae606f6ef295602420cea00fc9afa7ecfa5cd78bbe851b6ff20717cfd"
+    },
+    {
+      "command": [
+        "python",
+        "tools/validate_constraint_second_slice_batch021_beneficiary_substitution_power.py"
+      ],
+      "cwd": ".",
+      "exit_code": 0,
+      "summary": [
+        "CONSTRAINT_SECOND_SLICE_BATCH021_VALID_BENEFICIARY_SUBSTITUTION_POWER_VALIDATION=PASS"
+      ],
+      "log_sha256": "a278b6413c6e77c0f72616126b1185e6ec8b1f863aefa115702ab95fd3662707"
+    },
+    {
+      "command": [
+        "python",
+        "tools/validate_constraint_second_slice_batch022_tool_material_duplicate.py"
+      ],
+      "cwd": ".",
+      "exit_code": 0,
+      "summary": [
+        "CONSTRAINT_SECOND_SLICE_BATCH022_TOOL_MATERIAL_DUPLICATE_VALIDATION=PASS"
+      ],
+      "log_sha256": "bb331ea75a7565c7a913c9b716b44726cf618f9f1553da821f7430f13a338418"
+    },
+    {
+      "command": [
+        "python",
+        "tools/validate_constraint_second_slice_batch023_hbm_yield_migration.py"
+      ],
+      "cwd": ".",
+      "exit_code": 0,
+      "summary": [
+        "CONSTRAINT_SECOND_SLICE_BATCH023_HBM_YIELD_MIGRATION_VALIDATION=PASS"
+      ],
+      "log_sha256": "0c9b663e6d314a32a5292e765cffbbcd1411f53e2dc787b30c3045c687d9418e"
+    },
+    {
+      "command": [
+        "python",
+        "tools/validate_constraint_second_slice_batch024_acceptance_gate.py"
+      ],
+      "cwd": ".",
+      "exit_code": 0,
+      "summary": [
+        "CONSTRAINT_SECOND_SLICE_BATCH024_STRICT_ACCEPTANCE_VALIDATION=PASS"
+      ],
+      "log_sha256": "0d3a990bcd521b0f402a5c936fa7429698a9481ed572bc55c6273fc37cb52e40"
+    },
+    {
+      "command": [
+        "python",
+        "tools/validate_constraint_second_slice_batch025_continuous_graph.py"
+      ],
+      "cwd": ".",
+      "exit_code": 0,
+      "summary": [
+        "CONSTRAINT_SECOND_SLICE_BATCH025_CONTINUOUS_GRAPH_VALIDATION=PASS",
+        "CONTINUOUS_AI_SEMICONDUCTOR_POWER_CHAIN=PASS"
+      ],
+      "log_sha256": "d27f1cb03842cc718a41c58017730ce5b73fd92f35cb71fbef5e77f70c3d54f3"
+    },
+    {
+      "command": [
+        "python",
+        "tools/validate_constraint_second_slice_batch026_private_t1_packet.py"
+      ],
+      "cwd": ".",
+      "exit_code": 0,
+      "summary": [
+        "CONSTRAINT_SECOND_SLICE_BATCH026_PRIVATE_T1_PACKET_VALIDATION=PASS"
+      ],
+      "log_sha256": "85d8dbddbb938fc626e2859e657cad2e64825aef0d8a2b97e5c89da0defa95e0"
+    },
+    {
+      "command": [
+        "python",
+        "tools/validate_constraint_second_slice_batch027_workstation_launcher.py"
+      ],
+      "cwd": ".",
+      "exit_code": 0,
+      "summary": [
+        "CONSTRAINT_SECOND_SLICE_BATCH027_WORKSTATION_LAUNCHER_VALIDATION=PASS"
+      ],
+      "log_sha256": "3686a9b806bdfff57c181a7c42ed270c3e79c665b8f838b18957a22b78c48896"
+    },
+    {
+      "command": [
+        "python",
+        "tools/validate_constraint_second_slice_batch028_browser_adapter.py"
+      ],
+      "cwd": ".",
+      "exit_code": 0,
+      "summary": [
+        "CONSTRAINT_SECOND_SLICE_BATCH028_BROWSER_ADAPTER_VALIDATION=PASS"
+      ],
+      "log_sha256": "428def73bc34f116f0f34b16dd169b31bf470fd65b84fc3508e35578f5201883"
+    },
+    {
+      "command": [
+        "python",
+        "tools/validate_constraint_second_slice_batch029_locator_remediation.py"
+      ],
+      "cwd": ".",
+      "exit_code": 0,
+      "summary": [
+        "CONSTRAINT_SECOND_SLICE_BATCH029_LOCATOR_REMEDIATION_VALIDATION=PASS"
+      ],
+      "log_sha256": "3a64f62e3dcf6f610e054df69f2497ccd5f6a6f5e2e020af87c8d2fd36b74f35"
+    },
+    {
+      "command": [
+        "python",
+        "-m",
+        "pytest",
+        "--import-mode=importlib",
+        "constraint-physical-dependency/tests",
+        "constraint-geopolitical-policy/tests",
+        "constraint-replay/tests",
+        "constraint-t1-raw-artifact-store/tests",
+        "t6-fail-closed-validator/tests",
+        "-q"
+      ],
+      "cwd": ".",
+      "exit_code": 0,
+      "summary": [
+        "338 passed, 459 subtests passed in 0.97s"
+      ],
+      "log_sha256": "07c9617a1b2823ddf836772799857552034e90590d76a9748c7dc8767cba960d"
+    }
+  ],
+  "additional_checks": {
+    "public_attestation_structural_validation": "PASS",
+    "root_hygiene": "PASS",
+    "batch016_json_files_preserved_from_main": 8,
+    "domain_architecture_and_workflows_unchanged_from_pr101": true,
+    "strict_successor_outcome_guards_and_readme_unchanged_from_pr101": true,
+    "four_runtime_and_test_blobs_match_audit_head": true,
+    "historical_batch017_manifest_unchanged": true
+  },
+  "private_evidence_accessed": false,
+  "capture_performed": false,
+  "merge_performed": false,
+  "authority_or_readiness_promoted": false,
+  "unverified_sources": [
+    "SRC-EATON-Q1-2026-RESULTS-2026-05-05",
+    "SRC-GEV-Q2-2026-RESULTS-2026-07-22"
+  ],
+  "hosted_checks": "VERIFY_AFTER_PUBLICATION_AGAINST_EXACT_HEAD"
+}

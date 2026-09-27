@@ -520,9 +520,18 @@ def case_same_scope_duplicate_manifest(root: Path) -> None:
     duplicate.write_bytes(path.read_bytes())
 
 
+def case_second_slice_batch017_pin_drift(root: Path) -> None:
+    relative = (
+        "docs/constraint/validation/"
+        "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH017_ARTIFACT_MANIFEST_V001_20260926.json"
+    )
+    mutate_json(root, relative, lambda doc: doc["artifacts"][0].__setitem__("git_blob_sha", "0" * 40))
+
+
 def main() -> int:
     cases = [
         ("shared_batch_hidden_hash", case_shared_batch_hidden_hash, "immutable domain artifact blob mismatch"),
+        ("second_slice_batch017_pin_drift", case_second_slice_batch017_pin_drift, "immutable domain artifact blob mismatch"),
         ("same_scope_duplicate_manifest", case_same_scope_duplicate_manifest, "ambiguous current manifest"),
         ("backdated_availability", case_backdated_availability, "conservative availability drift"),
         ("fiber_scope_overclaim", case_fiber_scope_overclaim, "fiber exact site capacity unexpectedly quantified"),

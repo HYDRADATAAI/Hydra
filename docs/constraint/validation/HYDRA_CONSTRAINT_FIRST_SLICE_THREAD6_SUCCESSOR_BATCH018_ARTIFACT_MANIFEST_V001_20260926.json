@@ -121,6 +121,26 @@
       "path": "docs/constraint/implementation/HYDRA_CONSTRAINT_AI_DATA_CENTER_POWER_INFRASTRUCTURE_PRIVATE_T1_CAPTURE_PLAN_TEMPLATE_V001_20260926.json",
       "predecessor_git_blob_sha": "6aac032f40e8da7c538ee9392b8bbcc2fc2b0443",
       "successor_git_blob_sha": "686c18acae8fadb92c4a6e4d90b40ca5c3d1d975"
+    },
+    {
+      "path": "constraint-t1-raw-artifact-store/src/hydra_constraint_t1_raw/first_slice_materialization.py",
+      "predecessor_git_blob_sha": "7f33e558792071b57283192dd3eee304a46da057",
+      "successor_git_blob_sha": "ddb2341d023b3f094a518f7a932df31ab31eb6b2"
+    },
+    {
+      "path": "constraint-t1-raw-artifact-store/src/hydra_constraint_t1_raw/replay_lineage.py",
+      "predecessor_git_blob_sha": "2548dd4759c82bd11112f10a71f6529c87b9036d",
+      "successor_git_blob_sha": "1a71f06120a14b66135d0f500f680d4afeeffbc1"
+    },
+    {
+      "path": "constraint-t1-raw-artifact-store/tests/test_first_slice_materialization.py",
+      "predecessor_git_blob_sha": "d7aed41b507a42309161129ee1b330e323f06abc",
+      "successor_git_blob_sha": "7e50f35e190540d3b62b78d233aab119b12bb0a1"
+    },
+    {
+      "path": "constraint-t1-raw-artifact-store/tests/test_first_slice_replay_lineage.py",
+      "predecessor_git_blob_sha": "83ec8ca4d92ac90bdbfaf3484dc608c341d1b63e",
+      "successor_git_blob_sha": "6b0bf7a4ce75c7c1cbf797620e600bba922050f6"
     }
   ]
 }
