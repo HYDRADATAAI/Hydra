@@ -34,6 +34,13 @@ OPERATOR_BLOCKED_SOURCE_IDS = (
 )
 EXPECTED_BLOCKED_SOURCE_COUNT = 9
 EXPECTED_ELIGIBLE_SOURCE_COUNT = EXPECTED_SOURCE_COUNT - EXPECTED_BLOCKED_SOURCE_COUNT
+TSMC_BROWSER_403_FALLBACK_SOURCE_IDS = (
+    "SRC-SEMI-TSMC-Q1-2025-TRANSCRIPT-2025-04-17",
+    "SRC-SEMI-B020-TSMC-Q2-2023-TRANSCRIPT-2023-07-20",
+    "SRC-SEMI-B022-TSMC-2025-ANNUAL-EQUIPMENT-RISK",
+    "SRC-SEMI-B022-TSMC-Q2-2026-TRANSCRIPT-2026-07-16",
+)
+EXPECTED_TSMC_BROWSER_403_FALLBACK_SOURCE_COUNT = 4
 BLOCKED_SOURCE_STATUS = "BLOCKED_BY_OPERATOR"
 SIDECAR_SCHEMA = "hydra-semiconductor-private-capture-sidecar/v1"
 JOURNAL_SCHEMA = "hydra-constraint-semiconductor-batch026-browser-capture-journal/v1"
@@ -635,6 +642,8 @@ def capture_one(
                 body_response = response
                 api_response: Any | None = None
                 request_chain: tuple[str, ...] | None = None
+                fallback_used = False
+                fallback_prior_attempt: dict[str, Any] | None = None
                 try:
                     if is_pdf:
                         print(f"PDF_RAW_REQUEST_BEGIN {source_id} -> {locator}", flush=True)
@@ -652,6 +661,41 @@ def capture_one(
                             f"content_length={response_header_value(body_response, 'content-length')!r}",
                             flush=True,
                         )
+                        raw_api_status = int(body_response.status)
+                        if (
+                            raw_api_status == 403
+                            and source_id in TSMC_BROWSER_403_FALLBACK_SOURCE_IDS
+                        ):
+                            browser_status = int(getattr(response, "status", 0))
+                            if browser_status != 200:
+                                raise CaptureError(
+                                    f"{source_id}: authorized browser fallback requires "
+                                    f"HTTP 200 navigation response, observed {browser_status}"
+                                )
+                            browser_chain = redirect_chain(response)
+                            validate_redirects(
+                                exact_locator=locator,
+                                response_url=str(response.url),
+                                chain=browser_chain,
+                                policy=redirect_policy,
+                            )
+                            fallback_prior_attempt = {
+                                "transport": "PLAYWRIGHT_API_REQUEST",
+                                "http_status": raw_api_status,
+                                "final_response_url": str(api_response.url),
+                                "redirect_chain": list(request_chain),
+                                "accepted": False,
+                                "reason": "HTTP_403_AUTHORIZED_TSMC_BROWSER_NAVIGATION_FALLBACK",
+                            }
+                            body_response = response
+                            request_chain = None
+                            fallback_used = True
+                            print(
+                                f"PDF_BROWSER_403_FALLBACK_BEGIN {source_id} -> {locator} "
+                                f"api_status={raw_api_status} browser_status={browser_status} "
+                                f"browser_url={response.url}",
+                                flush=True,
+                            )
                         print(f"PDF_BODY_BEGIN {source_id} -> {locator}", flush=True)
                     body = bytes(body_response.body())
                     if is_pdf:
@@ -717,8 +761,11 @@ def capture_one(
                     "processing_disposition": "ELIGIBLE",
                     "historical_backdating_authorized": False,
                 }
+                if fallback_used:
+                    sidecar["capture_transport"] = "BROWSER_NAVIGATION_RESPONSE_FALLBACK"
+                    sidecar["prior_failed_acquisition_attempt"] = fallback_prior_attempt
                 write_json(sidecar_path, sidecar)
-                return {
+                result = {
                     "source_id": source_id,
                     "source_version_id": item["source_version_id"],
                     "registered_source_locator": item["source_locator"],
@@ -736,6 +783,10 @@ def capture_one(
                     "final_response_url": final_url,
                     "status": "CAPTURED",
                 }
+                if fallback_used:
+                    result["capture_transport"] = "BROWSER_NAVIGATION_RESPONSE_FALLBACK"
+                    result["prior_failed_acquisition_attempt"] = fallback_prior_attempt
+                return result
 
             if time.monotonic() >= deadline:
                 detail = last_rejection
