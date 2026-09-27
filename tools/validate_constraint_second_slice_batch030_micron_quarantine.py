@@ -149,7 +149,11 @@ def main()->int:
     runner=RUNNER.read_text(encoding="utf-8")
     require("EXPECTED_COUNT=38" in runner,"Batch030 runner count drifted")
     require("Micron-linked source is forbidden in Batch030" in runner,"Batch030 runner provider firewall missing")
-    require("semiconductor_batch030" in LAUNCH.read_text(encoding="utf-8"),"Batch030 launcher inbox drifted")
+    launcher=LAUNCH.read_text(encoding="utf-8")
+    require("semiconductor_batch030" in launcher,"Batch030 launcher inbox drifted")
+    require(r"D:\\HYDRA\\_PRIVATE\\constraint\\raw" in launcher,"Batch030 launcher canonical private raw root missing")
+    require(r"D:\\HYDRA\\_PRIVATE\\constraint\\capture_inbox\\semiconductor_batch030" in launcher,"Batch030 launcher canonical inbox missing")
+    require(r"D:\\HYDRA_PRIVATE\\constraint" not in launcher,"Batch030 launcher retains stale sibling private root")
 
     print("CONSTRAINT_SECOND_SLICE_BATCH030_MICRON_QUARANTINE_VALIDATION=PASS")
     print("MICRON_LINKED_SOURCE_INTENTS_QUARANTINED=9")
