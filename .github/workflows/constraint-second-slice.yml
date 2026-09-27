@@ -17,6 +17,7 @@ on:
       - "docs/constraint/architecture/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH027_*.json"
       - "docs/constraint/architecture/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH028_*.json"
       - "docs/constraint/architecture/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH029_*.json"
+      - "docs/constraint/architecture/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH030_*.json"
       - "docs/constraint/validation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH019_*"
       - "docs/constraint/validation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH020_*"
       - "docs/constraint/validation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH021_*"
@@ -28,6 +29,7 @@ on:
       - "docs/constraint/validation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH027_*"
       - "docs/constraint/validation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH028_*"
       - "docs/constraint/validation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH029_*"
+      - "docs/constraint/validation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH030_*"
       - "tools/validate_constraint_second_slice_batch017_audit.py"
       - "tools/test_constraint_second_slice_batch017_audit_adversarial.py"
       - "tools/validate_constraint_second_slice_batch018_population.py"
@@ -61,6 +63,13 @@ on:
       - "tools/test_constraint_second_slice_batch028_browser_adapter_adversarial.py"
       - "tools/validate_constraint_second_slice_batch029_locator_remediation.py"
       - "tools/test_constraint_second_slice_batch029_locator_remediation_adversarial.py"
+      - "tools/validate_constraint_second_slice_batch030_micron_quarantine.py"
+      - "tools/test_constraint_second_slice_batch030_micron_quarantine_adversarial.py"
+      - "tools/private/HYDRA_CONSTRAINT_T1_SEMICONDUCTOR_BATCH030_BROWSER_CAPTURE_V001_20260927.py"
+      - "tools/materialize_constraint_second_slice_batch030_private_t1.py"
+      - "tools/verify_constraint_second_slice_batch030_private_t1.py"
+      - "tools/build_constraint_second_slice_batch030_private_t1_handback.py"
+      - "tools/private/Invoke-HYDRAConstraintSemiconductorBatch030_V001_20260927.ps1"
       - ".github/workflows/constraint-second-slice.yml"
   push:
     branches:
@@ -80,6 +89,7 @@ on:
       - "docs/constraint/architecture/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH027_*.json"
       - "docs/constraint/architecture/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH028_*.json"
       - "docs/constraint/architecture/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH029_*.json"
+      - "docs/constraint/architecture/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH030_*.json"
       - "docs/constraint/validation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH019_*"
       - "docs/constraint/validation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH020_*"
       - "docs/constraint/validation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH021_*"
@@ -91,6 +101,7 @@ on:
       - "docs/constraint/validation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH027_*"
       - "docs/constraint/validation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH028_*"
       - "docs/constraint/validation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH029_*"
+      - "docs/constraint/validation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH030_*"
       - "tools/validate_constraint_second_slice_batch017_audit.py"
       - "tools/test_constraint_second_slice_batch017_audit_adversarial.py"
       - "tools/validate_constraint_second_slice_batch018_population.py"
@@ -124,6 +135,13 @@ on:
       - "tools/test_constraint_second_slice_batch028_browser_adapter_adversarial.py"
       - "tools/validate_constraint_second_slice_batch029_locator_remediation.py"
       - "tools/test_constraint_second_slice_batch029_locator_remediation_adversarial.py"
+      - "tools/validate_constraint_second_slice_batch030_micron_quarantine.py"
+      - "tools/test_constraint_second_slice_batch030_micron_quarantine_adversarial.py"
+      - "tools/private/HYDRA_CONSTRAINT_T1_SEMICONDUCTOR_BATCH030_BROWSER_CAPTURE_V001_20260927.py"
+      - "tools/materialize_constraint_second_slice_batch030_private_t1.py"
+      - "tools/verify_constraint_second_slice_batch030_private_t1.py"
+      - "tools/build_constraint_second_slice_batch030_private_t1_handback.py"
+      - "tools/private/Invoke-HYDRAConstraintSemiconductorBatch030_V001_20260927.ps1"
       - ".github/workflows/constraint-second-slice.yml"
 
 permissions:
@@ -224,3 +242,26 @@ jobs:
 
       - name: Compile Batch029 patched acquisition and T1 tools
         run: python -m py_compile tools/private/HYDRA_CONSTRAINT_T1_SEMICONDUCTOR_BATCH026_BROWSER_CAPTURE_V001_20260927.py tools/materialize_constraint_second_slice_batch026_private_t1.py tools/verify_constraint_second_slice_batch026_private_t1.py tools/build_constraint_second_slice_batch026_private_t1_handback.py
+
+      - name: Validate Batch030 Micron quarantine
+        run: python tools/validate_constraint_second_slice_batch030_micron_quarantine.py
+
+      - name: Run Batch030 hostile matrix
+        run: python tools/test_constraint_second_slice_batch030_micron_quarantine_adversarial.py
+
+      - name: Compile Batch030 Micron-free acquisition and T1 tools
+        run: python -m py_compile tools/private/HYDRA_CONSTRAINT_T1_SEMICONDUCTOR_BATCH030_BROWSER_CAPTURE_V001_20260927.py tools/materialize_constraint_second_slice_batch030_private_t1.py tools/verify_constraint_second_slice_batch030_private_t1.py tools/build_constraint_second_slice_batch030_private_t1_handback.py
+
+      - name: Parse Batch030 PowerShell launcher
+        shell: pwsh
+        run: |
+          $errors = $null
+          [void][System.Management.Automation.Language.Parser]::ParseFile(
+            (Resolve-Path "./tools/private/Invoke-HYDRAConstraintSemiconductorBatch030_V001_20260927.ps1"),
+            [ref]$null,
+            [ref]$errors
+          )
+          if ($errors.Count -gt 0) {
+            $errors | ForEach-Object { Write-Error $_.Message }
+            exit 1
+          }

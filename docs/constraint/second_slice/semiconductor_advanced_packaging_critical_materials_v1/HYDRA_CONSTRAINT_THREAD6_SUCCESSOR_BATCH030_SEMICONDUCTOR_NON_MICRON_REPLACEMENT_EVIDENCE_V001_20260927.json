@@ -1,0 +1,55 @@
+{
+  "schema_version": "hydra-constraint-second-slice-evidence-supplement/v1",
+  "record_id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH030_SEMICONDUCTOR_NON_MICRON_REPLACEMENT_EVIDENCE_V001",
+  "as_of": "2026-09-27",
+  "slice_id": "SEMICONDUCTOR_ADVANCED_PACKAGING_CRITICAL_MATERIALS_V1",
+  "evidence": [
+    {
+      "evidence_id": "EV-SEMI-B030-SKHYNIX-HBM-WAFER-OUTPUT-PENALTY-2026",
+      "source_id": "SRC-SEMI-B030-SKHYNIX-INVESTMENT-STRATEGY-2026-06-29",
+      "proposition": "SK hynix states that HBM yields fewer usable dies per wafer than conventional DRAM because TSV increases die size, requiring more wafers for the same memory capacity; chip stacking and packaging further increase manufacturing complexity.",
+      "evidence_role": "HBM_EFFECTIVE_OUTPUT_AND_WAFER_INTENSITY",
+      "semantic_limit": "NO_NUMERIC_YIELD_PERCENTAGE_INFERRED"
+    },
+    {
+      "evidence_id": "EV-SEMI-B030-SKHYNIX-HBM-BOTTLENECK-YIELD-RELIEF-2025",
+      "source_id": "SRC-SEMI-B030-SKHYNIX-HBM-SMART-FACTORY-2025-05-02",
+      "proposition": "SK hynix reports a 31% productivity improvement in previously bottlenecked HBM processes and a 21% yield improvement.",
+      "evidence_role": "OBSERVED_LIMITER_RELIEF",
+      "semantic_limit": "COMPANY_AND_PROCESS_SCOPE_ONLY"
+    },
+    {
+      "evidence_id": "EV-SEMI-B030-SKHYNIX-HBM-SALES-4P5X-2024",
+      "source_id": "SRC-SEMI-B030-SKHYNIX-HBM-SMART-FACTORY-2025-05-02",
+      "proposition": "SK hynix reports that the manufacturing improvements significantly contributed to a 4.5-fold increase in HBM sales in 2024 versus the prior year.",
+      "evidence_role": "REALIZED_COMMERCIAL_CAPTURE",
+      "semantic_limit": "DOES_NOT_ISOLATE_CAUSAL_SHARE_OF_EACH_PROCESS_IMPROVEMENT"
+    },
+    {
+      "evidence_id": "EV-SEMI-B030-SKHYNIX-Q2FY25-HBM-FINANCIAL-CAPTURE",
+      "source_id": "SRC-SEMI-B030-SKHYNIX-2Q25-FINANCIAL-RESULTS-2025-07-23",
+      "proposition": "SK hynix reported all-time-high quarterly revenue and operating profit following brisk AI-memory sales and expanded sales of 12-high HBM3E.",
+      "evidence_role": "REALIZED_FINANCIAL_CAPTURE",
+      "semantic_limit": "COMPANY_LEVEL_RESULTS_NOT_HBM_ONLY_REVENUE"
+    },
+    {
+      "evidence_id": "EV-SEMI-B030-SKHYNIX-HBM3E-NVIDIA-GB200",
+      "source_id": "SRC-SEMI-B030-SKHYNIX-COMPUTEX-2025-06-05",
+      "proposition": "SK hynix displayed its 36GB 12-layer HBM3E installed in NVIDIA's GB200 GPU module for AI servers.",
+      "evidence_role": "TARGET_PLATFORM_CONNECTION",
+      "semantic_limit": "EXHIBITED_INSTALLATION_PROVES_PLATFORM_ADDRESSABILITY_NOT_UNBOOKED_CAPACITY"
+    },
+    {
+      "evidence_id": "EV-SEMI-B030-SAMSUNG-AMD-GLOBAL-ORIGIN",
+      "source_id": "SRC-SEMI-B030-SAMSUNG-AMD-COLLAB-GLOBAL-2026-03-18",
+      "proposition": "Samsung Global Newsroom published the March 18 2026 Samsung-AMD AI-memory collaboration announcement.",
+      "evidence_role": "DUPLICATE_ORIGIN_PRIMARY"
+    },
+    {
+      "evidence_id": "EV-SEMI-B030-SAMSUNG-AMD-KOREA-TRANSLATION",
+      "source_id": "SRC-SEMI-B030-SAMSUNG-AMD-COLLAB-KOREA-2026-03-18",
+      "proposition": "Samsung Newsroom Korea published the Korean-language version of the same March 18 2026 Samsung-AMD collaboration event.",
+      "evidence_role": "DUPLICATE_TRANSLATION_COPY"
+    }
+  ]
+}

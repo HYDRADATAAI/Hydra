@@ -1,0 +1,50 @@
+{
+  "schema_version": "hydra-constraint-second-slice-required-case-overlay/v1",
+  "record_id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH030_SEMICONDUCTOR_REQUIRED_CASE_OVERLAY_V001",
+  "as_of": "2026-09-27",
+  "slice_id": "SEMICONDUCTOR_ADVANCED_PACKAGING_CRITICAL_MATERIALS_V1",
+  "predecessor_overlay": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH023_SEMICONDUCTOR_REQUIRED_CASE_OVERLAY_V001",
+  "replacements": [
+    {
+      "case_id": 3,
+      "name": "HBM_YIELD_CONSTRAINT",
+      "predecessor_basis_quarantined": "MICRON",
+      "successor_status": "COVERED_REVIEWED_SHADOW_REAL_PRIMARY_NON_MICRON",
+      "basis": [
+        "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH030_SEMICONDUCTOR_HBM_YIELD_CONSTRAINT_EVALUATION_V001"
+      ]
+    },
+    {
+      "case_id": 8,
+      "name": "VALID_BENEFICIARY",
+      "predecessor_basis_quarantined": "MICRON",
+      "successor_status": "COVERED_REVIEWED_SHADOW_REAL_PRIMARY_NON_MICRON",
+      "basis": [
+        "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH030_SEMICONDUCTOR_VALID_BENEFICIARY_EVALUATION_V001"
+      ]
+    },
+    {
+      "case_id": 11,
+      "name": "CONSTRAINT_MIGRATION",
+      "predecessor_basis_quarantined": "MICRON",
+      "successor_status": "COVERED_REVIEWED_SHADOW_REAL_PRIMARY_NON_MICRON",
+      "basis": [
+        "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH030_SEMICONDUCTOR_CONSTRAINT_MIGRATION_EVALUATION_V001"
+      ]
+    },
+    {
+      "case_id": 14,
+      "name": "DUPLICATE_SOURCE_INFLATION",
+      "predecessor_basis_quarantined": "MICRON_AND_DISTRIBUTION_COPY",
+      "successor_status": "COVERED_REVIEWED_SHADOW_REAL_DUPLICATE_NON_MICRON",
+      "basis": [
+        "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH030_SEMICONDUCTOR_DUPLICATE_SOURCE_INFLATION_EVALUATION_V001"
+      ]
+    }
+  ],
+  "covered_case_count_after": 13,
+  "remaining_gap_case_ids": [
+    12
+  ],
+  "micron_dependent_active_cases_after": 0
+}
