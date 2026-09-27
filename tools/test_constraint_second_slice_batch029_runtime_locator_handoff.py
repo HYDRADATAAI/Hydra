@@ -38,21 +38,51 @@ class FakeRequest:
 
 
 class FakeResponse:
-    status = 200
-
-    def __init__(self, url: str, frame: object, body: bytes, content_type: str) -> None:
+    def __init__(
+        self,
+        url: str,
+        frame: object,
+        body: bytes,
+        content_type: str,
+        *,
+        status: int = 200,
+        headers: dict[str, str] | None = None,
+    ) -> None:
         self.url = url
+        self.status = status
         self.request = FakeRequest(url, frame)
         self._body = body
-        self._content_type = content_type
+        self._headers = {"content-type": content_type, **(headers or {})}
         self.body_calls = 0
+        self.disposed = False
 
     def body(self) -> bytes:
         self.body_calls += 1
         return self._body
 
     def header_value(self, name: str) -> str | None:
-        return self._content_type if name.lower() == "content-type" else None
+        return self._headers.get(name.lower())
+
+    def dispose(self) -> None:
+        self.disposed = True
+
+
+class FakeAPIRequestContext:
+    def __init__(self, page: "FakePage") -> None:
+        self.page = page
+        self.calls: list[tuple[str, dict[str, Any]]] = []
+        self.responses: list[FakeResponse] = []
+
+    def get(self, url: str, **kwargs: Any) -> FakeResponse:
+        self.calls.append((url, kwargs))
+        response = FakeResponse(
+            url,
+            self.page.main_frame,
+            self.page.body,
+            self.page.content_type,
+        )
+        self.responses.append(response)
+        return response
 
 
 class FakePage:
@@ -90,6 +120,8 @@ class FakePage:
 class FakeContext:
     def __init__(self, page: FakePage) -> None:
         self.page = page
+        self.request = FakeAPIRequestContext(page)
+        page.request_context = self.request
 
     def new_page(self) -> FakePage:
         return self.page
@@ -138,7 +170,14 @@ class RuntimeLocatorHandoffTest(unittest.TestCase):
         self.assertEqual(receipt["capture_locator"], capture_locator)
         self.assertEqual(sidecar["source_locator"], capture_locator)
         self.assertIsNotNone(page.response)
-        self.assertEqual(page.response.body_calls, 1)
+        if content_type == "application/pdf":
+            self.assertEqual(len(page.request_context.responses), 1)
+            self.assertEqual(page.request_context.responses[0].body_calls, 1)
+            self.assertTrue(page.request_context.responses[0].disposed)
+            self.assertEqual(page.response.body_calls, 0)
+        else:
+            self.assertEqual(page.request_context.calls, [])
+            self.assertEqual(page.response.body_calls, 1)
         return page, output.getvalue(), print_spy
 
     def test_pdf_navigation_response_and_flushed_markers(self) -> None:
@@ -158,9 +197,19 @@ class RuntimeLocatorHandoffTest(unittest.TestCase):
 
         self.assertEqual(page.goto_calls, [(capture_locator, "load", 12_000)])
         self.assertEqual(page.response.url, capture_locator)
+        self.assertEqual(len(page.request_context.calls), 1)
+        request_url, request_options = page.request_context.calls[0]
+        self.assertEqual(request_url, capture_locator)
+        self.assertGreater(request_options["timeout"], 0)
+        self.assertLessEqual(request_options["timeout"], 12_000)
+        self.assertEqual(request_options["max_redirects"], 0)
+        self.assertEqual(request_options["max_retries"], 0)
+        self.assertIs(request_options["fail_on_status_code"], False)
         expected_markers = (
             "PDF_NAV_BEGIN",
             "PDF_NAV_COMPLETE",
+            "PDF_RAW_REQUEST_BEGIN",
+            "PDF_RAW_RESPONSE_COMPLETE",
             "PDF_BODY_BEGIN",
             "PDF_BODY_COMPLETE",
             "PDF_VALIDATION_BEGIN",
@@ -180,6 +229,39 @@ class RuntimeLocatorHandoffTest(unittest.TestCase):
             self.assertIs(call.kwargs.get("flush"), True)
         marker_positions = [output.index(marker) for marker in expected_markers]
         self.assertEqual(marker_positions, sorted(marker_positions))
+
+    def test_pdf_raw_request_rejects_cross_origin_redirect(self) -> None:
+        runner = import_runner()
+        exact_locator = "https://example.com/source.pdf"
+        redirect = FakeResponse(
+            exact_locator,
+            object(),
+            b"",
+            "application/pdf",
+            status=302,
+            headers={"location": "https://other.example/source.pdf"},
+        )
+
+        class OneResponseRequest:
+            def __init__(self) -> None:
+                self.calls: list[tuple[str, dict[str, Any]]] = []
+
+            def get(self, url: str, **kwargs: Any) -> FakeResponse:
+                self.calls.append((url, kwargs))
+                return redirect
+
+        request = OneResponseRequest()
+        context = type("FakeBrowserContext", (), {"request": request})()
+        with self.assertRaises(runner.CaptureError):
+            runner.fetch_pdf_response(
+                context=context,
+                exact_locator=exact_locator,
+                policy="exact",
+                timeout_milliseconds=1_000,
+            )
+        self.assertEqual(len(request.calls), 1)
+        self.assertEqual(request.calls[0][0], exact_locator)
+        self.assertTrue(redirect.disposed)
 
     def test_html_path_keeps_commit_navigation_without_pdf_markers(self) -> None:
         locator = "https://example.com/report.html"
