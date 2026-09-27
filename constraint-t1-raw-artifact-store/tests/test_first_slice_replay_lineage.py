@@ -135,6 +135,21 @@ class FirstSliceReplayLineageTests(unittest.TestCase):
         with self.assertRaisesRegex(ReplayLineageError, "packet digest mismatch"):
             validate_replay_lineage_packet(packet=packet, registry=self.registry)
 
+    def test_replay_does_not_drop_unverified_acquisition_status(self):
+        from hydra_constraint_t1_raw.first_slice_materialization import FirstSliceMaterializationError
+        bad = copy.deepcopy(self.attestation)
+        bad["members"][0]["verification_status"] = "TIMESTAMP_UNVERIFIED"
+        with self.assertRaises(FirstSliceMaterializationError):
+            build_replay_lineage_packet(attestation=bad, registry=self.registry)
+
+    def test_rehashed_packet_rejects_extra_authority_claim(self):
+        from hydra_constraint_t1_raw.replay_lineage import _packet_digest
+        packet = build_replay_lineage_packet(attestation=self.attestation, registry=self.registry)
+        packet["canonical_admission_promoted"] = True
+        packet["packet_sha256"] = _packet_digest(packet)
+        with self.assertRaises(ReplayLineageError):
+            validate_replay_lineage_packet(packet=packet, registry=self.registry)
+
     def test_historical_replay_cannot_be_promoted(self):
         packet = build_replay_lineage_packet(
             attestation=self.attestation,

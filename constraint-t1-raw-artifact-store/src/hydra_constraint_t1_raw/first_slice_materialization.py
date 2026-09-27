@@ -83,6 +83,13 @@ def _capture_rows(
             "only ACQUISITION_TIME_CONSERVATIVE is allowed in this materializer"
         )
 
+    allowed_plan_fields = {
+        "schema_version", "slice_id", "availability_mode", "release_id",
+        "release_created_at", "captures", "template_record_id", "template_only", "rule",
+    }
+    if set(plan) - allowed_plan_fields:
+        raise FirstSliceMaterializationError("capture plan contains unsupported fields")
+
     rows = plan.get("captures")
     if not isinstance(rows, list) or not rows:
         raise FirstSliceMaterializationError("capture plan must contain captures")
@@ -92,6 +99,14 @@ def _capture_rows(
     for index, raw in enumerate(rows):
         if not isinstance(raw, dict):
             raise FirstSliceMaterializationError(f"captures[{index}]: object required")
+        # Unknown verification/authority metadata must not be discarded while
+        # producing an eligible receipt from an otherwise parseable timestamp.
+        allowed_capture_fields = {
+            "source_id", "source_version_id", "input_file", "content_type",
+            "source_locator", "acquired_at", "processing_disposition", "available_at",
+        }
+        if set(raw) - allowed_capture_fields:
+            raise FirstSliceMaterializationError(f"captures[{index}]: unsupported fields")
         source_id = raw.get("source_id")
         if not isinstance(source_id, str) or not source_id:
             raise FirstSliceMaterializationError(f"captures[{index}].source_id required")
@@ -302,6 +317,17 @@ def validate_public_materialization_attestation(
             "public attestation contains private/raw path fields: " + ",".join(leaked)
         )
 
+    required_fields = {
+        "schema_version", "slice_id", "capture_mode", "availability_mode",
+        "network_acquisition_performed_by_materializer", "public_raw_content_published",
+        "release_id", "release_sha256", "release_created_at", "registry_source_count",
+        "materialized_source_count", "ordinary_t2_eligible_count", "ordinary_t2_blocked_count",
+        "all_registry_sources_materialized", "all_sources_ordinary_t2_eligible",
+        "strict_historical_replay_promoted", "historical_availability_backdated", "members",
+    }
+    if set(attestation) != required_fields:
+        raise FirstSliceMaterializationError("attestation field set invalid")
+
     members = attestation.get("members")
     if not isinstance(members, list) or not members:
         raise FirstSliceMaterializationError("attestation members required")
@@ -317,6 +343,13 @@ def validate_public_materialization_attestation(
     ordinary_count = 0
     for index, member in enumerate(members):
         label = f"members[{index}]"
+        required_member_fields = {
+            "source_id", "source_version_id", "artifact_sha256", "receipt_sha256",
+            "byte_length", "content_type", "acquired_at", "available_at",
+            "processing_disposition", "ordinary_t2_eligible",
+        }
+        if set(member) != required_member_fields:
+            raise FirstSliceMaterializationError(f"{label}: field set invalid")
         source_version_id = member.get("source_version_id")
         artifact_sha256 = member.get("artifact_sha256")
         receipt_sha256 = member.get("receipt_sha256")
