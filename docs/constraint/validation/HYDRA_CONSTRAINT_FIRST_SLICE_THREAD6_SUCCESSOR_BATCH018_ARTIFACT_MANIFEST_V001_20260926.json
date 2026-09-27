@@ -46,7 +46,7 @@
     }
   ],
   "as_of": "2026-09-26",
-  "base_head": "a713551b58129d91a5d37d3aa4c38bb13b16312d",
+  "base_head": "6b693c788319afbc489ab0a644ecbddaa1afdb94",
   "excluded_operational_tools": [
     {
       "path": "constraint-t1-raw-artifact-store/tests/test_batch018_nine_source_capture_evidence_alignment.py",
@@ -72,7 +72,7 @@
     "t5_to_t6_inventory_ready": true
   },
   "predecessor_batch": {
-    "commit": "a713551b58129d91a5d37d3aa4c38bb13b16312d",
+    "commit": "6b693c788319afbc489ab0a644ecbddaa1afdb94",
     "id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH017",
     "preservation": "IMMUTABLE_NOT_REWRITTEN"
   },
