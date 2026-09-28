@@ -34,7 +34,10 @@
     "browser_target_closed_restart_retries": 2,
     "resume_requires_exact_registry_order_prefix": true,
     "resume_revalidates_hash_and_body": true,
-    "current_private_root": "D:\\HYDRA\\_PRIVATE\\constraint"
+    "current_private_root": "D:\\HYDRA\\_PRIVATE\\constraint",
+    "exclusive_private_root_capture_lock": true,
+    "concurrent_capture_same_private_root": "FAIL_CLOSED",
+    "lock_ownership": "OS_LEVEL_NOT_FILE_EXISTENCE"
   },
   "fail_closed_on": [
     "WRONG_URL",
