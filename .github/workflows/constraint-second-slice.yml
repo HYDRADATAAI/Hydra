@@ -67,6 +67,7 @@ on:
       - "tools/test_constraint_second_slice_batch030_micron_quarantine_adversarial.py"
       - "tools/private/HYDRA_CONSTRAINT_T1_SEMICONDUCTOR_BATCH030_BROWSER_CAPTURE_V001_20260927.py"
       - "tools/test_constraint_batch030_pdf_raw_response.py"
+      - "tools/test_constraint_batch030_tsmc_403_response_stage.py"
       - "tools/materialize_constraint_second_slice_batch030_private_t1.py"
       - "tools/verify_constraint_second_slice_batch030_private_t1.py"
       - "tools/build_constraint_second_slice_batch030_private_t1_handback.py"
@@ -140,6 +141,7 @@ on:
       - "tools/test_constraint_second_slice_batch030_micron_quarantine_adversarial.py"
       - "tools/private/HYDRA_CONSTRAINT_T1_SEMICONDUCTOR_BATCH030_BROWSER_CAPTURE_V001_20260927.py"
       - "tools/test_constraint_batch030_pdf_raw_response.py"
+      - "tools/test_constraint_batch030_tsmc_403_response_stage.py"
       - "tools/materialize_constraint_second_slice_batch030_private_t1.py"
       - "tools/verify_constraint_second_slice_batch030_private_t1.py"
       - "tools/build_constraint_second_slice_batch030_private_t1_handback.py"
@@ -253,6 +255,9 @@ jobs:
 
       - name: Run Batch030 raw-PDF transport regressions
         run: python tools/test_constraint_batch030_pdf_raw_response.py
+
+      - name: Run Batch030 TSMC 403 response-stage regressions
+        run: python tools/test_constraint_batch030_tsmc_403_response_stage.py
 
       - name: Compile Batch030 Micron-free acquisition and T1 tools
         run: python -m py_compile tools/private/HYDRA_CONSTRAINT_T1_SEMICONDUCTOR_BATCH030_BROWSER_CAPTURE_V001_20260927.py tools/materialize_constraint_second_slice_batch030_private_t1.py tools/verify_constraint_second_slice_batch030_private_t1.py tools/build_constraint_second_slice_batch030_private_t1_handback.py
