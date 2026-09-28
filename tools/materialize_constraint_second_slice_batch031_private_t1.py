@@ -46,7 +46,7 @@ def main():
     print("BATCH031_PRIVATE_CAPTURE_INBOX_VALIDATION=PASS"); print("CAPTURE_FILES_READY=30")
     if a.dry_run: print("DRY_RUN=YES"); return 0
     sys.path.insert(0,str(repo/"constraint-t1-raw-artifact-store"/"src"))
-    from hydra_constraint_t1_raw.store import RawArtifactStore,is_ordinary_t2_eligible
+    from hydra_constraint_t1_raw.store import RawArtifactStore,build_release_manifest,is_ordinary_t2_eligible
     store=RawArtifactStore(root=private,public_repo_root=repo); receipts=[]
     for item,cp,side in prepared:
         ts=side["capture_completed_at"]
@@ -54,9 +54,29 @@ def main():
         issues=store.validate_receipt(rec)
         if issues: fail(f"{item['source_id']}: invalid receipt: {','.join(issues)}")
         receipts.append(rec)
-    release=store.write_release_manifest(release_id=doc["release_id"],created_at=datetime.now(timezone.utc).isoformat(),receipts=receipts)
+    release_path=private/"releases"/f"{doc['release_id']}.json"
+    if release_path.is_file():
+        existing=load(release_path)
+        issues=store.validate_stored_release_manifest(existing)
+        if issues: fail("existing immutable release invalid: "+",".join(issues))
+        expected=build_release_manifest(
+            release_id=doc["release_id"],
+            created_at=existing["created_at"],
+            receipts=receipts,
+        )
+        if existing!=expected:
+            fail("existing immutable release does not match current 30-receipt set")
+        release=existing
+        release_reused=True
+    else:
+        release=store.write_release_manifest(
+            release_id=doc["release_id"],
+            created_at=datetime.now(timezone.utc).isoformat(),
+            receipts=receipts,
+        )
+        release_reused=False
     if store.validate_stored_release_manifest(release): fail("stored release invalid")
     eligible=sum(1 for r in receipts if is_ordinary_t2_eligible(receipt=r,release_manifest=release,store=store))
     if eligible!=30: fail(f"ordinary T2 eligibility incomplete: {eligible}/30")
-    print("BATCH031_PRIVATE_T1_MATERIALIZATION=PASS"); print("VALID_T1_RECEIPTS=30"); print("T1_RELEASE_ID="+release["release_id"]); print("T1_RELEASE_SHA256="+release["release_sha256"]); print("ORDINARY_T2_ELIGIBLE_SOURCES=30"); return 0
+    print("BATCH031_PRIVATE_T1_MATERIALIZATION=PASS"); print("VALID_T1_RECEIPTS=30"); print("T1_RELEASE_ID="+release["release_id"]); print("T1_RELEASE_SHA256="+release["release_sha256"]); print("T1_RELEASE_REUSED="+("YES" if release_reused else "NO")); print("ORDINARY_T2_ELIGIBLE_SOURCES=30"); return 0
 if __name__=="__main__": raise SystemExit(main())
