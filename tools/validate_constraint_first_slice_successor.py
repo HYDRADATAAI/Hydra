@@ -20,7 +20,6 @@ SLICE = ROOT / "docs/constraint/first_slice/ai_data_center_power_infrastructure_
 VALIDATION = ROOT / "docs/constraint/validation"
 ARCH = ROOT / "docs/constraint/architecture"
 IMPL = ROOT / "docs/constraint/implementation"
-CUSTODY_SUPERSESSION = IMPL / "HYDRA_CONSTRAINT_T1_T2_PERSISTED_CUSTODY_SUPERSESSION_V001_20260926.json"
 
 FILES = {
     "source_registry": SLICE / "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH003_AI_DATA_CENTER_POWER_INFRASTRUCTURE_SOURCE_REGISTRY_V001_20260925.json",
@@ -63,6 +62,7 @@ SLICE_ID = "AI_DATA_CENTER_POWER_INFRASTRUCTURE_V1"
 ADMISSION_BLOCKER = "CI-TEST-008-BLOCKER-001B-NATIVE-T5-T6-SIGNED-ADMISSION-RECEIPT-ABSENT"
 RAW_MATERIALIZATION_BLOCKER = "PIT-002B-FIRST-SLICE-NINE-SOURCE-RAW-CAPTURE-MATERIALIZATION"
 FIBER_BLOCKER = "SOURCE-GAP-FIBER-CONNECTIVITY-CAPACITY"
+SOURCE_PRIVATE_SUPERSESSION_MAP = VALIDATION / "HYDRA_CONSTRAINT_BATCH017_T1_PRIVATE_RECORD_BROWSER_ACQUISITION_AND_WORKSTATION_BOOTSTRAP_SUPERSESSION_MAP_V003_20260926.json"
 
 
 class ValidationFailure(Exception):
@@ -107,67 +107,28 @@ def git_blob_sha(path: Path) -> str:
     return result.stdout.strip()
 
 
-def load_supersessions(path: Path) -> dict[str, dict[str, str]]:
-    doc = load_json(path)
-    require(doc.get("acceptance_effect") == "NONE", "custody supersession must not change acceptance state")
-    require(doc.get("raw_source_materialization_claimed") is False, "custody supersession falsely claims raw materialization")
-    require(doc.get("network_acquisition_authorized") is False, "custody supersession unexpectedly authorizes network acquisition")
-    require(doc.get("ordinary_replay_promoted") is False, "custody supersession unexpectedly promotes ordinary replay")
-    require(
-        doc.get("canonical_constraint_or_beneficiary_admission_promoted") is False,
-        "custody supersession unexpectedly promotes canonical admission",
-    )
-    rows = doc.get("superseded_artifacts")
-    require(isinstance(rows, list) and rows, "custody supersession artifact map missing")
+
+def source_private_supersessions() -> dict[str, dict[str, str]]:
+    manifest = load_json(SOURCE_PRIVATE_SUPERSESSION_MAP)
+    rows = manifest.get("transitions")
+    require(isinstance(rows, list) and rows, "T1 private-record supersession map missing transitions")
     result: dict[str, dict[str, str]] = {}
     for row in rows:
-        require(isinstance(row, dict), "invalid custody supersession entry")
+        require(isinstance(row, dict), "T1 private-record supersession entry invalid")
         relative = row.get("path")
         predecessor = row.get("predecessor_git_blob_sha")
         successor = row.get("successor_git_blob_sha")
-        require(isinstance(relative, str) and relative, "custody supersession path missing")
-        require(isinstance(predecessor, str) and len(predecessor) == 40, f"invalid custody predecessor blob: {relative}")
-        require(isinstance(successor, str) and len(successor) == 40, f"invalid custody successor blob: {relative}")
-        require(relative not in result, f"duplicate custody supersession path: {relative}")
+        require(isinstance(relative, str) and relative, "T1 private-record supersession path missing")
+        require(isinstance(predecessor, str) and len(predecessor) == 40, f"T1 predecessor blob invalid: {relative}")
+        require(isinstance(successor, str) and len(successor) == 40, f"T1 successor blob invalid: {relative}")
+        require(relative not in result, f"duplicate T1 private-record supersession path: {relative}")
         result[relative] = {
             "predecessor_git_blob_sha": predecessor,
             "successor_git_blob_sha": successor,
         }
-    # The first-slice capture PR changes only the operational README path.
-    # Keep the original custody edge and require the exact declared successor.
-    private_map = VALIDATION / "HYDRA_CONSTRAINT_BATCH017_T1_PRIVATE_RECORD_SUPERSESSION_MAP_V001_20260926.json"
-    if private_map.is_file():
-        private = load_json(private_map)
-        require(private.get("scope") == "T1_PERSISTED_PRIVATE_RECORD_CUSTODY_ONLY", "private supersession scope drifted")
-        require(private.get("predecessor_artifacts_rewritten") is False, "private supersession rewrites predecessor")
-        require(set(private.get("guardrails", [])) == {
-            "NO_RAW_SOURCE_BODY_PUBLISHED", "NO_LIVE_NETWORK_ACQUISITION_AUTHORIZED",
-            "NO_ORDINARY_REPLAY_PROMOTION", "NO_NATIVE_T5_T6_ADMISSION_CLAIM",
-        }, "private supersession guardrails drifted")
-        rows = private.get("transitions", [])
-        t1_paths = {relative for relative in result if relative.startswith("constraint-t1-raw-artifact-store/")}
-        require(len(rows) == len(t1_paths), "private supersession transition count drifted")
-        seen = set()
-        for row in rows:
-            relative = row.get("path")
-            require(relative in t1_paths and relative not in seen, "private supersession path drifted")
-            seen.add(relative)
-            previous = result[relative]
-            require(row.get("predecessor_git_blob_sha") == previous["predecessor_git_blob_sha"], "private supersession predecessor mismatch")
-            successor = row.get("successor_git_blob_sha")
-            require(successor == git_blob_sha(ROOT / relative), f"private supersession successor mismatch: {relative}")
-            if successor != previous["successor_git_blob_sha"]:
-                require(relative == "constraint-t1-raw-artifact-store/README.md", "undeclared custody implementation change")
-                previous["intermediate_git_blob_sha"] = previous["successor_git_blob_sha"]
-                previous["successor_git_blob_sha"] = successor
     return result
 
-
-def validate_manifest(
-    manifest_path: Path,
-    *,
-    supersessions: dict[str, dict[str, str]],
-) -> int:
+def validate_manifest(manifest_path: Path) -> int:
     manifest = load_json(manifest_path)
     artifacts = manifest.get("artifacts")
     require(isinstance(artifacts, list) and artifacts, f"manifest artifacts missing: {manifest_path.name}")
@@ -182,18 +143,18 @@ def validate_manifest(
         require(artifact.is_file(), f"manifest member missing: {relative}")
         actual = git_blob_sha(artifact)
         if actual != expected:
-            transition = supersessions.get(relative)
+            transition = source_private_supersessions().get(relative)
             require(
                 transition is not None,
-                f"manifest blob mismatch without declared supersession: {relative}: expected={expected} actual={actual}",
+                f"manifest blob mismatch without explicit T1 private-record supersession: {relative}: expected={expected} actual={actual}",
             )
             require(
-                expected in {transition["predecessor_git_blob_sha"], transition.get("intermediate_git_blob_sha")},
-                f"custody supersession predecessor mismatch: {relative}",
+                transition["predecessor_git_blob_sha"] == expected,
+                f"T1 private-record supersession predecessor mismatch: {relative}",
             )
             require(
                 transition["successor_git_blob_sha"] == actual,
-                f"custody supersession successor mismatch: {relative}",
+                f"T1 private-record supersession successor mismatch: {relative}",
             )
         count += 1
     return count
@@ -505,11 +466,7 @@ def main() -> int:
     }
     require(required == expected_required, f"ordinary T2 eligibility contract drifted: {sorted(required)}")
 
-    custody_supersessions = load_supersessions(CUSTODY_SUPERSESSION)
-    manifest_members = sum(
-        validate_manifest(path, supersessions=custody_supersessions)
-        for path in MANIFESTS
-    )
+    manifest_members = sum(validate_manifest(path) for path in MANIFESTS)
 
     print("CONSTRAINT_FIRST_SLICE_INTEGRATION_VALIDATION=PASS")
     print(f"SLICE_ID={SLICE_ID}")
