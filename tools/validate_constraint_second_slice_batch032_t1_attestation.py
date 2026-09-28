@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Validate Batch032 sanitized semiconductor T1 materialization attestation."""
 from __future__ import annotations
+import hashlib
 import json
 import re
 from pathlib import Path
@@ -14,6 +15,7 @@ QUEUE=BASE/"HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH031_SEMICONDUCTOR_PRIVATE_T1
 QUAR=BASE/"HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH031_SEMICONDUCTOR_TSMC_DIRECT_PROVIDER_QUARANTINE_V001_20260928.json"
 ATTEST=VAL/"HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH032_SEMICONDUCTOR_T1_MATERIALIZATION_ATTESTATION_V001_20260928.json"
 STATUS=ARCH/"HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH032_SEMICONDUCTOR_POST_CAPTURE_PUBLIC_STATUS_V001_20260928.json"
+MANIFEST=VAL/"HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH032_ARTIFACT_MANIFEST_V001_20260928.json"
 SLICE="SEMICONDUCTOR_ADVANCED_PACKAGING_CRITICAL_MATERIALS_V1"
 REL="REL-SEMI-B031-V001"
 REL_SHA="c735db9e8a5daed8cff08dc7d9c2b4cc11f5910aba61669536c3961b21ac8b77"
@@ -29,7 +31,11 @@ def load(p):
     req(isinstance(v,dict),f"object required: {p}")
     return v
 
-def validate_documents(queue,quar,att,status):
+def git_blob_sha(path):
+    data=path.read_bytes()
+    return hashlib.sha1(b"blob "+str(len(data)).encode("ascii")+b"\\0"+data).hexdigest()
+
+def validate_documents(queue,quar,att,status,manifest=None):
     req(queue.get("slice_id")==SLICE,"queue slice drift")
     rows=queue.get("queue")
     req(isinstance(rows,list) and len(rows)==30,"queue must contain exactly 30")
@@ -100,11 +106,31 @@ def validate_documents(queue,quar,att,status):
     req(status.get("remaining_blockers",{}).get("PRE_ACQUISITION_HISTORICAL_VERSION_AVAILABILITY")=="UNPROVEN","status historical availability drift")
     req(status.get("remaining_blockers",{}).get("REQUIRED_CASE_12_HISTORICAL_NO_LOOKAHEAD")=="OPEN","status Case12 falsely closed")
     req(status.get("next_repo_executable_lane")=="SEMICONDUCTOR_ORDINARY_T2_NORMALIZATION_FROM_BATCH031_RELEASE","status next lane drift")
+
+    if manifest is not None:
+        req(manifest.get("result")=="PASS_SANITIZED_PUBLIC_T1_ATTESTATION_CURRENT_CUSTODY_COMPLETE_STRICT_REPLAY_BLOCKED","manifest result drift")
+        exp=manifest.get("expected",{})
+        req(exp.get("release_id")==REL,"manifest release id drift")
+        req(exp.get("release_sha256")==REL_SHA,"manifest release sha drift")
+        req(exp.get("release_record_file_sha256")==FILE_SHA,"manifest release file sha drift")
+        req(exp.get("materialized_source_count")==30 and exp.get("ordinary_t2_eligible_count")==30,"manifest counts drift")
+        req(exp.get("persisted_current_custody")=="COMPLETE","manifest custody drift")
+        req(exp.get("strict_historical_replay")=="NO","manifest replay promoted")
+        req(exp.get("case_12")=="OPEN","manifest Case12 promoted")
+        req(exp.get("next_repo_executable_lane")=="SEMICONDUCTOR_ORDINARY_T2_NORMALIZATION_FROM_BATCH031_RELEASE","manifest next lane drift")
+        seen=set()
+        for art in manifest.get("artifacts",[]):
+            rel=art.get("path"); sha=art.get("git_blob_sha")
+            req(isinstance(rel,str) and rel and rel not in seen,"manifest artifact path invalid/duplicate")
+            seen.add(rel)
+            p=ROOT/rel
+            req(p.is_file(),f"manifest artifact missing: {rel}")
+            req(git_blob_sha(p)==sha,f"manifest blob pin mismatch: {rel}")
     return True
 
 def main():
     try:
-        validate_documents(load(QUEUE),load(QUAR),load(ATTEST),load(STATUS))
+        validate_documents(load(QUEUE),load(QUAR),load(ATTEST),load(STATUS),load(MANIFEST))
     except (OSError,json.JSONDecodeError,KeyError,TypeError,ValidationError) as exc:
         print("BATCH032_SEMICONDUCTOR_T1_ATTESTATION=FAIL")
         print(f"ERROR={exc}")
