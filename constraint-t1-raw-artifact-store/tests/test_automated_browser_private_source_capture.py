@@ -44,6 +44,46 @@ def nine_sources() -> list[dict]:
     ]
 
 
+class _FakeApiResponse:
+    def __init__(
+        self,
+        *,
+        url: str,
+        status: int,
+        content_type: str,
+        body: bytes,
+    ) -> None:
+        self.url = url
+        self.status = status
+        self.headers = {"content-type": content_type}
+        self._body = body
+        self.disposed = False
+
+    def body(self) -> bytes:
+        return self._body
+
+    def header_value(self, name: str) -> str | None:
+        return self.headers.get(name.lower())
+
+    def dispose(self) -> None:
+        self.disposed = True
+
+
+class _FakeRequestContext:
+    def __init__(self, response: _FakeApiResponse) -> None:
+        self.response = response
+        self.calls: list[tuple[str, dict]] = []
+
+    def get(self, url: str, **kwargs):
+        self.calls.append((url, kwargs))
+        return self.response
+
+
+class _FakeBrowserContext:
+    def __init__(self, response: _FakeApiResponse) -> None:
+        self.request = _FakeRequestContext(response)
+
+
 class AutomatedBrowserPrivateSourceCaptureTests(unittest.TestCase):
     def test_parser_requires_explicit_authorized_public_acquisition_for_run(self) -> None:
         parser = capture.build_parser()
@@ -349,6 +389,52 @@ class AutomatedBrowserPrivateSourceCaptureTests(unittest.TestCase):
                 observed_content_type="application/pdf",
                 body=b"not-a-pdf" + b"x" * 2048,
             )
+
+    def test_pdf_raw_transport_uses_browser_context_without_redirects_or_retries(self) -> None:
+        locator = "https://www.energy.gov/example/report.pdf"
+        body = b"%PDF-1.7\n" + b"x" * 4096
+        response = _FakeApiResponse(
+            url=locator,
+            status=200,
+            content_type="application/pdf",
+            body=body,
+        )
+        context = _FakeBrowserContext(response)
+
+        observed_response = capture._fetch_exact_pdf_response(
+            context=context,
+            exact_locator=locator,
+            timeout_milliseconds=90000,
+        )
+
+        self.assertIs(observed_response, response)
+        self.assertEqual(len(context.request.calls), 1)
+        called_url, kwargs = context.request.calls[0]
+        self.assertEqual(called_url, locator)
+        self.assertEqual(kwargs["max_redirects"], 0)
+        self.assertEqual(kwargs["max_retries"], 0)
+        self.assertFalse(kwargs["fail_on_status_code"])
+
+        observed_type = capture.validate_main_document(
+            source_id="SRC-DOE-LPT-RESILIENCE-2024",
+            exact_locator=locator,
+            response_url=observed_response.url,
+            redirect_chain=[locator],
+            status=observed_response.status,
+            observed_content_type=capture._response_header_value(
+                observed_response,
+                "content-type",
+            ),
+            body=capture._body_from_response(observed_response),
+        )
+        self.assertEqual(observed_type, "application/pdf")
+
+    def test_capture_source_routes_pdfs_to_raw_browser_context_transport(self) -> None:
+        text = TOOL.read_text(encoding="utf-8")
+        self.assertIn('if expected == "application/pdf":', text)
+        self.assertIn("_fetch_exact_pdf_response(", text)
+        self.assertIn('"PLAYWRIGHT_BROWSER_CONTEXT_RAW_PDF_RESPONSE"', text)
+        self.assertIn('"pdf_transport": "PLAYWRIGHT_BROWSER_CONTEXT_RAW_PDF_RESPONSE"', text)
 
     def test_windows_launcher_uses_private_runtime_and_no_manual_har(self) -> None:
         text = LAUNCHER.read_text(encoding="utf-8")
