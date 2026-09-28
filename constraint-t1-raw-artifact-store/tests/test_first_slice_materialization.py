@@ -71,14 +71,16 @@ class FirstSliceMaterializationTests(unittest.TestCase):
             public_repo_root=self.repo,
         )
 
-    def test_complete_source_set_materializes_and_becomes_persisted_t2_eligible(self):
+    def test_complete_source_set_materializes_but_unverified_admission_stays_blocked(self):
         attestation = self.run_plan()
         self.assertEqual(2, attestation["registry_source_count"])
         self.assertEqual(2, attestation["materialized_source_count"])
-        self.assertEqual(2, attestation["ordinary_t2_eligible_count"])
-        self.assertEqual(0, attestation["ordinary_t2_blocked_count"])
+        self.assertEqual(0, attestation["ordinary_t2_eligible_count"])
+        self.assertEqual(2, attestation["ordinary_t2_blocked_count"])
         self.assertTrue(attestation["all_registry_sources_materialized"])
-        self.assertTrue(attestation["all_sources_ordinary_t2_eligible"])
+        self.assertFalse(attestation["all_sources_ordinary_t2_eligible"])
+        self.assertTrue(all(row["ordinary_t2_eligible"] is False for row in attestation["members"]))
+        self.assertEqual(["SV-A-001", "SV-B-001"], [row["source_version_id"] for row in attestation["members"]])
         self.assertFalse(attestation["strict_historical_replay_promoted"])
         self.assertFalse(attestation["historical_availability_backdated"])
         self.assertTrue(all(
@@ -135,9 +137,10 @@ class FirstSliceMaterializationTests(unittest.TestCase):
         plan["captures"][1]["processing_disposition"] = "QUARANTINED"
         attestation = self.run_plan(plan)
         self.assertEqual(2, attestation["materialized_source_count"])
-        self.assertEqual(1, attestation["ordinary_t2_eligible_count"])
-        self.assertEqual(1, attestation["ordinary_t2_blocked_count"])
+        self.assertEqual(0, attestation["ordinary_t2_eligible_count"])
+        self.assertEqual(2, attestation["ordinary_t2_blocked_count"])
         self.assertFalse(attestation["all_sources_ordinary_t2_eligible"])
+        self.assertEqual(["ELIGIBLE", "QUARANTINED"], [row["processing_disposition"] for row in attestation["members"]])
 
 
     def test_public_attestation_validates_without_private_raw_bytes(self):
@@ -194,6 +197,17 @@ class FirstSliceMaterializationTests(unittest.TestCase):
                         validate_public_materialization_attestation(
                             attestation=bad, registry=self.registry,
                         )
+
+    def test_attestation_requires_member_byte_length_and_content_type(self):
+        good = self.run_plan()
+        for field in ("byte_length", "content_type"):
+            with self.subTest(missing_field=field):
+                bad = copy.deepcopy(good)
+                del bad["members"][0][field]
+                with self.assertRaises(FirstSliceMaterializationError):
+                    validate_public_materialization_attestation(
+                        attestation=bad, registry=self.registry,
+                    )
 
 
 if __name__ == "__main__":
