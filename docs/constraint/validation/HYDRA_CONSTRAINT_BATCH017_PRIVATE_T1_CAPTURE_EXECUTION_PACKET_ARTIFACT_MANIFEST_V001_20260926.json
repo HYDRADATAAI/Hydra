@@ -1,0 +1,40 @@
+{
+  "schema_version": "hydra-constraint-batch017-private-t1-capture-execution-packet-manifest/v1",
+  "record_id": "HYDRA_CONSTRAINT_BATCH017_PRIVATE_T1_CAPTURE_EXECUTION_PACKET_ARTIFACT_MANIFEST_V001_20260926",
+  "as_of": "2026-09-26",
+  "repository": "HYDRADATAAI/Hydra",
+  "stacked_on_pr": 64,
+  "branch": "constraint/t1-private-capture-execution-packet-20260926",
+  "purpose": "LOCAL_AUTHORIZED_CAPTURE_EXECUTION_PACKET_ONLY",
+  "actual_private_capture_executed": false,
+  "raw_source_bodies_published": false,
+  "ordinary_replay_promoted": false,
+  "canonical_admission_promoted": false,
+  "artifacts": [
+    {
+      "path": "tools/private/Invoke-HYDRAConstraintFirstSlicePrivateCapture_V001_20260926.ps1",
+      "git_blob_sha": "5b0ff40927aa4f5adb4b9f4b2efcd09b1b1868e6"
+    },
+    {
+      "path": "constraint-t1-raw-artifact-store/tests/test_batch017_private_capture_execution_packet.py",
+      "git_blob_sha": "712fcabb494833f47f54fa372782624c0c80daf0"
+    },
+    {
+      "path": "docs/constraint/implementation/HYDRA_CONSTRAINT_BATCH017_PRIVATE_T1_CAPTURE_EXECUTION_PACKET_V001_20260926.md",
+      "git_blob_sha": "ac89c055dce329668e24cdcf1ee40b9f55409c6b"
+    },
+    {
+      "path": "docs/constraint/architecture/HYDRA_CONSTRAINT_BATCH017_PRIVATE_T1_CAPTURE_EXECUTION_PACKET_STATUS_V001_20260926.json",
+      "git_blob_sha": "f9bbce9d897744850c757a163d091d2cea7bd859"
+    }
+  ],
+  "expected": {
+    "explicit_operator_authorization_required": true,
+    "registry_driven_source_urls": true,
+    "exact_nine_source_count_required": true,
+    "private_paths_outside_repo_required": true,
+    "t1_materializer_remains_network_blind": true,
+    "conservative_available_at_equals_acquired_at": true,
+    "sanitized_attestation_validation_required": true
+  }
+}
