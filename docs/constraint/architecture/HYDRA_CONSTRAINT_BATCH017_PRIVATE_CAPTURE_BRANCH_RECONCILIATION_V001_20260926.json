@@ -26,5 +26,18 @@
   },
   "canonical_one_command": "python .\\\\tools\\\\private\\\\HYDRA_CONSTRAINT_T1_WINDOWS_PYTHON_BROWSER_CAPTURE_BOOTSTRAP_V001_20260926.py --authorized-public-acquisition",
   "remaining_runtime_dependency": "EXECUTE_REAL_WINDOWS_BROWSER_CAPTURE_AGAINST_PRIVATE_ROOT",
-  "private_root": "D:\\HYDRA\\_PRIVATE\\constraint"
+  "private_root": "D:\\HYDRA\\_PRIVATE\\constraint",
+  "superseded_prs": [
+    {
+      "pr": 82,
+      "disposition": "CLOSED_UNMERGED_SUPERSEDED_BY_PYTHON_CANONICAL_BOOTSTRAP",
+      "unique_safeguards_ported": [
+        "EXACT_GIT_TOPLEVEL_VALIDATION",
+        "STRICT_ORIGIN_VALIDATION",
+        "DIRTY_TRACKED_WORKTREE_FAIL_CLOSED",
+        "CANONICAL_BRANCH_ONLY_FETCH",
+        "FAST_FORWARD_ONLY_UPDATE"
+      ]
+    }
+  ]
 }
