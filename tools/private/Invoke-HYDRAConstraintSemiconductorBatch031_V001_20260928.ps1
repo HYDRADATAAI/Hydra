@@ -13,7 +13,7 @@ param(
 )
 $ErrorActionPreference="Stop"
 if(-not $RepoRoot){$RepoRoot=[System.IO.Path]::GetFullPath((Join-Path $PSScriptRoot "..\.."))}else{$RepoRoot=[System.IO.Path]::GetFullPath($RepoRoot)}
-$BrowserRunner=Join-Path $PSScriptRoot "HYDRA_CONSTRAINT_T1_SEMICONDUCTOR_BATCH031_BROWSER_CAPTURE_V001_20260927.py"
+$BrowserRunner=Join-Path $PSScriptRoot "HYDRA_CONSTRAINT_T1_SEMICONDUCTOR_BATCH031_BROWSER_CAPTURE_V001_20260928.py"
 $Materializer=Join-Path $RepoRoot "tools\materialize_constraint_second_slice_batch031_private_t1.py"
 $Verifier=Join-Path $RepoRoot "tools\verify_constraint_second_slice_batch031_private_t1.py"
 $Handback=Join-Path $RepoRoot "tools\build_constraint_second_slice_batch031_private_t1_handback.py"
@@ -26,5 +26,5 @@ if($Mode -eq "Capture"){
 }
 if($Mode -eq "Status"){& python $Materializer --repo-root $RepoRoot --private-root $PrivateRoot --inbox-root $InboxRoot --dry-run; exit $LASTEXITCODE}
 if($Mode -eq "Materialize"){& python $Materializer --repo-root $RepoRoot --private-root $PrivateRoot --inbox-root $InboxRoot; exit $LASTEXITCODE}
-if($Mode -eq "Verify"){& python $Verifier --repo-root $RepoRoot --private-root $PrivateRoot; if($LASTEXITCODE -ne 0){exit $LASTEXITCODE}; New-Item -ItemType Directory -Force -Path $HandbackRoot|Out-Null; $out=Join-Path $HandbackRoot "HYDRA_CONSTRAINT_SEMI_B030_PRIVATE_T1_HANDBACK_V001.json"; & python $Handback --repo-root $RepoRoot --private-root $PrivateRoot --output-path $out; exit $LASTEXITCODE}
-if($Mode -eq "All"){& python $Materializer --repo-root $RepoRoot --private-root $PrivateRoot --inbox-root $InboxRoot; if($LASTEXITCODE -ne 0){exit $LASTEXITCODE}; & python $Verifier --repo-root $RepoRoot --private-root $PrivateRoot; if($LASTEXITCODE -ne 0){exit $LASTEXITCODE}; New-Item -ItemType Directory -Force -Path $HandbackRoot|Out-Null; $out=Join-Path $HandbackRoot "HYDRA_CONSTRAINT_SEMI_B030_PRIVATE_T1_HANDBACK_V001.json"; & python $Handback --repo-root $RepoRoot --private-root $PrivateRoot --output-path $out; exit $LASTEXITCODE}
+if($Mode -eq "Verify"){& python $Verifier --repo-root $RepoRoot --private-root $PrivateRoot; if($LASTEXITCODE -ne 0){exit $LASTEXITCODE}; New-Item -ItemType Directory -Force -Path $HandbackRoot|Out-Null; $out=Join-Path $HandbackRoot "HYDRA_CONSTRAINT_SEMI_B031_PRIVATE_T1_HANDBACK_V001.json"; & python $Handback --repo-root $RepoRoot --private-root $PrivateRoot --output-path $out; exit $LASTEXITCODE}
+if($Mode -eq "All"){& python $Materializer --repo-root $RepoRoot --private-root $PrivateRoot --inbox-root $InboxRoot; if($LASTEXITCODE -ne 0){exit $LASTEXITCODE}; & python $Verifier --repo-root $RepoRoot --private-root $PrivateRoot; if($LASTEXITCODE -ne 0){exit $LASTEXITCODE}; New-Item -ItemType Directory -Force -Path $HandbackRoot|Out-Null; $out=Join-Path $HandbackRoot "HYDRA_CONSTRAINT_SEMI_B031_PRIVATE_T1_HANDBACK_V001.json"; & python $Handback --repo-root $RepoRoot --private-root $PrivateRoot --output-path $out; exit $LASTEXITCODE}
