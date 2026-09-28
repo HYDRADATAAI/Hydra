@@ -103,6 +103,9 @@ def main()->int:
     body_sig=inspect.signature(mod.validate_body)
     require("effective_locator" in body_sig.parameters,"runner validate_body missing effective_locator parameter")
     require("effective_locator=locator" in runner_text,"runner capture path does not pass effective locator into body validation")
+    capture_source=inspect.getsource(mod.capture_one)
+    require('locator = str(capture_locator)' in capture_source,"runner capture_one ignores effective capture_locator")
+    require('locator = str(item["source_locator"])' not in capture_source,"runner capture_one resets to registered locator")
     sample=rows[0]
     item=qby[sample["source_id"]]
     valid=f"https://s25.q4cdn.com{sample['required_path_prefix']}Example-Prepared-Remarks.pdf"
