@@ -69,7 +69,6 @@ def main()->int:
     p.add_argument("--challenge-wait-seconds",type=int,default=180)
     p.add_argument("--navigation-timeout-seconds",type=int,default=90)
     p.add_argument("--browser-restart-retries",type=int,default=2)
-    p.add_argument("--fresh",action="store_true")
     args=p.parse_args()
     if not args.authorized_public_acquisition:
         print("HYDRA_CONSTRAINT_SEMICONDUCTOR_BATCH031_BROWSER_CAPTURE=FAIL"); print("ERROR=explicit --authorized-public-acquisition is required"); return 2
@@ -80,13 +79,6 @@ def main()->int:
     inbox=base.assert_outside_repo(Path(args.inbox_root),repo,"InboxRoot")
     doc=load_json(repo/QUEUE_REL); queue=validate_queue(doc); inbox.mkdir(parents=True,exist_ok=True)
     journal_path=inbox/"HYDRA_CONSTRAINT_SEMI_B031_BROWSER_CAPTURE_JOURNAL_V001.json"
-
-    if args.fresh:
-        for item in queue:
-            cp=inbox/item["inbox_filename"]; sp=Path(str(cp)+".capture.json")
-            if cp.exists(): cp.unlink()
-            if sp.exists(): sp.unlink()
-        if journal_path.exists(): journal_path.unlink()
 
     entries=[]; pending=[]
     for item in queue:
