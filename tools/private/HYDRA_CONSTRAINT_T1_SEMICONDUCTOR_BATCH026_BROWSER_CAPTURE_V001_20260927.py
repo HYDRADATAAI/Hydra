@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import argparse
-import base64
 import hashlib
 import json
 import shutil
@@ -707,132 +706,6 @@ def is_target_closed_error(exc: BaseException) -> bool:
     )
 
 
-def capture_browser_pdf_response_after_403(
-    *,
-    context: Any,
-    page: Any,
-    exact_locator: str,
-    policy: str,
-    timeout_milliseconds: int,
-) -> tuple[Any, bytes, dict[str, Any]]:
-    create_cdp_session = getattr(context, "new_cdp_session", None)
-    if not callable(create_cdp_session):
-        raise CaptureError("Chromium response-stage capture is unavailable for the authorized TSMC fallback")
-    try:
-        cdp = create_cdp_session(page)
-    except Exception as exc:
-        raise CaptureError(f"unable to start TSMC response-stage capture: {exc}") from exc
-
-    captured: list[dict[str, Any]] = []
-
-    def response_headers(raw_headers: Any) -> dict[str, str]:
-        if not isinstance(raw_headers, list):
-            return {}
-        selected: dict[str, str] = {}
-        for header in raw_headers:
-            if not isinstance(header, Mapping):
-                continue
-            name = str(header.get("name") or "").lower()
-            if name in {"content-type", "content-length", "content-disposition", "location"}:
-                selected[name] = str(header.get("value") or "")[:300]
-        return selected
-
-    def on_request_paused(event: Mapping[str, Any]) -> None:
-        request = event.get("request")
-        request_url = str(request.get("url") or "") if isinstance(request, Mapping) else ""
-        if request_url == exact_locator:
-            row: dict[str, Any] = {
-                "url": request_url,
-                "http_status": int(event.get("responseStatusCode") or 0),
-                "headers": response_headers(event.get("responseHeaders")),
-            }
-            if row["http_status"] == 200:
-                try:
-                    response_body = cdp.send("Fetch.getResponseBody", {"requestId": event["requestId"]})
-                    encoded_body = str(response_body.get("body") or "")
-                    row["body"] = (
-                        base64.b64decode(encoded_body)
-                        if response_body.get("base64Encoded") is True
-                        else encoded_body.encode("utf-8")
-                    )
-                except Exception as exc:
-                    row["body_error"] = f"{type(exc).__name__}: {exc}"[:240]
-            captured.append(row)
-        try:
-            cdp.send("Fetch.continueRequest", {"requestId": event["requestId"]})
-        except Exception:
-            pass
-
-    try:
-        cdp.on("Fetch.requestPaused", on_request_paused)
-        cdp.send(
-            "Fetch.enable",
-            {"patterns": [{"urlPattern": exact_locator, "requestStage": "Response"}]},
-        )
-        navigation_response = page.goto(
-            exact_locator,
-            wait_until="load",
-            timeout=max(1, int(timeout_milliseconds)),
-        )
-        if navigation_response is None:
-            raise CaptureError("authorized TSMC browser retry did not produce a navigation response")
-        chain = redirect_chain(navigation_response)
-        validate_redirects(
-            exact_locator=exact_locator,
-            response_url=str(navigation_response.url),
-            chain=chain,
-            policy=policy,
-        )
-        if int(navigation_response.status) != 200:
-            raise CaptureError(
-                f"authorized TSMC browser retry requires HTTP 200, observed {navigation_response.status}"
-            )
-        matching = [
-            row for row in captured
-            if row.get("url") == str(navigation_response.url)
-            and row.get("http_status") == int(navigation_response.status)
-        ]
-        if not matching:
-            raise CaptureError("no exact HTTP 200 TSMC response-stage body was captured")
-        captured_response = matching[-1]
-        body = captured_response.get("body")
-        if not isinstance(body, bytes):
-            reason = captured_response.get("body_error") or "response-stage body is unavailable"
-            raise CaptureError(f"TSMC response-stage body was not captured: {reason}")
-        declared_length = captured_response.get("headers", {}).get("content-length")
-        if declared_length:
-            try:
-                expected_length = int(declared_length)
-            except ValueError as exc:
-                raise CaptureError("TSMC response-stage Content-Length is invalid") from exc
-            if expected_length != len(body):
-                raise CaptureError(
-                    "TSMC response-stage body length does not match Content-Length "
-                    f"({len(body)} != {expected_length})"
-                )
-        evidence = {
-            "transport": "CHROMIUM_FETCH_RESPONSE_STAGE",
-            "http_status": int(navigation_response.status),
-            "response_url": str(navigation_response.url),
-            "content_type": response_header_value(navigation_response, "content-type"),
-            "content_length": declared_length,
-            "redirect_chain": list(chain),
-            "byte_length": len(body),
-            "artifact_sha256": hashlib.sha256(body).hexdigest(),
-            "signature_hex": body[:16].hex(),
-        }
-        return navigation_response, body, evidence
-    finally:
-        try:
-            cdp.send("Fetch.disable")
-        except Exception:
-            pass
-        try:
-            cdp.detach()
-        except Exception:
-            pass
-
-
 def capture_one(
     *,
     context: Any,
@@ -855,12 +728,8 @@ def capture_one(
     )
     page = context.new_page()
     responses: list[Any] = []
-    fallback_retry_active = False
-
     def on_response(response: Any) -> None:
         try:
-            if fallback_retry_active:
-                return
             request = response.request
             if request.is_navigation_request() and request.frame == page.main_frame:
                 responses.append(response)
@@ -957,33 +826,21 @@ def capture_one(
                                 policy=redirect_policy,
                             )
                             browser_fallback_evidence = {
-                                "initial_navigation_status": browser_status,
-                                "initial_navigation_url": str(response.url),
-                                "initial_navigation_content_type": response_header_value(response, "content-type"),
-                                "initial_navigation_content_length": response_header_value(response, "content-length"),
-                                "initial_navigation_redirect_chain": list(browser_chain),
+                                "transport": "PLAYWRIGHT_BROWSER_NAVIGATION_RESPONSE",
+                                "http_status": browser_status,
+                                "response_url": str(response.url),
+                                "content_type": response_header_value(response, "content-type"),
+                                "content_length": response_header_value(response, "content-length"),
+                                "redirect_chain": list(browser_chain),
                             }
                             print(
-                                f"PDF_BROWSER_403_FALLBACK_BEGIN {source_id} -> {locator} "
+                                f"PDF_BROWSER_403_FALLBACK_REUSE {source_id} -> {locator} "
                                 f"api_status={raw_api_status} browser_status={browser_status} "
                                 f"browser_url={response.url}",
                                 flush=True,
                             )
-                            fallback_retry_active = True
-                            try:
-                                body_response, body_override, response_stage_evidence = (
-                                    capture_browser_pdf_response_after_403(
-                                        context=context,
-                                        page=page,
-                                        exact_locator=locator,
-                                        policy=redirect_policy,
-                                        timeout_milliseconds=max(1, navigation_timeout_seconds) * 1000,
-                                    )
-                                )
-                            finally:
-                                fallback_retry_active = False
-                            browser_fallback_evidence["validated_navigation_response"] = response_stage_evidence
-                            request_chain = tuple(response_stage_evidence["redirect_chain"])
+                            body_response = response
+                            request_chain = browser_chain
                             fallback_used = True
                         print(f"PDF_BODY_BEGIN {source_id} -> {locator}", flush=True)
                     body = body_override if body_override is not None else bytes(body_response.body())
