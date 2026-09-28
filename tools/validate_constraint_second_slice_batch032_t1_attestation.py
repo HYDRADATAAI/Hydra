@@ -15,6 +15,7 @@ QUEUE=BASE/"HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH031_SEMICONDUCTOR_PRIVATE_T1
 QUAR=BASE/"HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH031_SEMICONDUCTOR_TSMC_DIRECT_PROVIDER_QUARANTINE_V001_20260928.json"
 ATTEST=VAL/"HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH032_SEMICONDUCTOR_T1_MATERIALIZATION_ATTESTATION_V001_20260928.json"
 STATUS=ARCH/"HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH032_SEMICONDUCTOR_POST_CAPTURE_PUBLIC_STATUS_V001_20260928.json"
+MASTER=ARCH/"HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH032_MASTER_STATUS_V001_20260928.json"
 MANIFEST=VAL/"HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH032_ARTIFACT_MANIFEST_V001_20260928.json"
 SLICE="SEMICONDUCTOR_ADVANCED_PACKAGING_CRITICAL_MATERIALS_V1"
 REL="REL-SEMI-B031-V001"
@@ -35,7 +36,7 @@ def git_blob_sha(path):
     data=path.read_bytes()
     return hashlib.sha1(b"blob "+str(len(data)).encode("ascii")+b"\\0"+data).hexdigest()
 
-def validate_documents(queue,quar,att,status,manifest=None):
+def validate_documents(queue,quar,att,status,master=None,manifest=None):
     req(queue.get("slice_id")==SLICE,"queue slice drift")
     rows=queue.get("queue")
     req(isinstance(rows,list) and len(rows)==30,"queue must contain exactly 30")
@@ -107,6 +108,24 @@ def validate_documents(queue,quar,att,status,manifest=None):
     req(status.get("remaining_blockers",{}).get("REQUIRED_CASE_12_HISTORICAL_NO_LOOKAHEAD")=="OPEN","status Case12 falsely closed")
     req(status.get("next_repo_executable_lane")=="SEMICONDUCTOR_ORDINARY_T2_NORMALIZATION_FROM_BATCH031_RELEASE","status next lane drift")
 
+    if master is not None:
+        req(master.get("schema_version")=="hydra-constraint-thread6-master-status/v1","master schema drift")
+        req(master.get("record_id")=="HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH032_MASTER_STATUS_V001","master record id drift")
+        req(master.get("first_serious_constraint_run")=="BLOCKED","master serious-run promotion")
+        rd=master.get("readiness",{})
+        req(rd.get("SECOND_SLICE_PRIVATE_CAPTURE_QUEUE",{}).get("status")=="COMPLETE","master private capture not complete")
+        req(rd.get("SECOND_SLICE_RAW_SOURCE_VERSIONS",{}).get("status")=="YES_30_OF_30_CAPTURED_VERSIONS","master raw version count drift")
+        req(rd.get("SECOND_SLICE_T1_RELEASE",{}).get("status")=="YES_VALID_IMMUTABLE","master T1 release drift")
+        req(rd.get("SECOND_SLICE_T1_RELEASE",{}).get("release_id")==REL,"master release id drift")
+        req(rd.get("SECOND_SLICE_T1_RELEASE",{}).get("release_sha256")==REL_SHA,"master release sha drift")
+        req(rd.get("SECOND_SLICE_ORDINARY_T2_ELIGIBILITY",{}).get("status")=="YES_30_OF_30","master ordinary T2 drift")
+        req(rd.get("SECOND_SLICE_PERSISTED_CURRENT_CUSTODY",{}).get("status")=="COMPLETE","master custody drift")
+        req(rd.get("SECOND_SLICE_ORDINARY_T2_NORMALIZATION",{}).get("status")=="NOT_YET_INGESTED","master normalization falsely complete")
+        req(rd.get("SECOND_SLICE_HISTORICAL_AVAILABILITY",{}).get("status")=="NO_PRE_ACQUISITION_VERSION_AVAILABILITY_UNPROVEN","master historical availability promoted")
+        req(rd.get("SECOND_SLICE_REPLAY_READY",{}).get("status")=="NO_STRICT_HISTORICAL","master replay promoted")
+        req(rd.get("FULL_CONSTRAINT_RUN_READY",{}).get("status")=="NO","master full run promoted")
+        req(master.get("next_repo_executable_lane")=="SEMICONDUCTOR_ORDINARY_T2_NORMALIZATION_FROM_BATCH031_RELEASE","master next lane drift")
+
     if manifest is not None:
         req(manifest.get("result")=="PASS_SANITIZED_PUBLIC_T1_ATTESTATION_CURRENT_CUSTODY_COMPLETE_STRICT_REPLAY_BLOCKED","manifest result drift")
         exp=manifest.get("expected",{})
@@ -130,7 +149,7 @@ def validate_documents(queue,quar,att,status,manifest=None):
 
 def main():
     try:
-        validate_documents(load(QUEUE),load(QUAR),load(ATTEST),load(STATUS),load(MANIFEST))
+        validate_documents(load(QUEUE),load(QUAR),load(ATTEST),load(STATUS),load(MASTER),load(MANIFEST))
     except (OSError,json.JSONDecodeError,KeyError,TypeError,ValidationError) as exc:
         print("BATCH032_SEMICONDUCTOR_T1_ATTESTATION=FAIL")
         print(f"ERROR={exc}")
