@@ -60,11 +60,11 @@
     },
     {
       "path": "docs/constraint/architecture/HYDRA_CONSTRAINT_BATCH017_AUTOMATED_BROWSER_PRIVATE_SOURCE_CAPTURE_STATUS_V001_20260926.json",
-      "git_blob_sha": "487c83ddfb8d2a0d10c21e8b4502bf975e733bca"
+      "git_blob_sha": "c593b0bf28f7689396aa0ee087b53ece06cb97e5"
     },
     {
       "path": "docs/constraint/architecture/HYDRA_CONSTRAINT_BATCH017_PRIVATE_CAPTURE_BRANCH_RECONCILIATION_V001_20260926.json",
-      "git_blob_sha": "743e9b4560055463e87ad4b1f3035bfcae2396a7"
+      "git_blob_sha": "c123d0a43ad0db5bf4a32e8b7909bf5f8a980c4b"
     },
     {
       "path": "docs/constraint/validation/HYDRA_CONSTRAINT_BATCH017_T1_PRIVATE_RECORD_AND_BROWSER_ACQUISITION_SUPERSESSION_MAP_V002_20260926.json",
@@ -88,11 +88,11 @@
     },
     {
       "path": "tools/private/HYDRA_CONSTRAINT_T1_WINDOWS_PYTHON_BROWSER_CAPTURE_BOOTSTRAP_V001_20260926.py",
-      "git_blob_sha": "7513814c89641ab048821fb407da399820af9abc"
+      "git_blob_sha": "10ebf3145143703d11ee5f14e3d820b56dbb3eaa"
     },
     {
       "path": "constraint-t1-raw-artifact-store/tests/test_python_browser_capture_bootstrap.py",
-      "git_blob_sha": "9a4d242d0569ad7175ff9004bd2d1169ddfa7908"
+      "git_blob_sha": "b78c9aba8dd8bd1e1dcb7dcca067bd14e005d12f"
     }
   ],
   "runtime_execution_claim": "NOT_EXECUTED_BY_GITHUB_CI_PRIVATE_WINDOWS_BROWSER_REQUIRED",
@@ -126,5 +126,15 @@
   "browser_restart_retries_default": 2,
   "resume_revalidates_staged_bytes": true,
   "concurrent_private_root_capture": "FAIL_CLOSED_WITH_OS_LOCK",
-  "lock_file_is_not_ownership_signal": true
+  "lock_file_is_not_ownership_signal": true,
+  "workstation_bootstrap_safety": {
+    "exact_git_toplevel": true,
+    "strict_origin": true,
+    "dirty_tracked_tree": "FAIL_CLOSED",
+    "fetch_scope": "CANONICAL_CAPTURE_BRANCH_ONLY",
+    "update_mode": "FAST_FORWARD_ONLY",
+    "stash": false,
+    "hard_reset": false
+  },
+  "pr82_disposition": "CLOSED_UNMERGED_SUPERSEDED_BY_PYTHON_CANONICAL_BOOTSTRAP"
 }
