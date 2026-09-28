@@ -26,6 +26,7 @@ COVERAGE17 = "docs/constraint/first_slice/ai_data_center_power_infrastructure_v1
 GATE17 = "docs/constraint/first_slice/ai_data_center_power_infrastructure_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH017_AI_DATA_CENTER_POWER_INFRASTRUCTURE_STRICT_ACCEPTANCE_GATE_V001_20260925.json"
 BLOCKERS17 = "docs/constraint/first_slice/ai_data_center_power_infrastructure_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH017_AI_DATA_CENTER_POWER_INFRASTRUCTURE_BLOCKER_REGISTER_V001_20260925.json"
 TRACKER17 = "docs/constraint/architecture/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH017_NYX_ASSIGNMENT_TRACKER_V001_20260925.json"
+MASTER17 = "docs/constraint/architecture/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH017_MASTER_STATUS_V001_20260925.json"
 
 
 def make_sandbox() -> Path:
@@ -149,6 +150,17 @@ def case_tracker_owner_changed(root: Path) -> None:
     mutate(root, TRACKER17, lambda doc: doc.__setitem__("owner", "LILY"))
 
 
+def case_batch017_core_count_absorbs_supplement(root: Path) -> None:
+    mutate(
+        root,
+        MASTER17,
+        lambda doc: doc["readiness"]["REAL_OUTCOME_CORE_DIMENSION_COVERAGE"].__setitem__(
+            "records",
+            6,
+        ),
+    )
+
+
 def main() -> int:
     cases = [
         ("substitution_generalized", case_substitution_generalized, "Loudoun substitution scope was generalized"),
@@ -170,6 +182,7 @@ def main() -> int:
         ("batch017_threshold_invented", case_batch017_threshold_invented, "invented an acceptance threshold"),
         ("batch017_replay_ready", case_batch017_replay_ready, "Batch017 falsely clears replay blockers"),
         ("tracker_owner_changed", case_tracker_owner_changed, "NYX assignment tracker owner drifted"),
+        ("batch017_core_count_absorbs_supplement", case_batch017_core_count_absorbs_supplement, "Batch017 master core outcome metrics drifted"),
     ]
     for name, fn, fragment in cases:
         expect_failure(name, fn, fragment)
