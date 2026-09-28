@@ -18,6 +18,28 @@ def zoned(v):
     try: d=datetime.fromisoformat(str(v).replace("Z","+00:00"))
     except Exception: fail("capture_completed_at invalid")
     if d.tzinfo is None: fail("capture_completed_at must be offset-aware")
+def materialize_or_reuse_release(store,private,release_id,receipts):
+    from hydra_constraint_t1_raw.store import build_release_manifest
+    release_path=private/"releases"/f"{release_id}.json"
+    if release_path.is_file():
+        existing=load(release_path)
+        issues=store.validate_stored_release_manifest(existing)
+        if issues: fail("existing immutable release invalid: "+",".join(issues))
+        expected=build_release_manifest(
+            release_id=release_id,
+            created_at=existing["created_at"],
+            receipts=receipts,
+        )
+        if existing!=expected:
+            fail("existing immutable release does not match current 30-receipt set")
+        return existing,True
+    release=store.write_release_manifest(
+        release_id=release_id,
+        created_at=datetime.now(timezone.utc).isoformat(),
+        receipts=receipts,
+    )
+    return release,False
+
 def main():
     ap=argparse.ArgumentParser(description=__doc__); ap.add_argument("--repo-root",required=True); ap.add_argument("--private-root",required=True); ap.add_argument("--inbox-root",required=True); ap.add_argument("--dry-run",action="store_true"); a=ap.parse_args()
     repo=Path(a.repo_root).resolve(); private=Path(a.private_root).resolve(); inbox=Path(a.inbox_root).resolve()
@@ -46,7 +68,7 @@ def main():
     print("BATCH031_PRIVATE_CAPTURE_INBOX_VALIDATION=PASS"); print("CAPTURE_FILES_READY=30")
     if a.dry_run: print("DRY_RUN=YES"); return 0
     sys.path.insert(0,str(repo/"constraint-t1-raw-artifact-store"/"src"))
-    from hydra_constraint_t1_raw.store import RawArtifactStore,build_release_manifest,is_ordinary_t2_eligible
+    from hydra_constraint_t1_raw.store import RawArtifactStore,is_ordinary_t2_eligible
     store=RawArtifactStore(root=private,public_repo_root=repo); receipts=[]
     for item,cp,side in prepared:
         ts=side["capture_completed_at"]
@@ -54,27 +76,12 @@ def main():
         issues=store.validate_receipt(rec)
         if issues: fail(f"{item['source_id']}: invalid receipt: {','.join(issues)}")
         receipts.append(rec)
-    release_path=private/"releases"/f"{doc['release_id']}.json"
-    if release_path.is_file():
-        existing=load(release_path)
-        issues=store.validate_stored_release_manifest(existing)
-        if issues: fail("existing immutable release invalid: "+",".join(issues))
-        expected=build_release_manifest(
-            release_id=doc["release_id"],
-            created_at=existing["created_at"],
-            receipts=receipts,
-        )
-        if existing!=expected:
-            fail("existing immutable release does not match current 30-receipt set")
-        release=existing
-        release_reused=True
-    else:
-        release=store.write_release_manifest(
-            release_id=doc["release_id"],
-            created_at=datetime.now(timezone.utc).isoformat(),
-            receipts=receipts,
-        )
-        release_reused=False
+    release,release_reused=materialize_or_reuse_release(
+        store=store,
+        private=private,
+        release_id=doc["release_id"],
+        receipts=receipts,
+    )
     if store.validate_stored_release_manifest(release): fail("stored release invalid")
     eligible=sum(1 for r in receipts if is_ordinary_t2_eligible(receipt=r,release_manifest=release,store=store))
     if eligible!=30: fail(f"ordinary T2 eligibility incomplete: {eligible}/30")
