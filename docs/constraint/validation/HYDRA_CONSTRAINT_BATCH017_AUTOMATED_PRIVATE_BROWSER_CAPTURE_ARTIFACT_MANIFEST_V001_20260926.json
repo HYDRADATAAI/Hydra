@@ -24,7 +24,7 @@
     },
     {
       "path": "tools/private/HYDRA_CONSTRAINT_T1_AUTOMATED_BROWSER_FIRST_SLICE_CAPTURE_V001_20260926.py",
-      "git_blob_sha": "355be17a723b380c017e2ab956144197894d765e"
+      "git_blob_sha": "236792547ac7f3d86359c88ad78effe75c51b376"
     },
     {
       "path": "tools/private/Invoke-HYDRAConstraintFirstSliceAutomatedBrowserCapture_V001_20260926.ps1",
@@ -36,7 +36,7 @@
     },
     {
       "path": "constraint-t1-raw-artifact-store/tests/test_automated_browser_private_source_capture.py",
-      "git_blob_sha": "1d1d647f59896263601ee87707d94b5a567db7a1"
+      "git_blob_sha": "5a9666cfafbe44b535d85cfeb48499fa297a5d00"
     },
     {
       "path": "constraint-t1-raw-artifact-store/tests/test_automated_browser_capture_launcher.py",
@@ -142,5 +142,13 @@
     "utf8_bom_capture_plan_supported": true,
     "windows_powershell_51_syntax_gate": true,
     "canonical_workflow": false
+  },
+  "pdf_transport": {
+    "mode": "PLAYWRIGHT_BROWSER_CONTEXT_RAW_PDF_RESPONSE",
+    "exact_locator_required": true,
+    "redirects_allowed": false,
+    "automatic_retries": false,
+    "status_mime_signature_validation_preserved": true,
+    "reason": "Avoid installed-browser PDF viewer/shim bodies while retaining browser-context acquisition and exact-source validation."
   }
 }
