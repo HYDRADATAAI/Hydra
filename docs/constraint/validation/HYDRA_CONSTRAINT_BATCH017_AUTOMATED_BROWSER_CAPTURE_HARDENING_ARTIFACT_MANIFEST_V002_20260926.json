@@ -1,0 +1,70 @@
+{
+  "schema_version": "hydra-constraint-batch017-automated-browser-capture-hardening-manifest/v2",
+  "record_id": "HYDRA_CONSTRAINT_BATCH017_AUTOMATED_BROWSER_CAPTURE_HARDENING_ARTIFACT_MANIFEST_V002_20260926",
+  "as_of": "2026-09-26",
+  "repository": "HYDRADATAAI/Hydra",
+  "pull_request": 65,
+  "branch": "constraint/t1-private-capture-execution-packet-20260926",
+  "purpose": "CANONICAL_AUTHORIZED_INSTALLED_BROWSER_SOURCE_CAPTURE_HARDENING",
+  "actual_private_capture_executed_by_ci": false,
+  "raw_source_bodies_published": false,
+  "historical_available_at_backdated": false,
+  "ordinary_historical_replay_promoted": false,
+  "native_t5_t6_admission_promoted": false,
+  "canonical_admission_promoted": false,
+  "artifacts": [
+    {
+      "path": "tools/private/Invoke-HYDRAConstraintFirstSliceAutomatedBrowserCapture_V001_20260926.ps1",
+      "git_blob_sha": "33b0f2189269a028ee382bb5919f544a6a989702"
+    },
+    {
+      "path": "tools/private/HYDRA_CONSTRAINT_T1_AUTOMATED_BROWSER_FIRST_SLICE_CAPTURE_V001_20260926.py",
+      "git_blob_sha": "25f989f52ea91ce88f9b9cb0e4c7d3db35a7d18d"
+    },
+    {
+      "path": "constraint-t1-raw-artifact-store/tests/test_automated_browser_private_source_capture.py",
+      "git_blob_sha": "0e03e30c4ea0f0431c1ac8d5a05250f23a24a80c"
+    },
+    {
+      "path": "constraint-t1-raw-artifact-store/tests/test_automated_browser_capture_launcher.py",
+      "git_blob_sha": "5f27ba460101824b54a1725b3aba95fe51bc4a70"
+    },
+    {
+      "path": ".github/workflows/constraint-t1-raw-artifact-store.yml",
+      "git_blob_sha": "1dd0c0ffefb83257f1820e6b050ca90962567212"
+    },
+    {
+      "path": "docs/constraint/implementation/HYDRA_CONSTRAINT_BATCH017_AUTOMATED_BROWSER_PRIVATE_SOURCE_CAPTURE_V001_20260926.md",
+      "git_blob_sha": "31d939996434191a87b173bf6c252d592cdcd695"
+    },
+    {
+      "path": "docs/constraint/architecture/HYDRA_CONSTRAINT_BATCH017_AUTOMATED_BROWSER_PRIVATE_SOURCE_CAPTURE_STATUS_V001_20260926.json",
+      "git_blob_sha": "2a6f302fede59aab9290106ce331748936b6c3c4"
+    },
+    {
+      "path": "docs/constraint/architecture/HYDRA_CONSTRAINT_BATCH017_PRIVATE_CAPTURE_BRANCH_RECONCILIATION_V001_20260926.json",
+      "git_blob_sha": "57379163ea6efc31f2452374e17d8767ab2baeb4"
+    },
+    {
+      "path": "docs/constraint/validation/HYDRA_CONSTRAINT_BATCH017_T1_PRIVATE_RECORD_AND_BROWSER_ACQUISITION_SUPERSESSION_MAP_V002_20260926.json",
+      "git_blob_sha": "e87f07415c79c8b97ba365c038dbfc7dd4b35d33"
+    },
+    {
+      "path": "tools/validate_constraint_first_slice_successor.py",
+      "git_blob_sha": "533df376581b5fdab068dba4e4b172f90645bdba"
+    },
+    {
+      "path": "docs/constraint/validation/HYDRA_CONSTRAINT_BATCH017_AUTOMATED_BROWSER_CAPTURE_HARDENING_REPORT_V002_20260926.md",
+      "git_blob_sha": "9212008976a3e8c339818b5b7c820422970fa53b"
+    }
+  ],
+  "expected": {
+    "explicit_operator_authorization_required": true,
+    "private_root": "D:\\HYDRA_PRIVATE\\constraint",
+    "installed_browser_required": true,
+    "playwright_browser_download_required": false,
+    "exact_registered_main_document_required": true,
+    "t1_store_network_blind": true,
+    "post_capture_sanitized_status_invoked": true
+  }
+}

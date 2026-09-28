@@ -1,0 +1,48 @@
+{
+  "schema_version": "hydra-constraint-batch017-resumable-private-staging-manifest/v1",
+  "record_id": "HYDRA_CONSTRAINT_BATCH017_RESUMABLE_PRIVATE_STAGING_ARTIFACT_MANIFEST_V001_20260926",
+  "as_of": "2026-09-26",
+  "repository": "HYDRADATAAI/Hydra",
+  "pull_request": 65,
+  "branch": "constraint/t1-private-capture-execution-packet-20260926",
+  "purpose": "PROSPECTIVE_RESUMABLE_PRIVATE_STAGING_WITHOUT_PARTIAL_T1_AUTHORITY",
+  "prior_unjournaled_staged_files_retro_adopted": false,
+  "raw_source_bodies_published": false,
+  "capture_plan_created_by_journal": false,
+  "t1_authority_created_by_journal": false,
+  "ordinary_replay_promoted": false,
+  "canonical_admission_promoted": false,
+  "artifacts": [
+    {
+      "path": "tools/private/Invoke-HYDRAConstraintFirstSlicePrivateCapture_V001_20260926.ps1",
+      "git_blob_sha": "04af6fc0ed1a62c801463be0064a32f8ceb0e891"
+    },
+    {
+      "path": "constraint-t1-raw-artifact-store/tests/test_private_capture_resume_journal.py",
+      "git_blob_sha": "81baadc0aa51e4f507fba27790dc2313d398178d"
+    },
+    {
+      "path": ".github/workflows/constraint-t1-raw-artifact-store.yml",
+      "git_blob_sha": "217252895e087634cb4734b427872818c493db5f"
+    },
+    {
+      "path": "docs/constraint/implementation/HYDRA_CONSTRAINT_BATCH017_PRIVATE_CAPTURE_RESUMABLE_STAGING_JOURNAL_V001_20260926.md",
+      "git_blob_sha": "a8e6262f409ac6df76b770fca5bb83dbd58de531"
+    },
+    {
+      "path": "docs/constraint/architecture/HYDRA_CONSTRAINT_BATCH017_RESUMABLE_PRIVATE_STAGING_STATUS_V001_20260926.json",
+      "git_blob_sha": "2b1e54fcbe492b2b6f426ad8be53e036565c305b"
+    }
+  ],
+  "expected": {
+    "journal_non_authoritative": true,
+    "per_source_hash_recorded": true,
+    "per_source_acquired_at_recorded": true,
+    "source_version_id_recorded": true,
+    "resume_revalidates_bytes": true,
+    "resume_revalidates_exact_locator": true,
+    "resume_preserves_original_acquisition_time": true,
+    "all_nine_required_before_capture_plan": true,
+    "powershell_syntax_ci_required": true
+  }
+}

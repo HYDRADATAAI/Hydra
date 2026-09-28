@@ -1,0 +1,35 @@
+{
+  "schema_version": "hydra-constraint-batch017-lbnl-queued-up-capture-exception-status/v1",
+  "record_id": "HYDRA_CONSTRAINT_BATCH017_LBNL_QUEUED_UP_CAPTURE_EXCEPTION_STATUS_V001_20260926",
+  "as_of": "2026-09-26",
+  "source_id": "SRC-LBNL-QUEUED-UP-2025",
+  "registered_locator": "https://emp.lbl.gov/publications/queued-2025-edition-characteristics",
+  "scope": "AUTHORIZED_EXACT_BROWSER_RESPONSE_CAPTURE_ONLY",
+  "observed_state": {
+    "NORMAL_BROWSER_LOAD": "SUCCESS",
+    "DIRECT_BYTE_CAPTURE": "HTTP_403_CLOUDFLARE_BLOCK_PAGE",
+    "BYPASS_ATTEMPTED": "NO",
+    "LINKED_REPORT_PDF_SUBSTITUTED": "NO",
+    "RENDERED_DOM_USED_AS_RAW_BODY": "NO",
+    "CAPTURE_PLAN_WRITTEN": "NO",
+    "T1_OBJECTS_WRITTEN": "NO",
+    "T1_RECEIPTS_WRITTEN": "NO",
+    "T1_RELEASE_WRITTEN": "NO",
+    "EARLIER_STAGING_RESPONSES_AUTHORITATIVE": "NO"
+  },
+  "authorized_recovery_path": {
+    "method": "SANITIZED_BROWSER_HAR_EXACT_RESPONSE_BODY",
+    "exact_url_required": true,
+    "status_200_required": true,
+    "mime_prefix": "text/html",
+    "expected_body_marker": "Queued Up: 2025 Edition",
+    "sensitive_headers_allowed": false,
+    "cloudflare_challenge_body_allowed": false,
+    "linked_file_substitution_allowed": false,
+    "rendered_dom_allowed": false
+  },
+  "ordinary_replay_promoted": false,
+  "canonical_admission_promoted": false,
+  "native_signed_t5_t6_receipt_present": false,
+  "readiness": "READY_FOR_REVIEWED_BROWSER_RESPONSE_CAPTURE_NOT_EXECUTED"
+}

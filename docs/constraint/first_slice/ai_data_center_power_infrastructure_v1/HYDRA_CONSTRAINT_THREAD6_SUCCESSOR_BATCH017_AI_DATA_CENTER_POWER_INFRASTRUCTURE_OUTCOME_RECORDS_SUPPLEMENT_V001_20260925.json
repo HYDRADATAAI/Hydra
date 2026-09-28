@@ -1,0 +1,56 @@
+{
+  "schema_version": "hydra-constraint-first-slice-outcome-records-supplement/v1",
+  "record_id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH017_AI_DATA_CENTER_POWER_INFRASTRUCTURE_OUTCOME_RECORDS_SUPPLEMENT_V001",
+  "as_of": "2026-09-26",
+  "predecessor_outcomes": [
+    "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH011_AI_DATA_CENTER_POWER_INFRASTRUCTURE_OUTCOME_RECORDS_V001",
+    "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH012_AI_DATA_CENTER_POWER_INFRASTRUCTURE_OUTCOME_RECORDS_SUPPLEMENT_V001",
+    "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH016_AI_DATA_CENTER_POWER_INFRASTRUCTURE_OUTCOME_RECORDS_SUPPLEMENT_V001"
+  ],
+  "slice_id": "AI_DATA_CENTER_POWER_INFRASTRUCTURE_V1",
+  "outcome_mode": "REVIEWED_PUBLIC_PRIMARY_OUTCOME_NOT_ORDINARY_REPLAY_ADMITTED",
+  "records": [
+    {
+      "outcome_id": "OUT-AIDC-SCHNEIDER-EL-PASO-DC-CUSTOMER-SHIPMENT-001",
+      "outcome_label": "CAPACITY_ADDED",
+      "related_constraint_candidate_id": null,
+      "entity_id": null,
+      "entity_name": "Schneider Electric",
+      "facility": "El Paso, Texas manufacturing plant",
+      "geography": "El Paso, Texas, United States",
+      "source_id": "SRC-SCHNEIDER-EL-PASO-DATACENTER-SHIPMENT-2023-09-14",
+      "observed_proposition": "Schneider Electric reported that its new El Paso plant produces custom-designed low- and medium-voltage electrical products, and that the first products manufactured there had shipped earlier that summer to data-center customers. The release separately identifies medium-voltage switchgear for the data-center market, but does not specify the product mix in those first shipments.",
+      "real_world_effective_time": {
+        "value": null,
+        "status": "FIRST_SHIPMENTS_REPORTED_AS_EARLIER_SUMMER_2023_EXACT_DATE_NOT_STATED",
+        "no_later_than": "2023-09-14"
+      },
+      "publication_time": "2023-09-14",
+      "hydra_available_at": "2026-09-26T13:20:51Z",
+      "observed_at": "2026-09-26T13:20:51Z",
+      "outcome_scope": "EL_PASO_PLANT_INITIAL_PRODUCTS_SHIPPED_TO_DATA_CENTER_CUSTOMERS",
+      "evaluation_mapping": "SUPPLEMENTAL_REAL_OUTCOME_NOT_COUNTED_AS_A_DIRECT_CONSTRAINT_MATCH_OR_BENEFICIARY_CAPTURE",
+      "semantic_limits": [
+        "The release does not quantify output capacity, utilization, product mix, or shipment volume.",
+        "The first shipment product types and receiving customers are not identified.",
+        "The source does not establish resolution of any specific switchgear or power-delivery constraint.",
+        "The source does not establish constraint-attributable revenue, margin, pricing power, or beneficiary capture.",
+        "The historical event is supplemental context and is not temporally matched to a current candidate for core evaluation coverage."
+      ],
+      "ordinary_replay_eligible": false,
+      "ordinary_replay_blockers": [
+        "PIT-002B-FIRST-SLICE-NINE-SOURCE-RAW-CAPTURE-MATERIALIZATION",
+        "RAW_SOURCE_VERSION_HASH_FOR_THIS_SOURCE_NOT_MATERIALIZED"
+      ]
+    }
+  ],
+  "counts": {
+    "outcomes_added_this_batch": 1,
+    "current_slice_real_outcome_count": 6,
+    "capacity_added_total": 2,
+    "substitution_succeeded_total": 1,
+    "project_cancelled_total": 1,
+    "beneficiary_capture_confirmed_total": 2,
+    "constraint_resolutions_total": 0
+  }
+}

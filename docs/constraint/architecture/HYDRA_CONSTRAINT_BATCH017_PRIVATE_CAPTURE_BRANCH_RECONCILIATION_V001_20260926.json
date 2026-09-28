@@ -1,0 +1,77 @@
+{
+  "schema_version": "hydra-constraint-batch017-private-capture-branch-reconciliation/v1",
+  "record_id": "HYDRA_CONSTRAINT_BATCH017_PRIVATE_CAPTURE_BRANCH_RECONCILIATION_V001_20260926",
+  "as_of": "2026-09-26",
+  "repository": "HYDRADATAAI/Hydra",
+  "slice_id": "AI_DATA_CENTER_POWER_INFRASTRUCTURE_V1",
+  "authoritative_source_discovery_pr": 64,
+  "canonical_private_capture_execution_pr": 65,
+  "reconciled_post_capture_pr": 66,
+  "superseded_manual_har_preflight_pr": 73,
+  "decisions": {
+    "automated_browser_capture_is_normal_workflow": true,
+    "manual_har_required": false,
+    "legacy_har_extractor_retained_for_compatibility": true,
+    "post_capture_status_gate_reused_in_pr65": true,
+    "second_custody_system_created": false,
+    "second_replay_system_created": false,
+    "raw_source_publication": false,
+    "historical_available_at_backdating": false,
+    "canonical_t5_t6_promotion": false,
+    "explicit_operator_authorization_required": true,
+    "python_bootstrap_is_normal_workflow": true,
+    "powershell_required": false,
+    "validated_partial_resume": true,
+    "auto_resume_latest_incomplete_journal": true
+  },
+  "canonical_one_command": "python .\\\\tools\\\\private\\\\HYDRA_CONSTRAINT_T1_WINDOWS_PYTHON_BROWSER_CAPTURE_BOOTSTRAP_V001_20260926.py --authorized-public-acquisition",
+  "remaining_runtime_dependency": "EXECUTE_REAL_WINDOWS_BROWSER_CAPTURE_AGAINST_PRIVATE_ROOT",
+  "private_root": "D:\\HYDRA\\_PRIVATE\\constraint",
+  "superseded_prs": [
+    {
+      "pr": 82,
+      "disposition": "CLOSED_UNMERGED_SUPERSEDED_BY_PYTHON_CANONICAL_BOOTSTRAP",
+      "unique_safeguards_ported": [
+        "EXACT_GIT_TOPLEVEL_VALIDATION",
+        "STRICT_ORIGIN_VALIDATION",
+        "DIRTY_TRACKED_WORKTREE_FAIL_CLOSED",
+        "CANONICAL_BRANCH_ONLY_FETCH",
+        "FAST_FORWARD_ONLY_UPDATE"
+      ]
+    },
+    {
+      "pr": 70,
+      "disposition": "CLOSED_UNMERGED_FIX_PORTED_TO_PR65",
+      "ported": [
+        "UTF8_BOM_CAPTURE_PLAN_COMPATIBILITY",
+        "BOM_REGRESSION_TEST"
+      ]
+    },
+    {
+      "pr": 71,
+      "disposition": "CLOSED_UNMERGED_FIX_PORTED_TO_PR65",
+      "ported": [
+        "SOURCEID_POWERSHELL_SYNTAX_FIX",
+        "WINDOWS_POWERSHELL_51_SYNTAX_GATE"
+      ]
+    }
+  ],
+  "integration_hold": {
+    "status": "HOLD_NO_DESTRUCTIVE_REBASE",
+    "reason": "PR65 base branch has drifted and PR is not mergeable; main is substantially ahead. Preserve validated capture work and live private-runtime evidence before constructing a clean integration branch.",
+    "pr": 65,
+    "current_head": "ca8e2f9459450d8e1c721bd482131bc47901bf38",
+    "current_base": "constraint/t1-private-record-source-discovery-20260926",
+    "main_divergence_observed": {
+      "ahead_by": 130,
+      "behind_by": 240
+    },
+    "prohibited_shortcuts": [
+      "FORCE_PUSH_REBASE_WITHOUT_CONFLICT_AUDIT",
+      "HARD_RESET",
+      "OVERWRITE_NEWER_MAIN_FILES",
+      "MERGE_UNMERGEABLE_PR"
+    ],
+    "next_integration_condition": "AFTER_PRIVATE_9_OF_9_CAPTURE_EVIDENCE_OR_EXPLICIT_CLEAN_INTEGRATION_BRANCH_AUDIT"
+  }
+}

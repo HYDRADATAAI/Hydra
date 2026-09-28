@@ -1,0 +1,52 @@
+{
+  "schema_version": "hydra-constraint-batch017-three-source-403-capture-exception-status/v1",
+  "record_id": "HYDRA_CONSTRAINT_BATCH017_THREE_SOURCE_403_CAPTURE_EXCEPTION_STATUS_V001_20260926",
+  "as_of": "2026-09-26",
+  "slice_id": "AI_DATA_CENTER_POWER_INFRASTRUCTURE_V1",
+  "scope": "EXACT_BROWSER_RESPONSE_FALLBACK_FOR_THREE_ALLOWLISTED_REGISTERED_HTML_SOURCES",
+  "direct_capture_state": {
+    "staged_success_count": 6,
+    "direct_403_count": 3,
+    "capture_plan_written": false,
+    "t1_objects_written": false,
+    "t1_receipts_written": false,
+    "t1_release_written": false
+  },
+  "allowlisted_sources": [
+    {
+      "source_id": "SRC-LBNL-QUEUED-UP-2025",
+      "har_parameter": "LbnlQueuedUpSanitizedHarPath",
+      "exact_url": "https://emp.lbl.gov/publications/queued-2025-edition-characteristics",
+      "expected_text": "Queued Up: 2025 Edition"
+    },
+    {
+      "source_id": "SRC-FERC-ORDER-2023-FACT-SHEET",
+      "har_parameter": "FercOrder2023SanitizedHarPath",
+      "exact_url": "https://www.ferc.gov/news-events/news/fact-sheet-improvements-generator-interconnection-procedures-and-agreements",
+      "expected_text": "Fact Sheet | Improvements to Generator Interconnection Procedures and Agreements"
+    },
+    {
+      "source_id": "SRC-PJM-2025-YEAR-IN-REVIEW-2026-01-08",
+      "har_parameter": "Pjm2025YearInReviewSanitizedHarPath",
+      "exact_url": "https://insidelines.pjm.com/2025-year-in-review-planning-prepares-for-burgeoning-electricity-demand/",
+      "expected_text": "2025 Year in Review: Planning Prepares for Burgeoning Electricity Demand"
+    }
+  ],
+  "shared_requirements": {
+    "exact_registered_url": true,
+    "http_status_200": true,
+    "mime_prefix": "text/html",
+    "response_body_required": true,
+    "sensitive_headers_allowed": false,
+    "challenge_or_block_body_allowed": false,
+    "linked_source_substitution_allowed": false,
+    "rendered_dom_allowed": false,
+    "cookie_replay_allowed": false
+  },
+  "in_app_capture_available": false,
+  "actual_three_har_files_present": false,
+  "raw_materialization_complete": false,
+  "ordinary_replay_promoted": false,
+  "canonical_admission_promoted": false,
+  "readiness": "READY_FOR_EXTERNAL_AUTHORIZED_SANITIZED_HAR_EXPORT_NOT_EXECUTED"
+}

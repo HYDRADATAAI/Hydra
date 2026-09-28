@@ -1,0 +1,54 @@
+{
+  "schema_version": "hydra-constraint-batch017-three-source-403-browser-response-extension-manifest/v1",
+  "record_id": "HYDRA_CONSTRAINT_BATCH017_THREE_SOURCE_403_BROWSER_RESPONSE_EXTENSION_MANIFEST_V001_20260926",
+  "as_of": "2026-09-26",
+  "repository": "HYDRADATAAI/Hydra",
+  "pull_request": 65,
+  "branch": "constraint/t1-private-capture-execution-packet-20260926",
+  "purpose": "EXTEND_EXACT_REGISTERED_BROWSER_RESPONSE_FALLBACK_TO_FERC_AND_PJM_WITHOUT_BROADENING_AUTHORITY",
+  "predecessor_lbnl_exception_manifest": "HYDRA_CONSTRAINT_BATCH017_LBNL_QUEUED_UP_BROWSER_RESPONSE_EXCEPTION_ARTIFACT_MANIFEST_V001_20260926",
+  "raw_source_bodies_published": false,
+  "historical_backdating_performed": false,
+  "ordinary_replay_promoted": false,
+  "canonical_admission_promoted": false,
+  "artifacts": [
+    {
+      "path": "tools/private/Invoke-HYDRAConstraintFirstSlicePrivateCapture_V001_20260926.ps1",
+      "git_blob_sha": "3879eb6d9dfcd982b213a23129d5d3c4c448c9bf"
+    },
+    {
+      "path": "constraint-t1-raw-artifact-store/tests/test_batch017_private_capture_execution_packet.py",
+      "git_blob_sha": "a5c6826fa8b67d25b19d19bba6be877c4b0ec067"
+    },
+    {
+      "path": "constraint-t1-raw-artifact-store/tests/test_browser_response_capture.py",
+      "git_blob_sha": "0409a841a1328f4a9ac6df5849cca9706f072110"
+    },
+    {
+      "path": "docs/constraint/implementation/HYDRA_CONSTRAINT_BATCH017_THREE_SOURCE_403_EXACT_BROWSER_RESPONSE_CAPTURE_V001_20260926.md",
+      "git_blob_sha": "3c37eb1cf9d4d6d716c5b53a76e3ef90498e2ffa"
+    },
+    {
+      "path": "docs/constraint/architecture/HYDRA_CONSTRAINT_BATCH017_THREE_SOURCE_403_CAPTURE_EXCEPTION_STATUS_V001_20260926.json",
+      "git_blob_sha": "dce2d15eb59998b4081fc03a483e4ac034b29aa6"
+    }
+  ],
+  "allowlist": [
+    "SRC-LBNL-QUEUED-UP-2025",
+    "SRC-FERC-ORDER-2023-FACT-SHEET",
+    "SRC-PJM-2025-YEAR-IN-REVIEW-2026-01-08"
+  ],
+  "shared_acceptance_rules": [
+    "EXACT_REGISTERED_URL_EQUALITY",
+    "HTTP_200",
+    "TEXT_HTML",
+    "RESPONSE_BODY_PRESENT",
+    "SOURCE_SPECIFIC_TITLE_MARKER_PRESENT",
+    "SENSITIVE_AUTH_HEADERS_REJECTED",
+    "BLOCK_OR_CHALLENGE_BODY_REJECTED",
+    "PRIVATE_HAR_AND_OUTPUT_PATHS_OUTSIDE_PUBLIC_REPO",
+    "NO_LINKED_SOURCE_SUBSTITUTION",
+    "NO_RENDERED_DOM",
+    "NO_COOKIE_REPLAY"
+  ]
+}

@@ -1,0 +1,154 @@
+{
+  "schema_version": "hydra-constraint-batch017-automated-private-browser-capture-artifact-manifest/v1",
+  "record_id": "HYDRA_CONSTRAINT_BATCH017_AUTOMATED_PRIVATE_BROWSER_CAPTURE_ARTIFACT_MANIFEST_V001_20260926",
+  "as_of": "2026-09-26",
+  "repository": "HYDRADATAAI/Hydra",
+  "branch": "constraint/t1-private-capture-execution-packet-20260926",
+  "pull_request": 65,
+  "slice_id": "AI_DATA_CENTER_POWER_INFRASTRUCTURE_V1",
+  "purpose": "CANONICAL_ONE_COMMAND_BROWSER_BACKED_PRIVATE_SOURCE_CAPTURE",
+  "reconciles_from_pull_requests": [
+    64,
+    66,
+    73
+  ],
+  "raw_source_bodies_published": false,
+  "private_root": "D:\\HYDRA\\_PRIVATE\\constraint",
+  "historical_available_at_backdated": false,
+  "strict_historical_replay_promoted": false,
+  "native_t5_t6_admission_promoted": false,
+  "artifacts": [
+    {
+      "path": ".github/workflows/constraint-t1-raw-artifact-store.yml",
+      "git_blob_sha": "3cf7f8881c9c513fc41fb5600427ec924b26d7cc"
+    },
+    {
+      "path": "tools/private/HYDRA_CONSTRAINT_T1_AUTOMATED_BROWSER_FIRST_SLICE_CAPTURE_V001_20260926.py",
+      "git_blob_sha": "236792547ac7f3d86359c88ad78effe75c51b376"
+    },
+    {
+      "path": "tools/private/Invoke-HYDRAConstraintFirstSliceAutomatedBrowserCapture_V001_20260926.ps1",
+      "git_blob_sha": "3eeea950ef24c34a7c95453c58e11edab67e3189"
+    },
+    {
+      "path": "tools/private/HYDRA_CONSTRAINT_T1_AUTOMATED_BROWSER_CAPTURE_REQUIREMENTS_V001_20260926.txt",
+      "git_blob_sha": "95c08784a97511b5a77cacb0ea26901538c4f181"
+    },
+    {
+      "path": "constraint-t1-raw-artifact-store/tests/test_automated_browser_private_source_capture.py",
+      "git_blob_sha": "5a9666cfafbe44b535d85cfeb48499fa297a5d00"
+    },
+    {
+      "path": "constraint-t1-raw-artifact-store/tests/test_automated_browser_capture_launcher.py",
+      "git_blob_sha": "eb967903bc257c1efa5a9ba3f0de6705e84d6ef3"
+    },
+    {
+      "path": "constraint-t1-raw-artifact-store/src/hydra_constraint_t1_raw/post_capture_status.py",
+      "git_blob_sha": "7f3088351426c5db5f25f27448bac030fcc0f333"
+    },
+    {
+      "path": "constraint-t1-raw-artifact-store/tests/test_post_capture_status.py",
+      "git_blob_sha": "4e6e81a85ae04e5e91cf668b43ab9668ac9ac597"
+    },
+    {
+      "path": "tools/build_constraint_t1_post_capture_public_status.py",
+      "git_blob_sha": "b73d63e6f2820916076adfac840c497eb8977c48"
+    },
+    {
+      "path": "docs/constraint/implementation/HYDRA_CONSTRAINT_BATCH017_AUTOMATED_BROWSER_PRIVATE_SOURCE_CAPTURE_V001_20260926.md",
+      "git_blob_sha": "eb01ccd5fdfbdfabc4a77693450125320ff87c90"
+    },
+    {
+      "path": "docs/constraint/architecture/HYDRA_CONSTRAINT_BATCH017_AUTOMATED_BROWSER_PRIVATE_SOURCE_CAPTURE_STATUS_V001_20260926.json",
+      "git_blob_sha": "c593b0bf28f7689396aa0ee087b53ece06cb97e5"
+    },
+    {
+      "path": "docs/constraint/architecture/HYDRA_CONSTRAINT_BATCH017_PRIVATE_CAPTURE_BRANCH_RECONCILIATION_V001_20260926.json",
+      "git_blob_sha": "c123d0a43ad0db5bf4a32e8b7909bf5f8a980c4b"
+    },
+    {
+      "path": "docs/constraint/validation/HYDRA_CONSTRAINT_BATCH017_T1_PRIVATE_RECORD_AND_BROWSER_ACQUISITION_SUPERSESSION_MAP_V002_20260926.json",
+      "git_blob_sha": "d64a2e35cfff65766395ec97a59136b1fb3bc89f"
+    },
+    {
+      "path": "tools/validate_constraint_first_slice_successor.py",
+      "git_blob_sha": "533df376581b5fdab068dba4e4b172f90645bdba"
+    },
+    {
+      "path": "constraint-t1-raw-artifact-store/src/hydra_constraint_t1_raw/replay_lineage.py",
+      "git_blob_sha": "2548dd4759c82bd11112f10a71f6529c87b9036d"
+    },
+    {
+      "path": "constraint-t1-raw-artifact-store/tests/test_first_slice_replay_lineage.py",
+      "git_blob_sha": "83ec8ca4d92ac90bdbfaf3484dc608c341d1b63e"
+    },
+    {
+      "path": "tools/build_constraint_t1_first_slice_replay_lineage.py",
+      "git_blob_sha": "dc521a34552bd8fc6e863e8073a4913d45f5d3bd"
+    },
+    {
+      "path": "tools/private/HYDRA_CONSTRAINT_T1_WINDOWS_PYTHON_BROWSER_CAPTURE_BOOTSTRAP_V001_20260926.py",
+      "git_blob_sha": "10ebf3145143703d11ee5f14e3d820b56dbb3eaa"
+    },
+    {
+      "path": "constraint-t1-raw-artifact-store/tests/test_python_browser_capture_bootstrap.py",
+      "git_blob_sha": "b78c9aba8dd8bd1e1dcb7dcca067bd14e005d12f"
+    }
+  ],
+  "runtime_execution_claim": "NOT_EXECUTED_BY_GITHUB_CI_PRIVATE_WINDOWS_BROWSER_REQUIRED",
+  "canonical_one_command": "python .\\\\tools\\\\private\\\\HYDRA_CONSTRAINT_T1_WINDOWS_PYTHON_BROWSER_CAPTURE_BOOTSTRAP_V001_20260926.py --authorized-public-acquisition",
+  "normal_workflow_manual_har_required": false,
+  "post_capture_status_reconciled": true,
+  "superseded_pull_requests": [
+    66,
+    73
+  ],
+  "windows_powershell5_bootstrap_probe": "PACKAGE_MARKER_NO_NATIVE_IMPORT_PROBE",
+  "windows_powershell5_native_stderr_termination_regression_covered": true,
+  "replay_lineage_authority_reconciled_from": "constraint/t1-private-record-source-discovery-20260926",
+  "replay_lineage_runtime_dependency_present": true,
+  "browser_target_closed_recovery": {
+    "enabled": true,
+    "default_restart_retries": 2,
+    "scope": "CURRENT_SOURCE_ONLY",
+    "bypass_behavior": false
+  },
+  "incremental_private_capture_journal": {
+    "enabled": true,
+    "authoritative": false,
+    "write_after_each_accepted_source": true,
+    "release_complete_only_after_downstream_validation": true
+  },
+  "post_capture_validation_signature_reconciled": true,
+  "normal_workflow": "PYTHON_ONLY_BOOTSTRAP",
+  "validated_partial_resume": true,
+  "auto_resume_latest_incomplete_journal": true,
+  "browser_restart_retries_default": 2,
+  "resume_revalidates_staged_bytes": true,
+  "concurrent_private_root_capture": "FAIL_CLOSED_WITH_OS_LOCK",
+  "lock_file_is_not_ownership_signal": true,
+  "workstation_bootstrap_safety": {
+    "exact_git_toplevel": true,
+    "strict_origin": true,
+    "dirty_tracked_tree": "FAIL_CLOSED",
+    "fetch_scope": "CANONICAL_CAPTURE_BRANCH_ONLY",
+    "update_mode": "FAST_FORWARD_ONLY",
+    "stash": false,
+    "hard_reset": false
+  },
+  "pr82_disposition": "CLOSED_UNMERGED_SUPERSEDED_BY_PYTHON_CANONICAL_BOOTSTRAP",
+  "legacy_powershell_compatibility": {
+    "retained": true,
+    "utf8_bom_capture_plan_supported": true,
+    "windows_powershell_51_syntax_gate": true,
+    "canonical_workflow": false
+  },
+  "pdf_transport": {
+    "mode": "PLAYWRIGHT_BROWSER_CONTEXT_RAW_PDF_RESPONSE",
+    "exact_locator_required": true,
+    "redirects_allowed": false,
+    "automatic_retries": false,
+    "status_mime_signature_validation_preserved": true,
+    "reason": "Avoid installed-browser PDF viewer/shim bodies while retaining browser-context acquisition and exact-source validation."
+  }
+}
