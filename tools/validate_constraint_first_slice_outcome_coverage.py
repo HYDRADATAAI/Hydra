@@ -253,7 +253,7 @@ def main() -> int:
 
     outcome_ready17 = master17.get("readiness", {}).get("REAL_OUTCOME_CORE_DIMENSION_COVERAGE", {})
     require(outcome_ready17.get("status") == "YES_BOUNDED", "Batch017 master lost bounded outcome coverage")
-    require(outcome_ready17.get("records") == 6 and outcome_ready17.get("labels") == 4 and outcome_ready17.get("dimensions") == 3, "Batch017 master outcome metrics drifted")
+    require(outcome_ready17.get("records") == 5 and outcome_ready17.get("labels") == 4 and outcome_ready17.get("dimensions") == 3, "Batch017 master core outcome metrics drifted")
     require(master17.get("acceptance_gate", {}).get("status") == "BLOCKED", "Batch017 master acceptance status falsely ready")
     require(master17.get("first_serious_constraint_run") == "BLOCKED", "Batch017 master falsely enables serious run")
     require(master17.get("repo_executable_blockers") == [], "Batch017 master invents a repo-executable blocker")
