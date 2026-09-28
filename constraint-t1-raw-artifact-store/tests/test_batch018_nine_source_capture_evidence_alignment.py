@@ -1,11 +1,14 @@
 from __future__ import annotations
 
 import json
+import copy
+import hashlib
 import re
 import subprocess
 import unittest
 from datetime import datetime
 from pathlib import Path
+from unittest.mock import patch
 
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -20,6 +23,7 @@ ARTIFACT_MANIFEST = ROOT / "docs" / "constraint" / "validation" / "HYDRA_CONSTRA
 PATH_AUTHORITY = ROOT / "docs" / "constraint" / "implementation" / "HYDRA_CONSTRAINT_T1_PRIVATE_RAW_STORE_PATH_AUTHORITY_V001_20260926.md"
 RUNBOOK = ROOT / "docs" / "constraint" / "implementation" / "HYDRA_CONSTRAINT_AI_DATA_CENTER_POWER_INFRASTRUCTURE_PRIVATE_T1_MATERIALIZATION_RUNBOOK_V001_20260926.md"
 README = ROOT / "constraint-t1-raw-artifact-store" / "README.md"
+TIMESTAMP_VALIDATOR_SUCCESSOR = ROOT / "docs/constraint/validation/HYDRA_CONSTRAINT_T1_TIMESTAMP_VALIDATOR_SUCCESSOR_V001_20260927.json"
 
 
 def load(path: Path) -> dict:
@@ -122,10 +126,76 @@ class Batch018NineSourceCaptureEvidenceTests(unittest.TestCase):
         self.assertFalse(self.master_status["t5_to_t6_admission_receipt_issued"])
         self.assertEqual("BLOCKED", self.master_status["first_serious_constraint_run"])
 
+    def test_public_json_hash_references_bind_exact_committed_bytes(self):
+        """Public file digests bind Git blob bytes, independent of checkout EOL."""
+        self.assertEqual(
+            ATTESTATION.relative_to(ROOT).as_posix(),
+            self.inventory["materialization_attestation"]["repository_copy"],
+        )
+        self.assertEqual(
+            INVENTORY.relative_to(ROOT).as_posix(),
+            self.status["source_hash_inventory"]["path"],
+        )
+        references = (
+            ("inventory.materialization_attestation.sha256",
+             self.inventory["materialization_attestation"]["sha256"], ATTESTATION),
+            ("status.materialization_attestation_sha256",
+             self.status["materialization_attestation_sha256"], ATTESTATION),
+            ("status.source_hash_inventory.sha256",
+             self.status["source_hash_inventory"]["sha256"], INVENTORY),
+        )
+        for label, recorded_sha256, target in references:
+            with self.subTest(reference=label):
+                # Do not normalize newlines or accept a worktree serialization.
+                # Private artifact, receipt and release digests are separate.
+                committed_bytes = subprocess.check_output(
+                    ["git", "cat-file", "blob",
+                     f"HEAD:{target.relative_to(ROOT).as_posix()}"],
+                    cwd=ROOT,
+                )
+                self.assertEqual(
+                    hashlib.sha256(committed_bytes).hexdigest(),
+                    recorded_sha256,
+                    f"{label} must bind the exact committed public file bytes",
+                )
+
+    def _timestamp_validator_continuation(self):
+        expected = {
+            "schema": "HYDRA_CONSTRAINT_T1_TIMESTAMP_VALIDATOR_SUCCESSOR_V1",
+            "scope": "EXACT_TIMESTAMP_VALIDATOR_CONTINUATION",
+            "base_commit": "684f59ceea89114f6ac8b356e9b4dfb2b9cafa89",
+            "historical_manifest": "docs/constraint/validation/HYDRA_CONSTRAINT_FIRST_SLICE_THREAD6_SUCCESSOR_BATCH018_ARTIFACT_MANIFEST_V001_20260926.json",
+            "historical_manifest_sha256": "6b1b2aac10077dde2ceffbd155419d52c228b3f35a4f3039316fe289339812bd",
+            "predecessor_artifacts_rewritten": False,
+            "acceptance_effect": "NONE",
+            "trusted_timestamp_verifier": "NOT_IMPLEMENTED",
+            "ordinary_replay_promoted": False,
+            "historical_availability_promoted": False,
+            "canonical_admission_promoted": False,
+            "network_acquisition_authorized": False,
+            "transition": {
+                "path": "tools/validate_constraint_first_slice_successor.py",
+                "predecessor_git_blob_sha": "43f81e4a2e0e0aa3e4f58140b4b54e97b2c0c676",
+                "successor_git_blob_sha": "44bfe9c51cb5a3013d7a1a0bec9f79b1adcb9a73",
+            },
+        }
+        # Exact JSON types and fields matter; neither observed bytes nor a
+        # self-edited record can nominate a different successor.
+        self.assertEqual(json.dumps(expected, sort_keys=True),
+                         json.dumps(load(TIMESTAMP_VALIDATOR_SUCCESSOR), sort_keys=True))
+        self.assertEqual(expected["historical_manifest_sha256"],
+                         hashlib.sha256(ARTIFACT_MANIFEST.read_bytes()).hexdigest())
+        return expected["transition"]
+
     def test_successor_artifact_manifest_binds_committed_blob_contents(self):
+        continuation = self._timestamp_validator_continuation()
         for artifact in self.artifact_manifest.get("superseded_artifacts", []):
             actual = subprocess.check_output(["git", "hash-object", str(ROOT / artifact["path"])], cwd=ROOT, text=True).strip()
-            self.assertEqual(actual, artifact["successor_git_blob_sha"], artifact["path"])
+            if artifact["path"] == continuation["path"]:
+                self.assertEqual(artifact["successor_git_blob_sha"], continuation["predecessor_git_blob_sha"])
+                self.assertEqual(actual, continuation["successor_git_blob_sha"], artifact["path"])
+            else:
+                self.assertEqual(actual, artifact["successor_git_blob_sha"], artifact["path"])
         for artifact in self.artifact_manifest["artifacts"]:
             expected = subprocess.run(
                 [
@@ -140,6 +210,52 @@ class Batch018NineSourceCaptureEvidenceTests(unittest.TestCase):
                 text=True,
             ).stdout.strip()
             self.assertEqual(expected, artifact["git_blob_sha"], artifact["path"])
+
+    def test_timestamp_validator_continuation_rejects_record_drift(self):
+        original = load
+        changes = [
+            lambda d: d["transition"].update(path="../another-validator.py"),
+            lambda d: d["transition"].update(predecessor_git_blob_sha="0" * 40),
+            lambda d: d["transition"].update(successor_git_blob_sha="0" * 40),
+            lambda d: d.update(historical_manifest_sha256="0" * 64),
+            lambda d: d.update(predecessor_artifacts_rewritten=True),
+            lambda d: d.update(acceptance_effect="PASS"),
+            lambda d: d.update(trusted_timestamp_verifier="IMPLEMENTED"),
+            lambda d: d.update(ordinary_replay_promoted=True),
+            lambda d: d.update(historical_availability_promoted=True),
+            lambda d: d.update(canonical_admission_promoted=True),
+            lambda d: d.update(network_acquisition_authorized=True),
+            lambda d: d.update(ordinary_replay_promoted=0),
+            lambda d: d.update(owner_signature="self-asserted"),
+        ]
+        for index, change in enumerate(changes):
+            with self.subTest(mutation=index):
+                doc = original(TIMESTAMP_VALIDATOR_SUCCESSOR); change(doc)
+                with patch(__name__ + ".load", side_effect=lambda p: doc if p == TIMESTAMP_VALIDATOR_SUCCESSOR else original(p)):
+                    with self.assertRaises(AssertionError):
+                        self.test_successor_artifact_manifest_binds_committed_blob_contents()
+
+    def test_timestamp_validator_continuation_rejects_source_drift(self):
+        original = subprocess.check_output
+        target = str(ROOT / "tools/validate_constraint_first_slice_successor.py")
+        with patch.object(subprocess, "check_output", side_effect=lambda args, **kwargs: "0" * 40 if args[-1] == target else original(args, **kwargs)):
+            with self.assertRaises(AssertionError):
+                self.test_successor_artifact_manifest_binds_committed_blob_contents()
+
+    def test_timestamp_validator_continuation_rejects_historical_repin(self):
+        manifest = copy.deepcopy(self.artifact_manifest)
+        row = next(r for r in manifest["superseded_artifacts"] if r["path"] == "tools/validate_constraint_first_slice_successor.py")
+        row["successor_git_blob_sha"] = "44bfe9c51cb5a3013d7a1a0bec9f79b1adcb9a73"
+        with patch.object(self, "artifact_manifest", manifest):
+            with self.assertRaises(AssertionError):
+                self.test_successor_artifact_manifest_binds_committed_blob_contents()
+
+    def test_timestamp_validator_continuation_keeps_unrelated_bindings_strict(self):
+        original = subprocess.check_output
+        target = str(README)
+        with patch.object(subprocess, "check_output", side_effect=lambda args, **kwargs: "0" * 40 if args[-1] == target else original(args, **kwargs)):
+            with self.assertRaises(AssertionError):
+                self.test_successor_artifact_manifest_binds_committed_blob_contents()
 
 
 if __name__ == "__main__":
