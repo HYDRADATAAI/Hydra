@@ -350,7 +350,13 @@ def is_ordinary_t2_eligible(
         "artifact_sha256": receipt.get("artifact_sha256"),
         "receipt_sha256": receipt.get("receipt_sha256"),
     }
-    return member in release_manifest.get("members", [])
+    if member not in release_manifest.get("members", []):
+        return False
+    # V1 persists caller-asserted timestamps; integrity is not acquisition proof.
+    # No trusted timestamp verifier is implemented. Keep admission closed even
+    # for a correctly persisted receipt and release. Do not infer trust from age,
+    # ISO syntax, ELIGIBLE disposition, hashes, or a self-declared status flag.
+    return False
 
 
 def _write_immutable_bytes(path: Path, payload: bytes, *, expected_sha256: str) -> None:

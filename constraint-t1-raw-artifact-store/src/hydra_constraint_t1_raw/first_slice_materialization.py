@@ -230,6 +230,8 @@ def materialize_capture_plan(
 
     members: list[dict[str, Any]] = []
     ordinary_count = 0
+    # Persistence and hash completeness do not verify acquisition timestamps.
+    # The v1 timestamp gate may keep every member blocked after materialization.
     for receipt in receipts:
         eligible = is_ordinary_t2_eligible(
             receipt=receipt,
@@ -294,7 +296,7 @@ def validate_public_materialization_attestation(
     attestation: Mapping[str, Any],
     registry: Mapping[str, Any],
 ) -> None:
-    """Validate a sanitized public proof without requiring private raw bytes."""
+    """Check public structure and hashes; this does not verify timestamp authority."""
     registry_sources = _registry_sources(registry)
     if attestation.get("schema_version") != ATTESTATION_SCHEMA:
         raise FirstSliceMaterializationError("unsupported attestation schema")
