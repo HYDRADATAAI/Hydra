@@ -1,0 +1,526 @@
+{
+  "schema_version": "hydra-constraint-ordinary-t2-evidence-lineage-binding/v1",
+  "slice_id": "SEMICONDUCTOR_ADVANCED_PACKAGING_CRITICAL_MATERIALS_V1",
+  "release_id": "REL-SEMI-B031-V001",
+  "release_sha256": "c735db9e8a5daed8cff08dc7d9c2b4cc11f5910aba61669536c3961b21ac8b77",
+  "source_count": 30,
+  "reviewed_evidence_record_count": 61,
+  "bound_evidence_count": 34,
+  "unbound_evidence_count": 27,
+  "bound_active_source_count": 30,
+  "active_source_coverage_complete": true,
+  "ordinary_t2_evidence_lineage_bound": true,
+  "strict_historical_replay_ready": false,
+  "historical_availability_backdated": false,
+  "canonical_evidence_admission_promoted": false,
+  "canonical_t5_t6_admission_promoted": false,
+  "no_lookahead_rule": "EVIDENCE_VISIBLE_IFF_BOUND_SOURCE_AVAILABLE_AT_LTE_AS_OF",
+  "unbound_evidence_policy": "PRESERVE_UNBOUND_NO_IMPLICIT_SOURCE_SUBSTITUTION",
+  "historical_replay_blocker": "PRE_ACQUISITION_HISTORICAL_VERSION_AVAILABILITY_NOT_ESTABLISHED",
+  "bound_evidence": [
+    {
+      "evidence_id": "EV-SEMI-B019-AMKOR-VIETNAM-OPENING-2023",
+      "evidence_origin_record_id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH019_SEMICONDUCTOR_FACILITY_MATERIAL_EQUIPMENT_EVIDENCE_SUPPLEMENT_V001",
+      "source_id": "SRC-SEMI-AMKOR-VIETNAM-OPENING-2023-10-10",
+      "source_version_id": "SV-SEMI-B030-001",
+      "artifact_sha256": "de4bee0ae71192f15245b3a7c59fb972149ad065268202126c18295f9138571e",
+      "receipt_sha256": "4b34464fba640fe6006c88831a33daeac7387f440470a5f7a607aa1a9c4cc33d",
+      "source_available_at": "2026-09-27T19:21:11.689102Z",
+      "binding_status": "BOUND_ACTIVE_SOURCE_VERSION"
+    },
+    {
+      "evidence_id": "EV-SEMI-B019-ASML-LICENSE-REVOCATION",
+      "evidence_origin_record_id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH019_SEMICONDUCTOR_FACILITY_MATERIAL_EQUIPMENT_EVIDENCE_SUPPLEMENT_V001",
+      "source_id": "SRC-SEMI-ASML-LICENSE-REVOCATION-2024-01-01",
+      "source_version_id": "SV-SEMI-B030-002",
+      "artifact_sha256": "8888f4806cda2c259c5c37149a2933f7e1998cab9f8b35853c31445015ce3b1b",
+      "receipt_sha256": "1a899733cc4bfd2035893e91b4050c7ba0ab7957344037047b01a0ef459f4296",
+      "source_available_at": "2026-09-27T19:21:15.781582Z",
+      "binding_status": "BOUND_ACTIVE_SOURCE_VERSION"
+    },
+    {
+      "evidence_id": "EV-SEMI-B019-ASML-NXT2050I-EQUIPMENT",
+      "evidence_origin_record_id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH019_SEMICONDUCTOR_FACILITY_MATERIAL_EQUIPMENT_EVIDENCE_SUPPLEMENT_V001",
+      "source_id": "SRC-SEMI-ASML-NXT2050I-CURRENT",
+      "source_version_id": "SV-SEMI-B030-003",
+      "artifact_sha256": "cff6a3978a4db7ef99c9003a8e26a5bcfb7913e97828df42f562e9dfc23dcb68",
+      "receipt_sha256": "0f46449d986f514ca24b93bc131b8fc4c0fdf9b301b002bd2ab5f3149921c5a7",
+      "source_available_at": "2026-09-28T09:24:46.148125Z",
+      "binding_status": "BOUND_ACTIVE_SOURCE_VERSION"
+    },
+    {
+      "evidence_id": "EV-SEMI-B019-ASML-NXT2100I-EQUIPMENT",
+      "evidence_origin_record_id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH019_SEMICONDUCTOR_FACILITY_MATERIAL_EQUIPMENT_EVIDENCE_SUPPLEMENT_V001",
+      "source_id": "SRC-SEMI-ASML-NXT2100I-CURRENT",
+      "source_version_id": "SV-SEMI-B030-004",
+      "artifact_sha256": "42854958fb2b496b46156f711b5b8c758547561319141a6e805e25451beb9b1c",
+      "receipt_sha256": "9ce055c85de8b6781eb1c2d898db9c8d1261f9be852915c5d380d0cb5f452c44",
+      "source_available_at": "2026-09-28T09:24:46.485366Z",
+      "binding_status": "BOUND_ACTIVE_SOURCE_VERSION"
+    },
+    {
+      "evidence_id": "EV-SEMI-B019-NVIDIA-QUALIFICATION-LEADTIME-2024",
+      "evidence_origin_record_id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH019_SEMICONDUCTOR_FACILITY_MATERIAL_EQUIPMENT_EVIDENCE_SUPPLEMENT_V001",
+      "source_id": "SRC-SEMI-NVIDIA-FY2024-10K-2024-02-21",
+      "source_version_id": "SV-SEMI-B030-028",
+      "artifact_sha256": "57a98d082a65704d2ce5409b11e6e8551f394c6d67e0dd5a4c807d29377e6b4e",
+      "receipt_sha256": "d5d8dc51af1804976241e5f407333bb6c149fad4aa56403caee29f14a6ec78f8",
+      "source_available_at": "2026-09-28T21:25:15.727485Z",
+      "binding_status": "BOUND_ACTIVE_SOURCE_VERSION"
+    },
+    {
+      "evidence_id": "EV-SEMI-B019-NVIDIA-SUPPLY-CHAIN-2024",
+      "evidence_origin_record_id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH019_SEMICONDUCTOR_FACILITY_MATERIAL_EQUIPMENT_EVIDENCE_SUPPLEMENT_V001",
+      "source_id": "SRC-SEMI-NVIDIA-FY2024-10K-2024-02-21",
+      "source_version_id": "SV-SEMI-B030-028",
+      "artifact_sha256": "57a98d082a65704d2ce5409b11e6e8551f394c6d67e0dd5a4c807d29377e6b4e",
+      "receipt_sha256": "d5d8dc51af1804976241e5f407333bb6c149fad4aa56403caee29f14a6ec78f8",
+      "source_available_at": "2026-09-28T21:25:15.727485Z",
+      "binding_status": "BOUND_ACTIVE_SOURCE_VERSION"
+    },
+    {
+      "evidence_id": "EV-SEMI-B019-SUMCO-POLYSILICON-INGOT",
+      "evidence_origin_record_id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH019_SEMICONDUCTOR_FACILITY_MATERIAL_EQUIPMENT_EVIDENCE_SUPPLEMENT_V001",
+      "source_id": "SRC-SEMI-SUMCO-WAFER-PROCESS-CURRENT",
+      "source_version_id": "SV-SEMI-B030-032",
+      "artifact_sha256": "5b1065b45a63361637718a764077317dfdc0560e587ff11d66c6d9070c1561cd",
+      "receipt_sha256": "099543e7ff7c4212bd5d99ad2ba1d3d9ef4307666313118278972d5819115624",
+      "source_available_at": "2026-09-28T21:25:16.644826Z",
+      "binding_status": "BOUND_ACTIVE_SOURCE_VERSION"
+    },
+    {
+      "evidence_id": "EV-SEMI-B019-SUMCO-WAFER-SEMICONDUCTOR",
+      "evidence_origin_record_id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH019_SEMICONDUCTOR_FACILITY_MATERIAL_EQUIPMENT_EVIDENCE_SUPPLEMENT_V001",
+      "source_id": "SRC-SEMI-SUMCO-WAFER-PROCESS-CURRENT",
+      "source_version_id": "SV-SEMI-B030-032",
+      "artifact_sha256": "5b1065b45a63361637718a764077317dfdc0560e587ff11d66c6d9070c1561cd",
+      "receipt_sha256": "099543e7ff7c4212bd5d99ad2ba1d3d9ef4307666313118278972d5819115624",
+      "source_available_at": "2026-09-28T21:25:16.644826Z",
+      "binding_status": "BOUND_ACTIVE_SOURCE_VERSION"
+    },
+    {
+      "evidence_id": "EV-SEMI-B019-USGS-SILICON-CONCENTRATION-2023",
+      "evidence_origin_record_id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH019_SEMICONDUCTOR_FACILITY_MATERIAL_EQUIPMENT_EVIDENCE_SUPPLEMENT_V001",
+      "source_id": "SRC-SEMI-USGS-MCS-SILICON-2024-01-31",
+      "source_version_id": "SV-SEMI-B030-037",
+      "artifact_sha256": "a4da4050fc9a63a98538960a531d93c6b758c689f01d66a09a49796f58a5a562",
+      "receipt_sha256": "cb36af1d1737460aa53848595cd987a1d4842a5da879f88c03e039aab347f3da",
+      "source_available_at": "2026-09-28T21:25:19.925978Z",
+      "binding_status": "BOUND_ACTIVE_SOURCE_VERSION"
+    },
+    {
+      "evidence_id": "EV-SEMI-B019-USGS-SILICON-RESOURCE-CHAIN",
+      "evidence_origin_record_id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH019_SEMICONDUCTOR_FACILITY_MATERIAL_EQUIPMENT_EVIDENCE_SUPPLEMENT_V001",
+      "source_id": "SRC-SEMI-USGS-SILICON-INFO-CURRENT",
+      "source_version_id": "SV-SEMI-B030-038",
+      "artifact_sha256": "34d888a72a08d467c4fd98963b667ce19d09f0adbbc99495c21b4d522ca709e3",
+      "receipt_sha256": "03fd2192dc88c48a7ade7a96b1d04aad683d74a426f381b7b4ea004243044fcb",
+      "source_available_at": "2026-09-28T21:25:21.713337Z",
+      "binding_status": "BOUND_ACTIVE_SOURCE_VERSION"
+    },
+    {
+      "evidence_id": "EV-SEMI-B020-BIS-HBM-SME-SCOPE-2024",
+      "evidence_origin_record_id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH020_SEMICONDUCTOR_POLICY_SUBSTITUTION_OUTCOME_EVIDENCE_SUPPLEMENT_V001",
+      "source_id": "SRC-SEMI-B020-BIS-HBM-SME-PRESS-2024-12-02",
+      "source_version_id": "SV-SEMI-B030-006",
+      "artifact_sha256": "fdbae8d2d0a4337cf1b0458ae89064e04c76d32457c307c6aa67d4bfdc6cdf80",
+      "receipt_sha256": "0e4d76a26891d4ef93e420e938e6f7956833bd8319068c17e396b6d3b3ad9af5",
+      "source_available_at": "2026-09-28T18:53:13.319292Z",
+      "binding_status": "BOUND_ACTIVE_SOURCE_VERSION"
+    },
+    {
+      "evidence_id": "EV-SEMI-B020-BIS-RULE-TIMING-2024",
+      "evidence_origin_record_id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH020_SEMICONDUCTOR_POLICY_SUBSTITUTION_OUTCOME_EVIDENCE_SUPPLEMENT_V001",
+      "source_id": "SRC-SEMI-B020-BIS-FDP-HBM-SME-IFR-2024-12-02",
+      "source_version_id": "SV-SEMI-B030-005",
+      "artifact_sha256": "05cd409262f9d0a8a31610613d4e321f0219312c76265be051e5bc70bed476a4",
+      "receipt_sha256": "882a543a2fe4a0a1e4c3264b6ab09730a76b082783b680ff9c8ff946ec95a9e9",
+      "source_available_at": "2026-09-28T18:53:13.058743Z",
+      "binding_status": "BOUND_ACTIVE_SOURCE_VERSION"
+    },
+    {
+      "evidence_id": "EV-SEMI-B020-SAMSUNG-HBM3E12H-DEVELOPMENT",
+      "evidence_origin_record_id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH020_SEMICONDUCTOR_POLICY_SUBSTITUTION_OUTCOME_EVIDENCE_SUPPLEMENT_V001",
+      "source_id": "SRC-SEMI-B020-SAMSUNG-HBM3E12H-2024-02-27",
+      "source_version_id": "SV-SEMI-B030-007",
+      "artifact_sha256": "4741bbec1dac609af95f2b51e3691d9db0770eafdfa824d262856d8bbf483c9f",
+      "receipt_sha256": "7eca95d877e8b7185de50c2e6bd6027fda0c724ae2df449d8030159cd70f82de",
+      "source_available_at": "2026-09-28T18:53:13.523877Z",
+      "binding_status": "BOUND_ACTIVE_SOURCE_VERSION"
+    },
+    {
+      "evidence_id": "EV-SEMI-B020-SAMSUNG-HBM3E8H-MASS-PRODUCTION",
+      "evidence_origin_record_id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH020_SEMICONDUCTOR_POLICY_SUBSTITUTION_OUTCOME_EVIDENCE_SUPPLEMENT_V001",
+      "source_id": "SRC-SEMI-B020-SAMSUNG-Q1-2024-RESULTS-2024-04-30",
+      "source_version_id": "SV-SEMI-B030-008",
+      "artifact_sha256": "12d2cc7acaad541b038c0615f60fd336dbadf4c29c641af03b97a689d5a3ef28",
+      "receipt_sha256": "e044565176fddc0a0a64ac6be6f09106df24f6c2cc41934f272423784ed759f7",
+      "source_available_at": "2026-09-28T18:53:13.865950Z",
+      "binding_status": "BOUND_ACTIVE_SOURCE_VERSION"
+    },
+    {
+      "evidence_id": "EV-SEMI-B021-AZCC-TSMC-SUBSTATION-APPROVAL-2021",
+      "evidence_origin_record_id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH021_SEMICONDUCTOR_VALID_BENEFICIARY_SUBSTITUTION_MIGRATION_POWER_EVIDENCE_V001",
+      "source_id": "SRC-SEMI-B021-AZCC-TSMC-POWER-ORDER-2021-09-09",
+      "source_version_id": "SV-SEMI-B030-013",
+      "artifact_sha256": "34dcfb66ae17a108c0a42ed4b5f1fc6f706cf2a6c3d5a52c944634ddb2577493",
+      "receipt_sha256": "6bac3b37ff7ad6b4fbe195aefdf673f5c989049f751f7c10b5f1f1b413d24b6f",
+      "source_available_at": "2026-09-28T21:07:56.640964Z",
+      "binding_status": "BOUND_ACTIVE_SOURCE_VERSION"
+    },
+    {
+      "evidence_id": "EV-SEMI-B021-SAMSUNG-AMD-HBM3E-QUALIFIED-2026",
+      "evidence_origin_record_id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH021_SEMICONDUCTOR_VALID_BENEFICIARY_SUBSTITUTION_MIGRATION_POWER_EVIDENCE_V001",
+      "source_id": "SRC-SEMI-B021-AMD-SAMSUNG-HBM3E-PARTNERSHIP-2026-03-18",
+      "source_version_id": "SV-SEMI-B030-011",
+      "artifact_sha256": "be9d7598a5fb569bb7fc6bd4bfc8d32230d70945632a9fcaa4264a97f1ca8537",
+      "receipt_sha256": "a149a0aed4a235fc48e6f834d4caf4900738c4e3545f66f09489347394792b56",
+      "source_available_at": "2026-09-28T21:07:52.490370Z",
+      "binding_status": "BOUND_ACTIVE_SOURCE_VERSION"
+    },
+    {
+      "evidence_id": "EV-SEMI-B021-TSMC-ARIZONA-POWER-230KV-DEPENDENCY",
+      "evidence_origin_record_id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH021_SEMICONDUCTOR_VALID_BENEFICIARY_SUBSTITUTION_MIGRATION_POWER_EVIDENCE_V001",
+      "source_id": "SRC-SEMI-B021-APS-BISCUIT-FLATS-TSMC-2021-06",
+      "source_version_id": "SV-SEMI-B030-012",
+      "artifact_sha256": "a3e978f6737d9501f303b13816086ff37a7aa1465de0ca232ee98489605d7191",
+      "receipt_sha256": "afe3f7ba295100aaf3d15204b2a99583d16e7dd02a09936283a4f9f9685f01c2",
+      "source_available_at": "2026-09-28T21:07:55.973996Z",
+      "binding_status": "BOUND_ACTIVE_SOURCE_VERSION"
+    },
+    {
+      "evidence_id": "EV-SEMI-B022-SIBELCO-HPQ-HALT-2024",
+      "evidence_origin_record_id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH022_SEMICONDUCTOR_YIELD_TOOL_MATERIAL_DUPLICATE_EVIDENCE_V001",
+      "source_id": "SRC-SEMI-B022-SIBELCO-SPRUCE-PINE-HALT-2024-09",
+      "source_version_id": "SV-SEMI-B030-014",
+      "artifact_sha256": "5bc4a5eb375848c122436f7411e06e5f58b246cb222ef11acf7b46ba75e98f30",
+      "receipt_sha256": "ef30532c8cde475391ee63cd42a0eba1cafe53439bf171a6625cfcdd6b2923aa",
+      "source_available_at": "2026-09-28T21:07:57.220957Z",
+      "binding_status": "BOUND_ACTIVE_SOURCE_VERSION"
+    },
+    {
+      "evidence_id": "EV-SEMI-B022-SKHYNIX-HBM-YIELD-COMPLEXITY",
+      "evidence_origin_record_id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH022_SEMICONDUCTOR_YIELD_TOOL_MATERIAL_DUPLICATE_EVIDENCE_V001",
+      "source_id": "SRC-SEMI-B022-SKHYNIX-HBM-YIELD-MASS-PRODUCTION-2025-03-10",
+      "source_version_id": "SV-SEMI-B030-015",
+      "artifact_sha256": "aaf43db6fd7e2dbcdea137a4df76bc691f1276b2a63aecb2552405cd5b477c5f",
+      "receipt_sha256": "858c3d9470060f214330b381aa3db65de0a9cede41e68fe4e4d365b61749155b",
+      "source_available_at": "2026-09-28T21:07:57.504423Z",
+      "binding_status": "BOUND_ACTIVE_SOURCE_VERSION"
+    },
+    {
+      "evidence_id": "EV-SEMI-B022-TQC-HPQ-HALT-2024",
+      "evidence_origin_record_id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH022_SEMICONDUCTOR_YIELD_TOOL_MATERIAL_DUPLICATE_EVIDENCE_V001",
+      "source_id": "SRC-SEMI-B022-TQC-SPRUCE-PINE-HALT-2024-10-01",
+      "source_version_id": "SV-SEMI-B030-017",
+      "artifact_sha256": "48c80886b281bba021f0c7642cef7cd0f7eb12e8eb1ab29ea3578fcc46e88549",
+      "receipt_sha256": "579f87b2d7eb3b55b24d2476cbfb989d83082ae9fa01c9df790e108235849788",
+      "source_available_at": "2026-09-28T21:07:58.102060Z",
+      "binding_status": "BOUND_ACTIVE_SOURCE_VERSION"
+    },
+    {
+      "evidence_id": "EV-SEMI-B022-TQC-QUARTZ-ABUNDANCE-PURITY",
+      "evidence_origin_record_id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH022_SEMICONDUCTOR_YIELD_TOOL_MATERIAL_DUPLICATE_EVIDENCE_V001",
+      "source_id": "SRC-SEMI-B022-TQC-HPQ-PROCESS",
+      "source_version_id": "SV-SEMI-B030-016",
+      "artifact_sha256": "d4d99d79128ef962ea659e22df2a64274f583a9ba21fadf24cbbaeee7b030bd1",
+      "receipt_sha256": "5d0e4a67ade0003fcef592e5578e4895944ea24d23abe3c6f85eb95824701760",
+      "source_available_at": "2026-09-28T21:07:57.817202Z",
+      "binding_status": "BOUND_ACTIVE_SOURCE_VERSION"
+    },
+    {
+      "evidence_id": "EV-SEMI-B022-USGS-HPQ-SEMICONDUCTOR-CHAIN",
+      "evidence_origin_record_id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH022_SEMICONDUCTOR_YIELD_TOOL_MATERIAL_DUPLICATE_EVIDENCE_V001",
+      "source_id": "SRC-SEMI-B022-USGS-MCS2025-HPQ",
+      "source_version_id": "SV-SEMI-B030-020",
+      "artifact_sha256": "4b3e4e00ed65365efb7b1f14c7c2f94b7005d4924e52cfb370cd2a8cd256d7e4",
+      "receipt_sha256": "abba940e476c71f938c9156613123fe3fa0296a58ebf044a23eb6ef5df90d086",
+      "source_available_at": "2026-09-28T21:25:13.809779Z",
+      "binding_status": "BOUND_ACTIVE_SOURCE_VERSION"
+    },
+    {
+      "evidence_id": "EV-SEMI-B025-NVIDIA-BLACKWELL-AI-DEMAND-US-MANUFACTURING-2025",
+      "evidence_origin_record_id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH025_SEMICONDUCTOR_CONTINUOUS_CROSS_SLICE_EVIDENCE_V001",
+      "source_id": "SRC-SEMI-B025-NVIDIA-US-BLACKWELL-PRODUCTION-2025-04-14",
+      "source_version_id": "SV-SEMI-B030-021",
+      "artifact_sha256": "39f1703d12e72dfaa8f654d8673448b80546f8176c758a069412cf2021b1737c",
+      "receipt_sha256": "134de7375ee8525423b2e6aeb5b82fbb61b24b332f08217d35a68151d53cd130",
+      "source_available_at": "2026-09-28T21:25:14.020736Z",
+      "binding_status": "BOUND_ACTIVE_SOURCE_VERSION"
+    },
+    {
+      "evidence_id": "EV-SEMI-B025-NVIDIA-BLACKWELL-TSMC-PHOENIX-PRODUCTION-2025",
+      "evidence_origin_record_id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH025_SEMICONDUCTOR_CONTINUOUS_CROSS_SLICE_EVIDENCE_V001",
+      "source_id": "SRC-SEMI-B025-NVIDIA-US-BLACKWELL-PRODUCTION-2025-04-14",
+      "source_version_id": "SV-SEMI-B030-021",
+      "artifact_sha256": "39f1703d12e72dfaa8f654d8673448b80546f8176c758a069412cf2021b1737c",
+      "receipt_sha256": "134de7375ee8525423b2e6aeb5b82fbb61b24b332f08217d35a68151d53cd130",
+      "source_available_at": "2026-09-28T21:25:14.020736Z",
+      "binding_status": "BOUND_ACTIVE_SOURCE_VERSION"
+    },
+    {
+      "evidence_id": "EV-SEMI-B030-SAMSUNG-AMD-GLOBAL-ORIGIN",
+      "evidence_origin_record_id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH030_SEMICONDUCTOR_NON_MICRON_REPLACEMENT_EVIDENCE_V001",
+      "source_id": "SRC-SEMI-B030-SAMSUNG-AMD-COLLAB-GLOBAL-2026-03-18",
+      "source_version_id": "SV-SEMI-B030-022",
+      "artifact_sha256": "f8094a07061150a124322d6eb06e5bd01d979a5a1073db8ba5dbd1bbea5bc235",
+      "receipt_sha256": "fbecefe27f6eb20163cbc5f17f944f9e67dda5a6ad598d0872529805aacc1748",
+      "source_available_at": "2026-09-28T21:25:14.255611Z",
+      "binding_status": "BOUND_ACTIVE_SOURCE_VERSION"
+    },
+    {
+      "evidence_id": "EV-SEMI-B030-SAMSUNG-AMD-KOREA-TRANSLATION",
+      "evidence_origin_record_id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH030_SEMICONDUCTOR_NON_MICRON_REPLACEMENT_EVIDENCE_V001",
+      "source_id": "SRC-SEMI-B030-SAMSUNG-AMD-COLLAB-KOREA-2026-03-18",
+      "source_version_id": "SV-SEMI-B030-023",
+      "artifact_sha256": "7a5892079cc9ecb135b6e23050b14b040172cceeec01244127e2d3493d316a97",
+      "receipt_sha256": "9e0235dc542cde5dddb588fe05c4562612b7cf6e4e68f814edd84e1690c787d4",
+      "source_available_at": "2026-09-28T21:25:14.466902Z",
+      "binding_status": "BOUND_ACTIVE_SOURCE_VERSION"
+    },
+    {
+      "evidence_id": "EV-SEMI-B030-SKHYNIX-HBM-BOTTLENECK-YIELD-RELIEF-2025",
+      "evidence_origin_record_id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH030_SEMICONDUCTOR_NON_MICRON_REPLACEMENT_EVIDENCE_V001",
+      "source_id": "SRC-SEMI-B030-SKHYNIX-HBM-SMART-FACTORY-2025-05-02",
+      "source_version_id": "SV-SEMI-B030-026",
+      "artifact_sha256": "090e4534540ee92c07bf6042fc0e278b919bc2436c9471ad07eda54cbcb748e3",
+      "receipt_sha256": "b0a77a6efe83b37bdb9a89c2f066ab18abc33de787b458100c488ad453074317",
+      "source_available_at": "2026-09-28T21:25:15.163685Z",
+      "binding_status": "BOUND_ACTIVE_SOURCE_VERSION"
+    },
+    {
+      "evidence_id": "EV-SEMI-B030-SKHYNIX-HBM-SALES-4P5X-2024",
+      "evidence_origin_record_id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH030_SEMICONDUCTOR_NON_MICRON_REPLACEMENT_EVIDENCE_V001",
+      "source_id": "SRC-SEMI-B030-SKHYNIX-HBM-SMART-FACTORY-2025-05-02",
+      "source_version_id": "SV-SEMI-B030-026",
+      "artifact_sha256": "090e4534540ee92c07bf6042fc0e278b919bc2436c9471ad07eda54cbcb748e3",
+      "receipt_sha256": "b0a77a6efe83b37bdb9a89c2f066ab18abc33de787b458100c488ad453074317",
+      "source_available_at": "2026-09-28T21:25:15.163685Z",
+      "binding_status": "BOUND_ACTIVE_SOURCE_VERSION"
+    },
+    {
+      "evidence_id": "EV-SEMI-B030-SKHYNIX-HBM-WAFER-OUTPUT-PENALTY-2026",
+      "evidence_origin_record_id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH030_SEMICONDUCTOR_NON_MICRON_REPLACEMENT_EVIDENCE_V001",
+      "source_id": "SRC-SEMI-B030-SKHYNIX-INVESTMENT-STRATEGY-2026-06-29",
+      "source_version_id": "SV-SEMI-B030-027",
+      "artifact_sha256": "14af0f23d8a03629c158cc2b174e8833e742583fd777ce4f8c7fdb5324b23113",
+      "receipt_sha256": "b50cf00ac909754c13cf8877e7d85112b04443515d3d9ac05dd4c7dc954c9011",
+      "source_available_at": "2026-09-28T21:25:15.367152Z",
+      "binding_status": "BOUND_ACTIVE_SOURCE_VERSION"
+    },
+    {
+      "evidence_id": "EV-SEMI-B030-SKHYNIX-HBM3E-NVIDIA-GB200",
+      "evidence_origin_record_id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH030_SEMICONDUCTOR_NON_MICRON_REPLACEMENT_EVIDENCE_V001",
+      "source_id": "SRC-SEMI-B030-SKHYNIX-COMPUTEX-2025-06-05",
+      "source_version_id": "SV-SEMI-B030-025",
+      "artifact_sha256": "f14ff44f692b8681d93a995fb433308d62039cacfdf3619767b4845247f3dc45",
+      "receipt_sha256": "d463de19bc5038abe0f8a6af1effbebbed914f39d09ec30f48cabc55dc32fe35",
+      "source_available_at": "2026-09-28T21:25:14.954271Z",
+      "binding_status": "BOUND_ACTIVE_SOURCE_VERSION"
+    },
+    {
+      "evidence_id": "EV-SEMI-B030-SKHYNIX-Q2FY25-HBM-FINANCIAL-CAPTURE",
+      "evidence_origin_record_id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH030_SEMICONDUCTOR_NON_MICRON_REPLACEMENT_EVIDENCE_V001",
+      "source_id": "SRC-SEMI-B030-SKHYNIX-2Q25-FINANCIAL-RESULTS-2025-07-23",
+      "source_version_id": "SV-SEMI-B030-024",
+      "artifact_sha256": "406031948cbf4785126b02f53a9a290186e2f17846f4bcdd06c7ce01e86213e7",
+      "receipt_sha256": "646d8f67cc4db2ac4f39713f0a172959d89cbf235da9642597cc565ccf9eee0e",
+      "source_available_at": "2026-09-28T21:25:14.720190Z",
+      "binding_status": "BOUND_ACTIVE_SOURCE_VERSION"
+    },
+    {
+      "evidence_id": "EV-SEMI-NVIDIA-HBM3E-REQUIREMENT-2026",
+      "evidence_origin_record_id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH018_SEMICONDUCTOR_ADVANCED_PACKAGING_CRITICAL_MATERIALS_EVIDENCE_SEED_V001",
+      "source_id": "SRC-SEMI-NVIDIA-HGX-COMPONENTS-2026",
+      "source_version_id": "SV-SEMI-B030-029",
+      "artifact_sha256": "a492eefe570e9fa3cc8e531426f7fc5c15dfe2068e05c3b3b3d475ab2ff39227",
+      "receipt_sha256": "c49b72943968af7b8b4250b04622d3c29aadb7edfc8c103047e84be2befcf3aa",
+      "source_available_at": "2026-09-28T21:25:15.916024Z",
+      "binding_status": "BOUND_ACTIVE_SOURCE_VERSION"
+    },
+    {
+      "evidence_id": "EV-SEMI-SKHYNIX-HBM-2024-SOLDOUT",
+      "evidence_origin_record_id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH018_SEMICONDUCTOR_ADVANCED_PACKAGING_CRITICAL_MATERIALS_EVIDENCE_SEED_V001",
+      "source_id": "SRC-SEMI-SKHYNIX-HBM-SOLDOUT-2024-02-21",
+      "source_version_id": "SV-SEMI-B030-030",
+      "artifact_sha256": "f5bd97a4f2ba6296e4b6541818bf761c564b9b879390a3d017e70c6c221f5456",
+      "receipt_sha256": "37ccd37eed4af44eba5f3ec3a4733f87227a272d7c4e9241839c37488602a4a9",
+      "source_available_at": "2026-09-28T21:25:16.116802Z",
+      "binding_status": "BOUND_ACTIVE_SOURCE_VERSION"
+    },
+    {
+      "evidence_id": "EV-SEMI-SKHYNIX-HBM3E-VOLUME-PRODUCTION-2024",
+      "evidence_origin_record_id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH018_SEMICONDUCTOR_ADVANCED_PACKAGING_CRITICAL_MATERIALS_EVIDENCE_SEED_V001",
+      "source_id": "SRC-SEMI-SKHYNIX-HBM3E-VOLUME-2024-03-19",
+      "source_version_id": "SV-SEMI-B030-031",
+      "artifact_sha256": "5f8b8ab3dd6af2eea529e48f4c7c1d966afd82324f969b28d16d22e271029874",
+      "receipt_sha256": "d9133496fa4984a6850e402647a27765dbe1766f87dcb3ea887abc55edf77296",
+      "source_available_at": "2026-09-28T21:25:16.316927Z",
+      "binding_status": "BOUND_ACTIVE_SOURCE_VERSION"
+    }
+  ],
+  "unbound_evidence": [
+    {
+      "evidence_id": "EV-SEMI-B019-TSMC-AP6-DESIGN-CAPACITY-2023",
+      "evidence_origin_record_id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH019_SEMICONDUCTOR_FACILITY_MATERIAL_EQUIPMENT_EVIDENCE_SUPPLEMENT_V001",
+      "source_id": "SRC-SEMI-TSMC-AP6-OPENING-2023-06-08",
+      "binding_status": "UNBOUND_SOURCE_OUTSIDE_ACTIVE_LINEAGE"
+    },
+    {
+      "evidence_id": "EV-SEMI-B019-TSMC-AP6-OPENED-2023",
+      "evidence_origin_record_id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH019_SEMICONDUCTOR_FACILITY_MATERIAL_EQUIPMENT_EVIDENCE_SUPPLEMENT_V001",
+      "source_id": "SRC-SEMI-TSMC-AP6-OPENING-2023-06-08",
+      "binding_status": "UNBOUND_SOURCE_OUTSIDE_ACTIVE_LINEAGE"
+    },
+    {
+      "evidence_id": "EV-SEMI-B019-TSMC-ARIZONA-ACTUAL-2024",
+      "evidence_origin_record_id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH019_SEMICONDUCTOR_FACILITY_MATERIAL_EQUIPMENT_EVIDENCE_SUPPLEMENT_V001",
+      "source_id": "SRC-SEMI-TSMC-ANNUAL-REPORT-2024",
+      "binding_status": "UNBOUND_SOURCE_OUTSIDE_ACTIVE_LINEAGE"
+    },
+    {
+      "evidence_id": "EV-SEMI-B019-TSMC-ARIZONA-PLAN-2023",
+      "evidence_origin_record_id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH019_SEMICONDUCTOR_FACILITY_MATERIAL_EQUIPMENT_EVIDENCE_SUPPLEMENT_V001",
+      "source_id": "SRC-SEMI-TSMC-ANNUAL-REPORT-2023",
+      "binding_status": "UNBOUND_SOURCE_OUTSIDE_ACTIVE_LINEAGE"
+    },
+    {
+      "evidence_id": "EV-SEMI-B020-TSMC-ARIZONA-2023-DELAY",
+      "evidence_origin_record_id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH020_SEMICONDUCTOR_POLICY_SUBSTITUTION_OUTCOME_EVIDENCE_SUPPLEMENT_V001",
+      "source_id": "SRC-SEMI-B020-TSMC-Q2-2023-TRANSCRIPT-2023-07-20",
+      "binding_status": "UNBOUND_SOURCE_OUTSIDE_ACTIVE_LINEAGE"
+    },
+    {
+      "evidence_id": "EV-SEMI-B020-TSMC-ARIZONA-ORIGINAL-2024-TARGET",
+      "evidence_origin_record_id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH020_SEMICONDUCTOR_POLICY_SUBSTITUTION_OUTCOME_EVIDENCE_SUPPLEMENT_V001",
+      "source_id": "SRC-SEMI-B020-TSMC-ARIZONA-ANNOUNCEMENT-2020-05-15",
+      "binding_status": "UNBOUND_SOURCE_OUTSIDE_ACTIVE_LINEAGE"
+    },
+    {
+      "evidence_id": "EV-SEMI-B021-MICRON-AMD-MI355X-DESIGNIN-2025",
+      "evidence_origin_record_id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH021_SEMICONDUCTOR_VALID_BENEFICIARY_SUBSTITUTION_MIGRATION_POWER_EVIDENCE_V001",
+      "source_id": "SRC-SEMI-B021-MICRON-Q3FY25-REMARKS-2025-06-25",
+      "binding_status": "UNBOUND_SOURCE_OUTSIDE_ACTIVE_LINEAGE"
+    },
+    {
+      "evidence_id": "EV-SEMI-B021-MICRON-HBM-HIGHVOLUME-FOUR-CUSTOMERS-2025",
+      "evidence_origin_record_id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH021_SEMICONDUCTOR_VALID_BENEFICIARY_SUBSTITUTION_MIGRATION_POWER_EVIDENCE_V001",
+      "source_id": "SRC-SEMI-B021-MICRON-Q3FY25-REMARKS-2025-06-25",
+      "binding_status": "UNBOUND_SOURCE_OUTSIDE_ACTIVE_LINEAGE"
+    },
+    {
+      "evidence_id": "EV-SEMI-B021-MICRON-HBM-Q4-2025-CAPTURE",
+      "evidence_origin_record_id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH021_SEMICONDUCTOR_VALID_BENEFICIARY_SUBSTITUTION_MIGRATION_POWER_EVIDENCE_V001",
+      "source_id": "SRC-SEMI-B021-MICRON-Q4FY25-REMARKS-2025-09-23",
+      "binding_status": "UNBOUND_SOURCE_OUTSIDE_ACTIVE_LINEAGE"
+    },
+    {
+      "evidence_id": "EV-SEMI-B021-MICRON-HBM-REVENUE-MARGIN-CAPTURE-2024",
+      "evidence_origin_record_id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH021_SEMICONDUCTOR_VALID_BENEFICIARY_SUBSTITUTION_MIGRATION_POWER_EVIDENCE_V001",
+      "source_id": "SRC-SEMI-B021-MICRON-Q3FY24-REMARKS-2024-06-26",
+      "binding_status": "UNBOUND_SOURCE_OUTSIDE_ACTIVE_LINEAGE"
+    },
+    {
+      "evidence_id": "EV-SEMI-B021-MICRON-MEMORY-SUPPLY-CLEANROOM-CONSTRAINT-2026",
+      "evidence_origin_record_id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH021_SEMICONDUCTOR_VALID_BENEFICIARY_SUBSTITUTION_MIGRATION_POWER_EVIDENCE_V001",
+      "source_id": "SRC-SEMI-B021-MICRON-Q1FY26-REMARKS-2025-12-17",
+      "binding_status": "UNBOUND_SOURCE_OUTSIDE_ACTIVE_LINEAGE"
+    },
+    {
+      "evidence_id": "EV-SEMI-B022-GNW-MICRON-HBM3E-DISTRIBUTION-COPY",
+      "evidence_origin_record_id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH022_SEMICONDUCTOR_YIELD_TOOL_MATERIAL_DUPLICATE_EVIDENCE_V001",
+      "source_id": "SRC-SEMI-B022-GLOBENEWSWIRE-MICRON-HBM3E-2024-02-26",
+      "binding_status": "UNBOUND_SOURCE_OUTSIDE_ACTIVE_LINEAGE"
+    },
+    {
+      "evidence_id": "EV-SEMI-B022-MICRON-HBM3E-PRIMARY-ANNOUNCEMENT",
+      "evidence_origin_record_id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH022_SEMICONDUCTOR_YIELD_TOOL_MATERIAL_DUPLICATE_EVIDENCE_V001",
+      "source_id": "SRC-SEMI-B022-MICRON-HBM3E-VOLUME-2024-02-26",
+      "binding_status": "UNBOUND_SOURCE_OUTSIDE_ACTIVE_LINEAGE"
+    },
+    {
+      "evidence_id": "EV-SEMI-B022-TSMC-EQUIPMENT-LONG-CYCLES",
+      "evidence_origin_record_id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH022_SEMICONDUCTOR_YIELD_TOOL_MATERIAL_DUPLICATE_EVIDENCE_V001",
+      "source_id": "SRC-SEMI-B022-TSMC-2025-ANNUAL-EQUIPMENT-RISK",
+      "binding_status": "UNBOUND_SOURCE_OUTSIDE_ACTIVE_LINEAGE"
+    },
+    {
+      "evidence_id": "EV-SEMI-B022-TSMC-TESTER-SHORTAGE-2026",
+      "evidence_origin_record_id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH022_SEMICONDUCTOR_YIELD_TOOL_MATERIAL_DUPLICATE_EVIDENCE_V001",
+      "source_id": "SRC-SEMI-B022-TSMC-Q2-2026-TRANSCRIPT-2026-07-16",
+      "binding_status": "UNBOUND_SOURCE_OUTSIDE_ACTIVE_LINEAGE"
+    },
+    {
+      "evidence_id": "EV-SEMI-B023-MICRON-CLEANROOM-BIT-SUPPLY-CONSTRAINT-2026",
+      "evidence_origin_record_id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH023_SEMICONDUCTOR_HBM_YIELD_MIGRATION_EVIDENCE_V001",
+      "source_id": "SRC-SEMI-B023-MICRON-Q2FY26-MARKET-OUTLOOK-2026-03-18",
+      "binding_status": "UNBOUND_SOURCE_OUTSIDE_ACTIVE_LINEAGE"
+    },
+    {
+      "evidence_id": "EV-SEMI-B023-MICRON-CLEANROOM-HBM-TRADE-RATIO-CONSTRAINT-2025",
+      "evidence_origin_record_id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH023_SEMICONDUCTOR_HBM_YIELD_MIGRATION_EVIDENCE_V001",
+      "source_id": "SRC-SEMI-B021-MICRON-Q1FY26-REMARKS-2025-12-17",
+      "binding_status": "UNBOUND_SOURCE_OUTSIDE_ACTIVE_LINEAGE"
+    },
+    {
+      "evidence_id": "EV-SEMI-B023-MICRON-HBM-PACKAGING-YIELD-OUTPUT-PENALTY-2023",
+      "evidence_origin_record_id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH023_SEMICONDUCTOR_HBM_YIELD_MIGRATION_EVIDENCE_V001",
+      "source_id": "SRC-SEMI-B023-MICRON-Q1FY24-REMARKS-2023-12-20",
+      "binding_status": "UNBOUND_SOURCE_OUTSIDE_ACTIVE_LINEAGE"
+    },
+    {
+      "evidence_id": "EV-SEMI-B023-MICRON-HBM-RAMP-RELIEF-2025",
+      "evidence_origin_record_id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH023_SEMICONDUCTOR_HBM_YIELD_MIGRATION_EVIDENCE_V001",
+      "source_id": "SRC-SEMI-B021-MICRON-Q3FY25-REMARKS-2025-06-25",
+      "binding_status": "UNBOUND_SOURCE_OUTSIDE_ACTIVE_LINEAGE"
+    },
+    {
+      "evidence_id": "EV-SEMI-B025-TSMC-ARIZONA-FIRST-FAB-OPERATIONAL-CORROBORATION",
+      "evidence_origin_record_id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH025_SEMICONDUCTOR_CONTINUOUS_CROSS_SLICE_EVIDENCE_V001",
+      "source_id": "SRC-SEMI-TSMC-ANNUAL-REPORT-2024",
+      "binding_status": "UNBOUND_SOURCE_OUTSIDE_ACTIVE_LINEAGE"
+    },
+    {
+      "evidence_id": "EV-SEMI-MICRON-HBM-2025-SOLDOUT",
+      "evidence_origin_record_id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH018_SEMICONDUCTOR_ADVANCED_PACKAGING_CRITICAL_MATERIALS_EVIDENCE_SEED_V001",
+      "source_id": "SRC-SEMI-MICRON-Q2FY25-REMARKS-2025-03-20",
+      "binding_status": "UNBOUND_SOURCE_OUTSIDE_ACTIVE_LINEAGE"
+    },
+    {
+      "evidence_id": "EV-SEMI-MICRON-HBM3E12H-RAMP-YIELD-2025",
+      "evidence_origin_record_id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH018_SEMICONDUCTOR_ADVANCED_PACKAGING_CRITICAL_MATERIALS_EVIDENCE_SEED_V001",
+      "source_id": "SRC-SEMI-MICRON-Q2FY25-REMARKS-2025-03-20",
+      "binding_status": "UNBOUND_SOURCE_OUTSIDE_ACTIVE_LINEAGE"
+    },
+    {
+      "evidence_id": "EV-SEMI-MICRON-NVIDIA-DESIGNIN-2025",
+      "evidence_origin_record_id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH018_SEMICONDUCTOR_ADVANCED_PACKAGING_CRITICAL_MATERIALS_EVIDENCE_SEED_V001",
+      "source_id": "SRC-SEMI-MICRON-Q2FY25-REMARKS-2025-03-20",
+      "binding_status": "UNBOUND_SOURCE_OUTSIDE_ACTIVE_LINEAGE"
+    },
+    {
+      "evidence_id": "EV-SEMI-TSMC-AI-ACCELERATOR-DEMAND-2025",
+      "evidence_origin_record_id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH018_SEMICONDUCTOR_ADVANCED_PACKAGING_CRITICAL_MATERIALS_EVIDENCE_SEED_V001",
+      "source_id": "SRC-SEMI-TSMC-Q1-2025-TRANSCRIPT-2025-04-17",
+      "binding_status": "UNBOUND_SOURCE_OUTSIDE_ACTIVE_LINEAGE"
+    },
+    {
+      "evidence_id": "EV-SEMI-TSMC-COWOS-2026-BALANCE-EXPECTATION",
+      "evidence_origin_record_id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH018_SEMICONDUCTOR_ADVANCED_PACKAGING_CRITICAL_MATERIALS_EVIDENCE_SEED_V001",
+      "source_id": "SRC-SEMI-TSMC-Q1-2025-TRANSCRIPT-2025-04-17",
+      "binding_status": "UNBOUND_SOURCE_OUTSIDE_ACTIVE_LINEAGE"
+    },
+    {
+      "evidence_id": "EV-SEMI-TSMC-COWOS-FULLY-LOADED-2025",
+      "evidence_origin_record_id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH018_SEMICONDUCTOR_ADVANCED_PACKAGING_CRITICAL_MATERIALS_EVIDENCE_SEED_V001",
+      "source_id": "SRC-SEMI-TSMC-Q1-2025-TRANSCRIPT-2025-04-17",
+      "binding_status": "UNBOUND_SOURCE_OUTSIDE_ACTIVE_LINEAGE"
+    },
+    {
+      "evidence_id": "EV-SEMI-TSMC-COWOSL-PRODUCTION-2024",
+      "evidence_origin_record_id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH018_SEMICONDUCTOR_ADVANCED_PACKAGING_CRITICAL_MATERIALS_EVIDENCE_SEED_V001",
+      "source_id": "SRC-SEMI-TSMC-ANNUAL-REPORT-2024",
+      "binding_status": "UNBOUND_SOURCE_OUTSIDE_ACTIVE_LINEAGE"
+    }
+  ]
+}
