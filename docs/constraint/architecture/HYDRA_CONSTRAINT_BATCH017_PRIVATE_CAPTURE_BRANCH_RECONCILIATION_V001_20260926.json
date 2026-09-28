@@ -1,0 +1,43 @@
+{
+  "schema_version": "hydra-constraint-batch017-private-capture-branch-reconciliation/v1",
+  "record_id": "HYDRA_CONSTRAINT_BATCH017_PRIVATE_CAPTURE_BRANCH_RECONCILIATION_V001_20260926",
+  "as_of": "2026-09-26",
+  "repository": "HYDRADATAAI/Hydra",
+  "slice_id": "AI_DATA_CENTER_POWER_INFRASTRUCTURE_V1",
+  "authoritative_source_discovery_pr": 64,
+  "canonical_private_capture_execution_pr": 65,
+  "reconciled_post_capture_pr": 66,
+  "superseded_manual_har_preflight_pr": 73,
+  "decisions": {
+    "automated_browser_capture_is_normal_workflow": true,
+    "manual_har_required": false,
+    "legacy_har_extractor_retained_for_compatibility": true,
+    "post_capture_status_gate_reused_in_pr65": true,
+    "second_custody_system_created": false,
+    "second_replay_system_created": false,
+    "raw_source_publication": false,
+    "historical_available_at_backdating": false,
+    "canonical_t5_t6_promotion": false,
+    "explicit_operator_authorization_required": true,
+    "python_bootstrap_is_normal_workflow": true,
+    "powershell_required": false,
+    "validated_partial_resume": true,
+    "auto_resume_latest_incomplete_journal": true
+  },
+  "canonical_one_command": "python .\\\\tools\\\\private\\\\HYDRA_CONSTRAINT_T1_WINDOWS_PYTHON_BROWSER_CAPTURE_BOOTSTRAP_V001_20260926.py --authorized-public-acquisition",
+  "remaining_runtime_dependency": "EXECUTE_REAL_WINDOWS_BROWSER_CAPTURE_AGAINST_PRIVATE_ROOT",
+  "private_root": "D:\\HYDRA\\_PRIVATE\\constraint",
+  "superseded_prs": [
+    {
+      "pr": 82,
+      "disposition": "CLOSED_UNMERGED_SUPERSEDED_BY_PYTHON_CANONICAL_BOOTSTRAP",
+      "unique_safeguards_ported": [
+        "EXACT_GIT_TOPLEVEL_VALIDATION",
+        "STRICT_ORIGIN_VALIDATION",
+        "DIRTY_TRACKED_WORKTREE_FAIL_CLOSED",
+        "CANONICAL_BRANCH_ONLY_FETCH",
+        "FAST_FORWARD_ONLY_UPDATE"
+      ]
+    }
+  ]
+}
