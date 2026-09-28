@@ -38,6 +38,40 @@
         "CANONICAL_BRANCH_ONLY_FETCH",
         "FAST_FORWARD_ONLY_UPDATE"
       ]
+    },
+    {
+      "pr": 70,
+      "disposition": "CLOSED_UNMERGED_FIX_PORTED_TO_PR65",
+      "ported": [
+        "UTF8_BOM_CAPTURE_PLAN_COMPATIBILITY",
+        "BOM_REGRESSION_TEST"
+      ]
+    },
+    {
+      "pr": 71,
+      "disposition": "CLOSED_UNMERGED_FIX_PORTED_TO_PR65",
+      "ported": [
+        "SOURCEID_POWERSHELL_SYNTAX_FIX",
+        "WINDOWS_POWERSHELL_51_SYNTAX_GATE"
+      ]
     }
-  ]
+  ],
+  "integration_hold": {
+    "status": "HOLD_NO_DESTRUCTIVE_REBASE",
+    "reason": "PR65 base branch has drifted and PR is not mergeable; main is substantially ahead. Preserve validated capture work and live private-runtime evidence before constructing a clean integration branch.",
+    "pr": 65,
+    "current_head": "ca8e2f9459450d8e1c721bd482131bc47901bf38",
+    "current_base": "constraint/t1-private-record-source-discovery-20260926",
+    "main_divergence_observed": {
+      "ahead_by": 130,
+      "behind_by": 240
+    },
+    "prohibited_shortcuts": [
+      "FORCE_PUSH_REBASE_WITHOUT_CONFLICT_AUDIT",
+      "HARD_RESET",
+      "OVERWRITE_NEWER_MAIN_FILES",
+      "MERGE_UNMERGEABLE_PR"
+    ],
+    "next_integration_condition": "AFTER_PRIVATE_9_OF_9_CAPTURE_EVIDENCE_OR_EXPLICIT_CLEAN_INTEGRATION_BRANCH_AUDIT"
+  }
 }
