@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import argparse
+import os
+import re
 import subprocess
 import sys
 from pathlib import Path
@@ -44,31 +46,73 @@ def _output(command: list[str], *, cwd: Path | None = None) -> str:
     return completed.stdout.strip()
 
 
+def _tracked_status(repo: Path) -> str:
+    return _output(
+        ["git", "status", "--porcelain=v1", "--untracked-files=no"],
+        cwd=repo,
+    )
+
+
+def _assert_tracked_clean(repo: Path, *, when: str) -> None:
+    status = _tracked_status(repo)
+    if status:
+        raise BootstrapError(
+            f"HYDRA tracked working tree is not clean {when}; "
+            "commit or revert tracked changes before capture bootstrap"
+        )
+
+
 def _repo_root() -> Path:
     repo = Path(__file__).resolve().parents[2]
     if not (repo / ".git").exists():
         raise BootstrapError(f"bootstrap is not inside a Git working tree: {repo}")
+
+    top_level = Path(
+        _output(["git", "rev-parse", "--show-toplevel"], cwd=repo)
+    ).resolve()
+    if os.path.normcase(str(top_level)) != os.path.normcase(str(repo.resolve())):
+        raise BootstrapError(
+            f"unexpected Git top-level path: expected {repo}, observed {top_level}"
+        )
+
     remote = _output(["git", "remote", "get-url", "origin"], cwd=repo)
-    if EXPECTED_REMOTE_FRAGMENT not in remote:
+    if re.search(r"(?i)(^|[:/])HYDRADATAAI/Hydra(?:\.git)?$", remote) is None:
         raise BootstrapError(f"unexpected origin remote for HYDRA repo: {remote}")
-    if "AUDIT_RESULTS" in str(repo).upper() or "REMOTE_RUNTIME_SNAPSHOT" in str(repo).upper():
+
+    upper = str(repo).upper()
+    if "AUDIT_RESULTS" in upper or "REMOTE_RUNTIME_SNAPSHOT" in upper:
         raise BootstrapError("refusing to run from an audit/snapshot clone")
     return repo
 
 
 def _update_repo(repo: Path) -> None:
+    _assert_tracked_clean(repo, when="before branch update")
     _run(["git", "config", "core.longpaths", "true"], cwd=repo)
-    _run(["git", "fetch", "origin"], cwd=repo)
+
+    remote_ref = f"refs/remotes/origin/{BRANCH}"
+    fetch_refspec = f"+refs/heads/{BRANCH}:{remote_ref}"
+    _run(["git", "fetch", "--prune", "origin", fetch_refspec], cwd=repo)
+
+    local_exists = subprocess.run(
+        ["git", "show-ref", "--verify", "--quiet", f"refs/heads/{BRANCH}"],
+        cwd=str(repo),
+        check=False,
+    ).returncode == 0
+
+    if local_exists:
+        _run(["git", "switch", BRANCH], cwd=repo)
+    else:
+        _run(["git", "switch", "--track", f"origin/{BRANCH}"], cwd=repo)
+
+    _run(["git", "merge", "--ff-only", f"origin/{BRANCH}"], cwd=repo)
+
     current = _output(["git", "branch", "--show-current"], cwd=repo)
     if current != BRANCH:
-        switched = subprocess.run(
-            ["git", "switch", BRANCH],
-            cwd=str(repo),
-            check=False,
+        raise BootstrapError(
+            f"capture branch checkout failed: expected {BRANCH}, observed {current}"
         )
-        if switched.returncode != 0:
-            _run(["git", "switch", "--track", f"origin/{BRANCH}"], cwd=repo)
-    _run(["git", "pull", "--ff-only", "origin", BRANCH], cwd=repo)
+
+    _assert_tracked_clean(repo, when="after branch update")
 
 
 def _private_python(repo: Path, private_root: Path, no_bootstrap: bool) -> Path:
