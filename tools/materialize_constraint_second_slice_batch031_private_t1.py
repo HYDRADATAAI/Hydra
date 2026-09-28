@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Materialize the Micron-free Batch031 semiconductor capture set into private T1."""
+"""Materialize the Micron/TSMC-free Batch031 semiconductor capture set into private T1."""
 from __future__ import annotations
 import argparse,json,sys
 from datetime import datetime,timezone
