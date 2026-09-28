@@ -37,7 +37,13 @@
     "current_private_root": "D:\\HYDRA\\_PRIVATE\\constraint",
     "exclusive_private_root_capture_lock": true,
     "concurrent_capture_same_private_root": "FAIL_CLOSED",
-    "lock_ownership": "OS_LEVEL_NOT_FILE_EXISTENCE"
+    "lock_ownership": "OS_LEVEL_NOT_FILE_EXISTENCE",
+    "python_bootstrap_exact_git_toplevel_validation": true,
+    "python_bootstrap_strict_origin_validation": true,
+    "python_bootstrap_dirty_tracked_tree": "FAIL_CLOSED",
+    "python_bootstrap_fetch_scope": "CANONICAL_CAPTURE_BRANCH_ONLY",
+    "python_bootstrap_update_mode": "FAST_FORWARD_ONLY",
+    "separate_windows_powershell_bootstrap_pr82": "CLOSED_SUPERSEDED"
   },
   "fail_closed_on": [
     "WRONG_URL",
