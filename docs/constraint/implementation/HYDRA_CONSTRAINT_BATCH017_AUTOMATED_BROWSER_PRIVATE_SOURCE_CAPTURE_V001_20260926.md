@@ -86,3 +86,10 @@ Unless `--fresh` is supplied, the Python runner automatically looks for the late
 Resume accepts only a journal whose entries are an exact prefix of the authoritative nine-source order. For every reused source the runner revalidates exact source ID and registered URL, HTTP 200 metadata, content type, redirect chain, source-version identity, timezone-aware acquisition timestamp, byte length, staged-body existence, SHA-256, and HTML/PDF body rules.
 
 A tampered body, locator drift, identity drift, duplicate or out-of-order journal entry, missing staged body, or completed release fails closed. A resumed run reuses a previously established release identity so downstream materialization retries remain idempotent.
+
+
+## Concurrent-run protection
+
+The browser capture runner acquires an operating-system lock under the private root before selecting or creating a journal, opening the browser profile, or writing capture state. A second process targeting the same private root fails closed instead of sharing the browser profile or capture journal.
+
+The lock is held by the operating system for the process lifetime. The lock file may remain on disk after a crash, but an abandoned file does not itself block future runs because ownership is determined by the active OS lock, not by file existence.
