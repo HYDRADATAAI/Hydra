@@ -262,6 +262,57 @@ def _redirect_chain(response: Any) -> tuple[str, ...]:
     return tuple(chain)
 
 
+def _response_header_value(response: Any, name: str) -> str | None:
+    getter = getattr(response, "header_value", None)
+    if callable(getter):
+        try:
+            value = getter(name)
+        except Exception:
+            value = None
+        if value is not None:
+            return str(value)
+
+    headers = getattr(response, "headers", None)
+    if isinstance(headers, Mapping):
+        requested = name.lower()
+        for key, value in headers.items():
+            if str(key).lower() == requested:
+                return str(value)
+    return None
+
+
+def _dispose_api_response(response: Any) -> None:
+    try:
+        response.dispose()
+    except Exception:
+        pass
+
+
+def _fetch_exact_pdf_response(
+    *,
+    context: Any,
+    exact_locator: str,
+    timeout_milliseconds: int,
+) -> Any:
+    request_context = getattr(context, "request", None)
+    getter = getattr(request_context, "get", None)
+    if request_context is None or not callable(getter):
+        raise CaptureError("browser context does not expose a Playwright API request context")
+
+    try:
+        return getter(
+            exact_locator,
+            timeout=max(1, int(timeout_milliseconds)),
+            max_redirects=0,
+            max_retries=0,
+            fail_on_status_code=False,
+        )
+    except Exception as exc:
+        raise CaptureError(
+            f"raw PDF browser-context request failed for exact locator: {exc}"
+        ) from exc
+
+
 def _launch_persistent_context(playwright: Any, *, private_root: Path, browser: str, headless: bool) -> tuple[Any, str]:
     channels = ("chrome", "msedge") if browser == "auto" else (browser,)
     failures: list[str] = []
@@ -342,25 +393,47 @@ def capture_source(
                 if response_key in seen_response_ids:
                     continue
                 seen_response_ids.add(response_key)
+                body_response = response
+                api_response: Any | None = None
+                capture_method = "PLAYWRIGHT_INSTALLED_BROWSER_MAIN_DOCUMENT"
                 try:
-                    body = _body_from_response(response)
-                    content_type = response.header_value("content-type")
-                    chain = _redirect_chain(response)
+                    if expected == "application/pdf":
+                        api_response = _fetch_exact_pdf_response(
+                            context=context,
+                            exact_locator=locator,
+                            timeout_milliseconds=max(1, navigation_timeout_seconds) * 1000,
+                        )
+                        body_response = api_response
+                        chain = (locator,)
+                        capture_method = "PLAYWRIGHT_BROWSER_CONTEXT_RAW_PDF_RESPONSE"
+                    else:
+                        chain = _redirect_chain(response)
+
+                    body = _body_from_response(body_response)
+                    content_type = _response_header_value(body_response, "content-type")
+                    response_status = int(body_response.status)
                     normalized_content_type = validate_main_document(
                         source_id=source_id,
                         exact_locator=locator,
-                        response_url=str(response.url),
+                        response_url=str(body_response.url),
                         redirect_chain=chain,
-                        status=int(response.status),
+                        status=response_status,
                         observed_content_type=content_type,
                         body=body,
                     )
                 except CaptureError as exc:
+                    if api_response is not None:
+                        _dispose_api_response(api_response)
                     last_rejection = str(exc)
                     continue
                 except Exception as exc:
+                    if api_response is not None:
+                        _dispose_api_response(api_response)
                     last_rejection = f"{source_id}: response inspection failed: {exc}"
                     continue
+
+                if api_response is not None:
+                    _dispose_api_response(api_response)
 
                 acquired_at = utc_timestamp()
                 digest = hashlib.sha256(body).hexdigest()
@@ -372,12 +445,12 @@ def capture_source(
                     source_locator=locator,
                     source_version_id=source_version_id,
                     acquired_at=acquired_at,
-                    status=int(response.status),
+                    status=response_status,
                     content_type=normalized_content_type,
                     byte_length=len(body),
                     artifact_sha256=digest,
                     body_path=body_path,
-                    capture_method="PLAYWRIGHT_INSTALLED_BROWSER_MAIN_DOCUMENT",
+                    capture_method=capture_method,
                     browser_channel=browser_channel,
                     redirect_chain=chain,
                 )
@@ -514,8 +587,17 @@ def _resume_entry_to_capture(
     )
 
     capture_method = entry.get("capture_method")
-    if capture_method != "PLAYWRIGHT_INSTALLED_BROWSER_MAIN_DOCUMENT":
+    allowed_capture_methods = {
+        "PLAYWRIGHT_INSTALLED_BROWSER_MAIN_DOCUMENT",
+        "PLAYWRIGHT_BROWSER_CONTEXT_RAW_PDF_RESPONSE",
+    }
+    if capture_method not in allowed_capture_methods:
         raise CaptureError(f"{source_id}: resume journal capture method invalid")
+    if (
+        content_type == "text/html"
+        and capture_method != "PLAYWRIGHT_INSTALLED_BROWSER_MAIN_DOCUMENT"
+    ):
+        raise CaptureError(f"{source_id}: HTML resume capture method invalid")
     browser_channel = entry.get("browser_channel")
     if browser_channel not in {"chrome", "msedge"}:
         raise CaptureError(f"{source_id}: resume journal browser channel invalid")
@@ -871,6 +953,8 @@ def _run_locked(args: argparse.Namespace) -> int:
         "schema_version": "hydra-constraint-automated-browser-capture-manifest/v1",
         "slice_id": EXPECTED_SLICE_ID,
         "capture_method": "PLAYWRIGHT_INSTALLED_BROWSER_MAIN_DOCUMENT",
+        "pdf_transport": "PLAYWRIGHT_BROWSER_CONTEXT_RAW_PDF_RESPONSE",
+        "html_transport": "PLAYWRIGHT_INSTALLED_BROWSER_MAIN_DOCUMENT",
         "browser_channel": browser_channel,
         "raw_bodies_published_to_git": False,
         "challenge_bypass_attempted": False,
