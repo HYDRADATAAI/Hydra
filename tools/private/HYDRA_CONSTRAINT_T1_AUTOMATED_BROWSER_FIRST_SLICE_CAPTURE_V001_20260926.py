@@ -7,6 +7,7 @@ import os
 import subprocess
 import sys
 import time
+from contextlib import contextmanager
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
@@ -72,6 +73,68 @@ def utc_timestamp() -> str:
 
 def safe_timestamp() -> str:
     return datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%S%fZ")
+
+
+@contextmanager
+def _exclusive_private_capture_lock(private_root: Path):
+    lock_dir = private_root / "locks"
+    lock_dir.mkdir(parents=True, exist_ok=True)
+    lock_path = lock_dir / "HYDRA_CONSTRAINT_T1_AUTOMATED_BROWSER_CAPTURE.lock"
+    handle = lock_path.open("a+b")
+    locked = False
+    try:
+        handle.seek(0, os.SEEK_END)
+        if handle.tell() == 0:
+            handle.write(b"0")
+            handle.flush()
+        handle.seek(0)
+
+        if os.name == "nt":
+            import msvcrt
+
+            try:
+                msvcrt.locking(handle.fileno(), msvcrt.LK_NBLCK, 1)
+            except OSError as exc:
+                raise CaptureError(
+                    "another HYDRA Constraint browser capture already holds the private-root lock"
+                ) from exc
+        else:
+            import fcntl
+
+            try:
+                fcntl.flock(handle.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
+            except OSError as exc:
+                raise CaptureError(
+                    "another HYDRA Constraint browser capture already holds the private-root lock"
+                ) from exc
+
+        locked = True
+        handle.seek(0)
+        handle.truncate()
+        handle.write(
+            (
+                f"pid={os.getpid()}\n"
+                f"acquired_at={utc_timestamp()}\n"
+                f"private_root={private_root}\n"
+            ).encode("utf-8")
+        )
+        handle.flush()
+        yield lock_path
+    finally:
+        if locked:
+            try:
+                handle.seek(0)
+                if os.name == "nt":
+                    import msvcrt
+
+                    msvcrt.locking(handle.fileno(), msvcrt.LK_UNLCK, 1)
+                else:
+                    import fcntl
+
+                    fcntl.flock(handle.fileno(), fcntl.LOCK_UN)
+            except Exception:
+                pass
+        handle.close()
 
 
 def _resolved(path: str | Path) -> Path:
@@ -629,6 +692,19 @@ def run(args: argparse.Namespace) -> int:
 
     repo_root = _resolved(args.repo_root)
     private_root = assert_outside_repo(args.private_root, repo_root, "PrivateRoot")
+    with _exclusive_private_capture_lock(private_root) as lock_path:
+        print(f"CAPTURE_PRIVATE_ROOT_LOCK={lock_path}")
+        return _run_locked(args)
+
+
+def _run_locked(args: argparse.Namespace) -> int:
+    if not getattr(args, "authorized_public_acquisition", False):
+        raise CaptureError(
+            "explicit --authorized-public-acquisition is required for browser-backed public source acquisition"
+        )
+
+    repo_root = _resolved(args.repo_root)
+    private_root = assert_outside_repo(args.private_root, repo_root, "PrivateRoot")
     raw_root = assert_outside_repo(private_root / "raw", repo_root, "PrivateRawRoot")
     staging_root = assert_outside_repo(private_root / "capture-staging", repo_root, "PrivateStagingRoot")
     metadata_root = assert_outside_repo(private_root / "metadata", repo_root, "PrivateMetadataRoot")
@@ -708,7 +784,7 @@ def run(args: argparse.Namespace) -> int:
     except Exception as exc:
         raise CaptureError(
             "Playwright is not installed in this Python runtime. "
-            "Use the committed PowerShell launcher, which bootstraps Playwright into the private root."
+            "Use the committed Python bootstrap, which prepares Playwright under the private root."
         ) from exc
 
     browser_channel = (
