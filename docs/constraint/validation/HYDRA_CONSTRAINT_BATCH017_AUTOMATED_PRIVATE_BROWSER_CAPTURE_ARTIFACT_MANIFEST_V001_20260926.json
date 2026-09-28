@@ -20,7 +20,7 @@
   "artifacts": [
     {
       "path": ".github/workflows/constraint-t1-raw-artifact-store.yml",
-      "git_blob_sha": "803b4932a6c6b4da2f284d502e7ecf38f44e0553"
+      "git_blob_sha": "3cf7f8881c9c513fc41fb5600427ec924b26d7cc"
     },
     {
       "path": "tools/private/HYDRA_CONSTRAINT_T1_AUTOMATED_BROWSER_FIRST_SLICE_CAPTURE_V001_20260926.py",
@@ -68,7 +68,7 @@
     },
     {
       "path": "docs/constraint/validation/HYDRA_CONSTRAINT_BATCH017_T1_PRIVATE_RECORD_AND_BROWSER_ACQUISITION_SUPERSESSION_MAP_V002_20260926.json",
-      "git_blob_sha": "c86849d13d09cc0dc829d7e36ee89e5106a46464"
+      "git_blob_sha": "d64a2e35cfff65766395ec97a59136b1fb3bc89f"
     },
     {
       "path": "tools/validate_constraint_first_slice_successor.py",
@@ -136,5 +136,11 @@
     "stash": false,
     "hard_reset": false
   },
-  "pr82_disposition": "CLOSED_UNMERGED_SUPERSEDED_BY_PYTHON_CANONICAL_BOOTSTRAP"
+  "pr82_disposition": "CLOSED_UNMERGED_SUPERSEDED_BY_PYTHON_CANONICAL_BOOTSTRAP",
+  "legacy_powershell_compatibility": {
+    "retained": true,
+    "utf8_bom_capture_plan_supported": true,
+    "windows_powershell_51_syntax_gate": true,
+    "canonical_workflow": false
+  }
 }
