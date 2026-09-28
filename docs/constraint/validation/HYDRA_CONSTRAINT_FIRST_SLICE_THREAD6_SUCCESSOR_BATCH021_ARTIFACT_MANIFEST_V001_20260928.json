@@ -1,0 +1,45 @@
+{
+  "schema_version": "hydra-constraint-thread6-successor-manifest/v1",
+  "record_id": "HYDRA_CONSTRAINT_FIRST_SLICE_THREAD6_SUCCESSOR_BATCH021_ARTIFACT_MANIFEST_V001",
+  "as_of": "2026-09-28",
+  "repository": "HYDRADATAAI/Hydra",
+  "slice_id": "AI_DATA_CENTER_POWER_INFRASTRUCTURE_V1",
+  "predecessor_batch": {
+    "id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH020",
+    "base_commit": "c38157be47148d45bdbf0898b0cbaed8fed51068",
+    "preservation": "IMMUTABLE_NOT_REWRITTEN"
+  },
+  "result": "UNSIGNED_EXTERNAL_AUTHORITY_REQUEST_PACKET_READY",
+  "artifacts": [
+    {
+      "path": "docs/constraint/implementation/HYDRA_CONSTRAINT_FIRST_SLICE_NATIVE_T5_T6_ADMISSION_REQUEST_V001_20260928.json",
+      "git_blob_sha": "495cd9d71bf9b3bd1d1eaf9987b3e5b217811c34"
+    },
+    {
+      "path": "docs/constraint/first_slice/ai_data_center_power_infrastructure_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH021_AI_DATA_CENTER_POWER_INFRASTRUCTURE_ADMISSION_REQUEST_STATUS_V001_20260928.json",
+      "git_blob_sha": "6f2ab8f94d8f05e10231c02fa65dfdc6a9223b1b"
+    },
+    {
+      "path": "docs/constraint/validation/HYDRA_CONSTRAINT_FIRST_SLICE_THREAD6_SUCCESSOR_BATCH021_ADMISSION_REQUEST_HANDOFF_REPORT_V001_20260928.md",
+      "git_blob_sha": "bb59d086b83385e500385e44f32557fa3849fdf0"
+    },
+    {
+      "path": "docs/constraint/architecture/HYDRA_CONSTRAINT_FIRST_SLICE_THREAD6_SUCCESSOR_BATCH021_MASTER_STATUS_V001_20260928.json",
+      "git_blob_sha": "5b51004e68f9d131bd54211cc5afbe29dcbebd19"
+    }
+  ],
+  "exact_request_bindings": {
+    "manifest_sha256": "a7d6b72d94630dba06a612c966db22c733205ecc926117cd68e2979ad1ca9879",
+    "artifact_sha256": "e090e1326ee4ff03fca378925b1316dd3c870ccf70a9fe313c9c8fb1e00e476f",
+    "test_evidence_sha256": "d614733a65943334ab9a2f5c41b7b94b2d8a111d23953b79622a975d5a636294"
+  },
+  "expected": {
+    "request_packet_ready": true,
+    "signed_admission_receipt_present": false,
+    "implementation_admitted": false,
+    "runtime_activation_authorized": false,
+    "canonical_promotion_authorized": false,
+    "historical_availability_before_acquisition_proven": false,
+    "first_serious_constraint_run": "BLOCKED"
+  }
+}
