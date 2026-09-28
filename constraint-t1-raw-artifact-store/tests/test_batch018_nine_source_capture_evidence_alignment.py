@@ -25,6 +25,8 @@ RUNBOOK = ROOT / "docs" / "constraint" / "implementation" / "HYDRA_CONSTRAINT_AI
 README = ROOT / "constraint-t1-raw-artifact-store" / "README.md"
 TIMESTAMP_VALIDATOR_SUCCESSOR = ROOT / "docs/constraint/validation/HYDRA_CONSTRAINT_T1_TIMESTAMP_VALIDATOR_SUCCESSOR_V001_20260927.json"
 
+PUBLIC_HASH_SUCCESSOR = ROOT / "docs/constraint/validation/HYDRA_CONSTRAINT_T1_BATCH018_PUBLIC_HASH_SUCCESSOR_V001_20260928.json"
+
 
 def load(path: Path) -> dict:
     return json.loads(path.read_text(encoding="utf-8"))
@@ -159,6 +161,100 @@ class Batch018NineSourceCaptureEvidenceTests(unittest.TestCase):
                     f"{label} must bind the exact committed public file bytes",
                 )
 
+    def _public_hash_predecessor_bytes(self):
+        # This exact continuation records the PR109 public metadata repair.
+        # Reverse only its five fixed substitutions to recover the historical
+        # bytes; current and predecessor whole-file digests must both match.
+        expected = {
+            "schema": "HYDRA_CONSTRAINT_T1_BATCH018_PUBLIC_HASH_SUCCESSOR_V1",
+            "scope": "THREE_PUBLIC_SHA256_REFERENCES_AND_TWO_MANIFEST_BLOB_BINDINGS",
+            "donor_commit": "0db6181f332f3219372553442e0646ffecb78942",
+            "historical_base_commit": "684f59ceea89114f6ac8b356e9b4dfb2b9cafa89",
+            "timestamp_validator_record": "docs/constraint/validation/HYDRA_CONSTRAINT_T1_TIMESTAMP_VALIDATOR_SUCCESSOR_V001_20260927.json",
+            "timestamp_validator_record_sha256": "a2e7fcbb185ac7fbb89da3f8b919519322286487e0070a309b02aac186fb5d9f",
+            "historical_predecessor_bytes_recoverable_exactly": True,
+            "public_hash_metadata_rewritten": True,
+            "attestation_rewritten": False,
+            "source_members_rewritten": False,
+            "release_identity_rewritten": False,
+            "timestamp_validator_record_rewritten": False,
+            "trusted_timestamp_verifier": "NOT_IMPLEMENTED",
+            "ordinary_replay_promoted": False,
+            "historical_availability_promoted": False,
+            "canonical_admission_promoted": False,
+            "acceptance_effect": "NONE",
+            "transitions": [
+                {
+                    "path": "docs/constraint/first_slice/ai_data_center_power_infrastructure_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH018_AI_DATA_CENTER_POWER_INFRASTRUCTURE_SOURCE_HASH_INVENTORY_V001_20260926.json",
+                    "predecessor_sha256": "c42cc9252a1c540032442141f3356c83f674e2631de50a46cd0f354361ed252d",
+                    "successor_sha256": "3b169a75ea846673f33939270ff6d1700d1fc5159446490c81ae26357195e531",
+                    "predecessor_git_blob_sha": "245746d059cf4000f5b3fd465fe004b9b8d5bd76",
+                    "successor_git_blob_sha": "75b640792e95a18de5b0cf0bdf674a12edb241e0",
+                    "replacements": [
+                        {
+                            "before": "74e3b4ef710f1da8910d5588882cfa0672b59f93e8636ce902e3fa34237ad05e",
+                            "after": "fe68784920a6b5437457792fc0c2cd410269f991be76ad85cff766e8df84d81b"
+                        }
+                    ]
+                },
+                {
+                    "path": "docs/constraint/first_slice/ai_data_center_power_infrastructure_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH018_AI_DATA_CENTER_POWER_INFRASTRUCTURE_SOURCE_MATERIALIZATION_STATUS_V001_20260926.json",
+                    "predecessor_sha256": "8137cd3aaf079d409bd34c68b6892b2d18e7a6e66592be9f7bee16aab991bfa7",
+                    "successor_sha256": "049152fe7cf510ea3ffb2469e5f7117b4b879b425535c88a9bd04c82a91ed937",
+                    "predecessor_git_blob_sha": "083f83ccf8729e503c74c437bf2db73ccbc9e483",
+                    "successor_git_blob_sha": "114e3488e7ce8dded96a3f5b55cedabafe2cb421",
+                    "replacements": [
+                        {
+                            "before": "74e3b4ef710f1da8910d5588882cfa0672b59f93e8636ce902e3fa34237ad05e",
+                            "after": "fe68784920a6b5437457792fc0c2cd410269f991be76ad85cff766e8df84d81b"
+                        },
+                        {
+                            "before": "82bde12a0715938d873cb7b9222c7d83d82992b9c1ee12438a6d5180a56fb3de",
+                            "after": "3b169a75ea846673f33939270ff6d1700d1fc5159446490c81ae26357195e531"
+                        }
+                    ]
+                },
+                {
+                    "path": "docs/constraint/validation/HYDRA_CONSTRAINT_FIRST_SLICE_THREAD6_SUCCESSOR_BATCH018_ARTIFACT_MANIFEST_V001_20260926.json",
+                    "predecessor_sha256": "6b1b2aac10077dde2ceffbd155419d52c228b3f35a4f3039316fe289339812bd",
+                    "successor_sha256": "bcf73e2977654aff87e34cd629089f59e7a41ae282c697e079257c3bdb06208b",
+                    "predecessor_git_blob_sha": "28d5abdbdb1941f4227c90f747c91787d5d257c0",
+                    "successor_git_blob_sha": "4cfd44eb9362fafd18680501327b70d446a38273",
+                    "replacements": [
+                        {
+                            "before": "245746d059cf4000f5b3fd465fe004b9b8d5bd76",
+                            "after": "75b640792e95a18de5b0cf0bdf674a12edb241e0"
+                        },
+                        {
+                            "before": "083f83ccf8729e503c74c437bf2db73ccbc9e483",
+                            "after": "114e3488e7ce8dded96a3f5b55cedabafe2cb421"
+                        }
+                    ]
+                }
+            ]
+        }
+        self.assertEqual(json.dumps(expected, sort_keys=True),
+                         json.dumps(load(PUBLIC_HASH_SUCCESSOR), sort_keys=True))
+        self.assertEqual(expected["timestamp_validator_record_sha256"],
+                         hashlib.sha256(TIMESTAMP_VALIDATOR_SUCCESSOR.read_bytes()).hexdigest())
+        historical = {}
+        for transition in expected["transitions"]:
+            path = ROOT / transition["path"]
+            current = path.read_bytes()
+            self.assertEqual(transition["successor_sha256"], hashlib.sha256(current).hexdigest(), str(path))
+            current_blob = hashlib.sha1(b"blob " + str(len(current)).encode() + b"\0" + current).hexdigest()
+            self.assertEqual(transition["successor_git_blob_sha"], current_blob, str(path))
+            prior = current
+            for edit in transition["replacements"]:
+                old, new = edit["before"].encode("ascii"), edit["after"].encode("ascii")
+                self.assertEqual(1, prior.count(new), str(path))
+                prior = prior.replace(new, old, 1)
+            self.assertEqual(transition["predecessor_sha256"], hashlib.sha256(prior).hexdigest(), str(path))
+            prior_blob = hashlib.sha1(b"blob " + str(len(prior)).encode() + b"\0" + prior).hexdigest()
+            self.assertEqual(transition["predecessor_git_blob_sha"], prior_blob, str(path))
+            historical[path] = prior
+        return historical
+
     def _timestamp_validator_continuation(self):
         expected = {
             "schema": "HYDRA_CONSTRAINT_T1_TIMESTAMP_VALIDATOR_SUCCESSOR_V1",
@@ -184,7 +280,7 @@ class Batch018NineSourceCaptureEvidenceTests(unittest.TestCase):
         self.assertEqual(json.dumps(expected, sort_keys=True),
                          json.dumps(load(TIMESTAMP_VALIDATOR_SUCCESSOR), sort_keys=True))
         self.assertEqual(expected["historical_manifest_sha256"],
-                         hashlib.sha256(ARTIFACT_MANIFEST.read_bytes()).hexdigest())
+                         hashlib.sha256(self._public_hash_predecessor_bytes()[ARTIFACT_MANIFEST]).hexdigest())
         return expected["transition"]
 
     def test_successor_artifact_manifest_binds_committed_blob_contents(self):
@@ -210,6 +306,60 @@ class Batch018NineSourceCaptureEvidenceTests(unittest.TestCase):
                 text=True,
             ).stdout.strip()
             self.assertEqual(expected, artifact["git_blob_sha"], artifact["path"])
+
+    def test_public_hash_continuation_rejects_record_drift(self):
+        original = load
+        mutations = [
+            lambda d: d.update(donor_commit="0" * 40),
+            lambda d: d.update(timestamp_validator_record_sha256="0" * 64),
+            lambda d: d.update(attestation_rewritten=True),
+            lambda d: d.update(source_members_rewritten=True),
+            lambda d: d.update(release_identity_rewritten=True),
+            lambda d: d.update(timestamp_validator_record_rewritten=True),
+            lambda d: d.update(trusted_timestamp_verifier="IMPLEMENTED"),
+            lambda d: d.update(ordinary_replay_promoted=True),
+            lambda d: d.update(historical_availability_promoted=True),
+            lambda d: d.update(canonical_admission_promoted=True),
+            lambda d: d.update(ordinary_replay_promoted=0),
+            lambda d: d.update(acceptance_effect="PASS"),
+            lambda d: d.update(owner_signature="self-asserted"),
+            lambda d: d["transitions"].pop(),
+            lambda d: d["transitions"].append(copy.deepcopy(d["transitions"][0])),
+            lambda d: d["transitions"][0].update(path="../another-artifact.json"),
+            lambda d: d["transitions"][0].update(predecessor_sha256="0" * 64),
+            lambda d: d["transitions"][0].update(successor_sha256="0" * 64),
+            lambda d: d["transitions"][0]["replacements"][0].update(before="0" * 64),
+            lambda d: d["transitions"][0]["replacements"][0].update(after="0" * 64),
+        ]
+        for index, mutate in enumerate(mutations):
+            with self.subTest(mutation=index):
+                doc = original(PUBLIC_HASH_SUCCESSOR)
+                mutate(doc)
+                with patch(__name__ + ".load", side_effect=lambda p: doc if p == PUBLIC_HASH_SUCCESSOR else original(p)):
+                    with self.assertRaises(AssertionError):
+                        self._public_hash_predecessor_bytes()
+
+    def test_public_hash_continuation_rejects_current_artifact_drift(self):
+        original = Path.read_bytes
+        for target in (INVENTORY, STATUS, ARTIFACT_MANIFEST, TIMESTAMP_VALIDATOR_SUCCESSOR):
+            with self.subTest(path=target.relative_to(ROOT).as_posix()):
+                with patch.object(Path, "read_bytes", lambda p: original(p) + b" " if p == target else original(p)):
+                    with self.assertRaises(AssertionError):
+                        self._public_hash_predecessor_bytes()
+
+    def test_public_hash_continuation_rejects_coordinated_artifact_and_record_repin(self):
+        original_load, original_bytes = load, Path.read_bytes
+        for target in (INVENTORY, STATUS, ARTIFACT_MANIFEST):
+            with self.subTest(path=target.relative_to(ROOT).as_posix()):
+                data = original_bytes(target) + b" "
+                doc = original_load(PUBLIC_HASH_SUCCESSOR)
+                transition = next(row for row in doc["transitions"] if row["path"] == target.relative_to(ROOT).as_posix())
+                transition["successor_sha256"] = hashlib.sha256(data).hexdigest()
+                transition["successor_git_blob_sha"] = hashlib.sha1(b"blob " + str(len(data)).encode() + b"\0" + data).hexdigest()
+                with patch.object(Path, "read_bytes", lambda p: data if p == target else original_bytes(p)):
+                    with patch(__name__ + ".load", side_effect=lambda p: doc if p == PUBLIC_HASH_SUCCESSOR else original_load(p)):
+                        with self.assertRaises(AssertionError):
+                            self._public_hash_predecessor_bytes()
 
     def test_timestamp_validator_continuation_rejects_record_drift(self):
         original = load
