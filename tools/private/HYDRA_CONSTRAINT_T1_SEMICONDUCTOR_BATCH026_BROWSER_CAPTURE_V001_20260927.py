@@ -9,7 +9,7 @@ import time
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Mapping, Sequence
-from urllib.parse import urlparse
+from urllib.parse import urljoin, urlparse
 
 QUEUE_RELATIVE_PATH = Path(
     "docs/constraint/second_slice/semiconductor_advanced_packaging_critical_materials_v1/"
@@ -35,6 +35,7 @@ HTML_BLOCK_MARKERS = (
     b"request blocked",
     b"access denied",
 )
+MAX_PDF_HTTP_REDIRECTS = 10
 
 
 class CaptureError(RuntimeError):
@@ -201,6 +202,25 @@ def redirect_chain(response: Any) -> tuple[str, ...]:
     return tuple(chain)
 
 
+def response_header_value(response: Any, name: str) -> str | None:
+    getter = getattr(response, "header_value", None)
+    if callable(getter):
+        try:
+            value = getter(name)
+        except Exception:
+            value = None
+        if value is not None:
+            return str(value)
+
+    headers = getattr(response, "headers", None)
+    if isinstance(headers, Mapping):
+        requested_name = name.lower()
+        for key, value in headers.items():
+            if str(key).lower() == requested_name:
+                return str(value)
+    return None
+
+
 def validate_redirects(*, exact_locator: str, response_url: str, chain: Sequence[str], policy: str) -> None:
     if not chain or chain[0] != exact_locator:
         raise CaptureError(f"redirect chain does not start at exact source locator: {list(chain)!r}")
@@ -224,6 +244,73 @@ def validate_redirects(*, exact_locator: str, response_url: str, chain: Sequence
             )
 
 
+def dispose_api_response(response: Any) -> None:
+    try:
+        response.dispose()
+    except Exception:
+        pass
+
+
+def fetch_pdf_response(
+    *,
+    context: Any,
+    exact_locator: str,
+    policy: str,
+    timeout_milliseconds: int,
+) -> tuple[Any, tuple[str, ...]]:
+    request_context = getattr(context, "request", None)
+    if request_context is None or not callable(getattr(request_context, "get", None)):
+        raise CaptureError("browser context does not expose a Playwright API request context")
+
+    timeout_ms = max(1, int(timeout_milliseconds))
+    deadline = time.monotonic() + (timeout_ms / 1000.0)
+    chain = [exact_locator]
+    current_url = exact_locator
+    redirects_followed = 0
+    redirect_statuses = {301, 302, 303, 307, 308}
+
+    while True:
+        remaining_seconds = deadline - time.monotonic()
+        if remaining_seconds <= 0:
+            raise CaptureError(f"PDF raw HTTP request exceeded its {timeout_ms} ms total timeout")
+        remaining_ms = max(1, int(remaining_seconds * 1000))
+        response = request_context.get(
+            current_url,
+            timeout=remaining_ms,
+            max_redirects=0,
+            max_retries=0,
+            fail_on_status_code=False,
+        )
+        if int(response.status) not in redirect_statuses:
+            return response, tuple(chain)
+
+        location = response_header_value(response, "location")
+        if not location:
+            dispose_api_response(response)
+            raise CaptureError(f"PDF raw HTTP redirect from {current_url!r} omitted Location")
+        if redirects_followed >= MAX_PDF_HTTP_REDIRECTS:
+            dispose_api_response(response)
+            raise CaptureError(f"PDF raw HTTP redirect limit exceeded ({MAX_PDF_HTTP_REDIRECTS})")
+
+        next_url = urljoin(current_url, location)
+        proposed_chain = (*chain, next_url)
+        try:
+            validate_redirects(
+                exact_locator=exact_locator,
+                response_url=next_url,
+                chain=proposed_chain,
+                policy=policy,
+            )
+        except Exception:
+            dispose_api_response(response)
+            raise
+
+        dispose_api_response(response)
+        chain.append(next_url)
+        current_url = next_url
+        redirects_followed += 1
+
+
 def validate_body(
     *,
     item: Mapping[str, Any],
@@ -231,11 +318,16 @@ def validate_body(
     body: bytes,
     policy: str,
     effective_locator: str,
+    redirect_chain_override: Sequence[str] | None = None,
 ) -> tuple[str, tuple[str, ...], str]:
     source_id = str(item["source_id"])
     locator = effective_locator
     expected = str(item["content_type_hint"])
-    chain = redirect_chain(response)
+    chain = (
+        tuple(redirect_chain_override)
+        if redirect_chain_override is not None
+        else redirect_chain(response)
+    )
     final_url = str(response.url)
     validate_redirects(exact_locator=locator, response_url=final_url, chain=chain, policy=policy)
 
@@ -244,7 +336,7 @@ def validate_body(
     if not body:
         raise CaptureError(f"{source_id}: empty main-document body")
 
-    observed = (response.header_value("content-type") or "").strip().lower()
+    observed = (response_header_value(response, "content-type") or "").strip().lower()
     if expected == "application/pdf":
         if not observed.startswith("application/pdf"):
             raise CaptureError(f"{source_id}: expected PDF content type, observed {observed!r}")
@@ -460,18 +552,36 @@ def capture_one(
                 if key in seen:
                     continue
                 seen.add(key)
+                body_response = response
+                api_response: Any | None = None
+                request_chain: tuple[str, ...] | None = None
                 try:
-                    body = bytes(response.body())
+                    if str(item["content_type_hint"]) == "application/pdf":
+                        api_response, request_chain = fetch_pdf_response(
+                            context=context,
+                            exact_locator=locator,
+                            policy=redirect_policy,
+                            timeout_milliseconds=max(1, navigation_timeout_seconds) * 1000,
+                        )
+                        body_response = api_response
+                    body = bytes(body_response.body())
                     content_type, chain, final_url = validate_body(
                         item=item,
-                        response=response,
+                        response=body_response,
                         body=body,
                         policy=redirect_policy,
                         effective_locator=locator,
+                        redirect_chain_override=request_chain,
                     )
+                    response_status = int(body_response.status)
                 except Exception as exc:
+                    if api_response is not None:
+                        dispose_api_response(api_response)
                     last_rejection = str(exc)
                     continue
+
+                if api_response is not None:
+                    dispose_api_response(api_response)
 
                 captured_at = utc_timestamp()
                 capture_path.parent.mkdir(parents=True, exist_ok=True)
@@ -497,7 +607,7 @@ def capture_one(
                     "sidecar_path": str(sidecar_path),
                     "capture_completed_at": captured_at,
                     "content_type": content_type,
-                    "http_status": int(response.status),
+                    "http_status": response_status,
                     "byte_length": len(body),
                     "artifact_sha256": hashlib.sha256(body).hexdigest(),
                     "browser_channel": browser_channel,
