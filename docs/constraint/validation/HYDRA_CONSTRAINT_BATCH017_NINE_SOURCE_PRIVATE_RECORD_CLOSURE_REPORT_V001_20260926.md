@@ -1,8 +1,8 @@
 # HYDRA Constraint — Batch017 Nine-Source Discovery + Private-Record Closure
 ## Source/private-record dependency only — 2026-09-26
 
-PR: #64\
-Stacked on: Batch017 / PR #62\
+PR: #64  
+Stacked on: Batch017 / PR #62  
 Branch: `constraint/t1-private-record-source-discovery-20260926`
 
 ## Scope
@@ -119,8 +119,7 @@ Raw third-party bodies remain outside Git.
 ## Validation
 
 Source/private-record suite:
-- 42 tests: PASS;
-- replay-lineage derivation/no-lookahead tests: 5/5 PASS;
+- 37 tests: PASS;
 - exact registry/plan/discovery alignment: PASS;
 - persisted receipt authority: PASS;
 - persisted release authority: PASS;
@@ -136,7 +135,7 @@ Constraint first-slice integration and hostile matrices: PASS.
 
 Public repository hygiene: PASS.
 
-The inherited Batch017 real-outcome report manifest pin was repaired on PR #62 without changing report semantics. PR #64 then consumed that repaired base. NYX successor-chain validation and its hostile matrix now PASS on the current source/private branch.
+NYX successor-chain guard remains red for the same Batch017 real-outcome report blob mismatch already present on PR #62 before this source branch. This pass does not change or repair that outcome-lane artifact.
 
 ## What remains external/private
 
@@ -162,33 +161,3 @@ Ordinary replay: `BLOCKED`
 Canonical admission: `BLOCKED`
 
 No new outcome or evaluation threshold was introduced.
-
-
-## Replay-lineage preparation
-
-A deterministic sanitized replay-lineage builder is now included for the step
-immediately after private materialization/attestation.
-
-It consumes only the validated public-safe attestation and registry, then binds:
-
-- exact source IDs and source-version IDs;
-- artifact SHA-256 and receipt SHA-256;
-- persisted release ID/hash;
-- conservative acquisition/availability timestamps;
-- deterministic availability boundaries;
-- as-of membership under `SOURCE_VISIBLE_IFF_AVAILABLE_AT_LTE_AS_OF`.
-
-The builder refuses incomplete or quarantined source sets and preserves the
-historical boundary:
-
-- ordinary current source-version lineage can become complete after actual
-  nine-source materialization;
-- strict historical replay remains **NO** under conservative first-capture
-  availability;
-- no pre-capture visibility is inferred;
-- no native T5→T6 or canonical admission is granted.
-
-Current execution state remains unchanged because no real sanitized
-materialization attestation exists in this session:
-
-`ACTUAL_REPLAY_LINEAGE_PACKET_BUILT=NO`.
