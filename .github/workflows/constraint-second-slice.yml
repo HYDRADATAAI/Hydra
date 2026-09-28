@@ -20,6 +20,7 @@ on:
       - "docs/constraint/architecture/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH030_*.json"
       - "docs/constraint/architecture/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH032_*.json"
       - "docs/constraint/architecture/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH033_*.json"
+      - "docs/constraint/architecture/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH034_*.json"
       - "docs/constraint/validation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH019_*"
       - "docs/constraint/validation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH020_*"
       - "docs/constraint/validation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH021_*"
@@ -34,6 +35,7 @@ on:
       - "docs/constraint/validation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH030_*"
       - "docs/constraint/validation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH032_*"
       - "docs/constraint/validation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH033_*"
+      - "docs/constraint/validation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH034_*"
       - "tools/validate_constraint_second_slice_batch017_audit.py"
       - "tools/test_constraint_second_slice_batch017_audit_adversarial.py"
       - "tools/validate_constraint_second_slice_batch018_population.py"
@@ -84,6 +86,9 @@ on:
       - "tools/build_constraint_second_slice_batch033_ordinary_t2_lineage.py"
       - "tools/validate_constraint_second_slice_batch033_ordinary_t2_normalization.py"
       - "tools/test_constraint_second_slice_batch033_ordinary_t2_normalization_adversarial.py"
+      - "tools/build_constraint_second_slice_batch034_t2_evidence_lineage.py"
+      - "tools/validate_constraint_second_slice_batch034_t2_evidence_lineage.py"
+      - "tools/test_constraint_second_slice_batch034_t2_evidence_lineage_adversarial.py"
       - "tools/private/HYDRA_CONSTRAINT_T1_SEMICONDUCTOR_BATCH031_BROWSER_CAPTURE_V001_20260928.py"
       - "tools/materialize_constraint_second_slice_batch031_private_t1.py"
       - "tools/verify_constraint_second_slice_batch031_private_t1.py"
@@ -111,6 +116,7 @@ on:
       - "docs/constraint/architecture/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH030_*.json"
       - "docs/constraint/architecture/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH032_*.json"
       - "docs/constraint/architecture/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH033_*.json"
+      - "docs/constraint/architecture/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH034_*.json"
       - "docs/constraint/validation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH019_*"
       - "docs/constraint/validation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH020_*"
       - "docs/constraint/validation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH021_*"
@@ -125,6 +131,7 @@ on:
       - "docs/constraint/validation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH030_*"
       - "docs/constraint/validation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH032_*"
       - "docs/constraint/validation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH033_*"
+      - "docs/constraint/validation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH034_*"
       - "tools/validate_constraint_second_slice_batch017_audit.py"
       - "tools/test_constraint_second_slice_batch017_audit_adversarial.py"
       - "tools/validate_constraint_second_slice_batch018_population.py"
@@ -175,6 +182,9 @@ on:
       - "tools/build_constraint_second_slice_batch033_ordinary_t2_lineage.py"
       - "tools/validate_constraint_second_slice_batch033_ordinary_t2_normalization.py"
       - "tools/test_constraint_second_slice_batch033_ordinary_t2_normalization_adversarial.py"
+      - "tools/build_constraint_second_slice_batch034_t2_evidence_lineage.py"
+      - "tools/validate_constraint_second_slice_batch034_t2_evidence_lineage.py"
+      - "tools/test_constraint_second_slice_batch034_t2_evidence_lineage_adversarial.py"
       - "tools/private/HYDRA_CONSTRAINT_T1_SEMICONDUCTOR_BATCH031_BROWSER_CAPTURE_V001_20260928.py"
       - "tools/materialize_constraint_second_slice_batch031_private_t1.py"
       - "tools/verify_constraint_second_slice_batch031_private_t1.py"
@@ -336,6 +346,19 @@ jobs:
           tmp=$(mktemp)
           python tools/build_constraint_second_slice_batch033_ordinary_t2_lineage.py --output "$tmp"
           cmp "$tmp" docs/constraint/second_slice/semiconductor_advanced_packaging_critical_materials_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH033_SEMICONDUCTOR_ORDINARY_T2_SOURCE_VERSION_LINEAGE_V001_20260928.json
+          rm -f "$tmp"
+
+      - name: Validate Batch034 T2 evidence lineage
+        run: python tools/validate_constraint_second_slice_batch034_t2_evidence_lineage.py
+
+      - name: Run Batch034 T2 evidence hostile matrix
+        run: python tools/test_constraint_second_slice_batch034_t2_evidence_lineage_adversarial.py
+
+      - name: Rebuild Batch034 evidence lineage deterministically
+        run: |
+          tmp=$(mktemp)
+          python tools/build_constraint_second_slice_batch034_t2_evidence_lineage.py --output "$tmp"
+          cmp "$tmp" docs/constraint/second_slice/semiconductor_advanced_packaging_critical_materials_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH034_SEMICONDUCTOR_ORDINARY_T2_EVIDENCE_LINEAGE_BINDING_V001_20260928.json
           rm -f "$tmp"
 
       - name: Compile Batch031 TSMC-free acquisition and T1 tools
