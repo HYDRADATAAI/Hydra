@@ -1,0 +1,47 @@
+{
+  "schema_version": "hydra-constraint-batch017-post-capture-sanitized-status-gate-manifest/v1",
+  "record_id": "HYDRA_CONSTRAINT_BATCH017_POST_CAPTURE_SANITIZED_STATUS_GATE_ARTIFACT_MANIFEST_V001_20260926",
+  "as_of": "2026-09-26",
+  "repository": "HYDRADATAAI/Hydra",
+  "stacked_on_pr": 65,
+  "branch": "constraint/t1-private-capture-execution-packet-20260926",
+  "purpose": "POST_CAPTURE_SANITIZED_STATUS_GATE_ONLY",
+  "actual_private_capture_executed": false,
+  "raw_source_bodies_published": false,
+  "ordinary_replay_promoted": false,
+  "canonical_admission_promoted": false,
+  "artifacts": [
+    {
+      "path": "constraint-t1-raw-artifact-store/src/hydra_constraint_t1_raw/post_capture_status.py",
+      "git_blob_sha": "7f3088351426c5db5f25f27448bac030fcc0f333"
+    },
+    {
+      "path": "constraint-t1-raw-artifact-store/tests/test_post_capture_status.py",
+      "git_blob_sha": "4e6e81a85ae04e5e91cf668b43ab9668ac9ac597"
+    },
+    {
+      "path": "tools/build_constraint_t1_post_capture_public_status.py",
+      "git_blob_sha": "b73d63e6f2820916076adfac840c497eb8977c48"
+    },
+    {
+      "path": "docs/constraint/implementation/HYDRA_CONSTRAINT_BATCH017_POST_CAPTURE_SANITIZED_STATUS_GATE_V001_20260926.md",
+      "git_blob_sha": "8bcf7dfe5a66e31e98d584e1b32579397667eb87"
+    },
+    {
+      "path": "docs/constraint/architecture/HYDRA_CONSTRAINT_BATCH017_POST_CAPTURE_STATUS_GATE_READINESS_V001_20260926.json",
+      "git_blob_sha": "99b8585959b2629a27d834f4bb976abfedb852e3"
+    }
+  ],
+  "expected": {
+    "nine_of_nine_attestation_required": true,
+    "all_members_ordinary_t2_eligible_required": true,
+    "raw_materialization_blocker_can_close": true,
+    "source_version_hash_component_can_close": true,
+    "historical_available_at_component_can_close": false,
+    "ordinary_replay_can_promote": false,
+    "native_signed_t5_t6_can_promote": false,
+    "canonical_admission_can_promote": false
+  },
+  "reconciled_into_pr": 65,
+  "reconciled_from_pr": 66
+}
