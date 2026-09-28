@@ -21,6 +21,10 @@
     {
       "path": "docs/constraint/architecture/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH032_SEMICONDUCTOR_POST_CAPTURE_PUBLIC_STATUS_V001_20260928.json",
       "git_blob_sha": "8accfca3f139debd29d63ab8db51ccec1e12b3ca"
+    },
+    {
+      "path": "docs/constraint/architecture/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH032_MASTER_STATUS_V001_20260928.json",
+      "git_blob_sha": "5f0be73432812fd40f2abe73bc73e199eb179580"
     }
   ],
   "excluded_operational_tools": [
