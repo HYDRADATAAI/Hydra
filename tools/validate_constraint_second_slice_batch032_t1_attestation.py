@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """Validate Batch032 sanitized semiconductor T1 materialization attestation."""
 from __future__ import annotations
-import hashlib
 import json
 import re
+import subprocess
 from pathlib import Path
 
 ROOT=Path(__file__).resolve().parents[1]
@@ -33,8 +33,9 @@ def load(p):
     return v
 
 def git_blob_sha(path):
-    data=path.read_bytes()
-    return hashlib.sha1(b"blob "+str(len(data)).encode("ascii")+b"\\0"+data).hexdigest()
+    result=subprocess.run(["git","hash-object",str(path.relative_to(ROOT))],cwd=ROOT,text=True,capture_output=True,check=False)
+    req(result.returncode==0,f"git hash-object failed for {path.relative_to(ROOT)}: {result.stderr.strip()}")
+    return result.stdout.strip()
 
 def validate_documents(queue,quar,att,status,master=None,manifest=None):
     req(queue.get("slice_id")==SLICE,"queue slice drift")
