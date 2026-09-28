@@ -64,3 +64,33 @@ jobs:
             }
           }
           Write-Host "HYDRA_PRIVATE_CAPTURE_POWERSHELL_SYNTAX=PASS"
+
+  windows-powershell-51-syntax:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Parse legacy capture helpers with Windows PowerShell 5.1
+        shell: powershell
+        run: |
+          $paths = @(
+            "tools/private/Invoke-HYDRAConstraintFirstSlicePrivateCapture_V001_20260926.ps1",
+            "tools/private/Invoke-HYDRAConstraintFirstSliceAutomatedBrowserCapture_V001_20260926.ps1"
+          )
+          foreach ($path in $paths) {
+            if (-not (Test-Path -LiteralPath $path -PathType Leaf)) {
+              throw "Capture helper missing: $path"
+            }
+            $tokens = $null
+            $errors = $null
+            [System.Management.Automation.Language.Parser]::ParseFile(
+              (Resolve-Path -LiteralPath $path),
+              [ref]$tokens,
+              [ref]$errors
+            ) | Out-Null
+            if ($errors.Count -gt 0) {
+              $errors | ForEach-Object { Write-Error "$path :: $($_.Message)" }
+              throw "Windows PowerShell 5.1 capture syntax validation failed: $path"
+            }
+          }
+          Write-Host "HYDRA_WINDOWS_POWERSHELL_51_CAPTURE_SYNTAX=PASS"
