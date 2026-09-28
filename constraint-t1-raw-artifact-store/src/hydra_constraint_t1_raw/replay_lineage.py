@@ -164,15 +164,6 @@ def validate_replay_lineage_packet(
     packet: Mapping[str, Any],
     registry: Mapping[str, Any],
 ) -> None:
-    allowed = {
-        "schema_version", "slice_id", "release_id", "release_sha256", "release_created_at",
-        "availability_mode", "source_count", "ordinary_source_version_hash_lineage_complete",
-        "ordinary_current_source_set_ready", "strict_historical_replay_ready",
-        "historical_availability_backdated", "no_lookahead_rule", "historical_replay_blocker",
-        "members", "availability_boundaries", "packet_sha256",
-    }
-    if set(packet) - allowed:
-        raise ReplayLineageError("replay-lineage packet contains unsupported fields")
     registry_ids = _registry_ids(registry)
     if packet.get("schema_version") != REPLAY_LINEAGE_SCHEMA:
         raise ReplayLineageError("unsupported replay-lineage schema")

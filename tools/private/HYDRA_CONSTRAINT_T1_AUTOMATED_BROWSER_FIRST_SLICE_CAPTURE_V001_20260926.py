@@ -1,0 +1,1138 @@
+from __future__ import annotations
+
+import argparse
+import hashlib
+import json
+import os
+import subprocess
+import sys
+import time
+from contextlib import contextmanager
+from dataclasses import dataclass
+from datetime import datetime, timezone
+from pathlib import Path
+from typing import Any, Mapping, Sequence
+
+
+EXPECTED_SLICE_ID = "AI_DATA_CENTER_POWER_INFRASTRUCTURE_V1"
+EXPECTED_SOURCE_COUNT = 9
+REGISTRY_RELATIVE_PATH = Path(
+    "docs/constraint/first_slice/ai_data_center_power_infrastructure_v1/"
+    "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH003_AI_DATA_CENTER_POWER_INFRASTRUCTURE_SOURCE_REGISTRY_V001_20260925.json"
+)
+MATERIALIZER_SRC_RELATIVE_PATH = Path("constraint-t1-raw-artifact-store/src")
+ATTESTATION_VALIDATOR_RELATIVE_PATH = Path("tools/validate_constraint_t1_first_slice_attestation.py")
+REPLAY_BUILDER_RELATIVE_PATH = Path("tools/build_constraint_t1_first_slice_replay_lineage.py")
+POST_CAPTURE_STATUS_BUILDER_RELATIVE_PATH = Path("tools/build_constraint_t1_post_capture_public_status.py")
+CAPTURE_JOURNAL_SCHEMA = "hydra-constraint-automated-browser-capture-journal/v1"
+
+HTML_BLOCK_MARKERS = (
+    b"attention required! | cloudflare",
+    b"just a moment...",
+    b"enable javascript and cookies to continue",
+    b"checking your browser",
+    b"verify you are human",
+    b"cf-chl-",
+    b"cloudflare ray id",
+    b"request blocked",
+)
+SOURCE_TEXT_MARKERS: dict[str, bytes] = {
+    "SRC-LBNL-QUEUED-UP-2025": b"queued up: 2025 edition",
+    "SRC-FERC-ORDER-2023-FACT-SHEET": (
+        b"fact sheet | improvements to generator interconnection procedures and agreements"
+    ),
+    "SRC-PJM-2025-YEAR-IN-REVIEW-2026-01-08": (
+        b"2025 year in review: planning prepares for burgeoning electricity demand"
+    ),
+}
+
+
+class CaptureError(RuntimeError):
+    pass
+
+
+@dataclass(frozen=True)
+class CapturedDocument:
+    source_id: str
+    source_locator: str
+    source_version_id: str
+    acquired_at: str
+    status: int
+    content_type: str
+    byte_length: int
+    artifact_sha256: str
+    body_path: Path
+    capture_method: str
+    browser_channel: str
+    redirect_chain: tuple[str, ...]
+
+
+def utc_timestamp() -> str:
+    return datetime.now(timezone.utc).isoformat(timespec="microseconds").replace("+00:00", "Z")
+
+
+def safe_timestamp() -> str:
+    return datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%S%fZ")
+
+
+@contextmanager
+def _exclusive_private_capture_lock(private_root: Path):
+    lock_dir = private_root / "locks"
+    lock_dir.mkdir(parents=True, exist_ok=True)
+    lock_path = lock_dir / "HYDRA_CONSTRAINT_T1_AUTOMATED_BROWSER_CAPTURE.lock"
+    handle = lock_path.open("a+b")
+    locked = False
+    try:
+        handle.seek(0, os.SEEK_END)
+        if handle.tell() == 0:
+            handle.write(b"0")
+            handle.flush()
+        handle.seek(0)
+
+        if os.name == "nt":
+            import msvcrt
+
+            try:
+                msvcrt.locking(handle.fileno(), msvcrt.LK_NBLCK, 1)
+            except OSError as exc:
+                raise CaptureError(
+                    "another HYDRA Constraint browser capture already holds the private-root lock"
+                ) from exc
+        else:
+            import fcntl
+
+            try:
+                fcntl.flock(handle.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
+            except OSError as exc:
+                raise CaptureError(
+                    "another HYDRA Constraint browser capture already holds the private-root lock"
+                ) from exc
+
+        locked = True
+        handle.seek(0)
+        handle.truncate()
+        handle.write(
+            (
+                f"pid={os.getpid()}\n"
+                f"acquired_at={utc_timestamp()}\n"
+                f"private_root={private_root}\n"
+            ).encode("utf-8")
+        )
+        handle.flush()
+        yield lock_path
+    finally:
+        if locked:
+            try:
+                handle.seek(0)
+                if os.name == "nt":
+                    import msvcrt
+
+                    msvcrt.locking(handle.fileno(), msvcrt.LK_UNLCK, 1)
+                else:
+                    import fcntl
+
+                    fcntl.flock(handle.fileno(), fcntl.LOCK_UN)
+            except Exception:
+                pass
+        handle.close()
+
+
+def _resolved(path: str | Path) -> Path:
+    return Path(path).expanduser().resolve()
+
+
+def assert_outside_repo(path: str | Path, repo_root: str | Path, label: str) -> Path:
+    candidate = _resolved(path)
+    repo = _resolved(repo_root)
+    try:
+        candidate.relative_to(repo)
+    except ValueError:
+        return candidate
+    raise CaptureError(f"{label} must remain outside the public repository: {candidate}")
+
+
+def _load_json(path: Path) -> dict[str, Any]:
+    try:
+        value = json.loads(path.read_text(encoding="utf-8"))
+    except Exception as exc:
+        raise CaptureError(f"unable to read JSON: {path}") from exc
+    if not isinstance(value, dict):
+        raise CaptureError(f"top-level JSON object required: {path}")
+    return value
+
+
+def validate_registry(registry: Mapping[str, Any]) -> list[dict[str, Any]]:
+    if registry.get("slice_id") != EXPECTED_SLICE_ID:
+        raise CaptureError(f"unexpected registry slice_id: {registry.get('slice_id')!r}")
+    sources = registry.get("sources")
+    if not isinstance(sources, list) or len(sources) != EXPECTED_SOURCE_COUNT:
+        raise CaptureError(f"authoritative registry must contain exactly {EXPECTED_SOURCE_COUNT} sources")
+
+    normalized: list[dict[str, Any]] = []
+    source_ids: set[str] = set()
+    locators: set[str] = set()
+    for index, raw in enumerate(sources):
+        if not isinstance(raw, Mapping):
+            raise CaptureError(f"registry.sources[{index}] must be an object")
+        source_id = raw.get("source_id")
+        locator = raw.get("url")
+        if not isinstance(source_id, str) or not source_id:
+            raise CaptureError(f"registry.sources[{index}].source_id required")
+        if source_id in source_ids:
+            raise CaptureError(f"duplicate source identity: {source_id}")
+        if not isinstance(locator, str) or not locator.startswith("https://"):
+            raise CaptureError(f"{source_id}: exact HTTPS source locator required")
+        if locator in locators:
+            raise CaptureError(f"duplicate exact source locator: {locator}")
+        source_ids.add(source_id)
+        locators.add(locator)
+        normalized.append(dict(raw))
+    return normalized
+
+
+def expected_content_type(locator: str) -> str:
+    return "application/pdf" if locator.lower().endswith(".pdf") else "text/html"
+
+
+def validate_main_document(
+    *,
+    source_id: str,
+    exact_locator: str,
+    response_url: str,
+    redirect_chain: Sequence[str],
+    status: int,
+    observed_content_type: str | None,
+    body: bytes,
+) -> str:
+    if response_url != exact_locator:
+        raise CaptureError(
+            f"{source_id}: main-document response URL drifted from exact registered locator: "
+            f"{response_url!r}"
+        )
+    if list(redirect_chain) != [exact_locator]:
+        raise CaptureError(
+            f"{source_id}: redirect chain is not authorized for exact-source capture: "
+            f"{list(redirect_chain)!r}"
+        )
+    if status != 200:
+        raise CaptureError(f"{source_id}: HTTP status {status} is not acceptable")
+
+    expected = expected_content_type(exact_locator)
+    observed = (observed_content_type or "").strip().lower()
+    if not observed.startswith(expected):
+        raise CaptureError(
+            f"{source_id}: unexpected content type {observed_content_type!r}; "
+            f"expected prefix {expected!r}"
+        )
+    if not body:
+        raise CaptureError(f"{source_id}: empty main-document body")
+
+    if expected == "application/pdf":
+        if len(body) < 1024:
+            raise CaptureError(f"{source_id}: suspiciously small PDF body ({len(body)} bytes)")
+        if not body.startswith(b"%PDF-"):
+            raise CaptureError(f"{source_id}: application/pdf body lacks PDF signature")
+    else:
+        if len(body) < 512:
+            raise CaptureError(f"{source_id}: suspiciously small HTML body ({len(body)} bytes)")
+        lower = body[:2_000_000].lower()
+        if b"<html" not in lower and b"<!doctype html" not in lower:
+            raise CaptureError(f"{source_id}: text/html body does not contain an HTML document marker")
+        for marker in HTML_BLOCK_MARKERS:
+            if marker in lower:
+                raise CaptureError(
+                    f"{source_id}: challenge/error/interstitial marker present: "
+                    f"{marker.decode('ascii', errors='replace')}"
+                )
+        source_marker = SOURCE_TEXT_MARKERS.get(source_id)
+        if source_marker is not None and source_marker not in lower:
+            raise CaptureError(
+                f"{source_id}: main-document body is missing the expected exact-source marker"
+            )
+    return expected
+
+
+def _redirect_chain(response: Any) -> tuple[str, ...]:
+    request = response.request
+    chain: list[str] = []
+    while request is not None:
+        chain.append(str(request.url))
+        request = request.redirected_from
+    chain.reverse()
+    return tuple(chain)
+
+
+def _response_header_value(response: Any, name: str) -> str | None:
+    getter = getattr(response, "header_value", None)
+    if callable(getter):
+        try:
+            value = getter(name)
+        except Exception:
+            value = None
+        if value is not None:
+            return str(value)
+
+    headers = getattr(response, "headers", None)
+    if isinstance(headers, Mapping):
+        requested = name.lower()
+        for key, value in headers.items():
+            if str(key).lower() == requested:
+                return str(value)
+    return None
+
+
+def _dispose_api_response(response: Any) -> None:
+    try:
+        response.dispose()
+    except Exception:
+        pass
+
+
+def _fetch_exact_pdf_response(
+    *,
+    context: Any,
+    exact_locator: str,
+    timeout_milliseconds: int,
+) -> Any:
+    request_context = getattr(context, "request", None)
+    getter = getattr(request_context, "get", None)
+    if request_context is None or not callable(getter):
+        raise CaptureError("browser context does not expose a Playwright API request context")
+
+    try:
+        return getter(
+            exact_locator,
+            timeout=max(1, int(timeout_milliseconds)),
+            max_redirects=0,
+            max_retries=0,
+            fail_on_status_code=False,
+        )
+    except Exception as exc:
+        raise CaptureError(
+            f"raw PDF browser-context request failed for exact locator: {exc}"
+        ) from exc
+
+
+def _launch_persistent_context(playwright: Any, *, private_root: Path, browser: str, headless: bool) -> tuple[Any, str]:
+    channels = ("chrome", "msedge") if browser == "auto" else (browser,)
+    failures: list[str] = []
+    for channel in channels:
+        profile = private_root / "browser-profile" / channel
+        profile.mkdir(parents=True, exist_ok=True)
+        try:
+            context = playwright.chromium.launch_persistent_context(
+                user_data_dir=str(profile),
+                channel=channel,
+                headless=headless,
+                accept_downloads=False,
+                ignore_https_errors=False,
+            )
+            return context, channel
+        except Exception as exc:
+            failures.append(f"{channel}: {exc}")
+    raise CaptureError(
+        "unable to launch installed Chrome/Edge through Playwright; "
+        + " | ".join(failures)
+    )
+
+
+def _body_from_response(response: Any) -> bytes:
+    try:
+        value = response.body()
+    except Exception as exc:
+        raise CaptureError(f"unable to read browser main-document response body: {exc}") from exc
+    if not isinstance(value, (bytes, bytearray)):
+        raise CaptureError("browser response body was not bytes")
+    return bytes(value)
+
+
+def capture_source(
+    *,
+    context: Any,
+    browser_channel: str,
+    source: Mapping[str, Any],
+    capture_dir: Path,
+    challenge_wait_seconds: int,
+    navigation_timeout_seconds: int,
+) -> CapturedDocument:
+    source_id = str(source["source_id"])
+    locator = str(source["url"])
+    expected = expected_content_type(locator)
+    suffix = ".pdf" if expected == "application/pdf" else ".html"
+    body_path = capture_dir / f"{source_id}{suffix}"
+
+    page = context.new_page()
+    document_responses: list[Any] = []
+
+    def on_response(response: Any) -> None:
+        try:
+            request = response.request
+            if request.is_navigation_request() and request.frame == page.main_frame:
+                document_responses.append(response)
+        except Exception:
+            return
+
+    page.on("response", on_response)
+    navigation_error: Exception | None = None
+    try:
+        try:
+            page.goto(
+                locator,
+                wait_until="commit",
+                timeout=max(1, navigation_timeout_seconds) * 1000,
+            )
+        except Exception as exc:
+            navigation_error = exc
+
+        deadline = time.monotonic() + max(0, challenge_wait_seconds)
+        last_rejection: str | None = None
+        seen_response_ids: set[int] = set()
+        while True:
+            for response in reversed(document_responses):
+                response_key = id(response)
+                if response_key in seen_response_ids:
+                    continue
+                seen_response_ids.add(response_key)
+                body_response = response
+                api_response: Any | None = None
+                capture_method = "PLAYWRIGHT_INSTALLED_BROWSER_MAIN_DOCUMENT"
+                try:
+                    if expected == "application/pdf":
+                        api_response = _fetch_exact_pdf_response(
+                            context=context,
+                            exact_locator=locator,
+                            timeout_milliseconds=max(1, navigation_timeout_seconds) * 1000,
+                        )
+                        body_response = api_response
+                        chain = (locator,)
+                        capture_method = "PLAYWRIGHT_BROWSER_CONTEXT_RAW_PDF_RESPONSE"
+                    else:
+                        chain = _redirect_chain(response)
+
+                    body = _body_from_response(body_response)
+                    content_type = _response_header_value(body_response, "content-type")
+                    response_status = int(body_response.status)
+                    normalized_content_type = validate_main_document(
+                        source_id=source_id,
+                        exact_locator=locator,
+                        response_url=str(body_response.url),
+                        redirect_chain=chain,
+                        status=response_status,
+                        observed_content_type=content_type,
+                        body=body,
+                    )
+                except CaptureError as exc:
+                    if api_response is not None:
+                        _dispose_api_response(api_response)
+                    last_rejection = str(exc)
+                    continue
+                except Exception as exc:
+                    if api_response is not None:
+                        _dispose_api_response(api_response)
+                    last_rejection = f"{source_id}: response inspection failed: {exc}"
+                    continue
+
+                if api_response is not None:
+                    _dispose_api_response(api_response)
+
+                acquired_at = utc_timestamp()
+                digest = hashlib.sha256(body).hexdigest()
+                version_stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
+                source_version_id = f"SV-{source_id}-{version_stamp}-{digest[:12]}"
+                body_path.write_bytes(body)
+                return CapturedDocument(
+                    source_id=source_id,
+                    source_locator=locator,
+                    source_version_id=source_version_id,
+                    acquired_at=acquired_at,
+                    status=response_status,
+                    content_type=normalized_content_type,
+                    byte_length=len(body),
+                    artifact_sha256=digest,
+                    body_path=body_path,
+                    capture_method=capture_method,
+                    browser_channel=browser_channel,
+                    redirect_chain=chain,
+                )
+
+            if time.monotonic() >= deadline:
+                detail = last_rejection
+                if detail is None and navigation_error is not None:
+                    detail = f"{source_id}: navigation failed: {navigation_error}"
+                if detail is None:
+                    detail = f"{source_id}: no acceptable main-document response was observed"
+                raise CaptureError(detail)
+            page.wait_for_timeout(500)
+    finally:
+        try:
+            page.close()
+        except Exception:
+            pass
+
+
+def _write_json(path: Path, value: Mapping[str, Any]) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(value, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+
+
+def _is_target_closed_error(exc: BaseException) -> bool:
+    text = f"{type(exc).__name__}: {exc}".lower()
+    return (
+        "targetclosed" in text
+        or "target page, context or browser has been closed" in text
+        or "browser has been closed" in text
+        or "context has been closed" in text
+    )
+
+
+def _capture_metadata(row: CapturedDocument) -> dict[str, Any]:
+    return {
+        "source_id": row.source_id,
+        "source_locator": row.source_locator,
+        "source_version_id": row.source_version_id,
+        "acquired_at": row.acquired_at,
+        "http_status": row.status,
+        "content_type": row.content_type,
+        "byte_length": row.byte_length,
+        "artifact_sha256": row.artifact_sha256,
+        "body_path": str(row.body_path),
+        "capture_method": row.capture_method,
+        "browser_channel": row.browser_channel,
+        "redirect_chain": list(row.redirect_chain),
+    }
+
+
+def _parse_aware_timestamp(value: Any, label: str) -> None:
+    if not isinstance(value, str) or not value:
+        raise CaptureError(f"{label}: timestamp required")
+    try:
+        parsed = datetime.fromisoformat(value.replace("Z", "+00:00"))
+    except ValueError as exc:
+        raise CaptureError(f"{label}: invalid timestamp") from exc
+    if parsed.tzinfo is None or parsed.utcoffset() is None:
+        raise CaptureError(f"{label}: timezone-aware timestamp required")
+
+
+def _resume_entry_to_capture(
+    *,
+    entry: Mapping[str, Any],
+    source: Mapping[str, Any],
+    public_repo_root: Path,
+) -> CapturedDocument:
+    source_id = str(source["source_id"])
+    locator = str(source["url"])
+
+    if entry.get("source_id") != source_id:
+        raise CaptureError(f"{source_id}: resume journal source identity mismatch")
+    if entry.get("source_locator") != locator:
+        raise CaptureError(f"{source_id}: resume journal exact locator mismatch")
+    if entry.get("http_status") != 200:
+        raise CaptureError(f"{source_id}: resume journal HTTP status is not 200")
+
+    content_type = entry.get("content_type")
+    expected_type = expected_content_type(locator)
+    if content_type != expected_type:
+        raise CaptureError(f"{source_id}: resume journal content type mismatch")
+
+    redirect_chain = entry.get("redirect_chain")
+    if redirect_chain != [locator]:
+        raise CaptureError(f"{source_id}: resume journal redirect chain mismatch")
+
+    source_version_id = entry.get("source_version_id")
+    if not isinstance(source_version_id, str) or not source_version_id:
+        raise CaptureError(f"{source_id}: resume journal source_version_id missing")
+
+    acquired_at = entry.get("acquired_at")
+    _parse_aware_timestamp(acquired_at, f"{source_id}.acquired_at")
+
+    digest = entry.get("artifact_sha256")
+    if not isinstance(digest, str):
+        raise CaptureError(f"{source_id}: resume journal SHA-256 invalid")
+    digest = digest.lower()
+    if (
+        len(digest) != 64
+        or any(ch not in "0123456789abcdef" for ch in digest)
+    ):
+        raise CaptureError(f"{source_id}: resume journal SHA-256 invalid")
+
+    byte_length = entry.get("byte_length")
+    if not isinstance(byte_length, int) or byte_length <= 0:
+        raise CaptureError(f"{source_id}: resume journal byte length invalid")
+
+    body_path_raw = entry.get("body_path")
+    if not isinstance(body_path_raw, str) or not body_path_raw:
+        raise CaptureError(f"{source_id}: resume journal body_path missing")
+    body_path = assert_outside_repo(
+        body_path_raw,
+        public_repo_root,
+        f"{source_id} resume body",
+    )
+    if not body_path.is_file():
+        raise CaptureError(f"{source_id}: resume journal staged body is missing")
+
+    body = body_path.read_bytes()
+    if len(body) != byte_length:
+        raise CaptureError(f"{source_id}: resume journal byte length does not match staged body")
+    if hashlib.sha256(body).hexdigest() != digest:
+        raise CaptureError(f"{source_id}: resume journal SHA-256 does not match staged body")
+
+    validate_main_document(
+        source_id=source_id,
+        exact_locator=locator,
+        response_url=locator,
+        redirect_chain=[locator],
+        status=200,
+        observed_content_type=content_type,
+        body=body,
+    )
+
+    capture_method = entry.get("capture_method")
+    allowed_capture_methods = {
+        "PLAYWRIGHT_INSTALLED_BROWSER_MAIN_DOCUMENT",
+        "PLAYWRIGHT_BROWSER_CONTEXT_RAW_PDF_RESPONSE",
+    }
+    if capture_method not in allowed_capture_methods:
+        raise CaptureError(f"{source_id}: resume journal capture method invalid")
+    if (
+        content_type == "text/html"
+        and capture_method != "PLAYWRIGHT_INSTALLED_BROWSER_MAIN_DOCUMENT"
+    ):
+        raise CaptureError(f"{source_id}: HTML resume capture method invalid")
+    browser_channel = entry.get("browser_channel")
+    if browser_channel not in {"chrome", "msedge"}:
+        raise CaptureError(f"{source_id}: resume journal browser channel invalid")
+
+    return CapturedDocument(
+        source_id=source_id,
+        source_locator=locator,
+        source_version_id=source_version_id,
+        acquired_at=str(acquired_at),
+        status=200,
+        content_type=content_type,
+        byte_length=byte_length,
+        artifact_sha256=digest,
+        body_path=body_path,
+        capture_method=capture_method,
+        browser_channel=browser_channel,
+        redirect_chain=(locator,),
+    )
+
+
+def _load_resume_journal(
+    *,
+    journal_path: Path,
+    sources: Sequence[Mapping[str, Any]],
+    public_repo_root: Path,
+) -> tuple[dict[str, Any], Path, list[CapturedDocument]]:
+    journal = _load_json(journal_path)
+    if journal.get("schema_version") != CAPTURE_JOURNAL_SCHEMA:
+        raise CaptureError("resume journal schema mismatch")
+    if journal.get("slice_id") != EXPECTED_SLICE_ID:
+        raise CaptureError("resume journal slice_id mismatch")
+    if journal.get("authoritative") is not False:
+        raise CaptureError("resume journal must remain non-authoritative")
+    if journal.get("t1_release_written") is not False:
+        raise CaptureError("resume journal already records a completed T1 release")
+
+    capture_dir_raw = journal.get("capture_dir")
+    if not isinstance(capture_dir_raw, str) or not capture_dir_raw:
+        raise CaptureError("resume journal capture_dir missing")
+    capture_dir = assert_outside_repo(
+        capture_dir_raw,
+        public_repo_root,
+        "ResumeCaptureDir",
+    )
+    if not capture_dir.is_dir():
+        raise CaptureError("resume journal capture_dir is missing")
+
+    entries = journal.get("entries")
+    if not isinstance(entries, list):
+        raise CaptureError("resume journal entries must be a list")
+    if len(entries) > len(sources):
+        raise CaptureError("resume journal contains more entries than the registry")
+
+    expected_prefix = [str(source["source_id"]) for source in sources[: len(entries)]]
+    observed_ids = [
+        entry.get("source_id") if isinstance(entry, Mapping) else None
+        for entry in entries
+    ]
+    if observed_ids != expected_prefix:
+        raise CaptureError(
+            "resume journal entries must match a prefix of the authoritative source order"
+        )
+    if len(observed_ids) != len(set(observed_ids)):
+        raise CaptureError("resume journal contains duplicate source identities")
+
+    captures: list[CapturedDocument] = []
+    for index, entry in enumerate(entries):
+        if not isinstance(entry, Mapping):
+            raise CaptureError(f"resume journal entries[{index}] must be an object")
+        captures.append(
+            _resume_entry_to_capture(
+                entry=entry,
+                source=sources[index],
+                public_repo_root=public_repo_root,
+            )
+        )
+    return journal, capture_dir, captures
+
+
+def _find_latest_incomplete_journal(metadata_root: Path) -> Path | None:
+    candidates = sorted(
+        metadata_root.glob(
+            "HYDRA_CONSTRAINT_FIRST_SLICE_AUTOMATED_BROWSER_CAPTURE_JOURNAL_*.json"
+        ),
+        key=lambda path: path.name,
+        reverse=True,
+    )
+    for candidate in candidates:
+        journal = _load_json(candidate)
+        if (
+            journal.get("schema_version") == CAPTURE_JOURNAL_SCHEMA
+            and journal.get("slice_id") == EXPECTED_SLICE_ID
+            and journal.get("t1_release_written") is False
+        ):
+            return candidate
+    return None
+
+
+def _run_checked(command: list[str], *, env: Mapping[str, str] | None = None, label: str) -> None:
+    completed = subprocess.run(command, env=dict(env) if env is not None else None, check=False)
+    if completed.returncode != 0:
+        raise CaptureError(f"{label} failed with exit code {completed.returncode}")
+
+
+def _build_capture_plan(captures: Sequence[CapturedDocument], *, release_id: str, release_created_at: str) -> dict[str, Any]:
+    return {
+        "schema_version": "hydra-constraint-first-slice-local-capture-plan/v1",
+        "slice_id": EXPECTED_SLICE_ID,
+        "availability_mode": "ACQUISITION_TIME_CONSERVATIVE",
+        "release_id": release_id,
+        "release_created_at": release_created_at,
+        "captures": [
+            {
+                "source_id": row.source_id,
+                "source_version_id": row.source_version_id,
+                "input_file": str(row.body_path),
+                "content_type": row.content_type,
+                "source_locator": row.source_locator,
+                "acquired_at": row.acquired_at,
+                "processing_disposition": "ELIGIBLE",
+            }
+            for row in captures
+        ],
+    }
+
+
+def _validate_post_outputs(attestation_path: Path, replay_path: Path, post_capture_status_path: Path) -> None:
+    attestation = _load_json(attestation_path)
+    if attestation.get("materialized_source_count") != EXPECTED_SOURCE_COUNT:
+        raise CaptureError("sanitized attestation source count is not 9")
+    if attestation.get("all_registry_sources_materialized") is not True:
+        raise CaptureError("sanitized attestation does not cover all registered sources")
+    if attestation.get("historical_availability_backdated") is not False:
+        raise CaptureError("sanitized attestation reports historical availability backdating")
+
+    replay = _load_json(replay_path)
+    if replay.get("source_count") != EXPECTED_SOURCE_COUNT:
+        raise CaptureError("replay-lineage source count is not 9")
+    if replay.get("ordinary_source_version_hash_lineage_complete") is not True:
+        raise CaptureError("source-version hash lineage is incomplete")
+    if replay.get("strict_historical_replay_ready") is not False:
+        raise CaptureError("strict historical replay was improperly promoted")
+    if replay.get("historical_availability_backdated") is not False:
+        raise CaptureError("replay-lineage reports historical availability backdating")
+
+    post_status = _load_json(post_capture_status_path)
+    if post_status.get("source_count") != EXPECTED_SOURCE_COUNT:
+        raise CaptureError("post-capture sanitized status source count is not 9")
+    if post_status.get("materialized_source_count") != EXPECTED_SOURCE_COUNT:
+        raise CaptureError("post-capture sanitized status materialized count is not 9")
+    if post_status.get("ordinary_t2_eligible_count") != EXPECTED_SOURCE_COUNT:
+        raise CaptureError("post-capture sanitized status ordinary T2 eligible count is not 9")
+    closure = post_status.get("closure")
+    if not isinstance(closure, Mapping):
+        raise CaptureError("post-capture sanitized status closure block is missing")
+    if closure.get("PIT-002B-FIRST-SLICE-NINE-SOURCE-RAW-CAPTURE-MATERIALIZATION") != "CLOSED_BY_VALIDATED_PRIVATE_T1_ATTESTATION":
+        raise CaptureError("post-capture sanitized status did not close raw materialization")
+    still_blocked = post_status.get("still_blocked")
+    if not isinstance(still_blocked, Mapping):
+        raise CaptureError("post-capture sanitized status still_blocked block is missing")
+    if still_blocked.get("ORDINARY_POINT_IN_TIME_REPLAY_READY") != "NO":
+        raise CaptureError("post-capture sanitized status improperly promotes ordinary replay")
+    if post_status.get("native_signed_t5_t6_receipt_present") is not False:
+        raise CaptureError("post-capture sanitized status claims native signed T5->T6 receipt")
+    if post_status.get("canonical_admission_promoted") is not False:
+        raise CaptureError("post-capture sanitized status improperly promotes canonical admission")
+
+
+def run(args: argparse.Namespace) -> int:
+    if not getattr(args, "authorized_public_acquisition", False):
+        raise CaptureError(
+            "explicit --authorized-public-acquisition is required for browser-backed public source acquisition"
+        )
+
+    repo_root = _resolved(args.repo_root)
+    private_root = assert_outside_repo(args.private_root, repo_root, "PrivateRoot")
+    with _exclusive_private_capture_lock(private_root) as lock_path:
+        print(f"CAPTURE_PRIVATE_ROOT_LOCK={lock_path}")
+        return _run_locked(args)
+
+
+def _run_locked(args: argparse.Namespace) -> int:
+    if not getattr(args, "authorized_public_acquisition", False):
+        raise CaptureError(
+            "explicit --authorized-public-acquisition is required for browser-backed public source acquisition"
+        )
+
+    repo_root = _resolved(args.repo_root)
+    private_root = assert_outside_repo(args.private_root, repo_root, "PrivateRoot")
+    raw_root = assert_outside_repo(private_root / "raw", repo_root, "PrivateRawRoot")
+    staging_root = assert_outside_repo(private_root / "capture-staging", repo_root, "PrivateStagingRoot")
+    metadata_root = assert_outside_repo(private_root / "metadata", repo_root, "PrivateMetadataRoot")
+
+    registry_path = repo_root / REGISTRY_RELATIVE_PATH
+    materializer_src = repo_root / MATERIALIZER_SRC_RELATIVE_PATH
+    attestation_validator = repo_root / ATTESTATION_VALIDATOR_RELATIVE_PATH
+    replay_builder = repo_root / REPLAY_BUILDER_RELATIVE_PATH
+    post_capture_status_builder = repo_root / POST_CAPTURE_STATUS_BUILDER_RELATIVE_PATH
+    for label, path in (
+        ("authoritative source registry", registry_path),
+        ("authoritative T1 materializer source", materializer_src),
+        ("sanitized attestation validator", attestation_validator),
+        ("deterministic replay-lineage builder", replay_builder),
+        ("post-capture sanitized status builder", post_capture_status_builder),
+    ):
+        if not path.exists():
+            raise CaptureError(f"{label} not found: {path}")
+
+    sources = validate_registry(_load_json(registry_path))
+    raw_root.mkdir(parents=True, exist_ok=True)
+    staging_root.mkdir(parents=True, exist_ok=True)
+    metadata_root.mkdir(parents=True, exist_ok=True)
+
+    if args.resume_journal and args.fresh:
+        raise CaptureError("--resume-journal and --fresh are mutually exclusive")
+
+    resume_path: Path | None = None
+    if args.resume_journal:
+        resume_path = assert_outside_repo(
+            args.resume_journal,
+            repo_root,
+            "ResumeJournalPath",
+        )
+        if not resume_path.is_file():
+            raise CaptureError(f"resume journal not found: {resume_path}")
+    elif not args.fresh:
+        resume_path = _find_latest_incomplete_journal(metadata_root)
+
+    if resume_path is not None:
+        journal_path = resume_path
+        journal, capture_dir, captures = _load_resume_journal(
+            journal_path=journal_path,
+            sources=sources,
+            public_repo_root=repo_root,
+        )
+        run_stamp = str(journal.get("run_stamp") or journal_path.stem)
+        print(f"CAPTURE_RESUME_JOURNAL={journal_path}")
+        for row in captures:
+            print(
+                f"CAPTURE_RESUME_OK {row.source_id} status={row.status} "
+                f"bytes={row.byte_length} sha256={row.artifact_sha256}"
+            )
+    else:
+        run_stamp = safe_timestamp()
+        capture_dir = staging_root / run_stamp
+        capture_dir.mkdir(parents=True, exist_ok=False)
+        journal_path = metadata_root / (
+            f"HYDRA_CONSTRAINT_FIRST_SLICE_AUTOMATED_BROWSER_CAPTURE_JOURNAL_{run_stamp}.json"
+        )
+        journal = {
+            "schema_version": CAPTURE_JOURNAL_SCHEMA,
+            "slice_id": EXPECTED_SLICE_ID,
+            "run_stamp": run_stamp,
+            "capture_dir": str(capture_dir),
+            "created_at": utc_timestamp(),
+            "updated_at": utc_timestamp(),
+            "authoritative": False,
+            "t1_release_written": False,
+            "entries": [],
+        }
+        captures = []
+        _write_json(journal_path, journal)
+
+    try:
+        from playwright.sync_api import sync_playwright
+    except Exception as exc:
+        raise CaptureError(
+            "Playwright is not installed in this Python runtime. "
+            "Use the committed Python bootstrap, which prepares Playwright under the private root."
+        ) from exc
+
+    browser_channel = (
+        captures[-1].browser_channel
+        if captures
+        else str(journal.get("browser_channel") or "")
+    )
+    completed_ids = {row.source_id for row in captures}
+
+    if len(captures) < EXPECTED_SOURCE_COUNT:
+        with sync_playwright() as playwright:
+            context, browser_channel = _launch_persistent_context(
+                playwright,
+                private_root=private_root,
+                browser=args.browser,
+                headless=args.headless,
+            )
+            try:
+                for source in sources:
+                    source_id = str(source["source_id"])
+                    if source_id in completed_ids:
+                        continue
+                    restart_count = 0
+                    while True:
+                        try:
+                            row = capture_source(
+                                context=context,
+                                browser_channel=browser_channel,
+                                source=source,
+                                capture_dir=capture_dir,
+                                challenge_wait_seconds=args.challenge_wait_seconds,
+                                navigation_timeout_seconds=args.navigation_timeout_seconds,
+                            )
+                            break
+                        except Exception as exc:
+                            if (
+                                _is_target_closed_error(exc)
+                                and restart_count < args.browser_restart_retries
+                            ):
+                                restart_count += 1
+                                print(
+                                    f"CAPTURE_BROWSER_RESTART {source_id} "
+                                    f"attempt={restart_count}/{args.browser_restart_retries}"
+                                )
+                                try:
+                                    context.close()
+                                except Exception:
+                                    pass
+                                context, browser_channel = _launch_persistent_context(
+                                    playwright,
+                                    private_root=private_root,
+                                    browser=args.browser,
+                                    headless=args.headless,
+                                )
+                                continue
+                            if isinstance(exc, CaptureError):
+                                raise
+                            raise CaptureError(
+                                f"{source_id}: browser capture failed: {exc}"
+                            ) from exc
+
+                    captures.append(row)
+                    completed_ids.add(row.source_id)
+                    journal["browser_channel"] = browser_channel
+                    journal["updated_at"] = utc_timestamp()
+                    journal["entries"] = [_capture_metadata(item) for item in captures]
+                    _write_json(journal_path, journal)
+                    print(
+                        f"CAPTURE_OK {row.source_id} status={row.status} "
+                        f"bytes={row.byte_length} sha256={row.artifact_sha256}"
+                    )
+            finally:
+                try:
+                    context.close()
+                except Exception:
+                    pass
+
+    if len(captures) != EXPECTED_SOURCE_COUNT:
+        raise CaptureError(
+            f"capture count drifted: expected {EXPECTED_SOURCE_COUNT}, observed {len(captures)}"
+        )
+
+    capture_manifest = {
+        "schema_version": "hydra-constraint-automated-browser-capture-manifest/v1",
+        "slice_id": EXPECTED_SLICE_ID,
+        "capture_method": "PLAYWRIGHT_INSTALLED_BROWSER_MAIN_DOCUMENT",
+        "pdf_transport": "PLAYWRIGHT_BROWSER_CONTEXT_RAW_PDF_RESPONSE",
+        "html_transport": "PLAYWRIGHT_INSTALLED_BROWSER_MAIN_DOCUMENT",
+        "browser_channel": browser_channel,
+        "raw_bodies_published_to_git": False,
+        "challenge_bypass_attempted": False,
+        "cookie_export_or_theft_performed": False,
+        "rendered_dom_used_as_source_body": False,
+        "sources": [
+            {
+                key: value
+                for key, value in _capture_metadata(row).items()
+                if key != "body_path"
+            }
+            for row in captures
+        ],
+    }
+    capture_manifest_path = metadata_root / (
+        f"HYDRA_CONSTRAINT_FIRST_SLICE_AUTOMATED_BROWSER_CAPTURE_MANIFEST_{run_stamp}.json"
+    )
+    _write_json(capture_manifest_path, capture_manifest)
+
+    release_id = journal.get("release_id")
+    release_created_at = journal.get("release_created_at")
+    if (release_id is None) != (release_created_at is None):
+        raise CaptureError("resume journal release identity is only partially populated")
+    if release_id is None:
+        release_created_at = utc_timestamp()
+        release_id = (
+            f"REL-AIDC-FIRST-SLICE-"
+            f"{datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%SZ')}"
+        )
+        journal["release_id"] = release_id
+        journal["release_created_at"] = release_created_at
+        journal["updated_at"] = utc_timestamp()
+        _write_json(journal_path, journal)
+    else:
+        if not isinstance(release_id, str) or not release_id:
+            raise CaptureError("resume journal release_id invalid")
+        _parse_aware_timestamp(release_created_at, "resume journal release_created_at")
+
+    capture_plan = _build_capture_plan(
+        captures,
+        release_id=release_id,
+        release_created_at=release_created_at,
+    )
+    plan_path = metadata_root / f"HYDRA_CONSTRAINT_FIRST_SLICE_PRIVATE_CAPTURE_PLAN_{run_stamp}.json"
+    attestation_path = metadata_root / (
+        f"HYDRA_CONSTRAINT_FIRST_SLICE_PRIVATE_MATERIALIZATION_ATTESTATION_{run_stamp}.json"
+    )
+    replay_path = metadata_root / (
+        f"HYDRA_CONSTRAINT_FIRST_SLICE_REPLAY_LINEAGE_PACKET_{run_stamp}.json"
+    )
+    post_capture_status_path = metadata_root / (
+        f"HYDRA_CONSTRAINT_FIRST_SLICE_POST_CAPTURE_SANITIZED_STATUS_{run_stamp}.json"
+    )
+    _write_json(plan_path, capture_plan)
+
+    env = os.environ.copy()
+    previous_pythonpath = env.get("PYTHONPATH")
+    env["PYTHONPATH"] = (
+        str(materializer_src)
+        if not previous_pythonpath
+        else str(materializer_src) + os.pathsep + previous_pythonpath
+    )
+
+    _run_checked(
+        [
+            sys.executable,
+            "-m",
+            "hydra_constraint_t1_raw.first_slice_cli",
+            "--registry",
+            str(registry_path),
+            "--capture-plan",
+            str(plan_path),
+            "--private-root",
+            str(raw_root),
+            "--public-repo-root",
+            str(repo_root),
+            "--attestation-output",
+            str(attestation_path),
+        ],
+        env=env,
+        label="authoritative private T1 materializer",
+    )
+    _run_checked(
+        [
+            sys.executable,
+            str(attestation_validator),
+            "--attestation",
+            str(attestation_path),
+            "--registry",
+            str(registry_path),
+        ],
+        env=env,
+        label="sanitized materialization attestation validation",
+    )
+    _run_checked(
+        [
+            sys.executable,
+            str(replay_builder),
+            "--attestation",
+            str(attestation_path),
+            "--registry",
+            str(registry_path),
+            "--output",
+            str(replay_path),
+        ],
+        env=env,
+        label="deterministic replay-lineage builder",
+    )
+    _run_checked(
+        [
+            sys.executable,
+            str(post_capture_status_builder),
+            "--attestation",
+            str(attestation_path),
+            "--registry",
+            str(registry_path),
+            "--output",
+            str(post_capture_status_path),
+        ],
+        env=env,
+        label="post-capture sanitized status builder",
+    )
+    _validate_post_outputs(attestation_path, replay_path, post_capture_status_path)
+    journal["updated_at"] = utc_timestamp()
+    journal["t1_release_written"] = True
+    journal["release_id"] = release_id
+    journal["attestation_path"] = str(attestation_path)
+    journal["replay_lineage_path"] = str(replay_path)
+    journal["post_capture_status_path"] = str(post_capture_status_path)
+    _write_json(journal_path, journal)
+
+    print(f"SOURCE_CAPTURE={EXPECTED_SOURCE_COUNT}/{EXPECTED_SOURCE_COUNT}")
+    print("PRIVATE_MATERIALIZATION=PASS")
+    print("ATTESTATION=PASS")
+    print("SOURCE_VERSION_HASH_LINEAGE=PASS")
+    print("REPLAY_LINEAGE=PASS")
+    print("POST_CAPTURE_SANITIZED_STATUS=PASS")
+    print("STRICT_HISTORICAL_REPLAY=BLOCKED")
+    print("NATIVE_T5_T6_ADMISSION=BLOCKED")
+    print("RAW_SOURCE_PUBLICATION=NO")
+    return 0
+
+
+def build_parser() -> argparse.ArgumentParser:
+    default_repo = Path(__file__).resolve().parents[2]
+    parser = argparse.ArgumentParser(
+        description=(
+            "Capture the authoritative HYDRA Constraint first-slice registry with an installed "
+            "Chrome/Edge browser, then invoke the existing T1 materializer, attestation validator, "
+            "deterministic replay-lineage builder, and post-capture sanitized status gate."
+        )
+    )
+    parser.add_argument("--repo-root", default=str(default_repo))
+    parser.add_argument("--authorized-public-acquisition", action="store_true")
+    parser.add_argument("--private-root", default=r"D:\HYDRA\_PRIVATE\constraint")
+    parser.add_argument("--browser", choices=("auto", "chrome", "msedge"), default="auto")
+    parser.add_argument("--headless", action="store_true")
+    parser.add_argument("--challenge-wait-seconds", type=int, default=180)
+    parser.add_argument("--navigation-timeout-seconds", type=int, default=90)
+    parser.add_argument("--browser-restart-retries", type=int, default=2)
+    parser.add_argument("--resume-journal")
+    parser.add_argument(
+        "--fresh",
+        action="store_true",
+        help="ignore incomplete private capture journals and start a new capture",
+    )
+    return parser
+
+
+def main() -> int:
+    args = build_parser().parse_args()
+    try:
+        return run(args)
+    except CaptureError as exc:
+        print("HYDRA_CONSTRAINT_AUTOMATED_BROWSER_SOURCE_CAPTURE=FAIL", file=sys.stderr)
+        print(f"ERROR={exc}", file=sys.stderr)
+        return 1
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
