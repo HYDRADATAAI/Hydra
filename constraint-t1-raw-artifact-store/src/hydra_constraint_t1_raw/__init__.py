@@ -33,3 +33,17 @@ __all__ += [
     "select_ordinary_t2_members",
     "validate_ordinary_t2_lineage",
 ]
+
+from .evidence_lineage_binding import (
+    EvidenceLineageBindingError,
+    build_evidence_lineage_binding,
+    select_bound_evidence,
+    validate_evidence_lineage_binding,
+)
+
+__all__ += [
+    "EvidenceLineageBindingError",
+    "build_evidence_lineage_binding",
+    "select_bound_evidence",
+    "validate_evidence_lineage_binding",
+]
