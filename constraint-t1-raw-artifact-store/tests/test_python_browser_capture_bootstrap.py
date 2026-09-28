@@ -65,6 +65,27 @@ class PythonBrowserCaptureBootstrapTests(unittest.TestCase):
         text = BOOTSTRAP.read_text(encoding="utf-8")
         self.assertIn('"core.longpaths"', text)
         self.assertIn('"--ff-only"', text)
+        self.assertNotIn("reset --hard", text.lower())
+        self.assertNotIn("stash", text.lower())
+
+    def test_bootstrap_validates_exact_git_top_level_and_remote(self) -> None:
+        text = BOOTSTRAP.read_text(encoding="utf-8")
+        self.assertIn('"rev-parse", "--show-toplevel"', text)
+        self.assertIn("os.path.normcase", text)
+        self.assertIn("HYDRADATAAI/Hydra", text)
+        self.assertIn("unexpected origin remote", text)
+
+    def test_bootstrap_refuses_dirty_tracked_worktree_before_and_after_update(self) -> None:
+        text = BOOTSTRAP.read_text(encoding="utf-8")
+        self.assertIn('"status", "--porcelain=v1", "--untracked-files=no"', text)
+        self.assertIn("_assert_tracked_clean(repo, when=\"before branch update\")", text)
+        self.assertIn("_assert_tracked_clean(repo, when=\"after branch update\")", text)
+
+    def test_bootstrap_fetches_only_canonical_capture_branch(self) -> None:
+        text = BOOTSTRAP.read_text(encoding="utf-8")
+        self.assertIn('fetch_refspec = f"+refs/heads/{BRANCH}:{remote_ref}"', text)
+        self.assertIn('["git", "fetch", "--prune", "origin", fetch_refspec]', text)
+        self.assertIn('["git", "merge", "--ff-only", f"origin/{BRANCH}"]', text)
 
 
 if __name__ == "__main__":
