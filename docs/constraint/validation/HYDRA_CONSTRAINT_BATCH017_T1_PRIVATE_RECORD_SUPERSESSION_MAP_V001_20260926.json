@@ -29,6 +29,12 @@
       "predecessor_git_blob_sha": "2c1163d3dbb62e7ef790d967bd2f5834a1871a91",
       "successor_git_blob_sha": "c597639479c7be82570806b034fd0f1690822f56",
       "reason": "Advance private raw-store implementation version from 0.1.0 to 0.2.0 for persisted-custody hardening."
+    },
+    {
+      "path": "constraint-t1-raw-artifact-store/src/hydra_constraint_t1_raw/__init__.py",
+      "predecessor_git_blob_sha": "9edd2a2c99659d75a232ac06eefe053b0ee1b02d",
+      "successor_git_blob_sha": "407435b4e0fa76e5cdc551e65d973d3a859daee1",
+      "reason": "Expose the generic ordinary-T2 source-version lineage API without changing persisted-custody, replay, or admission authority."
     }
   ],
   "guardrails": [
