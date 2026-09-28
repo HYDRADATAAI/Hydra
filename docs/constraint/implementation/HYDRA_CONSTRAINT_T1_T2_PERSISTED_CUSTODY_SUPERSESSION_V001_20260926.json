@@ -39,6 +39,11 @@
       "path": "t6-fail-closed-validator/tests/test_pit_conservative_availability.py",
       "predecessor_git_blob_sha": "3d3b3681bc20bb57cd1493abef578a189a8703cd",
       "successor_git_blob_sha": "8b773956010afc0cc502cfa3c4f266b7c31d2c6f"
+    },
+    {
+      "path": "constraint-t1-raw-artifact-store/src/hydra_constraint_t1_raw/__init__.py",
+      "predecessor_git_blob_sha": "9edd2a2c99659d75a232ac06eefe053b0ee1b02d",
+      "successor_git_blob_sha": "407435b4e0fa76e5cdc551e65d973d3a859daee1"
     }
   ],
   "guardrails": [
