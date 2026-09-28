@@ -84,6 +84,11 @@ on:
       - "tools/build_constraint_second_slice_batch033_ordinary_t2_lineage.py"
       - "tools/validate_constraint_second_slice_batch033_ordinary_t2_normalization.py"
       - "tools/test_constraint_second_slice_batch033_ordinary_t2_normalization_adversarial.py"
+      - "constraint-t1-raw-artifact-store/src/hydra_constraint_t1_raw/evidence_lineage_binding.py"
+      - "constraint-t1-raw-artifact-store/tests/test_evidence_lineage_binding.py"
+      - "tools/build_constraint_second_slice_batch034_t2_evidence_lineage.py"
+      - "tools/validate_constraint_second_slice_batch034_t2_evidence_lineage.py"
+      - "tools/test_constraint_second_slice_batch034_t2_evidence_lineage_adversarial.py"
       - "tools/private/HYDRA_CONSTRAINT_T1_SEMICONDUCTOR_BATCH031_BROWSER_CAPTURE_V001_20260928.py"
       - "tools/materialize_constraint_second_slice_batch031_private_t1.py"
       - "tools/verify_constraint_second_slice_batch031_private_t1.py"
@@ -175,6 +180,11 @@ on:
       - "tools/build_constraint_second_slice_batch033_ordinary_t2_lineage.py"
       - "tools/validate_constraint_second_slice_batch033_ordinary_t2_normalization.py"
       - "tools/test_constraint_second_slice_batch033_ordinary_t2_normalization_adversarial.py"
+      - "constraint-t1-raw-artifact-store/src/hydra_constraint_t1_raw/evidence_lineage_binding.py"
+      - "constraint-t1-raw-artifact-store/tests/test_evidence_lineage_binding.py"
+      - "tools/build_constraint_second_slice_batch034_t2_evidence_lineage.py"
+      - "tools/validate_constraint_second_slice_batch034_t2_evidence_lineage.py"
+      - "tools/test_constraint_second_slice_batch034_t2_evidence_lineage_adversarial.py"
       - "tools/private/HYDRA_CONSTRAINT_T1_SEMICONDUCTOR_BATCH031_BROWSER_CAPTURE_V001_20260928.py"
       - "tools/materialize_constraint_second_slice_batch031_private_t1.py"
       - "tools/verify_constraint_second_slice_batch031_private_t1.py"
@@ -337,6 +347,25 @@ jobs:
           python tools/build_constraint_second_slice_batch033_ordinary_t2_lineage.py --output "$tmp"
           cmp "$tmp" docs/constraint/second_slice/semiconductor_advanced_packaging_critical_materials_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH033_SEMICONDUCTOR_ORDINARY_T2_SOURCE_VERSION_LINEAGE_V001_20260928.json
           rm -f "$tmp"
+
+      - name: Run ordinary-T2 evidence-lineage unit tests
+        run: PYTHONPATH=constraint-t1-raw-artifact-store/src python -m unittest discover -s constraint-t1-raw-artifact-store/tests -p "test_evidence_lineage_binding.py"
+
+      - name: Validate Batch034 T2 evidence lineage
+        run: python tools/validate_constraint_second_slice_batch034_t2_evidence_lineage.py
+
+      - name: Run Batch034 evidence-lineage hostile matrix
+        run: python tools/test_constraint_second_slice_batch034_t2_evidence_lineage_adversarial.py
+
+      - name: Rebuild Batch034 evidence lineage deterministically
+        run: |
+          tmp=$(mktemp)
+          python tools/build_constraint_second_slice_batch034_t2_evidence_lineage.py --output "$tmp"
+          cmp "$tmp" docs/constraint/second_slice/semiconductor_advanced_packaging_critical_materials_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH034_SEMICONDUCTOR_T2_EVIDENCE_LINEAGE_BINDING_V001_20260928.json
+          rm -f "$tmp"
+
+      - name: Compile Batch034 evidence-lineage tools
+        run: python -m py_compile constraint-t1-raw-artifact-store/src/hydra_constraint_t1_raw/evidence_lineage_binding.py tools/build_constraint_second_slice_batch034_t2_evidence_lineage.py tools/validate_constraint_second_slice_batch034_t2_evidence_lineage.py tools/test_constraint_second_slice_batch034_t2_evidence_lineage_adversarial.py
 
       - name: Compile Batch031 TSMC-free acquisition and T1 tools
         run: python -m py_compile tools/private/HYDRA_CONSTRAINT_T1_SEMICONDUCTOR_BATCH031_BROWSER_CAPTURE_V001_20260928.py tools/materialize_constraint_second_slice_batch031_private_t1.py tools/verify_constraint_second_slice_batch031_private_t1.py tools/build_constraint_second_slice_batch031_private_t1_handback.py tools/validate_constraint_second_slice_batch031_tsmc_quarantine.py tools/test_constraint_second_slice_batch031_tsmc_quarantine_adversarial.py
