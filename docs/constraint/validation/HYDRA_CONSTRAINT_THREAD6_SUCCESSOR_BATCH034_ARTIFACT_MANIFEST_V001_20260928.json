@@ -1,0 +1,72 @@
+{
+  "schema_version": "hydra-constraint-thread6-successor-manifest/v1",
+  "record_id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH034_ARTIFACT_MANIFEST_V001",
+  "as_of": "2026-09-28",
+  "repository": "HYDRADATAAI/Hydra",
+  "predecessor_batch": {
+    "id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH033",
+    "preservation": "IMMUTABLE_NOT_REWRITTEN"
+  },
+  "slice_id": "SEMICONDUCTOR_ADVANCED_PACKAGING_CRITICAL_MATERIALS_V1",
+  "result": "PASS_ACTIVE_REVIEWED_EVIDENCE_BOUND_TO_EXACT_T2_SOURCE_VERSIONS_CURRENT_ONLY",
+  "artifacts": [
+    {
+      "path": "docs/constraint/second_slice/semiconductor_advanced_packaging_critical_materials_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH034_SEMICONDUCTOR_ORDINARY_T2_EVIDENCE_LINEAGE_BINDING_V001_20260928.json",
+      "git_blob_sha": "9cff667fabcf2a10025dc7c6466b99676470dfea"
+    },
+    {
+      "path": "docs/constraint/second_slice/semiconductor_advanced_packaging_critical_materials_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH034_SEMICONDUCTOR_T2_EVIDENCE_LINEAGE_STATUS_V001_20260928.json",
+      "git_blob_sha": "ff74d12ecbb8158a0a9b9ac788bd6aea7b52af05"
+    },
+    {
+      "path": "docs/constraint/architecture/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH034_MASTER_STATUS_V001_20260928.json",
+      "git_blob_sha": "8da4220706c9b3a77fe8f342d5b3e18165468e30"
+    },
+    {
+      "path": "docs/constraint/validation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH034_SEMICONDUCTOR_T2_EVIDENCE_LINEAGE_REPORT_V001_20260928.md",
+      "git_blob_sha": "464c36f011f5d82279c63d083c6ea9bc0b53a607"
+    }
+  ],
+  "excluded_operational_tools": [
+    {
+      "path": "constraint-t1-raw-artifact-store/src/hydra_constraint_t1_raw/ordinary_t2_evidence_lineage.py",
+      "reason": "shared authoritative T1/T2 evidence-lineage implementation may evolve"
+    },
+    {
+      "path": "constraint-t1-raw-artifact-store/tests/test_ordinary_t2_evidence_lineage.py",
+      "reason": "shared regression harness"
+    },
+    {
+      "path": "tools/build_constraint_second_slice_batch034_t2_evidence_lineage.py",
+      "reason": "deterministic builder"
+    },
+    {
+      "path": "tools/validate_constraint_second_slice_batch034_t2_evidence_lineage.py",
+      "reason": "operational validator"
+    },
+    {
+      "path": "tools/test_constraint_second_slice_batch034_t2_evidence_lineage_adversarial.py",
+      "reason": "hostile harness"
+    },
+    {
+      "path": ".github/workflows/constraint-second-slice.yml",
+      "reason": "CI orchestration"
+    }
+  ],
+  "expected": {
+    "input_reviewed_evidence_records": 61,
+    "active_evidence_bound": 34,
+    "quarantined_source_evidence_excluded": 27,
+    "active_source_versions": 30,
+    "active_sources_with_bound_evidence": 30,
+    "all_active_sources_have_bound_evidence": true,
+    "evidence_bindings_adjusted_to_source_version_custody": 34,
+    "strict_historical_replay_ready": false,
+    "canonical_evidence_admission_promoted": false,
+    "required_cases_covered": "13/14",
+    "remaining_required_case": 12,
+    "repo_executable_blockers": 0,
+    "first_serious_constraint_run": "BLOCKED",
+    "next_repo_executable_lane": "NONE_CURRENT_CUSTODY_T2_NORMALIZATION_AND_EVIDENCE_LINEAGE_COMPLETE"
+  }
+}
