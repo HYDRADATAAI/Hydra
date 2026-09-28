@@ -73,7 +73,8 @@ on:
       - "tools/build_constraint_second_slice_batch030_private_t1_handback.py"
       - "tools/private/Invoke-HYDRAConstraintSemiconductorBatch030_V001_20260927.ps1"
       - "tools/validate_constraint_second_slice_batch031_tsmc_quarantine.py"
-      - "tools/test_constraint_second_slice_batch031_tsmc_quarantine_adversarial.py"\n      - "tools/test_constraint_batch031_release_idempotency.py"
+      - "tools/test_constraint_second_slice_batch031_tsmc_quarantine_adversarial.py"
+      - "tools/test_constraint_batch031_release_idempotency.py"
       - "tools/private/HYDRA_CONSTRAINT_T1_SEMICONDUCTOR_BATCH031_BROWSER_CAPTURE_V001_20260928.py"
       - "tools/materialize_constraint_second_slice_batch031_private_t1.py"
       - "tools/verify_constraint_second_slice_batch031_private_t1.py"
@@ -298,7 +299,10 @@ jobs:
 
       - name: Compile Batch031 TSMC-free acquisition and T1 tools
         run: python -m py_compile tools/private/HYDRA_CONSTRAINT_T1_SEMICONDUCTOR_BATCH031_BROWSER_CAPTURE_V001_20260928.py tools/materialize_constraint_second_slice_batch031_private_t1.py tools/verify_constraint_second_slice_batch031_private_t1.py tools/build_constraint_second_slice_batch031_private_t1_handback.py tools/validate_constraint_second_slice_batch031_tsmc_quarantine.py tools/test_constraint_second_slice_batch031_tsmc_quarantine_adversarial.py
-\n      - name: Run Batch031 release idempotency regressions\n        run: python tools/test_constraint_batch031_release_idempotency.py\n
+
+      - name: Run Batch031 release idempotency regressions
+        run: python tools/test_constraint_batch031_release_idempotency.py
+
       - name: Parse Batch031 PowerShell launcher
         shell: pwsh
         run: |
