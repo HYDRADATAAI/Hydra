@@ -216,6 +216,31 @@ class AutomatedBrowserPrivateSourceCaptureTests(unittest.TestCase):
             )
             self.assertEqual(capture._find_latest_incomplete_journal(root), older)
 
+    def test_private_capture_lock_rejects_concurrent_holder(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            private_root = Path(tmp)
+            with capture._exclusive_private_capture_lock(private_root) as lock_path:
+                self.assertTrue(lock_path.is_file())
+                with self.assertRaisesRegex(
+                    capture.CaptureError,
+                    "already holds the private-root lock",
+                ):
+                    with capture._exclusive_private_capture_lock(private_root):
+                        pass
+
+    def test_private_capture_lock_releases_after_context_exit(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            private_root = Path(tmp)
+            with capture._exclusive_private_capture_lock(private_root):
+                pass
+            with capture._exclusive_private_capture_lock(private_root) as lock_path:
+                self.assertTrue(lock_path.is_file())
+
+    def test_runner_wraps_capture_with_private_root_lock(self) -> None:
+        text = TOOL.read_text(encoding="utf-8")
+        self.assertIn("_exclusive_private_capture_lock(private_root)", text)
+        self.assertIn("CAPTURE_PRIVATE_ROOT_LOCK=", text)
+
     def test_parser_supports_explicit_resume_or_fresh(self) -> None:
         parser = capture.build_parser()
         resumed = parser.parse_args(["--resume-journal", "x.json"])
