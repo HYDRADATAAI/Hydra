@@ -1,0 +1,78 @@
+{
+  "schema_version": "hydra-constraint-thread6-master-status/v1",
+  "record_id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH032_MASTER_STATUS_V001",
+  "as_of": "2026-09-28",
+  "predecessor": {
+    "record_id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH030_MASTER_STATUS_V001",
+    "intervening_batch": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH031",
+    "intervening_role": "PROVIDER_QUARANTINE_AND_PRIVATE_CAPTURE_SUCCESSOR_WITHOUT_MASTER_STATUS",
+    "mutation": "NONE_TO_PREDECESSOR_MASTER"
+  },
+  "active_verticals": {
+    "AI_DATA_CENTER_POWER_INFRASTRUCTURE_V1": {
+      "status": "PUBLIC_REPO_SIDE_EXHAUSTED_EXTERNAL_GATES_REMAIN",
+      "first_serious_constraint_run": "BLOCKED"
+    },
+    "SEMICONDUCTOR_ADVANCED_PACKAGING_CRITICAL_MATERIALS_V1": {
+      "status": "PRIVATE_T1_CURRENT_CUSTODY_COMPLETE_ORDINARY_T2_NORMALIZATION_PENDING",
+      "first_serious_constraint_run": "BLOCKED"
+    }
+  },
+  "readiness": {
+    "SEMANTIC_ARCHITECTURE_READY": {
+      "status": "YES"
+    },
+    "SECOND_SLICE_PROVIDER_EXCLUSION_POLICY": {
+      "status": "ACTIVE_MICRON_AND_DIRECT_TSMC_QUARANTINED",
+      "direct_tsmc_quarantined_count": 8
+    },
+    "SECOND_SLICE_REQUIRED_CASES": {
+      "status": "PARTIAL_EXTERNAL_ONLY",
+      "covered": 13,
+      "total": 14,
+      "remaining_case": 12
+    },
+    "SECOND_SLICE_PRIVATE_CAPTURE_QUEUE": {
+      "status": "COMPLETE",
+      "source_count": 30
+    },
+    "SECOND_SLICE_RAW_SOURCE_VERSIONS": {
+      "status": "YES_30_OF_30_CAPTURED_VERSIONS"
+    },
+    "SECOND_SLICE_T1_RELEASE": {
+      "status": "YES_VALID_IMMUTABLE",
+      "release_id": "REL-SEMI-B031-V001",
+      "release_sha256": "c735db9e8a5daed8cff08dc7d9c2b4cc11f5910aba61669536c3961b21ac8b77"
+    },
+    "SECOND_SLICE_ORDINARY_T2_ELIGIBILITY": {
+      "status": "YES_30_OF_30"
+    },
+    "SECOND_SLICE_PERSISTED_CURRENT_CUSTODY": {
+      "status": "COMPLETE"
+    },
+    "SECOND_SLICE_ORDINARY_T2_NORMALIZATION": {
+      "status": "NOT_YET_INGESTED"
+    },
+    "SECOND_SLICE_HISTORICAL_AVAILABILITY": {
+      "status": "NO_PRE_ACQUISITION_VERSION_AVAILABILITY_UNPROVEN"
+    },
+    "SECOND_SLICE_REPLAY_READY": {
+      "status": "NO_STRICT_HISTORICAL"
+    },
+    "SECOND_SLICE_IMPLEMENTATION_ADMITTED": {
+      "status": "NO"
+    },
+    "FULL_CONSTRAINT_RUN_READY": {
+      "status": "NO"
+    }
+  },
+  "first_serious_constraint_run": "BLOCKED",
+  "remaining_blockers": [
+    "PRE_ACQUISITION_HISTORICAL_VERSION_AVAILABILITY_UNPROVEN",
+    "REQUIRED_CASE_12_HISTORICAL_NO_LOOKAHEAD_OPEN",
+    "SEMICONDUCTOR_ORDINARY_T2_NORMALIZATION_NOT_YET_INGESTED",
+    "SECOND_SLICE_IMPLEMENTATION_ADMISSION_NOT_GRANTED"
+  ],
+  "next_required_action": "INGEST_BATCH031_T1_RELEASE_INTO_SEMICONDUCTOR_ORDINARY_T2_NORMALIZATION",
+  "next_repo_executable_lane": "SEMICONDUCTOR_ORDINARY_T2_NORMALIZATION_FROM_BATCH031_RELEASE"
+}
