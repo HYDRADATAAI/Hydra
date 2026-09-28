@@ -1,0 +1,110 @@
+{
+  "schema_version": "hydra-constraint-second-slice-provider-quarantine/v1",
+  "record_id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH031_SEMICONDUCTOR_TSMC_DIRECT_PROVIDER_QUARANTINE_V001",
+  "as_of": "2026-09-28",
+  "slice_id": "SEMICONDUCTOR_ADVANCED_PACKAGING_CRITICAL_MATERIALS_V1",
+  "predecessor_queue": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH030_SEMICONDUCTOR_PRIVATE_T1_CAPTURE_QUEUE_V002",
+  "policy": "DIRECT_TSMC_PROVIDER_CAPTURE_DISABLED",
+  "reason": "OPERATOR_DIRECTIVE_AFTER_REPEATED_ACCESS_DENIALS",
+  "direct_provider_hosts": [
+    "investor.tsmc.com",
+    "pr.tsmc.com"
+  ],
+  "quarantined_source_count": 8,
+  "provenance_preserved": true,
+  "historical_backdating_authorized": false,
+  "retained_non_tsmc_primary_records_about_tsmc": [
+    "SRC-SEMI-B021-APS-BISCUIT-FLATS-TSMC-2021-06",
+    "SRC-SEMI-B021-AZCC-TSMC-POWER-ORDER-2021-09-09"
+  ],
+  "quarantined_sources": [
+    {
+      "source_id": "SRC-SEMI-B020-TSMC-ARIZONA-ANNOUNCEMENT-2020-05-15",
+      "source_version_id": "SV-SEMI-B030-009",
+      "capture_intent_id": "CAP-SEMI-B030-009",
+      "original_ordinal": 9,
+      "publisher": "TSMC",
+      "title": "TSMC Announces Intention to Build and Operate an Advanced Semiconductor Fab in the United States",
+      "source_locator": "https://pr.tsmc.com/english/news/2033",
+      "disposition": "QUARANTINED_DIRECT_TSMC_PROVIDER",
+      "replacement_status": "NOT_YET_REPLACED"
+    },
+    {
+      "source_id": "SRC-SEMI-B020-TSMC-Q2-2023-TRANSCRIPT-2023-07-20",
+      "source_version_id": "SV-SEMI-B030-010",
+      "capture_intent_id": "CAP-SEMI-B030-010",
+      "original_ordinal": 10,
+      "publisher": "TSMC",
+      "title": "Q2 2023 Taiwan Semiconductor Manufacturing Co Ltd Earnings Call",
+      "source_locator": "https://investor.tsmc.com/english/encrypt/files/encrypt_file/reports/2023-07/7ec677062ca442e429b632ccd6d4f31ad53b1ce7/TSMC%202Q23%20Transcript.pdf",
+      "disposition": "QUARANTINED_DIRECT_TSMC_PROVIDER",
+      "replacement_status": "NOT_YET_REPLACED"
+    },
+    {
+      "source_id": "SRC-SEMI-B022-TSMC-2025-ANNUAL-EQUIPMENT-RISK",
+      "source_version_id": "SV-SEMI-B030-018",
+      "capture_intent_id": "CAP-SEMI-B030-018",
+      "original_ordinal": 18,
+      "publisher": "TSMC",
+      "title": "TSMC 2025 Annual Report",
+      "source_locator": "https://investor.tsmc.com/sites/ir/annual-report/2025/2025%20Annual%20Report.E.pdf",
+      "disposition": "QUARANTINED_DIRECT_TSMC_PROVIDER",
+      "replacement_status": "NOT_YET_REPLACED"
+    },
+    {
+      "source_id": "SRC-SEMI-B022-TSMC-Q2-2026-TRANSCRIPT-2026-07-16",
+      "source_version_id": "SV-SEMI-B030-019",
+      "capture_intent_id": "CAP-SEMI-B030-019",
+      "original_ordinal": 19,
+      "publisher": "TSMC",
+      "title": "Q2 2026 Taiwan Semiconductor Manufacturing Co Ltd Earnings Call",
+      "source_locator": "https://investor.tsmc.com/english/encrypt/files/encrypt_file/reports/2026-07/57b65edbfe6e480e74abe202be983ecbde79e934/TSMC%202Q26%20Transcript.pdf",
+      "disposition": "QUARANTINED_DIRECT_TSMC_PROVIDER",
+      "replacement_status": "NOT_YET_REPLACED"
+    },
+    {
+      "source_id": "SRC-SEMI-TSMC-ANNUAL-REPORT-2023",
+      "source_version_id": "SV-SEMI-B030-033",
+      "capture_intent_id": "CAP-SEMI-B030-033",
+      "original_ordinal": 33,
+      "publisher": "TSMC",
+      "title": "TSMC 2023 Annual Report",
+      "source_locator": "https://investor.tsmc.com/static/annualReports/2023/english/index.html",
+      "disposition": "QUARANTINED_DIRECT_TSMC_PROVIDER",
+      "replacement_status": "NOT_YET_REPLACED"
+    },
+    {
+      "source_id": "SRC-SEMI-TSMC-ANNUAL-REPORT-2024",
+      "source_version_id": "SV-SEMI-B030-034",
+      "capture_intent_id": "CAP-SEMI-B030-034",
+      "original_ordinal": 34,
+      "publisher": "TSMC",
+      "title": "TSMC 2024 Annual Report",
+      "source_locator": "https://investor.tsmc.com/static/annualReports/2024/english/index.html",
+      "disposition": "QUARANTINED_DIRECT_TSMC_PROVIDER",
+      "replacement_status": "NOT_YET_REPLACED"
+    },
+    {
+      "source_id": "SRC-SEMI-TSMC-AP6-OPENING-2023-06-08",
+      "source_version_id": "SV-SEMI-B030-035",
+      "capture_intent_id": "CAP-SEMI-B030-035",
+      "original_ordinal": 35,
+      "publisher": "TSMC",
+      "title": "TSMC Announces the Opening of Advanced Backend Fab 6, Marking a Milestone in the Expansion of 3DFabric System Integration Technology",
+      "source_locator": "https://pr.tsmc.com/english/news/3033",
+      "disposition": "QUARANTINED_DIRECT_TSMC_PROVIDER",
+      "replacement_status": "NOT_YET_REPLACED"
+    },
+    {
+      "source_id": "SRC-SEMI-TSMC-Q1-2025-TRANSCRIPT-2025-04-17",
+      "source_version_id": "SV-SEMI-B030-036",
+      "capture_intent_id": "CAP-SEMI-B030-036",
+      "original_ordinal": 36,
+      "publisher": "TSMC",
+      "title": "TSMC Q1 2025 Earnings Call",
+      "source_locator": "https://investor.tsmc.com/schinese/encrypt/files/encrypt_file/reports/2025-04/7630274eecc1197a4e3ea6a415f44a47204fe10a/TSMC%201Q25%20Transcript.pdf",
+      "disposition": "QUARANTINED_DIRECT_TSMC_PROVIDER",
+      "replacement_status": "NOT_YET_REPLACED"
+    }
+  ]
+}
