@@ -54,8 +54,30 @@ def main():
         issues=store.validate_receipt(rec)
         if issues: fail(f"{item['source_id']}: invalid receipt: {','.join(issues)}")
         receipts.append(rec)
-    release=store.write_release_manifest(release_id=doc["release_id"],created_at=datetime.now(timezone.utc).isoformat(),receipts=receipts)
-    if store.validate_stored_release_manifest(release): fail("stored release invalid")
+    release_path=private/"releases"/f"{doc['release_id']}.json"
+    if release_path.is_file():
+        release=load(release_path)
+        issues=store.validate_stored_release_manifest(release)
+        if issues:
+            fail("existing immutable release invalid: "+",".join(issues))
+        expected_members=sorted(
+            [{
+                "source_id":r["source_id"],
+                "source_version_id":r["source_version_id"],
+                "artifact_sha256":r["artifact_sha256"],
+                "receipt_sha256":r["receipt_sha256"],
+            } for r in receipts],
+            key=lambda x:(x["source_id"],x["source_version_id"]),
+        )
+        if release.get("release_id")!=doc["release_id"]:
+            fail("existing immutable release id mismatch")
+        if release.get("members")!=expected_members:
+            fail("existing immutable release membership differs from Batch031 receipts")
+        print("T1_RELEASE_REUSED=YES")
+    else:
+        release=store.write_release_manifest(release_id=doc["release_id"],created_at=datetime.now(timezone.utc).isoformat(),receipts=receipts)
+        if store.validate_stored_release_manifest(release): fail("stored release invalid")
+        print("T1_RELEASE_REUSED=NO")
     eligible=sum(1 for r in receipts if is_ordinary_t2_eligible(receipt=r,release_manifest=release,store=store))
     if eligible!=30: fail(f"ordinary T2 eligibility incomplete: {eligible}/30")
     print("BATCH031_PRIVATE_T1_MATERIALIZATION=PASS"); print("VALID_T1_RECEIPTS=30"); print("T1_RELEASE_ID="+release["release_id"]); print("T1_RELEASE_SHA256="+release["release_sha256"]); print("ORDINARY_T2_ELIGIBLE_SOURCES=30"); return 0
