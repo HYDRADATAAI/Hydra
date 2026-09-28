@@ -431,7 +431,7 @@ def capture_one(
     navigation_timeout_seconds: int,
 ) -> dict[str, Any]:
     source_id = str(item["source_id"])
-    locator = str(item["source_locator"])
+    locator = str(capture_locator)
     page = context.new_page()
     responses: list[Any] = []
 
