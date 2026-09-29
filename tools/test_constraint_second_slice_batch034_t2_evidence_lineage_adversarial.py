@@ -26,7 +26,7 @@ class Batch034Hostile(unittest.TestCase):
     def test_canonical_evidence_promotion_rejected(self):
         q,l,b,s,m,f=self.docs(); b["canonical_evidence_admission_promoted"]=True; self.reject((q,l,b,s,m,f),"deterministic rebuild")
     def test_case12_closure_rejected(self):
-        q,l,b,s,m,f=self.docs(); s["results"]["REMAINING_REQUIRED_CASE"]=None; self.reject((q,l,b,s,m,f),"Case12 drift")
+        q,l,b,s,m,f=self.docs(); s["results"]["REMAINING_REQUIRED_CASE"]=None; self.reject((q,l,b,s,m,f),"REMAINING_REQUIRED_CASE")
     def test_master_repo_blocker_invention_rejected(self):
         q,l,b,s,m,f=self.docs(); m["repo_executable_blockers"]=["FAKE"]; self.reject((q,l,b,s,m,f),"not empty")
     def test_master_full_run_promotion_rejected(self):
