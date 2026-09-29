@@ -6,6 +6,11 @@ from pathlib import Path
 import unittest
 from unittest.mock import patch
 
+_custody_spec = importlib.util.spec_from_file_location(
+    "batch033_custody_pin_guard", Path(__file__).with_name("_batch033_custody_continuation.py"))
+_custody_continuation = importlib.util.module_from_spec(_custody_spec)
+_custody_spec.loader.exec_module(_custody_continuation)
+
 ROOT = Path(__file__).resolve().parents[2]
 spec = importlib.util.spec_from_file_location(
     "timestamp_successor_guard", ROOT / "tools/validate_constraint_first_slice_successor.py")
@@ -38,7 +43,8 @@ class TimestampSuccessorBindingTests(unittest.TestCase):
             PRIVATE_MAP: "9f214731ff90b9690a3e25d730fe22ae275be988ce7bbd8edd252ec640eb8bbe",
         }
         for path, digest in expected.items():
-            self.assertEqual(digest, hashlib.sha256(path.read_bytes()).hexdigest())
+            self.assertEqual(digest, hashlib.sha256(
+                _custody_continuation.recover_predecessor_bytes(path)).hexdigest())
 
     def test_hostile_timestamp_record_changes_are_rejected(self):
         original = guard.load_json

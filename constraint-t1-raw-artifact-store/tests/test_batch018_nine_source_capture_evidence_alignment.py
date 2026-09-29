@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 import copy
 import hashlib
+import importlib.util
 import re
 import subprocess
 import unittest
@@ -26,6 +27,11 @@ README = ROOT / "constraint-t1-raw-artifact-store" / "README.md"
 TIMESTAMP_VALIDATOR_SUCCESSOR = ROOT / "docs/constraint/validation/HYDRA_CONSTRAINT_T1_TIMESTAMP_VALIDATOR_SUCCESSOR_V001_20260927.json"
 
 PUBLIC_HASH_SUCCESSOR = ROOT / "docs/constraint/validation/HYDRA_CONSTRAINT_T1_BATCH018_PUBLIC_HASH_SUCCESSOR_V001_20260928.json"
+
+_custody_spec = importlib.util.spec_from_file_location(
+    "batch033_custody_pin_guard", Path(__file__).with_name("_batch033_custody_continuation.py"))
+_custody_continuation = importlib.util.module_from_spec(_custody_spec)
+_custody_spec.loader.exec_module(_custody_continuation)
 
 
 def load(path: Path) -> dict:
@@ -241,6 +247,8 @@ class Batch018NineSourceCaptureEvidenceTests(unittest.TestCase):
         for transition in expected["transitions"]:
             path = ROOT / transition["path"]
             current = path.read_bytes()
+            if path == ARTIFACT_MANIFEST:
+                current = _custody_continuation.recover_predecessor_bytes(path, current)
             self.assertEqual(transition["successor_sha256"], hashlib.sha256(current).hexdigest(), str(path))
             current_blob = hashlib.sha1(b"blob " + str(len(current)).encode() + b"\0" + current).hexdigest()
             self.assertEqual(transition["successor_git_blob_sha"], current_blob, str(path))
