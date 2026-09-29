@@ -1,0 +1,36 @@
+{
+  "version": "V018",
+  "environment": "example",
+  "sources": {
+    "bis_federal_register": {
+      "enabled": false,
+      "live_canary": false,
+      "read_only": true
+    },
+    "ofac_recent_actions": {
+      "enabled": false,
+      "live_canary": false,
+      "read_only": true
+    },
+    "sec_nvidia": {
+      "enabled": false,
+      "live_canary": false,
+      "read_only": true,
+      "user_agent": "REPLACE_WITH_REAL_CONTACT"
+    },
+    "port_la": {
+      "enabled": false,
+      "live_canary": false,
+      "read_only": true
+    },
+    "iurc_skh_watch": {
+      "enabled": false,
+      "live_canary": false,
+      "read_only": true
+    }
+  },
+  "secrets": {
+    "location": "external environment / secret store",
+    "embedded_secrets_allowed": false
+  }
+}
