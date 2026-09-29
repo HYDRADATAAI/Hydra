@@ -161,12 +161,12 @@ def _load_json(path: Path) -> dict[str, Any]:
     return value
 
 
-def validate_registry(registry: Mapping[str, Any]) -> list[dict[str, Any]]:
-    if registry.get("slice_id") != EXPECTED_SLICE_ID:
+def validate_registry(registry: Mapping[str, Any], *, slice_id: str = EXPECTED_SLICE_ID, source_count: int = EXPECTED_SOURCE_COUNT) -> list[dict[str, Any]]:
+    if registry.get("slice_id") != slice_id:
         raise CaptureError(f"unexpected registry slice_id: {registry.get('slice_id')!r}")
     sources = registry.get("sources")
-    if not isinstance(sources, list) or len(sources) != EXPECTED_SOURCE_COUNT:
-        raise CaptureError(f"authoritative registry must contain exactly {EXPECTED_SOURCE_COUNT} sources")
+    if not isinstance(sources, list) or len(sources) != source_count:
+        raise CaptureError(f"authoritative registry must contain exactly {source_count} sources")
 
     normalized: list[dict[str, Any]] = []
     source_ids: set[str] = set()
@@ -184,13 +184,18 @@ def validate_registry(registry: Mapping[str, Any]) -> list[dict[str, Any]]:
             raise CaptureError(f"{source_id}: exact HTTPS source locator required")
         if locator in locators:
             raise CaptureError(f"duplicate exact source locator: {locator}")
+        expected_content_type(locator, raw.get("expected_content_type"))
         source_ids.add(source_id)
         locators.add(locator)
         normalized.append(dict(raw))
     return normalized
 
 
-def expected_content_type(locator: str) -> str:
+def expected_content_type(locator: str, declared: Any = None) -> str:
+    if declared is not None:
+        if declared not in ("application/pdf", "text/html"):
+            raise CaptureError("registry expected_content_type must be application/pdf or text/html")
+        return declared
     return "application/pdf" if locator.lower().endswith(".pdf") else "text/html"
 
 
@@ -203,6 +208,7 @@ def validate_main_document(
     status: int,
     observed_content_type: str | None,
     body: bytes,
+    declared_content_type: str | None = None,
 ) -> str:
     if response_url != exact_locator:
         raise CaptureError(
@@ -217,7 +223,7 @@ def validate_main_document(
     if status != 200:
         raise CaptureError(f"{source_id}: HTTP status {status} is not acceptable")
 
-    expected = expected_content_type(exact_locator)
+    expected = expected_content_type(exact_locator, declared_content_type)
     observed = (observed_content_type or "").strip().lower()
     if not observed.startswith(expected):
         raise CaptureError(
@@ -357,7 +363,7 @@ def capture_source(
 ) -> CapturedDocument:
     source_id = str(source["source_id"])
     locator = str(source["url"])
-    expected = expected_content_type(locator)
+    expected = expected_content_type(locator, source.get("expected_content_type"))
     suffix = ".pdf" if expected == "application/pdf" else ".html"
     body_path = capture_dir / f"{source_id}{suffix}"
 
@@ -420,6 +426,7 @@ def capture_source(
                         status=response_status,
                         observed_content_type=content_type,
                         body=body,
+                        declared_content_type=source.get("expected_content_type"),
                     )
                 except CaptureError as exc:
                     if api_response is not None:
@@ -530,7 +537,7 @@ def _resume_entry_to_capture(
         raise CaptureError(f"{source_id}: resume journal HTTP status is not 200")
 
     content_type = entry.get("content_type")
-    expected_type = expected_content_type(locator)
+    expected_type = expected_content_type(locator, source.get("expected_content_type"))
     if content_type != expected_type:
         raise CaptureError(f"{source_id}: resume journal content type mismatch")
 
@@ -584,6 +591,7 @@ def _resume_entry_to_capture(
         status=200,
         observed_content_type=content_type,
         body=body,
+        declared_content_type=source.get("expected_content_type"),
     )
 
     capture_method = entry.get("capture_method")
@@ -623,11 +631,12 @@ def _load_resume_journal(
     journal_path: Path,
     sources: Sequence[Mapping[str, Any]],
     public_repo_root: Path,
+    slice_id: str = EXPECTED_SLICE_ID,
 ) -> tuple[dict[str, Any], Path, list[CapturedDocument]]:
     journal = _load_json(journal_path)
     if journal.get("schema_version") != CAPTURE_JOURNAL_SCHEMA:
         raise CaptureError("resume journal schema mismatch")
-    if journal.get("slice_id") != EXPECTED_SLICE_ID:
+    if journal.get("slice_id") != slice_id:
         raise CaptureError("resume journal slice_id mismatch")
     if journal.get("authoritative") is not False:
         raise CaptureError("resume journal must remain non-authoritative")
@@ -677,10 +686,10 @@ def _load_resume_journal(
     return journal, capture_dir, captures
 
 
-def _find_latest_incomplete_journal(metadata_root: Path) -> Path | None:
+def _find_latest_incomplete_journal(metadata_root: Path, *, slice_id: str = EXPECTED_SLICE_ID, profile_tag: str = "FIRST_SLICE") -> Path | None:
     candidates = sorted(
         metadata_root.glob(
-            "HYDRA_CONSTRAINT_FIRST_SLICE_AUTOMATED_BROWSER_CAPTURE_JOURNAL_*.json"
+            f"HYDRA_CONSTRAINT_{profile_tag}_AUTOMATED_BROWSER_CAPTURE_JOURNAL_*.json"
         ),
         key=lambda path: path.name,
         reverse=True,
@@ -689,7 +698,7 @@ def _find_latest_incomplete_journal(metadata_root: Path) -> Path | None:
         journal = _load_json(candidate)
         if (
             journal.get("schema_version") == CAPTURE_JOURNAL_SCHEMA
-            and journal.get("slice_id") == EXPECTED_SLICE_ID
+            and journal.get("slice_id") == slice_id
             and journal.get("t1_release_written") is False
         ):
             return candidate
@@ -702,10 +711,10 @@ def _run_checked(command: list[str], *, env: Mapping[str, str] | None = None, la
         raise CaptureError(f"{label} failed with exit code {completed.returncode}")
 
 
-def _build_capture_plan(captures: Sequence[CapturedDocument], *, release_id: str, release_created_at: str) -> dict[str, Any]:
+def _build_capture_plan(captures: Sequence[CapturedDocument], *, release_id: str, release_created_at: str, slice_id: str = EXPECTED_SLICE_ID) -> dict[str, Any]:
     return {
         "schema_version": "hydra-constraint-first-slice-local-capture-plan/v1",
-        "slice_id": EXPECTED_SLICE_ID,
+        "slice_id": slice_id,
         "availability_mode": "ACQUISITION_TIME_CONSERVATIVE",
         "release_id": release_id,
         "release_created_at": release_created_at,
@@ -767,11 +776,15 @@ def _validate_post_outputs(attestation_path: Path, replay_path: Path, post_captu
 
 
 def run(args: argparse.Namespace) -> int:
-    if not getattr(args, "authorized_public_acquisition", False):
+    if not getattr(args, "authorized_public_acquisition", False) and not getattr(args, "preflight", False):
         raise CaptureError(
             "explicit --authorized-public-acquisition is required for browser-backed public source acquisition"
         )
 
+    semiconductor = getattr(args, "semiconductor_registry", None)
+    slice_id = "SEMICONDUCTOR_ADVANCED_PACKAGING_CRITICAL_MATERIALS_V1" if semiconductor else EXPECTED_SLICE_ID
+    source_count = 20 if semiconductor else EXPECTED_SOURCE_COUNT
+    profile_tag = "SEMICONDUCTOR_PASS009" if semiconductor else "FIRST_SLICE"
     repo_root = _resolved(args.repo_root)
     private_root = assert_outside_repo(args.private_root, repo_root, "PrivateRoot")
     with _exclusive_private_capture_lock(private_root) as lock_path:
@@ -791,7 +804,7 @@ def _run_locked(args: argparse.Namespace) -> int:
     staging_root = assert_outside_repo(private_root / "capture-staging", repo_root, "PrivateStagingRoot")
     metadata_root = assert_outside_repo(private_root / "metadata", repo_root, "PrivateMetadataRoot")
 
-    registry_path = repo_root / REGISTRY_RELATIVE_PATH
+    registry_path = _resolved(semiconductor) if semiconductor else repo_root / REGISTRY_RELATIVE_PATH
     materializer_src = repo_root / MATERIALIZER_SRC_RELATIVE_PATH
     attestation_validator = repo_root / ATTESTATION_VALIDATOR_RELATIVE_PATH
     replay_builder = repo_root / REPLAY_BUILDER_RELATIVE_PATH
@@ -806,7 +819,15 @@ def _run_locked(args: argparse.Namespace) -> int:
         if not path.exists():
             raise CaptureError(f"{label} not found: {path}")
 
-    sources = validate_registry(_load_json(registry_path))
+    registry = _load_json(registry_path)
+    sources = validate_registry(registry, slice_id=slice_id, source_count=source_count)
+    if semiconductor and any(source.get("expected_content_type") not in ("application/pdf", "text/html") for source in sources):
+        raise CaptureError("semiconductor sources require explicit expected_content_type")
+    if getattr(args, "preflight", False):
+        print(f"CAPTURE_PREFLIGHT=PASS SLICE={slice_id} SOURCES={source_count}")
+        print(f"REGISTRY_SHA256={hashlib.sha256(registry_path.read_bytes()).hexdigest()}")
+        print("NETWORK_ACQUISITION=NOT_RUN")
+        return 0
     raw_root.mkdir(parents=True, exist_ok=True)
     staging_root.mkdir(parents=True, exist_ok=True)
     metadata_root.mkdir(parents=True, exist_ok=True)
@@ -824,7 +845,7 @@ def _run_locked(args: argparse.Namespace) -> int:
         if not resume_path.is_file():
             raise CaptureError(f"resume journal not found: {resume_path}")
     elif not args.fresh:
-        resume_path = _find_latest_incomplete_journal(metadata_root)
+        resume_path = _find_latest_incomplete_journal(metadata_root, slice_id=slice_id, profile_tag=profile_tag)
 
     if resume_path is not None:
         journal_path = resume_path
@@ -832,6 +853,7 @@ def _run_locked(args: argparse.Namespace) -> int:
             journal_path=journal_path,
             sources=sources,
             public_repo_root=repo_root,
+            slice_id=slice_id,
         )
         run_stamp = str(journal.get("run_stamp") or journal_path.stem)
         print(f"CAPTURE_RESUME_JOURNAL={journal_path}")
@@ -845,11 +867,11 @@ def _run_locked(args: argparse.Namespace) -> int:
         capture_dir = staging_root / run_stamp
         capture_dir.mkdir(parents=True, exist_ok=False)
         journal_path = metadata_root / (
-            f"HYDRA_CONSTRAINT_FIRST_SLICE_AUTOMATED_BROWSER_CAPTURE_JOURNAL_{run_stamp}.json"
+            f"HYDRA_CONSTRAINT_{profile_tag}_AUTOMATED_BROWSER_CAPTURE_JOURNAL_{run_stamp}.json"
         )
         journal = {
             "schema_version": CAPTURE_JOURNAL_SCHEMA,
-            "slice_id": EXPECTED_SLICE_ID,
+            "slice_id": slice_id,
             "run_stamp": run_stamp,
             "capture_dir": str(capture_dir),
             "created_at": utc_timestamp(),
@@ -876,7 +898,7 @@ def _run_locked(args: argparse.Namespace) -> int:
     )
     completed_ids = {row.source_id for row in captures}
 
-    if len(captures) < EXPECTED_SOURCE_COUNT:
+    if len(captures) < source_count:
         with sync_playwright() as playwright:
             context, browser_channel = _launch_persistent_context(
                 playwright,
@@ -944,14 +966,14 @@ def _run_locked(args: argparse.Namespace) -> int:
                 except Exception:
                     pass
 
-    if len(captures) != EXPECTED_SOURCE_COUNT:
+    if len(captures) != source_count:
         raise CaptureError(
-            f"capture count drifted: expected {EXPECTED_SOURCE_COUNT}, observed {len(captures)}"
+            f"capture count drifted: expected {source_count}, observed {len(captures)}"
         )
 
     capture_manifest = {
         "schema_version": "hydra-constraint-automated-browser-capture-manifest/v1",
-        "slice_id": EXPECTED_SLICE_ID,
+        "slice_id": slice_id,
         "capture_method": "PLAYWRIGHT_INSTALLED_BROWSER_MAIN_DOCUMENT",
         "pdf_transport": "PLAYWRIGHT_BROWSER_CONTEXT_RAW_PDF_RESPONSE",
         "html_transport": "PLAYWRIGHT_INSTALLED_BROWSER_MAIN_DOCUMENT",
@@ -970,7 +992,7 @@ def _run_locked(args: argparse.Namespace) -> int:
         ],
     }
     capture_manifest_path = metadata_root / (
-        f"HYDRA_CONSTRAINT_FIRST_SLICE_AUTOMATED_BROWSER_CAPTURE_MANIFEST_{run_stamp}.json"
+        f"HYDRA_CONSTRAINT_{profile_tag}_AUTOMATED_BROWSER_CAPTURE_MANIFEST_{run_stamp}.json"
     )
     _write_json(capture_manifest_path, capture_manifest)
 
@@ -981,7 +1003,7 @@ def _run_locked(args: argparse.Namespace) -> int:
     if release_id is None:
         release_created_at = utc_timestamp()
         release_id = (
-            f"REL-AIDC-FIRST-SLICE-"
+            f"REL-{profile_tag}-"
             f"{datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%SZ')}"
         )
         journal["release_id"] = release_id
@@ -997,16 +1019,17 @@ def _run_locked(args: argparse.Namespace) -> int:
         captures,
         release_id=release_id,
         release_created_at=release_created_at,
+        slice_id=slice_id,
     )
-    plan_path = metadata_root / f"HYDRA_CONSTRAINT_FIRST_SLICE_PRIVATE_CAPTURE_PLAN_{run_stamp}.json"
+    plan_path = metadata_root / f"HYDRA_CONSTRAINT_{profile_tag}_PRIVATE_CAPTURE_PLAN_{run_stamp}.json"
     attestation_path = metadata_root / (
-        f"HYDRA_CONSTRAINT_FIRST_SLICE_PRIVATE_MATERIALIZATION_ATTESTATION_{run_stamp}.json"
+        f"HYDRA_CONSTRAINT_{profile_tag}_PRIVATE_MATERIALIZATION_ATTESTATION_{run_stamp}.json"
     )
     replay_path = metadata_root / (
-        f"HYDRA_CONSTRAINT_FIRST_SLICE_REPLAY_LINEAGE_PACKET_{run_stamp}.json"
+        f"HYDRA_CONSTRAINT_{profile_tag}_REPLAY_LINEAGE_PACKET_{run_stamp}.json"
     )
     post_capture_status_path = metadata_root / (
-        f"HYDRA_CONSTRAINT_FIRST_SLICE_POST_CAPTURE_SANITIZED_STATUS_{run_stamp}.json"
+        f"HYDRA_CONSTRAINT_{profile_tag}_POST_CAPTURE_SANITIZED_STATUS_{run_stamp}.json"
     )
     _write_json(plan_path, capture_plan)
 
@@ -1049,6 +1072,19 @@ def _run_locked(args: argparse.Namespace) -> int:
         env=env,
         label="sanitized materialization attestation validation",
     )
+    if semiconductor:
+        attestation = _load_json(attestation_path)
+        if attestation.get("slice_id") != slice_id or attestation.get("materialized_source_count") != source_count or attestation.get("all_sources_ordinary_t2_eligible") is not True:
+            raise CaptureError("semiconductor materialization coverage incomplete")
+        journal.update(updated_at=utc_timestamp(), t1_release_written=True,
+                       attestation_path=str(attestation_path))
+        _write_json(journal_path, journal)
+        print(f"SOURCE_CAPTURE={source_count}/{source_count}")
+        print("PRIVATE_MATERIALIZATION=PASS")
+        print("SEMICONDUCTOR_T2_NORMALIZATION_AND_RUNTIME_ADMISSION=BLOCKED")
+        print("STRICT_HISTORICAL_REPLAY=BLOCKED")
+        return 0
+
     _run_checked(
         [
             sys.executable,
@@ -1086,7 +1122,7 @@ def _run_locked(args: argparse.Namespace) -> int:
     journal["post_capture_status_path"] = str(post_capture_status_path)
     _write_json(journal_path, journal)
 
-    print(f"SOURCE_CAPTURE={EXPECTED_SOURCE_COUNT}/{EXPECTED_SOURCE_COUNT}")
+    print(f"SOURCE_CAPTURE={source_count}/{source_count}")
     print("PRIVATE_MATERIALIZATION=PASS")
     print("ATTESTATION=PASS")
     print("SOURCE_VERSION_HASH_LINEAGE=PASS")
@@ -1108,7 +1144,9 @@ def build_parser() -> argparse.ArgumentParser:
         )
     )
     parser.add_argument("--repo-root", default=str(default_repo))
+    parser.add_argument("--semiconductor-registry", help="Reviewed 20-source semiconductor registry with explicit MIME declarations; stops after T1 materialization")
     parser.add_argument("--authorized-public-acquisition", action="store_true")
+    parser.add_argument("--preflight", action="store_true", help="Validate registry and paths without network or writes")
     parser.add_argument("--private-root", default=r"D:\HYDRA\_PRIVATE\constraint")
     parser.add_argument("--browser", choices=("auto", "chrome", "msedge"), default="auto")
     parser.add_argument("--headless", action="store_true")
