@@ -5,6 +5,7 @@ from datetime import datetime, timezone
 from enum import Enum
 from collections import defaultdict, deque
 from typing import Any, Dict, Iterable, List, Optional, Tuple
+import json
 
 
 class EvidenceClass(str, Enum):
