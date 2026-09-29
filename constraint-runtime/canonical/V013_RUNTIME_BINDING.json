@@ -1,0 +1,16 @@
+{
+  "schema_version": "hydra-constraint-runtime-binding/v1",
+  "runtime_version": "V018",
+  "canonical_graph_authority": "V013",
+  "canonical_graph_sha256": "e7e05ca50163f6255f9abc5beea1fbd3e4ce290a5a72694e8e19044c7dced984",
+  "node_count": 295,
+  "runtime_edge_count": 176,
+  "full_provenance_edge_count": 205,
+  "source_count": 107,
+  "unresolved_record_count": 44,
+  "evidence_authority": "V011",
+  "runtime_semantics_authority": "V012",
+  "rule": "DO_NOT_CREATE_SECOND_CANONICAL_GRAPH_AUTHORITY",
+  "graph_input_contract": "Runtime receives the governed canonical graph payload from the existing Constraint lineage/deployment materialization.",
+  "automatic_trading_action": false
+}
