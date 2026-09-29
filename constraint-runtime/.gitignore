@@ -1,0 +1,5 @@
+state/
+raw_archive/
+golden/
+*.pyc
+__pycache__/
