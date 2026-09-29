@@ -1,7 +1,7 @@
 # HYDRA CONSTRAINT — Thread 6 Successor Batch 034 T2 Evidence Lineage Binding
 
-**Slice:** `SEMICONDUCTOR_ADVANCED_PACKAGING_CRITICAL_MATERIALS_V1`  
-**Predecessor:** Batch 033  
+**Slice:** `SEMICONDUCTOR_ADVANCED_PACKAGING_CRITICAL_MATERIALS_V1`
+**Predecessor:** Batch 033
 **Result:** `PASS_ACTIVE_REVIEWED_EVIDENCE_BOUND_TO_EXACT_T2_SOURCE_VERSIONS_CURRENT_ONLY`
 
 Batch034 binds the reviewed semiconductor evidence corpus to the exact ordinary-T2 source versions normalized in Batch033.
