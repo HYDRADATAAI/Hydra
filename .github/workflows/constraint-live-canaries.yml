@@ -1,0 +1,32 @@
+name: Constraint Read-Only Live Canaries
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "17 */12 * * *"
+
+permissions:
+  contents: read
+
+jobs:
+  canaries:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install Constraint runtime
+        run: python -m pip install -e constraint-runtime
+      - name: Run read-only source canaries
+        run: |
+          mkdir -p canary-output
+          python -m hydra_constraint.canary             --config constraint-runtime/config/live_canaries.json             --output canary-output/report.json
+      - name: Upload canary report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: constraint-live-canary-report
+          path: canary-output/report.json
+          retention-days: 14

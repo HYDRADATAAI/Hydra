@@ -1,0 +1,61 @@
+{
+  "schema_version": "hydra-constraint-live-canary-config/v1",
+  "read_only": true,
+  "ledger_mutation": false,
+  "automatic_trading_action": false,
+  "schedule_intent": "low-frequency reachability/schema-marker checks only",
+  "sources": [
+    {
+      "name": "bis_federal_register",
+      "url": "https://www.bis.gov/regulations/federal-register-notices",
+      "required_markers": [
+        "Federal Register Notices",
+        "Export as CSV"
+      ],
+      "enabled": true,
+      "timeout_seconds": 20,
+      "max_bytes": 2000000
+    },
+    {
+      "name": "ofac_recent_actions",
+      "url": "https://ofac.treasury.gov/recent-actions",
+      "required_markers": [
+        "Recent Actions",
+        "Sanctions List Updates"
+      ],
+      "enabled": true,
+      "timeout_seconds": 20,
+      "max_bytes": 2000000
+    },
+    {
+      "name": "port_of_los_angeles",
+      "url": "https://portoflosangeles.org/news/news-release-archive",
+      "required_markers": [
+        "News Release Archive",
+        "Port of Los Angeles"
+      ],
+      "enabled": true,
+      "timeout_seconds": 20,
+      "max_bytes": 2000000
+    },
+    {
+      "name": "iurc",
+      "url": "https://www.in.gov/iurc/",
+      "required_markers": [
+        "Indiana Utility Regulatory Commission",
+        "Find a Case"
+      ],
+      "enabled": true,
+      "timeout_seconds": 20,
+      "max_bytes": 2000000
+    },
+    {
+      "name": "sec_edgar",
+      "url": "https://data.sec.gov/submissions/CIK0001045810.json",
+      "required_markers": [],
+      "enabled": false,
+      "timeout_seconds": 20,
+      "max_bytes": 2000000
+    }
+  ]
+}
