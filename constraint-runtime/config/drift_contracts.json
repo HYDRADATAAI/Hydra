@@ -1,0 +1,55 @@
+{
+  "bis_federal_register": {
+    "required_headers": [
+      "Publication Date",
+      "Effective Date",
+      "FR Citation",
+      "Title",
+      "URL"
+    ]
+  },
+  "ofac_recent_actions": {
+    "required_record_keys": [
+      "action_id",
+      "title",
+      "date",
+      "target",
+      "url"
+    ]
+  },
+  "sec_nvidia": {
+    "required_root_keys": [
+      "cik",
+      "name",
+      "filings"
+    ],
+    "required_recent_keys": [
+      "accessionNumber",
+      "filingDate",
+      "reportDate",
+      "form",
+      "primaryDocument"
+    ]
+  },
+  "port_la": {
+    "required_record_keys": [
+      "release_id",
+      "title",
+      "date",
+      "operational_state",
+      "target",
+      "url"
+    ]
+  },
+  "iurc_skh_watch": {
+    "required_record_keys": [
+      "regulator",
+      "docket",
+      "order_id",
+      "title",
+      "order_date",
+      "target",
+      "url"
+    ]
+  }
+}
