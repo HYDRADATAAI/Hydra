@@ -1,0 +1,63 @@
+name: PR119 current-main exact-tree Windows matrix
+
+on:
+  push:
+    branches: [nyx/pr119-current-main-validation-20260930]
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: windows-latest
+    timeout-minutes: 40
+    env:
+      PYTHONUTF8: "1"
+      PYTHONIOENCODING: utf-8
+      PYTHONDONTWRITEBYTECODE: "1"
+      TEMP: D:\NYX_PORTABLE\C\temp
+      TMP: D:\NYX_PORTABLE\C\temp
+      PIP_CACHE_DIR: D:\NYX_PORTABLE\C\pip-cache
+    steps:
+      - name: Prepare isolated D drive validation directories
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          New-Item -ItemType Directory -Force -Path 'D:\NYX_PORTABLE\C\temp', 'D:\NYX_PORTABLE\C\report' | Out-Null
+          git config --global core.longpaths true
+          git clone --no-checkout https://github.com/HYDRADATAAI/Hydra.git D:\NYX_PORTABLE\C\harness
+          if ($LASTEXITCODE -ne 0) { throw 'Harness clone failed' }
+          git -C D:\NYX_PORTABLE\C\harness -c core.autocrlf=false checkout --detach $env:GITHUB_SHA
+          if ($LASTEXITCODE -ne 0) { throw 'Harness checkout failed' }
+          git clone --no-checkout https://github.com/HYDRADATAAI/Hydra.git D:\NYX_PORTABLE\C\source
+          if ($LASTEXITCODE -ne 0) { throw 'Candidate clone failed' }
+          git -C D:\NYX_PORTABLE\C\source fetch origin c0fc3ece522c9a4441d15e20501b6d1519443450
+          if ($LASTEXITCODE -ne 0) { throw 'Pinned preview unavailable' }
+          git -C D:\NYX_PORTABLE\C\source -c core.autocrlf=false checkout --detach c0fc3ece522c9a4441d15e20501b6d1519443450
+          if ($LASTEXITCODE -ne 0) { throw 'Exact candidate checkout failed' }
+          git -C D:\NYX_PORTABLE\C\source config core.autocrlf false
+          git -C D:\NYX_PORTABLE\C\source config core.longpaths true
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install and record isolated test dependencies
+        shell: pwsh
+        run: |
+          python -m pip install --disable-pip-version-check --target D:\NYX_PORTABLE\C\deps pytest==8.3.5 pytest-subtests==0.14.2 2>&1 | Tee-Object D:\NYX_PORTABLE\C\report\dependency-install.log
+          if ($LASTEXITCODE -ne 0) { throw 'Dependency installation failed' }
+          python -m pip list --path D:\NYX_PORTABLE\C\deps --format=json > D:\NYX_PORTABLE\C\report\dependencies.json
+      - name: Run all fifteen groups against the pinned candidate
+        shell: pwsh
+        env:
+          PYTHONPATH: D:\NYX_PORTABLE\C\deps
+        run: |
+          python D:\NYX_PORTABLE\C\harness\validation\pr119-current-main\run_matrix.py D:\NYX_PORTABLE\C\source D:\NYX_PORTABLE\C\report
+          exit $LASTEXITCODE
+      - name: Preserve complete validation evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: PR119-current-main-matrix-evidence
+          path: D:\NYX_PORTABLE\C\report
+          if-no-files-found: error
+          retention-days: 30
