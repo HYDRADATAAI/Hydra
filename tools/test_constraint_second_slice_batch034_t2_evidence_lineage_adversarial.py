@@ -1,5 +1,5 @@
 from __future__ import annotations
-import copy, hashlib, importlib.util, json, shutil, subprocess, sys, tempfile, unittest
+import copy, importlib.util, json, shutil, subprocess, sys, tempfile, unittest
 from pathlib import Path
 ROOT=Path(__file__).resolve().parents[1]
 P=ROOT/"tools/validate_constraint_second_slice_batch034_t2_evidence_lineage.py"
@@ -152,11 +152,12 @@ class Batch034Hostile(unittest.TestCase):
             if omit_inventory:
                 manifest["artifacts"]=[]
             else:
-                raw=target.read_bytes(); digest=hashlib.sha1(b"blob "+str(len(raw)).encode()+b"\0"+raw).hexdigest()
+                digest=subprocess.check_output(["git","hash-object",str(target.relative_to(dest))],cwd=dest,text=True).strip()
                 for art in manifest["artifacts"]:
                     if art["path"]==target.relative_to(dest).as_posix(): art["git_blob_sha"]=digest
             manifest_path.write_text(json.dumps(manifest,indent=2)+"\n",encoding="utf-8")
             result=self.run_fixture(dest)
+            print(f"CLI_MUTATION omit_inventory={omit_inventory} report={report} exit={result.returncode} stdout={result.stdout!r}")
             self.assertNotEqual(0,result.returncode,result.stdout+result.stderr)
             self.assertIn("BATCH034_T2_EVIDENCE_LINEAGE=FAIL",result.stdout)
             self.assertNotIn("BATCH034_T2_EVIDENCE_LINEAGE=PASS",result.stdout)
