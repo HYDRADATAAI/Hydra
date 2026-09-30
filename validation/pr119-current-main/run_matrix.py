@@ -151,7 +151,10 @@ def main():
     run('integrated_owners',pytest+testdirs+['-vv','--tb=long','--junitxml='+str(out/'tests.xml')],env=env)
     run('compile_runtime',[sys.executable,'-m','compileall','-q','constraint-runtime/src'],env=env)
     for script in SCRIPTS:
-        run(script.removesuffix('.py'),[sys.executable,'tools/'+script],env=env)
+        args=[sys.executable,'tools/'+script]
+        if script=='validate_constraint_t1_first_slice_attestation.py':
+            args+=['--attestation','docs/constraint/validation/HYDRA_CONSTRAINT_BATCH018_T1_NINE_SOURCE_MATERIALIZATION_ATTESTATION_V001_20260926.json']
+        run(script.removesuffix('.py'),args,env=env)
     # Extract exact governed timestamp/admission state without creating authority.
     states=[]
     first=root/'docs/constraint/first_slice/ai_data_center_power_infrastructure_v1'
