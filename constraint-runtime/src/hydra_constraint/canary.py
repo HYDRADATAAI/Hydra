@@ -9,6 +9,8 @@ import json
 import urllib.error
 import urllib.request
 
+from .runtime import unresolved_admission
+
 
 @dataclass(frozen=True)
 class CanarySpec:
@@ -148,6 +150,8 @@ class CanaryRunner:
             "ledger_mutation": False,
             "automatic_trading_action": False,
             "status": "PASS" if all(r.status == "PASS" for r in enabled) else "FAIL",
+            "status_scope": "CURRENT_FETCH_AND_MARKERS_ONLY",
+            "admission": unresolved_admission(),
             "enabled_sources": len(enabled),
             "passed_sources": sum(r.status == "PASS" for r in enabled),
             "results": [r.to_dict() for r in results],

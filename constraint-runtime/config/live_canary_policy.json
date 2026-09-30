@@ -8,6 +8,6 @@
     "failure budget not FROZEN",
     "ledger chain PASS"
   ],
-  "promotion_rule": "Require seven consecutive days of healthy read-only canary captures plus fixture and golden-replay PASS before production cadence.",
+  "promotion_rule": "Production cadence remains blocked while authority and temporal admission are unresolved. Seven healthy read-only canary days, fixture PASS and golden-replay PASS are operational checks only; none establishes historical proof, signature authority, canonical admission or readiness.",
   "automatic_trading_action": false
 }
