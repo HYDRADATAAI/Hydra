@@ -14,7 +14,7 @@
       ],
       "enabled": true,
       "timeout_seconds": 20,
-      "max_bytes": 2000000
+      "max_bytes": 5000000
     },
     {
       "name": "ofac_recent_actions",
