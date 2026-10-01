@@ -2,6 +2,26 @@
 
 Repository integration of the sealed Constraint V018 runtime/operations stack.
 
+Thread E holds this integration at **runtime candidate only**. A1/A2 labels
+permit candidate traversal; they cannot produce admitted `CONFIRMED` exposures.
+Replay, traversal, canary, deployment and operations reports carry an explicit
+`admission.status=BLOCKED`, `canonical_admission=false` and
+`readiness_promotion=false`. No configuration or claimed PASS value unlocks it.
+Enabled deployment sources must be explicit read-only canaries.
+
+`CanonicalEvent` and ledger CREATE/MERGE records refer to normalized event
+identity, not accepted canonical evidence. Existing stored labels, dates,
+normalization notes and hash chains are preserved. Date fallback, source rank,
+lineage presence, recovery PASS and current canary success do not establish
+authority or historical availability. Operational PASS is explicitly scoped.
+
+The hold retains D_OWNER_GATE=BLOCKED, IMPLEMENTATION_ADMITTED=NO, PIT-002B
+open, Eaton and GE Vernova TIMESTAMP_UNVERIFIED, trusted timestamp verification
+NOT_IMPLEMENTED, and the full temporal/authority audit NOT_RUN. Authorized
+real-outcome evidence is not established by this runtime. This conservative hold
+does not implement receipt/signature verification or a positive admission path;
+lifting it requires separately governed authority integration and evidence.
+
 Authority chain:
 
 - V011: site/evidence authority
