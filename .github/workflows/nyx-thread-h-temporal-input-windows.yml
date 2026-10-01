@@ -63,6 +63,12 @@ jobs:
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           python -B tools/test_constraint_second_slice_batch034_t2_evidence_lineage_adversarial.py -v
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Integrated V018 unresolved-gate tests
+        if: always()
+        run: |
+          $env:PYTHONPATH = "$env:GITHUB_WORKSPACE\constraint-runtime\src"
+          python -B -m unittest discover -s constraint-runtime/tests -v
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
       - name: Confirm all source hashes unchanged
         if: always()
         run: |

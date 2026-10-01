@@ -30,6 +30,31 @@ CANDIDATE_ONLY = {EvidenceClass.B1, EvidenceClass.B2}
 BLOCKED_EVIDENCE = {EvidenceClass.C, EvidenceClass.OPEN}
 
 
+def unresolved_admission() -> Dict[str, Any]:
+    """Report the current hold; this runtime has no authority-verification path.
+
+    A fresh mapping prevents callers from changing later results. Neither graph
+    metadata, event details, source ranks, hashes nor configuration can unlock
+    admission. A future governed authority integration requires a separate repair.
+    """
+    return {
+        "status": "BLOCKED",
+        "canonical_admission": False,
+        "readiness_promotion": False,
+        "scope": "RUNTIME_CANDIDATE_ONLY",
+        "gates": {
+            "D_OWNER_GATE": "BLOCKED",
+            "IMPLEMENTATION_ADMITTED": "NO",
+            "PIT_002B": "OPEN",
+            "EATON_TIMESTAMP": "TIMESTAMP_UNVERIFIED",
+            "GE_VERNOVA_TIMESTAMP": "TIMESTAMP_UNVERIFIED",
+            "TRUSTED_TIMESTAMP_VERIFICATION": "NOT_IMPLEMENTED",
+            "FULL_TEMPORAL_AUTHORITY_AUDIT": "NOT_RUN",
+            "AUTHORIZED_REAL_OUTCOME_EVIDENCE": "NOT_ESTABLISHED_BY_RUNTIME",
+        },
+    }
+
+
 @dataclass(frozen=True)
 class Node:
     node_id: str
@@ -110,6 +135,10 @@ class TraversalResult:
     audit_log: List[str]
     no_auto_trading_signal: bool = True
 
+    @property
+    def admission(self) -> Dict[str, Any]:
+        return unresolved_admission()
+
     def to_dict(self) -> Dict[str, Any]:
         return {
             "event": self.event,
@@ -119,6 +148,7 @@ class TraversalResult:
             "candidate_hops": [asdict(x) for x in self.candidate_hops],
             "audit_log": self.audit_log,
             "no_auto_trading_signal": self.no_auto_trading_signal,
+            "admission": self.admission,
         }
 
 
@@ -159,7 +189,7 @@ def substitution_friction_score(values: Dict[str, float]) -> Optional[float]:
 def evidence_gate(edge: Edge) -> Tuple[ExposureState, float, str]:
     if edge.evidence_class in AUTO_PROPAGATE:
         factor = 1.00 if edge.evidence_class == EvidenceClass.A1 else 0.92
-        return ExposureState.CONFIRMED, factor, "primary/official evidence permits bounded propagation"
+        return ExposureState.CANDIDATE, factor, "primary/official label permits candidate traversal only; authority and temporal admission remain blocked"
     if edge.evidence_class in CANDIDATE_ONLY:
         factor = 0.70 if edge.evidence_class == EvidenceClass.B1 else 0.62
         return ExposureState.CANDIDATE, factor, "evidence narrows the path but does not prove exclusive/full dependency"
