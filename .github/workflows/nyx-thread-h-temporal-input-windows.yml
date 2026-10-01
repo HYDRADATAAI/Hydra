@@ -48,14 +48,12 @@ jobs:
         run: |
           python -B tools/build_constraint_second_slice_batch033_ordinary_t2_lineage.py --output D:\nyx-thread-h-temp\lineage.json
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          python -B tools/build_constraint_second_slice_batch034_t2_evidence_lineage.py --output D:\nyx-thread-h-temp\binding.json
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           $base = 'docs/constraint/second_slice/semiconductor_advanced_packaging_critical_materials_v1'
           $expected = "$base/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH033_SEMICONDUCTOR_ORDINARY_T2_SOURCE_VERSION_LINEAGE_V001_20260928.json"
           if ((Get-FileHash -LiteralPath $expected).Hash -ne (Get-FileHash D:\nyx-thread-h-temp\lineage.json).Hash) { throw 'Lineage bytes differ' }
-          $expected = "$base/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH034_SEMICONDUCTOR_ORDINARY_T2_EVIDENCE_LINEAGE_BINDING_V001_20260928.json"
-          if ((Get-FileHash -LiteralPath $expected).Hash -ne (Get-FileHash D:\nyx-thread-h-temp\binding.json).Hash) { throw 'Binding bytes differ' }
-          'ARCHIVED_METADATA_REPRODUCED=YES; TIMESTAMP_AUTHORITY_VERIFIED=NO'
+          python -B tools/test_constraint_second_slice_batch034_builder_bytes.py -v
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          'BATCH033_CHECKOUT_BYTES_REPRODUCED=YES; BATCH034_REVIEWED_GIT_BLOB_BYTES_REPRODUCED=YES; TIMESTAMP_AUTHORITY_VERIFIED=NO'
       - name: Integrated Batch034 validator and hostile tests
         if: always()
         run: |
