@@ -1,0 +1,73 @@
+{
+  "original_candidate_commit": "c0fc3ece522c9a4441d15e20501b6d1519443450",
+  "original_candidate_tree": "73f8d2a8903da6be8397124e8baa4d292dffdbac",
+  "main": "fa94ab3e2fdd4776d84d110f4233ba84409eb947",
+  "pr119_head": "417174daa31761ad9eaeba56ca6306b3050ada7a",
+  "repair_E": "53ac6e28cb3088bdaf5d7c2702f44f362998892f",
+  "repair_F": "eaa256a809075361e463ba0dd3dc299dcbf1b5dc",
+  "entries": [
+    {
+      "path": "constraint-runtime/README.md",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "7f55f72ff8133cee686d03627244437378c89edc"
+    },
+    {
+      "path": "constraint-runtime/config/live_canary_policy.json",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "751ea132ca21ede995949bfa20fff79f78282645"
+    },
+    {
+      "path": "constraint-runtime/src/hydra_constraint/canary.py",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "5539c0fe76e01e70e57ad91c4a0c2d4254c06634"
+    },
+    {
+      "path": "constraint-runtime/src/hydra_constraint/event_stream.py",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "986497cacbc8a0128eb8531620af6218e79f5f30"
+    },
+    {
+      "path": "constraint-runtime/src/hydra_constraint/operations.py",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "6b24aed0b3e7a8cb1fa889aa3c161db3e7053ee6"
+    },
+    {
+      "path": "constraint-runtime/src/hydra_constraint/runtime.py",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "2b4eca47ae988b5209fd3930f838b249604cdbb3"
+    },
+    {
+      "path": "constraint-runtime/tests/test_unresolved_gates.py",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "2063fdb615ded7b08ba35509cc024d4380b37808"
+    },
+    {
+      "path": ".github/workflows/nyx-batch034-non-escalation-windows.yml",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "9073ee0d4fcc3936110b968b3fd7581358550996"
+    },
+    {
+      "path": "tools/test_constraint_second_slice_batch034_t2_evidence_lineage_adversarial.py",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "b5fde55ca339be3fa990150b61400316ba67221c"
+    },
+    {
+      "path": "tools/validate_constraint_second_slice_batch034_t2_evidence_lineage.py",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "9e0ddfe6f12f487ab5c6219c51ab73383ece8384"
+    }
+  ],
+  "candidate_tree": "7abf1e9181e2e7ccf918cf992740c49450377716",
+  "candidate_commit": "d8715a53b3076d388f08b2f7b7f21a13a95990db"
+}
+
