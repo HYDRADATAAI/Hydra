@@ -31,9 +31,9 @@ jobs:
           if ($LASTEXITCODE -ne 0) { throw 'Harness checkout failed' }
           git clone --no-checkout https://github.com/HYDRADATAAI/Hydra.git D:\NYX_PORTABLE\V006\source
           if ($LASTEXITCODE -ne 0) { throw 'Source clone failed' }
-          git -C D:\NYX_PORTABLE\V006\source fetch origin d8715a53b3076d388f08b2f7b7f21a13a95990db
+          git -C D:\NYX_PORTABLE\V006\source fetch origin b95d695dd290e581edb29c3b70379c3cb3180686
           if ($LASTEXITCODE -ne 0) { throw 'Pinned repaired candidate unavailable' }
-          git -C D:\NYX_PORTABLE\V006\source -c core.autocrlf=false checkout --detach d8715a53b3076d388f08b2f7b7f21a13a95990db
+          git -C D:\NYX_PORTABLE\V006\source -c core.autocrlf=false checkout --detach b95d695dd290e581edb29c3b70379c3cb3180686
           if ($LASTEXITCODE -ne 0) { throw 'Candidate checkout failed' }
           git -C D:\NYX_PORTABLE\V006\source config core.autocrlf false
           git -C D:\NYX_PORTABLE\V006\source config core.longpaths true

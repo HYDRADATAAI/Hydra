@@ -11,11 +11,11 @@ import sys
 import time
 from pathlib import Path
 
-MAIN = 'fa94ab3e2fdd4776d84d110f4233ba84409eb947'
+MAIN = 'eae2bfc3f830fab10d179b1cf63b0152e7667eb5'
 HEAD = '417174daa31761ad9eaeba56ca6306b3050ada7a'
 BASE = 'bf74ad8352cc8681b374e185772085212619f00f'
 ORIGINAL = 'c0fc3ece522c9a4441d15e20501b6d1519443450'
-PREVIEW = 'd8715a53b3076d388f08b2f7b7f21a13a95990db'
+PREVIEW = 'b95d695dd290e581edb29c3b70379c3cb3180686'
 REPAIRS = ['53ac6e28cb3088bdaf5d7c2702f44f362998892f','eaa256a809075361e463ba0dd3dc299dcbf1b5dc']
 TREE = '7abf1e9181e2e7ccf918cf992740c49450377716'
 PACKAGES = ['constraint-physical-dependency','constraint-geopolitical-policy',
@@ -108,7 +108,7 @@ def main():
          'candidate_commit':PREVIEW,'candidate_tree':TREE,'current_main':MAIN,'pr119_head':HEAD,
          'historical_base':BASE,'repair_commits':REPAIRS,'original_two_input_candidate':ORIGINAL,'runtime_execution':'HOSTED_WINDOWS_NOT_USER_WORKSTATION'})
     check('candidate_identity',git('rev-parse','HEAD')==PREVIEW and git('rev-parse','HEAD^{tree}')==TREE,git('show','-s','--format=%H %T %P','HEAD'))
-    check('parents',git('show','-s','--format=%P','HEAD').split()==[ORIGINAL,*REPAIRS],git('show','-s','--format=%P','HEAD'))
+    check('parents',git('show','-s','--format=%P','HEAD').split()==[MAIN,HEAD],git('show','-s','--format=%P','HEAD'))
     check('initial_clean_status',not git('status','--porcelain=v1'),git('status','--porcelain=v1'))
     initial=snapshot(); save('source_hashes_before.json',initial)
     if not all(c['passed'] for c in checks):
@@ -154,7 +154,7 @@ def main():
             args+=['--attestation','docs/constraint/validation/HYDRA_CONSTRAINT_BATCH018_T1_NINE_SOURCE_MATERIALIZATION_ATTESTATION_V001_20260926.json']
         run(script.removesuffix('.py'),args,env=env)
     original_f=(harness/'thread_f_original.py').read_text(encoding='utf-8')
-    adapted_f=original_f.replace("PIN='"+MAIN+"'", "PIN='"+PREVIEW+"'")
+    adapted_f=original_f.replace("PIN='"+'fa94ab3e2fdd4776d84d110f4233ba84409eb947'+"'", "PIN='"+PREVIEW+"'")
     fmethods=lambda value:[ast.dump(n) for n in ast.walk(ast.parse(value)) if isinstance(n,ast.FunctionDef)]
     check('original_F_methods_preserved',fmethods(original_f)==fmethods(adapted_f),'Only the exact commit PIN changes')
     bound_f=out/'thread_f_bound.py';bound_f.write_text(adapted_f,encoding='utf-8')
@@ -210,7 +210,7 @@ def main():
              'checks_failed':[c['name'] for c in checks if not c['passed']],
              'evidence_promotion':False,'canonical_status_claimed':False,'production_status_claimed':False,
              'integration_readiness_claimed':False,'regression_localization':'UNKNOWN' if not allgood else None,
-             'construction_scope':'REPAIRED_CANDIDATE_WITH_EXPLICIT_E_F_INPUTS','repair_commits':REPAIRS,'original_two_input_candidate':ORIGINAL}
+             'construction_scope':'CURRENT_MAIN_PLUS_PR119_WITH_REPAIRS_ALREADY_IN_MAIN','repair_commits':REPAIRS,'original_two_input_candidate':ORIGINAL}
     calls=[r for r in report_rows if r['phase']=='call' and r['report_type']=='TestReport']
     subtests=[r for r in report_rows if r['report_type']=='SubTestReport']
     summary['test_methods']={x:sum(r['outcome']==x for r in calls) for x in ['passed','failed','skipped']}

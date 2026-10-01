@@ -1,7 +1,7 @@
 {
   "original_candidate_commit": "c0fc3ece522c9a4441d15e20501b6d1519443450",
   "original_candidate_tree": "73f8d2a8903da6be8397124e8baa4d292dffdbac",
-  "main": "fa94ab3e2fdd4776d84d110f4233ba84409eb947",
+  "main": "eae2bfc3f830fab10d179b1cf63b0152e7667eb5",
   "pr119_head": "417174daa31761ad9eaeba56ca6306b3050ada7a",
   "repair_E": "53ac6e28cb3088bdaf5d7c2702f44f362998892f",
   "repair_F": "eaa256a809075361e463ba0dd3dc299dcbf1b5dc",
@@ -68,6 +68,9 @@
     }
   ],
   "candidate_tree": "7abf1e9181e2e7ccf918cf992740c49450377716",
-  "candidate_commit": "d8715a53b3076d388f08b2f7b7f21a13a95990db"
+  "candidate_commit": "b95d695dd290e581edb29c3b70379c3cb3180686",
+  "previous_main": "fa94ab3e2fdd4776d84d110f4233ba84409eb947",
+  "previous_repaired_candidate": "d8715a53b3076d388f08b2f7b7f21a13a95990db",
+  "construction_scope": "CURRENT_MAIN_PLUS_PR119_ONLY",
+  "repairs_already_in_current_main": true
 }
-

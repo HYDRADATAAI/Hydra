@@ -23,21 +23,22 @@ def main():
         for p in paths:
             if p in source:target[p]=source[p]
             else:target.pop(p,None)
-    mainmap=ls(pins['main']); headmap=ls(pins['pr119_head'])
+    mainmap=ls(pins['main']); oldmain=ls(pins['previous_main']); headmap=ls(pins['pr119_head'])
     base=ls('bf74ad8352cc8681b374e185772085212619f00f')
     original=ls(pins['original_candidate_commit']); actual=ls(pins['candidate_commit'])
     pr=changes(base,headmap); main_changes=changes(base,mainmap)
     assert not pr&main_changes, 'Unexpected PR/main overlap'
-    expected_original=dict(mainmap);apply(expected_original,headmap,pr)
+    expected_original=dict(oldmain);apply(expected_original,headmap,pr)
     assert expected_original==original
-    assert git('merge-tree','--write-tree',pins['main'],pins['pr119_head'])==pins['original_candidate_tree']
+    assert git('merge-tree','--write-tree',pins['main'],pins['pr119_head'])==pins['candidate_tree']
     repairs=[]; owned=set(pr)
     for key in ['repair_E','repair_F']:
-        repair=ls(pins[key]); paths=changes(mainmap,repair)
+        repair=ls(pins[key]); paths=changes(oldmain,repair)
         assert not owned&paths,'Unexpected repair overlap'
         owned.update(paths);repairs.append((key,repair,paths))
-    expected=dict(expected_original)
-    for key,repair,paths in repairs:apply(expected,repair,paths)
+    expected=dict(mainmap);apply(expected,headmap,pr)
+    for key,repair,paths in repairs:
+        assert all(mainmap.get(p)==repair.get(p) for p in paths),'Repair bytes not present in current main'
     declared={e['path']:e['mode']+' '+e['type']+' '+e['sha'] for e in pins['entries']}
     repair_union={p:repair[p] for _,repair,paths in repairs for p in paths}
     assert declared==repair_union,'Repair inventory drift'
@@ -46,7 +47,7 @@ def main():
     if index.exists():raise RuntimeError('Temporary index already exists')
     env=os.environ.copy();env['GIT_INDEX_FILE']=str(index.resolve())
     git('read-tree',pins['main'],env=env)
-    stages=[('PR119',headmap,pr),*repairs]
+    stages=[('PR119',headmap,pr)]
     if order==2:stages=list(reversed(stages))
     for _,mapping,paths in stages:
         rows=[]
@@ -59,7 +60,7 @@ def main():
     reproduced=git('write-tree',env=env)
     index.unlink()
     assert reproduced==pins['candidate_tree']
-    result={'passed':True,'inputs':pins,'order':order,'tree':reproduced,'candidate_files':len(actual),'PR119_owned':len(pr),'E_owned':len(repairs[0][2]),'F_owned':len(repairs[1][2]),'unrelated_main_paths':len(set(mainmap)-owned),'unresolved_conflicts':0,'third_state_files':[],'commands':records}
+    result={'passed':True,'inputs':pins,'order':order,'tree':reproduced,'candidate_files':len(actual),'PR119_owned':len(pr),'E_owned':len(repairs[0][2]),'F_owned':len(repairs[1][2]),'unrelated_main_paths':len(set(mainmap)-pr),'repairs_already_in_main':True,'unresolved_conflicts':0,'third_state_files':[],'commands':records}
     (out/f'reconstruction_{order}.json').write_text(json.dumps(result,indent=2)+'\n',encoding='utf-8')
     print(reproduced)
 
