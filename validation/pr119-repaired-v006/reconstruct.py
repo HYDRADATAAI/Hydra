@@ -8,10 +8,14 @@ def main():
     records=[]
     def git(*args, env=None, data=None):
         cmd=['git','-C',str(root),*args]
-        p=subprocess.run(cmd,input=data,text=True,capture_output=True,env=env)
-        records.append({'argv':cmd,'cwd':str(Path.cwd()),'stdin':data,'exit_code':p.returncode,'stdout':p.stdout,'stderr':p.stderr,'GIT_INDEX_FILE':(env or os.environ).get('GIT_INDEX_FILE')})
-        if p.returncode: raise RuntimeError(p.stderr)
-        return p.stdout.strip()
+        # Git index records are LF-delimited bytes; text=True rewrites stdin to
+        # CRLF on Windows and can make CR part of an indexed pathname.
+        p=subprocess.run(cmd,input=None if data is None else data.encode('utf-8'),capture_output=True,env=env)
+        stdout=p.stdout.decode('utf-8');stderr=p.stderr.decode('utf-8')
+        records.append({'argv':cmd,'cwd':str(Path.cwd()),'stdin':data,'stdin_encoding':'UTF-8, LF, no newline translation','exit_code':p.returncode,'stdout':stdout,'stderr':stderr,'GIT_INDEX_FILE':(env or os.environ).get('GIT_INDEX_FILE')})
+        (out/f'reconstruction_{order}_commands.json').write_text(json.dumps(records,indent=2)+'\n',encoding='utf-8')
+        if p.returncode: raise RuntimeError(stderr)
+        return stdout.strip()
     def ls(ref):
         return {s.split('\t',1)[1]:s.split('\t',1)[0] for s in git('ls-tree','-r',ref).splitlines()}
     def changes(a,b):return {p for p in set(a)|set(b) if a.get(p)!=b.get(p)}
