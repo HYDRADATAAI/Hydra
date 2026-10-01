@@ -1,4 +1,4 @@
-name: PR119 with PR135 PR136 isolated Windows rehearsal
+name: PR119 Batch034 byte mismatch control
 
 on:
   push:
@@ -46,18 +46,18 @@ jobs:
           python -m pip install --disable-pip-version-check --target D:\NYX_PORTABLE\C\deps pytest==8.3.5 pytest-subtests==0.14.2 2>&1 | Tee-Object D:\NYX_PORTABLE\C\report\dependency-install.log
           if ($LASTEXITCODE -ne 0) { throw 'Dependency installation failed' }
           python -m pip list --path D:\NYX_PORTABLE\C\deps --format=json > D:\NYX_PORTABLE\C\report\dependencies.json
-      - name: Run all fifteen groups against the isolated repair tree
+      - name: Localize byte mismatch without accepting normalization
         shell: pwsh
         env:
           PYTHONPATH: D:\NYX_PORTABLE\C\deps
         run: |
-          python D:\NYX_PORTABLE\C\harness\validation\pr119-repair-rehearsal\run_matrix.py D:\NYX_PORTABLE\C\source D:\NYX_PORTABLE\C\report
+          python D:\NYX_PORTABLE\C\harness\validation\pr119-repair-rehearsal\rebuild_control.py D:\NYX_PORTABLE\C\source D:\NYX_PORTABLE\C\report
           exit $LASTEXITCODE
       - name: Preserve complete validation evidence
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: PR119-repair-rehearsal-evidence
+          name: PR119-rebuild-control-evidence
           path: D:\NYX_PORTABLE\C\report
           if-no-files-found: error
           retention-days: 30
