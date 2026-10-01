@@ -32,6 +32,20 @@ class Batch034Hostile(unittest.TestCase):
     def test_master_full_run_promotion_rejected(self):
         q,l,b,s,m,f=self.docs(); m["readiness"]["FULL_CONSTRAINT_RUN_READY"]["status"]="YES"; self.reject((q,l,b,s,m,f),"full run promoted")
 
+    def test_builder_reproduces_canonical_git_bytes(self):
+        expected=subprocess.check_output(
+            ["git","show",f"HEAD:{v.BINDING.relative_to(ROOT).as_posix()}"],cwd=ROOT,
+        )
+        with tempfile.TemporaryDirectory(prefix="b034-exact-") as tmp:
+            output=Path(tmp)/"binding.json"
+            result=subprocess.run(
+                [sys.executable,"-B",str(v.BUILDER),"--output",str(output)],
+                cwd=ROOT,text=True,capture_output=True,timeout=60,
+            )
+            self.assertEqual(0,result.returncode,result.stdout+result.stderr)
+            actual=output.read_bytes()
+            self.assertEqual(expected,actual,"builder output must match canonical Git bytes without newline normalization")
+
     def reject_any(self, docs):
         with self.assertRaises((v.ValidationError, v.OrdinaryT2EvidenceLineageError)):
             v.validate_documents(*docs, self.evidence)

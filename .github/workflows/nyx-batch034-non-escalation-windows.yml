@@ -2,9 +2,10 @@ name: Batch034 non-escalation Windows
 
 on:
   push:
-    branches: [nyx/batch034-non-escalation-20260930]
+    branches: [nyx/batch034-non-escalation-20260930, nyx/batch034-lf-rebuild-20261001]
   pull_request:
     paths:
+      - tools/build_constraint_second_slice_batch034_t2_evidence_lineage.py
       - tools/validate_constraint_second_slice_batch034_t2_evidence_lineage.py
       - tools/test_constraint_second_slice_batch034_t2_evidence_lineage_adversarial.py
       - .github/workflows/nyx-batch034-non-escalation-windows.yml
@@ -22,6 +23,8 @@ jobs:
       PYTHONDONTWRITEBYTECODE: '1'
       PYTHONUTF8: '1'
     steps:
+      - name: Preserve canonical LF bytes in the Windows checkout
+        run: git config --global core.autocrlf false
       - uses: actions/checkout@v4
         with:
           ref: ${{ github.event.pull_request.head.sha || github.sha }}
