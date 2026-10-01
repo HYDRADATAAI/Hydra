@@ -2,9 +2,11 @@ name: Batch034 non-escalation Windows
 
 on:
   push:
-    branches: [nyx/batch034-non-escalation-20260930]
+    branches: [nyx/batch034-non-escalation-20260930, nyx/batch034-lf-output-20261001]
   pull_request:
     paths:
+      - tools/build_constraint_second_slice_batch034_t2_evidence_lineage.py
+      - tools/test_constraint_second_slice_batch034_builder_bytes.py
       - tools/validate_constraint_second_slice_batch034_t2_evidence_lineage.py
       - tools/test_constraint_second_slice_batch034_t2_evidence_lineage_adversarial.py
       - .github/workflows/nyx-batch034-non-escalation-windows.yml
@@ -45,13 +47,9 @@ jobs:
         run: python -B tools/validate_constraint_second_slice_batch034_t2_evidence_lineage.py
       - name: Batch034 hostile matrix
         run: python -B tools/test_constraint_second_slice_batch034_t2_evidence_lineage_adversarial.py -v
-      - name: Rebuild exact binding
+      - name: Rebuild exact reviewed Git bytes
         if: always()
-        run: |
-          python -B tools/build_constraint_second_slice_batch034_t2_evidence_lineage.py --output D:\nyx-b034-temp\binding.json
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          $expected = 'docs/constraint/second_slice/semiconductor_advanced_packaging_critical_materials_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH034_SEMICONDUCTOR_ORDINARY_T2_EVIDENCE_LINEAGE_BINDING_V001_20260928.json'
-          if ((Get-FileHash -LiteralPath $expected).Hash -ne (Get-FileHash D:\nyx-b034-temp\binding.json).Hash) { throw 'Binding bytes differ' }
+        run: python -B tools/test_constraint_second_slice_batch034_builder_bytes.py -v
       - name: Confirm all source hashes unchanged
         if: always()
         run: |
