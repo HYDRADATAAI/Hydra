@@ -1,0 +1,9 @@
+{
+  "main": "8b459719619be497408bdf970b8d1e8830ce93b3",
+  "pr119_head": "417174daa31761ad9eaeba56ca6306b3050ada7a",
+  "candidate_commit": "c0a6b3edf753156413c76ba8d070dde2093b677d",
+  "candidate_tree": "23837f20645666b910a80cb53b5c4f4eb243c85b",
+  "file_count": 734,
+  "v005_tree": "caee9d0abbe64a8ecde7b82c568ce20c60964a9e",
+  "expected_native_test_methods": 480
+}
