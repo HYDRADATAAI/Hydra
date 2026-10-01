@@ -8,6 +8,8 @@ import hashlib
 import io
 import json
 
+from .runtime import unresolved_admission
+
 PARSER_VERSIONS={"bis_csv":"1.0.0","json_records":"1.0.0","sec_json":"1.0.0"}
 
 def _sha(value:Any)->str:
@@ -99,11 +101,12 @@ class DeploymentGuard:
         issues=[]
         for name,s in config["sources"].items():
             if s.get("enabled"):
-                if s.get("live_canary") and not s.get("read_only",False):
-                    issues.append(f"{name}: live canary must be read-only")
+                if s.get("live_canary") is not True or s.get("read_only") is not True:
+                    issues.append(f"{name}: only explicit read-only canaries may be enabled while admission is blocked")
                 if name.startswith("sec") and ("REPLACE_" in s.get("user_agent","") or not s.get("user_agent")):
                     issues.append(f"{name}: SEC User-Agent/contact not configured")
-        return {"status":"PASS" if not issues else "FAIL","issues":issues}
+        return {"status":"PASS" if not issues else "FAIL","issues":issues,
+                "status_scope":"CONFIGURATION_ONLY","admission":unresolved_admission()}
 
 class OperationsReport:
     @staticmethod
@@ -115,7 +118,7 @@ class OperationsReport:
             rows.append({
                 "source":source,"freshness":fresh_map.get(source,{}).get("health","UNKNOWN"),
                 "drift":drift_map.get(source,{}).get("status","UNKNOWN"),
-                "failure_budget":failure_state.get("sources",{}).get(source,{}).get("state","HEALTHY"),
+                "failure_budget":failure_state.get("sources",{}).get(source,{}).get("state","UNKNOWN"),
                 "last_success_at":fresh_map.get(source,{}).get("last_success_at"),
                 "last_error":fresh_map.get(source,{}).get("last_error"),
             })
@@ -124,8 +127,9 @@ class OperationsReport:
             overall="FAIL"
         elif any(x["drift"]=="FROZEN" or x["failure_budget"]=="FROZEN" for x in rows):
             overall="DEGRADED"
-        elif any(x["freshness"] in {"STALE","OUTAGE_OR_STALE","NEVER_SUCCESS"} or x["failure_budget"]=="WARN" for x in rows):
+        elif not rows or any(x["freshness"]!="HEALTHY" or x["drift"]!="PASS" or x["failure_budget"]!="HEALTHY" for x in rows):
             overall="WARN"
         return {"status":overall,"ledger_tip_hash":ledger_recovery.get("ledger_tip_hash"),
                 "ledger_chain":ledger_recovery.get("chain_status"),"golden_replay":golden.get("status"),
-                "deployment":deployment.get("status"),"sources":rows}
+                "deployment":deployment.get("status"),"sources":rows,
+                "status_scope":"OPERATIONS_ONLY","admission":unresolved_admission()}

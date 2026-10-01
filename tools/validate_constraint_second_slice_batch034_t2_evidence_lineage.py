@@ -22,8 +22,25 @@ BINDING=BASE/"HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH034_SEMICONDUCTOR_ORDINARY
 STATUS=BASE/"HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH034_SEMICONDUCTOR_T2_EVIDENCE_LINEAGE_STATUS_V001_20260928.json"
 MASTER=ARCH/"HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH034_MASTER_STATUS_V001_20260928.json"
 MANIFEST=VAL/"HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH034_ARTIFACT_MANIFEST_V001_20260928.json"
+REPORT=VAL/"HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH034_SEMICONDUCTOR_T2_EVIDENCE_LINEAGE_REPORT_V001_20260928.md"
 BUILDER=ROOT/"tools/build_constraint_second_slice_batch034_t2_evidence_lineage.py"
 SLICE="SEMICONDUCTOR_ADVANCED_PACKAGING_CRITICAL_MATERIALS_V1"
+
+# Existing immutable Batch034 public records, not signer or timestamp trust roots.
+# Keep the required inventory independent of caller-supplied manifest entries.
+ARTIFACT_BLOBS={
+    BINDING.relative_to(ROOT).as_posix():"9cff667fabcf2a10025dc7c6466b99676470dfea",
+    STATUS.relative_to(ROOT).as_posix():"ff74d12ecbb8158a0a9b9ac788bd6aea7b52af05",
+    MASTER.relative_to(ROOT).as_posix():"8da4220706c9b3a77fe8f342d5b3e18165468e30",
+    REPORT.relative_to(ROOT).as_posix():"d2dd3da629740670786e5ac9525d2b5661c5177b",
+}
+MANIFEST_BLOB="67f743cfe83131b674742b0d4e513a8839d0ce95"
+REMAINING_BLOCKERS=[
+    "PRE_ACQUISITION_HISTORICAL_VERSION_AVAILABILITY_UNPROVEN",
+    "REQUIRED_CASE_12_HISTORICAL_NO_LOOKAHEAD_OPEN",
+    "CANONICAL_EVIDENCE_ADMISSION_NOT_AUTHORIZED",
+    "SECOND_SLICE_IMPLEMENTATION_ADMISSION_NOT_GRANTED",
+]
 
 SPEC=importlib.util.spec_from_file_location("b034_builder",BUILDER)
 if SPEC is None or SPEC.loader is None: raise RuntimeError("unable to import Batch034 builder")
@@ -37,6 +54,27 @@ def load(p):
 def git_blob_sha(p):
     r=subprocess.run(["git","hash-object",str(p.relative_to(ROOT))],cwd=ROOT,text=True,capture_output=True,check=False)
     req(r.returncode==0,f"git hash-object failed: {p}"); return r.stdout.strip()
+
+def document_identity(value):
+    """Compare JSON types as well as values; bool must not equal integer 1/0."""
+    try:
+        return json.dumps(value,sort_keys=True,separators=(",",":"),allow_nan=False)
+    except (TypeError,ValueError) as exc:
+        raise ValidationError("public document must contain valid JSON values") from exc
+
+def validate_public_record_bindings(binding,status,master,manifest):
+    # Exact reviewed public records close all nested summary fields, including
+    # unknown authority claims. They never confer authority on new content.
+    for path,document,digest in (
+        (BINDING,binding,ARTIFACT_BLOBS[BINDING.relative_to(ROOT).as_posix()]),
+        (STATUS,status,ARTIFACT_BLOBS[STATUS.relative_to(ROOT).as_posix()]),
+        (MASTER,master,ARTIFACT_BLOBS[MASTER.relative_to(ROOT).as_posix()]),
+        (MANIFEST,manifest,MANIFEST_BLOB),
+    ):
+        req(path.is_file(),f"public record missing: {path.relative_to(ROOT)}")
+        req(git_blob_sha(path)==digest,f"immutable public record drift: {path.relative_to(ROOT)}")
+        req(document_identity(document)==document_identity(load(path)),
+            f"public document differs from pinned record: {path.relative_to(ROOT)}")
 
 def evidence_records():
     out=[]
@@ -78,9 +116,12 @@ def validate_documents(queue,lineage,binding,status,master,manifest,evidence):
         "EVIDENCE_BINDINGS_ADJUSTED_TO_SOURCE_VERSION_CUSTODY":34,
         "STRICT_HISTORICAL_REPLAY_READY":"NO",
         "CANONICAL_EVIDENCE_ADMISSION_PROMOTED":"NO",
+        "CANONICAL_T5_T6_ADMISSION_PROMOTED":"NO",
+        "HISTORICAL_AVAILABILITY_BACKDATED":"NO",
         "REMAINING_REQUIRED_CASE":12,
     }.items(): req(sr.get(key)==val,f"status metric drift: {key}")
     req(status.get("next_repo_executable_lane")=="NONE_CURRENT_CUSTODY_T2_NORMALIZATION_AND_EVIDENCE_LINEAGE_COMPLETE","status next lane drift")
+    req(status.get("remaining_blockers")==REMAINING_BLOCKERS,"status unresolved blockers drift")
 
     req(master.get("record_id")=="HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH034_MASTER_STATUS_V001","master identity drift")
     req(master.get("first_serious_constraint_run")=="BLOCKED","master serious run promoted")
@@ -92,6 +133,9 @@ def validate_documents(queue,lineage,binding,status,master,manifest,evidence):
     req(rd.get("SECOND_SLICE_CANONICAL_EVIDENCE_ADMISSION",{}).get("status")=="NO","master canonical evidence promoted")
     req(rd.get("SECOND_SLICE_REPLAY_READY",{}).get("status")=="NO_STRICT_HISTORICAL","master replay promoted")
     req(rd.get("FULL_CONSTRAINT_RUN_READY",{}).get("status")=="NO","master full run promoted")
+    req(rd.get("SECOND_SLICE_IMPLEMENTATION_ADMITTED",{}).get("status")=="NO","master implementation admission promoted")
+    req(rd.get("SECOND_SLICE_HISTORICAL_AVAILABILITY",{}).get("status")=="NO_PRE_ACQUISITION_VERSION_AVAILABILITY_UNPROVEN","master historical availability promoted")
+    req(master.get("remaining_blockers")==REMAINING_BLOCKERS,"master unresolved blockers drift")
     req(master.get("next_repo_executable_lane")=="NONE_CURRENT_CUSTODY_T2_NORMALIZATION_AND_EVIDENCE_LINEAGE_COMPLETE","master next lane drift")
 
     req(manifest.get("result")=="PASS_ACTIVE_REVIEWED_EVIDENCE_BOUND_TO_EXACT_T2_SOURCE_VERSIONS_CURRENT_ONLY","manifest result drift")
@@ -102,12 +146,19 @@ def validate_documents(queue,lineage,binding,status,master,manifest,evidence):
     req(exp.get("canonical_evidence_admission_promoted") is False,"manifest canonical evidence promoted")
     req(exp.get("remaining_required_case")==12,"manifest Case12 drift")
     req(exp.get("repo_executable_blockers")==0,"manifest repo blocker count drift")
+    req(exp.get("first_serious_constraint_run")=="BLOCKED","manifest serious run promoted")
+    artifacts=manifest.get("artifacts")
+    req(isinstance(artifacts,list) and len(artifacts)==len(ARTIFACT_BLOBS),"manifest requires exact four-artifact inventory")
     seen=set()
-    for art in manifest.get("artifacts",[]):
+    for art in artifacts:
+        req(isinstance(art,dict) and set(art)=={"path","git_blob_sha"},"manifest artifact field set invalid")
         rel=art.get("path"); sha=art.get("git_blob_sha")
         req(isinstance(rel,str) and rel and rel not in seen,"manifest path invalid/duplicate"); seen.add(rel)
+        req(rel in ARTIFACT_BLOBS and sha==ARTIFACT_BLOBS[rel],f"manifest immutable artifact binding drift: {rel}")
         p=ROOT/rel; req(p.is_file(),f"manifest artifact missing: {rel}")
         req(git_blob_sha(p)==sha,f"manifest blob pin mismatch: {rel}")
+    req(seen==set(ARTIFACT_BLOBS),"manifest required artifact inventory incomplete")
+    validate_public_record_bindings(binding,status,master,manifest)
     return True
 
 def main():

@@ -8,7 +8,7 @@ import hashlib
 import json
 import re
 
-from .runtime import ConstraintRuntime, Event
+from .runtime import ConstraintRuntime, Event, unresolved_admission
 
 VALID_EVIDENCE = {"A1","A2","B1","B2","C","D","OPEN"}
 EVENT_EVIDENCE_RANK = {"A1":7,"A2":6,"B1":5,"B2":4,"C":3,"D":2,"OPEN":1}
@@ -252,6 +252,7 @@ class ReplayHarness:
             "target_node_id":event.target_node_id,"known_at":event.known_at,"effective_at":event.effective_at,
             "as_of":_iso(as_of_dt),"event_evidence_class":event.evidence_class,"event_record_status":event.record_status,
             "no_auto_trading_signal":True,
+            "admission":unresolved_admission(),
         }
         if event.record_status in {"conflict","retracted","false"}:
             return {**base,"replay_state":"BLOCKED","reason":"event record is conflicted/retracted/false","exposures":[],"runtime_result":None}
@@ -279,8 +280,8 @@ class ReplayHarness:
                 x.setdefault("reasons",[]).insert(0,f"event evidence {event.evidence_class} caps downstream state at CANDIDATE")
             replay_state="CANDIDATE"
         else:
-            replay_state="CONFIRMED"
-        return {**base,"replay_state":replay_state,"reason":"event and graph passed replay gates","exposures":exposures,"runtime_result":result}
+            replay_state="CANDIDATE"
+        return {**base,"replay_state":replay_state,"reason":"runtime candidate projection only; authority and temporal admission remain blocked","exposures":exposures,"runtime_result":result}
 
     def replay_stream(self,events: Iterable[CanonicalEvent],as_of: str,*,since_known_at: Optional[str]=None,max_hops: int=8) -> List[Dict[str,Any]]:
         cutoff=_dt(since_known_at,"since_known_at") if since_known_at else None
