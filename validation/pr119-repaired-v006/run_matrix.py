@@ -113,8 +113,7 @@ def main():
     initial=snapshot(); save('source_hashes_before.json',initial)
     if not all(c['passed'] for c in checks):
         save('checks.json',checks); raise SystemExit('Safety precondition failed')
-    # The original two-input candidate remains a historical failing input.
-    # Reconstruct the new candidate from main, PR119, and exact E/F repair deltas.
+    # Reconstruct current main plus PR119; verify E/F repairs already in main.
     for n in [1,2]:
         code,text=run('reproduce_tree_'+str(n),[sys.executable,str(harness/'reconstruct.py'),str(root),str(out),str(n)])
         check('reproduced_tree_'+str(n),code==0 and text.strip()==TREE,text)
@@ -139,11 +138,11 @@ def main():
     for p in ['state','raw_archive','golden']:
         check('runtime_forbidden_'+p,not (root/'constraint-runtime'/p).exists(),p)
     env=os.environ.copy()
-    env['PYTHONPATH']=os.pathsep.join([str(root/p/'src') for p in PACKAGES]+[str(harness),env.get('PYTHONPATH','')])
+    env['PYTHONPATH']=os.pathsep.join([str(root/p/'src') for p in PACKAGES]+[str(root/'constraint-runtime/tests'),str(harness),env.get('PYTHONPATH','')])
     env['PYTHONDONTWRITEBYTECODE']='1'; env['PYTEST_DISABLE_PLUGIN_AUTOLOAD']='1'
     env['MATRIX_INVENTORY']=str(out/'collected_tests.json'); env['MATRIX_RESULTS']=str(out/'pytest_results.json')
     testdirs=[p+'/tests' for p in PACKAGES]
-    pytest=[sys.executable,'-m','pytest','--import-mode=importlib','-p','pytest_subtests.plugin','-p','matrix_reporter','-p','no:cacheprovider']
+    pytest=[sys.executable,'-m','pytest','--rootdir='+str(root),'--import-mode=importlib','-p','pytest_subtests.plugin','-p','matrix_reporter','-p','no:cacheprovider']
     run('collect_all_owners',pytest+testdirs+['--collect-only','-q'],env=env)
     if (out/'collected_tests.json').exists(): (out/'pre_execution_collection.json').write_bytes((out/'collected_tests.json').read_bytes())
     run('integrated_owners',pytest+testdirs+['-vv','--tb=long','--junitxml='+str(out/'tests.xml')],env=env)
