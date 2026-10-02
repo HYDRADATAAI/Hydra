@@ -15,6 +15,7 @@ from .models import AuthorityResult, Issue, sorted_issues
 AUTHORITY_SCHEMA = "hydra-t6-runtime-authority/v1"
 OPERATION = "hydra.t6.failclosed_validate"
 REQUIRED_SCOPE = "t6.validate_candidate_handoff"
+AUTHORITY_ROLE = "validator_authority"
 DECISION = "AUTHORIZE_FAIL_CLOSED_VALIDATION"
 MAX_REVOCATION_AGE = timedelta(hours=24)
 HEX64 = set("0123456789abcdef")
@@ -87,6 +88,8 @@ def validate_authority(
     scopes = envelope.get("scopes")
     if not isinstance(scopes, list) or scopes != [REQUIRED_SCOPE]:
         issues.append(Issue("authority_scope_invalid", "authority scopes must be exactly the single validator scope", "$.authority.scopes"))
+    if envelope.get("authority_role") != AUTHORITY_ROLE:
+        issues.append(Issue("authority_role_invalid", f"authority_role must be {AUTHORITY_ROLE}", "$.authority.authority_role"))
     for field in ("authority_id", "authority_name", "authority_role", "key_id"):
         if not isinstance(envelope.get(field), str) or not str(envelope[field]).strip():
             issues.append(Issue("authority_identity_invalid", f"{field} must be a non-empty string", f"$.authority.{field}"))

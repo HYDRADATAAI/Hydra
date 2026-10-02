@@ -5,6 +5,7 @@ from datetime import UTC, datetime, timedelta
 
 from hydra_t6_failclosed.authority import (
     AUTHORITY_SCHEMA,
+    AUTHORITY_ROLE,
     DECISION,
     OPERATION,
     REQUIRED_SCOPE,
@@ -32,7 +33,7 @@ class AuthorityEnvelopeTests(unittest.TestCase):
             "schema_version": AUTHORITY_SCHEMA,
             "authority_id": "authority-test-001",
             "authority_name": "public-test-authority",
-            "authority_role": "validator_authority",
+            "authority_role": AUTHORITY_ROLE,
             "decision": DECISION,
             "operation": OPERATION,
             "scopes": [REQUIRED_SCOPE],
@@ -170,6 +171,15 @@ class AuthorityEnvelopeTests(unittest.TestCase):
         result = self._validate(envelope)
         self.assertFalse(result.valid)
         self.assertIn("authority_superseded", {issue.code for issue in result.issues})
+
+    def test_signed_wrong_authority_role_is_rejected(self) -> None:
+        envelope = self._envelope()
+        envelope["authority_role"] = "trading_authority"
+        self._resign(envelope)
+        result = self._validate(envelope)
+        self.assertFalse(result.valid)
+        self.assertEqual(result.reason, "AUTHORITY_INVALID")
+        self.assertIn("authority_role_invalid", {issue.code for issue in result.issues})
 
 
 if __name__ == "__main__":

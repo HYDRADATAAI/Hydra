@@ -45,6 +45,7 @@ tests/
   test_dormant_adapter.py
   test_native_binding_admission.py
   test_receipt.py
+  test_service.py
   test_thread6_successor_reconciliation.py
 ```
 
@@ -65,7 +66,9 @@ The native-binding gate requires all of the following before it can return
 
 Missing authority fails closed. A valid implementation-admission receipt still
 does **not** authorize runtime activation, canonical promotion, live-source
-acquisition, model training, or trading.
+acquisition, model training, or trading. The admission result reports each of
+those authorities explicitly as false rather than leaving model-training or
+trading authority implicit.
 
 ## Safety boundary
 
