@@ -1,0 +1,73 @@
+name: PR119 current candidate Windows V007
+
+on:
+  push:
+    branches: [nyx/pr119-windows-v007-20261001]
+
+permissions:
+  contents: read
+
+jobs:
+  repaired-candidate:
+    runs-on: windows-latest
+    timeout-minutes: 40
+    env:
+      PYTHONUTF8: '1'
+      PYTHONIOENCODING: utf-8
+      PYTHONDONTWRITEBYTECODE: '1'
+      TEMP: D:\NYX_PORTABLE\V007\temp
+      TMP: D:\NYX_PORTABLE\V007\temp
+      PIP_CACHE_DIR: D:\NYX_PORTABLE\V007\pip-cache
+    steps:
+      - name: Prepare exact source and separate harness on D drive
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          New-Item -ItemType Directory -Force -Path 'D:\NYX_PORTABLE\V007\temp', 'D:\NYX_PORTABLE\V007\report' | Out-Null
+          git config --global core.longpaths true
+          git clone --no-checkout https://github.com/HYDRADATAAI/Hydra.git D:\NYX_PORTABLE\V007\harness
+          if ($LASTEXITCODE -ne 0) { throw 'Harness clone failed' }
+          git -C D:\NYX_PORTABLE\V007\harness -c core.autocrlf=false checkout --detach $env:GITHUB_SHA
+          if ($LASTEXITCODE -ne 0) { throw 'Harness checkout failed' }
+          git clone --no-checkout https://github.com/HYDRADATAAI/Hydra.git D:\NYX_PORTABLE\V007\source
+          if ($LASTEXITCODE -ne 0) { throw 'Source clone failed' }
+          git -C D:\NYX_PORTABLE\V007\source fetch origin eb46eff603299414f427161fd07ae9a074f4ffd6
+          if ($LASTEXITCODE -ne 0) { throw 'Pinned repaired candidate unavailable' }
+          git -C D:\NYX_PORTABLE\V007\source -c core.autocrlf=false checkout --detach eb46eff603299414f427161fd07ae9a074f4ffd6
+          if ($LASTEXITCODE -ne 0) { throw 'Candidate checkout failed' }
+          git -C D:\NYX_PORTABLE\V007\source config core.autocrlf false
+          git -C D:\NYX_PORTABLE\V007\source config core.longpaths true
+          Copy-Item -Recurse D:\NYX_PORTABLE\V007\harness\validation\pr119-windows-v007 D:\NYX_PORTABLE\V007\report\harness
+          Copy-Item D:\NYX_PORTABLE\V007\harness\.github\workflows\pr119-windows-v007.yml D:\NYX_PORTABLE\V007\report\harness\workflow.yml
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install isolated test dependencies
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          python -m pip install --disable-pip-version-check --target D:\NYX_PORTABLE\V007\deps pytest==8.3.5 pytest-subtests==0.14.2 2>&1 | Tee-Object D:\NYX_PORTABLE\V007\report\dependency-install.log
+          if ($LASTEXITCODE -ne 0) { throw 'Dependency installation failed' }
+          python -m pip list --path D:\NYX_PORTABLE\V007\deps --format=json > D:\NYX_PORTABLE\V007\report\dependencies.json
+      - name: Reconstruct candidate and run all fifteen matrix groups
+        shell: pwsh
+        env:
+          PYTHONPATH: D:\NYX_PORTABLE\V007\deps
+        run: |
+          python -B D:\NYX_PORTABLE\V007\harness\validation\pr119-windows-v007\run_matrix.py D:\NYX_PORTABLE\V007\source D:\NYX_PORTABLE\V007\report\matrix
+          exit $LASTEXITCODE
+      - name: V007 only after passing exact-candidate matrix
+        shell: pwsh
+        env:
+          PYTHONPATH: D:\NYX_PORTABLE\V007\deps
+        run: |
+          python -B D:\NYX_PORTABLE\V007\harness\validation\pr119-windows-v007\run_v007.py D:\NYX_PORTABLE\V007\source D:\NYX_PORTABLE\V007\report\matrix D:\NYX_PORTABLE\V007\report\v007
+          exit $LASTEXITCODE
+      - name: Preserve complete evidence including failed runs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: PR119-current-Windows-V007-evidence
+          path: D:\NYX_PORTABLE\V007\report
+          if-no-files-found: error
+          retention-days: 30
