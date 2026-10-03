@@ -1,7 +1,9 @@
 """Deterministic replay-lineage derivation from a sanitized T1 attestation.
 
-No raw bytes or private paths are required. This module proves only which exact
-persisted source versions are eligible at a requested as-of time. It does not
+No raw bytes or private paths are required. A lineage record binds exact source
+versions and caller-recorded times; it does not verify acquisition timestamps.
+Until a trusted verifier exists, v1 records are non-admitting and selection is
+blocked, including for correctly hashed or previously saved ready claims. It does not
 promote strict historical replay, T5/T6 admission, canonical constraints, or
 beneficiary qualification.
 """
@@ -77,7 +79,7 @@ def build_replay_lineage_packet(
     attestation: Mapping[str, Any],
     registry: Mapping[str, Any],
 ) -> dict[str, Any]:
-    """Build a deterministic, sanitized as-of membership packet."""
+    """Build deterministic lineage metadata with ordinary replay blocked in v1."""
     validate_public_materialization_attestation(
         attestation=attestation,
         registry=registry,
@@ -89,18 +91,17 @@ def build_replay_lineage_packet(
         raise ReplayLineageError("attestation members missing")
     if attestation.get("all_registry_sources_materialized") is not True:
         raise ReplayLineageError("all registry sources must be materialized")
-    if attestation.get("all_sources_ordinary_t2_eligible") is not True:
-        raise ReplayLineageError("all sources must be ordinary-T2 eligible")
-    if attestation.get("ordinary_t2_eligible_count") != len(registry_ids):
-        raise ReplayLineageError("ordinary-T2 eligible source count incomplete")
+    if (attestation.get("all_sources_ordinary_t2_eligible") is not False
+            or attestation.get("ordinary_t2_eligible_count") != 0):
+        raise ReplayLineageError("v1 ordinary replay blocked: TIMESTAMP_UNVERIFIED")
 
     replay_members: list[dict[str, Any]] = []
     for index, member in enumerate(members):
         if not isinstance(member, Mapping):
             raise ReplayLineageError(f"members[{index}]: object required")
-        if member.get("ordinary_t2_eligible") is not True:
+        if member.get("ordinary_t2_eligible") is not False:
             raise ReplayLineageError(
-                f"members[{index}]: ordinary-T2 eligibility required"
+                f"members[{index}]: v1 ordinary replay blocked: TIMESTAMP_UNVERIFIED"
             )
         if member.get("processing_disposition") != "ELIGIBLE":
             raise ReplayLineageError(
@@ -124,15 +125,15 @@ def build_replay_lineage_packet(
     )
 
     boundaries: list[dict[str, Any]] = []
-    eligible_ids: set[str] = set()
     grouped: dict[str, list[str]] = {}
     for row in replay_members:
         grouped.setdefault(row["available_at"], []).append(row["source_id"])
     for available_at in sorted(grouped, key=lambda value: _dt(value, "available_at")):
-        eligible_ids.update(grouped[available_at])
         boundaries.append({
             "as_of": available_at,
-            "eligible_source_ids": sorted(eligible_ids),
+            # Recorded temporal boundaries remain visible as lineage metadata.
+            # No source is admitted solely because its recorded time has passed.
+            "eligible_source_ids": [],
         })
 
     packet: dict[str, Any] = {
@@ -144,7 +145,7 @@ def build_replay_lineage_packet(
         "availability_mode": attestation.get("availability_mode"),
         "source_count": len(replay_members),
         "ordinary_source_version_hash_lineage_complete": True,
-        "ordinary_current_source_set_ready": True,
+        "ordinary_current_source_set_ready": False,
         "strict_historical_replay_ready": False,
         "historical_availability_backdated": False,
         "no_lookahead_rule": "SOURCE_VISIBLE_IFF_AVAILABLE_AT_LTE_AS_OF",
@@ -182,8 +183,8 @@ def validate_replay_lineage_packet(
         raise ReplayLineageError("replay-lineage availability mode invalid")
     if packet.get("ordinary_source_version_hash_lineage_complete") is not True:
         raise ReplayLineageError("ordinary source-version hash lineage incomplete")
-    if packet.get("ordinary_current_source_set_ready") is not True:
-        raise ReplayLineageError("ordinary current source set not ready")
+    if packet.get("ordinary_current_source_set_ready") is not False:
+        raise ReplayLineageError("v1 ordinary replay blocked: TIMESTAMP_UNVERIFIED")
     if packet.get("strict_historical_replay_ready") is not False:
         raise ReplayLineageError("strict historical replay was improperly promoted")
     if packet.get("historical_availability_backdated") is not False:
@@ -263,7 +264,12 @@ def validate_replay_lineage_packet(
     boundaries = packet.get("availability_boundaries")
     if not isinstance(boundaries, list) or not boundaries:
         raise ReplayLineageError("availability boundaries missing")
-    cumulative: set[str] = set()
+    recorded_boundaries = sorted(
+        {row["available_at"] for row in members},
+        key=lambda value: _dt(value, "available_at"),
+    )
+    if len(boundaries) != len(recorded_boundaries):
+        raise ReplayLineageError("recorded availability boundary count drifted")
     last_time: datetime | None = None
     for index, boundary in enumerate(boundaries):
         if not isinstance(boundary, Mapping):
@@ -276,18 +282,12 @@ def validate_replay_lineage_packet(
         if last_time is not None and instant <= last_time:
             raise ReplayLineageError("availability boundaries are not strictly increasing")
         last_time = instant
-        cumulative = {
-            row["source_id"]
-            for row in members
-            if _dt(row["available_at"], "member.available_at") <= instant
-        }
-        if boundary["eligible_source_ids"] != sorted(cumulative):
+        if boundary["as_of"] != recorded_boundaries[index]:
+            raise ReplayLineageError("recorded availability boundary drifted")
+        if boundary["eligible_source_ids"] != []:
             raise ReplayLineageError(
-                f"availability_boundaries[{index}]: eligible source set drifted"
+                f"availability_boundaries[{index}]: v1 eligibility must remain empty"
             )
-
-    if boundaries[-1]["eligible_source_ids"] != sorted(registry_ids):
-        raise ReplayLineageError("final availability boundary does not expose full source set")
 
 
 def select_replay_members(
@@ -297,9 +297,5 @@ def select_replay_members(
     as_of: str,
 ) -> list[dict[str, Any]]:
     validate_replay_lineage_packet(packet=packet, registry=registry)
-    cutoff = _dt(as_of, "as_of")
-    return [
-        dict(row)
-        for row in packet["members"]
-        if _dt(row["available_at"], f"{row['source_id']}.available_at") <= cutoff
-    ]
+    _dt(as_of, "as_of")
+    raise ReplayLineageError("v1 ordinary replay blocked: TIMESTAMP_UNVERIFIED")
