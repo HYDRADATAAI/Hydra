@@ -38,6 +38,8 @@ def _aware_dt(value: str, label: str) -> datetime:
 def _unique_ids(rows: list[dict[str, Any]], field: str, label: str) -> set[str]:
     values: list[str] = []
     for index, row in enumerate(rows):
+        if not isinstance(row, dict):
+            _fail(f"{label}[{index}]: object required")
         value = row.get(field)
         if not isinstance(value, str) or not value:
             _fail(f"{label}[{index}].{field}: non-empty string required")
@@ -45,6 +47,26 @@ def _unique_ids(rows: list[dict[str, Any]], field: str, label: str) -> set[str]:
     if len(values) != len(set(values)):
         _fail(f"{label}.{field}: duplicate IDs")
     return set(values)
+
+
+def _string_list(value: Any, label: str) -> list[str]:
+    if not isinstance(value, list):
+        _fail(f"{label}: list required")
+    for item in value:
+        if not isinstance(item, str) or not item.strip() or item != item.strip():
+            _fail(f"{label}: non-empty unpadded string required")
+    return value
+
+
+def _known_reference(value: str, evidence_ids: set[str], claim_ids: set[str], label: str) -> None:
+    if value.startswith("EV-"):
+        if value not in evidence_ids:
+            _fail(f"{label}: unknown evidence {value}")
+    elif value.startswith("CLM-"):
+        if value not in claim_ids:
+            _fail(f"{label}: unknown claim {value}")
+    else:
+        _fail(f"{label}: unsupported lineage reference {value}")
 
 
 def validate_owner_seams(
@@ -107,7 +129,7 @@ def validate_owner_seams(
         cid = claim["claim_id"]
         claim_available_at[cid] = _aware_dt(claim["available_at"], f"{cid}.available_at")
         for field in ("support_evidence_ids", "disconfirming_evidence_ids"):
-            for evidence_id in claim.get(field, []):
+            for evidence_id in _string_list(claim.get(field, []), f"{cid}.{field}"):
                 if not isinstance(evidence_id, str) or not evidence_id.startswith("EV-"):
                     _fail(f"{cid}.{field}: invalid evidence reference")
                 known_evidence_ids.add(evidence_id)
@@ -135,16 +157,15 @@ def validate_owner_seams(
         refs = candidate.get("claim_ids")
         if not isinstance(refs, list) or not refs:
             _fail(f"{cid}: claim lineage required")
+        _string_list(refs, f"{cid}.claim_ids")
         if not set(refs) <= claim_ids:
             _fail(f"{cid}: candidate cites unknown claim")
-        for role, values in candidate.get("evidence_roles", {}).items():
-            if not isinstance(values, list):
-                _fail(f"{cid}.{role}: role values must be a list")
-            for value in values:
-                if value.startswith("EV-") and value not in known_evidence_ids:
-                    _fail(f"{cid}.{role}: unknown evidence {value}")
-                if value.startswith("CLM-") and value not in claim_ids:
-                    _fail(f"{cid}.{role}: unknown claim {value}")
+        roles = candidate.get("evidence_roles")
+        if not isinstance(roles, dict) or not roles:
+            _fail(f"{cid}: evidence-role mapping required")
+        for role, values in roles.items():
+            for value in _string_list(values, f"{cid}.{role}"):
+                _known_reference(value, known_evidence_ids, claim_ids, f"{cid}.{role}")
 
         successor = overlay_by_id[cid]
         overlay_available = _aware_dt(
@@ -204,6 +225,8 @@ def validate_owner_seams(
         lineage = relation.get("evidence_lineage")
         if not isinstance(lineage, dict) or not _REQUIRED_BENEFICIARY_LINEAGE <= set(lineage):
             _fail(f"{rid}: incomplete beneficiary evidence-role lineage")
+        for field in sorted(_REQUIRED_BENEFICIARY_LINEAGE):
+            _string_list(lineage[field], f"{rid}.{field}")
         if not set(lineage["constraint_evidence"]) <= set(
             parent.get("evidence_roles", {}).get("constraint_support", [])
         ):
@@ -217,6 +240,12 @@ def validate_owner_seams(
             for claim_id in lineage[field]:
                 if claim_id not in claim_ids:
                     _fail(f"{rid}.{field}: unknown claim {claim_id}")
+        # Batch010 also stores prose research limitations here. Preserve those
+        # historical notes; validate reference-shaped entries without promoting
+        # prose into evidence or claiming that raw-source lineage is complete.
+        for value in lineage["disconfirming_or_blocking"]:
+            if value.startswith(("EV-", "CLM-")):
+                _known_reference(value, known_evidence_ids, claim_ids, f"{rid}.disconfirming_or_blocking")
 
         confidence = beneficiary_confidence_by_id[rid]
         if confidence.get("confidence_type") != "BENEFICIARY_CONFIDENCE":
