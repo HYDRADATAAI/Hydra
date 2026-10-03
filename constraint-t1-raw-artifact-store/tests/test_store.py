@@ -124,8 +124,8 @@ class RawArtifactStoreTests(unittest.TestCase):
             receipts=[r2, r1],
         )
         self.assertEqual(left, persisted)
-        self.assertTrue(is_ordinary_t2_eligible(receipt=r1, release_manifest=persisted, store=self.store))
-        self.assertTrue(is_ordinary_t2_eligible(receipt=r2, release_manifest=persisted, store=self.store))
+        self.assertFalse(is_ordinary_t2_eligible(receipt=r1, release_manifest=persisted, store=self.store))
+        self.assertFalse(is_ordinary_t2_eligible(receipt=r2, release_manifest=persisted, store=self.store))
 
     def test_missing_manifest_membership_blocks_ordinary_t2_eligibility(self):
         receipt = self.persist()
@@ -254,7 +254,7 @@ class RawArtifactStoreTests(unittest.TestCase):
             "release_record_mismatch",
             self.store.validate_stored_release_manifest(forged),
         )
-        self.assertTrue(
+        self.assertFalse(
             is_ordinary_t2_eligible(
                 receipt=first,
                 release_manifest=persisted,

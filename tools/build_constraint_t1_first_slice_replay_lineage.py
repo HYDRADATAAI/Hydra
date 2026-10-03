@@ -70,7 +70,9 @@ def main() -> int:
     print("CONSTRAINT_T1_FIRST_SLICE_REPLAY_LINEAGE=PASS")
     print(f"SOURCE_VERSION_LINEAGE_COUNT={packet['source_count']}")
     print("ORDINARY_SOURCE_VERSION_HASH_LINEAGE_COMPLETE=YES")
-    print("ORDINARY_CURRENT_SOURCE_SET_READY=YES")
+    print("ORDINARY_CURRENT_SOURCE_SET_READY=" + (
+        "YES" if packet["ordinary_current_source_set_ready"] is True else "NO"
+    ))
     print("STRICT_HISTORICAL_REPLAY_READY=NO")
     print("HISTORICAL_BACKDATING_PERFORMED=NO")
     if visible is not None:
