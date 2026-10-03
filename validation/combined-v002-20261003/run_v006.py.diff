@@ -1,5 +1,5 @@
 --- V001/run_v006.py
-+++ V002_final2/run_v006.py
++++ LATEST143/run_v006.py
 @@ -26,13 +26,14 @@
          return {p:hashlib.sha256((repo/p).read_bytes()).hexdigest() for p in files if p}
      def status(repo,label):

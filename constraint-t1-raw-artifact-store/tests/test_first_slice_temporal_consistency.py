@@ -193,15 +193,14 @@ class FirstSliceTemporalConsistencyTests(unittest.TestCase):
         )
         self.assertEqual([], boundary["eligible_source_ids"])
         validate_replay_lineage_packet(packet=packet, registry=self.registry)
-        with self.assertRaisesRegex(ReplayLineageError, "TIMESTAMP_UNVERIFIED"):
-            select_replay_members(
-                packet=packet, registry=self.registry, as_of="2026-09-26T12:59:59Z",
-            )
-        with self.assertRaisesRegex(ReplayLineageError, "TIMESTAMP_UNVERIFIED"):
-            select_replay_members(
-                packet=packet, registry=self.registry, as_of="2026-09-26T13:00:00Z",
-            )
-        self.assertFalse(packet["ordinary_current_source_set_ready"])
+        for cutoff in (
+            "2026-09-26T12:59:59Z", "2026-09-26T13:00:00Z",
+            "2026-09-26T13:01:00Z", "2099-01-01T00:00:00Z",
+        ):
+            with self.subTest(cutoff=cutoff):
+                with self.assertRaisesRegex(ReplayLineageError, "TIMESTAMP_UNVERIFIED"):
+                    select_replay_members(packet=packet, registry=self.registry, as_of=cutoff)
+        self.assertIs(packet["ordinary_current_source_set_ready"], False)
         self.assertFalse(packet["strict_historical_replay_ready"])
         self.assertFalse(packet["historical_availability_backdated"])
 

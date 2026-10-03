@@ -1,10 +1,12 @@
 --- V001/run_matrix.py
-+++ V002_final2/run_matrix.py
-@@ -17,6 +17,11 @@
++++ LATEST143/run_matrix.py
+@@ -17,6 +17,13 @@
  HEAD = PINS['pr119_head']
  HEAD138 = PINS['pr138_head']
  HEAD141 = PINS['pr141_head']
 +HEAD143 = PINS['pr143_head']
++ORIGINAL143 = PINS['original_pr143_head']
++PRIOR_FULL = PINS['prior_full_candidate_commit']
 +PREVIOUS_MAIN = PINS['previous_candidate_main']
 +PREVIOUS = PINS['previous_candidate_commit']
 +PREVIOUS_TREE = PINS['previous_candidate_tree']
@@ -12,7 +14,7 @@
  BASE = PINS['pr119_historical_base']
  BASE138 = PINS['pr138_merge_base']
  PREVIEW = PINS['candidate_commit']
-@@ -52,16 +57,16 @@
+@@ -52,16 +59,16 @@
   '03_owner_seam_conformance':['test_lily_owner_seam','validate_constraint_lily_owner_seams'],
   '04_successor_chain_hostile':['nyx_test_constraint_successor_chain_adversarial'],
   '05_Batch018_evidence_alignment':['test_batch018_nine_source_capture_evidence_alignment'],
@@ -28,12 +30,12 @@
   '13_exact_predecessor_recovery':['test_batch033_custody_continuation','test_restack_successor_binding','test_timestamp_successor_binding'],
 - '14_unresolved_timestamps':['test_timestamp_gate','test_unverified_metadata_boundary','test_pit_conservative_availability','test_constraint_first_slice_outcome_coverage_adversarial','test_unresolved_gates','canary_boundary_probe'],
 - '15_authority_admission_non_elevation':['test_authority','test_native_binding_admission','test_native_admission_input_types','test_native_t5_t6_bridge','test_constraint_first_slice_acceptance_gate_adversarial','boundary_state','test_unresolved_gates','preserved_F_non_escalation','admission_held'],
-+ '14_unresolved_timestamps':['test_timestamp_gate','test_unverified_metadata_boundary','test_temporal_consistency_boundary','test_first_slice_temporal_consistency','temporal_coexistence_probe','test_pit_conservative_availability','test_constraint_first_slice_outcome_coverage_adversarial','test_unresolved_gates','canary_boundary_probe'],
-+ '15_authority_admission_non_elevation':['test_authority','test_native_binding_admission','test_native_admission_input_types','test_native_t5_t6_bridge','test_constraint_first_slice_acceptance_gate_adversarial','boundary_state','test_unresolved_gates','preserved_F_non_escalation','temporal_coexistence_probe','admission_held'],
++ '14_unresolved_timestamps':['test_timestamp_gate','test_unverified_metadata_boundary','test_temporal_consistency_boundary','test_first_slice_temporal_consistency','test_integrated_temporal_nonadmission','temporal_coexistence_probe','test_pit_conservative_availability','test_constraint_first_slice_outcome_coverage_adversarial','test_unresolved_gates','canary_boundary_probe'],
++ '15_authority_admission_non_elevation':['test_authority','test_native_binding_admission','test_native_admission_input_types','test_native_t5_t6_bridge','test_constraint_first_slice_acceptance_gate_adversarial','boundary_state','test_unresolved_gates','preserved_F_non_escalation','test_integrated_temporal_nonadmission','temporal_coexistence_probe','admission_held'],
  }
  
  def main():
-@@ -108,32 +113,33 @@
+@@ -108,32 +115,37 @@
      save('environment.json',{'python':sys.version,'executable':sys.executable,'platform':platform.platform(),
           'git':git('--version'),'runner_os':os.environ.get('RUNNER_OS'),'github_run_id':os.environ.get('GITHUB_RUN_ID'),
           'candidate_commit':PREVIEW,'candidate_tree':TREE,'current_main':MAIN,'pr119_head':HEAD,
@@ -44,9 +46,13 @@
      check('candidate_identity',git('rev-parse','HEAD')==PREVIEW and git('rev-parse','HEAD^{tree}')==TREE,git('show','-s','--format=%H %T %P','HEAD'))
 -    check('parents',git('show','-s','--format=%P','HEAD').split()==[MAIN,HEAD,HEAD138],git('show','-s','--format=%P','HEAD'))
 +    check('parents',git('show','-s','--format=%P','HEAD').split()==PINS['expected_candidate_parents'],git('show','-s','--format=%P','HEAD'))
-+    check('reviewed_parent_pin',PINS['expected_candidate_parents']==[PINS['reviewed_parent_commit']] and PINS['reviewed_parent_commit']=='8987662d1af7c7bc5ecda0d27a3b4eec05353f06' and PINS['reviewed_parent_tree']=='2a108cb6029f141a2099d72ea6bf54e05141d305',PINS['expected_candidate_parents'])
++    check('candidate_parent_binding',PINS['expected_candidate_parents']==[PRIOR_FULL,HEAD143],PINS['expected_candidate_parents'])
++    check('prior_full_candidate_pin',PRIOR_FULL=='82d87e93bb06780a13ad2abb0a19c6dc728087ed' and PINS['prior_full_candidate_tree']=='a08c1562d14fdf6687dd7df4add5301bf7c268c0',PRIOR_FULL)
++    check('prior_full_candidate_identity',git('rev-parse',PRIOR_FULL+'^{tree}')==PINS['prior_full_candidate_tree'] and git('show','-s','--format=%P',PRIOR_FULL).split()==[PINS['reviewed_parent_commit']],git('show','-s','--format=%H %T %P',PRIOR_FULL))
++    check('reviewed_parent_pin',PINS['reviewed_parent_commit']=='8987662d1af7c7bc5ecda0d27a3b4eec05353f06' and PINS['reviewed_parent_tree']=='2a108cb6029f141a2099d72ea6bf54e05141d305',PINS['reviewed_parent_commit'])
 +    check('reviewed_parent_identity',git('rev-parse',PINS['reviewed_parent_commit']+'^{tree}')==PINS['reviewed_parent_tree'],git('show','-s','--format=%H %T %P',PINS['reviewed_parent_commit']))
-+    check('reviewed_parent_parents',PINS['reviewed_parent_parents']==[MAIN,HEAD143] and git('show','-s','--format=%P',PINS['reviewed_parent_commit']).split()==PINS['reviewed_parent_parents'],git('show','-s','--format=%P',PINS['reviewed_parent_commit']))
++    check('reviewed_parent_parents',git('show','-s','--format=%P',PINS['reviewed_parent_commit']).split()==[MAIN,ORIGINAL143],git('show','-s','--format=%P',PINS['reviewed_parent_commit']))
++    check('latest_PR143_identity',git('rev-parse',HEAD143+'^{tree}')==PINS['pr143_tree'] and git('show','-s','--format=%P',HEAD143).split()==[ORIGINAL143,MAIN],git('show','-s','--format=%H %T %P',HEAD143))
 +    for name,ref in [('current_main',MAIN),('PR143',HEAD143)]:
 +        result=subprocess.run(['git','merge-base','--is-ancestor',ref,PREVIEW],cwd=root,capture_output=True)
 +        check(name+'_candidate_ancestor',result.returncode==0,{'ancestor':ref,'candidate':PREVIEW})
@@ -85,12 +91,12 @@
      pr_paths=set(git('diff','--name-only',BASE,HEAD).splitlines())
      pr138_paths=set(git('diff','--name-only',BASE138,HEAD138).splitlines())
      check('repair_ownership_disjoint',not pr_paths.intersection(pr138_paths),sorted(pr_paths.intersection(pr138_paths)))
-@@ -141,17 +147,83 @@
+@@ -141,17 +153,73 @@
      check('PR141_already_in_main',ancestor.returncode==0,{'pr141_head':HEAD141,'main':MAIN})
      def ls(ref):
          return {line.split('\t',1)[1]:line.split('\t',1)[0] for line in git('ls-tree','-r',ref).splitlines()}
 -    maps={ref:ls(ref) for ref in [MAIN,HEAD,HEAD138,PREVIEW]}
-+    maps={ref:ls(ref) for ref in [MAIN,HEAD,HEAD138,HEAD143,PREVIOUS,PREVIEW]}
++    maps={ref:ls(ref) for ref in [MAIN,HEAD,HEAD138,HEAD143,ORIGINAL143,PRIOR_FULL,PREVIOUS,PREVIEW]}
      mismatches=[]
 -    for p,v in maps[PREVIEW].items():
 -        expected=maps[HEAD138].get(p) if p in pr138_paths else maps[HEAD].get(p) if p in pr_paths else maps[MAIN].get(p)
@@ -103,65 +109,55 @@
 +    check('exact_previous_owned_and_main_bytes',not mismatches and set(maps[PREVIOUS])==expected_paths,{'pr119_owned_paths':len(pr_paths),'pr138_owned_paths':len(pr138_paths),'previous_paths':len(maps[PREVIOUS]),'mismatches':mismatches})
 +    check('previous_identity',git('rev-parse',PREVIOUS+'^{tree}')==PREVIOUS_TREE,git('show','-s','--format=%H %T %P',PREVIOUS))
 +    check('previous_parents',git('show','-s','--format=%P',PREVIOUS).split()==[PREVIOUS_MAIN,HEAD,HEAD138],git('show','-s','--format=%P',PREVIOUS))
-+    pr143_paths=set(git('diff','--name-only',BASE143,HEAD143).splitlines())
++    original_pr143_paths=set(git('diff','--name-only',BASE143,ORIGINAL143).splitlines())
++    check('original_PR143_exact_path_inventory',original_pr143_paths==set(PINS['pr143_paths']) and len(original_pr143_paths)==8,sorted(original_pr143_paths))
 +    resolution_manifest=json.loads((harness/'conflict_resolution_allowlist.json').read_text(encoding='utf-8'))
-+    resolutions={row['path']:row for row in resolution_manifest['resolutions']}
-+    expected_overlap={
-+        'constraint-t1-raw-artifact-store/src/hydra_constraint_t1_raw/first_slice_materialization.py',
-+        'constraint-t1-raw-artifact-store/src/hydra_constraint_t1_raw/replay_lineage.py',
-+    }
-+    check('PR143_exact_path_inventory',pr143_paths==set(PINS['pr143_paths']) and len(pr143_paths)==8,sorted(pr143_paths))
-+    check('PR143_exact_production_overlap',pr_paths.intersection(pr143_paths)==expected_overlap and not pr138_paths.intersection(pr143_paths),sorted(pr_paths.intersection(pr143_paths)))
-+    check('resolution_allowlist_exact',len(resolution_manifest['resolutions'])==2 and set(resolutions)==expected_overlap,sorted(resolutions))
-+    check('resolution_input_binding',resolution_manifest['previous_candidate_commit']==PREVIOUS and resolution_manifest['pr143_head']==HEAD143,{'previous':resolution_manifest['previous_candidate_commit'],'pr143':resolution_manifest['pr143_head']})
-+    fixture_rows=resolution_manifest.get('fixture_adaptations',[])
-+    fixtures={row['path']:row for row in fixture_rows}
-+    fixture_path='constraint-t1-raw-artifact-store/tests/test_first_slice_temporal_consistency.py'
-+    check('fixture_allowlist_exact',len(fixture_rows)==1 and set(fixtures)=={fixture_path} and not set(fixtures).intersection(resolutions),sorted(fixtures))
-+    check('fixture_requires_observed_red',resolution_manifest.get('test_first_red',{}).get('run_id')==37142656231 and resolution_manifest.get('test_first_red',{}).get('candidate_commit')=='0390f3ae8a85d4185cdbbdd1f6f9c2ed601ea7a6',resolution_manifest.get('test_first_red'))
++    override_rows=resolution_manifest['overrides']
++    overrides={row['path']:row for row in override_rows}
++    expected_cli_path='tools/build_constraint_second_slice_batch033_ordinary_t2_lineage.py'
++    expected_override_paths={'.github/workflows/nyx-thread-h-temporal-consistency-windows.yml','.github/workflows/nyx-thread-h-temporal-input-windows.yml',expected_cli_path}
++    check('latest_PR143_override_scope',len(override_rows)==3 and set(overrides)==expected_override_paths,sorted(overrides))
++    check('latest_PR143_override_input_binding',resolution_manifest['latest_pr143_head']==HEAD143 and resolution_manifest['prior_full_candidate_commit']==PRIOR_FULL,{'latest':resolution_manifest['latest_pr143_head'],'prior':resolution_manifest['prior_full_candidate_commit']})
++    expected_new=dict(maps[HEAD143])
++    for path,row in sorted(overrides.items()):
++        expected=row['mode']+' blob '+row['git_blob_sha']
++        check('override_mode_'+path,row['mode']=='100644' and re.fullmatch(r'[0-9a-f]{40}',row['git_blob_sha']) is not None and re.fullmatch(r'[0-9a-f]{64}',row['sha256']) is not None,row)
++        check('override_preserved_prior_blob_'+path,maps[PRIOR_FULL].get(path)==expected and row['exact_prior_source_blob']==row['git_blob_sha'],row)
++        check('override_latest_input_blob_'+path,maps[HEAD143].get(path)==row['mode']+' blob '+row['latest_pr143_blob'],row['latest_pr143_blob'])
++        check('override_sha256_'+path,hashlib.sha256((root/path).read_bytes()).hexdigest()==row['sha256'],row['sha256'])
++        expected_new[path]=expected
++    mismatches=[{'path':p,'expected':v,'actual':maps[PREVIEW].get(p)} for p,v in expected_new.items() if maps[PREVIEW].get(p)!=v]
++    check('exact_latest_PR143_plus_three_overrides',not mismatches and set(expected_new)==set(maps[PREVIEW]) and len(initial)==PINS['file_count'],{'mismatches':mismatches,'candidate_paths':len(initial),'exact_latest_paths':len(initial)-len(overrides),'overrides':sorted(overrides)})
++    changed_prior={p for p in set(maps[PRIOR_FULL])|set(maps[PREVIEW]) if maps[PRIOR_FULL].get(p)!=maps[PREVIEW].get(p)}
++    check('exact_delta_from_prior_full_candidate',changed_prior==set(PINS['changed_paths_from_prior_full_candidate']),sorted(changed_prior))
 +    original_fixture=(harness/'pr143_original_test_first_slice_temporal_consistency.py').read_bytes()
 +    original_blob=hashlib.sha1(b'blob '+str(len(original_fixture)).encode()+b'\0'+original_fixture).hexdigest()
 +    check('original_PR143_fixture_binding',original_blob=='4215eb03b1856104bf45701f2fa3b8193bd85038',original_blob)
 +    def fixture_methods(data):
 +        return {node.name:ast.dump(node,include_attributes=False) for node in ast.walk(ast.parse(data)) if isinstance(node,ast.FunctionDef) and node.name.startswith('test_')}
++    fixture_path='constraint-t1-raw-artifact-store/tests/test_first_slice_temporal_consistency.py'
 +    original_methods=fixture_methods(original_fixture);candidate_methods=fixture_methods((root/fixture_path).read_bytes())
 +    check('all_twelve_PR143_method_bodies_preserved',len(original_methods)==12 and original_methods==candidate_methods,{'original_count':len(original_methods),'candidate_count':len(candidate_methods)})
-+    ci_rows=resolution_manifest.get('workflow_repairs',[])
-+    ci_repairs={row['path']:row for row in ci_rows}
-+    expected_ci_paths={
-+        '.github/workflows/nyx-thread-h-temporal-input-windows.yml',
-+        '.github/workflows/nyx-thread-h-temporal-consistency-windows.yml',
-+    }
-+    check('workflow_repair_allowlist_exact',len(ci_rows)==2 and set(ci_repairs)==expected_ci_paths and not set(ci_repairs).intersection(set(resolutions)|set(fixtures)),sorted(ci_repairs))
-+    cli_rows=resolution_manifest.get('cli_byte_repairs',[])
-+    cli_repairs={row['path']:row for row in cli_rows}
-+    expected_cli_path='tools/build_constraint_second_slice_batch033_ordinary_t2_lineage.py'
-+    check('CLI_byte_repair_allowlist_exact',len(cli_rows)==1 and set(cli_repairs)=={expected_cli_path} and not set(cli_repairs).intersection(set(resolutions)|set(fixtures)|set(ci_repairs)),sorted(cli_repairs))
-+    overlay_paths=pr143_paths|set(ci_repairs)|set(cli_repairs)
-+    check('exact_final_overlay_scope',len(overlay_paths)==10 and overlay_paths-pr143_paths=={'.github/workflows/nyx-thread-h-temporal-input-windows.yml',expected_cli_path},sorted(overlay_paths))
-+    authorized=dict(resolutions);authorized.update(fixtures);authorized.update(ci_repairs);authorized.update(cli_repairs)
-+    expected_new=dict(maps[PREVIOUS])
-+    for path in sorted(overlay_paths):
-+        if path in authorized:
-+            row=authorized[path]
-+            check('resolution_mode_'+path,row['mode']=='100644' and re.fullmatch(r'[0-9a-f]{40}',row['git_blob_sha']) is not None and re.fullmatch(r'[0-9a-f]{64}',row['sha256']) is not None,row)
-+            expected_new[path]=row['mode']+' blob '+row['git_blob_sha']
-+            check('reviewed_resolution_sha256_'+path,hashlib.sha256((root/path).read_bytes()).hexdigest()==row['sha256'],row['sha256'])
-+        else:
-+            expected_new[path]=maps[HEAD143][path]
-+    new_mismatches=[{'path':p,'expected':v,'actual':maps[PREVIEW].get(p)} for p,v in expected_new.items() if maps[PREVIEW].get(p)!=v]
-+    check('exact_PR143_and_reviewed_resolution_bytes',not new_mismatches and set(expected_new)==set(maps[PREVIEW]) and len(initial)==PINS['file_count'],{'mismatches':new_mismatches,'candidate_paths':len(initial),'exact_PR143_paths':len(pr143_paths-set(authorized)),'resolved_production_paths':len(resolutions),'reviewed_fixture_adaptations':len(fixtures),'reviewed_workflow_repairs':len(ci_repairs),'reviewed_CLI_byte_repairs':len(cli_repairs),'overlay_path_count':len(overlay_paths)})
++    generic_path='constraint-t1-raw-artifact-store/tests/test_temporal_consistency_boundary.py'
++    generic_original=(harness/'pr143_original_test_temporal_consistency_boundary.py').read_bytes()
++    check('all_eighteen_generic_PR143_methods_exact_bytes',(root/generic_path).read_bytes()==generic_original and len(fixture_methods(generic_original))==18,{'original_blob':'2ad46e67719bd50c16704cc26ee9ab9773b3c4ca','method_count':len(fixture_methods(generic_original))})
++    derivation=json.loads((harness/'native_inventory_derivation.json').read_text(encoding='utf-8'))
++    added_path='constraint-t1-raw-artifact-store/tests/test_integrated_temporal_nonadmission.py'
++    added_data=(root/added_path).read_bytes()
++    added_names=sorted(c.name+'.'+m.name for c in ast.walk(ast.parse(added_data)) if isinstance(c,ast.ClassDef) for m in c.body if isinstance(m,ast.FunctionDef) and m.name.startswith('test_'))
++    check('new_ten_integration_methods_exact_inventory',len(added_names)==10 and added_names==derivation['method_names'][added_path] and maps[PREVIEW][added_path]==maps[HEAD143][added_path],added_names)
++    check('native_count_derivation',derivation['prior_verified_count']==495 and derivation['added_methods']==40 and sum(derivation['method_counts'].values())==40 and derivation['expected_native_count']==PINS['expected_native_test_methods']==535,derivation)
 +    save('conflict_resolution_binding.json',resolution_manifest)
 +    if not all(c['passed'] for c in checks):
-+        save('construction_check.json',checks); raise SystemExit('Resolution binding safety check failed')
-+    # Independent indexes reconstruct the reviewed composition without touching source files.
++        save('construction_check.json',checks); raise SystemExit('Latest PR143 binding safety check failed')
++    # Independently reconstruct the exact latest PR tree plus three retained byte repairs.
 +    for n in [1,2]:
 +        index=out/('reproduction_'+str(n)+'.index')
 +        if index.exists(): raise SystemExit('Reproduction index already exists')
 +        index_env=os.environ.copy();index_env['GIT_INDEX_FILE']=str(index)
-+        code,detail=run('PR143_index_read_'+str(n),['git','read-tree',PREVIOUS],env=index_env)
++        code,detail=run('PR143_index_read_'+str(n),['git','read-tree',HEAD143],env=index_env)
 +        check('PR143_index_read_'+str(n),code==0,detail)
-+        for ordinal,path in enumerate(sorted(overlay_paths),start=1):
++        for ordinal,path in enumerate(sorted(overrides),start=1):
 +            mode,kind,blob=expected_new[path].split()
 +            code,detail=run('PR143_index_update_'+str(n)+'_'+str(ordinal),['git','update-index','--add','--cacheinfo',mode,blob,path],env=index_env)
 +            check('PR143_index_update_'+str(n)+'_'+str(ordinal),code==0,{'path':path,'detail':detail})
@@ -175,7 +171,7 @@
      for p in selected:
          try:
              tree=ast.parse((root/p).read_text(encoding='utf-8-sig'),filename=p); parsed.append(p)
-@@ -202,10 +274,21 @@
+@@ -202,10 +270,21 @@
      bound=out/'thread_f_bound.py'; bound.write_text(adapted,encoding='utf-8')
      run('preserved_F_non_escalation',[sys.executable,'-B',str(bound),'--repo',str(root),'--json-output',str(out/'F_results.json')],env=env)
      run('canary_boundary_probe',[sys.executable,'-B',str(harness/'canary_boundary_probe.py'),'--repo',str(root)],env=env)
@@ -197,12 +193,12 @@
      master=json.loads((root/'docs/constraint/architecture/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH034_MASTER_STATUS_V001_20260928.json').read_text())
      check('admission_held',master['readiness']['SECOND_SLICE_IMPLEMENTATION_ADMITTED']['status']=='NO' and master['first_serious_constraint_run']=='BLOCKED',master['readiness'])
      # Exact governed timestamp/admission state: classification is in review records.
-@@ -271,7 +354,7 @@
+@@ -271,7 +350,7 @@
               'evidence_records_mutated':False,'canonical_status_claimed':False,'production_status_claimed':False,
               'integration_readiness_claimed':False,'regression_localization':'UNKNOWN' if not allgood else None,
               'Thread_B_handoff':'PASS independently reproduced and inventoried',
 -             'pr138_head':HEAD138,'pr141_head':HEAD141,'scope':'EXACT_CURRENT_MAIN_PLUS_PR119_PLUS_PR138_INCLUDING_MERGED_PR141',
-+             'pr138_head':HEAD138,'pr141_head':HEAD141,'pr143_head':HEAD143,'previous_candidate_commit':PREVIOUS,'scope':'EXACT_CURRENT_MAIN_PLUS_PR143_WITH_REVIEWED_RESOLUTIONS_FIXTURE_AND_WINDOWS_BYTE_REPAIRS',
++             'pr138_head':HEAD138,'pr141_head':HEAD141,'pr143_head':HEAD143,'previous_candidate_commit':PREVIOUS,'scope':'EXACT_LATEST_PR143_PLUS_THREE_RETAINED_WINDOWS_BYTE_REPAIRS',
               'thread_D_V006':'BLOCKED_BY_THREAD_C' if not allgood else 'ELIGIBLE_FOR_CHANGED_TREE_VALIDATION'}
      save('summary.json',summary)
      save('report_hashes.json',{p.name:hashlib.sha256(p.read_bytes()).hexdigest() for p in sorted(out.iterdir()) if p.is_file() and p.name!='report_hashes.json'})

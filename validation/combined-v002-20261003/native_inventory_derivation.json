@@ -1,56 +1,137 @@
 {
-  "schema": "NYX_COMBINED_V002_NATIVE_INVENTORY_DERIVATION_V1",
-  "prior_verified_count": 495,
+  "added_methods": 40,
+  "derivation": "495 previously verified unchanged baseline methods +12 original first-slice methods +18 generic methods +10 exact incoming integration methods. AST only; hosted collection remains required.",
+  "expected_native_count": 535,
+  "method_counts": {
+    "constraint-t1-raw-artifact-store/tests/test_first_slice_temporal_consistency.py": 12,
+    "constraint-t1-raw-artifact-store/tests/test_integrated_temporal_nonadmission.py": 10,
+    "constraint-t1-raw-artifact-store/tests/test_temporal_consistency_boundary.py": 18
+  },
+  "method_names": {
+    "constraint-t1-raw-artifact-store/tests/test_first_slice_temporal_consistency.py": [
+      "FirstSliceTemporalConsistencyTests.test_direct_replay_validator_rejects_extra_availability_transition",
+      "FirstSliceTemporalConsistencyTests.test_direct_replay_validator_rejects_missing_availability_transition",
+      "FirstSliceTemporalConsistencyTests.test_direct_replay_validator_rejects_rehashed_early_release",
+      "FirstSliceTemporalConsistencyTests.test_equivalent_fractional_spelling_forms_one_boundary_and_preserves_literals",
+      "FirstSliceTemporalConsistencyTests.test_equivalent_offsets_form_one_boundary_and_preserve_member_literals",
+      "FirstSliceTemporalConsistencyTests.test_public_attestation_rejects_rehashed_release_before_latest_acquisition",
+      "FirstSliceTemporalConsistencyTests.test_release_after_latest_acquisition_remains_valid",
+      "FirstSliceTemporalConsistencyTests.test_release_equal_to_latest_acquisition_in_another_offset_remains_valid",
+      "FirstSliceTemporalConsistencyTests.test_replay_builder_rejects_rehashed_release_before_latest_acquisition",
+      "FirstSliceTemporalConsistencyTests.test_replay_selector_rejects_extra_availability_transition",
+      "FirstSliceTemporalConsistencyTests.test_replay_selector_rejects_missing_availability_transition",
+      "FirstSliceTemporalConsistencyTests.test_replay_selector_rejects_rehashed_early_release"
+    ],
+    "constraint-t1-raw-artifact-store/tests/test_integrated_temporal_nonadmission.py": [
+      "IntegratedTemporalNonadmissionTests.test_distinct_transitions_remain_nonadmitting",
+      "IntegratedTemporalNonadmissionTests.test_equal_instant_grouping_is_deterministic_under_member_order",
+      "IntegratedTemporalNonadmissionTests.test_equal_instants_preserve_literals_empty_boundary_and_blocked_selection",
+      "IntegratedTemporalNonadmissionTests.test_equal_or_later_release_keeps_selection_blocked",
+      "IntegratedTemporalNonadmissionTests.test_extra_empty_transition_is_rejected_before_nonadmitting_selection",
+      "IntegratedTemporalNonadmissionTests.test_missing_transition_is_rejected_before_nonadmitting_selection",
+      "IntegratedTemporalNonadmissionTests.test_rehashed_authority_promotions_remain_rejected",
+      "IntegratedTemporalNonadmissionTests.test_rehashed_early_release_cannot_pass_any_entry",
+      "IntegratedTemporalNonadmissionTests.test_rehashed_nonempty_eligibility_cannot_admit_sources",
+      "IntegratedTemporalNonadmissionTests.test_rehashed_ready_claim_cannot_reopen_selection"
+    ],
+    "constraint-t1-raw-artifact-store/tests/test_temporal_consistency_boundary.py": [
+      "TemporalConsistencyBoundaryTests.test_absent_or_consistent_valid_receipt_count_is_compatible",
+      "TemporalConsistencyBoundaryTests.test_evidence_builder_groups_equivalent_instants_without_rewriting_literals",
+      "TemporalConsistencyBoundaryTests.test_evidence_builder_rejects_invalid_origin_artifact",
+      "TemporalConsistencyBoundaryTests.test_evidence_builder_rejects_invalid_source_id",
+      "TemporalConsistencyBoundaryTests.test_evidence_selector_rejects_extra_availability_boundary",
+      "TemporalConsistencyBoundaryTests.test_evidence_selector_rejects_invalid_origin_artifact",
+      "TemporalConsistencyBoundaryTests.test_evidence_selector_rejects_invalid_source_id",
+      "TemporalConsistencyBoundaryTests.test_evidence_selector_rejects_missing_availability_boundary",
+      "TemporalConsistencyBoundaryTests.test_evidence_validator_rejects_extra_availability_boundary",
+      "TemporalConsistencyBoundaryTests.test_evidence_validator_rejects_invalid_origin_artifact",
+      "TemporalConsistencyBoundaryTests.test_evidence_validator_rejects_invalid_source_id",
+      "TemporalConsistencyBoundaryTests.test_evidence_validator_rejects_missing_availability_boundary",
+      "TemporalConsistencyBoundaryTests.test_explicit_valid_receipt_count_cannot_be_discarded",
+      "TemporalConsistencyBoundaryTests.test_source_builder_groups_equivalent_instants_without_rewriting_literals",
+      "TemporalConsistencyBoundaryTests.test_source_selector_rejects_extra_availability_boundary",
+      "TemporalConsistencyBoundaryTests.test_source_selector_rejects_missing_availability_boundary",
+      "TemporalConsistencyBoundaryTests.test_source_validator_rejects_extra_availability_boundary",
+      "TemporalConsistencyBoundaryTests.test_source_validator_rejects_missing_availability_boundary"
+    ]
+  },
+  "original_30_method_bodies_unchanged": true,
+  "original_generic18_file_bytes_unchanged": true,
   "prior_run": 37140043550,
-  "added_files": [
-    {
-      "path": "constraint-t1-raw-artifact-store/tests/test_first_slice_temporal_consistency.py",
-      "method_names": [
-        "test_public_attestation_rejects_rehashed_release_before_latest_acquisition",
-        "test_replay_builder_rejects_rehashed_release_before_latest_acquisition",
-        "test_direct_replay_validator_rejects_rehashed_early_release",
-        "test_replay_selector_rejects_rehashed_early_release",
-        "test_direct_replay_validator_rejects_missing_availability_transition",
-        "test_replay_selector_rejects_missing_availability_transition",
-        "test_direct_replay_validator_rejects_extra_availability_transition",
-        "test_replay_selector_rejects_extra_availability_transition",
-        "test_equivalent_offsets_form_one_boundary_and_preserve_member_literals",
-        "test_equivalent_fractional_spelling_forms_one_boundary_and_preserves_literals",
-        "test_release_after_latest_acquisition_remains_valid",
-        "test_release_equal_to_latest_acquisition_in_another_offset_remains_valid"
-      ],
-      "count": 12,
-      "sha256": "e6a7dcd6ce59c1d03f2839a49b6bc53797fe2458c606061c6fdc1c3af2733ee8",
-      "git_blob_sha": "4215eb03b1856104bf45701f2fa3b8193bd85038"
-    },
-    {
-      "path": "constraint-t1-raw-artifact-store/tests/test_temporal_consistency_boundary.py",
-      "method_names": [
-        "test_evidence_builder_rejects_invalid_source_id",
-        "test_evidence_validator_rejects_invalid_source_id",
-        "test_evidence_selector_rejects_invalid_source_id",
-        "test_evidence_builder_rejects_invalid_origin_artifact",
-        "test_evidence_validator_rejects_invalid_origin_artifact",
-        "test_evidence_selector_rejects_invalid_origin_artifact",
-        "test_explicit_valid_receipt_count_cannot_be_discarded",
-        "test_absent_or_consistent_valid_receipt_count_is_compatible",
-        "test_source_validator_rejects_missing_availability_boundary",
-        "test_source_selector_rejects_missing_availability_boundary",
-        "test_source_validator_rejects_extra_availability_boundary",
-        "test_source_selector_rejects_extra_availability_boundary",
-        "test_evidence_validator_rejects_missing_availability_boundary",
-        "test_evidence_selector_rejects_missing_availability_boundary",
-        "test_evidence_validator_rejects_extra_availability_boundary",
-        "test_evidence_selector_rejects_extra_availability_boundary",
-        "test_source_builder_groups_equivalent_instants_without_rewriting_literals",
-        "test_evidence_builder_groups_equivalent_instants_without_rewriting_literals"
-      ],
-      "count": 18,
-      "sha256": "3b5ef9930dec4c9e480718fada6a292a62c468cbc726e089e1780618c6f4e979",
-      "git_blob_sha": "2ad46e67719bd50c16704cc26ee9ab9773b3c4ca"
-    }
-  ],
-  "added_methods": 30,
-  "expected_native_count": 525,
-  "verification": "AST inspection only; no HYDRA execution"
+  "prior_verified_count": 495,
+  "schema": "NYX_LATEST143_RECONCILED_NATIVE_INVENTORY_V1",
+  "original_30_method_derivation_historical_only": {
+    "schema": "NYX_COMBINED_V002_NATIVE_INVENTORY_DERIVATION_V1",
+    "prior_verified_count": 495,
+    "prior_run": 37140043550,
+    "added_files": [
+      {
+        "path": "constraint-t1-raw-artifact-store/tests/test_first_slice_temporal_consistency.py",
+        "method_names": [
+          "test_public_attestation_rejects_rehashed_release_before_latest_acquisition",
+          "test_replay_builder_rejects_rehashed_release_before_latest_acquisition",
+          "test_direct_replay_validator_rejects_rehashed_early_release",
+          "test_replay_selector_rejects_rehashed_early_release",
+          "test_direct_replay_validator_rejects_missing_availability_transition",
+          "test_replay_selector_rejects_missing_availability_transition",
+          "test_direct_replay_validator_rejects_extra_availability_transition",
+          "test_replay_selector_rejects_extra_availability_transition",
+          "test_equivalent_offsets_form_one_boundary_and_preserve_member_literals",
+          "test_equivalent_fractional_spelling_forms_one_boundary_and_preserves_literals",
+          "test_release_after_latest_acquisition_remains_valid",
+          "test_release_equal_to_latest_acquisition_in_another_offset_remains_valid"
+        ],
+        "count": 12,
+        "sha256": "e6a7dcd6ce59c1d03f2839a49b6bc53797fe2458c606061c6fdc1c3af2733ee8",
+        "git_blob_sha": "4215eb03b1856104bf45701f2fa3b8193bd85038"
+      },
+      {
+        "path": "constraint-t1-raw-artifact-store/tests/test_temporal_consistency_boundary.py",
+        "method_names": [
+          "test_evidence_builder_rejects_invalid_source_id",
+          "test_evidence_validator_rejects_invalid_source_id",
+          "test_evidence_selector_rejects_invalid_source_id",
+          "test_evidence_builder_rejects_invalid_origin_artifact",
+          "test_evidence_validator_rejects_invalid_origin_artifact",
+          "test_evidence_selector_rejects_invalid_origin_artifact",
+          "test_explicit_valid_receipt_count_cannot_be_discarded",
+          "test_absent_or_consistent_valid_receipt_count_is_compatible",
+          "test_source_validator_rejects_missing_availability_boundary",
+          "test_source_selector_rejects_missing_availability_boundary",
+          "test_source_validator_rejects_extra_availability_boundary",
+          "test_source_selector_rejects_extra_availability_boundary",
+          "test_evidence_validator_rejects_missing_availability_boundary",
+          "test_evidence_selector_rejects_missing_availability_boundary",
+          "test_evidence_validator_rejects_extra_availability_boundary",
+          "test_evidence_selector_rejects_extra_availability_boundary",
+          "test_source_builder_groups_equivalent_instants_without_rewriting_literals",
+          "test_evidence_builder_groups_equivalent_instants_without_rewriting_literals"
+        ],
+        "count": 18,
+        "sha256": "3b5ef9930dec4c9e480718fada6a292a62c468cbc726e089e1780618c6f4e979",
+        "git_blob_sha": "2ad46e67719bd50c16704cc26ee9ab9773b3c4ca"
+      }
+    ],
+    "added_methods": 30,
+    "expected_native_count": 525,
+    "verification": "AST inspection only; no HYDRA execution"
+  },
+  "new_integration_file": {
+    "path": "constraint-t1-raw-artifact-store/tests/test_integrated_temporal_nonadmission.py",
+    "sha256": "f3ea64645054ad49b1b33470b370be05e6fa576d4a8bba2dd63d6eac0d9bc1b8",
+    "git_blob_sha": "63664313324e5945ff7b2643952b943cede64583",
+    "methods": [
+      "IntegratedTemporalNonadmissionTests.test_distinct_transitions_remain_nonadmitting",
+      "IntegratedTemporalNonadmissionTests.test_equal_instant_grouping_is_deterministic_under_member_order",
+      "IntegratedTemporalNonadmissionTests.test_equal_instants_preserve_literals_empty_boundary_and_blocked_selection",
+      "IntegratedTemporalNonadmissionTests.test_equal_or_later_release_keeps_selection_blocked",
+      "IntegratedTemporalNonadmissionTests.test_extra_empty_transition_is_rejected_before_nonadmitting_selection",
+      "IntegratedTemporalNonadmissionTests.test_missing_transition_is_rejected_before_nonadmitting_selection",
+      "IntegratedTemporalNonadmissionTests.test_rehashed_authority_promotions_remain_rejected",
+      "IntegratedTemporalNonadmissionTests.test_rehashed_early_release_cannot_pass_any_entry",
+      "IntegratedTemporalNonadmissionTests.test_rehashed_nonempty_eligibility_cannot_admit_sources",
+      "IntegratedTemporalNonadmissionTests.test_rehashed_ready_claim_cannot_reopen_selection"
+    ],
+    "count": 10
+  }
 }

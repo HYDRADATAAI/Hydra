@@ -1,7 +1,7 @@
 {
   "schema": "NYX_COMBINED_V002_VALIDATION_INVENTORY_V1",
-  "status": "READY_FOR_EXACT_CANONICAL_BYTE_REPAIRED_WINDOWS_EXECUTION",
-  "source_file_count": 740,
+  "status": "READY_FOR_EXACT_LATEST143_WINDOWS_EXECUTION",
+  "source_file_count": 741,
   "groups": {
     "01_T1_raw_artifact_store": [
       "constraint-t1-raw-artifact-store/tests/"
@@ -69,6 +69,7 @@
       "test_unverified_metadata_boundary",
       "test_temporal_consistency_boundary",
       "test_first_slice_temporal_consistency",
+      "test_integrated_temporal_nonadmission",
       "temporal_coexistence_probe",
       "test_pit_conservative_availability",
       "test_constraint_first_slice_outcome_coverage_adversarial",
@@ -84,11 +85,12 @@
       "boundary_state",
       "test_unresolved_gates",
       "preserved_F_non_escalation",
+      "test_integrated_temporal_nonadmission",
       "temporal_coexistence_probe",
       "admission_held"
     ]
   },
-  "expected_native_methods": 525,
+  "expected_native_methods": 535,
   "native_inventory_derivation": "native_inventory_derivation.json",
   "script_methods_expected": 64,
   "external_canary_methods": 3,
@@ -103,7 +105,7 @@
     "expected_methods": 23,
     "scope": "Pure report-accounting helper, separate from HYDRA methods"
   },
-  "C_expected_command_count": 54,
+  "C_expected_command_count": 40,
   "C_recorded_commands": [
     {
       "label": "reproduce_previous_tree_1",
@@ -130,7 +132,7 @@
       "argv": [
         "git",
         "read-tree",
-        "dee8c3fa4cd2e49bd3573f62715c5fe4e2108d0d"
+        "fd5bba4f16dcf9720ba80d6b6b8b945bacf19006"
       ],
       "index": "<matrix>/reproduction_1.index"
     },
@@ -166,90 +168,6 @@
         "--add",
         "--cacheinfo",
         "100644",
-        "faa1fb3c793b328ac062dfab008aed3917fdd36c",
-        "constraint-t1-raw-artifact-store/TEMPORAL_INPUT_BOUNDARY.md"
-      ]
-    },
-    {
-      "label": "PR143_index_update_1_4",
-      "argv": [
-        "git",
-        "update-index",
-        "--add",
-        "--cacheinfo",
-        "100644",
-        "e97fd5433b5a227056005a6735b64c5f478a8809",
-        "constraint-t1-raw-artifact-store/src/hydra_constraint_t1_raw/first_slice_materialization.py"
-      ]
-    },
-    {
-      "label": "PR143_index_update_1_5",
-      "argv": [
-        "git",
-        "update-index",
-        "--add",
-        "--cacheinfo",
-        "100644",
-        "62a0d63ced177bd36c68477d92ac900809b7a4f0",
-        "constraint-t1-raw-artifact-store/src/hydra_constraint_t1_raw/ordinary_t2_evidence_lineage.py"
-      ]
-    },
-    {
-      "label": "PR143_index_update_1_6",
-      "argv": [
-        "git",
-        "update-index",
-        "--add",
-        "--cacheinfo",
-        "100644",
-        "92552c7adafb523f6685bf48204a53d82db24abc",
-        "constraint-t1-raw-artifact-store/src/hydra_constraint_t1_raw/ordinary_t2_lineage.py"
-      ]
-    },
-    {
-      "label": "PR143_index_update_1_7",
-      "argv": [
-        "git",
-        "update-index",
-        "--add",
-        "--cacheinfo",
-        "100644",
-        "d864bf4874bb264dc7e3a5afbd02db61201c68d7",
-        "constraint-t1-raw-artifact-store/src/hydra_constraint_t1_raw/replay_lineage.py"
-      ]
-    },
-    {
-      "label": "PR143_index_update_1_8",
-      "argv": [
-        "git",
-        "update-index",
-        "--add",
-        "--cacheinfo",
-        "100644",
-        "a5889de038057dcde70e5b547ec0504ac1ae0201",
-        "constraint-t1-raw-artifact-store/tests/test_first_slice_temporal_consistency.py"
-      ]
-    },
-    {
-      "label": "PR143_index_update_1_9",
-      "argv": [
-        "git",
-        "update-index",
-        "--add",
-        "--cacheinfo",
-        "100644",
-        "2ad46e67719bd50c16704cc26ee9ab9773b3c4ca",
-        "constraint-t1-raw-artifact-store/tests/test_temporal_consistency_boundary.py"
-      ]
-    },
-    {
-      "label": "PR143_index_update_1_10",
-      "argv": [
-        "git",
-        "update-index",
-        "--add",
-        "--cacheinfo",
-        "100644",
         "23b62754f0cb11f59d7980304a9a78e4da801eae",
         "tools/build_constraint_second_slice_batch033_ordinary_t2_lineage.py"
       ]
@@ -260,14 +178,14 @@
         "git",
         "write-tree"
       ],
-      "expected_tree": "a08c1562d14fdf6687dd7df4add5301bf7c268c0"
+      "expected_tree": "01319aee05f317bcd6289db9eac2c94881b6d697"
     },
     {
       "label": "PR143_index_read_2",
       "argv": [
         "git",
         "read-tree",
-        "dee8c3fa4cd2e49bd3573f62715c5fe4e2108d0d"
+        "fd5bba4f16dcf9720ba80d6b6b8b945bacf19006"
       ],
       "index": "<matrix>/reproduction_2.index"
     },
@@ -303,90 +221,6 @@
         "--add",
         "--cacheinfo",
         "100644",
-        "faa1fb3c793b328ac062dfab008aed3917fdd36c",
-        "constraint-t1-raw-artifact-store/TEMPORAL_INPUT_BOUNDARY.md"
-      ]
-    },
-    {
-      "label": "PR143_index_update_2_4",
-      "argv": [
-        "git",
-        "update-index",
-        "--add",
-        "--cacheinfo",
-        "100644",
-        "e97fd5433b5a227056005a6735b64c5f478a8809",
-        "constraint-t1-raw-artifact-store/src/hydra_constraint_t1_raw/first_slice_materialization.py"
-      ]
-    },
-    {
-      "label": "PR143_index_update_2_5",
-      "argv": [
-        "git",
-        "update-index",
-        "--add",
-        "--cacheinfo",
-        "100644",
-        "62a0d63ced177bd36c68477d92ac900809b7a4f0",
-        "constraint-t1-raw-artifact-store/src/hydra_constraint_t1_raw/ordinary_t2_evidence_lineage.py"
-      ]
-    },
-    {
-      "label": "PR143_index_update_2_6",
-      "argv": [
-        "git",
-        "update-index",
-        "--add",
-        "--cacheinfo",
-        "100644",
-        "92552c7adafb523f6685bf48204a53d82db24abc",
-        "constraint-t1-raw-artifact-store/src/hydra_constraint_t1_raw/ordinary_t2_lineage.py"
-      ]
-    },
-    {
-      "label": "PR143_index_update_2_7",
-      "argv": [
-        "git",
-        "update-index",
-        "--add",
-        "--cacheinfo",
-        "100644",
-        "d864bf4874bb264dc7e3a5afbd02db61201c68d7",
-        "constraint-t1-raw-artifact-store/src/hydra_constraint_t1_raw/replay_lineage.py"
-      ]
-    },
-    {
-      "label": "PR143_index_update_2_8",
-      "argv": [
-        "git",
-        "update-index",
-        "--add",
-        "--cacheinfo",
-        "100644",
-        "a5889de038057dcde70e5b547ec0504ac1ae0201",
-        "constraint-t1-raw-artifact-store/tests/test_first_slice_temporal_consistency.py"
-      ]
-    },
-    {
-      "label": "PR143_index_update_2_9",
-      "argv": [
-        "git",
-        "update-index",
-        "--add",
-        "--cacheinfo",
-        "100644",
-        "2ad46e67719bd50c16704cc26ee9ab9773b3c4ca",
-        "constraint-t1-raw-artifact-store/tests/test_temporal_consistency_boundary.py"
-      ]
-    },
-    {
-      "label": "PR143_index_update_2_10",
-      "argv": [
-        "git",
-        "update-index",
-        "--add",
-        "--cacheinfo",
-        "100644",
         "23b62754f0cb11f59d7980304a9a78e4da801eae",
         "tools/build_constraint_second_slice_batch033_ordinary_t2_lineage.py"
       ]
@@ -397,7 +231,7 @@
         "git",
         "write-tree"
       ],
-      "expected_tree": "a08c1562d14fdf6687dd7df4add5301bf7c268c0"
+      "expected_tree": "01319aee05f317bcd6289db9eac2c94881b6d697"
     },
     {
       "label": "collect_all_owners",
@@ -661,23 +495,23 @@
     "linked Git worktree with spaces and deep outside cwd"
   ],
   "D_remote_binding": [
-    "currentmain d8e45c1ef63dfc1948840e8f2a65aa955023e8b5",
-    "PR143 250520b55129712d77acdafcc9f06d8bf9b7aa88",
-    "PR119 originalhead verifiedancestor of currentmain",
-    "PR138 originalhead verifiedancestor of currentmain"
+    "current main d8e45c1ef63dfc1948840e8f2a65aa955023e8b5",
+    "latest PR143 fd5bba4f16dcf9720ba80d6b6b8b945bacf19006",
+    "PR119 original head verified ancestor of current main",
+    "PR138 original head verified ancestor of current main"
   ],
-  "execution_status": "NOT_EXECUTED_FOR_FINAL2_CANDIDATE",
+  "execution_status": "NOT_EXECUTED_FOR_LATEST143_CANDIDATE",
   "skip_policy": "Same four named symlink methods; exact WinError1314 only; direct permission probe separately inventoried.",
-  "candidate_commit": "82d87e93bb06780a13ad2abb0a19c6dc728087ed",
-  "candidate_tree": "a08c1562d14fdf6687dd7df4add5301bf7c268c0",
+  "candidate_commit": "e70f55110c4217905805678d0af279afd22e302a",
+  "candidate_tree": "01319aee05f317bcd6289db9eac2c94881b6d697",
   "main": "d8e45c1ef63dfc1948840e8f2a65aa955023e8b5",
   "original_PR143_paths": 8,
-  "final_overlay_paths": 10,
-  "explicit_allowances": {
-    "production_resolutions": 2,
-    "test_fixture_adaptations": 1,
-    "Windows_checkout_repairs": 2,
-    "CLI_canonical_byte_writer_repairs": 1
-  },
-  "candidate_parent": "8987662d1af7c7bc5ecda0d27a3b4eec05353f06"
+  "pr143_head": "fd5bba4f16dcf9720ba80d6b6b8b945bacf19006",
+  "candidate_parents": [
+    "82d87e93bb06780a13ad2abb0a19c6dc728087ed",
+    "fd5bba4f16dcf9720ba80d6b6b8b945bacf19006"
+  ],
+  "latest_PR143_override_paths": 3,
+  "changed_paths_from_current_main": 11,
+  "changed_paths_from_prior_full_candidate": 4
 }

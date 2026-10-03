@@ -1,24 +1,18 @@
-NYX combined V002 validation-only carrier: canonical-byte repaired candidate
+NYX latest PR143 validation-only carrier
 
-Exact source: 82d87e93bb06780a13ad2abb0a19c6dc728087ed
-Exact tree: a08c1562d14fdf6687dd7df4add5301bf7c268c0
-Parent: 8987662d1af7c7bc5ecda0d27a3b4eec05353f06; parent tree 2a108cb6029f141a2099d72ea6bf54e05141d305.
-That reviewed parent has ordered parents main d8e45c1 and PR143 250520b; main includes PR119 and PR138.
-Pins, exact parent chain and ancestry are verified by the runner.
-Current expected source files: 740. Native methods: 525. All 15 groups retained.
-Separate script methods expected: 64; six temporal coexistence methods record subtests separately.
-Twenty-three pure report-guard selftests remain separate from HYDRA tests.
-C records 54 commands; D records 42 commands.
+Exact source: e70f55110c4217905805678d0af279afd22e302a
+Exact tree: 01319aee05f317bcd6289db9eac2c94881b6d697
+Ordered parents: prior full source 82d87e93bb06780a13ad2abb0a19c6dc728087ed, latest PR143 fd5bba4f16dcf9720ba80d6b6b8b945bacf19006.
+Current main d8e45c1 includes PR119 and PR138; exact historical parent chain and current input ancestry remain verified.
 
-The original PR143 diff has eight paths. The final source overlay has ten paths.
-Six exact blob/SHA256 allowances cover two production resolutions, one first-slice fixture adaptation, two Windows checkout byte-preservation repairs, and one Batch033 CLI canonical-byte writer repair.
-All 12 original PR143 first-slice test bodies remain unchanged; only reviewed helpers adapt to PR119 containment. All 18 generic methods remain exact PR143 bytes. No source test bytes changed after the first full run.
-RED run 37142656231: 12 executed, 2 PASS, 10 TIMESTAMP_UNVERIFIED errors, zero skips, 740 source hashes stable.
-First full run 37143389567: 524 native PASS, one error-message expectation FAIL; 756 native subtests PASS, all 64 script methods PASS, 93 hostile cases PASS, zero skips, 740 source hashes stable. D correctly blocked by C failure.
-Subsequent standard Windows jobs on 8987662d passed all 154 T1 methods and preserved 740 source hashes, then failed strict Batch033 archive byte comparison.
-This source changes only the Batch033 output writer relative to 8987662d. The full matrix rebuilds that CLI into its report directory and compares raw output against the committed Git blob, recording expected/observed SHA256, lengths, and exact byte equality without normalization.
+The source contains 741 files: 738 exact latest PR143 files and three byte-identical overrides retained from prior source82d87 (two strict Windows workflows and the canonical UTF-8 LF Batch033 writer).
+Native inventory derives 495 verified baseline +12 original first-slice +18 generic +10 new integration methods =535. All 15 groups remain; the new10methods participate in groups14/15.
+Separate script methods:64; six coexistence methods record subtests separately. Report-guard selftests:23.
+C records40 commands, including two independent latest-tree+three-override reconstructions and the strict Batch033 CLI raw Gitblob comparison. D records42 commands with strict main/latest143 live-ref checks.
 
-Files prefixed v001_ and original_ preserve historical inputs and are not current validation claims.
-Windows D: only; public/synthetic fixtures only. No private capture, admission, authority or historical proof is created.
+Historical full run37144782072 passed C:525 native,756 subtests,64 script methods,93 hostile cases,54 commands,zero skips,740 hashes stable. Batch03349796 output bytes exactly matched Gitblob SHA2566fd31b8384913bb2aed31c8198f39582533488f7be50075d222520b21802b122 without normalization.
+That run failed D only because PR143 moved during execution; later D contexts were not executed. This new source incorporates its ten additional tests and reviewed upstream changes, requiring a new full run.
 
+Original/v001 files and nested historical records preserve prior inputs and results; their pins/counts are not current claims.
+Windows D: only; public/synthetic fixtures. No private capture, admission, authority, or historical proof is created.
 This carrier is for validation review only; do not merge it into main.

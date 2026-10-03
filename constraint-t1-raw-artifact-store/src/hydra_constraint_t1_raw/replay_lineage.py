@@ -280,7 +280,7 @@ def validate_replay_lineage_packet(
         for row in members
     })
     if len(boundaries) != len(expected_instants):
-        raise ReplayLineageError("availability boundary count differs from member transitions")
+        raise ReplayLineageError("recorded availability boundary count drifted")
     last_time: datetime | None = None
     for index, boundary in enumerate(boundaries):
         if not isinstance(boundary, Mapping):
@@ -290,11 +290,11 @@ def validate_replay_lineage_packet(
                 f"availability_boundaries[{index}]: field set invalid"
             )
         instant = _dt(boundary["as_of"], f"availability_boundaries[{index}].as_of")
-        if instant != expected_instants[index]:
-            raise ReplayLineageError("recorded availability boundary drifted")
         if last_time is not None and instant <= last_time:
             raise ReplayLineageError("availability boundaries are not strictly increasing")
         last_time = instant
+        if instant != expected_instants[index]:
+            raise ReplayLineageError("recorded availability boundary drifted")
         if boundary["eligible_source_ids"] != []:
             raise ReplayLineageError(
                 f"availability_boundaries[{index}]: v1 eligibility must remain empty"
