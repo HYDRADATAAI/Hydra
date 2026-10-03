@@ -15,9 +15,11 @@ jobs:
       PYTHONDONTWRITEBYTECODE: '1'
       PYTHONUTF8: '1'
     steps:
-      - name: Preserve exact committed bytes on Windows
+      - name: Preserve exact committed bytes and long paths on Windows
         shell: pwsh
-        run: git config --global core.autocrlf false
+        run: |
+          git config --global core.autocrlf false
+          git config --global core.longpaths true
       - uses: actions/checkout@v4
         with:
           ref: d7af2cb8e56465aab8147f749ed1c65c6f861a1d
