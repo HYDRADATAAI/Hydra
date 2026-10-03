@@ -1,0 +1,92 @@
+name: Thread H combined containment Windows
+
+on:
+  push:
+    branches: [nyx/thread-h-pr119-integration-20261003]
+  pull_request:
+    paths:
+      - .github/workflows/nyx-thread-h-combined-containment-windows.yml
+
+permissions:
+  contents: read
+
+jobs:
+  combined-owners:
+    runs-on: windows-latest
+    defaults:
+      run:
+        shell: pwsh
+    env:
+      PYTHONDONTWRITEBYTECODE: '1'
+      PYTHONUTF8: '1'
+    steps:
+      - name: Preserve Git blob bytes
+        run: |
+          git config --global core.autocrlf false
+          git config --global core.longpaths true
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Bind exact source and D drive temporary data
+        run: |
+          if (-not $env:GITHUB_WORKSPACE.StartsWith('D:\', [StringComparison]::OrdinalIgnoreCase)) { throw 'D: workspace required' }
+          New-Item -ItemType Directory -Force D:\NYX_PORTABLE\THREAD_H_COMBINED | Out-Null
+          'TEMP=D:\NYX_PORTABLE\THREAD_H_COMBINED' | Out-File -Append $env:GITHUB_ENV
+          'TMP=D:\NYX_PORTABLE\THREAD_H_COMBINED' | Out-File -Append $env:GITHUB_ENV
+          'PIP_CACHE_DIR=D:\NYX_PORTABLE\THREAD_H_COMBINED\pip-cache' | Out-File -Append $env:GITHUB_ENV
+          git rev-parse HEAD 'HEAD^{tree}'
+          python --version
+          $rows = git ls-files | ForEach-Object { [pscustomobject]@{ path = $_; sha256 = (Get-FileHash -Algorithm SHA256 -LiteralPath $_).Hash.ToLowerInvariant() } }
+          $rows | ConvertTo-Json -Depth 4 | Set-Content D:\NYX_PORTABLE\THREAD_H_COMBINED\before.json
+      - name: Install test runner
+        run: python -m pip install pytest
+      - name: All five integrated owner suites on Windows
+        run: |
+          $parts = @('constraint-physical-dependency/src', 'constraint-geopolitical-policy/src', 'constraint-replay/src', 'constraint-t1-raw-artifact-store/src', 't6-fail-closed-validator/src')
+          $env:PYTHONPATH = ($parts | ForEach-Object { Join-Path $env:GITHUB_WORKSPACE $_ }) -join ';'
+          python -B -m pytest --import-mode=importlib constraint-physical-dependency/tests constraint-geopolitical-policy/tests constraint-replay/tests constraint-t1-raw-artifact-store/tests t6-fail-closed-validator/tests -q -p no:cacheprovider
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: First slice and successor validation and hostile matrices
+        if: always()
+        run: |
+          $scripts = @(
+            'tools/validate_constraint_first_slice_successor.py',
+            'tools/test_constraint_first_slice_adversarial.py',
+            'tools/validate_constraint_lily_owner_seams.py',
+            'tools/validate_constraint_first_slice_acceptance_gate.py',
+            'tools/test_constraint_first_slice_acceptance_gate_adversarial.py',
+            'tools/validate_constraint_first_slice_confidence_evaluation.py',
+            'tools/test_constraint_first_slice_confidence_evaluation_adversarial.py',
+            'tools/validate_constraint_first_slice_outcome_coverage.py',
+            'tools/test_constraint_first_slice_outcome_coverage_adversarial.py',
+            'tools/validate_constraint_first_slice_custody.py',
+            'tools/test_constraint_first_slice_custody_adversarial.py',
+            'tools/nyx_validate_constraint_successor_chain.py',
+            'tools/nyx_test_constraint_successor_chain_adversarial.py',
+            'tools/validate_public_repository.py'
+          )
+          $failed = @()
+          foreach ($script in $scripts) {
+            "COMMAND_START=$script"
+            python -B $script
+            $code = $LASTEXITCODE
+            "COMMAND_EXIT=$script,$code"
+            if ($code -ne 0) { $failed += $script }
+          }
+          "MATRIX_COMMANDS=$($scripts.Count); MATRIX_FAILURES=$($failed.Count)"
+          if ($failed.Count) { throw "Failed commands: $($failed -join ', ')" }
+      - name: Confirm all source hashes unchanged
+        if: always()
+        run: |
+          $before = Get-Content D:\NYX_PORTABLE\THREAD_H_COMBINED\before.json -Raw | ConvertFrom-Json
+          foreach ($row in $before) {
+            if ((Get-FileHash -Algorithm SHA256 -LiteralPath $row.path).Hash.ToLowerInvariant() -ne $row.sha256) { throw "Source changed: $($row.path)" }
+          }
+          $status = git status --porcelain
+          if ($status) { throw "Repository changed: $status" }
+          "SOURCE_HASHES_STABLE=$($before.Count)"
+          git rev-parse HEAD 'HEAD^{tree}'

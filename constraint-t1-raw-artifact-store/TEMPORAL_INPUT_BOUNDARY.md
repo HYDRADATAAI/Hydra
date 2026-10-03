@@ -33,3 +33,22 @@ for the missing earlier observation. No historical evidence records are edited.
 
 Tests use synthetic fixtures and execute on hosted Windows. Their results prove
 the bounded input rejection behavior, not historical source availability.
+
+## Consistency of declared metadata
+
+Builders, direct validators and selectors must apply the same required-value
+checks. Evidence source IDs and origin artifacts must be nonempty strings;
+matching a malformed input to an equally malformed output is insufficient.
+An explicitly supplied valid-receipt count must be an integer matching the
+active source count. Legacy omission remains supported.
+
+Release creation cannot precede the latest declared acquisition, including on
+imported public attestations and direct replay validation. Availability tables
+must contain exactly the distinct availability instants. Equivalent timezone
+or fractional-second spellings share one transition; original member timestamp
+literals remain unchanged. These checks establish internal consistency only.
+
+The first-slice chronology and boundary changes touch files also changed by
+draft PR119. Its branch and historical evidence remain unchanged. Future
+integration must preserve both its eligibility containment and these consistency
+checks; this follow-up does not claim that combined candidate is validated.
