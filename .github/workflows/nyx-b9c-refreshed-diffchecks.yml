@@ -1,0 +1,44 @@
+name: NYX b9c refreshed candidate diff checks
+
+on:
+  push:
+    branches:
+      - nyx/validation-b9c-refreshed-diffchecks-20261003
+
+permissions:
+  contents: read
+
+jobs:
+  diff-checks:
+    runs-on: windows-latest
+    steps:
+      - name: Preserve exact committed bytes
+        shell: pwsh
+        run: |
+          git config --global core.autocrlf false
+          git config --global core.longpaths true
+      - uses: actions/checkout@v4
+        with:
+          ref: b9c1f3a25a51e1c1263a91031a6e04a9b0311dff
+          fetch-depth: 0
+      - name: Validate refreshed candidates
+        shell: pwsh
+        run: |
+          $ErrorActionPreference='Stop'
+          $base='b9c1f3a25a51e1c1263a91031a6e04a9b0311dff'
+          $cases=@(
+            @{Name='PR166'; Sha='86ece925c20696ec5ddfc92c58d7ba24ef5629cf'; Count=12},
+            @{Name='PR115'; Sha='a3383f756c2794474a29bfa994b000e40b75dc94'; Count=19},
+            @{Name='REPLAY'; Sha='34cee6394daa68fec1c29bd13c8e7b642cc99f5d'; Count=101},
+            @{Name='PR146'; Sha='af0f0a51bf31f08f4afd70ff9d66f47f4d48a80a'; Count=3}
+          )
+          foreach($c in $cases){
+            git fetch origin $c.Sha
+            if($LASTEXITCODE -ne 0){ exit $LASTEXITCODE }
+            git diff --check $base $c.Sha
+            if($LASTEXITCODE -ne 0){ exit $LASTEXITCODE }
+            $paths=@(git diff --name-only $base $c.Sha)
+            if($LASTEXITCODE -ne 0){ exit $LASTEXITCODE }
+            if($paths.Count -ne $c.Count){ throw "$($c.Name) changed-path count $($paths.Count), expected $($c.Count)" }
+            "$($c.Name)_DIFF_CHECK=PASS; PATHS=$($paths.Count); SHA=$($c.Sha)"
+          }
