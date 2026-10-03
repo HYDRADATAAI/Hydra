@@ -1,0 +1,24 @@
+{
+  "schema": "HYDRA_CONSTRAINT_T1_TIMESTAMP_GATE_SUCCESSOR_V1",
+  "scope": "EXACT_TWO_FILE_TIMESTAMP_GATE_CUSTODY_CONTINUATION",
+  "base_commit": "684f59ceea89114f6ac8b356e9b4dfb2b9cafa89",
+  "predecessor_artifacts_rewritten": false,
+  "acceptance_effect": "NONE",
+  "trusted_timestamp_verifier": "NOT_IMPLEMENTED",
+  "ordinary_replay_promoted": false,
+  "historical_availability_promoted": false,
+  "canonical_admission_promoted": false,
+  "network_acquisition_authorized": false,
+  "transitions": [
+    {
+      "path": "constraint-t1-raw-artifact-store/src/hydra_constraint_t1_raw/store.py",
+      "predecessor_git_blob_sha": "e6b8757b7dc24039d93caf33a26c8d0e3373ee63",
+      "successor_git_blob_sha": "5973067fdbe8b52b89fd22da53a6c7f67c5fa91a"
+    },
+    {
+      "path": "constraint-t1-raw-artifact-store/tests/test_store.py",
+      "predecessor_git_blob_sha": "32a4116e6872ef5a844c6c5f7411423817b45de6",
+      "successor_git_blob_sha": "d94d1e7cdfd55e820fe531ddb2ede5ff54a89e5e"
+    }
+  ]
+}

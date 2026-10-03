@@ -149,7 +149,7 @@ class CanaryRunner:
             "read_only": True,
             "ledger_mutation": False,
             "automatic_trading_action": False,
-            "status": "PASS" if all(r.status == "PASS" for r in enabled) else "FAIL",
+            "status": "PASS" if enabled and all(r.status == "PASS" for r in enabled) else "FAIL",
             "status_scope": "CURRENT_FETCH_AND_MARKERS_ONLY",
             "admission": unresolved_admission(),
             "enabled_sources": len(enabled),

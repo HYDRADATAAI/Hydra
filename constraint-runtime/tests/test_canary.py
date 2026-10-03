@@ -70,6 +70,16 @@ class LiveCanaryTests(unittest.TestCase):
         self.assertEqual(result.status, "DISABLED")
         self.assertEqual(transport.calls, [])
 
+    def test_empty_enabled_set_fails_closed(self):
+        transport = FakeTransport({})
+        report = CanaryRunner(transport).run([])
+        self.assertEqual(report["status"], "FAIL")
+        self.assertEqual(report["enabled_sources"], 0)
+        self.assertEqual(report["passed_sources"], 0)
+        self.assertEqual(transport.calls, [])
+
+
+
     def test_report_is_read_only(self):
         transport = FakeTransport({
             "a": CanaryResponse(200, "https://example.test/a", {}, b"marker")
