@@ -115,6 +115,12 @@ class Batch016ReadOnlyQueryTests(unittest.TestCase):
             self.service.list_cases(limit=0)
         with self.assertRaises(ConstraintQueryError):
             self.service.list_cases(calibrated="false")
+        for value in (float("nan"), float("inf"), float("-inf")):
+            with self.subTest(value=value):
+                with self.assertRaises(ConstraintQueryError):
+                    self.service.list_cases(min_lead_days=value)
+                with self.assertRaises(ConstraintQueryError):
+                    self.service.list_cases(max_lead_days=value)
 
     def test_query_contract_rejects_authority_smuggling_fields(self):
         with self.assertRaisesRegex(ConstraintQueryError,"unsupported query fields"):

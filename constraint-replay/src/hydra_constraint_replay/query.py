@@ -3,6 +3,7 @@ from __future__ import annotations
 from copy import deepcopy
 from hashlib import sha1
 import json
+import math
 from pathlib import Path
 from typing import Any, Mapping
 
@@ -270,7 +271,7 @@ class ConstraintReplayQueryService:
             ("max_lead_days", max_lead_days),
         ):
             if value is not None and (
-                isinstance(value, bool) or not isinstance(value, (int, float)) or value < 0
+                isinstance(value, bool) or not isinstance(value, (int, float)) or value < 0 or (isinstance(value, float) and not math.isfinite(value))
             ):
                 raise ConstraintQueryError(f"{label} must be a non-negative number")
         if (
