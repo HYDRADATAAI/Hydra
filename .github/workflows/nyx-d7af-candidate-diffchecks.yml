@@ -1,0 +1,41 @@
+name: NYX d7af candidate diff checks
+
+on:
+  push:
+    branches:
+      - nyx/validation-d7af-candidate-diffchecks-20261003
+
+permissions:
+  contents: read
+
+jobs:
+  diff-checks:
+    runs-on: windows-latest
+    steps:
+      - name: Preserve exact committed bytes
+        shell: pwsh
+        run: git config --global core.autocrlf false
+      - uses: actions/checkout@v4
+        with:
+          ref: d7af2cb8e56465aab8147f749ed1c65c6f861a1d
+          fetch-depth: 0
+      - name: Validate exact candidates
+        shell: pwsh
+        run: |
+          $ErrorActionPreference='Stop'
+          $base='d7af2cb8e56465aab8147f749ed1c65c6f861a1d'
+          $cases=@(
+            @{Name='A'; Sha='d86db266e62d8731088dd8d5ab8e13caf1ba88eb'; Count=3},
+            @{Name='B'; Sha='42ee7cf9c73b9a3c2d4be95fa7bfd44bf100bffb'; Count=4},
+            @{Name='E'; Sha='55fae98d8a5e4294b46a7413f85d68ca763abdd0'; Count=7}
+          )
+          foreach($c in $cases){
+            git fetch origin $c.Sha
+            if($LASTEXITCODE -ne 0){ exit $LASTEXITCODE }
+            git diff --check $base $c.Sha
+            if($LASTEXITCODE -ne 0){ exit $LASTEXITCODE }
+            $paths=@(git diff --name-only $base $c.Sha)
+            if($LASTEXITCODE -ne 0){ exit $LASTEXITCODE }
+            if($paths.Count -ne $c.Count){ throw "$($c.Name) changed-path count $($paths.Count), expected $($c.Count)" }
+            "$($c.Name)_DIFF_CHECK=PASS; PATHS=$($paths.Count); SHA=$($c.Sha)"
+          }
