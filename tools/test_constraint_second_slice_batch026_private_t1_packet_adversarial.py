@@ -12,6 +12,7 @@ QUEUE=f"{BASE}/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH026_SEMICONDUCTOR_PRIVATE
 CONTRACT=f"{BASE}/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH026_SEMICONDUCTOR_PRIVATE_T1_MATERIALIZATION_CONTRACT_V001_20260926.json"
 STATUS=f"{BASE}/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH026_SEMICONDUCTOR_PRIVATE_T1_MATERIALIZATION_STATUS_V001_20260926.json"
 MASTER="docs/constraint/architecture/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH026_MASTER_STATUS_V001_20260926.json"
+SUCCESSOR_STATUS=f"{BASE}/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH030_SEMICONDUCTOR_MICRON_QUARANTINE_NON_MICRON_REPLACEMENT_STATUS_V001_20260927.json"
 
 def sandbox():
     root=Path(tempfile.mkdtemp(prefix="hydra-semi-b026-hostile-"))
@@ -46,6 +47,8 @@ def main():
       ("status_release_faked",lambda r:mutate(r,STATUS,lambda d:d["results"].__setitem__("T1_RELEASE_MANIFEST_PRESENT","YES")),"status metric drifted: T1_RELEASE_MANIFEST_PRESENT"),
       ("master_replay_ready",lambda r:mutate(r,MASTER,lambda d:d["readiness"]["SECOND_SLICE_REPLAY_READY"].__setitem__("status","YES")),"master falsely claims replay ready"),
       ("master_full_ready",lambda r:mutate(r,MASTER,lambda d:d["readiness"]["FULL_CONSTRAINT_RUN_READY"].__setitem__("status","YES")),"master falsely full-run ready"),
+      ("successor_capture_faked",lambda r:mutate(r,SUCCESSOR_STATUS,lambda d:d["results"].__setitem__("RAW_SOURCE_VERSIONS_MATERIALIZED",38)),"current successor falsely claims raw capture"),
+      ("successor_micron_reintroduced",lambda r:mutate(r,SUCCESSOR_STATUS,lambda d:d["results"].__setitem__("MICRON_ACTIVE_CAPTURE_COUNT",9)),"current successor reintroduced quarantined Micron sources"),
     ];
     for x in cases: expect(*x)
     print("CONSTRAINT_SECOND_SLICE_BATCH026_HOSTILE_MATRIX=PASS")
