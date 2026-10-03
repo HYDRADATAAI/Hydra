@@ -42,7 +42,7 @@ def _dt(value: str, label: str) -> datetime:
 
 def _load_json(path: str | Path) -> dict[str, Any]:
     try:
-        value = json.loads(Path(path).read_text(encoding="utf-8"))
+        value = json.loads(Path(path).read_text(encoding="utf-8-sig"))
     except Exception as exc:
         raise FirstSliceMaterializationError(f"unable to load JSON: {path}") from exc
     if not isinstance(value, dict):
@@ -70,14 +70,6 @@ def _registry_sources(registry: Mapping[str, Any]) -> dict[str, dict[str, Any]]:
     return out
 
 
-def _reject_unknown_fields(value: Mapping[str, Any], allowed: set[str], label: str) -> None:
-    # v1 cannot transport or authenticate additional temporal/authority claims.
-    # Reject them instead of dropping an explicit evidence caveat during copy.
-    unknown = set(value) - allowed
-    if unknown:
-        raise FirstSliceMaterializationError(f"{label}: unsupported fields: {sorted(unknown)}")
-
-
 def _capture_rows(
     plan: Mapping[str, Any],
     *,
@@ -91,11 +83,6 @@ def _capture_rows(
             "only ACQUISITION_TIME_CONSERVATIVE is allowed in this materializer"
         )
 
-    _reject_unknown_fields(plan, {
-        "schema_version", "slice_id", "availability_mode", "release_id",
-        "release_created_at", "captures", "template_record_id", "template_only", "rule",
-    }, "capture plan")
-
     rows = plan.get("captures")
     if not isinstance(rows, list) or not rows:
         raise FirstSliceMaterializationError("capture plan must contain captures")
@@ -105,10 +92,24 @@ def _capture_rows(
     for index, raw in enumerate(rows):
         if not isinstance(raw, dict):
             raise FirstSliceMaterializationError(f"captures[{index}]: object required")
-        _reject_unknown_fields(raw, {
-            "source_id", "source_version_id", "input_file", "content_type",
-            "source_locator", "acquired_at", "available_at", "processing_disposition",
-        }, f"captures[{index}]")
+        if "available_at" in raw:
+            raise FirstSliceMaterializationError(
+                f"captures[{index}]: available_at must not be supplied in conservative mode"
+            )
+        allowed_capture_fields = {
+            "source_id",
+            "source_version_id",
+            "input_file",
+            "content_type",
+            "source_locator",
+            "acquired_at",
+            "processing_disposition",
+        }
+        unexpected_capture_fields = sorted(set(raw) - allowed_capture_fields)
+        if unexpected_capture_fields:
+            raise FirstSliceMaterializationError(
+                f"captures[{index}]: unsupported capture fields: {unexpected_capture_fields}"
+            )
         source_id = raw.get("source_id")
         if not isinstance(source_id, str) or not source_id:
             raise FirstSliceMaterializationError(f"captures[{index}].source_id required")
@@ -146,10 +147,6 @@ def _capture_rows(
         if not isinstance(acquired_at, str):
             raise FirstSliceMaterializationError(f"{source_id}: acquired_at required")
         _dt(acquired_at, f"{source_id}.acquired_at")
-        if "available_at" in raw:
-            raise FirstSliceMaterializationError(
-                f"{source_id}: available_at must not be supplied in conservative mode"
-            )
         normalized.append({
             "source_id": source_id,
             "source_version_id": source_version_id,
@@ -319,14 +316,28 @@ def validate_public_materialization_attestation(
             "public attestation contains private/raw path fields: " + ",".join(leaked)
         )
 
-    _reject_unknown_fields(attestation, {
-        "schema_version", "slice_id", "capture_mode", "availability_mode",
-        "network_acquisition_performed_by_materializer", "public_raw_content_published",
-        "release_id", "release_sha256", "release_created_at", "registry_source_count",
-        "materialized_source_count", "ordinary_t2_eligible_count", "ordinary_t2_blocked_count",
-        "all_registry_sources_materialized", "all_sources_ordinary_t2_eligible",
-        "strict_historical_replay_promoted", "historical_availability_backdated", "members",
-    }, "attestation")
+    expected_root_fields = {
+        "schema_version",
+        "slice_id",
+        "capture_mode",
+        "availability_mode",
+        "network_acquisition_performed_by_materializer",
+        "public_raw_content_published",
+        "release_id",
+        "release_sha256",
+        "release_created_at",
+        "registry_source_count",
+        "materialized_source_count",
+        "ordinary_t2_eligible_count",
+        "ordinary_t2_blocked_count",
+        "all_registry_sources_materialized",
+        "all_sources_ordinary_t2_eligible",
+        "strict_historical_replay_promoted",
+        "historical_availability_backdated",
+        "members",
+    }
+    if set(attestation) != expected_root_fields:
+        raise FirstSliceMaterializationError("attestation root field set invalid")
 
     members = attestation.get("members")
     if not isinstance(members, list) or not members:
@@ -341,13 +352,22 @@ def validate_public_materialization_attestation(
 
     release_members = []
     ordinary_count = 0
+    expected_member_fields = {
+        "source_id",
+        "source_version_id",
+        "artifact_sha256",
+        "receipt_sha256",
+        "byte_length",
+        "content_type",
+        "acquired_at",
+        "available_at",
+        "processing_disposition",
+        "ordinary_t2_eligible",
+    }
     for index, member in enumerate(members):
         label = f"members[{index}]"
-        _reject_unknown_fields(member, {
-            "source_id", "source_version_id", "artifact_sha256", "receipt_sha256",
-            "byte_length", "content_type", "acquired_at", "available_at",
-            "processing_disposition", "ordinary_t2_eligible",
-        }, label)
+        if not isinstance(member, Mapping) or set(member) != expected_member_fields:
+            raise FirstSliceMaterializationError(f"{label}: field set invalid")
         source_version_id = member.get("source_version_id")
         artifact_sha256 = member.get("artifact_sha256")
         receipt_sha256 = member.get("receipt_sha256")
