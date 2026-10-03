@@ -195,6 +195,17 @@ class FirstSliceMaterializationTests(unittest.TestCase):
                             attestation=bad, registry=self.registry,
                         )
 
+    def test_attestation_requires_member_byte_length_and_content_type(self):
+        good = self.run_plan()
+        for field in ("byte_length", "content_type"):
+            with self.subTest(missing_field=field):
+                bad = copy.deepcopy(good)
+                del bad["members"][0][field]
+                with self.assertRaises(FirstSliceMaterializationError):
+                    validate_public_materialization_attestation(
+                        attestation=bad, registry=self.registry,
+                    )
+
 
 if __name__ == "__main__":
     unittest.main()

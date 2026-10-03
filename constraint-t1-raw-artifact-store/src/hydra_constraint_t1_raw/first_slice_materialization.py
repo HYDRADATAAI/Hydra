@@ -343,11 +343,13 @@ def validate_public_materialization_attestation(
     ordinary_count = 0
     for index, member in enumerate(members):
         label = f"members[{index}]"
-        _reject_unknown_fields(member, {
+        required_member_fields = {
             "source_id", "source_version_id", "artifact_sha256", "receipt_sha256",
             "byte_length", "content_type", "acquired_at", "available_at",
             "processing_disposition", "ordinary_t2_eligible",
-        }, label)
+        }
+        if set(member) != required_member_fields:
+            raise FirstSliceMaterializationError(f"{label}: field set invalid")
         source_version_id = member.get("source_version_id")
         artifact_sha256 = member.get("artifact_sha256")
         receipt_sha256 = member.get("receipt_sha256")
