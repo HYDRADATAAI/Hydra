@@ -99,6 +99,15 @@ class AuthorityEnvelopeTests(unittest.TestCase):
         self.assertEqual(result.reason, "AUTHORITY_INVALID")
         self.assertIn("authority_signature_invalid", {issue.code for issue in result.issues})
 
+    def test_signed_wrong_authority_role_is_rejected(self) -> None:
+        envelope = self._envelope()
+        envelope["authority_role"] = "trading_authority"
+        self._resign(envelope)
+        result = self._validate(envelope)
+        self.assertFalse(result.valid)
+        self.assertEqual(result.reason, "AUTHORITY_INVALID")
+        self.assertIn("authority_role_invalid", {issue.code for issue in result.issues})
+
     def test_revoked_authority_is_rejected_fail_closed(self) -> None:
         envelope = self._envelope()
         revocation = envelope["revocation"]
