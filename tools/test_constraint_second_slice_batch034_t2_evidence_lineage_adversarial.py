@@ -113,9 +113,10 @@ class Batch034Hostile(unittest.TestCase):
     def test_input_authority_claim_does_not_promote_binding(self):
         q,l,b,_,_,_=self.docs(); evidence=copy.deepcopy(self.evidence)
         evidence[0].update(D_OWNER_GATE="PASS", IMPLEMENTATION_ADMITTED="YES", trusted_timestamp_verified=True)
-        result=v.build_ordinary_t2_evidence_lineage(lineage_packet=l,source_records=q["queue"],evidence_records=evidence,expected_slice_id=v.SLICE)
-        self.assertEqual(b,result)
-        self.assertIs(result["canonical_t5_t6_admission_promoted"],False)
+        # The generic input boundary now rejects unsupported authority fields
+        # before normalization, rather than accepting and erasing them.
+        with self.assertRaisesRegex(v.OrdinaryT2EvidenceLineageError,"unsupported input fields"):
+            v.build_ordinary_t2_evidence_lineage(lineage_packet=l,source_records=q["queue"],evidence_records=evidence,expected_slice_id=v.SLICE)
 
     def test_baseline_objects_unchanged(self):
         docs=self.docs(); before=copy.deepcopy(docs)

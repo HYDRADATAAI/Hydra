@@ -264,7 +264,11 @@ def _validate_receipt(
                 issues.append(Issue("admission_receipt_binding_mismatch", f"{field} does not match the implementation manifest", f"$.admission_receipt.bindings.{field}", evidence={"actual": actual, "expected": expected}))
 
     limitations = value.get("limitations")
-    if not isinstance(limitations, Mapping) or dict(limitations) != _LIMITATIONS:
+    if (
+        not isinstance(limitations, Mapping)
+        or set(limitations) != set(_LIMITATIONS)
+        or any(limitations[field] is not False for field in _LIMITATIONS)
+    ):
         issues.append(Issue("admission_receipt_scope_escalation", "admission may not authorize runtime activation, canonical promotion, live sources, model training, or trading", "$.admission_receipt.limitations"))
 
     issued_at = _parse_time(value.get("issued_at"), "$.admission_receipt.issued_at", issues)
@@ -316,7 +320,7 @@ def _validate_receipt(
             issues.append(Issue("admission_supersession_chain_ambiguous", "a non-empty chain requires predecessor_id", "$.admission_receipt.supersession"))
         elif predecessor_id is not None and (not isinstance(predecessor_id, str) or not predecessor_id):
             issues.append(Issue("admission_predecessor_invalid", "predecessor_id must be null or a non-empty string", "$.admission_receipt.supersession.predecessor_id"))
-        elif predecessor_id is not None and (not chain or chain[-1] != predecessor_id):
+        elif isinstance(chain, list) and predecessor_id is not None and (not chain or chain[-1] != predecessor_id):
             issues.append(Issue("admission_supersession_chain_ambiguous", "supersession chain must end at predecessor_id", "$.admission_receipt.supersession.chain"))
 
     key_id = value.get("key_id")

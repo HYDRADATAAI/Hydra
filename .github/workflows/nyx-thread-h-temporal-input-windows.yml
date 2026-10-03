@@ -1,0 +1,80 @@
+name: Thread H temporal input Windows
+
+on:
+  push:
+    branches: [nyx/thread-h-temporal-input-boundary-20261001]
+  pull_request:
+    paths:
+      - constraint-t1-raw-artifact-store/src/hydra_constraint_t1_raw/ordinary_t2_lineage.py
+      - constraint-t1-raw-artifact-store/src/hydra_constraint_t1_raw/ordinary_t2_evidence_lineage.py
+      - constraint-t1-raw-artifact-store/tests/test_temporal_input_boundary.py
+      - .github/workflows/nyx-thread-h-temporal-input-windows.yml
+
+permissions:
+  contents: read
+
+jobs:
+  temporal-input:
+    runs-on: windows-latest
+    defaults:
+      run:
+        shell: pwsh
+    env:
+      PYTHONDONTWRITEBYTECODE: '1'
+      PYTHONUTF8: '1'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Bind exact head and D drive workspace
+        run: |
+          if (-not $env:GITHUB_WORKSPACE.StartsWith('D:\', [StringComparison]::OrdinalIgnoreCase)) { throw 'D: workspace required' }
+          New-Item -ItemType Directory -Force D:\nyx-thread-h-temp | Out-Null
+          'TEMP=D:\nyx-thread-h-temp' | Out-File -Append $env:GITHUB_ENV
+          'TMP=D:\nyx-thread-h-temp' | Out-File -Append $env:GITHUB_ENV
+          "PYTHONPATH=$env:GITHUB_WORKSPACE\constraint-t1-raw-artifact-store\src" | Out-File -Append $env:GITHUB_ENV
+          git rev-parse HEAD 'HEAD^{tree}'
+          python --version
+          $rows = git ls-files | ForEach-Object { [pscustomobject]@{ path = $_; sha256 = (Get-FileHash -Algorithm SHA256 -LiteralPath $_).Hash.ToLowerInvariant() } }
+          $rows | ConvertTo-Json -Depth 4 | Set-Content D:\nyx-thread-h-temp\before.json
+      - name: Entire T1 suite including hostile temporal inputs
+        working-directory: constraint-t1-raw-artifact-store
+        run: python -B -m unittest discover -s tests -t . -v
+      - name: Rebuild archived metadata without changing historical evidence
+        if: always()
+        run: |
+          python -B tools/build_constraint_second_slice_batch033_ordinary_t2_lineage.py --output D:\nyx-thread-h-temp\lineage.json
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          $base = 'docs/constraint/second_slice/semiconductor_advanced_packaging_critical_materials_v1'
+          $expected = "$base/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH033_SEMICONDUCTOR_ORDINARY_T2_SOURCE_VERSION_LINEAGE_V001_20260928.json"
+          if ((Get-FileHash -LiteralPath $expected).Hash -ne (Get-FileHash D:\nyx-thread-h-temp\lineage.json).Hash) { throw 'Lineage bytes differ' }
+          python -B tools/test_constraint_second_slice_batch034_builder_bytes.py -v
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          'BATCH033_CHECKOUT_BYTES_REPRODUCED=YES; BATCH034_REVIEWED_GIT_BLOB_BYTES_REPRODUCED=YES; TIMESTAMP_AUTHORITY_VERIFIED=NO'
+      - name: Integrated Batch034 validator and hostile tests
+        if: always()
+        run: |
+          python -B tools/validate_constraint_second_slice_batch034_t2_evidence_lineage.py
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          python -B tools/test_constraint_second_slice_batch034_t2_evidence_lineage_adversarial.py -v
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Integrated V018 unresolved-gate tests
+        if: always()
+        run: |
+          $env:PYTHONPATH = "$env:GITHUB_WORKSPACE\constraint-runtime\src"
+          python -B -m unittest discover -s constraint-runtime/tests -v
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Confirm all source hashes unchanged
+        if: always()
+        run: |
+          $before = Get-Content D:\nyx-thread-h-temp\before.json -Raw | ConvertFrom-Json
+          foreach ($row in $before) {
+            if ((Get-FileHash -Algorithm SHA256 -LiteralPath $row.path).Hash.ToLowerInvariant() -ne $row.sha256) { throw "Source changed: $($row.path)" }
+          }
+          $status = git status --porcelain
+          if ($status) { throw "Repository changed: $status" }
+          "SOURCE_HASHES_STABLE=$($before.Count)"
+          git rev-parse HEAD 'HEAD^{tree}'

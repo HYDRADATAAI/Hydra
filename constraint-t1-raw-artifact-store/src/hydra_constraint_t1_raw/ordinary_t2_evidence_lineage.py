@@ -1,7 +1,8 @@
 """Bind reviewed evidence records to exact ordinary-T2 source versions.
 
 The binding is metadata-only. It connects existing reviewed evidence identities
-to the authenticated source-version lineage already admitted to ordinary T2.
+to declared ordinary-T2 source-version lineage. Neither matching hashes nor
+conservative timestamp arithmetic authenticates the input times.
 
 This module does not inspect raw source bodies, re-interpret claim content,
 promote evidence to canonical status, backdate availability, or authorize
@@ -22,6 +23,10 @@ from .ordinary_t2_lineage import (
 EVIDENCE_LINEAGE_SCHEMA = "hydra-constraint-ordinary-t2-evidence-lineage-binding/v1"
 NO_LOOKAHEAD_RULE = "EVIDENCE_VISIBLE_IFF_ORDINARY_T2_AVAILABLE_AT_LTE_AS_OF"
 EXCLUDED_SOURCE_REASON = "SOURCE_NOT_IN_ACTIVE_RELEASE"
+EVIDENCE_RECORD_FIELDS = frozenset({
+    "evidence_id", "source_id", "origin_artifact", "available_at",
+    "evidence_role", "proposition", "scope", "semantic_limit",
+})
 
 
 class OrdinaryT2EvidenceLineageError(ValueError):
@@ -31,6 +36,12 @@ class OrdinaryT2EvidenceLineageError(ValueError):
 def _require(condition: bool, message: str) -> None:
     if not condition:
         raise OrdinaryT2EvidenceLineageError(message)
+
+
+def _validate_input_fields(raw: Any, label: str) -> None:
+    """Reject unsupported authority/caveat extensions before normalization."""
+    _require(isinstance(raw, Mapping), f"{label}: object required")
+    _require(set(raw) <= EVIDENCE_RECORD_FIELDS, f"{label}: unsupported input fields")
 
 
 def _dt(value: Any, label: str) -> datetime:
@@ -89,7 +100,7 @@ def build_ordinary_t2_evidence_lineage(
     seen_evidence: set[str] = set()
 
     for index, raw in enumerate(evidence_records):
-        _require(isinstance(raw, Mapping), f"evidence_records[{index}]: object required")
+        _validate_input_fields(raw, f"evidence_records[{index}]")
         evidence_id = raw.get("evidence_id")
         source_id = raw.get("source_id")
         _require(
@@ -254,7 +265,8 @@ def validate_ordinary_t2_evidence_lineage(
     _require(len(bindings) + len(excluded) == len(evidence_records), "evidence disposition count mismatch")
 
     input_by_id: dict[str, Mapping[str, Any]] = {}
-    for raw in evidence_records:
+    for index, raw in enumerate(evidence_records):
+        _validate_input_fields(raw, f"evidence_records[{index}]")
         evidence_id = raw.get("evidence_id")
         _require(isinstance(evidence_id, str) and evidence_id, "input evidence_id invalid")
         _require(evidence_id not in input_by_id, f"duplicate evidence_id: {evidence_id}")

@@ -69,7 +69,7 @@ def main()->int:
         )
         output=Path(args.output).expanduser().resolve()
         output.parent.mkdir(parents=True,exist_ok=True)
-        output.write_text(json.dumps(packet,indent=2,sort_keys=True)+"\n",encoding="utf-8")
+        output.write_text(json.dumps(packet,indent=2,sort_keys=True)+"\n",encoding="utf-8",newline="\n")
     except (OSError,json.JSONDecodeError,OrdinaryT2EvidenceLineageError) as exc:
         print("BATCH034_T2_EVIDENCE_LINEAGE=FAIL"); print(f"ERROR={exc}"); return 1
     print("BATCH034_T2_EVIDENCE_LINEAGE=PASS")
