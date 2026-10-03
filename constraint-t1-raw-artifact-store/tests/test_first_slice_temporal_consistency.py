@@ -65,7 +65,7 @@ class FirstSliceTemporalConsistencyTests(unittest.TestCase):
                 "acquired_at": acquired_at,
                 "available_at": acquired_at,
                 "processing_disposition": "ELIGIBLE",
-                "ordinary_t2_eligible": True,
+                "ordinary_t2_eligible": False,
             })
         attestation = {
             "schema_version": ATTESTATION_SCHEMA,
@@ -78,10 +78,10 @@ class FirstSliceTemporalConsistencyTests(unittest.TestCase):
             "release_created_at": "2026-09-26T13:10:00Z",
             "registry_source_count": 2,
             "materialized_source_count": 2,
-            "ordinary_t2_eligible_count": 2,
-            "ordinary_t2_blocked_count": 0,
+            "ordinary_t2_eligible_count": 0,
+            "ordinary_t2_blocked_count": 2,
             "all_registry_sources_materialized": True,
-            "all_sources_ordinary_t2_eligible": True,
+            "all_sources_ordinary_t2_eligible": False,
             "strict_historical_replay_promoted": False,
             "historical_availability_backdated": False,
             "members": members,
@@ -137,7 +137,7 @@ class FirstSliceTemporalConsistencyTests(unittest.TestCase):
         else:
             packet["availability_boundaries"].insert(1, {
                 "as_of": "2026-09-26T13:00:30Z",
-                "eligible_source_ids": ["SRC-A"],
+                "eligible_source_ids": [],
             })
         self._rehash_packet(packet)
         return packet
@@ -191,14 +191,16 @@ class FirstSliceTemporalConsistencyTests(unittest.TestCase):
             datetime.fromisoformat("2026-09-26T13:00:00+00:00"),
             datetime.fromisoformat(boundary["as_of"].replace("Z", "+00:00")),
         )
-        self.assertEqual(["SRC-A", "SRC-B"], boundary["eligible_source_ids"])
+        self.assertEqual([], boundary["eligible_source_ids"])
         validate_replay_lineage_packet(packet=packet, registry=self.registry)
-        self.assertEqual([], select_replay_members(
-            packet=packet, registry=self.registry, as_of="2026-09-26T12:59:59Z",
-        ))
-        self.assertEqual(["SRC-A", "SRC-B"], [row["source_id"] for row in select_replay_members(
-            packet=packet, registry=self.registry, as_of="2026-09-26T13:00:00Z",
-        )])
+        for cutoff in (
+            "2026-09-26T12:59:59Z", "2026-09-26T13:00:00Z",
+            "2026-09-26T13:01:00Z", "2099-01-01T00:00:00Z",
+        ):
+            with self.subTest(cutoff=cutoff):
+                with self.assertRaisesRegex(ReplayLineageError, "TIMESTAMP_UNVERIFIED"):
+                    select_replay_members(packet=packet, registry=self.registry, as_of=cutoff)
+        self.assertIs(packet["ordinary_current_source_set_ready"], False)
         self.assertFalse(packet["strict_historical_replay_ready"])
         self.assertFalse(packet["historical_availability_backdated"])
 
