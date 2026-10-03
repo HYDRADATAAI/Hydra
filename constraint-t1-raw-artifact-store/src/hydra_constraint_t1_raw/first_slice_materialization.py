@@ -406,7 +406,15 @@ def validate_public_materialization_attestation(
         raise FirstSliceMaterializationError("attestation release_id required")
     if not isinstance(release_created_at, str):
         raise FirstSliceMaterializationError("attestation release_created_at required")
-    _dt(release_created_at, "attestation.release_created_at")
+    release_time = _dt(release_created_at, "attestation.release_created_at")
+    latest_acquisition = max(
+        _dt(member["acquired_at"], f"{member['source_id']}.acquired_at")
+        for member in members
+    )
+    if release_time < latest_acquisition:
+        raise FirstSliceMaterializationError(
+            "release_created_at cannot precede the latest source acquisition"
+        )
     expected = build_release_manifest(
         release_id=release_id,
         created_at=release_created_at,

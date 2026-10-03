@@ -1,14 +1,12 @@
-name: Thread H temporal input Windows
+name: Thread H temporal consistency Windows
 
 on:
   push:
-    branches: [nyx/thread-h-temporal-input-boundary-20261001]
+    branches: [nyx/thread-h-temporal-consistency-20261003]
   pull_request:
     paths:
-      - constraint-t1-raw-artifact-store/src/hydra_constraint_t1_raw/ordinary_t2_lineage.py
-      - constraint-t1-raw-artifact-store/src/hydra_constraint_t1_raw/ordinary_t2_evidence_lineage.py
-      - constraint-t1-raw-artifact-store/tests/test_temporal_input_boundary.py
-      - .github/workflows/nyx-thread-h-temporal-input-windows.yml
+      - constraint-t1-raw-artifact-store/**
+      - .github/workflows/nyx-thread-h-temporal-consistency-windows.yml
 
 permissions:
   contents: read
@@ -34,21 +32,21 @@ jobs:
       - name: Bind exact head and D drive workspace
         run: |
           if (-not $env:GITHUB_WORKSPACE.StartsWith('D:\', [StringComparison]::OrdinalIgnoreCase)) { throw 'D: workspace required' }
-          New-Item -ItemType Directory -Force D:\nyx-thread-h-temp | Out-Null
-          'TEMP=D:\nyx-thread-h-temp' | Out-File -Append $env:GITHUB_ENV
-          'TMP=D:\nyx-thread-h-temp' | Out-File -Append $env:GITHUB_ENV
+          New-Item -ItemType Directory -Force D:\nyx-thread-h-consistency-temp | Out-Null
+          'TEMP=D:\nyx-thread-h-consistency-temp' | Out-File -Append $env:GITHUB_ENV
+          'TMP=D:\nyx-thread-h-consistency-temp' | Out-File -Append $env:GITHUB_ENV
           "PYTHONPATH=$env:GITHUB_WORKSPACE\constraint-t1-raw-artifact-store\src" | Out-File -Append $env:GITHUB_ENV
           git rev-parse HEAD 'HEAD^{tree}'
           python --version
           $rows = git ls-files | ForEach-Object { [pscustomobject]@{ path = $_; sha256 = (Get-FileHash -Algorithm SHA256 -LiteralPath $_).Hash.ToLowerInvariant() } }
-          $rows | ConvertTo-Json -Depth 4 | Set-Content D:\nyx-thread-h-temp\before.json
-      - name: Entire T1 suite including hostile temporal inputs
+          $rows | ConvertTo-Json -Depth 4 | Set-Content D:\nyx-thread-h-consistency-temp\before.json
+      - name: Entire T1 suite including temporal consistency regressions
         working-directory: constraint-t1-raw-artifact-store
         run: python -B -m unittest discover -s tests -t . -v
       - name: Rebuild archived metadata without changing historical evidence
         if: always()
         run: |
-          python -B tools/build_constraint_second_slice_batch033_ordinary_t2_lineage.py --output D:\nyx-thread-h-temp\lineage.json
+          python -B tools/build_constraint_second_slice_batch033_ordinary_t2_lineage.py --output D:\nyx-thread-h-consistency-temp\lineage.json
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           @'
           import hashlib
@@ -71,7 +69,7 @@ jobs:
               raise SystemExit("Batch033 Windows CLI bytes differ from reviewed LF-to-CRLF serialization")
           print(f"BATCH033_REVIEWED_BLOB_SHA256={hashlib.sha256(expected).hexdigest()}; BYTES={len(expected)}")
           print(f"BATCH033_WINDOWS_OUTPUT_SHA256={hashlib.sha256(actual).hexdigest()}; BYTES={len(actual)}")
-          '@ | python -B - D:\nyx-thread-h-temp\lineage.json
+          '@ | python -B - D:\nyx-thread-h-consistency-temp\lineage.json
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           python -B tools/test_constraint_second_slice_batch034_builder_bytes.py -v
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
@@ -92,7 +90,7 @@ jobs:
       - name: Confirm all source hashes unchanged
         if: always()
         run: |
-          $before = Get-Content D:\nyx-thread-h-temp\before.json -Raw | ConvertFrom-Json
+          $before = Get-Content D:\nyx-thread-h-consistency-temp\before.json -Raw | ConvertFrom-Json
           foreach ($row in $before) {
             if ((Get-FileHash -Algorithm SHA256 -LiteralPath $row.path).Hash.ToLowerInvariant() -ne $row.sha256) { throw "Source changed: $($row.path)" }
           }
