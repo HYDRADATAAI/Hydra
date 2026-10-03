@@ -1,0 +1,71 @@
+name: NYX combined V002 unchanged PR143 red diagnostic
+
+on:
+  push:
+    branches: [nyx/combined-119-138-143-red-20261003]
+
+permissions:
+  contents: read
+
+jobs:
+  diagnose:
+    runs-on: windows-latest
+    timeout-minutes: 15
+    env:
+      PYTHONUTF8: '1'
+      PYTHONIOENCODING: utf-8
+      PYTHONDONTWRITEBYTECODE: '1'
+      TEMP: D:\NYX_PORTABLE\COMBINED_V002_RED_20261003\temp
+      TMP: D:\NYX_PORTABLE\COMBINED_V002_RED_20261003\temp
+    steps:
+      - name: Prepare exact D drive source and diagnostic harness
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          New-Item -ItemType Directory -Force -Path 'D:\NYX_PORTABLE\COMBINED_V002_RED_20261003\temp', 'D:\NYX_PORTABLE\COMBINED_V002_RED_20261003\report' | Out-Null
+          git config --global core.longpaths true
+          git clone --no-checkout https://github.com/HYDRADATAAI/Hydra.git D:\NYX_PORTABLE\COMBINED_V002_RED_20261003\harness
+          if ($LASTEXITCODE -ne 0) { throw 'Harness clone failed' }
+          git -C D:\NYX_PORTABLE\COMBINED_V002_RED_20261003\harness -c core.autocrlf=false checkout --detach $env:GITHUB_SHA
+          if ($LASTEXITCODE -ne 0) { throw 'Harness checkout failed' }
+          git clone --no-checkout https://github.com/HYDRADATAAI/Hydra.git D:\NYX_PORTABLE\COMBINED_V002_RED_20261003\source
+          if ($LASTEXITCODE -ne 0) { throw 'Source clone failed' }
+          git -C D:\NYX_PORTABLE\COMBINED_V002_RED_20261003\source fetch origin 0390f3ae8a85d4185cdbbdd1f6f9c2ed601ea7a6
+          if ($LASTEXITCODE -ne 0) { throw 'Pinned red source unavailable' }
+          git -C D:\NYX_PORTABLE\COMBINED_V002_RED_20261003\source -c core.autocrlf=false checkout --detach 0390f3ae8a85d4185cdbbdd1f6f9c2ed601ea7a6
+          if ($LASTEXITCODE -ne 0) { throw 'Pinned red source checkout failed' }
+          git -C D:\NYX_PORTABLE\COMBINED_V002_RED_20261003\source config core.autocrlf false
+          git -C D:\NYX_PORTABLE\COMBINED_V002_RED_20261003\source config core.longpaths true
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Execute all twelve unchanged first-slice methods and preserve actual exit
+        shell: pwsh
+        run: |
+          python -B D:\NYX_PORTABLE\COMBINED_V002_RED_20261003\harness\validation\combined-v002-red-20261003\red_run.py D:\NYX_PORTABLE\COMBINED_V002_RED_20261003\source D:\NYX_PORTABLE\COMBINED_V002_RED_20261003\report
+          exit $LASTEXITCODE
+      - name: Export complete public diagnostic evidence
+        if: always()
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $report = 'D:\NYX_PORTABLE\COMBINED_V002_RED_20261003\report'
+          $bundle = 'D:\NYX_PORTABLE\COMBINED_V002_RED_20261003\validation-evidence.zip'
+          $harness = 'D:\NYX_PORTABLE\COMBINED_V002_RED_20261003\harness\validation\combined-v002-red-20261003'
+          if (Test-Path -LiteralPath $harness) { Copy-Item -LiteralPath $harness -Destination "$report\harness_provenance" -Recurse -Force }
+          Compress-Archive -Path "$report\*" -DestinationPath $bundle -CompressionLevel Optimal -Force
+          $digest = (Get-FileHash -LiteralPath $bundle -Algorithm SHA256).Hash.ToLowerInvariant()
+          $encoded = [Convert]::ToBase64String([IO.File]::ReadAllBytes($bundle))
+          "NYX_EVIDENCE_ZIP_SHA256=$digest"
+          "NYX_EVIDENCE_ZIP_BYTES=$((Get-Item -LiteralPath $bundle).Length)"
+          'NYX_EVIDENCE_ZIP_BEGIN'
+          for ($index = 0; $index -lt $encoded.Length; $index += 4096) { $encoded.Substring($index, [Math]::Min(4096, $encoded.Length - $index)) }
+          'NYX_EVIDENCE_ZIP_END'
+      - name: Preserve diagnostic artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: NYX-combined-V002-unchanged-PR143-red-evidence
+          path: D:\NYX_PORTABLE\COMBINED_V002_RED_20261003\report
+          if-no-files-found: error
+          retention-days: 30

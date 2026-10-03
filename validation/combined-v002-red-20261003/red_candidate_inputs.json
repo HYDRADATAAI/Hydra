@@ -1,0 +1,30 @@
+{
+  "candidate_commit": "0390f3ae8a85d4185cdbbdd1f6f9c2ed601ea7a6",
+  "candidate_tree": "076e9d6955e540a3b0e2453b6e5ee8e2c26a5027",
+  "parents": [
+    "a738e851183ed4a21e32bac30a5d0a60762e7193",
+    "417174daa31761ad9eaeba56ca6306b3050ada7a",
+    "8d570da75b594ceca062ba1a53fb6164f6dce3e2",
+    "250520b55129712d77acdafcc9f06d8bf9b7aa88"
+  ],
+  "file_count": 740,
+  "test_path": "constraint-t1-raw-artifact-store/tests/test_first_slice_temporal_consistency.py",
+  "test_git_blob_sha": "4215eb03b1856104bf45701f2fa3b8193bd85038",
+  "test_sha256": "e6a7dcd6ce59c1d03f2839a49b6bc53797fe2458c606061c6fdc1c3af2733ee8",
+  "method_names": [
+    "test_public_attestation_rejects_rehashed_release_before_latest_acquisition",
+    "test_replay_builder_rejects_rehashed_release_before_latest_acquisition",
+    "test_direct_replay_validator_rejects_rehashed_early_release",
+    "test_replay_selector_rejects_rehashed_early_release",
+    "test_direct_replay_validator_rejects_missing_availability_transition",
+    "test_replay_selector_rejects_missing_availability_transition",
+    "test_direct_replay_validator_rejects_extra_availability_transition",
+    "test_replay_selector_rejects_extra_availability_transition",
+    "test_equivalent_offsets_form_one_boundary_and_preserve_member_literals",
+    "test_equivalent_fractional_spelling_forms_one_boundary_and_preserves_literals",
+    "test_release_after_latest_acquisition_remains_valid",
+    "test_release_equal_to_latest_acquisition_in_another_offset_remains_valid"
+  ],
+  "pr143_head": "250520b55129712d77acdafcc9f06d8bf9b7aa88",
+  "previous_verified_candidate": "dee8c3fa4cd2e49bd3573f62715c5fe4e2108d0d"
+}
