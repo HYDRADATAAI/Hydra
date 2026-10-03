@@ -12,10 +12,13 @@ C3=f"{BASE}/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH030_SEMICONDUCTOR_HBM_YIELD_
 C14=f"{BASE}/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH030_SEMICONDUCTOR_DUPLICATE_SOURCE_INFLATION_EVALUATION_V001_20260927.json"
 STATUS=f"{BASE}/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH030_SEMICONDUCTOR_MICRON_QUARANTINE_NON_MICRON_REPLACEMENT_STATUS_V001_20260927.json"
 MASTER="docs/constraint/architecture/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH030_MASTER_STATUS_V001_20260927.json"
+LAUNCHER="tools/private/Invoke-HYDRAConstraintSemiconductorBatch030_V001_20260927.ps1"
 def sandbox():
  r=Path(tempfile.mkdtemp(prefix="hydra-semi-b030-hostile-")); shutil.copytree(ROOT/"docs/constraint",r/"docs/constraint",dirs_exist_ok=True); shutil.copytree(ROOT/"tools",r/"tools",dirs_exist_ok=True); return r
 def mut(root,rel,fn):
  p=root/rel; d=json.loads(p.read_text(encoding="utf-8")); fn(d); p.write_text(json.dumps(d,indent=2)+"\n",encoding="utf-8")
+def mut_text(root,rel,fn):
+ p=root/rel; p.write_text(fn(p.read_text(encoding="utf-8")),encoding="utf-8")
 def run(root):
  e=dict(os.environ); e["HYDRA_REPO_ROOT"]=str(root); return subprocess.run([sys.executable,str(VALIDATOR)],cwd=ROOT,env=e,text=True,capture_output=True)
 def expect(name,fn,frag):
@@ -40,7 +43,8 @@ def main():
   ("status_capture_count_faked",lambda r:mut(r,STATUS,lambda d:d["results"].__setitem__("ACTIVE_CAPTURE_SOURCE_COUNT",41)),"Batch030 status metric drifted: ACTIVE_CAPTURE_SOURCE_COUNT"),
   ("status_materialized_faked",lambda r:mut(r,STATUS,lambda d:d["results"].__setitem__("RAW_SOURCE_VERSIONS_MATERIALIZED",38)),"Batch030 status metric drifted: RAW_SOURCE_VERSIONS_MATERIALIZED"),
   ("master_micron_dep",lambda r:mut(r,MASTER,lambda d:d["readiness"]["SECOND_SLICE_MICRON_DEPENDENT_ACTIVE_CASES"].__setitem__("status","PRESENT")),"master Micron dependency remains"),
-  ("master_replay_ready",lambda r:mut(r,MASTER,lambda d:d["readiness"]["SECOND_SLICE_REPLAY_READY"].__setitem__("status","YES")),"master falsely replay ready")
+  ("master_replay_ready",lambda r:mut(r,MASTER,lambda d:d["readiness"]["SECOND_SLICE_REPLAY_READY"].__setitem__("status","YES")),"master falsely replay ready"),
+  ("launcher_stale_private_root",lambda r:mut_text(r,LAUNCHER,lambda s:s.replace(r"D:\HYDRA\_PRIVATE\constraint\raw",r"D:\HYDRA_PRIVATE\constraint\raw",1)),"Batch030 launcher private raw root is not canonical")
  ];
  for c in cases: expect(*c)
  print("CONSTRAINT_SECOND_SLICE_BATCH030_HOSTILE_MATRIX=PASS"); print(f"HOSTILE_CASES={len(cases)}"); return 0
