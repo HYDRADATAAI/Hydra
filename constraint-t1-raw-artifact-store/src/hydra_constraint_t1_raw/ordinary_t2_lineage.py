@@ -166,6 +166,12 @@ def _attestation_members(
         "materialized source count incomplete",
     )
     _require(len(members) == len(source_scope), "attestation member count differs from source scope")
+    if "valid_receipt_count" in attestation:
+        valid_receipt_count = attestation["valid_receipt_count"]
+        _require(
+            type(valid_receipt_count) is int and valid_receipt_count == len(members),
+            "valid receipt count must be an integer matching the attestation members",
+        )
 
     normalized: list[dict[str, Any]] = []
     seen: set[str] = set()
@@ -262,16 +268,20 @@ def build_ordinary_t2_lineage(
         )
     )
 
+    # Group by instant, choosing a stable existing spelling for each boundary.
+    # The original acquisition/availability literals in members stay unchanged.
+    boundary_times: dict[datetime, str] = {}
+    for row in members:
+        value = row["available_at"]
+        instant = _dt(value, "available_at")
+        boundary_times[instant] = min(value, boundary_times.get(instant, value))
     boundaries: list[dict[str, Any]] = []
-    for available_at in sorted(
-        {row["available_at"] for row in members},
-        key=lambda value: _dt(value, "available_at"),
-    ):
+    for instant, available_at in sorted(boundary_times.items()):
         visible = [
             row["source_id"]
             for row in members
             if _dt(row["available_at"], f"{row['source_id']}.available_at")
-            <= _dt(available_at, "boundary.available_at")
+            <= instant
         ]
         boundaries.append({
             "as_of": available_at,
@@ -391,18 +401,24 @@ def validate_ordinary_t2_lineage(
     boundaries = packet.get("availability_boundaries")
     _require(isinstance(boundaries, list) and boundaries, "availability boundaries missing")
     last: datetime | None = None
+    boundary_instants: list[datetime] = []
     for index, boundary in enumerate(boundaries):
         _require(isinstance(boundary, Mapping), f"availability_boundaries[{index}]: object required")
         _require(set(boundary) == {"as_of", "eligible_source_ids"}, f"availability_boundaries[{index}]: field set invalid")
         instant = _dt(boundary["as_of"], f"availability_boundaries[{index}].as_of")
         _require(last is None or instant > last, "availability boundaries must be strictly increasing")
         last = instant
+        boundary_instants.append(instant)
         visible = sorted(
             row["source_id"]
             for row in members
             if _dt(row["available_at"], "member.available_at") <= instant
         )
         _require(boundary["eligible_source_ids"] == visible, f"availability_boundaries[{index}]: visible set drift")
+    _require(
+        boundary_instants == sorted({_dt(row["available_at"], "member.available_at") for row in members}),
+        "availability boundary instants incomplete or unexpected",
+    )
     _require(boundaries[-1]["eligible_source_ids"] == sorted(scope), "final boundary does not expose full current source set")
 
 

@@ -125,13 +125,16 @@ def build_replay_lineage_packet(
 
     boundaries: list[dict[str, Any]] = []
     eligible_ids: set[str] = set()
-    grouped: dict[str, list[str]] = {}
+    grouped: dict[datetime, list[dict[str, Any]]] = {}
     for row in replay_members:
-        grouped.setdefault(row["available_at"], []).append(row["source_id"])
-    for available_at in sorted(grouped, key=lambda value: _dt(value, "available_at")):
-        eligible_ids.update(grouped[available_at])
+        instant = _dt(row["available_at"], f"{row['source_id']}.available_at")
+        grouped.setdefault(instant, []).append(row)
+    for instant in sorted(grouped):
+        instant_members = grouped[instant]
+        eligible_ids.update(row["source_id"] for row in instant_members)
         boundaries.append({
-            "as_of": available_at,
+            # Sorted source/version order chooses a stable existing spelling.
+            "as_of": instant_members[0]["available_at"],
             "eligible_source_ids": sorted(eligible_ids),
         })
 
@@ -251,7 +254,15 @@ def validate_replay_lineage_packet(
         raise ReplayLineageError("release_id required")
     if not isinstance(release_created_at, str):
         raise ReplayLineageError("release_created_at required")
-    _dt(release_created_at, "release_created_at")
+    release_time = _dt(release_created_at, "release_created_at")
+    latest_acquisition = max(
+        _dt(row["acquired_at"], f"{row['source_id']}.acquired_at")
+        for row in members
+    )
+    if release_time < latest_acquisition:
+        raise ReplayLineageError(
+            "release_created_at cannot precede the latest source acquisition"
+        )
     expected_release = build_release_manifest(
         release_id=release_id,
         created_at=release_created_at,
@@ -263,6 +274,12 @@ def validate_replay_lineage_packet(
     boundaries = packet.get("availability_boundaries")
     if not isinstance(boundaries, list) or not boundaries:
         raise ReplayLineageError("availability boundaries missing")
+    expected_instants = sorted({
+        _dt(row["available_at"], f"{row['source_id']}.available_at")
+        for row in members
+    })
+    if len(boundaries) != len(expected_instants):
+        raise ReplayLineageError("availability boundary count differs from member transitions")
     cumulative: set[str] = set()
     last_time: datetime | None = None
     for index, boundary in enumerate(boundaries):
@@ -273,6 +290,8 @@ def validate_replay_lineage_packet(
                 f"availability_boundaries[{index}]: field set invalid"
             )
         instant = _dt(boundary["as_of"], f"availability_boundaries[{index}].as_of")
+        if instant != expected_instants[index]:
+            raise ReplayLineageError("availability boundary differs from member transition")
         if last_time is not None and instant <= last_time:
             raise ReplayLineageError("availability boundaries are not strictly increasing")
         last_time = instant
