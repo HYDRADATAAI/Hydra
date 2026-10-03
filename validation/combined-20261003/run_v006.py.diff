@@ -1,0 +1,29 @@
+--- historical/run_v006.py
++++ combined/run_v006.py
+@@ -26,13 +26,13 @@
+         return {p:hashlib.sha256((repo/p).read_bytes()).hexdigest() for p in files if p}
+     def status(repo,label):
+         return {'head':git(label+'_head',repo,'rev-parse','HEAD'),'tree':git(label+'_tree',repo,'rev-parse','HEAD^{tree}'),'status':git(label+'_status',repo,'status','--porcelain=v1','--untracked-files=all')}
+-    summary={'result':'FAIL','candidate_commit':pins['candidate_commit'],'candidate_tree':pins['candidate_tree'],'current_main':pins['main'],'pr119_head':pins['pr119_head'],'scope':'HOSTED_WINDOWS_PUBLIC_REPOSITORY_FIXTURES','user_workstation_tested':False,'admission_claimed':False,'readiness_claimed':False,'production_approval_claimed':False}
++    summary={'result':'FAIL','candidate_commit':pins['candidate_commit'],'candidate_tree':pins['candidate_tree'],'current_main':pins['main'],'pr119_head':pins['pr119_head'],'pr138_head':pins['pr138_head'],'pr141_head':pins['pr141_head'],'scope':'HOSTED_WINDOWS_PUBLIC_REPOSITORY_FIXTURES','user_workstation_tested':False,'admission_claimed':False,'readiness_claimed':False,'production_approval_claimed':False}
+     before=None; worktree=None
+     try:
+         dependency=json.loads((matrix/'summary.json').read_text())
+         check('changed_from_V005',pins['candidate_tree']!=pins['v005_tree'],{'current_tree':pins['candidate_tree'],'V005_tree':pins['v005_tree']})
+         check('C_result',dependency['result'] in ['PASS','PASS_WITH_ALLOWED_SKIPS'],dependency['result'])
+-        check('C_exact_binding',dependency['candidate_commit']==pins['candidate_commit'] and dependency['candidate_tree']==pins['candidate_tree'] and dependency['current_main']==pins['main'] and dependency['pr119_head']==pins['pr119_head'],dependency)
++        check('C_exact_binding',dependency['candidate_commit']==pins['candidate_commit'] and dependency['candidate_tree']==pins['candidate_tree'] and dependency['current_main']==pins['main'] and dependency['pr119_head']==pins['pr119_head'] and dependency['pr138_head']==pins['pr138_head'] and dependency['pr141_head']==pins['pr141_head'],dependency)
+         manifest=json.loads((matrix/'report_hashes.json').read_text())
+         bad=[p for p,h in manifest.items() if hashlib.sha256((matrix/p).read_bytes()).hexdigest()!=h]
+         check('C_member_hashes',not bad,{'members':len(manifest),'mismatches':bad})
+@@ -51,8 +51,8 @@
+             if kind!='blob' or mode=='120000' or observed!=digest:differences.append(path)
+         check('source_exact_Git_bytes',not differences,{'files':len(before),'mismatches':differences})
+         check('source_count',len(before)==pins['file_count'],len(before))
+-        for ref,expected in [('refs/heads/main',pins['main']),('refs/heads/nyx/timestamp-hash-attestation-integration-20260928',pins['pr119_head'])]:
+-            observed=git('remote_'+('main' if ref.endswith('/main') else 'pr119'),root,'ls-remote','origin',ref).split()[0]
++        for ref,expected in [('refs/heads/main',pins['main']),('refs/heads/nyx/timestamp-hash-attestation-integration-20260928',pins['pr119_head']),('refs/heads/codex/v018-empty-canary-fail-closed',pins['pr138_head'])]:
++            observed=git('remote_'+('main' if ref.endswith('/main') else 'pr138' if 'empty-canary' in ref else 'pr119'),root,'ls-remote','origin',ref).split()[0]
+             check('remote_pin_'+ref,observed==expected,observed)
+         skips=json.loads((matrix/'skip_inventory.json').read_text())
+         check('C_skip_adjudication',all(x.get('allowed') is True for x in skips),skips)
