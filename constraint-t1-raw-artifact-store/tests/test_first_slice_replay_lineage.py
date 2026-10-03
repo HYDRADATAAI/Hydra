@@ -133,6 +133,18 @@ class FirstSliceReplayLineageTests(unittest.TestCase):
         with self.assertRaisesRegex(ReplayLineageError, "packet digest mismatch"):
             validate_replay_lineage_packet(packet=packet, registry=self.registry)
 
+    def test_packet_rejects_missing_root_field(self):
+        packet = build_replay_lineage_packet(
+            attestation=self.attestation,
+            registry=self.registry,
+        )
+        del packet["historical_replay_blocker"]
+        with self.assertRaisesRegex(
+            ReplayLineageError,
+            "replay-lineage root field set invalid",
+        ):
+            validate_replay_lineage_packet(packet=packet, registry=self.registry)
+
     def test_replay_does_not_drop_unverified_acquisition_status(self):
         from hydra_constraint_t1_raw.first_slice_materialization import FirstSliceMaterializationError
         bad = copy.deepcopy(self.attestation)

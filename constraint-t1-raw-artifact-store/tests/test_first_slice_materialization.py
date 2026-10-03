@@ -150,6 +150,18 @@ class FirstSliceMaterializationTests(unittest.TestCase):
             registry=self.registry,
         )
 
+    def test_public_attestation_rejects_missing_root_field(self):
+        attestation = self.run_plan()
+        del attestation["ordinary_t2_blocked_count"]
+        with self.assertRaisesRegex(
+            FirstSliceMaterializationError,
+            "attestation root field set invalid",
+        ):
+            validate_public_materialization_attestation(
+                attestation=attestation,
+                registry=self.registry,
+            )
+
     def test_public_attestation_rejects_private_path_leakage(self):
         attestation = self.run_plan()
         attestation["members"][0]["input_file"] = str(self.captures / "a.html")
