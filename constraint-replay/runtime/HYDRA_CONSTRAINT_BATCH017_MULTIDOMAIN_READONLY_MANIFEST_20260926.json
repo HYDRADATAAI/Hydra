@@ -1,0 +1,113 @@
+{
+  "schema_version": "1.0",
+  "batch_id": "HYDRA_CONSTRAINT_MULTIDOMAIN_READONLY_BATCH017_20260926",
+  "contract_version": "hydra-constraint-multidomain-readonly/v1",
+  "mode": "READ_ONLY_MULTIDOMAIN_HISTORICAL",
+  "source_run_digest_sha256": "db28edfea01800cf85dd234edb99d003d0a185ab39f7ba8cd31af416542890f1",
+  "implementation": {
+    "module": {
+      "path": "constraint-replay/src/hydra_constraint_replay/multidomain.py",
+      "git_blob_sha": "efe6eaa29119852f0c429d49f7de937e6d98e71f"
+    },
+    "cli": {
+      "path": "constraint-replay/scripts/query_HYDRA_CONSTRAINT_BATCH017_multidomain_readonly_20260926.py",
+      "git_blob_sha": "66a81ba9d5e663277396235b0032cf05b6464684"
+    },
+    "package_export": {
+      "path": "constraint-replay/src/hydra_constraint_replay/__init__.py",
+      "git_blob_sha": "993b3346c26bd3eaee22229fbff9e53c724937d3"
+    }
+  },
+  "contracts": [
+    {
+      "path": "constraint-replay/contracts/HYDRA_CONSTRAINT_MULTIDOMAIN_READONLY_QUERY_REQUEST_V001_20260926.schema.json",
+      "git_blob_sha": "14640978ea261428ec5935ac4e050fb535f5b41c"
+    },
+    {
+      "path": "constraint-replay/contracts/HYDRA_CONSTRAINT_MULTIDOMAIN_READONLY_QUERY_RESPONSE_V001_20260926.schema.json",
+      "git_blob_sha": "eeba3a28e3e0d3b978d6d6160899c8e1c2a3bc1c"
+    }
+  ],
+  "replay_query_manifest": {
+    "path": "constraint-replay/runtime/HYDRA_CONSTRAINT_BATCH016_READONLY_QUERY_MANIFEST_20260926.json",
+    "git_blob_sha": "36a9aa94b57b54a5c0f2e93df6fc203b40d2a327"
+  },
+  "source_pairs": [
+    {
+      "batch_id": "batch001",
+      "policy": {
+        "path": "constraint-geopolitical-policy/data/sourced_historical_cases.json",
+        "git_blob_sha": "0bfa220181fd06bb22b19a956956305c857c9bbc"
+      },
+      "physical": {
+        "path": "constraint-physical-dependency/data/sourced_policy_case_physical_graph.json",
+        "git_blob_sha": "9171de886a5dc8814d5377a6936abbf735a4cafb"
+      }
+    },
+    {
+      "batch_id": "batch002",
+      "policy": {
+        "path": "constraint-geopolitical-policy/data/HYDRA_CONSTRAINT_GEOPOLITICAL_POLICY_BATCH002_SOURCED_HISTORICAL_CASES_20260925.json",
+        "git_blob_sha": "d6925977e30927190e2c16a48cf7792ab36c63a4"
+      },
+      "physical": {
+        "path": "constraint-physical-dependency/data/HYDRA_CONSTRAINT_PHYSICAL_POLICY_GRAPH_BATCH002_SOURCED_20260925.json",
+        "git_blob_sha": "91ca9ca72c710770c0ce1e9243edb1ff5255d402"
+      }
+    },
+    {
+      "batch_id": "batch003",
+      "policy": {
+        "path": "constraint-geopolitical-policy/data/HYDRA_CONSTRAINT_GEOPOLITICAL_POLICY_BATCH003_SOURCED_HISTORICAL_CASES_20260925.json",
+        "git_blob_sha": "b1b308498298c142f4506da1215fad99258a3684"
+      },
+      "physical": {
+        "path": "constraint-physical-dependency/data/HYDRA_CONSTRAINT_PHYSICAL_POLICY_GRAPH_BATCH003_SOURCED_20260925.json",
+        "git_blob_sha": "adf8ca7749e43c53b7188ca88e9b8e531a538b16"
+      }
+    },
+    {
+      "batch_id": "batch004",
+      "policy": {
+        "path": "constraint-geopolitical-policy/data/HYDRA_CONSTRAINT_GEOPOLITICAL_POLICY_BATCH004_SOURCED_HISTORICAL_CASES_20260925.json",
+        "git_blob_sha": "36f1c1a41c2eb3c051b46fe28a44eadb5e01aa78"
+      },
+      "physical": {
+        "path": "constraint-physical-dependency/data/HYDRA_CONSTRAINT_PHYSICAL_POLICY_GRAPH_BATCH004_SOURCED_20260925.json",
+        "git_blob_sha": "8da40a00c82d14258cb89a5729632ece8a758b2b"
+      }
+    }
+  ],
+  "operations": [
+    "summary",
+    "integrity",
+    "case",
+    "entity_usage",
+    "list_cases"
+  ],
+  "expected": {
+    "case_count": 22,
+    "policy_event_count": 31,
+    "policy_observation_count": 9,
+    "physical_binding_count": 51,
+    "unique_bound_entity_count": 47,
+    "source_pair_count": 4,
+    "replay_cut_count": 82,
+    "partial_realization_count": 17,
+    "unevaluable_count": 5,
+    "calibrated_case_count": 0
+  },
+  "read_only_capabilities": {
+    "canonical_promotion_authorized": false,
+    "canonical_store_mutation_authorized": false,
+    "external_actions_authorized": false,
+    "model_training_authorized": false,
+    "ranking_authorized": false,
+    "trading_authorized": false
+  },
+  "t6_boundary": {
+    "status": "DORMANT_NOT_ACTIVATED",
+    "runtime_binding_created": false,
+    "activation_authority_granted": false
+  }
+}
