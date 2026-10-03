@@ -1123,6 +1123,12 @@ def main() -> int:
     inbox_root = assert_outside_repo(Path(args.inbox_root), repo_root, "InboxRoot")
     queue_doc = load_json(repo_root / QUEUE_RELATIVE_PATH)
     queue = validate_queue(queue_doc)
+    sys.path.insert(0, str(repo_root / "tools"))
+    from constraint_source_quarantine import QuarantinePolicyError, reject_retired_batch026
+    try:
+        reject_retired_batch026(repo_root, queue, operation="browser capture")
+    except QuarantinePolicyError as exc:
+        raise CaptureError(str(exc)) from exc
     blocked_items, eligible_items = partition_capture_queue(
         queue,
         blocked_source_ids=OPERATOR_BLOCKED_SOURCE_IDS,

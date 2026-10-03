@@ -162,6 +162,12 @@ def main() -> int:
     queue = queue_doc.get("queue")
     if not isinstance(queue, list) or len(queue) != 41:
         fail("queue must contain exactly 41 capture intents")
+    sys.path.insert(0, str(repo_root / "tools"))
+    from constraint_source_quarantine import QuarantinePolicyError, reject_retired_batch026
+    try:
+        reject_retired_batch026(repo_root, queue, operation="materialization")
+    except QuarantinePolicyError as exc:
+        fail(str(exc))
     remediations = load_remediations(repo_root / LOCATOR_OVERLAY_REL)
 
     missing: list[str] = []

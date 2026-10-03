@@ -71,6 +71,7 @@ on:
       - "tools/test_constraint_second_slice_batch029_locator_remediation_adversarial.py"
       - "tools/test_constraint_second_slice_batch029_runtime_locator_handoff.py"
       - "tools/test_constraint_second_slice_batch026_blocked_sources.py"
+      - "tools/constraint_source_quarantine.py"
       - "tools/test_constraint_batch026_pdf_raw_response.py"
       - "tools/test_constraint_batch030_tsmc_browser_403_fallback.py"
       - "tools/validate_constraint_second_slice_batch030_micron_quarantine.py"
@@ -171,6 +172,7 @@ on:
       - "tools/test_constraint_second_slice_batch029_locator_remediation_adversarial.py"
       - "tools/test_constraint_second_slice_batch029_runtime_locator_handoff.py"
       - "tools/test_constraint_second_slice_batch026_blocked_sources.py"
+      - "tools/constraint_source_quarantine.py"
       - "tools/test_constraint_batch026_pdf_raw_response.py"
       - "tools/test_constraint_batch030_tsmc_browser_403_fallback.py"
       - "tools/validate_constraint_second_slice_batch030_micron_quarantine.py"
@@ -297,12 +299,12 @@ jobs:
         run: python tools/test_constraint_second_slice_batch029_locator_remediation_adversarial.py
 
       - name: Compile Batch029 patched acquisition and T1 tools
-        run: python -m py_compile tools/private/HYDRA_CONSTRAINT_T1_SEMICONDUCTOR_BATCH026_BROWSER_CAPTURE_V001_20260927.py tools/materialize_constraint_second_slice_batch026_private_t1.py tools/verify_constraint_second_slice_batch026_private_t1.py tools/build_constraint_second_slice_batch026_private_t1_handback.py
+        run: python -m py_compile tools/constraint_source_quarantine.py tools/private/HYDRA_CONSTRAINT_T1_SEMICONDUCTOR_BATCH026_BROWSER_CAPTURE_V001_20260927.py tools/materialize_constraint_second_slice_batch026_private_t1.py tools/verify_constraint_second_slice_batch026_private_t1.py tools/build_constraint_second_slice_batch026_private_t1_handback.py
 
       - name: Validate Batch029 runtime locator handoff
         run: python tools/test_constraint_second_slice_batch029_runtime_locator_handoff.py
 
-      - name: Run Batch026 blocked-source execution regressions
+      - name: Run retired Batch026 direct-entrypoint regressions
         run: python tools/test_constraint_second_slice_batch026_blocked_sources.py
 
       - name: Run Batch026 PDF raw-response regressions

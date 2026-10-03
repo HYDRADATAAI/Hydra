@@ -10,6 +10,7 @@ CONTRACT=f"{BASE}/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH027_SEMICONDUCTOR_WORK
 STATUS=f"{BASE}/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH027_SEMICONDUCTOR_WORKSTATION_EXECUTION_LAUNCHER_STATUS_V001_20260926.json"
 MASTER="docs/constraint/architecture/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH027_MASTER_STATUS_V001_20260926.json"
 LAUNCHER="tools/Invoke-HydraConstraintSemiconductorBatch026PrivateT1.ps1"
+PRIVATE_CAPTURE_LAUNCHER="tools/private/Invoke-HYDRAConstraintSemiconductorBatch026BrowserCapture_V001_20260927.ps1"
 
 def sandbox():
     root=Path(tempfile.mkdtemp(prefix="hydra-semi-b027-hostile-"))
@@ -41,6 +42,9 @@ def main():
       ("network_guarantee_removed",lambda r:mutate_json(r,CONTRACT,lambda d:d.__setitem__("guarantees",[x for x in d["guarantees"] if x!="NO_NETWORK_ACQUISITION"])),"launcher guarantees incomplete"),
       ("fixed_repo_root_reintroduced",lambda r:mutate_text(r,LAUNCHER,lambda s:s.replace('[string]$RepoRoot,','[string]$RepoRoot = "D:\\STALE\\Hydra",')),"launcher must not hard-code a workstation repo root"),
       ("launcher_network_added",lambda r:mutate_text(r,LAUNCHER,lambda s:s+"\nInvoke-WebRequest https://example.com\n"),"launcher unexpectedly performs network acquisition"),
+      ("private_capture_exit_removed",lambda r:mutate_text(r,PRIVATE_CAPTURE_LAUNCHER,lambda s:s.replace('Write-Host "ERROR=SUPERSEDED_BY_BATCH030_QUARANTINE: Batch026 browser capture is closed."\nexit 1','Write-Host "ERROR=SUPERSEDED_BY_BATCH030_QUARANTINE: Batch026 browser capture is closed."',1)),"private capture launcher must exit before creating its private runtime"),
+      ("manual_prep_reopened",lambda r:mutate_text(r,LAUNCHER,lambda s:s.replace('if ($Mode -ne "ContractCheck") {','if ($Mode -eq "NeverContractCheck") {',1)),"launcher token missing: if ($Mode -ne \"ContractCheck\")"),
+      ("manual_failure_bypassed",lambda r:mutate_text(r,LAUNCHER,lambda s:s.replace('Fail ("SUPERSEDED_BY_BATCH030_QUARANTINE: Batch026 " + $Mode','Write-Host ("SUPERSEDED_BY_BATCH030_QUARANTINE: Batch026 " + $Mode',1)),"Batch026 operational mode gate must fail with the supersession error"),
       ("mtime_inference_added",lambda r:mutate_text(r,LAUNCHER,lambda s:s+"\n# LastWriteTime\n"),"launcher infers capture timestamp from file metadata"),
       ("status_materialized_faked",lambda r:mutate_json(r,STATUS,lambda d:d["results"].__setitem__("RAW_SOURCE_VERSIONS_MATERIALIZED",41)),"Batch027 status metric drifted: RAW_SOURCE_VERSIONS_MATERIALIZED"),
       ("status_release_faked",lambda r:mutate_json(r,STATUS,lambda d:d["results"].__setitem__("T1_RELEASE_MANIFEST_PRESENT","YES")),"Batch027 status metric drifted: T1_RELEASE_MANIFEST_PRESENT"),
