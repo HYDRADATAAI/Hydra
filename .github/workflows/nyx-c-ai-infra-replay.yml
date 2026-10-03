@@ -1,0 +1,38 @@
+name: NYX C AI infra replay
+
+on:
+  push:
+    branches:
+      - nyx/c-d7af-ai-infra-replay-20261003
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: windows-latest
+    steps:
+      - name: Preserve exact bytes and long paths
+        shell: pwsh
+        run: |
+          git config --global core.autocrlf false
+          git config --global core.longpaths true
+      - uses: actions/checkout@v4
+        with:
+          ref: d7af2cb8e56465aab8147f749ed1c65c6f861a1d
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Bind exact main
+        shell: pwsh
+        run: |
+          $head=(git rev-parse HEAD).Trim()
+          if($head -ne 'd7af2cb8e56465aab8147f749ed1c65c6f861a1d') { throw "main drift: $head" }
+          "EXACT_MAIN=$head"
+      - name: Execute bounded lane
+        shell: pwsh
+        run: |
+          python -B tools/validate_constraint_ai_infra_pass005.py
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          'C_AI_INFRA_REPLAY=PASS'
