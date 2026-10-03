@@ -128,6 +128,44 @@ class FirstSliceTemporalConsistencyTests(unittest.TestCase):
                 packet=packet, registry=self.registry, as_of="2026-09-26T13:10:00Z",
             )
 
+    def _noncanonical_boundaries_packet(self, *, remove_transition):
+        packet = build_replay_lineage_packet(
+            attestation=self._attestation(), registry=self.registry,
+        )
+        if remove_transition:
+            packet["availability_boundaries"].pop(0)
+        else:
+            packet["availability_boundaries"].insert(1, {
+                "as_of": "2026-09-26T13:00:30Z",
+                "eligible_source_ids": ["SRC-A"],
+            })
+        self._rehash_packet(packet)
+        return packet
+
+    def test_direct_replay_validator_rejects_missing_availability_transition(self):
+        packet = self._noncanonical_boundaries_packet(remove_transition=True)
+        with self.assertRaisesRegex(ReplayLineageError, "availability boundar"):
+            validate_replay_lineage_packet(packet=packet, registry=self.registry)
+
+    def test_replay_selector_rejects_missing_availability_transition(self):
+        packet = self._noncanonical_boundaries_packet(remove_transition=True)
+        with self.assertRaisesRegex(ReplayLineageError, "availability boundar"):
+            select_replay_members(
+                packet=packet, registry=self.registry, as_of="2026-09-26T13:10:00Z",
+            )
+
+    def test_direct_replay_validator_rejects_extra_availability_transition(self):
+        packet = self._noncanonical_boundaries_packet(remove_transition=False)
+        with self.assertRaisesRegex(ReplayLineageError, "availability boundar"):
+            validate_replay_lineage_packet(packet=packet, registry=self.registry)
+
+    def test_replay_selector_rejects_extra_availability_transition(self):
+        packet = self._noncanonical_boundaries_packet(remove_transition=False)
+        with self.assertRaisesRegex(ReplayLineageError, "availability boundar"):
+            select_replay_members(
+                packet=packet, registry=self.registry, as_of="2026-09-26T13:10:00Z",
+            )
+
     def _assert_one_instant_boundary(self, second_acquired_at):
         attestation = self._attestation(second_acquired_at)
         original_members = copy.deepcopy(attestation["members"])
