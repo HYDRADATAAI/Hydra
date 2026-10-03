@@ -56,7 +56,7 @@
     "script_methods": 58,
     "custom_hostile_cases": 93
   },
-  "main_drift": "PR119 andPR138 merged externally in two moves. Finalmain d8e45c1 has exact verified V001tree9ca099c7. Original119/138heads are bound as ancestors; finalcandidate has parents[main,PR143]. Source bytes unchanged by main movement.",
+  "main_drift": "PR119 and PR138 merged externally in two moves. Current main d8e45c1 has exact verified V001 tree 9ca099c7. Original 119/138 heads are bound as ancestors. Pre-writer candidate 8987662d has ordered parents [main, PR143]; final candidate 82d87e93 is its exact child. Source bytes did not change due to main movement.",
   "composition": "Current main exactly equals verified V001. Two independent Git indexes overlay the original eight PR143 paths plus a main-owned Windows workflow and Batch033 CLI writer. Six allowance rows bind exact modes, Git blobs and SHA256 values. The candidate is an exact child of reviewed source 8987662d; its parent retains the ordered main/PR143 parents, and main/PR143 ancestry is checked directly.",
   "test_first_diagnostic": {
     "run_id": 37142656231,
