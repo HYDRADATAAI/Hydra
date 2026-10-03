@@ -225,3 +225,6 @@ __marimo__/
 !market-data-pipeline-sample/data/
 !market-data-pipeline-sample/data/raw/
 !market-data-pipeline-sample/data/raw/synthetic_market_events.csv
+
+# Hostile test sandboxes may remain after a failed baseline.
+/.tmp-hydra-*/

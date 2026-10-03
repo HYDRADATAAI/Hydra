@@ -272,7 +272,29 @@ def validate_owner_seams(
     if batch13_beneficiary_overlay.get("canonical_qualification_state") != "BLOCKED":
         _fail("Batch013 beneficiary overlay escaped blocked qualification state")
 
-    dimensions = batch16_strict_gate.get("dimensions", {})
+    if batch16_strict_gate.get("schema_version") != "hydra-constraint-first-slice-strict-acceptance-gate/v1":
+        _fail("Batch016 strict gate schema is unsupported")
+    if batch16_strict_gate.get("record_id") != "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH016_AI_DATA_CENTER_POWER_INFRASTRUCTURE_STRICT_ACCEPTANCE_GATE_V001":
+        _fail("Batch016 strict gate identity mismatch")
+    if batch16_strict_gate.get("slice_id") != "AI_DATA_CENTER_POWER_INFRASTRUCTURE_V1":
+        _fail("Batch016 strict gate slice mismatch")
+    if "gates" in batch16_strict_gate or "overall_result" in batch16_strict_gate:
+        _fail("Batch016 conflicting legacy gate representation")
+    dimensions = batch16_strict_gate.get("dimensions")
+    if not isinstance(dimensions, dict):
+        _fail("Batch016 strict gate dimensions missing")
+    for key in ("IMPLEMENTATION_ADMITTED", "PROVENANCE_READY", "CONFIDENCE_READY", "REPLAY_READY", "EVALUATION_READY"):
+        if not isinstance(dimensions.get(key), dict):
+            _fail(f"Batch016 malformed dimension: {key}")
+    blockers = dimensions["IMPLEMENTATION_ADMITTED"].get("blockers")
+    if not isinstance(blockers, list) or not all(isinstance(b, str) for b in blockers):
+        _fail("Batch016 strict admission blockers missing")
+    if ADMISSION_BLOCKER not in blockers:
+        _fail("Batch016 strict gate lost native admission blocker")
+    if "CANONICAL-T5-T6-CONSTRAINT-AND-BENEFICIARY-ADMISSION-NOT-AUTHORIZED" not in blockers:
+        _fail("Batch016 strict beneficiary gate lost canonical admission blocker")
+    if batch16_strict_gate.get("first_serious_constraint_run") != "BLOCKED":
+        _fail("Batch016 first serious run escaped BLOCKED")
     if dimensions.get("IMPLEMENTATION_ADMITTED", {}).get("status") != "BLOCKED":
         _fail("Batch016 implementation admission escaped BLOCKED")
     if dimensions.get("PROVENANCE_READY", {}).get("status") != "BLOCKED":

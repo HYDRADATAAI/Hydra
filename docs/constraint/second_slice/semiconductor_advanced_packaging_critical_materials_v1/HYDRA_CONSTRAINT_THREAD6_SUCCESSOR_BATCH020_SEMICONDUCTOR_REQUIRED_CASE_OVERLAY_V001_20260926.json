@@ -1,0 +1,68 @@
+{
+  "schema_version": "hydra-constraint-second-slice-required-case-overlay/v1",
+  "record_id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH020_SEMICONDUCTOR_REQUIRED_CASE_OVERLAY_V001",
+  "as_of": "2026-09-26",
+  "slice_id": "SEMICONDUCTOR_ADVANCED_PACKAGING_CRITICAL_MATERIALS_V1",
+  "predecessor_progress": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH019_SEMICONDUCTOR_REQUIRED_CASE_PROGRESS_V001",
+  "covered_case_count_before": 2,
+  "updates": [
+    {
+      "case_id": 7,
+      "name": "FALSE_BENEFICIARY",
+      "predecessor_status": "GAP",
+      "successor_status": "COVERED_REVIEWED_SHADOW_REAL_PRIMARY_BOUNDED",
+      "basis": [
+        "BEN-SEMI-SAMSUNG-HBM-001",
+        "SUB-SEMI-SAMSUNG-HBM3E-2024-001"
+      ],
+      "note": "Samsung HBM capability is real, but beneficiary qualification is rejected because spare qualified addressable capacity and capture are not proven."
+    },
+    {
+      "case_id": 9,
+      "name": "EXPORT_POLICY_EVENT",
+      "predecessor_status": "GAP",
+      "successor_status": "COVERED_REVIEWED_SHADOW_REAL_PRIMARY_BOUNDED",
+      "basis": [
+        "POLICY-BIS-HBM-SME-2024-12"
+      ],
+      "note": "Effective and HBM compliance dates are explicitly separated from Hydra known_at; policy cannot leak backward before known_at."
+    },
+    {
+      "case_id": 13,
+      "name": "FAILED_CAPACITY_RAMP",
+      "predecessor_status": "GAP",
+      "successor_status": "COVERED_REVIEWED_SHADOW_REAL_PRIMARY_BOUNDED",
+      "basis": [
+        "OUTCOME-SEMI-TSMC-ARIZONA-RAMP-DELAY-AND-RECOVERY-001"
+      ],
+      "note": "The 2020 production target, 2023 delay, and later operational state remain distinct; original announced capacity is not rewritten as realized capacity."
+    }
+  ],
+  "progress_only": [
+    {
+      "case_id": 10,
+      "name": "SUBSTITUTION",
+      "progress_state": "POTENTIAL_SUBSTITUTE_EVALUATED_NOT_COVERED",
+      "reason": "Samsung technical capability is documented, but target-specific qualification, unbooked addressable capacity, switching time and realized relief are not proven."
+    },
+    {
+      "case_id": 12,
+      "name": "HISTORICAL_NO_LOOKAHEAD",
+      "progress_state": "TEMPORAL_FIREWALL_TESTABLE_NOT_HISTORICAL_REPLAY_COVERED",
+      "reason": "Current-review known_at semantics can prevent backward leakage, but original historical raw source availability remains unmaterialized."
+    }
+  ],
+  "covered_case_count_after": 5,
+  "remaining_gap_case_ids": [
+    3,
+    4,
+    5,
+    6,
+    8,
+    10,
+    11,
+    12,
+    14
+  ],
+  "rule": "REVIEWED_SHADOW_CASE_COVERAGE_REQUIRES_REAL_PRIMARY_EVIDENCE_AND_FAIL_CLOSED_BOUNDARIES; IT_DOES_NOT_IMPLY_ORDINARY_REPLAY_READY"
+}

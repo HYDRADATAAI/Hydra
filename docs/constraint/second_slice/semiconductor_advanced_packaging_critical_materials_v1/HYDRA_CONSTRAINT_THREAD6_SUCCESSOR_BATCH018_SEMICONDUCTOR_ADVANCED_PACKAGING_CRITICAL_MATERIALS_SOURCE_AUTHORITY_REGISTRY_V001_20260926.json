@@ -1,0 +1,102 @@
+{
+  "schema_version": "hydra-constraint-second-slice-source-authority-registry/v1",
+  "record_id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH018_SEMICONDUCTOR_ADVANCED_PACKAGING_CRITICAL_MATERIALS_SOURCE_AUTHORITY_REGISTRY_V001",
+  "as_of": "2026-09-26",
+  "slice_id": "SEMICONDUCTOR_ADVANCED_PACKAGING_CRITICAL_MATERIALS_V1",
+  "owner": "LILY_THREAD_5_SOURCE_COVERAGE",
+  "acquisition_authority": "PIPELINE_T1_SOURCE_ACQUISITION",
+  "runtime_live_source_authority_used": false,
+  "priority_families": [
+    {
+      "priority": "P0",
+      "family": "COMPANY_ANNUAL_REPORT_OR_REGULATORY_FILING",
+      "roles": [
+        "CAPACITY",
+        "FACILITY",
+        "PRODUCT",
+        "RAMP",
+        "RISK",
+        "OUTCOME"
+      ]
+    },
+    {
+      "priority": "P0",
+      "family": "COMPANY_EARNINGS_AND_PREPARED_REMARKS",
+      "roles": [
+        "DEMAND",
+        "CAPACITY",
+        "UTILIZATION",
+        "BOOKING",
+        "YIELD",
+        "QUALIFICATION",
+        "OUTCOME"
+      ]
+    },
+    {
+      "priority": "P0",
+      "family": "COMPANY_TECHNICAL_DOCUMENTATION",
+      "roles": [
+        "PRODUCT_REQUIREMENT",
+        "PROCESS",
+        "MEMORY",
+        "PACKAGING",
+        "EQUIPMENT"
+      ]
+    },
+    {
+      "priority": "P0",
+      "family": "COMPANY_PRODUCTION_OR_QUALIFICATION_RELEASE",
+      "roles": [
+        "RAMP",
+        "PRODUCTION",
+        "QUALIFICATION",
+        "SHIPMENT"
+      ]
+    },
+    {
+      "priority": "P0",
+      "family": "GOVERNMENT_OR_REGULATOR",
+      "roles": [
+        "POLICY",
+        "EXPORT_CONTROL",
+        "SUBSIDY",
+        "FACILITY",
+        "PERMIT",
+        "TRADE"
+      ]
+    },
+    {
+      "priority": "P1",
+      "family": "INDUSTRY_TECHNICAL_RESEARCH",
+      "roles": [
+        "CROSS_CHECK",
+        "CAPACITY_ESTIMATE",
+        "YIELD_CONTEXT",
+        "SUPPLY_CHAIN"
+      ]
+    },
+    {
+      "priority": "P1",
+      "family": "TRADE_PUBLICATION",
+      "roles": [
+        "DISCOVERY",
+        "CROSS_CHECK",
+        "EVENT_CONTEXT"
+      ]
+    },
+    {
+      "priority": "P2",
+      "family": "AGGREGATOR_OR_TERTIARY",
+      "roles": [
+        "DISCOVERY_ONLY"
+      ]
+    }
+  ],
+  "admission_rules": [
+    "PRIMARY_SOURCE_REQUIRED_FOR_CONSTRAINT_OR_OUTCOME_WHEN_REASONABLY_AVAILABLE",
+    "TERTIARY_SOURCE_CANNOT_CLOSE_QUALIFICATION_OR_CAPACITY_STATE_BY_ITSELF",
+    "COMPANY_FORWARD_GUIDANCE_IS_NOT_REALIZED_CAPACITY",
+    "PUBLICATION_DATE_IS_NOT_HYDRA_AVAILABLE_AT",
+    "CURRENT_WEB_REVIEW_DOES_NOT_CREATE_HISTORICAL_RAW_LINEAGE"
+  ]
+}

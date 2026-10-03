@@ -14,11 +14,11 @@
   "artifacts": [
     {
       "path": "docs/constraint/first_slice/ai_data_center_power_infrastructure_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH016_AI_DATA_CENTER_POWER_INFRASTRUCTURE_OUTCOME_SOURCE_REGISTRY_EXTENSION_V001_20260925.json",
-      "git_blob_sha": "39fa4da24e38f9386b51050d53d1eb5061c370a5"
+      "git_blob_sha": "c2a0f294f9ce37cf94498a05e6029f81a056d600"
     },
     {
       "path": "docs/constraint/first_slice/ai_data_center_power_infrastructure_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH016_AI_DATA_CENTER_POWER_INFRASTRUCTURE_OUTCOME_RECORDS_SUPPLEMENT_V001_20260925.json",
-      "git_blob_sha": "a1bdb8ce238d173e041e140f1b7c627d7fc59dd6"
+      "git_blob_sha": "22ca2612f7c4e99ed5686137050914c856e01d98"
     },
     {
       "path": "docs/constraint/first_slice/ai_data_center_power_infrastructure_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH016_AI_DATA_CENTER_POWER_INFRASTRUCTURE_REAL_OUTCOME_COVERAGE_MATRIX_V001_20260925.json",

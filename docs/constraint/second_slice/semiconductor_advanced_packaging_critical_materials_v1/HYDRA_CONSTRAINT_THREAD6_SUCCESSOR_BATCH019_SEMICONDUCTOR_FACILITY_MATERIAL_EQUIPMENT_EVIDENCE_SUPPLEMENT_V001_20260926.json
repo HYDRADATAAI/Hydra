@@ -1,0 +1,123 @@
+{
+  "schema_version": "hydra-constraint-second-slice-evidence-supplement/v1",
+  "record_id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH019_SEMICONDUCTOR_FACILITY_MATERIAL_EQUIPMENT_EVIDENCE_SUPPLEMENT_V001",
+  "as_of": "2026-09-26",
+  "slice_id": "SEMICONDUCTOR_ADVANCED_PACKAGING_CRITICAL_MATERIALS_V1",
+  "predecessor_evidence": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH018_SEMICONDUCTOR_ADVANCED_PACKAGING_CRITICAL_MATERIALS_EVIDENCE_SEED_V001",
+  "review_available_at": "2026-09-26T21:17:39Z",
+  "historical_replay_eligible": false,
+  "evidence": [
+    {
+      "evidence_id": "EV-SEMI-B019-TSMC-AP6-OPENED-2023",
+      "source_id": "SRC-SEMI-TSMC-AP6-OPENING-2023-06-08",
+      "proposition": "TSMC announced the opening of Advanced Backend Fab 6 in Zhunan Science Park on June 8, 2023; it is an all-in-one automated advanced packaging and testing fab prepared for mass production of SoIC and able to support CoWoS, InFO and advanced testing.",
+      "evidence_role": "FACILITY_AND_PACKAGING_CAPABILITY",
+      "semantic_limit": "OPENING_AND_PREPARED_FOR_MASS_PRODUCTION_DO_NOT_PROVE_UNBOOKED_AVAILABLE_CAPACITY",
+      "available_at": "2026-09-26T21:17:39Z"
+    },
+    {
+      "evidence_id": "EV-SEMI-B019-TSMC-AP6-DESIGN-CAPACITY-2023",
+      "source_id": "SRC-SEMI-TSMC-AP6-OPENING-2023-06-08",
+      "proposition": "TSMC estimated Advanced Backend Fab 6 could produce more than one million 12-inch-wafer-equivalent 3DFabric processes per year and more than ten million hours of testing services per year.",
+      "evidence_role": "FACILITY_STATED_DESIGN_CAPACITY",
+      "semantic_limit": "COMPANY_ESTIMATE_OF_FAB_CAPABILITY_NOT_AVAILABLE_OR_UNBOOKED_CAPACITY",
+      "available_at": "2026-09-26T21:17:39Z"
+    },
+    {
+      "evidence_id": "EV-SEMI-B019-TSMC-ARIZONA-PLAN-2023",
+      "source_id": "SRC-SEMI-TSMC-ANNUAL-REPORT-2023",
+      "proposition": "TSMC's 2023 annual report described its first Arizona fab as progressing through fab infrastructure, utilities and equipment installation and stated it was on track for N4 volume production in the first half of 2025.",
+      "evidence_role": "FACILITY_RAMP_PLAN",
+      "semantic_limit": "FORWARD_PLAN_NOT_REALIZED_PRODUCTION",
+      "available_at": "2026-09-26T21:17:39Z"
+    },
+    {
+      "evidence_id": "EV-SEMI-B019-TSMC-ARIZONA-ACTUAL-2024",
+      "source_id": "SRC-SEMI-TSMC-ANNUAL-REPORT-2024",
+      "proposition": "TSMC's 2024 annual report states that its first Arizona fab entered high-volume production using N4 technology in Q4 2024, earlier than scheduled, with yields comparable to its Taiwan fabs.",
+      "evidence_role": "FACILITY_RAMP_OUTCOME",
+      "semantic_limit": "HIGH_VOLUME_PRODUCTION_DOES_NOT DISCLOSE AVAILABLE_OR_UNBOOKED_CAPACITY",
+      "available_at": "2026-09-26T21:17:39Z"
+    },
+    {
+      "evidence_id": "EV-SEMI-B019-AMKOR-VIETNAM-OPENING-2023",
+      "source_id": "SRC-SEMI-AMKOR-VIETNAM-OPENING-2023-10-10",
+      "proposition": "Amkor announced the October 2023 opening of its Bac Ninh, Vietnam factory, beginning with Advanced System in Package and memory production; upon completion the campus was planned to include 200,000 square meters of cleanroom space.",
+      "evidence_role": "OSAT_FACILITY_AND_PHASED_RAMP",
+      "semantic_limit": "PLANNED_CLEANROOM_AT_COMPLETION_IS_NOT_CURRENT_PRODUCTION_CAPACITY",
+      "available_at": "2026-09-26T21:17:39Z"
+    },
+    {
+      "evidence_id": "EV-SEMI-B019-ASML-NXT2050I-EQUIPMENT",
+      "source_id": "SRC-SEMI-ASML-NXT2050I-CURRENT",
+      "proposition": "ASML describes the TWINSCAN NXT:2050i as an immersion lithography system designed for volume production and advanced Logic and DRAM manufacturing on 300 mm wafers.",
+      "evidence_role": "LITHOGRAPHY_EQUIPMENT_CAPABILITY",
+      "semantic_limit": "CURRENT_PRODUCT_DOCUMENTATION_DOES_NOT_ESTABLISH_HISTORICAL_CUSTOMER_INSTALLATION_OR_ACCESS",
+      "available_at": "2026-09-26T21:17:39Z"
+    },
+    {
+      "evidence_id": "EV-SEMI-B019-ASML-NXT2100I-EQUIPMENT",
+      "source_id": "SRC-SEMI-ASML-NXT2100I-CURRENT",
+      "proposition": "ASML describes the TWINSCAN NXT:2100i as the successor to the NXT:2050i and as a DUV immersion lithography tool supporting advanced Memory and Logic production.",
+      "evidence_role": "LITHOGRAPHY_EQUIPMENT_CAPABILITY",
+      "semantic_limit": "CURRENT_PRODUCT_DOCUMENTATION_DOES_NOT_ESTABLISH_HISTORICAL_CUSTOMER_INSTALLATION_OR_ACCESS",
+      "available_at": "2026-09-26T21:17:39Z"
+    },
+    {
+      "evidence_id": "EV-SEMI-B019-ASML-LICENSE-REVOCATION",
+      "source_id": "SRC-SEMI-ASML-LICENSE-REVOCATION-2024-01-01",
+      "proposition": "ASML stated that the Dutch government partially revoked a license covering 2023 shipment of NXT:2050i and NXT:2100i systems, affecting a small number of customers in China.",
+      "evidence_role": "EQUIPMENT_POLICY_ACCESS_CHANGE",
+      "semantic_limit": "PARTIAL_LICENSE_REVOCATION_DOES_NOT_EQUAL_COMPLETE_CHINA_LITHOGRAPHY_CUTOFF; EXACT_EFFECTIVE_TIME_UNRESOLVED",
+      "available_at": "2026-09-26T21:17:39Z"
+    },
+    {
+      "evidence_id": "EV-SEMI-B019-USGS-SILICON-RESOURCE-CHAIN",
+      "source_id": "SRC-SEMI-USGS-SILICON-INFO-CURRENT",
+      "proposition": "USGS states that silica as quartz or quartzite is used to produce silicon metal and that small quantities of silicon are processed into high-purity silicon for semiconductor use.",
+      "evidence_role": "GEOLOGY_RESOURCE_TO_PROCESSED_MATERIAL",
+      "semantic_limit": "RESOURCE_OR_BROAD_SILICON_PRODUCTION_DOES_NOT_EQUAL_SEMICONDUCTOR_GRADE_MATERIAL_CAPACITY",
+      "available_at": "2026-09-26T21:17:39Z"
+    },
+    {
+      "evidence_id": "EV-SEMI-B019-USGS-SILICON-CONCENTRATION-2023",
+      "source_id": "SRC-SEMI-USGS-MCS-SILICON-2024-01-31",
+      "proposition": "USGS estimated China accounted for more than 70 percent of global silicon-material production in 2023, while identifying silica in forms such as quartzite as the silicon source.",
+      "evidence_role": "BROAD_RESOURCE_PROCESSING_GEOGRAPHIC_CONCENTRATION",
+      "semantic_limit": "BROAD_SILICON_MATERIALS_INCLUDE_FERROSILICON_AND_SILICON_METAL; THIS DOES_NOT ESTABLISH A >70_PERCENT_SHARE_OF_SEMICONDUCTOR_GRADE_SILICON_OR_WAFERS",
+      "available_at": "2026-09-26T21:17:39Z"
+    },
+    {
+      "evidence_id": "EV-SEMI-B019-SUMCO-POLYSILICON-INGOT",
+      "source_id": "SRC-SEMI-SUMCO-WAFER-PROCESS-CURRENT",
+      "proposition": "SUMCO states that monocrystalline silicon ingots used for silicon wafers are made from high-quality polysilicon and describes polysilicon purified so metal impurities are only a few parts per billion being melted in a quartz crucible in the CZ process.",
+      "evidence_role": "HIGH_PURITY_MATERIAL_PROCESS_DEPENDENCY",
+      "semantic_limit": "PROCESS_DESCRIPTION_DOES_NOT_QUANTIFY_SUPPLIER_CAPACITY_OR_SHORTAGE",
+      "available_at": "2026-09-26T21:17:39Z"
+    },
+    {
+      "evidence_id": "EV-SEMI-B019-SUMCO-WAFER-SEMICONDUCTOR",
+      "source_id": "SRC-SEMI-SUMCO-WAFER-PROCESS-CURRENT",
+      "proposition": "SUMCO's production documentation describes silicon wafers as produced from monocrystalline ingots under high-purity conditions for semiconductor applications.",
+      "evidence_role": "WAFER_MATERIAL_DEPENDENCY",
+      "semantic_limit": "PRODUCT_PROCESS_DESCRIPTION_DOES_NOT_PROVE_CAPACITY_AVAILABILITY",
+      "available_at": "2026-09-26T21:17:39Z"
+    },
+    {
+      "evidence_id": "EV-SEMI-B019-NVIDIA-SUPPLY-CHAIN-2024",
+      "source_id": "SRC-SEMI-NVIDIA-FY2024-10K-2024-02-21",
+      "proposition": "NVIDIA disclosed use of TSMC and Samsung for wafer fabrication, Micron, SK hynix and Samsung for memory, CoWoS technology for semiconductor packaging, and third parties for assembly, testing and packaging.",
+      "evidence_role": "DOWNSTREAM_SUPPLY_CHAIN_DEPENDENCY",
+      "semantic_limit": "NAMED_SUPPLIER_RELATIONSHIP_DOES_NOT_PROVE_EXCLUSIVITY_OR_SPARE_CAPACITY",
+      "available_at": "2026-09-26T21:17:39Z"
+    },
+    {
+      "evidence_id": "EV-SEMI-B019-NVIDIA-QUALIFICATION-LEADTIME-2024",
+      "source_id": "SRC-SEMI-NVIDIA-FY2024-10K-2024-02-21",
+      "proposition": "NVIDIA disclosed long manufacturing lead times and qualification time for new products as factors that can complicate product transitions and supply-demand management.",
+      "evidence_role": "QUALIFICATION_AND_LEAD_TIME_DEPENDENCY",
+      "semantic_limit": "NO_NUMERIC_QUALIFICATION_DURATION_OR_SPECIFIC_ALTERNATE_SUPPLIER_QUALIFICATION_IS_DISCLOSED",
+      "available_at": "2026-09-26T21:17:39Z"
+    }
+  ]
+}

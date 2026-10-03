@@ -1,0 +1,47 @@
+{
+  "schema_version": "hydra-constraint-capability-ledger-delta/v1",
+  "record_id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH030_SEMICONDUCTOR_CAPABILITY_LEDGER_DELTA_V001",
+  "as_of": "2026-09-27",
+  "slice_id": "SEMICONDUCTOR_ADVANCED_PACKAGING_CRITICAL_MATERIALS_V1",
+  "predecessor_batch": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH029",
+  "changes": [
+    {
+      "capability": "provider_capture_policy",
+      "prior": "MICRON_LOCATOR_REMEDIATION_ACTIVE",
+      "current": "MICRON_AND_MICRON_DISTRIBUTION_QUARANTINED",
+      "basis": "Batch030 provider exclusion"
+    },
+    {
+      "capability": "required_case_3_basis",
+      "prior": "MICRON",
+      "current": "SK_HYNIX",
+      "basis": "HBM usable-die/wafer and packaging complexity evidence"
+    },
+    {
+      "capability": "required_case_8_basis",
+      "prior": "MICRON",
+      "current": "SK_HYNIX",
+      "basis": "NVIDIA GB200 platform connection plus realized HBM sales/financial capture"
+    },
+    {
+      "capability": "required_case_11_basis",
+      "prior": "MICRON",
+      "current": "SK_HYNIX",
+      "basis": "observed process/yield relief followed by wafer/fab-capacity limiter"
+    },
+    {
+      "capability": "required_case_14_basis",
+      "prior": "MICRON_PLUS_GLOBENEWSWIRE",
+      "current": "SAMSUNG_GLOBAL_PLUS_SAMSUNG_KOREA_TRANSLATION_WITH_AMD_INDEPENDENT_COUNTERPART",
+      "basis": "non-Micron duplicate-evidence cluster"
+    },
+    {
+      "capability": "private_capture_queue",
+      "prior": "41_WITH_9_MICRON_LINKED",
+      "current": "38_MICRON_FREE",
+      "basis": "32 retained + 6 replacements"
+    }
+  ],
+  "upgrade_count": 6,
+  "rule": "QUARANTINED_PREDECESSOR_EVIDENCE_REMAINS_HISTORICAL_RECORD_BUT_CANNOT_ENTER_SUCCESSOR_CAPTURE_RELEASE_OR_ORDINARY_REPLAY"
+}

@@ -1,0 +1,53 @@
+{
+  "schema_version": "hydra-constraint-capability-ledger-delta/v1",
+  "record_id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH022_SEMICONDUCTOR_CAPABILITY_LEDGER_DELTA_V001",
+  "as_of": "2026-09-26",
+  "slice_id": "SEMICONDUCTOR_ADVANCED_PACKAGING_CRITICAL_MATERIALS_V1",
+  "predecessor_batch": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH021",
+  "changes": [
+    {
+      "capability": "tool_bottleneck",
+      "prior": "PREREQUISITE_EQUIPMENT_POPULATED",
+      "current": "PASS_REVIEWED_SHADOW_BOUNDED_VARIANT",
+      "basis": "TSMC tester shortage + equipment lead-time dependency"
+    },
+    {
+      "capability": "material_bottleneck",
+      "prior": "RESOURCE_TO_SEMICONDUCTOR_GRADE_CHAIN_ONLY",
+      "current": "PASS_REVIEWED_SHADOW",
+      "basis": "Spruce Pine HPQ concentration + dual producer operational halt"
+    },
+    {
+      "capability": "duplicate_evidence_governance",
+      "prior": "UNTESTED_SLICE2",
+      "current": "PASS_REVIEWED_SHADOW_REAL_DUPLICATE",
+      "basis": "Micron origin release + GlobeNewswire distribution copy resolve to one independence cluster"
+    },
+    {
+      "capability": "hbm_yield_constraint",
+      "prior": "THIN",
+      "current": "PARTIAL_PREREQUISITE_ONLY",
+      "basis": "Yield/complexity separation proven; binding effective-output constraint not proven"
+    },
+    {
+      "capability": "constraint_migration",
+      "prior": "PARTIAL_STRUCTURED_CANDIDATE",
+      "current": "PARTIAL_STRUCTURED_CANDIDATE",
+      "basis": "No proof old CoWoS constraint actually relieved"
+    },
+    {
+      "capability": "historical_replay",
+      "prior": "BLOCKED",
+      "current": "BLOCKED",
+      "basis": "Raw source-version lineage unavailable"
+    },
+    {
+      "capability": "required_case_matrix",
+      "prior": "8_OF_14",
+      "current": "11_OF_14",
+      "basis": "Cases 4, 5, 14 newly covered"
+    }
+  ],
+  "upgrade_count": 4,
+  "rule": "CASE_COVERAGE_ADVANCES_ONLY_WHEN_EVIDENCE_MATCHES_THE_REQUIRED_LIMITING_MECHANISM_WITHOUT_SCOPE_STRENGTHENING"
+}

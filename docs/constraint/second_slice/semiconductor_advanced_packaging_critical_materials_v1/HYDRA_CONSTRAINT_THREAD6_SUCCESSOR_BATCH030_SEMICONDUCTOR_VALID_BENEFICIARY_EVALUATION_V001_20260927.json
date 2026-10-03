@@ -1,0 +1,46 @@
+{
+  "schema_version": "hydra-constraint-second-slice-beneficiary-evaluations/v1",
+  "record_id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH030_SEMICONDUCTOR_VALID_BENEFICIARY_EVALUATION_V001",
+  "as_of": "2026-09-27",
+  "slice_id": "SEMICONDUCTOR_ADVANCED_PACKAGING_CRITICAL_MATERIALS_V1",
+  "evaluation_mode": "SHADOW_PREQUALIFICATION_NOT_RUNTIME_ADMITTED",
+  "relationships": [
+    {
+      "beneficiary_relationship_id": "BEN-SEMI-SKHYNIX-HBM-001",
+      "constraint_candidate_id": "T5C-SEMI-HBM-BOOKED-SUPPLY-2024-2025-001",
+      "constraint_id": null,
+      "beneficiary_entity_id": "ENTITY-SK-HYNIX",
+      "entity_name": "SK hynix Inc.",
+      "qualification_state": "INELIGIBLE_TO_EVALUATE",
+      "shadow_prequalification_state": "VALID_BENEFICIARY_INPUT_PATTERN_SATISFIED",
+      "case_disposition": "VALID_BENEFICIARY_CASE_COVERED_SHADOW_NON_MICRON",
+      "benefit_transmission_mechanism": "HBM_SUPPLY_TO_TARGET_AI_PLATFORM_PLUS_REALIZED_HBM_COMMERCIAL_CAPTURE",
+      "evidence_lineage": {
+        "constraint_evidence": [
+          "EV-SEMI-SKHYNIX-HBM-2024-SOLDOUT"
+        ],
+        "entity_connection": [
+          "EV-SEMI-B030-SKHYNIX-HBM3E-NVIDIA-GB200"
+        ],
+        "advantage_mechanism": [
+          "EV-SEMI-SKHYNIX-HBM3E-VOLUME-PRODUCTION-2024"
+        ],
+        "capacity_or_availability": [
+          "EV-SEMI-SKHYNIX-HBM3E-VOLUME-PRODUCTION-2024"
+        ],
+        "qualification_or_addressability": [
+          "EV-SEMI-B030-SKHYNIX-HBM3E-NVIDIA-GB200"
+        ],
+        "economic_or_strategic_capture": [
+          "EV-SEMI-B030-SKHYNIX-HBM-SALES-4P5X-2024",
+          "EV-SEMI-B030-SKHYNIX-Q2FY25-HBM-FINANCIAL-CAPTURE"
+        ]
+      },
+      "canonical_qualification_state": "BLOCKED",
+      "qualified_relationship_minted": false,
+      "ordinary_t6_eligible": false
+    }
+  ],
+  "valid_beneficiary_shadow_pattern_count": 1,
+  "qualified_relationship_count": 0
+}

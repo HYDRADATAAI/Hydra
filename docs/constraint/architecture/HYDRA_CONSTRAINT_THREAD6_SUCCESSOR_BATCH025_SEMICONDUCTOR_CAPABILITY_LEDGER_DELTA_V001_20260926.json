@@ -1,0 +1,29 @@
+{
+  "schema_version": "hydra-constraint-capability-ledger-delta/v1",
+  "record_id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH025_SEMICONDUCTOR_CAPABILITY_LEDGER_DELTA_V001",
+  "as_of": "2026-09-26",
+  "slice_id": "SEMICONDUCTOR_ADVANCED_PACKAGING_CRITICAL_MATERIALS_V1",
+  "predecessor_batch": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH024",
+  "changes": [
+    {
+      "capability": "cross_slice_ai_semiconductor_power",
+      "prior": "BLOCKING_CONTINUOUS_CHAIN_GAP",
+      "current": "PASS_CONTINUOUS_EVIDENCE_BACKED_CHAIN",
+      "basis": "NVIDIA Blackwell production at TSMC Phoenix stitches AI-demand semiconductor path to existing Arizona-fab power dependency"
+    },
+    {
+      "capability": "repo_executable_acceptance_blockers",
+      "prior": "ONE",
+      "current": "ZERO",
+      "basis": "Batch025 closes continuous cross-slice graph blocker"
+    },
+    {
+      "capability": "acceptance_state",
+      "prior": "BLOCKED_REPO_PLUS_EXTERNAL",
+      "current": "BLOCKED_EXTERNAL_ONLY",
+      "basis": "Provenance/replay/no-lookahead/native-admission blockers remain"
+    }
+  ],
+  "upgrade_count": 3,
+  "rule": "CROSS_SLICE_CONNECTIVITY_CLOSURE_DOES_NOT_GRANT_REPLAY_CANONICAL_OR_POWER_CONSTRAINT_AUTHORITY"
+}

@@ -1,0 +1,367 @@
+{
+  "schema_version": "1.0",
+  "batch_id": "HYDRA_CONSTRAINT_GEOPOLITICAL_POLICY_BATCH003_20260925",
+  "evidence_digest_scope": "sha256(normalized_evidence UTF-8)",
+  "binding_policy": "Batch 003 binds only to source-supported canonical physical entities added in the matching Batch 003 physical graph; official rationale and contested legal/political characterizations remain attributed to their sources.",
+  "sources": [
+    {
+      "source_id": "russia-government-2014-08-07-food-embargo",
+      "publisher": "Government of the Russian Federation",
+      "url": "https://government.ru/news/14199/",
+      "published_at": "2014-08-07T23:59:59Z",
+      "available_at": "2014-08-07T23:59:59Z",
+      "normalized_evidence": "On 7 August 2014, the Russian Government announced a one-year full ban on imports of specified categories of beef, pork, fruit and vegetables, poultry, fish, cheese, milk and dairy products from the European Union, United States, Australia, Canada and Norway.",
+      "evidence_digest": "sha256:3579d78d1af3c136769c27d273c2a384b038e8a111e008f026afecc2c38cd1c6"
+    },
+    {
+      "source_id": "ec-2022-04-08-fifth-restrictive-package",
+      "publisher": "European Commission, Directorate-General for Financial Stability, Financial Services and Capital Markets Union",
+      "url": "https://finance.ec.europa.eu/news/eu-agrees-fifth-package-restrictive-measures-against-russia-2022-04-08_en",
+      "published_at": "2022-04-08T23:59:59Z",
+      "available_at": "2022-04-08T23:59:59Z",
+      "normalized_evidence": "On 8 April 2022, the European Commission described the EU's fifth package of restrictive measures as including an import ban on all forms of Russian coal and an entry ban on Russian-flagged vessels to EU ports, subject to stated exemptions.",
+      "evidence_digest": "sha256:9fe5e754b7e421b34f2b32fe18a74fe1f21509bc810f6cc65e9aa09dd9c5adc6"
+    },
+    {
+      "source_id": "ec-2019-12-10-battery-ipcei",
+      "publisher": "European Commission Representation in Poland",
+      "url": "https://poland.representation.ec.europa.eu/aktualnosci-i-wydarzenia/aktualnosci/ekosystem-baterii-2019-12-10_pl",
+      "published_at": "2019-12-10T23:59:59Z",
+      "available_at": "2019-12-10T23:59:59Z",
+      "normalized_evidence": "On 9 December 2019, the European Commission approved the first battery Important Project of Common European Interest, under which seven Member States planned to provide up to EUR 3.2 billion in state aid across the battery value chain, with 17 participating companies.",
+      "evidence_digest": "sha256:9e2689a37fb81b3b5bbece8ede38a882af060d0bb83b3901489aed2668e5cbf4"
+    },
+    {
+      "source_id": "panama-canal-a48-2023",
+      "publisher": "Panama Canal Authority",
+      "url": "https://pancanal.com/wp-content/uploads/2023/01/ADV48-2023-Reduction-in-Transits-Due-to-the-Ongoing-Deficit-in-Precipitation-in-the-Canal-Watershed.pdf",
+      "published_at": "2023-10-30T23:59:59Z",
+      "available_at": "2023-10-30T23:59:59Z",
+      "normalized_evidence": "On 30 October 2023, Panama Canal Advisory to Shipping A-48-2023 stated that drought and a precipitation deficit had already reduced transit capacity to approximately 32 vessels per day and announced further staged reductions in available daily transit slots beginning 1 November 2023.",
+      "evidence_digest": "sha256:2a4fa03f501a311b130c8a5b7ab50d3358ab0f87bed3e9b59f11e6735bb05544"
+    },
+    {
+      "source_id": "panama-canal-a54-2023",
+      "publisher": "Panama Canal Authority",
+      "url": "https://pancanal.com/wp-content/uploads/2023/01/ADV54-2023-Increase-in-the-Number-of-Booking-Slots-in-the-Panamax-and-Neopanamax-Locks-and-Other-Modifications-to-the-Transit-Reservation-System.pdf",
+      "published_at": "2023-12-15T23:59:59Z",
+      "available_at": "2023-12-15T23:59:59Z",
+      "normalized_evidence": "On 15 December 2023, Panama Canal Advisory to Shipping A-54-2023 announced an adjustment to booking slots that would raise total daily transit slots to 24 for transit dates beginning 16 January 2024, while stating that the Canal remained in an ongoing water crisis.",
+      "evidence_digest": "sha256:6253dcfdd57a31658c627372912d47959037c9750b476866e63b19af321aba3f"
+    },
+    {
+      "source_id": "ustr-2018-06-15-section301-list1",
+      "publisher": "Office of the United States Trade Representative",
+      "url": "https://ustr.gov/about-us/policy-offices/press-office/press-releases/2018/june/ustr-issues-tariffs-chinese-products",
+      "published_at": "2018-06-15T23:59:59Z",
+      "available_at": "2018-06-15T23:59:59Z",
+      "normalized_evidence": "On 15 June 2018, USTR announced a Section 301 tariff action covering approximately USD 50 billion of Chinese imports in two sets, with the first set of 818 tariff lines, valued at approximately USD 34 billion, subject to an additional 25 percent duty beginning 6 July 2018.",
+      "evidence_digest": "sha256:288233a9a8640e090777834999ddf9a08b20d06d559c0b7dbb7b7dbea8b06259"
+    },
+    {
+      "source_id": "ustr-2018-08-07-section301-list2",
+      "publisher": "Office of the United States Trade Representative",
+      "url": "https://ustr.gov/about-us/policy-offices/press-office/press-releases/2018/august/ustr-finalizes-second-tranche",
+      "published_at": "2018-08-07T23:59:59Z",
+      "available_at": "2018-08-07T23:59:59Z",
+      "normalized_evidence": "On 7 August 2018, USTR finalized a second Section 301 tranche covering approximately USD 16 billion of imports from China at an additional 25 percent duty, with collection beginning 23 August 2018.",
+      "evidence_digest": "sha256:54fd194fd31cd6f1b59308ec346368fe7f33fc0a88641f83adf340c33cb54f94"
+    },
+    {
+      "source_id": "ustr-2018-09-18-section301-list3",
+      "publisher": "Office of the United States Trade Representative",
+      "url": "https://ustr.gov/about-us/policy-offices/press-office/press-releases/2018/september/ustr-finalizes-tariffs-200",
+      "published_at": "2018-09-18T23:59:59Z",
+      "available_at": "2018-09-18T23:59:59Z",
+      "normalized_evidence": "On 18 September 2018, USTR finalized a further Section 301 action covering approximately USD 200 billion of Chinese imports, with an additional 10 percent duty effective 24 September 2018 and a then-announced increase to 25 percent scheduled for 1 January 2019.",
+      "evidence_digest": "sha256:13bffc09a59dd56204fa679857237185646f90ea1b191c84832d4f09ed84d710"
+    },
+    {
+      "source_id": "wto-2014-08-29-rare-earths-dsb-adoption",
+      "publisher": "World Trade Organization",
+      "url": "https://www.wto.org/english/news_e/news14_e/dsb_29aug14_e.htm",
+      "published_at": "2014-08-29T23:59:59Z",
+      "available_at": "2014-08-29T23:59:59Z",
+      "normalized_evidence": "On 29 August 2014, the WTO Dispute Settlement Body adopted the Panel and Appellate Body reports in DS431, DS432 and DS433 concerning China's export restrictions on rare earths, tungsten and molybdenum; the WTO Secretariat summary recorded the parties' positions and the adopted findings.",
+      "evidence_digest": "sha256:7d8f421c864e64fc993757ab7b2ad403d2edc19eb0b3f91b83ec3d6555d70a47"
+    },
+    {
+      "source_id": "wto-2015-05-20-rare-earths-implementation",
+      "publisher": "World Trade Organization",
+      "url": "https://www.wto.org/english/news_e/news15_e/dsb_20may15_e.htm",
+      "published_at": "2015-05-20T23:59:59Z",
+      "available_at": "2015-05-20T23:59:59Z",
+      "normalized_evidence": "On 20 May 2015, the WTO Secretariat reported that China informed the Dispute Settlement Body that export duties and export quotas on rare earths, tungsten and molybdenum, along with specified trading-right restrictions, had been removed; the United States stated that it still had concerns about an export licensing requirement.",
+      "evidence_digest": "sha256:3c5abce7d24949ce07115a9ee55df8efb19ff4f794c79321360765c1e7f36f7c"
+    }
+  ],
+  "cases": [
+    {
+      "case_id": "russia-food-import-embargo-2014",
+      "binding_status": "BOUND_MINIMAL_CANONICAL_SUBGRAPH",
+      "events": [
+        {
+          "event_id": "russia-food-import-embargo-announced-2014-08-07",
+          "event_type": "EMBARGO",
+          "known_at": "2014-08-07T23:59:59Z",
+          "effective_at": "2014-08-07T23:59:59Z",
+          "claim_kind": "DOCUMENTED_ACTION",
+          "source_ids": [
+            "russia-government-2014-08-07-food-embargo"
+          ],
+          "statement": "The Russian Government announced a one-year full import ban covering specified food categories from the named source economies.",
+          "relations": [
+            {
+              "kind": "DEPENDENCY",
+              "entity_id": "product:russia-food-embargo-covered-goods-2014",
+              "confidence": 1
+            }
+          ]
+        }
+      ],
+      "observations": []
+    },
+    {
+      "case_id": "eu-fifth-package-coal-and-port-restrictions-2022",
+      "binding_status": "BOUND_MINIMAL_CANONICAL_SUBGRAPH",
+      "events": [
+        {
+          "event_id": "eu-russian-coal-import-embargo-2022-04-08",
+          "event_type": "EMBARGO",
+          "known_at": "2022-04-08T23:59:59Z",
+          "effective_at": "2022-04-08T23:59:59Z",
+          "claim_kind": "DOCUMENTED_ACTION",
+          "source_ids": [
+            "ec-2022-04-08-fifth-restrictive-package"
+          ],
+          "statement": "The European Commission documented an EU import ban on all forms of Russian coal in the fifth restrictive-measures package.",
+          "relations": [
+            {
+              "kind": "RESOURCE",
+              "entity_id": "resource:russian-coal-eu-ban-2022",
+              "confidence": 1
+            }
+          ]
+        },
+        {
+          "event_id": "eu-russian-flagged-vessels-port-entry-ban-2022-04-08",
+          "event_type": "PORT_RESTRICTION",
+          "known_at": "2022-04-08T23:59:59Z",
+          "effective_at": "2022-04-08T23:59:59Z",
+          "claim_kind": "DOCUMENTED_ACTION",
+          "source_ids": [
+            "ec-2022-04-08-fifth-restrictive-package"
+          ],
+          "statement": "The European Commission documented an entry ban on Russian-flagged vessels to EU ports, subject to stated exemptions.",
+          "relations": [
+            {
+              "kind": "INFRASTRUCTURE",
+              "entity_id": "infrastructure:eu-ports-restrictive-measures-2022",
+              "confidence": 1
+            },
+            {
+              "kind": "DEPENDENCY",
+              "entity_id": "transport:russian-flagged-vessels-2022",
+              "confidence": 1
+            }
+          ]
+        }
+      ],
+      "observations": []
+    },
+    {
+      "case_id": "eu-battery-ipcei-state-aid-2019",
+      "binding_status": "BOUND_MINIMAL_CANONICAL_SUBGRAPH",
+      "events": [
+        {
+          "event_id": "eu-battery-ipcei-state-aid-approved-2019-12",
+          "event_type": "SUBSIDY",
+          "known_at": "2019-12-10T23:59:59Z",
+          "effective_at": "2019-12-10T23:59:59Z",
+          "claim_kind": "DOCUMENTED_ACTION",
+          "source_ids": [
+            "ec-2019-12-10-battery-ipcei"
+          ],
+          "statement": "The European Commission documented approval of up to EUR 3.2 billion in planned Member State aid for a pan-European battery research and innovation project.",
+          "relations": [
+            {
+              "kind": "STRATEGIC_ASSET",
+              "entity_id": "manufacturing:eu-battery-ipcei-participants-2019",
+              "confidence": 1
+            },
+            {
+              "kind": "DEPENDENCY",
+              "entity_id": "product:eu-battery-value-chain-ipcei-2019",
+              "confidence": 1
+            }
+          ]
+        }
+      ],
+      "observations": []
+    },
+    {
+      "case_id": "panama-canal-drought-transit-policy-2023",
+      "binding_status": "BOUND_MINIMAL_CANONICAL_SUBGRAPH",
+      "events": [
+        {
+          "event_id": "panama-canal-transit-reductions-a48-2023",
+          "event_type": "INFRASTRUCTURE_POLICY",
+          "known_at": "2023-10-30T23:59:59Z",
+          "effective_at": "2023-11-01T00:00:00Z",
+          "claim_kind": "DOCUMENTED_ACTION",
+          "source_ids": [
+            "panama-canal-a48-2023"
+          ],
+          "statement": "Panama Canal Advisory A-48-2023 announced further staged daily transit-slot reductions in response to the ongoing precipitation deficit and water-conservation requirements.",
+          "relations": [
+            {
+              "kind": "INFRASTRUCTURE",
+              "entity_id": "infrastructure:panama-canal",
+              "confidence": 1
+            },
+            {
+              "kind": "CONSTRAINT",
+              "entity_id": "bottleneck:panama-canal-water-deficit-2023",
+              "confidence": 1
+            },
+            {
+              "kind": "RESOURCE",
+              "entity_id": "resource:gatun-lake-water-storage",
+              "confidence": 1
+            }
+          ]
+        },
+        {
+          "event_id": "panama-canal-transit-adjustment-a54-2023",
+          "event_type": "INFRASTRUCTURE_POLICY",
+          "known_at": "2023-12-15T23:59:59Z",
+          "effective_at": "2024-01-16T00:00:00Z",
+          "claim_kind": "DOCUMENTED_ACTION",
+          "source_ids": [
+            "panama-canal-a54-2023"
+          ],
+          "statement": "Panama Canal Advisory A-54-2023 announced an increase to 24 daily transit slots for transit dates beginning 16 January 2024 while the water crisis remained ongoing.",
+          "relations": [
+            {
+              "kind": "INFRASTRUCTURE",
+              "entity_id": "infrastructure:panama-canal",
+              "confidence": 1
+            },
+            {
+              "kind": "CONSTRAINT",
+              "entity_id": "bottleneck:panama-canal-water-deficit-2023",
+              "confidence": 1
+            }
+          ]
+        }
+      ],
+      "observations": []
+    },
+    {
+      "case_id": "us-china-section301-multi-stage-trade-dispute-2018",
+      "binding_status": "BOUND_MINIMAL_CANONICAL_SUBGRAPH",
+      "events": [
+        {
+          "event_id": "us-section301-list1-action-2018",
+          "event_type": "TRADE_DISPUTE",
+          "known_at": "2018-06-15T23:59:59Z",
+          "effective_at": "2018-07-06T00:00:00Z",
+          "claim_kind": "DOCUMENTED_ACTION",
+          "source_ids": [
+            "ustr-2018-06-15-section301-list1"
+          ],
+          "statement": "USTR announced the first Section 301 tariff set, with 818 tariff lines valued at approximately USD 34 billion scheduled for an additional 25 percent duty beginning 6 July 2018.",
+          "relations": [
+            {
+              "kind": "DEPENDENCY",
+              "entity_id": "product:section301-list1-chinese-imports-2018",
+              "confidence": 1
+            }
+          ]
+        },
+        {
+          "event_id": "us-section301-list2-action-2018",
+          "event_type": "TRADE_DISPUTE",
+          "known_at": "2018-08-07T23:59:59Z",
+          "effective_at": "2018-08-23T00:00:00Z",
+          "claim_kind": "DOCUMENTED_ACTION",
+          "source_ids": [
+            "ustr-2018-08-07-section301-list2"
+          ],
+          "statement": "USTR finalized the second Section 301 tariff tranche, covering approximately USD 16 billion of imports at an additional 25 percent duty beginning 23 August 2018.",
+          "relations": [
+            {
+              "kind": "DEPENDENCY",
+              "entity_id": "product:section301-list2-chinese-imports-2018",
+              "confidence": 1
+            }
+          ]
+        },
+        {
+          "event_id": "us-section301-list3-action-2018",
+          "event_type": "TRADE_DISPUTE",
+          "known_at": "2018-09-18T23:59:59Z",
+          "effective_at": "2018-09-24T00:00:00Z",
+          "claim_kind": "DOCUMENTED_ACTION",
+          "source_ids": [
+            "ustr-2018-09-18-section301-list3"
+          ],
+          "statement": "USTR finalized a further Section 301 tariff action covering approximately USD 200 billion of Chinese imports with an initial additional 10 percent duty effective 24 September 2018.",
+          "relations": [
+            {
+              "kind": "DEPENDENCY",
+              "entity_id": "product:section301-list3-chinese-imports-2018",
+              "confidence": 1
+            }
+          ]
+        }
+      ],
+      "observations": []
+    },
+    {
+      "case_id": "wto-china-rare-earths-resource-dispute-2014-2015",
+      "binding_status": "BOUND_MINIMAL_CANONICAL_SUBGRAPH",
+      "events": [
+        {
+          "event_id": "wto-rare-earths-dsb-adoption-2014-08-29",
+          "event_type": "STRATEGIC_RESOURCE_DISPUTE",
+          "known_at": "2014-08-29T23:59:59Z",
+          "effective_at": "2014-08-29T23:59:59Z",
+          "claim_kind": "DOCUMENTED_ACTION",
+          "source_ids": [
+            "wto-2014-08-29-rare-earths-dsb-adoption"
+          ],
+          "statement": "The WTO Dispute Settlement Body adopted the Panel and Appellate Body reports in the disputes concerning Chinese export restrictions on rare earths, tungsten and molybdenum.",
+          "relations": [
+            {
+              "kind": "RESOURCE",
+              "entity_id": "resource:rare-earths-wto-dispute-2014",
+              "confidence": 1
+            },
+            {
+              "kind": "RESOURCE",
+              "entity_id": "resource:tungsten-wto-dispute-2014",
+              "confidence": 1
+            },
+            {
+              "kind": "RESOURCE",
+              "entity_id": "resource:molybdenum-wto-dispute-2014",
+              "confidence": 1
+            }
+          ]
+        }
+      ],
+      "observations": [
+        {
+          "observation_id": "wto-rare-earths-implementation-status-2015-05-20",
+          "known_at": "2015-05-20T23:59:59Z",
+          "observed_at": "2015-05-20T23:59:59Z",
+          "source_ids": [
+            "wto-2015-05-20-rare-earths-implementation"
+          ],
+          "statement": "The WTO Secretariat reported China's statement that the export duties, quotas and specified trading-right restrictions had been removed, while also recording a remaining U.S. concern about export licensing."
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,35 @@
+{
+  "schema_version": "hydra-constraint-second-slice-duplicate-evidence-evaluation/v1",
+  "record_id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH030_SEMICONDUCTOR_DUPLICATE_SOURCE_INFLATION_EVALUATION_V001",
+  "as_of": "2026-09-27",
+  "slice_id": "SEMICONDUCTOR_ADVANCED_PACKAGING_CRITICAL_MATERIALS_V1",
+  "evaluation": {
+    "case_id": 14,
+    "underlying_event_id": "EVENT-SAMSUNG-AMD-AI-MEMORY-COLLAB-2026-03-18",
+    "evidence_occurrences": [
+      {
+        "evidence_id": "EV-SEMI-B030-SAMSUNG-AMD-GLOBAL-ORIGIN",
+        "source_role": "ORIGIN_PRIMARY_GLOBAL",
+        "independence_cluster_id": "IND-SAMSUNG-AMD-COLLAB-2026-03-18",
+        "independent_confirmation_weight": 1
+      },
+      {
+        "evidence_id": "EV-SEMI-B030-SAMSUNG-AMD-KOREA-TRANSLATION",
+        "source_role": "TRANSLATION_COPY_SAME_PUBLISHER_EVENT",
+        "independence_cluster_id": "IND-SAMSUNG-AMD-COLLAB-2026-03-18",
+        "independent_confirmation_weight": 0
+      },
+      {
+        "evidence_id": "EV-SEMI-B021-SAMSUNG-AMD-HBM3E-QUALIFIED-2026",
+        "source_role": "INDEPENDENT_COUNTERPART_PRIMARY",
+        "independence_cluster_id": "IND-AMD-SAMSUNG-COLLAB-2026-03-18",
+        "independent_confirmation_weight": 1
+      }
+    ],
+    "unique_occurrence_count": 3,
+    "independent_evidence_cluster_count": 2,
+    "confidence_multiplier_from_translation_copy": 0,
+    "coverage_state": "COVERED_REVIEWED_SHADOW_REAL_DUPLICATE_NON_MICRON",
+    "rule": "SAME_PUBLISHER_TRANSLATION_COPY_CANNOT_MULTIPLY_INDEPENDENT_EVIDENCE; COUNTERPART_PRIMARY_MAY_FORM_SEPARATE_CLUSTER"
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "schema_version": "hydra-constraint-second-slice-evidence-supplement/v1",
+  "record_id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH025_SEMICONDUCTOR_CONTINUOUS_CROSS_SLICE_EVIDENCE_V001",
+  "as_of": "2026-09-26",
+  "slice_id": "SEMICONDUCTOR_ADVANCED_PACKAGING_CRITICAL_MATERIALS_V1",
+  "evidence": [
+    {
+      "evidence_id": "EV-SEMI-B025-NVIDIA-BLACKWELL-AI-DEMAND-US-MANUFACTURING-2025",
+      "source_id": "SRC-SEMI-B025-NVIDIA-US-BLACKWELL-PRODUCTION-2025-04-14",
+      "proposition": "NVIDIA described Blackwell chips as part of the AI-chip and supercomputer supply chain built to meet growing AI-chip and supercomputer demand.",
+      "evidence_role": "AI_DEMAND_TO_BLACKWELL_PRODUCT_CONNECTION",
+      "semantic_limit": "DOES_NOT QUANTIFY SHARE OF AI DEMAND SERVED BY BLACKWELL"
+    },
+    {
+      "evidence_id": "EV-SEMI-B025-NVIDIA-BLACKWELL-TSMC-PHOENIX-PRODUCTION-2025",
+      "source_id": "SRC-SEMI-B025-NVIDIA-US-BLACKWELL-PRODUCTION-2025-04-14",
+      "proposition": "NVIDIA stated that NVIDIA Blackwell chips had started production at TSMC chip plants in Phoenix, Arizona.",
+      "evidence_role": "BLACKWELL_TO_TSMC_PHOENIX_FABRICATION_CONNECTION",
+      "semantic_limit": "PROVES PHOENIX TSMC FABRICATION; DOES NOT BY ITSELF IDENTIFY PACKAGING LOCATION"
+    },
+    {
+      "evidence_id": "EV-SEMI-B025-TSMC-ARIZONA-FIRST-FAB-OPERATIONAL-CORROBORATION",
+      "source_id": "SRC-SEMI-TSMC-ANNUAL-REPORT-2024",
+      "proposition": "TSMC's Arizona first fab was in N4 high-volume production by Q4 2024, while later Arizona fabs were not yet in volume production.",
+      "evidence_role": "PHOENIX_FACILITY_IDENTITY_CORROBORATION",
+      "semantic_limit": "USED WITH NVIDIA PHOENIX PRODUCTION EVIDENCE TO RESOLVE THE OPERATIONAL FAB IDENTITY"
+    }
+  ]
+}

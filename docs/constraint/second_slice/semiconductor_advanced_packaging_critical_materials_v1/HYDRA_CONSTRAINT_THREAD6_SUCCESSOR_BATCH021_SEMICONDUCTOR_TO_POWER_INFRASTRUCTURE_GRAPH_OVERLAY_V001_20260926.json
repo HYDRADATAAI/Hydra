@@ -1,0 +1,77 @@
+{
+  "schema_version": "hydra-constraint-cross-slice-power-graph-overlay/v1",
+  "record_id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH021_SEMICONDUCTOR_TO_POWER_INFRASTRUCTURE_GRAPH_OVERLAY_V001",
+  "as_of": "2026-09-26",
+  "source_slice_id": "SEMICONDUCTOR_ADVANCED_PACKAGING_CRITICAL_MATERIALS_V1",
+  "target_slice_id": "AI_DATA_CENTER_POWER_INFRASTRUCTURE_V1",
+  "reused_semiconductor_nodes": [
+    "FAC-SEMI-TSMC-ARIZONA-FIRST-FAB",
+    "GEO-ARIZONA-US"
+  ],
+  "reused_power_nodes": [
+    "N-ELECTRICITY-DEMAND",
+    "N-TRANSMISSION"
+  ],
+  "nodes_added": [
+    "INFRA-APS-AVERY-SUBSTATION",
+    "INFRA-APS-TS22-SUBSTATION",
+    "INFRA-APS-BISCUIT-FLATS-500-230KV"
+  ],
+  "edges_added": [
+    {
+      "edge_id": "SEMI-B021-XSLICE-E001",
+      "from": "FAC-SEMI-TSMC-ARIZONA-FIRST-FAB",
+      "relation": "REQUIRES",
+      "to": "N-ELECTRICITY-DEMAND",
+      "evidence_ids": [
+        "EV-SEMI-B021-TSMC-ARIZONA-POWER-230KV-DEPENDENCY"
+      ],
+      "status": "SUPPORTED_CROSS_SLICE"
+    },
+    {
+      "edge_id": "SEMI-B021-XSLICE-E002",
+      "from": "FAC-SEMI-TSMC-ARIZONA-FIRST-FAB",
+      "relation": "REQUIRES_ROBUST_SERVICE_FROM",
+      "to": "N-TRANSMISSION",
+      "evidence_ids": [
+        "EV-SEMI-B021-TSMC-ARIZONA-POWER-230KV-DEPENDENCY",
+        "EV-SEMI-B021-AZCC-TSMC-SUBSTATION-APPROVAL-2021"
+      ],
+      "status": "SUPPORTED_CROSS_SLICE"
+    },
+    {
+      "edge_id": "SEMI-B021-XSLICE-E003",
+      "from": "INFRA-APS-AVERY-SUBSTATION",
+      "relation": "SERVES",
+      "to": "FAC-SEMI-TSMC-ARIZONA-FIRST-FAB",
+      "evidence_ids": [
+        "EV-SEMI-B021-AZCC-TSMC-SUBSTATION-APPROVAL-2021"
+      ],
+      "status": "SUPPORTED_BOUNDED"
+    },
+    {
+      "edge_id": "SEMI-B021-XSLICE-E004",
+      "from": "INFRA-APS-TS22-SUBSTATION",
+      "relation": "SERVES",
+      "to": "FAC-SEMI-TSMC-ARIZONA-FIRST-FAB",
+      "evidence_ids": [
+        "EV-SEMI-B021-TSMC-ARIZONA-POWER-230KV-DEPENDENCY"
+      ],
+      "status": "SUPPORTED_BOUNDED"
+    },
+    {
+      "edge_id": "SEMI-B021-XSLICE-E005",
+      "from": "INFRA-APS-BISCUIT-FLATS-500-230KV",
+      "relation": "PART_OF",
+      "to": "N-TRANSMISSION",
+      "evidence_ids": [
+        "EV-SEMI-B021-TSMC-ARIZONA-POWER-230KV-DEPENDENCY"
+      ],
+      "status": "SUPPORTED_CROSS_SLICE"
+    }
+  ],
+  "cross_slice_edges_added": 3,
+  "bounded_facility_power_dependency_proven": true,
+  "power_constraint_asserted": false,
+  "semantic_limit": "FACILITY_POWER_DEPENDENCY_AND_GRID_BUILDOUT_ARE_PROVEN; ACTIVE_POWER_SHORTAGE_OR_SEMICONDUCTOR_OUTPUT_DELAY_FROM_POWER_IS_NOT_ASSERTED"
+}

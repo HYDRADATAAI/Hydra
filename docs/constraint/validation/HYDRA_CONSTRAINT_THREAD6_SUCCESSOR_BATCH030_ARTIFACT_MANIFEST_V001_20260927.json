@@ -1,0 +1,111 @@
+{
+  "schema_version": "hydra-constraint-thread6-successor-manifest/v1",
+  "record_id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH030_ARTIFACT_MANIFEST_V001",
+  "as_of": "2026-09-27",
+  "repository": "HYDRADATAAI/Hydra",
+  "base_head": "f94fd72e101200126c4f8d7e888ebee4187c86bd",
+  "predecessor_batch": {
+    "id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH029",
+    "preservation": "IMMUTABLE_NOT_REWRITTEN"
+  },
+  "slice_id": "SEMICONDUCTOR_ADVANCED_PACKAGING_CRITICAL_MATERIALS_V1",
+  "result": "PASS_MICRON_QUARANTINE_AND_NON_MICRON_REPLACEMENT_READY_CAPTURE_NOT_EXECUTED",
+  "artifacts": [
+    {
+      "path": "docs/constraint/second_slice/semiconductor_advanced_packaging_critical_materials_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH030_SEMICONDUCTOR_PRIVATE_T1_CAPTURE_QUEUE_V002_20260927.json",
+      "git_blob_sha": "0515773a7d509fb53748e659ddc44812cecdf61f"
+    },
+    {
+      "path": "docs/constraint/second_slice/semiconductor_advanced_packaging_critical_materials_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH030_SEMICONDUCTOR_MICRON_SOURCE_QUARANTINE_V001_20260927.json",
+      "git_blob_sha": "23b252d618e4fc6f86652469c5f4e9eb5dc8c717"
+    },
+    {
+      "path": "docs/constraint/second_slice/semiconductor_advanced_packaging_critical_materials_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH030_SEMICONDUCTOR_NON_MICRON_REPLACEMENT_SOURCE_REGISTRY_V001_20260927.json",
+      "git_blob_sha": "9d857d5fc5f41e8587966a8bff61a505aab43b57"
+    },
+    {
+      "path": "docs/constraint/second_slice/semiconductor_advanced_packaging_critical_materials_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH030_SEMICONDUCTOR_NON_MICRON_REPLACEMENT_EVIDENCE_V001_20260927.json",
+      "git_blob_sha": "4c81915974198270ac48be52478e7b253a7923d4"
+    },
+    {
+      "path": "docs/constraint/second_slice/semiconductor_advanced_packaging_critical_materials_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH030_SEMICONDUCTOR_HBM_YIELD_CONSTRAINT_EVALUATION_V001_20260927.json",
+      "git_blob_sha": "62bbaed687f47716d8f7fa0785243ce294897193"
+    },
+    {
+      "path": "docs/constraint/second_slice/semiconductor_advanced_packaging_critical_materials_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH030_SEMICONDUCTOR_VALID_BENEFICIARY_EVALUATION_V001_20260927.json",
+      "git_blob_sha": "7a4073df4e8954a20ed19b780a5a2faea85dcb0a"
+    },
+    {
+      "path": "docs/constraint/second_slice/semiconductor_advanced_packaging_critical_materials_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH030_SEMICONDUCTOR_CONSTRAINT_MIGRATION_EVALUATION_V001_20260927.json",
+      "git_blob_sha": "2ecf172dc11f46066706268c6238cb5c7147c019"
+    },
+    {
+      "path": "docs/constraint/second_slice/semiconductor_advanced_packaging_critical_materials_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH030_SEMICONDUCTOR_DUPLICATE_SOURCE_INFLATION_EVALUATION_V001_20260927.json",
+      "git_blob_sha": "39c8f7bb92f4a2695a2f097a56e8d262e94994ee"
+    },
+    {
+      "path": "docs/constraint/second_slice/semiconductor_advanced_packaging_critical_materials_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH030_SEMICONDUCTOR_REQUIRED_CASE_OVERLAY_V001_20260927.json",
+      "git_blob_sha": "1f0701cb5b6bbfb0743f86fb069b4308ab19d8f7"
+    },
+    {
+      "path": "docs/constraint/second_slice/semiconductor_advanced_packaging_critical_materials_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH030_SEMICONDUCTOR_MICRON_QUARANTINE_NON_MICRON_REPLACEMENT_STATUS_V001_20260927.json",
+      "git_blob_sha": "1f4812a96d6e336046ce21bc3e9d4aeaceaf59e5"
+    },
+    {
+      "path": "docs/constraint/architecture/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH030_MASTER_STATUS_V001_20260927.json",
+      "git_blob_sha": "d1c49ba3352437881f708aa173b6e3a73a7388cf"
+    },
+    {
+      "path": "docs/constraint/architecture/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH030_SEMICONDUCTOR_CAPABILITY_LEDGER_DELTA_V001_20260927.json",
+      "git_blob_sha": "3bfc4454d09fc428a8a768302923a464cba292a1"
+    },
+    {
+      "path": "docs/constraint/validation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH030_SEMICONDUCTOR_MICRON_QUARANTINE_NON_MICRON_REPLACEMENT_REPORT_V001_20260927.md",
+      "git_blob_sha": "1c28eecceb4f58211337585f50899fce984835d3"
+    }
+  ],
+  "excluded_operational_tools": [
+    {
+      "path": "tools/private/HYDRA_CONSTRAINT_T1_SEMICONDUCTOR_BATCH030_BROWSER_CAPTURE_V001_20260927.py",
+      "reason": "private browser acquisition runner"
+    },
+    {
+      "path": "tools/materialize_constraint_second_slice_batch030_private_t1.py",
+      "reason": "private T1 materializer"
+    },
+    {
+      "path": "tools/verify_constraint_second_slice_batch030_private_t1.py",
+      "reason": "private T1 verifier"
+    },
+    {
+      "path": "tools/build_constraint_second_slice_batch030_private_t1_handback.py",
+      "reason": "private handback builder"
+    },
+    {
+      "path": "tools/private/Invoke-HYDRAConstraintSemiconductorBatch030_V001_20260927.ps1",
+      "reason": "workstation launcher"
+    },
+    {
+      "path": "tools/validate_constraint_second_slice_batch030_micron_quarantine.py",
+      "reason": "public validator"
+    },
+    {
+      "path": "tools/test_constraint_second_slice_batch030_micron_quarantine_adversarial.py",
+      "reason": "hostile test harness"
+    },
+    {
+      "path": ".github/workflows/constraint-second-slice.yml",
+      "reason": "CI orchestration"
+    }
+  ],
+  "expected": {
+    "micron_linked_source_intents_quarantined": 9,
+    "non_micron_replacement_sources_added": 6,
+    "active_capture_source_count": 38,
+    "micron_active_capture_count": 0,
+    "required_cases_covered": "13/14",
+    "remaining_required_case": 12,
+    "raw_source_versions_materialized": 0,
+    "next_required_action": "RUN_BATCH030_MICRON_FREE_BROWSER_CAPTURE"
+  }
+}

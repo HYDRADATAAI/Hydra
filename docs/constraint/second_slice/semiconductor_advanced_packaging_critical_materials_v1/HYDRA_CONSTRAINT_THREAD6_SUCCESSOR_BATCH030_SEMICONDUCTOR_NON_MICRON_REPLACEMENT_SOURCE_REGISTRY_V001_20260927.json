@@ -1,0 +1,113 @@
+{
+  "schema_version": "hydra-constraint-second-slice-source-registry-extension/v1",
+  "record_id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH030_SEMICONDUCTOR_NON_MICRON_REPLACEMENT_SOURCE_REGISTRY_V001",
+  "as_of": "2026-09-27",
+  "slice_id": "SEMICONDUCTOR_ADVANCED_PACKAGING_CRITICAL_MATERIALS_V1",
+  "predecessor_source_registry": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH023_SEMICONDUCTOR_HBM_YIELD_MIGRATION_SOURCE_REGISTRY_V001",
+  "capture_mode": "CURRENT_REVIEW_CONSERVATIVE_AVAILABILITY",
+  "capture_completed_at": "2026-09-27T18:25:00Z",
+  "source_content_persisted": false,
+  "sources": [
+    {
+      "source_id": "SRC-SEMI-B030-SKHYNIX-INVESTMENT-STRATEGY-2026-06-29",
+      "publisher": "SK hynix",
+      "title": "Explainer: SK hynix’s Mid-to-Long-Term Investment Strategy",
+      "url": "https://news.skhynix.com/en/fact-05/",
+      "publication_date": "2026-06-29",
+      "source_family": "COMPANY_CAPACITY_AND_INVESTMENT_STRATEGY",
+      "roles": [
+        "HBM_WAFER_INTENSITY",
+        "USABLE_DIES_PER_WAFER",
+        "FAB_LEAD_TIME",
+        "CAPACITY_LIMITER"
+      ],
+      "acquired_at": "2026-09-27T18:25:00Z",
+      "available_at": "2026-09-27T18:25:00Z",
+      "ordinary_raw_lineage_eligible": false
+    },
+    {
+      "source_id": "SRC-SEMI-B030-SKHYNIX-HBM-SMART-FACTORY-2025-05-02",
+      "publisher": "SK hynix",
+      "title": "SK hynix VP Seungyong Doh Awarded Bronze Tower Order of Industrial Service Merit, Aims to Enhance HBM Manufacturing Through AI & DT-Based Smart Factories",
+      "url": "https://news.skhynix.com/en/sk-hynix-vp-seungyong-doh-awarded-bronze-tower-order-of-industrial-service-merit/",
+      "publication_date": "2025-05-02",
+      "source_family": "COMPANY_MANUFACTURING_TECHNICAL_STORY",
+      "roles": [
+        "HBM_BOTTLENECK_RELIEF",
+        "YIELD_IMPROVEMENT",
+        "PRODUCTIVITY_IMPROVEMENT",
+        "HBM_SALES_CAPTURE"
+      ],
+      "acquired_at": "2026-09-27T18:25:00Z",
+      "available_at": "2026-09-27T18:25:00Z",
+      "ordinary_raw_lineage_eligible": false
+    },
+    {
+      "source_id": "SRC-SEMI-B030-SKHYNIX-2Q25-FINANCIAL-RESULTS-2025-07-23",
+      "publisher": "SK hynix",
+      "title": "SK hynix Announces 2Q25 Financial Results",
+      "url": "https://news.skhynix.com/en/sk-hynix-announces-2q25-financial-results/",
+      "publication_date": "2025-07-23",
+      "source_family": "COMPANY_EARNINGS_PRIMARY",
+      "roles": [
+        "HBM_SALES",
+        "AI_MEMORY_FINANCIAL_CAPTURE",
+        "HBM3E_EXPANDED_SALES"
+      ],
+      "acquired_at": "2026-09-27T18:25:00Z",
+      "available_at": "2026-09-27T18:25:00Z",
+      "ordinary_raw_lineage_eligible": false
+    },
+    {
+      "source_id": "SRC-SEMI-B030-SKHYNIX-COMPUTEX-2025-06-05",
+      "publisher": "SK hynix",
+      "title": "SK hynix Showcases HBM4 & Next-Gen AI Memory at COMPUTEX Taipei 2025",
+      "url": "https://news.skhynix.com/en/sk-hynix-showcases-hbm4-next-gen-ai-memory-at-computex-taipei-2025/",
+      "publication_date": "2025-06-05",
+      "source_family": "COMPANY_PRODUCT_PLATFORM_PRIMARY",
+      "roles": [
+        "HBM3E_NVIDIA_GB200_CONNECTION",
+        "CUSTOMER_PLATFORM_ADDRESSABILITY"
+      ],
+      "acquired_at": "2026-09-27T18:25:00Z",
+      "available_at": "2026-09-27T18:25:00Z",
+      "ordinary_raw_lineage_eligible": false
+    },
+    {
+      "source_id": "SRC-SEMI-B030-SAMSUNG-AMD-COLLAB-GLOBAL-2026-03-18",
+      "publisher": "Samsung Electronics",
+      "title": "Samsung and AMD Expand Strategic Collaboration on Next-Generation AI Memory Solutions",
+      "url": "https://news.samsung.com/global/samsung-and-amd-expand-strategic-collaboration-on-next-generation-ai-memory-solutions",
+      "publication_date": "2026-03-18",
+      "source_family": "COMPANY_PRIMARY_PRESS_RELEASE",
+      "roles": [
+        "DUPLICATE_EVIDENCE_ORIGIN",
+        "AMD_HBM3E_PLATFORM"
+      ],
+      "acquired_at": "2026-09-27T18:25:00Z",
+      "available_at": "2026-09-27T18:25:00Z",
+      "ordinary_raw_lineage_eligible": false
+    },
+    {
+      "source_id": "SRC-SEMI-B030-SAMSUNG-AMD-COLLAB-KOREA-2026-03-18",
+      "publisher": "Samsung Electronics",
+      "title": "삼성전자·AMD, 차세대 AI 메모리 솔루션 협력 확대",
+      "url": "https://news.samsung.com/kr/%EC%82%BC%EC%84%B1%EC%A0%84%EC%9E%90%C2%B7amd-%EC%B0%A8%EC%84%B8%EB%8C%80-ai-%EB%A9%94%EB%AA%A8%EB%A6%AC-%EC%86%94%EB%A3%A8%EC%85%98-%ED%98%91%EB%A0%A5-%ED%99%95%EB%8C%80",
+      "publication_date": "2026-03-18",
+      "source_family": "COMPANY_TRANSLATION_DUPLICATE",
+      "roles": [
+        "DUPLICATE_EVIDENCE_TRANSLATION_COPY",
+        "AMD_HBM3E_PLATFORM"
+      ],
+      "acquired_at": "2026-09-27T18:25:00Z",
+      "available_at": "2026-09-27T18:25:00Z",
+      "ordinary_raw_lineage_eligible": false
+    }
+  ],
+  "rules": [
+    "NO_MICRON_SOURCE_REENTRY",
+    "CURRENT_REVIEW_DOES_NOT_CREATE_HISTORICAL_RAW_LINEAGE",
+    "SAMSUNG_GLOBAL_AND_KOREA_TRANSLATION_SHARE_ONE_INDEPENDENCE_CLUSTER",
+    "SK_HYNIX_PLATFORM_CONNECTION_PLUS_REALIZED_HBM_SALES_MAY_SUPPORT_SHADOW_BENEFICIARY_PATTERN_WITHOUT_CANONICAL_ADMISSION"
+  ]
+}

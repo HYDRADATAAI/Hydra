@@ -1,0 +1,45 @@
+{
+  "record_id": "HYDRA_CONSTRAINT_AI_DATA_CENTER_POWER_PASS001_EXECUTION_RECEIPT_V001_20260926",
+  "status": "VERTICAL_INTEGRATION_THIN",
+  "owner_parent_commit": "425ea997853e69bc41265fa1f142112cc7161329",
+  "before_repair_new_tests": {
+    "passed": 4,
+    "failed": 5
+  },
+  "owner_stack_after_repair": {
+    "tests_passed": 121,
+    "subtests_passed": 196
+  },
+  "main_first_slice_hostile_mutations_passed": 9,
+  "main_acceptance_hostile_mutations_passed": 11,
+  "ordinary_historical_replay": "BLOCKED",
+  "full_required_vertical": "NOT_PROVEN",
+  "synthetic_tests_are_historical_evidence": false,
+  "remote_ci": "NOT_CLAIMED",
+  "artifacts": [
+    {
+      "path": ".github/workflows/constraint-policy-integration.yml",
+      "sha256": "5b6e171823285341083eea0b16027ea5be53cf74113982dc4954ec7e70ac705d"
+    },
+    {
+      "path": "constraint-physical-dependency/src/hydra_constraint_physical/graph.py",
+      "sha256": "11e3ac1baa450799eedfda236b257ae4122967b3117fbbf4fe29aa93045c24a5"
+    },
+    {
+      "path": "constraint-physical-dependency/tests/test_physical_graph.py",
+      "sha256": "c9ffd34e8321129386ab32a7ddc14a9e1d97f67f3361541f84b2600c68ef10f3"
+    },
+    {
+      "path": "constraint-physical-dependency/tests/test_HYDRA_CONSTRAINT_AI_POWER_PASS001_PROVENANCE_PIT_20260926.py",
+      "sha256": "4d65bd03e594a828bdf9dd3da9f43812c90d588209509505653b3371b44ae36c"
+    },
+    {
+      "path": "docs/constraint/validation/HYDRA_CONSTRAINT_AI_DATA_CENTER_POWER_PASS001_OWNER_REPAIR_AND_VERTICAL_GAPS_V001_20260926.md",
+      "sha256": "d546abaaa3ec15310513527d0f8503f3adeb175d4ee6d9025c729f58207087c8"
+    },
+    {
+      "path": "docs/constraint/validation/HYDRA_CONSTRAINT_AI_DATA_CENTER_POWER_PASS001_SUPPORT_AUDIT_V001_20260926.json",
+      "sha256": "5fa2bc6c3a5f6b2620ebb7a41169e4055e9767f35c471bd0313c6264ac53342f"
+    }
+  ]
+}

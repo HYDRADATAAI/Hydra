@@ -1,0 +1,64 @@
+{
+  "schema_version": "hydra-constraint-thread6-master-status/v1",
+  "record_id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH030_MASTER_STATUS_V001",
+  "as_of": "2026-09-27",
+  "predecessor": {
+    "record_id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH029_MASTER_STATUS_V001",
+    "mutation": "NONE"
+  },
+  "active_verticals": {
+    "AI_DATA_CENTER_POWER_INFRASTRUCTURE_V1": {
+      "status": "PUBLIC_REPO_SIDE_EXHAUSTED_EXTERNAL_GATES_REMAIN",
+      "first_serious_constraint_run": "BLOCKED"
+    },
+    "SEMICONDUCTOR_ADVANCED_PACKAGING_CRITICAL_MATERIALS_V1": {
+      "status": "MICRON_FREE_CAPTURE_QUEUE_READY_PRIVATE_CAPTURE_NOT_EXECUTED",
+      "first_serious_constraint_run": "BLOCKED"
+    }
+  },
+  "readiness": {
+    "SEMANTIC_ARCHITECTURE_READY": {
+      "status": "YES"
+    },
+    "SECOND_SLICE_PUBLIC_REPO_ACCEPTANCE_BLOCKERS": {
+      "status": "NONE"
+    },
+    "SECOND_SLICE_PROVIDER_EXCLUSION_POLICY": {
+      "status": "ACTIVE_MICRON_QUARANTINED",
+      "quarantined_count": 9
+    },
+    "SECOND_SLICE_REQUIRED_CASES": {
+      "status": "PARTIAL_EXTERNAL_ONLY",
+      "covered": 13,
+      "total": 14
+    },
+    "SECOND_SLICE_MICRON_DEPENDENT_ACTIVE_CASES": {
+      "status": "NONE"
+    },
+    "SECOND_SLICE_PRIVATE_CAPTURE_QUEUE": {
+      "status": "READY_MICRON_FREE",
+      "source_count": 38
+    },
+    "SECOND_SLICE_RAW_SOURCE_VERSIONS": {
+      "status": "NO"
+    },
+    "SECOND_SLICE_T1_RELEASE": {
+      "status": "NO"
+    },
+    "SECOND_SLICE_ORDINARY_T2_ELIGIBILITY": {
+      "status": "NO"
+    },
+    "SECOND_SLICE_REPLAY_READY": {
+      "status": "NO"
+    },
+    "SECOND_SLICE_IMPLEMENTATION_ADMITTED": {
+      "status": "NO"
+    },
+    "FULL_CONSTRAINT_RUN_READY": {
+      "status": "NO"
+    }
+  },
+  "first_serious_constraint_run": "BLOCKED",
+  "next_required_action": "RUN_BATCH030_MICRON_FREE_BROWSER_CAPTURE",
+  "next_repo_executable_lane": "NONE"
+}

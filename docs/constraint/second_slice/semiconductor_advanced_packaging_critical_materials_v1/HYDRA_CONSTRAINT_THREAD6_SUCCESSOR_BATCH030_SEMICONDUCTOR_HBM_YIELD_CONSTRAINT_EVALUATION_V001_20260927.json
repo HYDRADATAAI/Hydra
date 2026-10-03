@@ -1,0 +1,23 @@
+{
+  "schema_version": "hydra-constraint-second-slice-yield-constraint-evaluation/v1",
+  "record_id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH030_SEMICONDUCTOR_HBM_YIELD_CONSTRAINT_EVALUATION_V001",
+  "as_of": "2026-09-27",
+  "slice_id": "SEMICONDUCTOR_ADVANCED_PACKAGING_CRITICAL_MATERIALS_V1",
+  "predecessor_evaluation": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH023_SEMICONDUCTOR_HBM_YIELD_CONSTRAINT_EVALUATION_V001",
+  "evaluation": {
+    "case_id": 3,
+    "constraint_variant": "SKHYNIX_HBM_EFFECTIVE_OUTPUT_PENALTY_FROM_TSV_DIE_SIZE_AND_PACKAGING_COMPLEXITY",
+    "nominal_capacity_proxy": "WAFER_CAPACITY",
+    "usable_output_metric": "USABLE_DIES_AND_MEMORY_CAPACITY_PER_WAFER",
+    "physical_capacity_state": "WAFER_CAPACITY_EXISTS",
+    "yield_and_packaging_effect": "FEWER_USABLE_DIES_PER_WAFER_PLUS_COMPLEX_STACKING",
+    "effective_output_effect": "MORE_WAFERS_REQUIRED_FOR_SAME_MEMORY_CAPACITY",
+    "numeric_yield_percentage": null,
+    "evidence_ids": [
+      "EV-SEMI-B030-SKHYNIX-HBM-WAFER-OUTPUT-PENALTY-2026"
+    ],
+    "binding_effective_output_constraint_proven": true,
+    "coverage_state": "COVERED_REVIEWED_SHADOW_REAL_PRIMARY_NON_MICRON",
+    "semantic_limit": "NO_NUMERIC_YIELD_PERCENTAGE_OR_INDUSTRYWIDE_UNIFORMITY_INFERRED"
+  }
+}
