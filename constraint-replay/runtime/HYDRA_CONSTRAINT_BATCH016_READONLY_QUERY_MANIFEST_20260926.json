@@ -7,7 +7,7 @@
   "implementation": {
     "module": {
       "path": "constraint-replay/src/hydra_constraint_replay/query.py",
-      "git_blob_sha": "db99060cfa0adea885b06a8a771a2f913c2d0930"
+      "git_blob_sha": "4da918395a981d089719ba28f5d1c0f803519034"
     },
     "cli": {
       "path": "constraint-replay/scripts/query_HYDRA_CONSTRAINT_BATCH016_readonly_replay_20260926.py",
