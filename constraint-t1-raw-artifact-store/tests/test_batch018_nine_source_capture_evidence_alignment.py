@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import hashlib
 import json
 import re
 import subprocess
@@ -121,6 +122,40 @@ class Batch018NineSourceCaptureEvidenceTests(unittest.TestCase):
         self.assertEqual("NO", readiness["IMPLEMENTATION_ADMITTED"]["status"])
         self.assertFalse(self.master_status["t5_to_t6_admission_receipt_issued"])
         self.assertEqual("BLOCKED", self.master_status["first_serious_constraint_run"])
+
+
+    def test_public_json_hash_references_bind_exact_committed_bytes(self):
+        """Public file digests bind Git blob bytes, independent of checkout EOL."""
+        self.assertEqual(
+            ATTESTATION.relative_to(ROOT).as_posix(),
+            self.inventory["materialization_attestation"]["repository_copy"],
+        )
+        self.assertEqual(
+            INVENTORY.relative_to(ROOT).as_posix(),
+            self.status["source_hash_inventory"]["path"],
+        )
+        references = (
+            ("inventory.materialization_attestation.sha256",
+             self.inventory["materialization_attestation"]["sha256"], ATTESTATION),
+            ("status.materialization_attestation_sha256",
+             self.status["materialization_attestation_sha256"], ATTESTATION),
+            ("status.source_hash_inventory.sha256",
+             self.status["source_hash_inventory"]["sha256"], INVENTORY),
+        )
+        for label, recorded_sha256, target in references:
+            with self.subTest(reference=label):
+                # Do not normalize newlines or accept a worktree serialization.
+                # Private artifact, receipt and release digests are separate.
+                committed_bytes = subprocess.check_output(
+                    ["git", "cat-file", "blob",
+                     f"HEAD:{target.relative_to(ROOT).as_posix()}"],
+                    cwd=ROOT,
+                )
+                self.assertEqual(
+                    hashlib.sha256(committed_bytes).hexdigest(),
+                    recorded_sha256,
+                    f"{label} must bind the exact committed public file bytes",
+                )
 
     def test_successor_artifact_manifest_binds_committed_blob_contents(self):
         for artifact in self.artifact_manifest.get("superseded_artifacts", []):

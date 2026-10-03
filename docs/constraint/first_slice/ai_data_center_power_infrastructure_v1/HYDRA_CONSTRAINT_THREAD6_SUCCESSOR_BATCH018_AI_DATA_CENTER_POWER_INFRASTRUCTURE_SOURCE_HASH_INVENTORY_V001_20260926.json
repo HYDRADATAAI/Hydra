@@ -9,7 +9,7 @@
     "release_sha256": "36ae988d4841afd41cd95d157d2cd1903d91e1699280ee603453a31c0be07bd8",
     "repository_copy": "docs/constraint/validation/HYDRA_CONSTRAINT_BATCH018_T1_NINE_SOURCE_MATERIALIZATION_ATTESTATION_V001_20260926.json",
     "schema_version": "hydra-constraint-first-slice-private-materialization-attestation/v1",
-    "sha256": "74e3b4ef710f1da8910d5588882cfa0672b59f93e8636ce902e3fa34237ad05e"
+    "sha256": "fe68784920a6b5437457792fc0c2cd410269f991be76ad85cff766e8df84d81b"
   },
   "materialized_source_count": 9,
   "members": [
