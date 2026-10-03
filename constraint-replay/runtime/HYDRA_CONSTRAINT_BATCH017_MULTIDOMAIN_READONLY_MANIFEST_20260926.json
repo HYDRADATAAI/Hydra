@@ -30,7 +30,7 @@
   ],
   "replay_query_manifest": {
     "path": "constraint-replay/runtime/HYDRA_CONSTRAINT_BATCH016_READONLY_QUERY_MANIFEST_20260926.json",
-    "git_blob_sha": "1cd237447d2c65cd3897bc2f233f82818300d81c"
+    "git_blob_sha": "36a9aa94b57b54a5c0f2e93df6fc203b40d2a327"
   },
   "source_pairs": [
     {
