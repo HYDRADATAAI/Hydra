@@ -1,0 +1,96 @@
+{
+  "schema_version": "hydra-constraint-second-slice-capture-locator-remediation/v1",
+  "record_id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH029_SEMICONDUCTOR_MICRON_CAPTURE_LOCATOR_REMEDIATION_V001",
+  "as_of": "2026-09-27",
+  "slice_id": "SEMICONDUCTOR_ADVANCED_PACKAGING_CRITICAL_MATERIALS_V1",
+  "predecessor_batch": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH028",
+  "purpose": "RUNTIME_RESOLUTION_OF_STALE_MICRON_STATIC_FILE_CAPTURE_LOCATORS",
+  "source_identity_mutated": false,
+  "predecessor_registries_mutated": false,
+  "batch026_queue_mutated": false,
+  "resolution_authority_page": "https://investors.micron.com/financials/quarterly-results/default.aspx",
+  "resolution_policy": {
+    "allowed_resolved_host": "s25.q4cdn.com",
+    "required_account_path_prefix": "/621799436/files/doc_financials/",
+    "https_required": true,
+    "cross_origin_redirect_after_resolution_allowed": false,
+    "record_actual_resolved_locator_in_capture_sidecar": true,
+    "preserve_original_registered_locator_in_predecessor_queue": true
+  },
+  "remediations": [
+    {
+      "source_id": "SRC-SEMI-MICRON-Q2FY25-REMARKS-2025-03-20",
+      "ordinal": 1,
+      "original_source_locator": "https://investors.micron.com/static-files/52ce0c07-49dc-4eab-b1d2-a67bde373bca",
+      "fiscal_year": 2025,
+      "fiscal_quarter": "q2",
+      "document_kind": "prepared_remarks",
+      "required_path_prefix": "/621799436/files/doc_financials/2025/q2/"
+    },
+    {
+      "source_id": "SRC-SEMI-B021-MICRON-Q1FY26-REMARKS-2025-12-17",
+      "ordinal": 26,
+      "original_source_locator": "https://investors.micron.com/static-files/088991c5-a249-4f66-a0a6-258d9b66f3f9",
+      "fiscal_year": 2026,
+      "fiscal_quarter": "q1",
+      "document_kind": "prepared_remarks",
+      "required_path_prefix": "/621799436/files/doc_financials/2026/q1/"
+    },
+    {
+      "source_id": "SRC-SEMI-B021-MICRON-Q3FY24-REMARKS-2024-06-26",
+      "ordinal": 27,
+      "original_source_locator": "https://investors.micron.com/static-files/4550f98c-1054-4847-a929-c17d520a0564",
+      "fiscal_year": 2024,
+      "fiscal_quarter": "q3",
+      "document_kind": "prepared_remarks",
+      "required_path_prefix": "/621799436/files/doc_financials/2024/q3/"
+    },
+    {
+      "source_id": "SRC-SEMI-B021-MICRON-Q3FY25-REMARKS-2025-06-25",
+      "ordinal": 28,
+      "original_source_locator": "https://investors.micron.com/static-files/39bb28c4-dd18-4097-a1fe-e5eb4956bcfc",
+      "fiscal_year": 2025,
+      "fiscal_quarter": "q3",
+      "document_kind": "prepared_remarks",
+      "required_path_prefix": "/621799436/files/doc_financials/2025/q3/"
+    },
+    {
+      "source_id": "SRC-SEMI-B021-MICRON-Q4FY25-REMARKS-2025-09-23",
+      "ordinal": 29,
+      "original_source_locator": "https://investors.micron.com/static-files/5ea95475-639b-4cfc-91fd-b9b4a2bb5e63",
+      "fiscal_year": 2025,
+      "fiscal_quarter": "q4",
+      "document_kind": "prepared_remarks",
+      "required_path_prefix": "/621799436/files/doc_financials/2025/q4/"
+    },
+    {
+      "source_id": "SRC-SEMI-B023-MICRON-Q1FY24-REMARKS-2023-12-20",
+      "ordinal": 39,
+      "original_source_locator": "https://investors.micron.com/static-files/4e2b9359-c174-49b6-9c68-2b938b3c33d2",
+      "fiscal_year": 2024,
+      "fiscal_quarter": "q1",
+      "document_kind": "prepared_remarks",
+      "required_path_prefix": "/621799436/files/doc_financials/2024/q1/"
+    },
+    {
+      "source_id": "SRC-SEMI-B023-MICRON-Q2FY26-MARKET-OUTLOOK-2026-03-18",
+      "ordinal": 40,
+      "original_source_locator": "https://investors.micron.com/static-files/9c0becf5-df56-4eec-bd67-453dda68b273",
+      "fiscal_year": 2026,
+      "fiscal_quarter": "q2",
+      "document_kind": "presentation",
+      "required_path_prefix": "/621799436/files/doc_financials/2026/q2/"
+    }
+  ],
+  "runtime_resolution_requirements": [
+    "LOAD_OFFICIAL_MICRON_QUARTERLY_RESULTS_PAGE",
+    "SELECT_LINK_MATCHING_FISCAL_YEAR_QUARTER_AND_DOCUMENT_KIND",
+    "RESOLVED_SCHEME_MUST_BE_HTTPS",
+    "RESOLVED_HOST_MUST_EQUAL_S25_Q4CDN_COM",
+    "RESOLVED_PATH_MUST_MATCH_REQUIRED_QUARTER_PREFIX",
+    "PREPARED_REMARKS_FILENAME_OR_LINK_TEXT_MUST_INDICATE_PREPARED_REMARKS",
+    "PRESENTATION_FILENAME_OR_LINK_TEXT_MUST_INDICATE_PRESENTATION_OR_EARNINGS_DECK",
+    "CAPTURED_DOCUMENT_MUST_STILL_VALIDATE_AS_PDF",
+    "SIDECAR_SOURCE_LOCATOR_MUST_BE_ACTUAL_RESOLVED_LOCATOR"
+  ]
+}

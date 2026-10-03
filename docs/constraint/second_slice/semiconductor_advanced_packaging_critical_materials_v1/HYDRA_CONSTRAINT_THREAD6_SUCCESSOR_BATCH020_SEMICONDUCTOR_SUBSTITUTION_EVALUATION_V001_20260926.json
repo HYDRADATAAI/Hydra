@@ -1,0 +1,28 @@
+{
+  "schema_version": "hydra-constraint-second-slice-substitution-evaluation/v1",
+  "record_id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH020_SEMICONDUCTOR_SUBSTITUTION_EVALUATION_V001",
+  "as_of": "2026-09-26",
+  "slice_id": "SEMICONDUCTOR_ADVANCED_PACKAGING_CRITICAL_MATERIALS_V1",
+  "evaluations": [
+    {
+      "substitution_id": "SUB-SEMI-SAMSUNG-HBM3E-2024-001",
+      "parent_constraint_candidate_id": "T5C-SEMI-HBM-BOOKED-SUPPLY-2024-2025-001",
+      "substitute_entity_id": "ENTITY-SAMSUNG",
+      "substitute_product_class": "HBM3E",
+      "technical_capability_state": "PARTIAL_PROVEN",
+      "production_state": "HBM3E_8H_MASS_PRODUCTION_PROVEN_2024_04",
+      "specific_target_qualification_state": "UNKNOWN_NOT_PROVEN",
+      "unbooked_addressable_capacity_state": "UNKNOWN_NOT_PROVEN",
+      "switching_time_state": "UNKNOWN_NOT_PROVEN",
+      "commercial_capture_state": "UNKNOWN_NOT_PROVEN",
+      "substitution_state": "POTENTIAL_NOT_QUALIFIED",
+      "evidence_ids": [
+        "EV-SEMI-B020-SAMSUNG-HBM3E12H-DEVELOPMENT",
+        "EV-SEMI-B020-SAMSUNG-HBM3E8H-MASS-PRODUCTION"
+      ],
+      "ordinary_t6_eligible": false,
+      "semantic_limit": "SUPPLIER_CAPABILITY_DOES_NOT_EQUAL_QUALIFIED_AVAILABLE_SUBSTITUTE"
+    }
+  ],
+  "qualified_substitution_count": 0
+}

@@ -1,0 +1,100 @@
+name: Thread H temporal consistency Windows
+
+on:
+  push:
+    branches: [nyx/thread-h-temporal-consistency-20261003]
+  pull_request:
+    paths:
+      - constraint-t1-raw-artifact-store/**
+      - .github/workflows/nyx-thread-h-temporal-consistency-windows.yml
+
+permissions:
+  contents: read
+
+jobs:
+  temporal-input:
+    runs-on: windows-latest
+    defaults:
+      run:
+        shell: pwsh
+    env:
+      PYTHONDONTWRITEBYTECODE: '1'
+      PYTHONUTF8: '1'
+    steps:
+      - name: Preserve exact Git blob checkout bytes
+        run: git config --global core.autocrlf false
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Bind exact head and D drive workspace
+        run: |
+          if (-not $env:GITHUB_WORKSPACE.StartsWith('D:\', [StringComparison]::OrdinalIgnoreCase)) { throw 'D: workspace required' }
+          New-Item -ItemType Directory -Force D:\nyx-thread-h-consistency-temp | Out-Null
+          'TEMP=D:\nyx-thread-h-consistency-temp' | Out-File -Append $env:GITHUB_ENV
+          'TMP=D:\nyx-thread-h-consistency-temp' | Out-File -Append $env:GITHUB_ENV
+          "PYTHONPATH=$env:GITHUB_WORKSPACE\constraint-t1-raw-artifact-store\src" | Out-File -Append $env:GITHUB_ENV
+          git rev-parse HEAD 'HEAD^{tree}'
+          python --version
+          $rows = git ls-files | ForEach-Object { [pscustomobject]@{ path = $_; sha256 = (Get-FileHash -Algorithm SHA256 -LiteralPath $_).Hash.ToLowerInvariant() } }
+          $rows | ConvertTo-Json -Depth 4 | Set-Content D:\nyx-thread-h-consistency-temp\before.json
+      - name: Entire T1 suite including temporal consistency regressions
+        working-directory: constraint-t1-raw-artifact-store
+        run: python -B -m unittest discover -s tests -t . -v
+      - name: Rebuild archived metadata without changing historical evidence
+        if: always()
+        run: |
+          python -B tools/build_constraint_second_slice_batch033_ordinary_t2_lineage.py --output D:\nyx-thread-h-consistency-temp\lineage.json
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          @'
+          import hashlib
+          from pathlib import Path
+          import subprocess
+          import sys
+          relative = "docs/constraint/second_slice/semiconductor_advanced_packaging_critical_materials_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH033_SEMICONDUCTOR_ORDINARY_T2_SOURCE_VERSION_LINEAGE_V001_20260928.json"
+          reviewed_blob = "103bc591529d3e87ffcafee93cf17c28d42a666c"
+          tracked = subprocess.check_output(["git", "rev-parse", "HEAD:" + relative], text=True).strip()
+          if tracked != reviewed_blob:
+              raise SystemExit("Batch033 reviewed Git blob pin changed")
+          expected = subprocess.check_output(["git", "cat-file", "blob", reviewed_blob])
+          if b"\r" in expected or not expected.endswith(b"\n"):
+              raise SystemExit("Batch033 reviewed Git blob is not LF-only")
+          if Path(relative).read_bytes() != expected:
+              raise SystemExit("Batch033 checkout differs from exact reviewed Git blob")
+          windows_expected = expected.replace(b"\n", b"\r\n")
+          actual = Path(sys.argv[1]).read_bytes()
+          if actual != windows_expected:
+              raise SystemExit("Batch033 Windows CLI bytes differ from reviewed LF-to-CRLF serialization")
+          print(f"BATCH033_REVIEWED_BLOB_SHA256={hashlib.sha256(expected).hexdigest()}; BYTES={len(expected)}")
+          print(f"BATCH033_WINDOWS_OUTPUT_SHA256={hashlib.sha256(actual).hexdigest()}; BYTES={len(actual)}")
+          '@ | python -B - D:\nyx-thread-h-consistency-temp\lineage.json
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          python -B tools/test_constraint_second_slice_batch034_builder_bytes.py -v
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          'BATCH033_WINDOWS_SERIALIZATION_MATCHES_REVIEWED_GIT_BLOB=YES; BATCH034_REVIEWED_GIT_BLOB_BYTES_REPRODUCED=YES; TIMESTAMP_AUTHORITY_VERIFIED=NO'
+      - name: Integrated Batch034 validator and hostile tests
+        if: always()
+        run: |
+          python -B tools/validate_constraint_second_slice_batch034_t2_evidence_lineage.py
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          python -B tools/test_constraint_second_slice_batch034_t2_evidence_lineage_adversarial.py -v
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Integrated V018 unresolved-gate tests
+        if: always()
+        run: |
+          $env:PYTHONPATH = "$env:GITHUB_WORKSPACE\constraint-runtime\src"
+          python -B -m unittest discover -s constraint-runtime/tests -v
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Confirm all source hashes unchanged
+        if: always()
+        run: |
+          $before = Get-Content D:\nyx-thread-h-consistency-temp\before.json -Raw | ConvertFrom-Json
+          foreach ($row in $before) {
+            if ((Get-FileHash -Algorithm SHA256 -LiteralPath $row.path).Hash.ToLowerInvariant() -ne $row.sha256) { throw "Source changed: $($row.path)" }
+          }
+          $status = git status --porcelain
+          if ($status) { throw "Repository changed: $status" }
+          "SOURCE_HASHES_STABLE=$($before.Count)"
+          git rev-parse HEAD 'HEAD^{tree}'

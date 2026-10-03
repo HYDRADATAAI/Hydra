@@ -1,0 +1,33 @@
+{
+  "schema_version": "hydra-constraint-second-slice-constraint-migration-evaluation/v1",
+  "record_id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH030_SEMICONDUCTOR_CONSTRAINT_MIGRATION_EVALUATION_V001",
+  "as_of": "2026-09-27",
+  "slice_id": "SEMICONDUCTOR_ADVANCED_PACKAGING_CRITICAL_MATERIALS_V1",
+  "evaluations": [
+    {
+      "migration_id": "MIG-SEMI-SKHYNIX-HBM-PROCESS-TO-WAFER-CAPACITY-001",
+      "chain_scope": "SK_HYNIX_HBM_SUPPLY_CHAIN",
+      "old_limiting_mechanism": "HBM_PROCESS_BOTTLENECKS_AND_YIELD",
+      "old_constraint_support": [
+        "EV-SEMI-B022-SKHYNIX-HBM-YIELD-COMPLEXITY-2025"
+      ],
+      "relief_event": {
+        "state": "OBSERVED_PARTIAL_RELIEF",
+        "evidence_ids": [
+          "EV-SEMI-B030-SKHYNIX-HBM-BOTTLENECK-YIELD-RELIEF-2025",
+          "EV-SEMI-B030-SKHYNIX-HBM-SALES-4P5X-2024"
+        ],
+        "observed_change": "BOTTLENECK_PROCESS_PRODUCTIVITY_UP_31_PERCENT_AND_YIELD_UP_21_PERCENT_WITH_HBM_SALES_UP_4P5X"
+      },
+      "new_limiting_mechanism": "WAFER_CAPACITY_AND_MULTI_YEAR_FAB_BUILD_LEAD_TIME",
+      "new_constraint_evidence": [
+        "EV-SEMI-B030-SKHYNIX-HBM-WAFER-OUTPUT-PENALTY-2026"
+      ],
+      "migration_state": "COVERED_REVIEWED_SHADOW_REAL_PRIMARY_NON_MICRON",
+      "case_11_coverage": true,
+      "systemwide_resolution_asserted": false,
+      "semantic_rule": "OBSERVED_RELIEF_OF_PROCESS_LIMITER_DOES_NOT_REMOVE_WAFER_AND_FAB_CAPACITY_LIMITER"
+    }
+  ],
+  "covered_migration_count": 1
+}

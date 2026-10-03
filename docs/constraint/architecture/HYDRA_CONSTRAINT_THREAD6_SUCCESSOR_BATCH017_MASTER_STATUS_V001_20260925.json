@@ -8,7 +8,7 @@
   },
   "acceptance_gate": {
     "status": "BLOCKED",
-    "artifact": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH016_AI_DATA_CENTER_POWER_INFRASTRUCTURE_STRICT_ACCEPTANCE_GATE_V001"
+    "artifact": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH017_AI_DATA_CENTER_POWER_INFRASTRUCTURE_STRICT_ACCEPTANCE_GATE_V001"
   },
   "readiness": {
     "SEMANTIC_ARCHITECTURE_READY": {"status": "YES"},
@@ -55,5 +55,18 @@
     "ACCEPT-014-EVAL-003-ORDINARY-REPLAY-NOT-READY"
   ],
   "repo_executable_blockers": [],
-  "next_repo_executable_lane": "NONE_FIRST_SLICE_ACCEPTANCE_REQUIRES_PRIVATE_RAW_MATERIALIZATION_AND_NATIVE_ADMISSION"
+  "next_repo_executable_lane": "NONE_FIRST_SLICE_ACCEPTANCE_REQUIRES_PRIVATE_RAW_MATERIALIZATION_AND_NATIVE_ADMISSION",
+  "batch017_outcome_supplement": {
+    "outcome_id": "OUT-AIDC-SCHNEIDER-EL-PASO-DC-CUSTOMER-SHIPMENT-001",
+    "records_added": 1,
+    "total_real_outcome_records": 6,
+    "evaluation_mapping": "SUPPLEMENTAL_CONTEXT_ONLY",
+    "counts_as_direct_core_dimension_match": false
+  },
+  "nyx_bounded_repo_lane_assignment": {
+    "tracker_artifact": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH017_NYX_ASSIGNMENT_TRACKER_V001",
+    "owner": "NYX",
+    "lane": "FIRST-SLICE-REAL-OUTCOME-COVERAGE-EXPANSION",
+    "status": "COMPLETED_IN_BATCH017"
+  }
 }

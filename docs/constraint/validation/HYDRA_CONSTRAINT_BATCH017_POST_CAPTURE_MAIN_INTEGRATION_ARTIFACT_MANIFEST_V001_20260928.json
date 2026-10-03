@@ -1,0 +1,56 @@
+{
+  "schema_version": "hydra-constraint-batch017-post-capture-main-integration-manifest/v1",
+  "record_id": "HYDRA_CONSTRAINT_BATCH017_POST_CAPTURE_MAIN_INTEGRATION_ARTIFACT_MANIFEST_V001_20260928",
+  "as_of": "2026-09-28",
+  "repository": "HYDRADATAAI/Hydra",
+  "base_main_commit": "6d7adeb5766a48a36ea52fc4b5fa847f8005d5ba",
+  "source_capture_head": "bd029fba4433a42d5313a7bc98305af0986c3337",
+  "integration_branch": "constraint/t1-post-capture-main-integration-20260928",
+  "scope": "SANITIZED_POST_CAPTURE_CURRENT_SOURCE_CUSTODY_CLOSURE_ONLY",
+  "predecessor_artifacts_rewritten": false,
+  "raw_source_bodies_published": false,
+  "private_paths_published": false,
+  "historical_backdating_performed": false,
+  "ordinary_historical_replay_promoted": false,
+  "native_t5_t6_admission_promoted": false,
+  "canonical_admission_promoted": false,
+  "integrated_artifacts": [
+    {
+      "path": "docs/constraint/architecture/HYDRA_CONSTRAINT_BATCH017_POST_CAPTURE_PUBLIC_STATUS_V001_20260926.json",
+      "git_blob_sha": "cfc3b61a8770bc56527d583a5bf385d03ba7b5e9",
+      "role": "VALIDATED_SANITIZED_RUNTIME_STATUS"
+    },
+    {
+      "path": "docs/constraint/architecture/HYDRA_CONSTRAINT_BATCH017_NINE_SOURCE_PRIVATE_RECORD_STATUS_V002_20260928.json",
+      "git_blob_sha": "76ebc0860006fdefdda7bf66e241a93e80c12192",
+      "role": "IMMUTABLE_SUCCESSOR_TO_PRE_CAPTURE_V001_STATUS"
+    },
+    {
+      "path": "constraint-t1-raw-artifact-store/tests/test_batch017_post_capture_public_status_integration.py",
+      "git_blob_sha": "da04fb3886c412144bdaf72e9b167a5a3a3c9be7",
+      "role": "EXECUTABLE_EXACT_REGISTRY_AND_FAIL_CLOSED_REGRESSION"
+    }
+  ],
+  "inherited_authority": [
+    {
+      "path": "docs/constraint/first_slice/ai_data_center_power_infrastructure_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH003_AI_DATA_CENTER_POWER_INFRASTRUCTURE_SOURCE_REGISTRY_V001_20260925.json",
+      "git_blob_sha": "0e1105387f6da84fc35a870a8d5c313c71e8afc6",
+      "role": "AUTHORITATIVE_EXACT_NINE_SOURCE_REGISTRY"
+    }
+  ],
+  "runtime_evidence": {
+    "source_count": 9,
+    "materialized_source_count": 9,
+    "ordinary_t2_eligible_count": 9,
+    "release_id": "REL-AIDC-FIRST-SLICE-20260928T212825Z",
+    "release_sha256": "5f49bb4b8bb2686a2f235b031a2cc9bedd33caf3b9c8c25082ccf35c8672917b",
+    "source_attestation_sha256": "3a883f3bd6cf8eabf573bd155fd4b00427363e75383e4cf14d58eea199be6941",
+    "raw_materialization_blocker": "CLOSED_BY_VALIDATED_PRIVATE_T1_ATTESTATION"
+  },
+  "remaining_independent_gates": [
+    "HISTORICAL_AVAILABLE_AT_BEFORE_CAPTURE_UNPROVEN",
+    "ORDINARY_POINT_IN_TIME_REPLAY_READY_NO",
+    "NATIVE_SIGNED_T5_T6_ADMISSION_RECEIPT_ABSENT",
+    "CANONICAL_T5_T6_CONSTRAINT_AND_BENEFICIARY_ADMISSION_NOT_AUTHORIZED"
+  ]
+}

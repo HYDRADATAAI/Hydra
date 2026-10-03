@@ -59,7 +59,10 @@
         "DATA_CENTER_ORDERS",
         "ELECTRIFICATION"
       ],
-      "ordinary_raw_lineage_eligible": false
+      "ordinary_raw_lineage_eligible": false,
+      "supplementary_urls": [
+        "https://www.gevernova.com/news/press-releases/ge-vernova-reports-second-quarter-2026-financial-results-raises-2026-financial"
+      ]
     }
   ]
 }

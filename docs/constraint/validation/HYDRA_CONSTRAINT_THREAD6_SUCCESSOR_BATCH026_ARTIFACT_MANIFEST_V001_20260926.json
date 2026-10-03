@@ -1,0 +1,73 @@
+{
+  "schema_version": "hydra-constraint-thread6-successor-manifest/v1",
+  "record_id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH026_ARTIFACT_MANIFEST_V001",
+  "as_of": "2026-09-26",
+  "repository": "HYDRADATAAI/Hydra",
+  "base_head": "d4d04ce20908073529f7de0e88203a131d76f269",
+  "predecessor_batch": {
+    "id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH025",
+    "preservation": "IMMUTABLE_NOT_REWRITTEN"
+  },
+  "slice_id": "SEMICONDUCTOR_ADVANCED_PACKAGING_CRITICAL_MATERIALS_V1",
+  "result": "PASS_PRIVATE_T1_EXECUTION_PACKET_READY_MATERIALIZATION_NOT_EXECUTED",
+  "artifacts": [
+    {
+      "path": "docs/constraint/second_slice/semiconductor_advanced_packaging_critical_materials_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH026_SEMICONDUCTOR_PRIVATE_T1_CAPTURE_QUEUE_V001_20260926.json",
+      "git_blob_sha": "5307e3df43238ee07f060d87f8fb29433cf7758d"
+    },
+    {
+      "path": "docs/constraint/second_slice/semiconductor_advanced_packaging_critical_materials_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH026_SEMICONDUCTOR_PRIVATE_T1_MATERIALIZATION_CONTRACT_V001_20260926.json",
+      "git_blob_sha": "7d59b040a31da79e6eb71db702bb6f20c9703295"
+    },
+    {
+      "path": "docs/constraint/second_slice/semiconductor_advanced_packaging_critical_materials_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH026_SEMICONDUCTOR_PRIVATE_T1_MATERIALIZATION_STATUS_V001_20260926.json",
+      "git_blob_sha": "39f1d8dc781b80a7651b61ba8556bd24def4781f"
+    },
+    {
+      "path": "docs/constraint/architecture/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH026_MASTER_STATUS_V001_20260926.json",
+      "git_blob_sha": "d685d15370f487b757689950c952b4325c7b74f2"
+    },
+    {
+      "path": "docs/constraint/architecture/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH026_SEMICONDUCTOR_CAPABILITY_LEDGER_DELTA_V001_20260926.json",
+      "git_blob_sha": "894d6fbcc72d86295237b95063fa20af1978bc46"
+    },
+    {
+      "path": "docs/constraint/validation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH026_SEMICONDUCTOR_PRIVATE_T1_MATERIALIZATION_REPORT_V001_20260926.md",
+      "git_blob_sha": "fd9c558e16280dc036fc1bea02dd8c8c6d492f3d"
+    }
+  ],
+  "excluded_operational_tools": [
+    {
+      "path": "tools/materialize_constraint_second_slice_batch026_private_t1.py",
+      "reason": "local private execution tool"
+    },
+    {
+      "path": "tools/verify_constraint_second_slice_batch026_private_t1.py",
+      "reason": "local private verification tool"
+    },
+    {
+      "path": "tools/validate_constraint_second_slice_batch026_private_t1_packet.py",
+      "reason": "public packet validator"
+    },
+    {
+      "path": "tools/test_constraint_second_slice_batch026_private_t1_packet_adversarial.py",
+      "reason": "hostile test harness"
+    },
+    {
+      "path": ".github/workflows/constraint-second-slice.yml",
+      "reason": "CI orchestration"
+    }
+  ],
+  "expected": {
+    "unique_source_capture_intents": 41,
+    "source_version_ids_reserved": 41,
+    "raw_source_versions_materialized": 0,
+    "valid_t1_receipts": 0,
+    "t1_release_manifest_present": "NO",
+    "ordinary_t2_eligible_sources": 0,
+    "required_cases_covered": "13/14",
+    "remaining_required_case": 12,
+    "first_semiconductor_run": "BLOCKED",
+    "next_required_action": "EXECUTE_BATCH026_PRIVATE_CAPTURE_QUEUE_ON_WORKSTATION"
+  }
+}

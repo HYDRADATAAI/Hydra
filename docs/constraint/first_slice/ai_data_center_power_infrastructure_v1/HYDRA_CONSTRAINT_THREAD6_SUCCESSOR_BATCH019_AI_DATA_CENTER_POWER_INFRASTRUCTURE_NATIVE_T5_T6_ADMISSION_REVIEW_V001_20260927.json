@@ -1,0 +1,53 @@
+{
+  "schema_version": "hydra-constraint-first-slice-native-t5-t6-admission-review/v1",
+  "record_id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH019_AI_DATA_CENTER_POWER_INFRASTRUCTURE_NATIVE_T5_T6_ADMISSION_REVIEW_V001",
+  "as_of": "2026-09-27",
+  "slice_id": "AI_DATA_CENTER_POWER_INFRASTRUCTURE_V1",
+  "predecessor_batch": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH018",
+  "reviewed_main_commit": "f94fd72e101200126c4f8d7e888ebee4187c86bd",
+  "admission_contract": "docs/constraint/implementation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH002_NATIVE_T5_T6_ADMISSION_CONTRACT_V001_20260925.json",
+  "admission_gate_implementation": "t6-fail-closed-validator/src/hydra_t6_failclosed/native_binding_admission.py",
+  "audit_scope": [
+    "docs/constraint",
+    "t6-fail-closed-validator",
+    "repository tree on reviewed_main_commit"
+  ],
+  "exact_native_implementation_manifest": {
+    "presented": false,
+    "status": "NOT_PRESENTED_FOR_ADMISSION",
+    "prohibited_substitution": "PUBLIC_SOURCE_ONLY_T6_VALIDATOR_IS_NOT_NATIVE_PRODUCTION_T5_T6_IMPLEMENTATION"
+  },
+  "signed_admission_receipt": {
+    "presented": false,
+    "status": "ABSENT",
+    "authority_role_required": "IMPLEMENTATION_CONTRACT",
+    "self_issuance_performed": false
+  },
+  "admission_result": {
+    "implementation_admitted": false,
+    "reason": "BLOCKED_EXACT_NATIVE_IMPLEMENTATION_AND_SIGNED_AUTHORITY_RECEIPT_NOT_PRESENTED",
+    "runtime_activation_authorized": false,
+    "canonical_promotion_authorized": false,
+    "live_source_authorized": false,
+    "model_training_authorized": false,
+    "trading_authorized": false
+  },
+  "historical_availability_boundary": {
+    "current_nine_source_hashes_complete": true,
+    "private_t1_materialization_complete": true,
+    "pre_acquisition_historical_availability_proven": false,
+    "strict_original_as_of_replay_eligible": false,
+    "backdating_performed": false,
+    "blocker": "PIT-002B-FIRST-SLICE-NINE-SOURCE-RAW-CAPTURE-MATERIALIZATION"
+  },
+  "preserved_authority_pins": {
+    "thread1": "11_LILY_THREAD1_BATCH11_POST_CLOSURE_OWNER_DELTA_RECONCILIATION.md",
+    "thread2_sha256": "a0faf1074ff7aaa5db6546d16076bfff0acf024548be21bd0eacc558ea5ce38e",
+    "thread3_sha256": "ab7e4c05c9210a90256b8cdea89eeb9f3bb551453dfe13ebfe44616f750cb366"
+  },
+  "first_serious_constraint_run": "BLOCKED",
+  "ordinary_t6_eligible_candidates": 0,
+  "canonical_constraints_minted": 0,
+  "qualified_beneficiaries_minted": 0,
+  "next_action": "PRESENT_EXACT_NATIVE_T5_T6_IMPLEMENTATION_MANIFEST_AND_TEST_EVIDENCE_TO_IMPLEMENTATION_CONTRACT_AUTHORITY; PRESERVE_HISTORICAL_AVAILABILITY_LIMIT"
+}

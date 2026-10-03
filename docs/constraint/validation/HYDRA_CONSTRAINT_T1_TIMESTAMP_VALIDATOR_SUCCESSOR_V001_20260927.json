@@ -1,0 +1,19 @@
+{
+  "schema": "HYDRA_CONSTRAINT_T1_TIMESTAMP_VALIDATOR_SUCCESSOR_V1",
+  "scope": "EXACT_TIMESTAMP_VALIDATOR_CONTINUATION",
+  "base_commit": "684f59ceea89114f6ac8b356e9b4dfb2b9cafa89",
+  "historical_manifest": "docs/constraint/validation/HYDRA_CONSTRAINT_FIRST_SLICE_THREAD6_SUCCESSOR_BATCH018_ARTIFACT_MANIFEST_V001_20260926.json",
+  "historical_manifest_sha256": "6b1b2aac10077dde2ceffbd155419d52c228b3f35a4f3039316fe289339812bd",
+  "predecessor_artifacts_rewritten": false,
+  "acceptance_effect": "NONE",
+  "trusted_timestamp_verifier": "NOT_IMPLEMENTED",
+  "ordinary_replay_promoted": false,
+  "historical_availability_promoted": false,
+  "canonical_admission_promoted": false,
+  "network_acquisition_authorized": false,
+  "transition": {
+    "path": "tools/validate_constraint_first_slice_successor.py",
+    "predecessor_git_blob_sha": "43f81e4a2e0e0aa3e4f58140b4b54e97b2c0c676",
+    "successor_git_blob_sha": "44bfe9c51cb5a3013d7a1a0bec9f79b1adcb9a73"
+  }
+}

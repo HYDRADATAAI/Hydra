@@ -1,0 +1,63 @@
+{
+  "schema_version": "hydra-constraint-second-slice-required-case-overlay/v1",
+  "record_id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH022_SEMICONDUCTOR_REQUIRED_CASE_OVERLAY_V001",
+  "as_of": "2026-09-26",
+  "slice_id": "SEMICONDUCTOR_ADVANCED_PACKAGING_CRITICAL_MATERIALS_V1",
+  "predecessor_overlay": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH021_SEMICONDUCTOR_REQUIRED_CASE_OVERLAY_V001",
+  "covered_case_count_before": 8,
+  "updates": [
+    {
+      "case_id": 4,
+      "name": "TOOL_BOTTLENECK",
+      "successor_status": "COVERED_REVIEWED_SHADOW_REAL_PRIMARY_BOUNDED_VARIANT",
+      "basis": [
+        "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH022_SEMICONDUCTOR_TOOL_BOTTLENECK_EVALUATION_V001"
+      ],
+      "note": "Actual tester shortage plus limited-supplier/long-cycle equipment dependency proves equipment as a limiting mechanism; no specific fab completion delay is fabricated."
+    },
+    {
+      "case_id": 5,
+      "name": "MATERIAL_BOTTLENECK",
+      "successor_status": "COVERED_REVIEWED_SHADOW_REAL_PRIMARY_BOUNDED",
+      "basis": [
+        "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH022_SEMICONDUCTOR_MATERIAL_BOTTLENECK_EVALUATION_V001"
+      ],
+      "note": "Quartz abundance is separated from high-purity processing; Spruce Pine HPQ operations at both reviewed producers were halted by Helene."
+    },
+    {
+      "case_id": 14,
+      "name": "DUPLICATE_SOURCE_INFLATION",
+      "successor_status": "COVERED_REVIEWED_SHADOW_REAL_DUPLICATE",
+      "basis": [
+        "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH022_SEMICONDUCTOR_DUPLICATE_SOURCE_INFLATION_EVALUATION_V001"
+      ],
+      "note": "Micron origin release and GlobeNewswire distribution copy resolve to one independence cluster and cannot multiply evidence confidence."
+    }
+  ],
+  "progress_only": [
+    {
+      "case_id": 3,
+      "name": "HBM_YIELD_CONSTRAINT",
+      "progress_state": "YIELD_LIMITER_SEPARATION_PROVEN_BINDING_OUTPUT_CONSTRAINT_NOT_PROVEN",
+      "reason": "Yield/packaging complexity is explicit but a bounded realized effective-output yield bottleneck is not yet proven."
+    },
+    {
+      "case_id": 11,
+      "name": "CONSTRAINT_MIGRATION",
+      "progress_state": "UNCHANGED_MIGRATION_CANDIDATE_NOT_COVERED",
+      "reason": "Prior CoWoS relief remains unproven."
+    },
+    {
+      "case_id": 12,
+      "name": "HISTORICAL_NO_LOOKAHEAD",
+      "progress_state": "UNCHANGED_EXTERNAL_RAW_LINEAGE_GATE",
+      "reason": "Ordinary historical replay still lacks raw source-version availability."
+    }
+  ],
+  "covered_case_count_after": 11,
+  "remaining_gap_case_ids": [
+    3,
+    11,
+    12
+  ]
+}

@@ -6,10 +6,94 @@ on:
       - "docs/constraint/second_slice/**"
       - "docs/constraint/architecture/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH017_MASTER_STATUS_V001_20260926.json"
       - "docs/constraint/architecture/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH018_MASTER_STATUS_V001_20260926.json"
+      - "docs/constraint/architecture/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH019_*.json"
+      - "docs/constraint/architecture/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH020_*.json"
+      - "docs/constraint/architecture/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH021_*.json"
+      - "docs/constraint/architecture/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH022_*.json"
+      - "docs/constraint/architecture/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH023_*.json"
+      - "docs/constraint/architecture/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH024_*.json"
+      - "docs/constraint/architecture/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH025_*.json"
+      - "docs/constraint/architecture/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH026_*.json"
+      - "docs/constraint/architecture/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH027_*.json"
+      - "docs/constraint/architecture/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH028_*.json"
+      - "docs/constraint/architecture/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH029_*.json"
+      - "docs/constraint/architecture/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH030_*.json"
+      - "docs/constraint/architecture/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH032_*.json"
+      - "docs/constraint/architecture/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH033_*.json"
+      - "docs/constraint/architecture/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH034_*.json"
+      - "docs/constraint/validation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH019_*"
+      - "docs/constraint/validation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH020_*"
+      - "docs/constraint/validation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH021_*"
+      - "docs/constraint/validation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH022_*"
+      - "docs/constraint/validation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH023_*"
+      - "docs/constraint/validation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH024_*"
+      - "docs/constraint/validation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH025_*"
+      - "docs/constraint/validation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH026_*"
+      - "docs/constraint/validation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH027_*"
+      - "docs/constraint/validation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH028_*"
+      - "docs/constraint/validation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH029_*"
+      - "docs/constraint/validation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH030_*"
+      - "docs/constraint/validation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH032_*"
+      - "docs/constraint/validation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH033_*"
+      - "docs/constraint/validation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH034_*"
       - "tools/validate_constraint_second_slice_batch017_audit.py"
       - "tools/test_constraint_second_slice_batch017_audit_adversarial.py"
       - "tools/validate_constraint_second_slice_batch018_population.py"
       - "tools/test_constraint_second_slice_batch018_population_adversarial.py"
+      - "tools/validate_constraint_second_slice_batch019_facility_material_equipment.py"
+      - "tools/test_constraint_second_slice_batch019_facility_material_equipment_adversarial.py"
+      - "tools/validate_constraint_second_slice_batch020_policy_outcomes_cases.py"
+      - "tools/test_constraint_second_slice_batch020_policy_outcomes_cases_adversarial.py"
+      - "tools/validate_constraint_second_slice_batch021_beneficiary_substitution_power.py"
+      - "tools/test_constraint_second_slice_batch021_beneficiary_substitution_power_adversarial.py"
+      - "tools/validate_constraint_second_slice_batch022_tool_material_duplicate.py"
+      - "tools/test_constraint_second_slice_batch022_tool_material_duplicate_adversarial.py"
+      - "tools/validate_constraint_second_slice_batch023_hbm_yield_migration.py"
+      - "tools/test_constraint_second_slice_batch023_hbm_yield_migration_adversarial.py"
+      - "tools/validate_constraint_second_slice_batch024_acceptance_gate.py"
+      - "tools/test_constraint_second_slice_batch024_acceptance_gate_adversarial.py"
+      - "tools/validate_constraint_second_slice_batch025_continuous_graph.py"
+      - "tools/test_constraint_second_slice_batch025_continuous_graph_adversarial.py"
+      - "tools/validate_constraint_second_slice_batch026_private_t1_packet.py"
+      - "tools/test_constraint_second_slice_batch026_private_t1_packet_adversarial.py"
+      - "tools/materialize_constraint_second_slice_batch026_private_t1.py"
+      - "tools/verify_constraint_second_slice_batch026_private_t1.py"
+      - "tools/Invoke-HydraConstraintSemiconductorBatch026PrivateT1.ps1"
+      - "tools/build_constraint_second_slice_batch026_private_t1_handback.py"
+      - "tools/validate_constraint_second_slice_batch027_workstation_launcher.py"
+      - "tools/test_constraint_second_slice_batch027_workstation_launcher_adversarial.py"
+      - "tools/private/HYDRA_CONSTRAINT_T1_SEMICONDUCTOR_BATCH026_BROWSER_CAPTURE_V001_20260927.py"
+      - "tools/private/Invoke-HYDRAConstraintSemiconductorBatch026BrowserCapture_V001_20260927.ps1"
+      - "tools/private/HYDRA_CONSTRAINT_T1_SEMICONDUCTOR_BATCH026_BROWSER_CAPTURE_REQUIREMENTS_V001_20260927.txt"
+      - "tools/validate_constraint_second_slice_batch028_browser_adapter.py"
+      - "tools/test_constraint_second_slice_batch028_browser_adapter_adversarial.py"
+      - "tools/validate_constraint_second_slice_batch029_locator_remediation.py"
+      - "tools/test_constraint_second_slice_batch029_locator_remediation_adversarial.py"
+      - "tools/validate_constraint_second_slice_batch030_micron_quarantine.py"
+      - "tools/test_constraint_second_slice_batch030_micron_quarantine_adversarial.py"
+      - "tools/private/HYDRA_CONSTRAINT_T1_SEMICONDUCTOR_BATCH030_BROWSER_CAPTURE_V001_20260927.py"
+      - "tools/test_constraint_batch030_pdf_raw_response.py"
+      - "tools/test_constraint_batch030_tsmc_403_response_stage.py"
+      - "tools/materialize_constraint_second_slice_batch030_private_t1.py"
+      - "tools/verify_constraint_second_slice_batch030_private_t1.py"
+      - "tools/build_constraint_second_slice_batch030_private_t1_handback.py"
+      - "tools/private/Invoke-HYDRAConstraintSemiconductorBatch030_V001_20260927.ps1"
+      - "tools/validate_constraint_second_slice_batch031_tsmc_quarantine.py"
+      - "tools/test_constraint_second_slice_batch031_tsmc_quarantine_adversarial.py"
+      - "tools/test_constraint_second_slice_batch031_release_idempotency.py"
+      - "tools/validate_constraint_second_slice_batch032_t1_attestation.py"
+      - "tools/test_constraint_second_slice_batch032_t1_attestation_adversarial.py"
+      - "tools/build_constraint_second_slice_batch033_ordinary_t2_lineage.py"
+      - "tools/validate_constraint_second_slice_batch033_ordinary_t2_normalization.py"
+      - "tools/test_constraint_second_slice_batch033_ordinary_t2_normalization_adversarial.py"
+      - "tools/build_constraint_second_slice_batch034_t2_evidence_lineage.py"
+      - "tools/validate_constraint_second_slice_batch034_t2_evidence_lineage.py"
+      - "tools/test_constraint_second_slice_batch034_t2_evidence_lineage_adversarial.py"
+      - "tools/private/HYDRA_CONSTRAINT_T1_SEMICONDUCTOR_BATCH031_BROWSER_CAPTURE_V001_20260928.py"
+      - "tools/materialize_constraint_second_slice_batch031_private_t1.py"
+      - "tools/verify_constraint_second_slice_batch031_private_t1.py"
+      - "tools/build_constraint_second_slice_batch031_private_t1_handback.py"
+      - "tools/private/Invoke-HYDRAConstraintSemiconductorBatch031_V001_20260928.ps1"
       - ".github/workflows/constraint-second-slice.yml"
   push:
     branches:
@@ -18,10 +102,94 @@ on:
       - "docs/constraint/second_slice/**"
       - "docs/constraint/architecture/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH017_MASTER_STATUS_V001_20260926.json"
       - "docs/constraint/architecture/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH018_MASTER_STATUS_V001_20260926.json"
+      - "docs/constraint/architecture/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH019_*.json"
+      - "docs/constraint/architecture/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH020_*.json"
+      - "docs/constraint/architecture/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH021_*.json"
+      - "docs/constraint/architecture/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH022_*.json"
+      - "docs/constraint/architecture/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH023_*.json"
+      - "docs/constraint/architecture/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH024_*.json"
+      - "docs/constraint/architecture/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH025_*.json"
+      - "docs/constraint/architecture/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH026_*.json"
+      - "docs/constraint/architecture/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH027_*.json"
+      - "docs/constraint/architecture/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH028_*.json"
+      - "docs/constraint/architecture/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH029_*.json"
+      - "docs/constraint/architecture/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH030_*.json"
+      - "docs/constraint/architecture/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH032_*.json"
+      - "docs/constraint/architecture/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH033_*.json"
+      - "docs/constraint/architecture/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH034_*.json"
+      - "docs/constraint/validation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH019_*"
+      - "docs/constraint/validation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH020_*"
+      - "docs/constraint/validation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH021_*"
+      - "docs/constraint/validation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH022_*"
+      - "docs/constraint/validation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH023_*"
+      - "docs/constraint/validation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH024_*"
+      - "docs/constraint/validation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH025_*"
+      - "docs/constraint/validation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH026_*"
+      - "docs/constraint/validation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH027_*"
+      - "docs/constraint/validation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH028_*"
+      - "docs/constraint/validation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH029_*"
+      - "docs/constraint/validation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH030_*"
+      - "docs/constraint/validation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH032_*"
+      - "docs/constraint/validation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH033_*"
+      - "docs/constraint/validation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH034_*"
       - "tools/validate_constraint_second_slice_batch017_audit.py"
       - "tools/test_constraint_second_slice_batch017_audit_adversarial.py"
       - "tools/validate_constraint_second_slice_batch018_population.py"
       - "tools/test_constraint_second_slice_batch018_population_adversarial.py"
+      - "tools/validate_constraint_second_slice_batch019_facility_material_equipment.py"
+      - "tools/test_constraint_second_slice_batch019_facility_material_equipment_adversarial.py"
+      - "tools/validate_constraint_second_slice_batch020_policy_outcomes_cases.py"
+      - "tools/test_constraint_second_slice_batch020_policy_outcomes_cases_adversarial.py"
+      - "tools/validate_constraint_second_slice_batch021_beneficiary_substitution_power.py"
+      - "tools/test_constraint_second_slice_batch021_beneficiary_substitution_power_adversarial.py"
+      - "tools/validate_constraint_second_slice_batch022_tool_material_duplicate.py"
+      - "tools/test_constraint_second_slice_batch022_tool_material_duplicate_adversarial.py"
+      - "tools/validate_constraint_second_slice_batch023_hbm_yield_migration.py"
+      - "tools/test_constraint_second_slice_batch023_hbm_yield_migration_adversarial.py"
+      - "tools/validate_constraint_second_slice_batch024_acceptance_gate.py"
+      - "tools/test_constraint_second_slice_batch024_acceptance_gate_adversarial.py"
+      - "tools/validate_constraint_second_slice_batch025_continuous_graph.py"
+      - "tools/test_constraint_second_slice_batch025_continuous_graph_adversarial.py"
+      - "tools/validate_constraint_second_slice_batch026_private_t1_packet.py"
+      - "tools/test_constraint_second_slice_batch026_private_t1_packet_adversarial.py"
+      - "tools/materialize_constraint_second_slice_batch026_private_t1.py"
+      - "tools/verify_constraint_second_slice_batch026_private_t1.py"
+      - "tools/Invoke-HydraConstraintSemiconductorBatch026PrivateT1.ps1"
+      - "tools/build_constraint_second_slice_batch026_private_t1_handback.py"
+      - "tools/validate_constraint_second_slice_batch027_workstation_launcher.py"
+      - "tools/test_constraint_second_slice_batch027_workstation_launcher_adversarial.py"
+      - "tools/private/HYDRA_CONSTRAINT_T1_SEMICONDUCTOR_BATCH026_BROWSER_CAPTURE_V001_20260927.py"
+      - "tools/private/Invoke-HYDRAConstraintSemiconductorBatch026BrowserCapture_V001_20260927.ps1"
+      - "tools/private/HYDRA_CONSTRAINT_T1_SEMICONDUCTOR_BATCH026_BROWSER_CAPTURE_REQUIREMENTS_V001_20260927.txt"
+      - "tools/validate_constraint_second_slice_batch028_browser_adapter.py"
+      - "tools/test_constraint_second_slice_batch028_browser_adapter_adversarial.py"
+      - "tools/validate_constraint_second_slice_batch029_locator_remediation.py"
+      - "tools/test_constraint_second_slice_batch029_locator_remediation_adversarial.py"
+      - "tools/validate_constraint_second_slice_batch030_micron_quarantine.py"
+      - "tools/test_constraint_second_slice_batch030_micron_quarantine_adversarial.py"
+      - "tools/private/HYDRA_CONSTRAINT_T1_SEMICONDUCTOR_BATCH030_BROWSER_CAPTURE_V001_20260927.py"
+      - "tools/test_constraint_batch030_pdf_raw_response.py"
+      - "tools/test_constraint_batch030_tsmc_403_response_stage.py"
+      - "tools/materialize_constraint_second_slice_batch030_private_t1.py"
+      - "tools/verify_constraint_second_slice_batch030_private_t1.py"
+      - "tools/build_constraint_second_slice_batch030_private_t1_handback.py"
+      - "tools/private/Invoke-HYDRAConstraintSemiconductorBatch030_V001_20260927.ps1"
+      - "tools/validate_constraint_second_slice_batch031_tsmc_quarantine.py"
+      - "tools/test_constraint_second_slice_batch031_tsmc_quarantine_adversarial.py"
+      - "tools/test_constraint_second_slice_batch031_release_idempotency.py"
+      - "tools/validate_constraint_second_slice_batch032_t1_attestation.py"
+      - "tools/test_constraint_second_slice_batch032_t1_attestation_adversarial.py"
+      - "tools/build_constraint_second_slice_batch033_ordinary_t2_lineage.py"
+      - "tools/validate_constraint_second_slice_batch033_ordinary_t2_normalization.py"
+      - "tools/test_constraint_second_slice_batch033_ordinary_t2_normalization_adversarial.py"
+      - "tools/build_constraint_second_slice_batch034_t2_evidence_lineage.py"
+      - "tools/validate_constraint_second_slice_batch034_t2_evidence_lineage.py"
+      - "tools/test_constraint_second_slice_batch034_t2_evidence_lineage_adversarial.py"
+      - "tools/private/HYDRA_CONSTRAINT_T1_SEMICONDUCTOR_BATCH031_BROWSER_CAPTURE_V001_20260928.py"
+      - "tools/materialize_constraint_second_slice_batch031_private_t1.py"
+      - "tools/verify_constraint_second_slice_batch031_private_t1.py"
+      - "tools/build_constraint_second_slice_batch031_private_t1_handback.py"
+      - "tools/private/Invoke-HYDRAConstraintSemiconductorBatch031_V001_20260928.ps1"
       - ".github/workflows/constraint-second-slice.yml"
 
 permissions:
@@ -43,3 +211,170 @@ jobs:
         run: python tools/validate_constraint_second_slice_batch018_population.py
       - name: Run Batch018 hostile matrix
         run: python tools/test_constraint_second_slice_batch018_population_adversarial.py
+      - name: Validate Batch019 facility material equipment deepening
+        run: python tools/validate_constraint_second_slice_batch019_facility_material_equipment.py
+      - name: Run Batch019 hostile matrix
+        run: python tools/test_constraint_second_slice_batch019_facility_material_equipment_adversarial.py
+      - name: Validate Batch020 policy substitution outcome depth
+        run: python tools/validate_constraint_second_slice_batch020_policy_outcomes_cases.py
+      - name: Run Batch020 hostile matrix
+        run: python tools/test_constraint_second_slice_batch020_policy_outcomes_cases_adversarial.py
+      - name: Validate Batch021 beneficiary substitution power depth
+        run: python tools/validate_constraint_second_slice_batch021_beneficiary_substitution_power.py
+      - name: Run Batch021 hostile matrix
+        run: python tools/test_constraint_second_slice_batch021_beneficiary_substitution_power_adversarial.py
+      - name: Validate Batch022 tool material duplicate depth
+        run: python tools/validate_constraint_second_slice_batch022_tool_material_duplicate.py
+      - name: Run Batch022 hostile matrix
+        run: python tools/test_constraint_second_slice_batch022_tool_material_duplicate_adversarial.py
+      - name: Validate Batch023 HBM yield migration depth
+        run: python tools/validate_constraint_second_slice_batch023_hbm_yield_migration.py
+      - name: Run Batch023 hostile matrix
+        run: python tools/test_constraint_second_slice_batch023_hbm_yield_migration_adversarial.py
+      - name: Validate Batch024 strict acceptance gate
+        run: python tools/validate_constraint_second_slice_batch024_acceptance_gate.py
+      - name: Run Batch024 hostile matrix
+        run: python tools/test_constraint_second_slice_batch024_acceptance_gate_adversarial.py
+      - name: Validate Batch025 continuous cross-slice graph
+        run: python tools/validate_constraint_second_slice_batch025_continuous_graph.py
+      - name: Run Batch025 hostile matrix
+        run: python tools/test_constraint_second_slice_batch025_continuous_graph_adversarial.py
+      - name: Validate Batch026 private T1 execution packet
+        run: python tools/validate_constraint_second_slice_batch026_private_t1_packet.py
+      - name: Run Batch026 hostile matrix
+        run: python tools/test_constraint_second_slice_batch026_private_t1_packet_adversarial.py
+      - name: Compile Batch026 local materializer and verifier
+        run: python -m py_compile tools/materialize_constraint_second_slice_batch026_private_t1.py tools/verify_constraint_second_slice_batch026_private_t1.py
+
+      - name: Validate Batch027 workstation launcher contract
+        run: python tools/validate_constraint_second_slice_batch027_workstation_launcher.py
+
+      - name: Run Batch027 hostile matrix
+        run: python tools/test_constraint_second_slice_batch027_workstation_launcher_adversarial.py
+
+      - name: Contract-check Batch027 PowerShell launcher
+        shell: pwsh
+        run: ./tools/Invoke-HydraConstraintSemiconductorBatch026PrivateT1.ps1 -Mode ContractCheck -RepoRoot "$PWD"
+
+      - name: Compile Batch027 handback builder
+        run: python -m py_compile tools/build_constraint_second_slice_batch026_private_t1_handback.py
+
+      - name: Validate Batch028 browser acquisition adapter
+        run: python tools/validate_constraint_second_slice_batch028_browser_adapter.py
+
+      - name: Run Batch028 hostile matrix
+        run: python tools/test_constraint_second_slice_batch028_browser_adapter_adversarial.py
+
+      - name: Compile Batch028 browser runner
+        run: python -m py_compile tools/private/HYDRA_CONSTRAINT_T1_SEMICONDUCTOR_BATCH026_BROWSER_CAPTURE_V001_20260927.py
+
+      - name: Parse Batch028 PowerShell launcher
+        shell: pwsh
+        run: |
+          $errors = $null
+          [void][System.Management.Automation.Language.Parser]::ParseFile(
+            (Resolve-Path "./tools/private/Invoke-HYDRAConstraintSemiconductorBatch026BrowserCapture_V001_20260927.ps1"),
+            [ref]$null,
+            [ref]$errors
+          )
+          if ($errors.Count -gt 0) {
+            $errors | ForEach-Object { Write-Error $_.Message }
+            exit 1
+          }
+
+      - name: Validate Batch029 Micron locator remediation
+        run: python tools/validate_constraint_second_slice_batch029_locator_remediation.py
+
+      - name: Run Batch029 hostile matrix
+        run: python tools/test_constraint_second_slice_batch029_locator_remediation_adversarial.py
+
+      - name: Compile Batch029 patched acquisition and T1 tools
+        run: python -m py_compile tools/private/HYDRA_CONSTRAINT_T1_SEMICONDUCTOR_BATCH026_BROWSER_CAPTURE_V001_20260927.py tools/materialize_constraint_second_slice_batch026_private_t1.py tools/verify_constraint_second_slice_batch026_private_t1.py tools/build_constraint_second_slice_batch026_private_t1_handback.py
+
+      - name: Validate Batch030 Micron quarantine
+        run: python tools/validate_constraint_second_slice_batch030_micron_quarantine.py
+
+      - name: Run Batch030 hostile matrix
+        run: python tools/test_constraint_second_slice_batch030_micron_quarantine_adversarial.py
+
+      - name: Run Batch030 raw-PDF transport regressions
+        run: python tools/test_constraint_batch030_pdf_raw_response.py
+
+      - name: Run Batch030 TSMC 403 response-stage regressions
+        run: python tools/test_constraint_batch030_tsmc_403_response_stage.py
+
+      - name: Compile Batch030 Micron-free acquisition and T1 tools
+        run: python -m py_compile tools/private/HYDRA_CONSTRAINT_T1_SEMICONDUCTOR_BATCH030_BROWSER_CAPTURE_V001_20260927.py tools/materialize_constraint_second_slice_batch030_private_t1.py tools/verify_constraint_second_slice_batch030_private_t1.py tools/build_constraint_second_slice_batch030_private_t1_handback.py
+
+      - name: Parse Batch030 PowerShell launcher
+        shell: pwsh
+        run: |
+          $errors = $null
+          [void][System.Management.Automation.Language.Parser]::ParseFile(
+            (Resolve-Path "./tools/private/Invoke-HYDRAConstraintSemiconductorBatch030_V001_20260927.ps1"),
+            [ref]$null,
+            [ref]$errors
+          )
+          if ($errors.Count -gt 0) {
+            $errors | ForEach-Object { Write-Error $_.Message }
+            exit 1
+          }
+
+      - name: Validate Batch031 TSMC provider quarantine
+        run: python tools/validate_constraint_second_slice_batch031_tsmc_quarantine.py
+
+      - name: Run Batch031 TSMC quarantine hostile matrix
+        run: python tools/test_constraint_second_slice_batch031_tsmc_quarantine_adversarial.py
+
+      - name: Run Batch031 immutable release idempotency regression
+        run: python tools/test_constraint_second_slice_batch031_release_idempotency.py
+
+      - name: Validate Batch032 public T1 attestation
+        run: python tools/validate_constraint_second_slice_batch032_t1_attestation.py
+
+      - name: Run Batch032 hostile attestation matrix
+        run: python tools/test_constraint_second_slice_batch032_t1_attestation_adversarial.py
+
+      - name: Validate Batch033 ordinary T2 normalization
+        run: python tools/validate_constraint_second_slice_batch033_ordinary_t2_normalization.py
+
+      - name: Run Batch033 ordinary T2 hostile matrix
+        run: python tools/test_constraint_second_slice_batch033_ordinary_t2_normalization_adversarial.py
+
+      - name: Rebuild Batch033 lineage deterministically
+        run: |
+          tmp=$(mktemp)
+          python tools/build_constraint_second_slice_batch033_ordinary_t2_lineage.py --output "$tmp"
+          cmp "$tmp" docs/constraint/second_slice/semiconductor_advanced_packaging_critical_materials_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH033_SEMICONDUCTOR_ORDINARY_T2_SOURCE_VERSION_LINEAGE_V001_20260928.json
+          rm -f "$tmp"
+
+      - name: Validate Batch034 T2 evidence lineage
+        run: python tools/validate_constraint_second_slice_batch034_t2_evidence_lineage.py
+
+      - name: Run Batch034 T2 evidence hostile matrix
+        run: python tools/test_constraint_second_slice_batch034_t2_evidence_lineage_adversarial.py
+
+      - name: Rebuild Batch034 evidence lineage deterministically
+        run: |
+          tmp=$(mktemp)
+          python tools/build_constraint_second_slice_batch034_t2_evidence_lineage.py --output "$tmp"
+          cmp "$tmp" docs/constraint/second_slice/semiconductor_advanced_packaging_critical_materials_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH034_SEMICONDUCTOR_ORDINARY_T2_EVIDENCE_LINEAGE_BINDING_V001_20260928.json
+          rm -f "$tmp"
+
+      - name: Compile Batch031 TSMC-free acquisition and T1 tools
+        run: python -m py_compile tools/private/HYDRA_CONSTRAINT_T1_SEMICONDUCTOR_BATCH031_BROWSER_CAPTURE_V001_20260928.py tools/materialize_constraint_second_slice_batch031_private_t1.py tools/verify_constraint_second_slice_batch031_private_t1.py tools/build_constraint_second_slice_batch031_private_t1_handback.py tools/validate_constraint_second_slice_batch031_tsmc_quarantine.py tools/test_constraint_second_slice_batch031_tsmc_quarantine_adversarial.py
+
+      - name: Parse Batch031 PowerShell launcher
+        shell: pwsh
+        run: |
+          $errors = $null
+          [void][System.Management.Automation.Language.Parser]::ParseFile(
+            (Resolve-Path "./tools/private/Invoke-HYDRAConstraintSemiconductorBatch031_V001_20260928.ps1"),
+            [ref]$null,
+            [ref]$errors
+          )
+          if ($errors.Count -gt 0) {
+            $errors | ForEach-Object { Write-Error $_.Message }
+            exit 1
+          }
+

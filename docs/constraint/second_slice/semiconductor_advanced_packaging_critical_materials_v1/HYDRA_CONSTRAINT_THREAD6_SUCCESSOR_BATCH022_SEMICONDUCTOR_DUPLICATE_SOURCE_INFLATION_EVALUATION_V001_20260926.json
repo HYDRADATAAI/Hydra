@@ -1,0 +1,29 @@
+{
+  "schema_version": "hydra-constraint-second-slice-duplicate-evidence-evaluation/v1",
+  "record_id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH022_SEMICONDUCTOR_DUPLICATE_SOURCE_INFLATION_EVALUATION_V001",
+  "as_of": "2026-09-26",
+  "slice_id": "SEMICONDUCTOR_ADVANCED_PACKAGING_CRITICAL_MATERIALS_V1",
+  "evaluation": {
+    "case_id": 14,
+    "underlying_event_id": "EVENT-MICRON-HBM3E-VOLUME-PRODUCTION-2024-02-26",
+    "evidence_occurrences": [
+      {
+        "evidence_id": "EV-SEMI-B022-MICRON-HBM3E-PRIMARY-ANNOUNCEMENT",
+        "source_role": "ORIGIN_PRIMARY",
+        "independence_cluster_id": "IND-MICRON-HBM3E-2024-02-26",
+        "independent_confirmation_weight": 1
+      },
+      {
+        "evidence_id": "EV-SEMI-B022-GNW-MICRON-HBM3E-DISTRIBUTION-COPY",
+        "source_role": "DISTRIBUTION_COPY_OF_ORIGIN",
+        "independence_cluster_id": "IND-MICRON-HBM3E-2024-02-26",
+        "independent_confirmation_weight": 0
+      }
+    ],
+    "unique_occurrence_count": 2,
+    "independent_evidence_cluster_count": 1,
+    "confidence_multiplier_from_copy": 0,
+    "coverage_state": "COVERED_REVIEWED_SHADOW_REAL_DUPLICATE",
+    "rule": "DISTRIBUTION_COPY_INHERITS_ORIGIN_PROVENANCE_AND_CANNOT_MULTIPLY_INDEPENDENT_EVIDENCE"
+  }
+}

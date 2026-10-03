@@ -1,0 +1,68 @@
+{
+  "schema": "HYDRA_CONSTRAINT_T1_BATCH018_PUBLIC_HASH_SUCCESSOR_V1",
+  "scope": "THREE_PUBLIC_SHA256_REFERENCES_AND_TWO_MANIFEST_BLOB_BINDINGS",
+  "donor_commit": "0db6181f332f3219372553442e0646ffecb78942",
+  "historical_base_commit": "684f59ceea89114f6ac8b356e9b4dfb2b9cafa89",
+  "timestamp_validator_record": "docs/constraint/validation/HYDRA_CONSTRAINT_T1_TIMESTAMP_VALIDATOR_SUCCESSOR_V001_20260927.json",
+  "timestamp_validator_record_sha256": "a2e7fcbb185ac7fbb89da3f8b919519322286487e0070a309b02aac186fb5d9f",
+  "historical_predecessor_bytes_recoverable_exactly": true,
+  "public_hash_metadata_rewritten": true,
+  "attestation_rewritten": false,
+  "source_members_rewritten": false,
+  "release_identity_rewritten": false,
+  "timestamp_validator_record_rewritten": false,
+  "trusted_timestamp_verifier": "NOT_IMPLEMENTED",
+  "ordinary_replay_promoted": false,
+  "historical_availability_promoted": false,
+  "canonical_admission_promoted": false,
+  "acceptance_effect": "NONE",
+  "transitions": [
+    {
+      "path": "docs/constraint/first_slice/ai_data_center_power_infrastructure_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH018_AI_DATA_CENTER_POWER_INFRASTRUCTURE_SOURCE_HASH_INVENTORY_V001_20260926.json",
+      "predecessor_sha256": "c42cc9252a1c540032442141f3356c83f674e2631de50a46cd0f354361ed252d",
+      "successor_sha256": "3b169a75ea846673f33939270ff6d1700d1fc5159446490c81ae26357195e531",
+      "predecessor_git_blob_sha": "245746d059cf4000f5b3fd465fe004b9b8d5bd76",
+      "successor_git_blob_sha": "75b640792e95a18de5b0cf0bdf674a12edb241e0",
+      "replacements": [
+        {
+          "before": "74e3b4ef710f1da8910d5588882cfa0672b59f93e8636ce902e3fa34237ad05e",
+          "after": "fe68784920a6b5437457792fc0c2cd410269f991be76ad85cff766e8df84d81b"
+        }
+      ]
+    },
+    {
+      "path": "docs/constraint/first_slice/ai_data_center_power_infrastructure_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH018_AI_DATA_CENTER_POWER_INFRASTRUCTURE_SOURCE_MATERIALIZATION_STATUS_V001_20260926.json",
+      "predecessor_sha256": "8137cd3aaf079d409bd34c68b6892b2d18e7a6e66592be9f7bee16aab991bfa7",
+      "successor_sha256": "049152fe7cf510ea3ffb2469e5f7117b4b879b425535c88a9bd04c82a91ed937",
+      "predecessor_git_blob_sha": "083f83ccf8729e503c74c437bf2db73ccbc9e483",
+      "successor_git_blob_sha": "114e3488e7ce8dded96a3f5b55cedabafe2cb421",
+      "replacements": [
+        {
+          "before": "74e3b4ef710f1da8910d5588882cfa0672b59f93e8636ce902e3fa34237ad05e",
+          "after": "fe68784920a6b5437457792fc0c2cd410269f991be76ad85cff766e8df84d81b"
+        },
+        {
+          "before": "82bde12a0715938d873cb7b9222c7d83d82992b9c1ee12438a6d5180a56fb3de",
+          "after": "3b169a75ea846673f33939270ff6d1700d1fc5159446490c81ae26357195e531"
+        }
+      ]
+    },
+    {
+      "path": "docs/constraint/validation/HYDRA_CONSTRAINT_FIRST_SLICE_THREAD6_SUCCESSOR_BATCH018_ARTIFACT_MANIFEST_V001_20260926.json",
+      "predecessor_sha256": "6b1b2aac10077dde2ceffbd155419d52c228b3f35a4f3039316fe289339812bd",
+      "successor_sha256": "bcf73e2977654aff87e34cd629089f59e7a41ae282c697e079257c3bdb06208b",
+      "predecessor_git_blob_sha": "28d5abdbdb1941f4227c90f747c91787d5d257c0",
+      "successor_git_blob_sha": "4cfd44eb9362fafd18680501327b70d446a38273",
+      "replacements": [
+        {
+          "before": "245746d059cf4000f5b3fd465fe004b9b8d5bd76",
+          "after": "75b640792e95a18de5b0cf0bdf674a12edb241e0"
+        },
+        {
+          "before": "083f83ccf8729e503c74c437bf2db73ccbc9e483",
+          "after": "114e3488e7ce8dded96a3f5b55cedabafe2cb421"
+        }
+      ]
+    }
+  ]
+}

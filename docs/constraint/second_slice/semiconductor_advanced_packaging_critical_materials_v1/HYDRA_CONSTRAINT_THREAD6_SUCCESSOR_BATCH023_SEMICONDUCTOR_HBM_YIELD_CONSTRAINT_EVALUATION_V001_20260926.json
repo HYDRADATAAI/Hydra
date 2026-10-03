@@ -1,0 +1,24 @@
+{
+  "schema_version": "hydra-constraint-second-slice-yield-constraint-evaluation/v1",
+  "record_id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH023_SEMICONDUCTOR_HBM_YIELD_CONSTRAINT_EVALUATION_V001",
+  "as_of": "2026-09-26",
+  "slice_id": "SEMICONDUCTOR_ADVANCED_PACKAGING_CRITICAL_MATERIALS_V1",
+  "predecessor_evaluation": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH022_SEMICONDUCTOR_HBM_YIELD_CONSTRAINT_EVALUATION_V001",
+  "evaluation": {
+    "case_id": 3,
+    "constraint_variant": "HBM_EFFECTIVE_BIT_OUTPUT_PENALTY_FROM_DIE_SIZE_AND_PACKAGING_YIELD",
+    "nominal_capacity_proxy": "WAFER_SUPPLY",
+    "usable_output_metric": "BITS_PRODUCED_PER_EQUIVALENT_WAFER_SUPPLY",
+    "physical_capacity_state": "WAFER_SUPPLY_EXISTS",
+    "yield_and_packaging_effect": "COMPLEX_PACKAGING_STACK_IMPACTS_YIELDS",
+    "effective_output_effect": "MORE_THAN_2X_WAFER_SUPPLY_REQUIRED_FOR_EQUIVALENT_BITS_VS_DDR5",
+    "numeric_yield_percentage": null,
+    "evidence_ids": [
+      "EV-SEMI-B023-MICRON-HBM-PACKAGING-YIELD-OUTPUT-PENALTY-2023",
+      "EV-SEMI-MICRON-HBM3E12H-RAMP-YIELD-2025"
+    ],
+    "binding_effective_output_constraint_proven": true,
+    "coverage_state": "COVERED_REVIEWED_SHADOW_REAL_PRIMARY_BOUNDED_VARIANT",
+    "semantic_limit": "CLOSES CASE3 USING A DIRECT EFFECTIVE-BITS-PER-WAFER PENALTY; DOES NOT INVENT A SPECIFIC YIELD PERCENTAGE OR CLAIM ALL HBM SUPPLIERS HAVE IDENTICAL YIELD"
+  }
+}

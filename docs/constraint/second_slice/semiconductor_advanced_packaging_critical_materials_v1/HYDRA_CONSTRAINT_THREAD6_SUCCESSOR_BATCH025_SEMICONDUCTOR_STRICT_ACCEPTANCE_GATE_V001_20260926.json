@@ -1,0 +1,52 @@
+{
+  "schema_version": "hydra-constraint-second-slice-strict-acceptance-gate/v1",
+  "record_id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH025_SEMICONDUCTOR_STRICT_ACCEPTANCE_GATE_V001",
+  "as_of": "2026-09-26",
+  "slice_id": "SEMICONDUCTOR_ADVANCED_PACKAGING_CRITICAL_MATERIALS_V1",
+  "predecessor_gate": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH024_SEMICONDUCTOR_STRICT_ACCEPTANCE_GATE_V001",
+  "allowed_gate_states": [
+    "PASS",
+    "PASS_WITH_NONBLOCKING_GAPS",
+    "BLOCKED"
+  ],
+  "dimension_updates": {
+    "CROSS_SLICE_GRAPH": {
+      "predecessor_status": "BLOCKED",
+      "status": "PASS",
+      "closed_blocker": "SEMI-ACCEPT-024-XSLICE-001-CONTINUOUS-AI-SEMICONDUCTOR-POWER-CHAIN-NOT-PROVEN",
+      "basis": [
+        "N-AI-COMPUTE-DEMAND_TO_N-SEMI-AI-ACCELERATOR-DEMAND_PREDECESSOR_EDGE",
+        "N-SEMI-AI-ACCELERATOR-DEMAND_TO_BLACKWELL_BATCH025_EDGE",
+        "BLACKWELL_TO_TSMC_ARIZONA_FIRST_FAB_BATCH025_EDGE",
+        "TSMC_ARIZONA_FIRST_FAB_TO_ELECTRICITY_AND_TRANSMISSION_BATCH021_EDGES"
+      ],
+      "non_implications": [
+        "NO_ACTIVE_POWER_SHORTAGE_ASSERTED",
+        "NO_ARIZONA_ADVANCED_PACKAGING_ASSERTED",
+        "NO_ORDINARY_REPLAY_AUTHORITY_GRANTED"
+      ]
+    }
+  },
+  "unchanged_blocked_dimensions": [
+    "PROVENANCE",
+    "ORIGINAL_AS_OF",
+    "NO_LOOKAHEAD",
+    "DETERMINISTIC_REPLAY",
+    "LINEAGE",
+    "IMPLEMENTATION_ADMITTED"
+  ],
+  "required_case_state": {
+    "covered": 13,
+    "total": 14,
+    "remaining_case_ids": [
+      12
+    ],
+    "repo_executable_required_case_gaps": 0
+  },
+  "overall_status": "BLOCKED",
+  "repo_executable_acceptance_blockers": 0,
+  "external_or_private_acceptance_blockers": 6,
+  "full_constraint_run_allowed": false,
+  "first_semiconductor_run": "BLOCKED",
+  "next_repo_executable_lane": "NONE_SECOND_SLICE_ACCEPTANCE_REQUIRES_PRIVATE_RAW_MATERIALIZATION_AND_NATIVE_ADMISSION"
+}

@@ -1,0 +1,25 @@
+{
+  "schema_version": "hydra-constraint-second-slice-constraint-migration-evaluation/v1",
+  "record_id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH021_SEMICONDUCTOR_CONSTRAINT_MIGRATION_EVALUATION_V001",
+  "as_of": "2026-09-26",
+  "slice_id": "SEMICONDUCTOR_ADVANCED_PACKAGING_CRITICAL_MATERIALS_V1",
+  "evaluations": [
+    {
+      "migration_id": "MIG-SEMI-COWOS-TO-MEMORY-CLEANROOM-001",
+      "old_constraint_candidate_id": "T5C-SEMI-TSMC-COWOS-CAPACITY-2025-001",
+      "old_constraint_state": "PROVEN_REVIEWED_SHADOW_2025_FULLY_LOADED",
+      "relief_evidence": [
+        "EV-SEMI-TSMC-COWOS-2026-BALANCE-EXPECTATION"
+      ],
+      "relief_state": "FORWARD_EXPECTATION_ONLY_NOT_OBSERVED_RESOLUTION",
+      "new_constraint_context": [
+        "EV-SEMI-B021-MICRON-MEMORY-SUPPLY-CLEANROOM-CONSTRAINT-2026"
+      ],
+      "proposed_new_limiting_mechanism": "MEMORY_SUPPLY_AND_CLEANROOM_BUILDOUT_CAPACITY",
+      "migration_state": "MIGRATION_CANDIDATE_NOT_COVERED",
+      "case_11_coverage": false,
+      "reason": "New memory/cleanroom bottleneck evidence exists, but reviewed evidence does not prove the prior CoWoS constraint was actually relieved before the new bottleneck became dominant.",
+      "semantic_rule": "BOTTLENECK_B_RELIEF_CANNOT_BE_INFERRED_FROM_FORWARD_EXPECTATION"
+    }
+  ]
+}

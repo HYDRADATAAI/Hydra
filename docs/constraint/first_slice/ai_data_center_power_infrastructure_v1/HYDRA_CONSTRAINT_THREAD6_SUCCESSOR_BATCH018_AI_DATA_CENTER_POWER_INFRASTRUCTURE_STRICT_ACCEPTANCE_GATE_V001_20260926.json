@@ -1,0 +1,126 @@
+{
+  "allowed_gate_states": [
+    "READY",
+    "READY_WITH_NONBLOCKING_GAPS",
+    "BLOCKED"
+  ],
+  "as_of": "2026-09-26",
+  "closed_batch014_blockers": [
+    "ACCEPT-014-CONF-001-TYPED-FORMATION-CONFIDENCE-NOT-POPULATED",
+    "ACCEPT-014-CONF-002-BENEFICIARY-CONFIDENCE-VALUES-NULL",
+    "ACCEPT-014-EVAL-001-REAL-OUTCOME-COVERAGE-THIN"
+  ],
+  "dimensions": {
+    "AUTHORITY_CURRENT": {
+      "status": "READY"
+    },
+    "CONFIDENCE_READY": {
+      "gaps": [
+        "NUMERIC_OR_ORDINAL_CONFIDENCE_NOT_MEASURED_UNDER_ADMITTED_RUNTIME_POLICY"
+      ],
+      "status": "READY_WITH_NONBLOCKING_GAPS"
+    },
+    "CONTRADICTION_READY": {
+      "gaps": [
+        "REAL_CONTRADICTION_CASE_NOT_ORDINARY_REPLAY_ADMITTED"
+      ],
+      "status": "READY_WITH_NONBLOCKING_GAPS"
+    },
+    "ENTITY_RESOLUTION_READY": {
+      "gaps": [
+        "ORDINARY_RAW_LINEAGE_NOT_COMPLETE",
+        "NO_ACCEPTED_RUNTIME_ENTITY_RESOLUTION_RECEIPT_FOR_FIRST_SLICE"
+      ],
+      "status": "READY_WITH_NONBLOCKING_GAPS"
+    },
+    "EVALUATION_READY": {
+      "basis": [
+        "EVALUATION_PROTOCOL_DEFINED",
+        "CORE_REAL_OUTCOME_DIMENSIONS_COVERED",
+        "BATCH017_SUPPLEMENTAL_OUTCOME_RECORDED_WITHOUT_CHANGING_COVERAGE_CLOSURE",
+        "SHADOW_EVALUATION_EXECUTABLE_BOUNDED"
+      ],
+      "blockers": [
+        "ACCEPT-014-EVAL-002-NO-ORDINARY-CANONICAL-OUTPUTS-TO-EVALUATE",
+        "ACCEPT-014-EVAL-003-ORDINARY-REPLAY-NOT-READY"
+      ],
+      "status": "BLOCKED"
+    },
+    "GRAPH_PATH_READY": {
+      "gaps": [
+        "CANONICAL_CONSTRAINTS_MINTED=0",
+        "ORDINARY_T6_ELIGIBLE_CANDIDATES=0"
+      ],
+      "status": "READY_WITH_NONBLOCKING_GAPS"
+    },
+    "HISTORICAL_AS_OF_READY": {
+      "basis": [
+        "ACQUIRED_AT equals conservative AVAILABLE_AT for every captured source; no pre-acquisition version history is established"
+      ],
+      "blockers": [
+        "PIT-002B-FIRST-SLICE-NINE-SOURCE-RAW-CAPTURE-MATERIALIZATION"
+      ],
+      "status": "BLOCKED"
+    },
+    "IMPLEMENTATION_ADMITTED": {
+      "blockers": [
+        "CI-TEST-008-BLOCKER-001B-NATIVE-T5-T6-SIGNED-ADMISSION-RECEIPT-ABSENT",
+        "CANONICAL-T5-T6-CONSTRAINT-AND-BENEFICIARY-ADMISSION-NOT-AUTHORIZED"
+      ],
+      "status": "BLOCKED"
+    },
+    "NO_LOOKAHEAD_READY": {
+      "gaps": [
+        "PROVEN_ONLY_FOR_SHADOW_NORMALIZED_FIXTURE_NOT_ORDINARY_RAW_REPLAY"
+      ],
+      "status": "READY_WITH_NONBLOCKING_GAPS"
+    },
+    "OUTCOME_LABELS_READY": {
+      "basis": [
+        "CORE_REAL_OUTCOME_DIMENSIONS_COVERED",
+        "REAL_OUTCOME_RECORDS=6",
+        "REAL_OUTCOME_LABELS=4"
+      ],
+      "gaps": [
+        "CONSTRAINT_RESOLUTION_OUTCOME_NOT_YET_CAPTURED",
+        "OUTCOME_RECORDS_NOT_ORDINARY_REPLAY_ADMITTED",
+        "BATCH017_SUPPLEMENTAL_OUTCOME_NOT_DIRECTLY_MATCHED_TO_A_CURRENT_CONSTRAINT_OR_BENEFICIARY"
+      ],
+      "status": "READY_WITH_NONBLOCKING_GAPS"
+    },
+    "PROVENANCE_READY": {
+      "basis": [
+        "All nine exact registered source versions are materialized in private T1 custody with persisted receipt and release hashes",
+        "Source-version hash completeness is closed for these captured versions",
+        "Exact pre-acquisition historical availability for the intended earlier PIT cutoffs remains unproven"
+      ],
+      "blockers": [
+        "PIT-002B-FIRST-SLICE-NINE-SOURCE-RAW-CAPTURE-MATERIALIZATION"
+      ],
+      "status": "BLOCKED"
+    },
+    "REPLAY_READY": {
+      "basis": [
+        "All nine current source-version hashes resolve through persisted T1 receipts and release; strict historical cutoff replay remains unavailable"
+      ],
+      "blockers": [
+        "PIT-002B-FIRST-SLICE-NINE-SOURCE-RAW-CAPTURE-MATERIALIZATION"
+      ],
+      "status": "BLOCKED"
+    },
+    "SCHEMA_COMPATIBLE": {
+      "gaps": [
+        "NATIVE_RUNTIME_PAYLOAD_COMPATIBILITY_NOT_PROVEN_BY_ADMITTED_IMPLEMENTATION"
+      ],
+      "status": "READY_WITH_NONBLOCKING_GAPS"
+    }
+  },
+  "first_serious_constraint_run": "BLOCKED",
+  "full_constraint_run_allowed": false,
+  "next_repo_executable_lane": "T5_TO_T6_ADMISSION_REVIEW_WITH_HISTORICAL_AVAILABILITY_GAP_EXPLICIT",
+  "overall_status": "BLOCKED",
+  "predecessor_gate": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH017_AI_DATA_CENTER_POWER_INFRASTRUCTURE_STRICT_ACCEPTANCE_GATE_V001",
+  "record_id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH018_AI_DATA_CENTER_POWER_INFRASTRUCTURE_STRICT_ACCEPTANCE_GATE_V001",
+  "schema_version": "hydra-constraint-first-slice-strict-acceptance-gate/v1",
+  "slice_id": "AI_DATA_CENTER_POWER_INFRASTRUCTURE_V1"
+}

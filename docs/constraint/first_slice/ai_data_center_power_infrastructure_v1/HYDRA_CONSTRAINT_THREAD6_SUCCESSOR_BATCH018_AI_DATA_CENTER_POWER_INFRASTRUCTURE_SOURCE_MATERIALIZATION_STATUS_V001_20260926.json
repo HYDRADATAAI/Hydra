@@ -1,0 +1,62 @@
+{
+  "all_sources_ordinary_t2_eligible": true,
+  "as_of": "2026-09-26",
+  "blocker_status": {
+    "ORDINARY-POINT-IN-TIME-REPLAY-SOURCE-VERSION-HASHES-INCOMPLETE": "SOURCE_VERSION_HASH_COMPLETENESS_CLOSED_FOR_THE_NINE_CAPTURED_VERSIONS; EARLIER_HISTORICAL_CUTOFF_REPLAY_REMAINS_BLOCKED_BY_PIT-002B",
+    "PIT-002B-FIRST-SLICE-NINE-SOURCE-RAW-CAPTURE-MATERIALIZATION": "RAW_CAPTURE_AND_T1_CUSTODY_COMPLETE; FULL_TARGET_REMAINS_OPEN_FOR_REQUIRED_HISTORICAL_AVAILABILITY_EVIDENCE"
+  },
+  "canonical_path_authority_record": "HYDRA_CONSTRAINT_T1_PRIVATE_RAW_STORE_PATH_AUTHORITY_V001_20260926",
+  "canonical_private_store_id": "HYDRA_CONSTRAINT_T1_RAW_STORE_V1",
+  "current_run_browser_capture_count": 7,
+  "current_run_failed_attempt_count": 2,
+  "current_run_failed_attempts": [
+    {
+      "http_status": 403,
+      "resolution": "reused earlier exact-locator Chrome response with status 200",
+      "source_id": "SRC-FERC-ORDER-2023-FACT-SHEET"
+    },
+    {
+      "http_status": 403,
+      "resolution": "reused earlier exact-locator Chrome response with status 200",
+      "source_id": "SRC-LBNL-QUEUED-UP-2025"
+    }
+  ],
+  "first_serious_constraint_run": "BLOCKED",
+  "historical_availability": {
+    "exact_pre_acquisition_source_version_availability_proven": false,
+    "historical_backdating_performed": false,
+    "server_date_and_last_modified_headers_recorded_when_observed": true,
+    "source_publication_dates_recorded": true,
+    "source_versions_available_at": "each source's browser acquisition time",
+    "status": "INSUFFICIENT_FOR_INTENDED_HISTORICAL_CUTOFFS",
+    "strict_original_as_of_eligible": false
+  },
+  "materialization_attestation_sha256": "fe68784920a6b5437457792fc0c2cd410269f991be76ad85cff766e8df84d81b",
+  "materialized_source_count": 9,
+  "predecessor_batch": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH017",
+  "prior_valid_browser_capture_reuse_count": 2,
+  "private_capture_evidence_sha256": "810abd4c2697b7483434709cabfc8f46b7690506a915b78495617438126b0fd1",
+  "private_store_path_reconciliation": {
+    "canonical_path_authority_record": "HYDRA_CONSTRAINT_T1_PRIVATE_RAW_STORE_PATH_AUTHORITY_V001_20260926",
+    "canonical_raw_store_id": "HYDRA_CONSTRAINT_T1_RAW_STORE_V1",
+    "stale_objects_excluded_count": 8,
+    "stale_private_reconciliation_record_id": "HYDRA_CONSTRAINT_T1_STALE_MISSPELLED_RAW_STORE_RECONCILIATION_V001_20260926",
+    "stale_private_reconciliation_record_sha256": "369896e444e558521fe88fdb074cb699c1550ff84258ee32cec8b1af4410c358",
+    "stale_sibling_contents_admitted": false,
+    "stale_sibling_raw_subtree_removed": true
+  },
+  "record_id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH018_AI_DATA_CENTER_POWER_INFRASTRUCTURE_SOURCE_MATERIALIZATION_STATUS_V001",
+  "registered_source_count": 9,
+  "release_id": "REL-AIDC-FIRST-SLICE-BROWSER-20260926T220738Z",
+  "release_sha256": "36ae988d4841afd41cd95d157d2cd1903d91e1699280ee603453a31c0be07bd8",
+  "schema_version": "hydra-constraint-first-slice-source-materialization-status/v1",
+  "scope": "AUTHORIZED_BROWSER_CAPTURE_AND_PRIVATE_T1_PERSISTENCE",
+  "selected_valid_browser_capture_count": 9,
+  "slice_id": "AI_DATA_CENTER_POWER_INFRASTRUCTURE_V1",
+  "source_hash_inventory": {
+    "path": "docs/constraint/first_slice/ai_data_center_power_infrastructure_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH018_AI_DATA_CENTER_POWER_INFRASTRUCTURE_SOURCE_HASH_INVENTORY_V001_20260926.json",
+    "sha256": "3b169a75ea846673f33939270ff6d1700d1fc5159446490c81ae26357195e531"
+  },
+  "t5_to_t6_admission_receipt_issued": false,
+  "t5_to_t6_inventory_ready": true
+}

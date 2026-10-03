@@ -1,0 +1,231 @@
+{
+  "schema_version": "hydra-constraint-second-slice-strict-acceptance-gate/v1",
+  "record_id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH024_SEMICONDUCTOR_STRICT_ACCEPTANCE_GATE_V001",
+  "as_of": "2026-09-26",
+  "slice_id": "SEMICONDUCTOR_ADVANCED_PACKAGING_CRITICAL_MATERIALS_V1",
+  "predecessor_batch": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH023",
+  "allowed_gate_states": [
+    "PASS",
+    "PASS_WITH_NONBLOCKING_GAPS",
+    "BLOCKED"
+  ],
+  "dimensions": {
+    "AUTHORITY_CURRENT": {
+      "status": "PASS",
+      "basis": [
+        "LATEST_SUCCESSOR_BATCH_023",
+        "NYX_SUCCESSOR_CHAIN_GUARD",
+        "OWNER_SEAM_RECONCILIATION_V002"
+      ]
+    },
+    "SEMANTIC_REUSE": {
+      "status": "PASS",
+      "basis": [
+        "BATCH017_SEMANTIC_REUSE_AUDIT_PASS",
+        "NO_SEMICONDUCTOR_PARALLEL_AUTHORITY_CREATED"
+      ]
+    },
+    "NO_PARALLEL_ARCHITECTURE": {
+      "status": "PASS",
+      "basis": [
+        "BATCH017_AUTHORITY_MAP",
+        "T1_TO_T6_OWNER_NAMESPACES_REUSED"
+      ]
+    },
+    "SOURCE_AUTHORITY": {
+      "status": "PASS",
+      "basis": [
+        "BATCH018_SOURCE_AUTHORITY_REGISTRY_READY",
+        "PRIMARY_SOURCE_PRIORITY_RULES_ACTIVE"
+      ]
+    },
+    "PROVENANCE": {
+      "status": "BLOCKED",
+      "blockers": [
+        "SEMICONDUCTOR-SLICE-006-RAW-SOURCE-VERSIONS-NOT-MATERIALIZED",
+        "SEMI-ACCEPT-024-LINEAGE-001-SOURCE-VERSION-HASHES-T1-RELEASE-MEMBERSHIP-INCOMPLETE"
+      ]
+    },
+    "ENTITY_RESOLUTION": {
+      "status": "PASS_WITH_NONBLOCKING_GAPS",
+      "basis": [
+        "NAMED_ENTITY_IDS_AND_FACILITY_IDS_POPULATED",
+        "RELATIONSHIP_IDENTITIES_EXPLICIT"
+      ],
+      "gaps": [
+        "NO_ORDINARY_ACCEPTED_RUNTIME_ENTITY_RESOLUTION_RECEIPT_FOR_SECOND_SLICE"
+      ]
+    },
+    "CAPACITY_STATE_SEPARATION": {
+      "status": "PASS",
+      "basis": [
+        "BOOKED_RAMPING_OPERATIONAL_AVAILABLE_EFFECTIVE_STATES_SEPARATED",
+        "ANNOUNCED_NE_REALIZED_FIREWALL_TESTED"
+      ]
+    },
+    "YIELD_SEPARATION": {
+      "status": "PASS",
+      "basis": [
+        "CASE3_COVERED",
+        "NUMERIC_YIELD_NOT_INVENTED",
+        "EFFECTIVE_BITS_PER_WAFER_PENALTY_MODELED"
+      ]
+    },
+    "QUALIFICATION_SEPARATION": {
+      "status": "PASS",
+      "basis": [
+        "CASE6_COVERED",
+        "PRODUCT_MASS_PRODUCTION_NE_TARGET_QUALIFICATION",
+        "SAMSUNG_AMD_TIMELINE_PRESERVED"
+      ]
+    },
+    "MATERIAL_DEPENDENCY": {
+      "status": "PASS",
+      "basis": [
+        "CASE5_COVERED",
+        "RESOURCE_NE_HIGH_PURITY_PROCESSING",
+        "HPQ_SEMICONDUCTOR_CRUCIBLE_CHAIN_POPULATED"
+      ]
+    },
+    "GEOGRAPHY_LINKAGE": {
+      "status": "PASS_WITH_NONBLOCKING_GAPS",
+      "basis": [
+        "ARIZONA_TAIWAN_VIETNAM_SPRUCE_PINE_LINKS_POPULATED",
+        "FACILITY_TO_GEOGRAPHY_RELATIONSHIPS_PRESENT"
+      ],
+      "gaps": [
+        "SLICE_REMAINS_BOUNDED_NOT_INDUSTRY_COMPLETE"
+      ]
+    },
+    "POLICY_EVENT_TIME": {
+      "status": "PASS_WITH_NONBLOCKING_GAPS",
+      "basis": [
+        "CASE9_COVERED",
+        "EFFECTIVE_DATE_COMPLIANCE_DATE_KNOWN_AT_SEPARATED"
+      ],
+      "gaps": [
+        "HISTORICAL_HYDRA_AVAILABLE_AT_NOT_ORDINARY_MATERIALIZED"
+      ]
+    },
+    "CONSTRAINT_FORMATION": {
+      "status": "PASS_WITH_NONBLOCKING_GAPS",
+      "basis": [
+        "COWOS_AND_HBM_T5_SHADOW_CANDIDATES_FORMED",
+        "LIMITING_MECHANISMS_AND_SCOPE_EXPLICIT"
+      ],
+      "gaps": [
+        "CANONICAL_CONSTRAINTS_MINTED=0",
+        "NATIVE_T5_T6_ADMISSION_ABSENT"
+      ]
+    },
+    "CONSTRAINT_MIGRATION": {
+      "status": "PASS_WITH_NONBLOCKING_GAPS",
+      "basis": [
+        "CASE11_COVERED_ON_BOUNDED_MICRON_HBM_CHAIN",
+        "OLD_LIMITER_RELIEF_PRECEDES_NEW_LIMITER"
+      ],
+      "gaps": [
+        "MIGRATION_NOT_ORDINARY_REPLAY_ADMITTED"
+      ]
+    },
+    "INVALIDATOR_HANDLING": {
+      "status": "PASS_WITH_NONBLOCKING_GAPS",
+      "basis": [
+        "CASE10_COVERED",
+        "TECHNICALLY_QUALIFIED_SUBSTITUTE_DOES_NOT_AUTO_RESOLVE_PARENT_CONSTRAINT"
+      ],
+      "gaps": [
+        "PROVEN_CAPACITY_RELIEF_SUBSTITUTIONS=0"
+      ]
+    },
+    "BENEFICIARY_QUALIFICATION": {
+      "status": "PASS_WITH_NONBLOCKING_GAPS",
+      "basis": [
+        "CASE7_FALSE_BENEFICIARY_REJECTION",
+        "CASE8_VALID_BENEFICIARY_INPUT_PATTERN"
+      ],
+      "gaps": [
+        "QUALIFIED_CANONICAL_BENEFICIARIES=0",
+        "ORDINARY_T6_ADMISSION_BLOCKED"
+      ]
+    },
+    "CROSS_SLICE_GRAPH": {
+      "status": "BLOCKED",
+      "blockers": [
+        "SEMI-ACCEPT-024-XSLICE-001-CONTINUOUS-AI-SEMICONDUCTOR-POWER-CHAIN-NOT-PROVEN"
+      ],
+      "evidence": [
+        "AI_COMPUTE_TO_ACCELERATOR_TO_HBM_COWOS_BRIDGE_EXISTS",
+        "TSMC_ARIZONA_FACILITY_TO_POWER_TRANSMISSION_BRIDGE_EXISTS",
+        "NO_SINGLE_EVIDENCE_BACKED_CONTINUOUS_CAUSAL_PATH_CURRENTLY_JOINS_THE_TWO_BRIDGES"
+      ]
+    },
+    "ORIGINAL_AS_OF": {
+      "status": "BLOCKED",
+      "blockers": [
+        "SEMICONDUCTOR-SLICE-006-RAW-SOURCE-VERSIONS-NOT-MATERIALIZED",
+        "SEMI-ACCEPT-024-REPLAY-001-ORDINARY_HISTORICAL_REPLAY_NOT_READY"
+      ]
+    },
+    "NO_LOOKAHEAD": {
+      "status": "BLOCKED",
+      "blockers": [
+        "SEMI-ACCEPT-024-CASE12-001-HISTORICAL_NO_LOOKAHEAD_NOT_ORDINARY_PROVEN"
+      ],
+      "evidence": [
+        "CURRENT_REVIEW_KNOWN_AT_FIREWALL_TESTABLE",
+        "CASE12_REMAINS_ONLY_REQUIRED_CASE_GAP"
+      ]
+    },
+    "DETERMINISTIC_REPLAY": {
+      "status": "BLOCKED",
+      "blockers": [
+        "SEMI-ACCEPT-024-REPLAY-001-ORDINARY_HISTORICAL_REPLAY_NOT_READY"
+      ]
+    },
+    "OUTCOME_CAPTURE": {
+      "status": "PASS_WITH_NONBLOCKING_GAPS",
+      "basis": [
+        "TSMC_ARIZONA_RAMP_OUTCOME_CAPTURED",
+        "RAMP_DELAY_AND_RECOVERY_CHAIN_CAPTURED"
+      ],
+      "gaps": [
+        "OUTCOMES_ARE_CURRENT_REVIEW_SHADOW_NOT_ORDINARY_REPLAY_ADMITTED"
+      ]
+    },
+    "LINEAGE": {
+      "status": "BLOCKED",
+      "blockers": [
+        "SEMICONDUCTOR-SLICE-006-RAW-SOURCE-VERSIONS-NOT-MATERIALIZED",
+        "SEMI-ACCEPT-024-LINEAGE-001-SOURCE_VERSION_HASHES_T1_RELEASE_MEMBERSHIP_INCOMPLETE"
+      ]
+    },
+    "IMPLEMENTATION_ADMITTED": {
+      "status": "BLOCKED",
+      "blockers": [
+        "CI-TEST-008-BLOCKER-001B-NATIVE-T5-T6-SIGNED-ADMISSION-RECEIPT-ABSENT",
+        "CANONICAL-T5-T6-CONSTRAINT-AND-BENEFICIARY-ADMISSION-NOT-AUTHORIZED"
+      ]
+    }
+  },
+  "required_case_state": {
+    "covered": 13,
+    "total": 14,
+    "remaining_case_ids": [
+      12
+    ],
+    "repo_executable_required_case_gaps": 0
+  },
+  "overall_status": "BLOCKED",
+  "full_constraint_run_allowed": false,
+  "first_semiconductor_run": "BLOCKED",
+  "rule": "ANY_BLOCKED_REQUIRED_ACCEPTANCE_DIMENSION_FORCES_OVERALL_BLOCKED",
+  "non_implications": [
+    "THIRTEEN_OF_FOURTEEN_CASES_COVERED_DOES_NOT_EQUAL_ACCEPTANCE",
+    "CURRENT_REVIEW_TEMPORAL_FIREWALL_DOES_NOT_EQUAL_ORDINARY_NO_LOOKAHEAD_PROOF",
+    "TWO_PARTIAL_CROSS_SLICE_BRIDGES_DO_NOT_EQUAL_ONE_CONTINUOUS_CAUSAL_CHAIN",
+    "SHADOW_CONSTRAINT_FORMATION_DOES_NOT_EQUAL_CANONICAL_ADMISSION",
+    "SHADOW_OUTCOMES_DO_NOT_EQUAL_REPLAYABLE_OUTCOMES"
+  ],
+  "next_repo_executable_lane": "SECOND-SLICE-CONTINUOUS-CROSS-SLICE-GRAPH-CLOSURE"
+}

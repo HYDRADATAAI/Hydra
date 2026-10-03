@@ -1,0 +1,55 @@
+{
+  "schema_version": "hydra-constraint-thread6-successor-manifest/v1",
+  "record_id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH032_ARTIFACT_MANIFEST_V001",
+  "as_of": "2026-09-28",
+  "repository": "HYDRADATAAI/Hydra",
+  "predecessor_batch": {
+    "id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH031",
+    "preservation": "IMMUTABLE_NOT_REWRITTEN"
+  },
+  "slice_id": "SEMICONDUCTOR_ADVANCED_PACKAGING_CRITICAL_MATERIALS_V1",
+  "result": "PASS_SANITIZED_PUBLIC_T1_ATTESTATION_CURRENT_CUSTODY_COMPLETE_STRICT_REPLAY_BLOCKED",
+  "artifacts": [
+    {
+      "path": "docs/constraint/validation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH032_SEMICONDUCTOR_T1_MATERIALIZATION_ATTESTATION_V001_20260928.json",
+      "git_blob_sha": "5538232c28ad849db2923798ab660fc1e7b34b8a"
+    },
+    {
+      "path": "docs/constraint/validation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH032_SEMICONDUCTOR_T1_MATERIALIZATION_REPORT_V001_20260928.md",
+      "git_blob_sha": "2350d32c731129947cc8f305319d0085fa56ca1b"
+    },
+    {
+      "path": "docs/constraint/architecture/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH032_SEMICONDUCTOR_POST_CAPTURE_PUBLIC_STATUS_V001_20260928.json",
+      "git_blob_sha": "8accfca3f139debd29d63ab8db51ccec1e12b3ca"
+    },
+    {
+      "path": "docs/constraint/architecture/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH032_MASTER_STATUS_V001_20260928.json",
+      "git_blob_sha": "5f0be73432812fd40f2abe73bc73e199eb179580"
+    }
+  ],
+  "excluded_operational_tools": [
+    {
+      "path": "tools/validate_constraint_second_slice_batch032_t1_attestation.py",
+      "reason": "operational validator"
+    },
+    {
+      "path": "tools/test_constraint_second_slice_batch032_t1_attestation_adversarial.py",
+      "reason": "hostile harness"
+    },
+    {
+      "path": ".github/workflows/constraint-second-slice.yml",
+      "reason": "CI orchestration"
+    }
+  ],
+  "expected": {
+    "release_id": "REL-SEMI-B031-V001",
+    "release_sha256": "c735db9e8a5daed8cff08dc7d9c2b4cc11f5910aba61669536c3961b21ac8b77",
+    "release_record_file_sha256": "d7a4f2f625b3a9bdd19e24204a259b68c20dea0d40e0418859d14ddea6553f8b",
+    "materialized_source_count": 30,
+    "ordinary_t2_eligible_count": 30,
+    "persisted_current_custody": "COMPLETE",
+    "strict_historical_replay": "NO",
+    "case_12": "OPEN",
+    "next_repo_executable_lane": "SEMICONDUCTOR_ORDINARY_T2_NORMALIZATION_FROM_BATCH031_RELEASE"
+  }
+}

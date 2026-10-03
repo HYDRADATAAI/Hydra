@@ -1,0 +1,57 @@
+{
+  "schema_version": "hydra-constraint-second-slice-private-t1-materialization-contract/v1",
+  "record_id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH026_SEMICONDUCTOR_PRIVATE_T1_MATERIALIZATION_CONTRACT_V001",
+  "as_of": "2026-09-26",
+  "slice_id": "SEMICONDUCTOR_ADVANCED_PACKAGING_CRITICAL_MATERIALS_V1",
+  "owner_namespace": "PIPELINE_T1_SOURCE_ACQUISITION",
+  "predecessor_batch": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH025",
+  "queue_record_id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH026_SEMICONDUCTOR_PRIVATE_T1_CAPTURE_QUEUE_V001",
+  "source_count": 41,
+  "raw_store_contract": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH008_T1_RAW_ARTIFACT_PERSISTENCE_CONTRACT_V001",
+  "release_id": "REL-SEMI-B026-V001",
+  "private_paths": {
+    "raw_root_default": "D:\\HYDRA_PRIVATE\\constraint\\raw",
+    "inbox_root_default": "D:\\HYDRA_PRIVATE\\constraint\\capture_inbox\\semiconductor_batch026",
+    "public_repo_root_default": "D:\\HYDRA_GITHUB\\Hydra"
+  },
+  "capture_sidecar_schema": {
+    "schema_version": "hydra-semiconductor-private-capture-sidecar/v1",
+    "required_fields": [
+      "schema_version",
+      "capture_intent_id",
+      "source_id",
+      "source_version_id",
+      "source_locator",
+      "capture_completed_at",
+      "content_type",
+      "processing_disposition",
+      "historical_backdating_authorized"
+    ],
+    "rules": [
+      "CAPTURE_COMPLETED_AT_MUST_BE_OFFSET_AWARE",
+      "HISTORICAL_BACKDATING_AUTHORIZED_MUST_BE_FALSE",
+      "RECEIPT_ACQUIRED_AT_EQUALS_CAPTURE_COMPLETED_AT",
+      "RECEIPT_AVAILABLE_AT_EQUALS_CAPTURE_COMPLETED_AT",
+      "SOURCE_LOCATOR_MUST_MATCH_PUBLIC_QUEUE",
+      "PROCESSING_DISPOSITION_MUST_BE_ELIGIBLE",
+      "CONTENT_TYPE_MUST_MATCH_CAPTURE_REPRESENTATION_FAMILY"
+    ]
+  },
+  "materialization_rules": [
+    "NO_NETWORK_ACQUISITION_BY_T1_STORE_OR_MATERIALIZER",
+    "RAW_BYTES_STAY_OUTSIDE_PUBLIC_REPOSITORY",
+    "EVERY_SOURCE_ID_GETS_EXACTLY_ONE_BATCH026_SOURCE_VERSION_ID",
+    "NO_COPYING_PUBLIC_REVIEW_AVAILABLE_AT_INTO_RECEIPT",
+    "ALL_RECEIPTS_MUST_VALIDATE_AGAINST_PERSISTED_RAW_BYTES",
+    "RELEASE_MEMBERSHIP_MUST_EQUAL_EXACT_QUEUE_SOURCE_VERSION_SET",
+    "ALL_RELEASE_MEMBERS_MUST_BE_ORDINARY_T2_ELIGIBLE"
+  ],
+  "completion_state_machine": [
+    "PACKET_READY",
+    "CAPTURE_INBOX_COMPLETE",
+    "T1_RECEIPTS_COMPLETE",
+    "T1_RELEASE_COMPLETE",
+    "ORDINARY_T2_ELIGIBILITY_COMPLETE",
+    "CASE12_REPLAY_ELIGIBLE_PENDING_REPLAY_EXECUTION"
+  ]
+}

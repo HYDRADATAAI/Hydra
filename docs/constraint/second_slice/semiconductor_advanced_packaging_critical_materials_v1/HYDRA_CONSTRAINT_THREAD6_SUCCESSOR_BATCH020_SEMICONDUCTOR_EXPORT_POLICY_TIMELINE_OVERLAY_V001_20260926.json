@@ -1,0 +1,35 @@
+{
+  "schema_version": "hydra-constraint-second-slice-policy-timeline-overlay/v1",
+  "record_id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH020_SEMICONDUCTOR_EXPORT_POLICY_TIMELINE_OVERLAY_V001",
+  "as_of": "2026-09-26",
+  "slice_id": "SEMICONDUCTOR_ADVANCED_PACKAGING_CRITICAL_MATERIALS_V1",
+  "events": [
+    {
+      "event_id": "POLICY-BIS-HBM-SME-2024-12",
+      "event_type": "EXPORT_CONTROL",
+      "label": "BIS December 2024 HBM and semiconductor manufacturing equipment control package",
+      "public_inspection_at": "2024-12-02",
+      "effective_at": "2024-12-02",
+      "hbm_compliance_at": "2024-12-31",
+      "known_at": "2026-09-26T21:28:33Z",
+      "observed_at": "2026-09-26T21:28:33Z",
+      "resolved_at": null,
+      "target_geography_id": "GEO-PRC",
+      "affected_classes": [
+        "HIGH_BANDWIDTH_MEMORY",
+        "SEMICONDUCTOR_MANUFACTURING_EQUIPMENT"
+      ],
+      "evidence_ids": [
+        "EV-SEMI-B020-BIS-RULE-TIMING-2024",
+        "EV-SEMI-B020-BIS-HBM-SME-SCOPE-2024"
+      ],
+      "ordinary_replay_eligible": false,
+      "semantic_firewalls": [
+        "PUBLIC_INSPECTION_AT_NE_HYDRA_KNOWN_AT",
+        "EFFECTIVE_AT_NE_HBM_COMPLIANCE_AT",
+        "CONTROL_NE_COMPLETE_SUPPLY_CUTOFF"
+      ]
+    }
+  ],
+  "rule": "POLICY_MAY_NOT_ENTER_A_HYDRA_CUTOFF_BEFORE_KNOWN_AT_EVEN_WHEN_EFFECTIVE_AT_IS_HISTORICALLY_EARLIER"
+}

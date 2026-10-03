@@ -1,0 +1,19 @@
+{
+  "schema_version": "hydra-t5-t6-native-binding-implementation/v1",
+  "implementation_id": "HYDRA_CONSTRAINT_FIRST_SLICE_NATIVE_T5_T6_BRIDGE_V001_20260928",
+  "implementation_version": "v1",
+  "artifact_sha256": "e090e1326ee4ff03fca378925b1316dd3c870ccf70a9fe313c9c8fb1e00e476f",
+  "test_evidence_sha256": "d614733a65943334ab9a2f5c41b7b94b2d8a111d23953b79622a975d5a636294",
+  "producer_stage": "PIPELINE_T5_CONSTRAINT_FORMATION",
+  "consumer_stage": "PIPELINE_T6_CANONICAL_CANDIDATE_GOVERNANCE",
+  "handoff_schema": "t6-candidate-handoff.v1",
+  "candidate_schema": "constraint-candidate.v2",
+  "semantic_authority_pins": {
+    "thread1": "11_LILY_THREAD1_BATCH11_POST_CLOSURE_OWNER_DELTA_RECONCILIATION.md",
+    "thread2": "LILY_THREAD_2_BATCH_06_FINAL_CLOSURE:a0faf1074ff7aaa5db6546d16076bfff0acf024548be21bd0eacc558ea5ce38e",
+    "thread3": "LILY_THREAD_3_MASTER_CLOSURE:ab7e4c05c9210a90256b8cdea89eeb9f3bb551453dfe13ebfe44616f750cb366"
+  },
+  "runtime_activation_requested": false,
+  "canonical_promotion_requested": false,
+  "live_source_requested": false
+}

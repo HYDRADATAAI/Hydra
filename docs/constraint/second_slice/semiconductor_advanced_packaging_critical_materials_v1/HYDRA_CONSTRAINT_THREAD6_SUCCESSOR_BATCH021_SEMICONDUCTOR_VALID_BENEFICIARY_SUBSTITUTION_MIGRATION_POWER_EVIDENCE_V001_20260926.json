@@ -1,0 +1,64 @@
+{
+  "schema_version": "hydra-constraint-second-slice-evidence-supplement/v1",
+  "record_id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH021_SEMICONDUCTOR_VALID_BENEFICIARY_SUBSTITUTION_MIGRATION_POWER_EVIDENCE_V001",
+  "as_of": "2026-09-26",
+  "slice_id": "SEMICONDUCTOR_ADVANCED_PACKAGING_CRITICAL_MATERIALS_V1",
+  "evidence": [
+    {
+      "evidence_id": "EV-SEMI-B021-MICRON-HBM-REVENUE-MARGIN-CAPTURE-2024",
+      "source_id": "SRC-SEMI-B021-MICRON-Q3FY24-REMARKS-2024-06-26",
+      "proposition": "Micron reported more than $100 million of HBM3E revenue in fiscal Q3 2024 at margins accretive to DRAM and overall company margins, while stating HBM supply was sold out for calendar 2024 and 2025.",
+      "evidence_role": "BENEFICIARY_ECONOMIC_CAPTURE",
+      "semantic_limit": "CAPTURE IS MICRON-SPECIFIC; DOES NOT PROVE ALL HBM SCARCITY CAUSED ALL MARGINS"
+    },
+    {
+      "evidence_id": "EV-SEMI-B021-MICRON-HBM-HIGHVOLUME-FOUR-CUSTOMERS-2025",
+      "source_id": "SRC-SEMI-B021-MICRON-Q3FY25-REMARKS-2025-06-25",
+      "proposition": "Micron stated it was shipping HBM in high volume to four customers and that HBM3E 12H yield and volume ramp were progressing extremely well.",
+      "evidence_role": "QUALIFIED_EFFECTIVE_CAPACITY_AND_CUSTOMER_ADDRESSABILITY",
+      "semantic_limit": "HIGH-VOLUME SHIPPING DOES NOT QUANTIFY UNBOOKED SPARE CAPACITY"
+    },
+    {
+      "evidence_id": "EV-SEMI-B021-MICRON-AMD-MI355X-DESIGNIN-2025",
+      "source_id": "SRC-SEMI-B021-MICRON-Q3FY25-REMARKS-2025-06-25",
+      "proposition": "Micron stated its HBM3E 36GB 12H was designed into AMD Instinct MI355X.",
+      "evidence_role": "TARGET_PLATFORM_CONNECTION",
+      "semantic_limit": "DESIGN-IN IS STRONG PLATFORM CONNECTION; DOES NOT BY ITSELF QUANTIFY SHIPMENT SHARE"
+    },
+    {
+      "evidence_id": "EV-SEMI-B021-MICRON-HBM-Q4-2025-CAPTURE",
+      "source_id": "SRC-SEMI-B021-MICRON-Q4FY25-REMARKS-2025-09-23",
+      "proposition": "Micron reported HBM revenue of nearly $2 billion in fiscal Q4 2025, an annualized run rate near $8 billion, and an expanded HBM customer base of six.",
+      "evidence_role": "BENEFICIARY_REALIZED_CAPTURE",
+      "semantic_limit": "DOES NOT ATTRIBUTE ALL COMPANY OR DATA-CENTER REVENUE TO THE SPECIFIC BOUNDED HBM CONSTRAINT"
+    },
+    {
+      "evidence_id": "EV-SEMI-B021-SAMSUNG-AMD-HBM3E-QUALIFIED-2026",
+      "source_id": "SRC-SEMI-B021-AMD-SAMSUNG-HBM3E-PARTNERSHIP-2026-03-18",
+      "proposition": "AMD stated Samsung served as the primary HBM3E partner powering AMD Instinct MI350X and MI355X accelerators.",
+      "evidence_role": "TARGET_SPECIFIC_QUALIFICATION_AND_DEPLOYMENT",
+      "semantic_limit": "PROVES AMD PLATFORM DEPLOYMENT; DOES NOT PROVE UNBOOKED CAPACITY OR UNIVERSAL INTERCHANGEABILITY"
+    },
+    {
+      "evidence_id": "EV-SEMI-B021-TSMC-ARIZONA-POWER-230KV-DEPENDENCY",
+      "source_id": "SRC-SEMI-B021-APS-BISCUIT-FLATS-TSMC-2021-06",
+      "proposition": "APS records identify TSMC's Phoenix semiconductor plant and state the plant requires extensive electric power and robust 230kV service, requiring transmission-line relocation and substation expansion/addition.",
+      "evidence_role": "SEMICONDUCTOR_FACILITY_POWER_INFRASTRUCTURE_DEPENDENCY",
+      "semantic_limit": "PROVES POWER/TRANSMISSION DEPENDENCY; DOES NOT PROVE AN ACTIVE POWER SHORTAGE"
+    },
+    {
+      "evidence_id": "EV-SEMI-B021-AZCC-TSMC-SUBSTATION-APPROVAL-2021",
+      "source_id": "SRC-SEMI-B021-AZCC-TSMC-POWER-ORDER-2021-09-09",
+      "proposition": "The Arizona Corporation Commission approved APS substation expansion, a new 500/230kV substation and transmission relocation to serve the TSMC Phoenix plant's substantial electricity demand.",
+      "evidence_role": "POWER_INFRASTRUCTURE_BUILDOUT_OUTCOME",
+      "semantic_limit": "APPROVAL/BUILDOUT SUPPORTS DEPENDENCY LINK; DOES NOT PROVE SEMICONDUCTOR OUTPUT WAS DELAYED BY POWER"
+    },
+    {
+      "evidence_id": "EV-SEMI-B021-MICRON-MEMORY-SUPPLY-CLEANROOM-CONSTRAINT-2026",
+      "source_id": "SRC-SEMI-B021-MICRON-Q1FY26-REMARKS-2025-12-17",
+      "proposition": "Micron stated aggregate industry supply would remain substantially short of memory demand, that HBM's DRAM trade ratio further challenged supply, and that additional cleanroom space was necessary while cleanroom build-out lead times were lengthening.",
+      "evidence_role": "NEW_OR_PERSISTING_SUPPLY_CONSTRAINT_CONTEXT",
+      "semantic_limit": "SUPPORTS MEMORY/CLEANROOM BOTTLENECK CONTEXT; DOES NOT PROVE PRIOR COWOS CONSTRAINT WAS RESOLVED"
+    }
+  ]
+}
