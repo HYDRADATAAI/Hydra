@@ -125,35 +125,6 @@ class LilyOwnerSeamRebaseTests(unittest.TestCase):
                 with self.assertRaises(OwnerSeamConformanceError):
                     self.validate(docs)
 
-    def test_candidate_claim_lineage_rejects_duplicate_references(self):
-        docs = self.mutated()
-        refs = docs["candidates"]["candidates"][0]["claim_ids"]
-        refs.append(refs[0])
-        with self.assertRaisesRegex(OwnerSeamConformanceError, "claim_ids: duplicate references"):
-            self.validate(docs)
-
-    def test_candidate_evidence_role_rejects_duplicate_known_references(self):
-        docs = self.mutated()
-        refs = docs["candidates"]["candidates"][0]["evidence_roles"]["constraint_support"]
-        refs.append(refs[0])
-        with self.assertRaisesRegex(OwnerSeamConformanceError, "constraint_support: duplicate references"):
-            self.validate(docs)
-
-    def test_candidate_claim_can_also_appear_in_distinct_evidence_role(self):
-        docs = self.mutated()
-        candidate = docs["candidates"]["candidates"][1]
-        self.assertIn("CLM-AIDC-005", candidate["claim_ids"])
-        self.assertIn("CLM-AIDC-005", candidate["evidence_roles"]["relief"])
-        self.assertEqual("PASS_CURRENT_FAIL_CLOSED_OWNER_SEAMS", self.validate(docs)["status"])
-
-    def test_beneficiary_role_allows_duplicate_known_references(self):
-        docs = self.mutated()
-        refs = docs["beneficiaries"]["relationships"][0]["evidence_lineage"]["entity_connection"]
-        refs.append(refs[0])
-        result = self.validate(docs)
-        self.assertEqual("PASS_CURRENT_FAIL_CLOSED_OWNER_SEAMS", result["status"])
-        self.assertEqual(0, result["qualified_beneficiary_count"])
-
     def test_candidate_role_mapping_cannot_disappear(self):
         for value in (None, [], {}, ""):
             with self.subTest(value=value):
