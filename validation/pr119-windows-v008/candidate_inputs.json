@@ -1,0 +1,24 @@
+{
+  "original_candidate_commit": "c0fc3ece522c9a4441d15e20501b6d1519443450",
+  "original_candidate_tree": "73f8d2a8903da6be8397124e8baa4d292dffdbac",
+  "main": "a738e851183ed4a21e32bac30a5d0a60762e7193",
+  "pr119_head": "417174daa31761ad9eaeba56ca6306b3050ada7a",
+  "repair_E": "53ac6e28cb3088bdaf5d7c2702f44f362998892f",
+  "repair_F": "eaa256a809075361e463ba0dd3dc299dcbf1b5dc",
+  "candidate_tree": "c796df04ae2a609b314f3ddebb609c7454144165",
+  "candidate_commit": "f721a06eb8eb6d0258d98d1586c20663d4549981",
+  "previous_main": "fa94ab3e2fdd4776d84d110f4233ba84409eb947",
+  "previous_repaired_candidate": "d8715a53b3076d388f08b2f7b7f21a13a95990db",
+  "construction_scope": "CURRENT_MAIN_PLUS_PR119_ONLY",
+  "source_file_count": 737,
+  "previous_validation_main": "8b459719619be497408bdf970b8d1e8830ce93b3",
+  "previous_validation_candidate": "eb46eff603299414f427161fd07ae9a074f4ffd6",
+  "previous_validation_tree": "23837f20645666b910a80cb53b5c4f4eb243c85b",
+  "changed_input_commits": [
+    "6758be71d67f7b2f9430a7711fa7516c0104f47a"
+  ],
+  "version": "V008",
+  "repair_commit_fields_are_historical_provenance": true,
+  "github_preview_commit": "24d9306c7de57404be7ecb77c9fe5099c8e8c45f",
+  "contract_migration": "thread_f_contract_migration.json"
+}

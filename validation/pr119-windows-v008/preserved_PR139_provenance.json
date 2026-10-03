@@ -1,0 +1,10 @@
+{
+  "source_commit": "50268a06ae6c87c4e9ffc6e645d2c155a9ebd2b9",
+  "source_path": "validation/pr119-current-main-v005/preserved_139_builder_test.py",
+  "source_blob": "59736a6b55d2afa1b818f583fa7bd6fe36ab730a",
+  "source_run": 36941956266,
+  "source_sha256": "d96894b76ab43be1c7e300a29338ddba2ced174be7a678a7324a30f50ad040c3",
+  "modifications": [],
+  "binding": "MATRIX_SOURCE_ROOT environment variable, exact candidate HEAD Git bytes; no hard-coded PIN",
+  "target_path": "validation/pr119-windows-v008/preserved_PR139_builder.py"
+}
