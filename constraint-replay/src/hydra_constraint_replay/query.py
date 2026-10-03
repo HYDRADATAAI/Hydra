@@ -19,6 +19,17 @@ DEFAULT_MANIFEST_PATH = (
     "HYDRA_CONSTRAINT_BATCH015_CLASSIFIED_REPLAY_E2E_MANIFEST_20260926.json"
 )
 
+CI_CONTRACT_SUCCESSOR_RECORD_PATH = (
+    "constraint-replay/runtime/"
+    "HYDRA_CONSTRAINT_BATCH015_CI_CONTRACT_SUCCESSOR_V001_20261003.json"
+)
+CI_CONTRACT_SUCCESSORS = {
+    ".github/workflows/constraint-policy-integration.yml": {
+        "predecessor_git_blob_sha": "5dbbd09dbcaac4741a6fa7bd6bac432e466f0f62",
+        "successor_git_blob_sha": "b270e37e5d8e00d509ea5c883c17b6887d2aa491",
+    }
+}
+
 READ_ONLY_CAPABILITIES = {
     "canonical_promotion_authorized": False,
     "canonical_store_mutation_authorized": False,
@@ -48,6 +59,42 @@ def _read_json(path: Path, label: str) -> dict[str, Any]:
     if not isinstance(raw, dict):
         raise ConstraintQueryError(f"{label} must be a JSON object")
     return raw
+
+
+def _validated_ci_contract_successors(root: Path) -> dict[str, dict[str, str]]:
+    record = _read_json(
+        root / CI_CONTRACT_SUCCESSOR_RECORD_PATH,
+        "Batch 015 CI-contract successor",
+    )
+    expected_transition = {
+        "path": ".github/workflows/constraint-policy-integration.yml",
+        **CI_CONTRACT_SUCCESSORS[".github/workflows/constraint-policy-integration.yml"],
+    }
+    if set(record) != {
+        "schema_version",
+        "scope",
+        "historical_manifest_path",
+        "historical_manifest_git_blob_sha",
+        "predecessor_artifacts_rewritten",
+        "acceptance_effect",
+        "transitions",
+    }:
+        raise ConstraintQueryError("Batch 015 CI-contract successor field set invalid")
+    if record.get("schema_version") != "hydra-constraint-ci-contract-successor/v1":
+        raise ConstraintQueryError("Batch 015 CI-contract successor schema invalid")
+    if record.get("scope") != "BATCH015_CI_CONTRACT_CONTINUATION_ONLY":
+        raise ConstraintQueryError("Batch 015 CI-contract successor scope invalid")
+    if record.get("historical_manifest_path") != DEFAULT_MANIFEST_PATH:
+        raise ConstraintQueryError("Batch 015 CI-contract successor manifest path invalid")
+    if record.get("historical_manifest_git_blob_sha") != "7d2deb998e8c3362cea861f48909b78c1c00a42d":
+        raise ConstraintQueryError("Batch 015 CI-contract successor manifest pin invalid")
+    if record.get("predecessor_artifacts_rewritten") is not False:
+        raise ConstraintQueryError("Batch 015 CI-contract successor rewrites history")
+    if record.get("acceptance_effect") != "NONE":
+        raise ConstraintQueryError("Batch 015 CI-contract successor changes acceptance")
+    if record.get("transitions") != [expected_transition]:
+        raise ConstraintQueryError("Batch 015 CI-contract successor transition drift")
+    return CI_CONTRACT_SUCCESSORS
 
 
 class ConstraintReplayQueryService:
@@ -133,9 +180,19 @@ class ConstraintReplayQueryService:
                     )
                 actual = _git_blob_sha(self._root / relative)
                 if actual != expected:
-                    raise ConstraintQueryError(
-                        f"Batch 015 manifest pin mismatch for {relative}"
-                    )
+                    if group_name != "ci_contracts":
+                        raise ConstraintQueryError(
+                            f"Batch 015 manifest pin mismatch for {relative}"
+                        )
+                    successor = _validated_ci_contract_successors(self._root).get(relative)
+                    if (
+                        successor is None
+                        or successor["predecessor_git_blob_sha"] != expected
+                        or successor["successor_git_blob_sha"] != actual
+                    ):
+                        raise ConstraintQueryError(
+                            f"Batch 015 manifest pin mismatch for {relative}"
+                        )
                 checked.append({"path": relative, "git_blob_sha": actual})
 
         runner = self._manifest.get("runner")
