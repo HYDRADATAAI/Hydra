@@ -24,10 +24,10 @@ jobs:
           $tree = (git rev-parse 'HEAD^{tree}').Trim()
           if ($head -ne '77f976d8ccec9316ab41d1909a0fbcf4be76e08d') { throw "candidate head drift: $head" }
           if ($tree -ne '4fe9cf601a2953eb3968fec40e48f9f981938965') { throw "candidate tree drift: $tree" }
-          git cat-file -e 7fb3934cc17505418cd7cc5d492874b39c3404ab^{commit}
           git diff --check 7fb3934cc17505418cd7cc5d492874b39c3404ab 77f976d8ccec9316ab41d1909a0fbcf4be76e08d
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           $paths = @(git diff --name-only 7fb3934cc17505418cd7cc5d492874b39c3404ab 77f976d8ccec9316ab41d1909a0fbcf4be76e08d)
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           if ($paths.Count -ne 3) { throw "unexpected changed path count: $($paths.Count)" }
           'PR146_EXACT_CANDIDATE_GIT_DIFF_CHECK=PASS'
           "CANDIDATE_HEAD=$head"
