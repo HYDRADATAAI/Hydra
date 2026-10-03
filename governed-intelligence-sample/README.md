@@ -1,8 +1,10 @@
-# Governed intelligence pre-model sample
+# Governed intelligence pre-model context and retrieval
 
-This runnable sample proves the boundary immediately before any model or agent execution:
+This runnable sample proves two boundaries immediately before any model or agent execution:
 
 `integrity-checked pipeline artifacts -> policy decision -> bounded context -> exact citations -> deterministic evaluation receipt`
+
+`accepted records only -> weighted lexical ranking -> exact citations -> deterministic retrieval benchmark`
 
 It consumes the **synthetic, non-live** accepted/quarantine outputs and manifest produced by [`market-data-pipeline-sample/`](../market-data-pipeline-sample/). It does not call a model, a vector database, a broker, or any external service.
 
@@ -16,12 +18,17 @@ It consumes the **synthetic, non-live** accepted/quarantine outputs and manifest
 - every decision binds the exact policy and pipeline manifest digests;
 - model execution remains `authorized: false` and `status: NOT_EXECUTED`;
 - the five-case evaluation and all output receipts are byte-deterministic.
+- lexical retrieval indexes accepted records only and never indexes quarantine details;
+- ranking uses an inspectable field-weight policy, integer scores, and deterministic event-ID tie breaking;
+- every ranked record carries an exact artifact, record ID, and record SHA-256 citation;
+- the six-case retrieval benchmark reports Recall@k and mean reciprocal rank alongside abstain/refuse checks;
+- unknown and quarantined-only symbols produce `ABSTAIN`, while requests for restricted raw/quarantine material produce `REFUSE`.
 
 ## What it does not prove
 
-This is a pre-model control and evaluation proof. It is not evidence of model quality, semantic retrieval quality, live market coverage, production latency or uptime, autonomous analysis, investment advice, or trading authorization.
+This is a pre-model control and **lexical** retrieval evaluation proof. It is not evidence of model quality, semantic or embedding retrieval quality, live market coverage, production latency or uptime, autonomous analysis, investment advice, or trading authorization.
 
-The request fixture uses explicit structured task types. It does not pretend that natural-language intent classification has been implemented.
+The context fixture uses explicit structured task types. Retrieval tokenizes bounded fixture queries and applies a fixed, digest-bound weighting policy. Neither path pretends that natural-language intent classification has been implemented.
 
 ## Run it
 
@@ -46,6 +53,11 @@ python run_demo.py `
   --policy config/policy.json `
   --cases fixtures/evaluation_cases.json `
   --output-dir build/evaluation
+python run_retrieval_demo.py `
+  --pipeline-output-dir ../market-data-pipeline-sample/build/demo `
+  --policy config/retrieval_policy.json `
+  --cases fixtures/retrieval_cases.json `
+  --output-dir build/retrieval
 ```
 
 The evaluation writes:
@@ -53,5 +65,11 @@ The evaluation writes:
 - `decisions.jsonl`: one policy decision and, where admitted, its bounded context packet;
 - `evaluation_report.json`: expected/actual control results and explicit zero-execution counters;
 - `output_manifest.json`: SHA-256 bindings for the generated receipts and all input contracts.
+
+The retrieval benchmark writes:
+
+- `retrieval_decisions.jsonl`: ranked accepted records, integer scores, and exact citations;
+- `retrieval_evaluation_report.json`: six expected/actual decisions plus Recall@k, MRR, and zero-execution counters;
+- `retrieval_output_manifest.json`: SHA-256 bindings for the retrieval receipts, policy, suite, and upstream manifest.
 
 GitHub Actions repeats this chain from the committed synthetic CSV and publishes the generated receipts as a workflow artifact.
