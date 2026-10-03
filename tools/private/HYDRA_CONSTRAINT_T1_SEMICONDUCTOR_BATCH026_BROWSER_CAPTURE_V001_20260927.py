@@ -891,7 +891,7 @@ def capture_one(
     )
     page = context.new_page()
     responses: list[Any] = []
-    blocked_provider_requests: list[str] = []
+    blocked_provider_urls: list[str] = []
     fallback_retry_active = False
 
     def guard_provider_request(route: Any) -> None:
@@ -899,7 +899,7 @@ def capture_one(
         try:
             reject_forbidden_capture_request(request_url)
         except CaptureError:
-            blocked_provider_requests.append(request_url)
+            blocked_provider_urls.append(request_url)
             route.abort("blockedbyclient")
             return
         route.continue_()
@@ -953,20 +953,20 @@ def capture_one(
                     f"response_status={response_status} navigation_error={navigation_error!s}",
                     flush=True,
                 )
-            if blocked_provider_requests:
+            if blocked_provider_urls:
                 raise CaptureError(
                     "SUPERSEDED_BY_BATCH030_QUARANTINE: blocked forbidden provider request before dispatch: "
-                    f"{blocked_provider_requests[-1]}"
+                    f"{blocked_provider_urls[-1]}"
                 )
         else:
             try:
                 page.goto(locator, wait_until="commit", timeout=max(1, navigation_timeout_seconds) * 1000)
             except Exception as exc:
                 navigation_error = exc
-            if blocked_provider_requests:
+            if blocked_provider_urls:
                 raise CaptureError(
                     "SUPERSEDED_BY_BATCH030_QUARANTINE: blocked forbidden provider request before dispatch: "
-                    f"{blocked_provider_requests[-1]}"
+                    f"{blocked_provider_urls[-1]}"
                 )
 
         deadline = time.monotonic() + max(0, challenge_wait_seconds)

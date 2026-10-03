@@ -187,7 +187,7 @@ def main()->int:
     require(
       "route.abort(\"blockedbyclient\")" in capture_one_text
       and "route.continue_()" in capture_one_text
-      and "blocked_provider_requests" in capture_one_text,
+      and "blocked_provider_urls" in capture_one_text,
       "provider route guard must abort blocked requests before dispatch and report them",
     )
     route_guard_start=capture_one_text.index("def guard_provider_request(")
