@@ -133,3 +133,29 @@ class LineageReplayTests(unittest.TestCase):
         row["support_claim_ids"] = []
         row["support_evidence_ids"] = [self.inputs["claim_registry"]["claims"][0]["claim_id"]]
         self.assertNotIn(row["relief_path_id"], self.snap()["relief_path_ids"])
+
+    def test_scalar_claim_evidence_cannot_fabricate_character_ids(self):
+        claim = self.inputs['claim_registry']['claims'][0]
+        claim['support_evidence_ids'] = 'FAKE'
+        relief = self.inputs['relief_paths']['relief_paths'][0]
+        relief['support_claim_ids'] = []
+        relief['support_evidence_ids'] = ['F']
+        with self.assertRaises(ValueError):
+            self.snap()
+
+    def test_beneficiary_lineage_roles_require_reference_lists(self):
+        row = self.inputs['beneficiaries']['relationships'][0]
+        for role in ('support', 'disconfirming_or_blocking'):
+            for value in ('CLM-UNKNOWN', {'CLM-UNKNOWN': True}, None, [None]):
+                with self.subTest(role=role, value=value):
+                    row['evidence_lineage'] = {role: value}
+                    with self.assertRaises(ValueError):
+                        self.snap()
+
+    def test_beneficiary_lineage_requires_mapping(self):
+        row = self.inputs['beneficiaries']['relationships'][0]
+        for value in ([], None, 'CLM-UNKNOWN'):
+            with self.subTest(value=value):
+                row['evidence_lineage'] = value
+                with self.assertRaises(ValueError):
+                    self.snap()

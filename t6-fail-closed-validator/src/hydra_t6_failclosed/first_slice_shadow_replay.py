@@ -50,16 +50,16 @@ def build_shadow_snapshot(*, as_of: str, claim_registry: Mapping[str, Any],
     if candidate_overlay is not None and set(overlays) != set(candidate_rows):
         raise ValueError("candidate overlay universe differs from T5 candidates")
     eligible = {cid for cid, row in claims.items() if _dt(row["available_at"]) <= cutoff}
-    evidence = {}
-    for cid, row in claims.items():
-        for field in ("support_evidence_ids", "disconfirming_evidence_ids"):
-            for eid in row.get(field, []):
-                evidence.setdefault(eid, set()).add(cid)
-
     def references(refs):
         if not isinstance(refs, list) or any(not isinstance(ref, str) or not ref for ref in refs):
             raise ValueError("lineage must be a list of nonempty reference IDs")
         return refs
+
+    evidence = {}
+    for cid, row in claims.items():
+        for field in ("support_evidence_ids", "disconfirming_evidence_ids"):
+            for eid in references(row.get(field, [])):
+                evidence.setdefault(eid, set()).add(cid)
 
     def claims_supported(refs):
         refs = references(refs)
@@ -95,7 +95,13 @@ def build_shadow_snapshot(*, as_of: str, claim_registry: Mapping[str, Any],
     bens = []
     for bid, row in beneficiary_rows.items():
         lineage = row.get("evidence_lineage", {})
-        refs = [ref for role, values in lineage.items() if role != "disconfirming_or_blocking" for ref in values]
+        if not isinstance(lineage, Mapping):
+            raise ValueError("beneficiary evidence lineage must be a mapping")
+        refs = []
+        for role, values in lineage.items():
+            values = references(values)
+            if role != "disconfirming_or_blocking":
+                refs.extend(values)
         if (_dt(row["available_at"]) <= cutoff
                 and row.get("constraint_candidate_id") in visible_candidates and supported(refs)):
             bens.append(bid)
