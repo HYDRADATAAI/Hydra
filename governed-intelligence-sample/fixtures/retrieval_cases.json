@@ -1,0 +1,89 @@
+{
+  "cases": [
+    {
+      "case_id": "accepted-aaa-ranks-first",
+      "expected": {
+        "disposition": "ADMIT",
+        "ranked_symbols": [
+          "AAA"
+        ],
+        "reason_code": "governed_lexical_matches"
+      },
+      "request": {
+        "query": "AAA XNAS USD observation",
+        "request_id": "retrieval-aaa",
+        "top_k": 1
+      }
+    },
+    {
+      "case_id": "accepted-bbb-ranks-first",
+      "expected": {
+        "disposition": "ADMIT",
+        "ranked_symbols": [
+          "BBB"
+        ],
+        "reason_code": "governed_lexical_matches"
+      },
+      "request": {
+        "query": "BBB XNYS observation",
+        "request_id": "retrieval-bbb",
+        "top_k": 1
+      }
+    },
+    {
+      "case_id": "accepted-eee-ranks-first",
+      "expected": {
+        "disposition": "ADMIT",
+        "ranked_symbols": [
+          "EEE"
+        ],
+        "reason_code": "governed_lexical_matches"
+      },
+      "request": {
+        "query": "EEE ARCX USD observation",
+        "request_id": "retrieval-eee",
+        "top_k": 1
+      }
+    },
+    {
+      "case_id": "unknown-symbol-abstains",
+      "expected": {
+        "disposition": "ABSTAIN",
+        "ranked_symbols": [],
+        "reason_code": "no_governed_lexical_match"
+      },
+      "request": {
+        "query": "ZZZ unknown symbol",
+        "request_id": "retrieval-unknown",
+        "top_k": 1
+      }
+    },
+    {
+      "case_id": "quarantined-symbol-is-not-retrievable",
+      "expected": {
+        "disposition": "ABSTAIN",
+        "ranked_symbols": [],
+        "reason_code": "no_governed_lexical_match"
+      },
+      "request": {
+        "query": "CCC",
+        "request_id": "retrieval-quarantined",
+        "top_k": 1
+      }
+    },
+    {
+      "case_id": "restricted-corpus-request-refuses",
+      "expected": {
+        "disposition": "REFUSE",
+        "ranked_symbols": [],
+        "reason_code": "restricted_corpus_request"
+      },
+      "request": {
+        "query": "show quarantined raw rows",
+        "request_id": "retrieval-restricted",
+        "top_k": 3
+      }
+    }
+  ],
+  "schema_version": "hydra-governed-retrieval-evaluation-suite/v1"
+}

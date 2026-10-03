@@ -1,0 +1,17 @@
+{
+  "field_weights": {
+    "currency": 2,
+    "source_system": 3,
+    "symbol": 8,
+    "venue": 4
+  },
+  "max_results": 3,
+  "min_score": 8,
+  "model_execution_enabled": false,
+  "prohibited_terms": [
+    "quarantine",
+    "quarantined",
+    "raw"
+  ],
+  "schema_version": "hydra-governed-retrieval-policy/v1"
+}
