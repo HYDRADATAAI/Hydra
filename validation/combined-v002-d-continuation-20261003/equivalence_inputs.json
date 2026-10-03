@@ -1,0 +1,141 @@
+{
+  "source": "e70f55110c4217905805678d0af279afd22e302a",
+  "source_tree": "01319aee05f317bcd6289db9eac2c94881b6d697",
+  "main": "a2cb9ac85d3520762b361d5fd62d53efbc575d9d",
+  "main_tree": "c718aa45bc158891b14a8cd268f29574943a2f73",
+  "pr146": "a187adee3e15311d64dfec036a590dacd4259194",
+  "pr146_tree": "7216578bf2b585aa4e051f714cee11ea3c8c7ba4",
+  "file_counts": {
+    "source": 741,
+    "main": 741,
+    "pr146": 741
+  },
+  "main_to_tested_source": [
+    {
+      "path": ".github/workflows/nyx-thread-h-temporal-consistency-windows.yml",
+      "before": {
+        "path": ".github/workflows/nyx-thread-h-temporal-consistency-windows.yml",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "a787c4f185fde1b5267f23d427d8b9013ad8f6d9"
+      },
+      "after": {
+        "mode": "100644",
+        "path": ".github/workflows/nyx-thread-h-temporal-consistency-windows.yml",
+        "sha": "68aa3475649534c8ff8a4ba11905e5f7bf614d0c",
+        "type": "blob"
+      }
+    },
+    {
+      "path": ".github/workflows/nyx-thread-h-temporal-input-windows.yml",
+      "before": {
+        "path": ".github/workflows/nyx-thread-h-temporal-input-windows.yml",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "6aabc32702f86344af1c4a6c2ac8f10c7c7582e0"
+      },
+      "after": {
+        "mode": "100644",
+        "path": ".github/workflows/nyx-thread-h-temporal-input-windows.yml",
+        "sha": "3d14bf466210242c5df689ae2aeda485286d337f",
+        "type": "blob"
+      }
+    },
+    {
+      "path": "tools/build_constraint_second_slice_batch033_ordinary_t2_lineage.py",
+      "before": {
+        "path": "tools/build_constraint_second_slice_batch033_ordinary_t2_lineage.py",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "8f2a8c97648c7bf668cb45816f96ada6b99522a0"
+      },
+      "after": {
+        "mode": "100644",
+        "path": "tools/build_constraint_second_slice_batch033_ordinary_t2_lineage.py",
+        "sha": "23b62754f0cb11f59d7980304a9a78e4da801eae",
+        "type": "blob"
+      }
+    }
+  ],
+  "tested_source_to_live_pr146": [
+    {
+      "path": ".github/workflows/nyx-thread-h-temporal-consistency-windows.yml",
+      "before": {
+        "mode": "100644",
+        "path": ".github/workflows/nyx-thread-h-temporal-consistency-windows.yml",
+        "sha": "68aa3475649534c8ff8a4ba11905e5f7bf614d0c",
+        "type": "blob"
+      },
+      "after": {
+        "path": ".github/workflows/nyx-thread-h-temporal-consistency-windows.yml",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "a8291042b321b963a448fd0ae0716bd938c0f6b0"
+      }
+    },
+    {
+      "path": ".github/workflows/nyx-thread-h-temporal-input-windows.yml",
+      "before": {
+        "mode": "100644",
+        "path": ".github/workflows/nyx-thread-h-temporal-input-windows.yml",
+        "sha": "3d14bf466210242c5df689ae2aeda485286d337f",
+        "type": "blob"
+      },
+      "after": {
+        "path": ".github/workflows/nyx-thread-h-temporal-input-windows.yml",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "cd2d6962ea1370e0e6b49ba8d0be0de197cfb5b7"
+      }
+    }
+  ],
+  "main_to_live_pr146": [
+    {
+      "path": ".github/workflows/nyx-thread-h-temporal-consistency-windows.yml",
+      "before": {
+        "path": ".github/workflows/nyx-thread-h-temporal-consistency-windows.yml",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "a787c4f185fde1b5267f23d427d8b9013ad8f6d9"
+      },
+      "after": {
+        "path": ".github/workflows/nyx-thread-h-temporal-consistency-windows.yml",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "a8291042b321b963a448fd0ae0716bd938c0f6b0"
+      }
+    },
+    {
+      "path": ".github/workflows/nyx-thread-h-temporal-input-windows.yml",
+      "before": {
+        "path": ".github/workflows/nyx-thread-h-temporal-input-windows.yml",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "6aabc32702f86344af1c4a6c2ac8f10c7c7582e0"
+      },
+      "after": {
+        "path": ".github/workflows/nyx-thread-h-temporal-input-windows.yml",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "cd2d6962ea1370e0e6b49ba8d0be0de197cfb5b7"
+      }
+    },
+    {
+      "path": "tools/build_constraint_second_slice_batch033_ordinary_t2_lineage.py",
+      "before": {
+        "path": "tools/build_constraint_second_slice_batch033_ordinary_t2_lineage.py",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "8f2a8c97648c7bf668cb45816f96ada6b99522a0"
+      },
+      "after": {
+        "path": "tools/build_constraint_second_slice_batch033_ordinary_t2_lineage.py",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "23b62754f0cb11f59d7980304a9a78e4da801eae"
+      }
+    }
+  ],
+  "scope": "D executes immutable e70 only. Current PR146 a187 receives a separate exact739-path equality and two-workflow review; C did not execute on a187.",
+  "upstream_static_proof_sha256": "664fd0a3761a429a468147194ae1527f0d95ae6912e1191ae2bd5f179c5e244d"
+}

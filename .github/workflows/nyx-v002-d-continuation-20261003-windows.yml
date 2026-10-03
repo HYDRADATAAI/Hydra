@@ -1,0 +1,95 @@
+name: NYX exact C D continuation Windows
+
+on:
+  push:
+    branches: [nyx/combined-v002-d-continuation-20261003]
+
+permissions:
+  contents: read
+
+jobs:
+  continue-d:
+    runs-on: windows-latest
+    timeout-minutes: 20
+    env:
+      PYTHONUTF8: "1"
+      PYTHONIOENCODING: utf-8
+      PYTHONDONTWRITEBYTECODE: "1"
+      TEMP: D:\NYX_PORTABLE\D_CONTINUATION_20261003\temp
+      TMP: D:\NYX_PORTABLE\D_CONTINUATION_20261003\temp
+      PIP_CACHE_DIR: D:\NYX_PORTABLE\D_CONTINUATION_20261003\pip-cache
+    steps:
+      - name: Prepare exact immutable C source and continuation harness on D drive
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          New-Item -ItemType Directory -Force -Path 'D:\NYX_PORTABLE\D_CONTINUATION_20261003\temp', 'D:\NYX_PORTABLE\D_CONTINUATION_20261003\report' | Out-Null
+          git config --global core.longpaths true
+          git clone --no-checkout https://github.com/HYDRADATAAI/Hydra.git D:\NYX_PORTABLE\D_CONTINUATION_20261003\harness
+          if ($LASTEXITCODE -ne 0) { throw 'Harness clone failed' }
+          git -C D:\NYX_PORTABLE\D_CONTINUATION_20261003\harness -c core.autocrlf=false checkout --detach $env:GITHUB_SHA
+          if ($LASTEXITCODE -ne 0) { throw 'Harness checkout failed' }
+          git clone --no-checkout https://github.com/HYDRADATAAI/Hydra.git D:\NYX_PORTABLE\D_CONTINUATION_20261003\source
+          if ($LASTEXITCODE -ne 0) { throw 'Source clone failed' }
+          git -C D:\NYX_PORTABLE\D_CONTINUATION_20261003\source fetch origin e70f55110c4217905805678d0af279afd22e302a
+          if ($LASTEXITCODE -ne 0) { throw 'Immutable C source unavailable' }
+          git -C D:\NYX_PORTABLE\D_CONTINUATION_20261003\source -c core.autocrlf=false checkout --detach e70f55110c4217905805678d0af279afd22e302a
+          if ($LASTEXITCODE -ne 0) { throw 'Immutable C source checkout failed' }
+          git -C D:\NYX_PORTABLE\D_CONTINUATION_20261003\source config core.autocrlf false
+          git -C D:\NYX_PORTABLE\D_CONTINUATION_20261003\source config core.longpaths true
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install and record the original isolated dependency versions
+        shell: pwsh
+        run: |
+          python -m pip install --disable-pip-version-check --target D:\NYX_PORTABLE\D_CONTINUATION_20261003\deps pytest==8.3.5 pytest-subtests==0.14.2 2>&1 | Tee-Object D:\NYX_PORTABLE\D_CONTINUATION_20261003\report\dependency-install.log
+          if ($LASTEXITCODE -ne 0) { throw 'Dependency installation failed' }
+          python -m pip list --path D:\NYX_PORTABLE\D_CONTINUATION_20261003\deps --format=json > D:\NYX_PORTABLE\D_CONTINUATION_20261003\report\dependencies.json
+      - name: Restore and verify the exact immutable C archive
+        shell: pwsh
+        run: |
+          python -B D:\NYX_PORTABLE\D_CONTINUATION_20261003\harness\validation\combined-v002-d-continuation-20261003\restore_C_evidence.py D:\NYX_PORTABLE\D_CONTINUATION_20261003\report\C_reference
+          exit $LASTEXITCODE
+      - name: Verify historical C and strict live source equivalence before D
+        shell: pwsh
+        run: |
+          python -B D:\NYX_PORTABLE\D_CONTINUATION_20261003\harness\validation\combined-v002-d-continuation-20261003\verify_continuation.py D:\NYX_PORTABLE\D_CONTINUATION_20261003\source D:\NYX_PORTABLE\D_CONTINUATION_20261003\report\C_reference\matrix D:\NYX_PORTABLE\D_CONTINUATION_20261003\report\preflight.json
+          exit $LASTEXITCODE
+      - name: Execute all original D path symlink and linked worktree commands
+        shell: pwsh
+        env:
+          PYTHONPATH: D:\NYX_PORTABLE\D_CONTINUATION_20261003\deps
+        run: |
+          python -B D:\NYX_PORTABLE\D_CONTINUATION_20261003\harness\validation\combined-v002-d-continuation-20261003\run_v006_continued.py D:\NYX_PORTABLE\D_CONTINUATION_20261003\source D:\NYX_PORTABLE\D_CONTINUATION_20261003\report\C_reference\matrix D:\NYX_PORTABLE\D_CONTINUATION_20261003\report\v006
+          exit $LASTEXITCODE
+      - name: Recheck immutable C and strict live refs after D
+        shell: pwsh
+        run: |
+          python -B D:\NYX_PORTABLE\D_CONTINUATION_20261003\harness\validation\combined-v002-d-continuation-20261003\verify_continuation.py D:\NYX_PORTABLE\D_CONTINUATION_20261003\source D:\NYX_PORTABLE\D_CONTINUATION_20261003\report\C_reference\matrix D:\NYX_PORTABLE\D_CONTINUATION_20261003\report\postflight.json
+          exit $LASTEXITCODE
+      - name: Export complete public continuation evidence through the job log
+        if: always()
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $report = 'D:\NYX_PORTABLE\D_CONTINUATION_20261003\report'
+          $bundle = 'D:\NYX_PORTABLE\D_CONTINUATION_20261003\validation-evidence.zip'
+          $harness = 'D:\NYX_PORTABLE\D_CONTINUATION_20261003\harness\validation\combined-v002-d-continuation-20261003'
+          if (Test-Path -LiteralPath $harness) { Copy-Item -LiteralPath $harness -Destination "$report\continuation_harness" -Recurse -Force }
+          Compress-Archive -Path "$report\*" -DestinationPath $bundle -CompressionLevel Optimal -Force
+          $digest = (Get-FileHash -LiteralPath $bundle -Algorithm SHA256).Hash.ToLowerInvariant()
+          $encoded = [Convert]::ToBase64String([IO.File]::ReadAllBytes($bundle))
+          "NYX_EVIDENCE_ZIP_SHA256=$digest"
+          "NYX_EVIDENCE_ZIP_BYTES=$((Get-Item -LiteralPath $bundle).Length)"
+          'NYX_EVIDENCE_ZIP_BEGIN'
+          for ($index = 0; $index -lt $encoded.Length; $index += 4096) { $encoded.Substring($index, [Math]::Min(4096, $encoded.Length - $index)) }
+          'NYX_EVIDENCE_ZIP_END'
+      - name: Preserve complete continuation evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: NYX-exact-C-D-continuation-20261003-evidence
+          path: D:\NYX_PORTABLE\D_CONTINUATION_20261003\report
+          if-no-files-found: error
+          retention-days: 30

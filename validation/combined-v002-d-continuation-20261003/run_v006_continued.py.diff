@@ -1,0 +1,31 @@
+--- frozen_latest/run_v006.py
++++ D_continuation/run_v006_continued.py
+@@ -8,6 +8,7 @@
+     if any(p.drive.upper()!='D:' for p in [root,matrix,out]):raise SystemExit('D: required')
+     out.mkdir(parents=True,exist_ok=True)
+     pins=json.loads((Path(__file__).parent/'candidate_inputs.json').read_text())
++    freshness=json.loads((Path(__file__).parent/'freshness_inputs.json').read_text())
+     commands=[]; checks=[]; skips=[]
+     def save(name,data):(out/name).write_text(json.dumps(data,indent=2)+'\n',encoding='utf-8')
+     def run(label,args,cwd=root,env=None,allowed_failure=False):
+@@ -27,8 +28,11 @@
+     def status(repo,label):
+         return {'head':git(label+'_head',repo,'rev-parse','HEAD'),'tree':git(label+'_tree',repo,'rev-parse','HEAD^{tree}'),'status':git(label+'_status',repo,'status','--porcelain=v1','--untracked-files=all')}
+     summary={'result':'FAIL','candidate_commit':pins['candidate_commit'],'candidate_tree':pins['candidate_tree'],'current_main':pins['main'],'pr119_head':pins['pr119_head'],'pr138_head':pins['pr138_head'],'pr141_head':pins['pr141_head'],'pr143_head':pins['pr143_head'],'previous_candidate_commit':pins['previous_candidate_commit'],'scope':'HOSTED_WINDOWS_PUBLIC_REPOSITORY_FIXTURES','user_workstation_tested':False,'admission_claimed':False,'readiness_claimed':False,'production_approval_claimed':False}
++    summary.update(current_main=freshness['live_main'],C_historical_main=pins['main'],tested_source=pins['candidate_commit'],current_PR146=freshness['current_PR146'],current_PR146_tree=freshness['current_PR146_tree'],C_execution_claim_for_current_PR146=False,C_original_run_id=freshness['C_run_id'],scope='D_CONTINUATION_ON_EXACT_IMMUTABLE_C_SOURCE_WITH_SEPARATE_LIVE_EQUIVALENCE')
+     before=None; worktree=None
+     try:
++        preflight=json.loads((out.parent/'preflight.json').read_text())
++        check('continuation_preflight',preflight['result']=='PASS' and preflight['tested_source']==pins['candidate_commit'] and preflight['tested_tree']==pins['candidate_tree'] and preflight['C_archive_sha256']==freshness['C_archive_sha256'] and preflight['C_manifest_sha256']==freshness['C_manifest_sha256'],preflight)
+         dependency=json.loads((matrix/'summary.json').read_text())
+         check('changed_from_V005',pins['candidate_tree']!=pins['v005_tree'],{'current_tree':pins['candidate_tree'],'V005_tree':pins['v005_tree']})
+         check('changed_from_verified_V001',pins['candidate_tree']!=pins['previous_candidate_tree'],{'candidate_tree':pins['candidate_tree'],'previous_tree':pins['previous_candidate_tree']})
+@@ -52,7 +56,7 @@
+             if kind!='blob' or mode=='120000' or observed!=digest:differences.append(path)
+         check('source_exact_Git_bytes',not differences,{'files':len(before),'mismatches':differences})
+         check('source_count',len(before)==pins['file_count'],len(before))
+-        for ref,expected in [('refs/heads/main',pins['main']),('refs/heads/nyx/thread-h-temporal-consistency-20261003',pins['pr143_head'])]:
++        for ref,expected in [('refs/heads/main',freshness['live_main']),('refs/heads/nyx/thread-h-temporal-consistency-20261003',pins['pr143_head'])]:
+             observed=git('remote_'+('main' if ref.endswith('/main') else 'pr138' if 'empty-canary' in ref else 'pr143' if 'temporal-consistency' in ref else 'pr119'),root,'ls-remote','origin',ref).split()[0]
+             check('remote_pin_'+ref,observed==expected,observed)
+         git('merged_PR119_ancestor',root,'merge-base','--is-ancestor',pins['pr119_head'],pins['main'])
