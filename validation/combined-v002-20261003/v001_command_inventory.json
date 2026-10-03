@@ -1,0 +1,428 @@
+{
+  "groups": {
+    "01_T1_raw_artifact_store": [
+      "constraint-t1-raw-artifact-store/tests/"
+    ],
+    "02_first_slice_integration": [
+      "first_slice",
+      "integrated_owners"
+    ],
+    "03_owner_seam_conformance": [
+      "test_lily_owner_seam",
+      "validate_constraint_lily_owner_seams"
+    ],
+    "04_successor_chain_hostile": [
+      "nyx_test_constraint_successor_chain_adversarial"
+    ],
+    "05_Batch018_evidence_alignment": [
+      "test_batch018_nine_source_capture_evidence_alignment"
+    ],
+    "06_Batch033_custody_continuation": [
+      "test_batch033_custody_continuation"
+    ],
+    "07_timestamp_gate_successor": [
+      "test_timestamp_gate",
+      "test_timestamp_successor_binding",
+      "test_restack_successor_binding"
+    ],
+    "08_Batch034_evidence_lineage": [
+      "test_ordinary_t2_evidence_lineage",
+      "batch034_t2_evidence_lineage",
+      "batch034_builder_bytes",
+      "Batch034_rebuild",
+      "preserved_F_non_escalation"
+    ],
+    "09_Constraint_V018_runtime": [
+      "constraint-runtime/tests/",
+      "test_unresolved_gates",
+      "canary_boundary_probe"
+    ],
+    "10_public_repository_hygiene": [
+      "validate_public_repository",
+      "public_root_hygiene"
+    ],
+    "11_governed_compile_AST": [
+      "compile_runtime",
+      "governed_ast"
+    ],
+    "12_manifest_hash_validators": [
+      "nyx_validate_constraint_successor_chain",
+      "validate_constraint_t1_first_slice_attestation",
+      "validate_constraint_second_slice_batch033",
+      "validate_constraint_second_slice_batch034",
+      "validate_constraint_first_slice_custody",
+      "Batch034_rebuild",
+      "batch034_builder_bytes"
+    ],
+    "13_exact_predecessor_recovery": [
+      "test_batch033_custody_continuation",
+      "test_restack_successor_binding",
+      "test_timestamp_successor_binding"
+    ],
+    "14_unresolved_timestamps": [
+      "test_timestamp_gate",
+      "test_unverified_metadata_boundary",
+      "test_pit_conservative_availability",
+      "test_constraint_first_slice_outcome_coverage_adversarial",
+      "test_unresolved_gates",
+      "canary_boundary_probe"
+    ],
+    "15_authority_admission_non_elevation": [
+      "test_authority",
+      "test_native_binding_admission",
+      "test_native_admission_input_types",
+      "test_native_t5_t6_bridge",
+      "test_constraint_first_slice_acceptance_gate_adversarial",
+      "boundary_state",
+      "test_unresolved_gates",
+      "preserved_F_non_escalation",
+      "admission_held"
+    ]
+  },
+  "package_test_directories": [
+    "constraint-physical-dependency/tests",
+    "constraint-geopolitical-policy/tests",
+    "constraint-replay/tests",
+    "constraint-t1-raw-artifact-store/tests",
+    "t6-fail-closed-validator/tests",
+    "constraint-runtime/tests"
+  ],
+  "expected_native_methods": 495,
+  "external_canary_methods": 3,
+  "C_recorded_commands": [
+    {
+      "label": "reproduce_pr119_tree_1",
+      "argv": [
+        "git",
+        "merge-tree",
+        "--write-tree",
+        "a738e851183ed4a21e32bac30a5d0a60762e7193",
+        "417174daa31761ad9eaeba56ca6306b3050ada7a"
+      ]
+    },
+    {
+      "label": "create_reproduction_parent_1",
+      "argv": [
+        "git",
+        "commit-tree",
+        "<preceding exact merge-tree>",
+        "-p",
+        "a738e851183ed4a21e32bac30a5d0a60762e7193",
+        "-p",
+        "417174daa31761ad9eaeba56ca6306b3050ada7a",
+        "-m",
+        "Deterministic intermediate validation object"
+      ]
+    },
+    {
+      "label": "reproduce_tree_1",
+      "argv": [
+        "git",
+        "merge-tree",
+        "--write-tree",
+        "<preceding intermediate commit>",
+        "8d570da75b594ceca062ba1a53fb6164f6dce3e2"
+      ]
+    },
+    {
+      "label": "reproduce_pr119_tree_2",
+      "argv": [
+        "git",
+        "merge-tree",
+        "--write-tree",
+        "a738e851183ed4a21e32bac30a5d0a60762e7193",
+        "417174daa31761ad9eaeba56ca6306b3050ada7a"
+      ]
+    },
+    {
+      "label": "create_reproduction_parent_2",
+      "argv": [
+        "git",
+        "commit-tree",
+        "<preceding exact merge-tree>",
+        "-p",
+        "a738e851183ed4a21e32bac30a5d0a60762e7193",
+        "-p",
+        "417174daa31761ad9eaeba56ca6306b3050ada7a",
+        "-m",
+        "Deterministic intermediate validation object"
+      ]
+    },
+    {
+      "label": "reproduce_tree_2",
+      "argv": [
+        "git",
+        "merge-tree",
+        "--write-tree",
+        "<preceding intermediate commit>",
+        "8d570da75b594ceca062ba1a53fb6164f6dce3e2"
+      ]
+    },
+    {
+      "label": "collect_all_owners",
+      "argv": [
+        "python",
+        "-m",
+        "pytest",
+        "--import-mode=importlib",
+        "-p",
+        "pytest_subtests.plugin",
+        "-p",
+        "matrix_reporter",
+        "-p",
+        "no:cacheprovider",
+        "constraint-physical-dependency/tests",
+        "constraint-geopolitical-policy/tests",
+        "constraint-replay/tests",
+        "constraint-t1-raw-artifact-store/tests",
+        "t6-fail-closed-validator/tests",
+        "constraint-runtime/tests",
+        "--collect-only",
+        "-q"
+      ]
+    },
+    {
+      "label": "integrated_owners",
+      "argv": [
+        "python",
+        "-m",
+        "pytest",
+        "--import-mode=importlib",
+        "-p",
+        "pytest_subtests.plugin",
+        "-p",
+        "matrix_reporter",
+        "-p",
+        "no:cacheprovider",
+        "constraint-physical-dependency/tests",
+        "constraint-geopolitical-policy/tests",
+        "constraint-replay/tests",
+        "constraint-t1-raw-artifact-store/tests",
+        "t6-fail-closed-validator/tests",
+        "constraint-runtime/tests",
+        "-vv",
+        "--tb=long",
+        "--junitxml=<matrix>/tests.xml"
+      ]
+    },
+    {
+      "label": "compile_runtime",
+      "argv": [
+        "python",
+        "-m",
+        "compileall",
+        "-q",
+        "constraint-runtime/src"
+      ]
+    },
+    {
+      "label": "validate_constraint_first_slice_successor",
+      "argv": [
+        "python",
+        "tools/validate_constraint_first_slice_successor.py"
+      ]
+    },
+    {
+      "label": "test_constraint_first_slice_adversarial",
+      "argv": [
+        "python",
+        "tools/test_constraint_first_slice_adversarial.py"
+      ]
+    },
+    {
+      "label": "validate_constraint_first_slice_acceptance_gate",
+      "argv": [
+        "python",
+        "tools/validate_constraint_first_slice_acceptance_gate.py"
+      ]
+    },
+    {
+      "label": "test_constraint_first_slice_acceptance_gate_adversarial",
+      "argv": [
+        "python",
+        "tools/test_constraint_first_slice_acceptance_gate_adversarial.py"
+      ]
+    },
+    {
+      "label": "validate_constraint_first_slice_confidence_evaluation",
+      "argv": [
+        "python",
+        "tools/validate_constraint_first_slice_confidence_evaluation.py"
+      ]
+    },
+    {
+      "label": "test_constraint_first_slice_confidence_evaluation_adversarial",
+      "argv": [
+        "python",
+        "tools/test_constraint_first_slice_confidence_evaluation_adversarial.py"
+      ]
+    },
+    {
+      "label": "validate_constraint_first_slice_outcome_coverage",
+      "argv": [
+        "python",
+        "tools/validate_constraint_first_slice_outcome_coverage.py"
+      ]
+    },
+    {
+      "label": "test_constraint_first_slice_outcome_coverage_adversarial",
+      "argv": [
+        "python",
+        "tools/test_constraint_first_slice_outcome_coverage_adversarial.py"
+      ]
+    },
+    {
+      "label": "validate_constraint_first_slice_custody",
+      "argv": [
+        "python",
+        "tools/validate_constraint_first_slice_custody.py"
+      ]
+    },
+    {
+      "label": "test_constraint_first_slice_custody_adversarial",
+      "argv": [
+        "python",
+        "tools/test_constraint_first_slice_custody_adversarial.py"
+      ]
+    },
+    {
+      "label": "validate_constraint_lily_owner_seams",
+      "argv": [
+        "python",
+        "tools/validate_constraint_lily_owner_seams.py"
+      ]
+    },
+    {
+      "label": "nyx_validate_constraint_successor_chain",
+      "argv": [
+        "python",
+        "tools/nyx_validate_constraint_successor_chain.py"
+      ]
+    },
+    {
+      "label": "nyx_test_constraint_successor_chain_adversarial",
+      "argv": [
+        "python",
+        "tools/nyx_test_constraint_successor_chain_adversarial.py"
+      ]
+    },
+    {
+      "label": "validate_constraint_t1_first_slice_attestation",
+      "argv": [
+        "python",
+        "tools/validate_constraint_t1_first_slice_attestation.py",
+        "--attestation",
+        "docs/constraint/validation/HYDRA_CONSTRAINT_BATCH018_T1_NINE_SOURCE_MATERIALIZATION_ATTESTATION_V001_20260926.json"
+      ]
+    },
+    {
+      "label": "validate_constraint_second_slice_batch033_ordinary_t2_normalization",
+      "argv": [
+        "python",
+        "tools/validate_constraint_second_slice_batch033_ordinary_t2_normalization.py"
+      ]
+    },
+    {
+      "label": "test_constraint_second_slice_batch033_ordinary_t2_normalization_adversarial",
+      "argv": [
+        "python",
+        "tools/test_constraint_second_slice_batch033_ordinary_t2_normalization_adversarial.py"
+      ]
+    },
+    {
+      "label": "validate_constraint_second_slice_batch034_t2_evidence_lineage",
+      "argv": [
+        "python",
+        "tools/validate_constraint_second_slice_batch034_t2_evidence_lineage.py"
+      ]
+    },
+    {
+      "label": "test_constraint_second_slice_batch034_t2_evidence_lineage_adversarial",
+      "argv": [
+        "python",
+        "tools/test_constraint_second_slice_batch034_t2_evidence_lineage_adversarial.py"
+      ]
+    },
+    {
+      "label": "validate_public_repository",
+      "argv": [
+        "python",
+        "tools/validate_public_repository.py"
+      ]
+    },
+    {
+      "label": "test_constraint_second_slice_batch034_builder_bytes",
+      "argv": [
+        "python",
+        "tools/test_constraint_second_slice_batch034_builder_bytes.py"
+      ]
+    },
+    {
+      "label": "preserved_F_non_escalation",
+      "argv": [
+        "python",
+        "-B",
+        "<matrix>/thread_f_bound.py",
+        "--repo",
+        "<source>",
+        "--json-output",
+        "<matrix>/F_results.json"
+      ]
+    },
+    {
+      "label": "canary_boundary_probe",
+      "argv": [
+        "python",
+        "-B",
+        "<harness>/canary_boundary_probe.py",
+        "--repo",
+        "<source>"
+      ]
+    },
+    {
+      "label": "Batch034_rebuild",
+      "argv": [
+        "python",
+        "-B",
+        "tools/build_constraint_second_slice_batch034_t2_evidence_lineage.py",
+        "--output",
+        "<matrix>/rebuilt_binding.json"
+      ]
+    }
+  ],
+  "C_expected_command_count": 32,
+  "D_expected_command_count": 41,
+  "D_command_inventory_source": "run_v006.py preserved command flow + one explicit PR138 remote-head pin read",
+  "D_contexts": [
+    "ordinary checkout cwd",
+    "deep outside cwd",
+    "linked Git worktree with spaces and deep outside cwd"
+  ],
+  "D_validators_in_each_context": [
+    "validate_constraint_first_slice_successor.py",
+    "validate_constraint_first_slice_custody.py",
+    "validate_constraint_second_slice_batch034_t2_evidence_lineage.py"
+  ],
+  "D_checks": [
+    "C complete fifteen-group success and exact pin binding",
+    "C report-member hashes",
+    "Source exact Git blob bytes and737file count",
+    "Current remote main/PR119/PR138 pins",
+    "Four individually identified symlink tests",
+    "Linked-worktree exact source byte equality",
+    "Each context Git top-level/object/hash queries",
+    "Direct directory symlink permission probe",
+    "Before/after source and linked-worktree hashes/status"
+  ],
+  "execution_status": "PREPARED_NOT_EXECUTED",
+  "source_output": "Actual command argv,cwd,exit codes,durations and raw logs recorded at run time",
+  "pre_matrix_guard_selftest": {
+    "argv": [
+      "python",
+      "-B",
+      "<harness>/test_report_gate.py"
+    ],
+    "expected_methods": 23,
+    "scope": "Harness report completeness only; separate from495production candidate methods and3external canary methods"
+  }
+}

@@ -1,0 +1,160 @@
+--- V001/run_matrix.py
++++ V002/run_matrix.py
+@@ -17,6 +17,11 @@
+ HEAD = PINS['pr119_head']
+ HEAD138 = PINS['pr138_head']
+ HEAD141 = PINS['pr141_head']
++HEAD143 = PINS['pr143_head']
++PREVIOUS_MAIN = PINS['previous_candidate_main']
++PREVIOUS = PINS['previous_candidate_commit']
++PREVIOUS_TREE = PINS['previous_candidate_tree']
++BASE143 = PINS['pr143_merge_base']
+ BASE = PINS['pr119_historical_base']
+ BASE138 = PINS['pr138_merge_base']
+ PREVIEW = PINS['candidate_commit']
+@@ -60,8 +65,8 @@
+  '11_governed_compile_AST':['compile_runtime','governed_ast'],
+  '12_manifest_hash_validators':['nyx_validate_constraint_successor_chain','validate_constraint_t1_first_slice_attestation','validate_constraint_second_slice_batch033','validate_constraint_second_slice_batch034','validate_constraint_first_slice_custody','Batch034_rebuild','batch034_builder_bytes'],
+  '13_exact_predecessor_recovery':['test_batch033_custody_continuation','test_restack_successor_binding','test_timestamp_successor_binding'],
+- '14_unresolved_timestamps':['test_timestamp_gate','test_unverified_metadata_boundary','test_pit_conservative_availability','test_constraint_first_slice_outcome_coverage_adversarial','test_unresolved_gates','canary_boundary_probe'],
+- '15_authority_admission_non_elevation':['test_authority','test_native_binding_admission','test_native_admission_input_types','test_native_t5_t6_bridge','test_constraint_first_slice_acceptance_gate_adversarial','boundary_state','test_unresolved_gates','preserved_F_non_escalation','admission_held'],
++ '14_unresolved_timestamps':['test_timestamp_gate','test_unverified_metadata_boundary','test_temporal_consistency_boundary','test_first_slice_temporal_consistency','temporal_coexistence_probe','test_pit_conservative_availability','test_constraint_first_slice_outcome_coverage_adversarial','test_unresolved_gates','canary_boundary_probe'],
++ '15_authority_admission_non_elevation':['test_authority','test_native_binding_admission','test_native_admission_input_types','test_native_t5_t6_bridge','test_constraint_first_slice_acceptance_gate_adversarial','boundary_state','test_unresolved_gates','preserved_F_non_escalation','temporal_coexistence_probe','admission_held'],
+ }
+ 
+ def main():
+@@ -108,32 +113,27 @@
+     save('environment.json',{'python':sys.version,'executable':sys.executable,'platform':platform.platform(),
+          'git':git('--version'),'runner_os':os.environ.get('RUNNER_OS'),'github_run_id':os.environ.get('GITHUB_RUN_ID'),
+          'candidate_commit':PREVIEW,'candidate_tree':TREE,'current_main':MAIN,'pr119_head':HEAD,
+-         'pr138_head':HEAD138,'pr141_head':HEAD141,'historical_base':BASE,'runtime_execution':'HOSTED_WINDOWS_NOT_USER_WORKSTATION'})
++         'pr138_head':HEAD138,'pr141_head':HEAD141,'pr143_head':HEAD143,'previous_candidate_commit':PREVIOUS,'historical_base':BASE,'runtime_execution':'HOSTED_WINDOWS_NOT_USER_WORKSTATION'})
+     regression_bytes=(root/'constraint-runtime/tests/test_unresolved_gates.py').read_bytes()
+     check('preserved_E_regression_bytes',hashlib.sha256(regression_bytes).hexdigest()=='a89c65bcca402ad95e94b6082d1b282f19750a1ca5b543a618b150745f91e0d5',{'source_commit':'53ac6e28cb3088bdaf5d7c2702f44f362998892f','source_path':'constraint-runtime/tests/test_unresolved_gates.py','candidate_runtime_modified':False})
+     check('candidate_identity',git('rev-parse','HEAD')==PREVIEW and git('rev-parse','HEAD^{tree}')==TREE,git('show','-s','--format=%H %T %P','HEAD'))
+-    check('parents',git('show','-s','--format=%P','HEAD').split()==[MAIN,HEAD,HEAD138],git('show','-s','--format=%P','HEAD'))
++    check('parents',git('show','-s','--format=%P','HEAD').split()==[MAIN,HEAD143],git('show','-s','--format=%P','HEAD'))
+     check('initial_clean_status',not git('status','--porcelain=v1'),git('status','--porcelain=v1'))
+     initial=snapshot(); save('source_hashes_before.json',initial)
+     if not all(c['passed'] for c in checks):
+         save('checks.json',checks); raise SystemExit('Safety precondition failed')
+-    # Preserve both merge semantics and exact ownership checks for the three-parent candidate.
+-    identity=os.environ.copy()
+-    identity.update(GIT_AUTHOR_NAME='NYX validation',GIT_AUTHOR_EMAIL='validation@example.invalid',
+-                    GIT_COMMITTER_NAME='NYX validation',GIT_COMMITTER_EMAIL='validation@example.invalid',
+-                    GIT_AUTHOR_DATE='2026-10-03T00:00:00Z',GIT_COMMITTER_DATE='2026-10-03T00:00:00Z')
+-    intermediate_trees=[]
++    # New main contains PR119; prove its composition with PR138 equals verified V001.
++    previous_trees=[]
+     for n in [1,2]:
+-        code,first=run('reproduce_pr119_tree_'+str(n),['git','merge-tree','--write-tree',MAIN,HEAD])
+-        check('reproduced_pr119_tree_'+str(n),code==0 and re.fullmatch(r'[0-9a-f]{40}',first.strip()) is not None,first)
+-        if code: raise SystemExit('PR119 merge-tree safety check failed')
+-        intermediate_trees.append(first.strip())
+-        code,commit=run('create_reproduction_parent_'+str(n),['git','commit-tree',first.strip(),'-p',MAIN,'-p',HEAD,'-m','Deterministic intermediate validation object'],env=identity)
+-        check('reproduction_parent_'+str(n),code==0 and re.fullmatch(r'[0-9a-f]{40}',commit.strip()) is not None,commit)
+-        if code: raise SystemExit('Intermediate object construction failed')
+-        code,second=run('reproduce_tree_'+str(n),['git','merge-tree','--write-tree',commit.strip(),HEAD138])
+-        check('reproduced_tree_'+str(n),code==0 and second.strip()==TREE,second)
+-    check('intermediate_trees_reproducible',len(set(intermediate_trees))==1,intermediate_trees)
++        code,observed=run('reproduce_previous_tree_'+str(n),['git','merge-tree','--write-tree',MAIN,HEAD138])
++        check('reproduced_previous_tree_'+str(n),code==0 and observed.strip()==PREVIOUS_TREE,observed)
++        previous_trees.append(observed.strip())
++    check('previous_trees_reproducible',len(set(previous_trees))==1,previous_trees)
++    ancestor119=subprocess.run(['git','merge-base','--is-ancestor',HEAD,MAIN],cwd=root,capture_output=True)
++    check('PR119_already_in_current_main',ancestor119.returncode==0,{'pr119_head':HEAD,'main':MAIN})
++    ancestor138=subprocess.run(['git','merge-base','--is-ancestor',HEAD138,MAIN],cwd=root,capture_output=True)
++    check('PR138_already_in_current_main',ancestor138.returncode==0,{'pr138_head':HEAD138,'main':MAIN})
++    check('current_main_exact_verified_V001_tree',git('rev-parse',MAIN+'^{tree}')==PREVIOUS_TREE,git('rev-parse',MAIN+'^{tree}'))
+     pr_paths=set(git('diff','--name-only',BASE,HEAD).splitlines())
+     pr138_paths=set(git('diff','--name-only',BASE138,HEAD138).splitlines())
+     check('repair_ownership_disjoint',not pr_paths.intersection(pr138_paths),sorted(pr_paths.intersection(pr138_paths)))
+@@ -141,13 +141,66 @@
+     check('PR141_already_in_main',ancestor.returncode==0,{'pr141_head':HEAD141,'main':MAIN})
+     def ls(ref):
+         return {line.split('\t',1)[1]:line.split('\t',1)[0] for line in git('ls-tree','-r',ref).splitlines()}
+-    maps={ref:ls(ref) for ref in [MAIN,HEAD,HEAD138,PREVIEW]}
++    maps={ref:ls(ref) for ref in [MAIN,HEAD,HEAD138,HEAD143,PREVIOUS,PREVIEW]}
+     mismatches=[]
+-    for p,v in maps[PREVIEW].items():
+-        expected=maps[HEAD138].get(p) if p in pr138_paths else maps[HEAD].get(p) if p in pr_paths else maps[MAIN].get(p)
++    for p,v in maps[PREVIOUS].items():
++        expected=maps[HEAD138].get(p) if p in pr138_paths else maps[MAIN].get(p)
+         if v!=expected: mismatches.append({'path':p,'actual':v,'expected':expected})
+-    expected_paths=(set(maps[MAIN])-pr_paths-pr138_paths)|(set(maps[HEAD])&pr_paths)|(set(maps[HEAD138])&pr138_paths)
+-    check('exact_owned_and_main_bytes',not mismatches and set(maps[PREVIEW])==expected_paths,{'pr119_owned_paths':len(pr_paths),'pr138_owned_paths':len(pr138_paths),'candidate_paths':len(initial),'mismatches':mismatches})
++    expected_paths=(set(maps[MAIN])-pr138_paths)|(set(maps[HEAD138])&pr138_paths)
++    check('exact_previous_owned_and_main_bytes',not mismatches and set(maps[PREVIOUS])==expected_paths,{'pr119_owned_paths':len(pr_paths),'pr138_owned_paths':len(pr138_paths),'previous_paths':len(maps[PREVIOUS]),'mismatches':mismatches})
++    check('previous_identity',git('rev-parse',PREVIOUS+'^{tree}')==PREVIOUS_TREE,git('show','-s','--format=%H %T %P',PREVIOUS))
++    check('previous_parents',git('show','-s','--format=%P',PREVIOUS).split()==[PREVIOUS_MAIN,HEAD,HEAD138],git('show','-s','--format=%P',PREVIOUS))
++    pr143_paths=set(git('diff','--name-only',BASE143,HEAD143).splitlines())
++    resolution_manifest=json.loads((harness/'conflict_resolution_allowlist.json').read_text(encoding='utf-8'))
++    resolutions={row['path']:row for row in resolution_manifest['resolutions']}
++    expected_overlap={
++        'constraint-t1-raw-artifact-store/src/hydra_constraint_t1_raw/first_slice_materialization.py',
++        'constraint-t1-raw-artifact-store/src/hydra_constraint_t1_raw/replay_lineage.py',
++    }
++    check('PR143_exact_path_inventory',pr143_paths==set(PINS['pr143_paths']) and len(pr143_paths)==8,sorted(pr143_paths))
++    check('PR143_exact_production_overlap',pr_paths.intersection(pr143_paths)==expected_overlap and not pr138_paths.intersection(pr143_paths),sorted(pr_paths.intersection(pr143_paths)))
++    check('resolution_allowlist_exact',len(resolution_manifest['resolutions'])==2 and set(resolutions)==expected_overlap,sorted(resolutions))
++    check('resolution_input_binding',resolution_manifest['previous_candidate_commit']==PREVIOUS and resolution_manifest['pr143_head']==HEAD143,{'previous':resolution_manifest['previous_candidate_commit'],'pr143':resolution_manifest['pr143_head']})
++    fixture_rows=resolution_manifest.get('fixture_adaptations',[])
++    fixtures={row['path']:row for row in fixture_rows}
++    fixture_path='constraint-t1-raw-artifact-store/tests/test_first_slice_temporal_consistency.py'
++    check('fixture_allowlist_exact',len(fixture_rows)==1 and set(fixtures)=={fixture_path} and not set(fixtures).intersection(resolutions),sorted(fixtures))
++    check('fixture_requires_observed_red',resolution_manifest.get('test_first_red',{}).get('run_id')==37142656231 and resolution_manifest.get('test_first_red',{}).get('candidate_commit')=='0390f3ae8a85d4185cdbbdd1f6f9c2ed601ea7a6',resolution_manifest.get('test_first_red'))
++    original_fixture=(harness/'pr143_original_test_first_slice_temporal_consistency.py').read_bytes()
++    original_blob=hashlib.sha1(b'blob '+str(len(original_fixture)).encode()+b'\0'+original_fixture).hexdigest()
++    check('original_PR143_fixture_binding',original_blob=='4215eb03b1856104bf45701f2fa3b8193bd85038',original_blob)
++    def fixture_methods(data):
++        return {node.name:ast.dump(node,include_attributes=False) for node in ast.walk(ast.parse(data)) if isinstance(node,ast.FunctionDef) and node.name.startswith('test_')}
++    original_methods=fixture_methods(original_fixture);candidate_methods=fixture_methods((root/fixture_path).read_bytes())
++    check('all_twelve_PR143_method_bodies_preserved',len(original_methods)==12 and original_methods==candidate_methods,{'original_count':len(original_methods),'candidate_count':len(candidate_methods)})
++    authorized=dict(resolutions);authorized.update(fixtures)
++    expected_new=dict(maps[PREVIOUS])
++    for path in sorted(pr143_paths):
++        if path in authorized:
++            row=authorized[path]
++            check('resolution_mode_'+path,row['mode']=='100644' and re.fullmatch(r'[0-9a-f]{40}',row['git_blob_sha']) is not None and re.fullmatch(r'[0-9a-f]{64}',row['sha256']) is not None,row)
++            expected_new[path]=row['mode']+' blob '+row['git_blob_sha']
++            check('reviewed_resolution_sha256_'+path,hashlib.sha256((root/path).read_bytes()).hexdigest()==row['sha256'],row['sha256'])
++        else:
++            expected_new[path]=maps[HEAD143][path]
++    new_mismatches=[{'path':p,'expected':v,'actual':maps[PREVIEW].get(p)} for p,v in expected_new.items() if maps[PREVIEW].get(p)!=v]
++    check('exact_PR143_and_reviewed_resolution_bytes',not new_mismatches and set(expected_new)==set(maps[PREVIEW]) and len(initial)==PINS['file_count'],{'mismatches':new_mismatches,'candidate_paths':len(initial),'exact_PR143_paths':len(pr143_paths)-len(authorized),'resolved_production_paths':len(resolutions),'reviewed_fixture_adaptations':len(fixtures)})
++    save('conflict_resolution_binding.json',resolution_manifest)
++    if not all(c['passed'] for c in checks):
++        save('construction_check.json',checks); raise SystemExit('Resolution binding safety check failed')
++    # Independent indexes reconstruct the reviewed composition without touching source files.
++    for n in [1,2]:
++        index=out/('reproduction_'+str(n)+'.index')
++        if index.exists(): raise SystemExit('Reproduction index already exists')
++        index_env=os.environ.copy();index_env['GIT_INDEX_FILE']=str(index)
++        code,detail=run('PR143_index_read_'+str(n),['git','read-tree',PREVIOUS],env=index_env)
++        check('PR143_index_read_'+str(n),code==0,detail)
++        for ordinal,path in enumerate(sorted(pr143_paths),start=1):
++            mode,kind,blob=expected_new[path].split()
++            code,detail=run('PR143_index_update_'+str(n)+'_'+str(ordinal),['git','update-index','--add','--cacheinfo',mode,blob,path],env=index_env)
++            check('PR143_index_update_'+str(n)+'_'+str(ordinal),code==0,{'path':path,'detail':detail})
++        code,reconstructed=run('PR143_reproduce_tree_'+str(n),['git','write-tree'],env=index_env)
++        check('PR143_reproduced_tree_'+str(n),code==0 and reconstructed.strip()==TREE,reconstructed)
+     save('construction_check.json',checks)
+     if not all(c['passed'] for c in checks): raise SystemExit('Construction safety check failed')
+     inventory=[]; parsed=[]; ast_errors=[]
+@@ -202,6 +255,7 @@
+     bound=out/'thread_f_bound.py'; bound.write_text(adapted,encoding='utf-8')
+     run('preserved_F_non_escalation',[sys.executable,'-B',str(bound),'--repo',str(root),'--json-output',str(out/'F_results.json')],env=env)
+     run('canary_boundary_probe',[sys.executable,'-B',str(harness/'canary_boundary_probe.py'),'--repo',str(root)],env=env)
++    run('temporal_coexistence_probe',[sys.executable,'-B',str(harness/'temporal_coexistence_probe.py'),'--repo',str(root),'--json-output',str(out/'temporal_coexistence_results.json')],env=env)
+     binding=root/'docs/constraint/second_slice/semiconductor_advanced_packaging_critical_materials_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH034_SEMICONDUCTOR_ORDINARY_T2_EVIDENCE_LINEAGE_BINDING_V001_20260928.json'
+     rebuilt=out/'rebuilt_binding.json'
+     run('Batch034_rebuild',[sys.executable,'-B','tools/build_constraint_second_slice_batch034_t2_evidence_lineage.py','--output',str(rebuilt)],env=env)
+@@ -271,7 +325,7 @@
+              'evidence_records_mutated':False,'canonical_status_claimed':False,'production_status_claimed':False,
+              'integration_readiness_claimed':False,'regression_localization':'UNKNOWN' if not allgood else None,
+              'Thread_B_handoff':'PASS independently reproduced and inventoried',
+-             'pr138_head':HEAD138,'pr141_head':HEAD141,'scope':'EXACT_CURRENT_MAIN_PLUS_PR119_PLUS_PR138_INCLUDING_MERGED_PR141',
++             'pr138_head':HEAD138,'pr141_head':HEAD141,'pr143_head':HEAD143,'previous_candidate_commit':PREVIOUS,'scope':'EXACT_CURRENT_MAIN_PLUS_PR143_WITH_TWO_PRODUCTION_RESOLUTIONS_AND_TEST_FIRST_FIXTURE_ADAPTATION',
+              'thread_D_V006':'BLOCKED_BY_THREAD_C' if not allgood else 'ELIGIBLE_FOR_CHANGED_TREE_VALIDATION'}
+     save('summary.json',summary)
+     save('report_hashes.json',{p.name:hashlib.sha256(p.read_bytes()).hexdigest() for p in sorted(out.iterdir()) if p.is_file() and p.name!='report_hashes.json'})

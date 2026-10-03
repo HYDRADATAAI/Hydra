@@ -1,0 +1,67 @@
+{
+  "schema": "NYX_V002_EXPLICIT_RESOLUTION_ALLOWLIST_V1",
+  "previous_candidate_commit": "dee8c3fa4cd2e49bd3573f62715c5fe4e2108d0d",
+  "pr143_head": "250520b55129712d77acdafcc9f06d8bf9b7aa88",
+  "resolutions": [
+    {
+      "base_blob": "ead7e34abbb0a1b06526b1a09e7973de77b7fe8a",
+      "classification": "PRODUCTION_CONFLICT_RECONCILIATION",
+      "incoming_pr143_blob": "6330e5302a9538a640477824e4c2ff9996b1e679",
+      "mode": "100644",
+      "path": "constraint-t1-raw-artifact-store/src/hydra_constraint_t1_raw/first_slice_materialization.py",
+      "previous_candidate_blob": "e6afddd29d09ebb7e5364889e23b265598cb9625",
+      "sha256": "be874ac63aaef654f69c279b98fd0ec0675e989f5056f2b61d6363c169cca979",
+      "git_blob_sha": "e97fd5433b5a227056005a6735b64c5f478a8809"
+    },
+    {
+      "base_blob": "588004a33f426e38820e2b80b0a5491f027a935f",
+      "classification": "PRODUCTION_CONFLICT_RECONCILIATION",
+      "incoming_pr143_blob": "f62ae7f5dd055a81a3c7d4a263c8f385e399d2a5",
+      "mode": "100644",
+      "path": "constraint-t1-raw-artifact-store/src/hydra_constraint_t1_raw/replay_lineage.py",
+      "previous_candidate_blob": "98acd836a1185b02d2c90500eecde5953feb1deb",
+      "sha256": "3c707a76924a03fd7e39b0e8889da51f37bd480f9ae53cf67852f04a611f7bac",
+      "git_blob_sha": "5ed5e74dae4d2c18a240bb66b91ab02d7fa71aa0"
+    }
+  ],
+  "fixture_adaptations": [
+    {
+      "changed_helpers": [
+        "_assert_one_instant_boundary",
+        "_attestation",
+        "_noncanonical_boundaries_packet"
+      ],
+      "classification": "TEST_FIXTURE_POLICY_COEXISTENCE_ADAPTATION_AFTER_HOSTED_RED",
+      "hosted_red_run": 37142656231,
+      "incoming_pr143_blob": "4215eb03b1856104bf45701f2fa3b8193bd85038",
+      "mode": "100644",
+      "path": "constraint-t1-raw-artifact-store/tests/test_first_slice_temporal_consistency.py",
+      "sha256": "9b02e678fc6b3780cb606e4c609c02f921a0eb8ed8f627f81c127a7e7700cbd7",
+      "unchanged_test_methods": [
+        "test_direct_replay_validator_rejects_extra_availability_transition",
+        "test_direct_replay_validator_rejects_missing_availability_transition",
+        "test_direct_replay_validator_rejects_rehashed_early_release",
+        "test_equivalent_fractional_spelling_forms_one_boundary_and_preserves_literals",
+        "test_equivalent_offsets_form_one_boundary_and_preserve_member_literals",
+        "test_public_attestation_rejects_rehashed_release_before_latest_acquisition",
+        "test_release_after_latest_acquisition_remains_valid",
+        "test_release_equal_to_latest_acquisition_in_another_offset_remains_valid",
+        "test_replay_builder_rejects_rehashed_release_before_latest_acquisition",
+        "test_replay_selector_rejects_extra_availability_transition",
+        "test_replay_selector_rejects_missing_availability_transition",
+        "test_replay_selector_rejects_rehashed_early_release"
+      ],
+      "git_blob_sha": "a5889de038057dcde70e5b547ec0504ac1ae0201"
+    }
+  ],
+  "test_first_red": {
+    "run_id": 37142656231,
+    "candidate_commit": "0390f3ae8a85d4185cdbbdd1f6f9c2ed601ea7a6",
+    "methods_run": 12,
+    "passed": 2,
+    "errors": 10,
+    "skips": 0,
+    "source_hashes_stable": 740,
+    "signature": "TIMESTAMP_UNVERIFIED"
+  }
+}

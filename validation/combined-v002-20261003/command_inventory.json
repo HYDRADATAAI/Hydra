@@ -1,0 +1,613 @@
+{
+  "schema": "NYX_COMBINED_V002_VALIDATION_INVENTORY_V1",
+  "status": "READY_FOR_EXACT_GREEN_WINDOWS_EXECUTION",
+  "source_file_count": 740,
+  "groups": {
+    "01_T1_raw_artifact_store": [
+      "constraint-t1-raw-artifact-store/tests/"
+    ],
+    "02_first_slice_integration": [
+      "first_slice",
+      "integrated_owners"
+    ],
+    "03_owner_seam_conformance": [
+      "test_lily_owner_seam",
+      "validate_constraint_lily_owner_seams"
+    ],
+    "04_successor_chain_hostile": [
+      "nyx_test_constraint_successor_chain_adversarial"
+    ],
+    "05_Batch018_evidence_alignment": [
+      "test_batch018_nine_source_capture_evidence_alignment"
+    ],
+    "06_Batch033_custody_continuation": [
+      "test_batch033_custody_continuation"
+    ],
+    "07_timestamp_gate_successor": [
+      "test_timestamp_gate",
+      "test_timestamp_successor_binding",
+      "test_restack_successor_binding"
+    ],
+    "08_Batch034_evidence_lineage": [
+      "test_ordinary_t2_evidence_lineage",
+      "batch034_t2_evidence_lineage",
+      "batch034_builder_bytes",
+      "Batch034_rebuild",
+      "preserved_F_non_escalation"
+    ],
+    "09_Constraint_V018_runtime": [
+      "constraint-runtime/tests/",
+      "test_unresolved_gates",
+      "canary_boundary_probe"
+    ],
+    "10_public_repository_hygiene": [
+      "validate_public_repository",
+      "public_root_hygiene"
+    ],
+    "11_governed_compile_AST": [
+      "compile_runtime",
+      "governed_ast"
+    ],
+    "12_manifest_hash_validators": [
+      "nyx_validate_constraint_successor_chain",
+      "validate_constraint_t1_first_slice_attestation",
+      "validate_constraint_second_slice_batch033",
+      "validate_constraint_second_slice_batch034",
+      "validate_constraint_first_slice_custody",
+      "Batch034_rebuild",
+      "batch034_builder_bytes"
+    ],
+    "13_exact_predecessor_recovery": [
+      "test_batch033_custody_continuation",
+      "test_restack_successor_binding",
+      "test_timestamp_successor_binding"
+    ],
+    "14_unresolved_timestamps": [
+      "test_timestamp_gate",
+      "test_unverified_metadata_boundary",
+      "test_temporal_consistency_boundary",
+      "test_first_slice_temporal_consistency",
+      "temporal_coexistence_probe",
+      "test_pit_conservative_availability",
+      "test_constraint_first_slice_outcome_coverage_adversarial",
+      "test_unresolved_gates",
+      "canary_boundary_probe"
+    ],
+    "15_authority_admission_non_elevation": [
+      "test_authority",
+      "test_native_binding_admission",
+      "test_native_admission_input_types",
+      "test_native_t5_t6_bridge",
+      "test_constraint_first_slice_acceptance_gate_adversarial",
+      "boundary_state",
+      "test_unresolved_gates",
+      "preserved_F_non_escalation",
+      "temporal_coexistence_probe",
+      "admission_held"
+    ]
+  },
+  "expected_native_methods": 525,
+  "native_inventory_derivation": "native_inventory_derivation.json",
+  "script_methods_expected": 64,
+  "external_canary_methods": 3,
+  "external_temporal_coexistence_methods": 6,
+  "external_temporal_subtests": "Record actual callback counts separately in temporal_coexistence_results.json; not added to native subtest counts.",
+  "pre_matrix_guard_selftest": {
+    "argv": [
+      "python",
+      "-B",
+      "<harness>/test_report_gate.py"
+    ],
+    "expected_methods": 23,
+    "scope": "Pure report-accounting helper, separate from HYDRA methods"
+  },
+  "C_expected_command_count": 49,
+  "C_recorded_commands": [
+    {
+      "label": "reproduce_previous_tree_1",
+      "argv": [
+        "git",
+        "merge-tree",
+        "--write-tree",
+        "d8e45c1ef63dfc1948840e8f2a65aa955023e8b5",
+        "8d570da75b594ceca062ba1a53fb6164f6dce3e2"
+      ]
+    },
+    {
+      "label": "reproduce_previous_tree_2",
+      "argv": [
+        "git",
+        "merge-tree",
+        "--write-tree",
+        "d8e45c1ef63dfc1948840e8f2a65aa955023e8b5",
+        "8d570da75b594ceca062ba1a53fb6164f6dce3e2"
+      ]
+    },
+    {
+      "label": "PR143_index_read_1",
+      "argv": [
+        "git",
+        "read-tree",
+        "dee8c3fa4cd2e49bd3573f62715c5fe4e2108d0d"
+      ],
+      "index": "<matrix>/reproduction_1.index"
+    },
+    {
+      "label": "PR143_index_update_1_1",
+      "argv": [
+        "git",
+        "update-index",
+        "--add",
+        "--cacheinfo",
+        "100644",
+        "e4a3a00e8120964ad668b6e8fe4386e47a5adaa4",
+        ".github/workflows/nyx-thread-h-temporal-consistency-windows.yml"
+      ]
+    },
+    {
+      "label": "PR143_index_update_1_2",
+      "argv": [
+        "git",
+        "update-index",
+        "--add",
+        "--cacheinfo",
+        "100644",
+        "faa1fb3c793b328ac062dfab008aed3917fdd36c",
+        "constraint-t1-raw-artifact-store/TEMPORAL_INPUT_BOUNDARY.md"
+      ]
+    },
+    {
+      "label": "PR143_index_update_1_3",
+      "argv": [
+        "git",
+        "update-index",
+        "--add",
+        "--cacheinfo",
+        "100644",
+        "e97fd5433b5a227056005a6735b64c5f478a8809",
+        "constraint-t1-raw-artifact-store/src/hydra_constraint_t1_raw/first_slice_materialization.py"
+      ]
+    },
+    {
+      "label": "PR143_index_update_1_4",
+      "argv": [
+        "git",
+        "update-index",
+        "--add",
+        "--cacheinfo",
+        "100644",
+        "62a0d63ced177bd36c68477d92ac900809b7a4f0",
+        "constraint-t1-raw-artifact-store/src/hydra_constraint_t1_raw/ordinary_t2_evidence_lineage.py"
+      ]
+    },
+    {
+      "label": "PR143_index_update_1_5",
+      "argv": [
+        "git",
+        "update-index",
+        "--add",
+        "--cacheinfo",
+        "100644",
+        "92552c7adafb523f6685bf48204a53d82db24abc",
+        "constraint-t1-raw-artifact-store/src/hydra_constraint_t1_raw/ordinary_t2_lineage.py"
+      ]
+    },
+    {
+      "label": "PR143_index_update_1_6",
+      "argv": [
+        "git",
+        "update-index",
+        "--add",
+        "--cacheinfo",
+        "100644",
+        "5ed5e74dae4d2c18a240bb66b91ab02d7fa71aa0",
+        "constraint-t1-raw-artifact-store/src/hydra_constraint_t1_raw/replay_lineage.py"
+      ]
+    },
+    {
+      "label": "PR143_index_update_1_7",
+      "argv": [
+        "git",
+        "update-index",
+        "--add",
+        "--cacheinfo",
+        "100644",
+        "a5889de038057dcde70e5b547ec0504ac1ae0201",
+        "constraint-t1-raw-artifact-store/tests/test_first_slice_temporal_consistency.py"
+      ]
+    },
+    {
+      "label": "PR143_index_update_1_8",
+      "argv": [
+        "git",
+        "update-index",
+        "--add",
+        "--cacheinfo",
+        "100644",
+        "2ad46e67719bd50c16704cc26ee9ab9773b3c4ca",
+        "constraint-t1-raw-artifact-store/tests/test_temporal_consistency_boundary.py"
+      ]
+    },
+    {
+      "label": "PR143_reproduce_tree_1",
+      "argv": [
+        "git",
+        "write-tree"
+      ],
+      "expected_tree": "b50ceb98004dce005d589ccfecbbbe6550a8d871"
+    },
+    {
+      "label": "PR143_index_read_2",
+      "argv": [
+        "git",
+        "read-tree",
+        "dee8c3fa4cd2e49bd3573f62715c5fe4e2108d0d"
+      ],
+      "index": "<matrix>/reproduction_2.index"
+    },
+    {
+      "label": "PR143_index_update_2_1",
+      "argv": [
+        "git",
+        "update-index",
+        "--add",
+        "--cacheinfo",
+        "100644",
+        "e4a3a00e8120964ad668b6e8fe4386e47a5adaa4",
+        ".github/workflows/nyx-thread-h-temporal-consistency-windows.yml"
+      ]
+    },
+    {
+      "label": "PR143_index_update_2_2",
+      "argv": [
+        "git",
+        "update-index",
+        "--add",
+        "--cacheinfo",
+        "100644",
+        "faa1fb3c793b328ac062dfab008aed3917fdd36c",
+        "constraint-t1-raw-artifact-store/TEMPORAL_INPUT_BOUNDARY.md"
+      ]
+    },
+    {
+      "label": "PR143_index_update_2_3",
+      "argv": [
+        "git",
+        "update-index",
+        "--add",
+        "--cacheinfo",
+        "100644",
+        "e97fd5433b5a227056005a6735b64c5f478a8809",
+        "constraint-t1-raw-artifact-store/src/hydra_constraint_t1_raw/first_slice_materialization.py"
+      ]
+    },
+    {
+      "label": "PR143_index_update_2_4",
+      "argv": [
+        "git",
+        "update-index",
+        "--add",
+        "--cacheinfo",
+        "100644",
+        "62a0d63ced177bd36c68477d92ac900809b7a4f0",
+        "constraint-t1-raw-artifact-store/src/hydra_constraint_t1_raw/ordinary_t2_evidence_lineage.py"
+      ]
+    },
+    {
+      "label": "PR143_index_update_2_5",
+      "argv": [
+        "git",
+        "update-index",
+        "--add",
+        "--cacheinfo",
+        "100644",
+        "92552c7adafb523f6685bf48204a53d82db24abc",
+        "constraint-t1-raw-artifact-store/src/hydra_constraint_t1_raw/ordinary_t2_lineage.py"
+      ]
+    },
+    {
+      "label": "PR143_index_update_2_6",
+      "argv": [
+        "git",
+        "update-index",
+        "--add",
+        "--cacheinfo",
+        "100644",
+        "5ed5e74dae4d2c18a240bb66b91ab02d7fa71aa0",
+        "constraint-t1-raw-artifact-store/src/hydra_constraint_t1_raw/replay_lineage.py"
+      ]
+    },
+    {
+      "label": "PR143_index_update_2_7",
+      "argv": [
+        "git",
+        "update-index",
+        "--add",
+        "--cacheinfo",
+        "100644",
+        "a5889de038057dcde70e5b547ec0504ac1ae0201",
+        "constraint-t1-raw-artifact-store/tests/test_first_slice_temporal_consistency.py"
+      ]
+    },
+    {
+      "label": "PR143_index_update_2_8",
+      "argv": [
+        "git",
+        "update-index",
+        "--add",
+        "--cacheinfo",
+        "100644",
+        "2ad46e67719bd50c16704cc26ee9ab9773b3c4ca",
+        "constraint-t1-raw-artifact-store/tests/test_temporal_consistency_boundary.py"
+      ]
+    },
+    {
+      "label": "PR143_reproduce_tree_2",
+      "argv": [
+        "git",
+        "write-tree"
+      ],
+      "expected_tree": "b50ceb98004dce005d589ccfecbbbe6550a8d871"
+    },
+    {
+      "label": "collect_all_owners",
+      "argv": [
+        "python",
+        "-m",
+        "pytest",
+        "--import-mode=importlib",
+        "-p",
+        "pytest_subtests.plugin",
+        "-p",
+        "matrix_reporter",
+        "-p",
+        "no:cacheprovider",
+        "constraint-physical-dependency/tests",
+        "constraint-geopolitical-policy/tests",
+        "constraint-replay/tests",
+        "constraint-t1-raw-artifact-store/tests",
+        "t6-fail-closed-validator/tests",
+        "constraint-runtime/tests",
+        "--collect-only",
+        "-q"
+      ]
+    },
+    {
+      "label": "integrated_owners",
+      "argv": [
+        "python",
+        "-m",
+        "pytest",
+        "--import-mode=importlib",
+        "-p",
+        "pytest_subtests.plugin",
+        "-p",
+        "matrix_reporter",
+        "-p",
+        "no:cacheprovider",
+        "constraint-physical-dependency/tests",
+        "constraint-geopolitical-policy/tests",
+        "constraint-replay/tests",
+        "constraint-t1-raw-artifact-store/tests",
+        "t6-fail-closed-validator/tests",
+        "constraint-runtime/tests",
+        "-vv",
+        "--tb=long",
+        "--junitxml=<matrix>/tests.xml"
+      ]
+    },
+    {
+      "label": "compile_runtime",
+      "argv": [
+        "python",
+        "-m",
+        "compileall",
+        "-q",
+        "constraint-runtime/src"
+      ]
+    },
+    {
+      "label": "validate_constraint_first_slice_successor",
+      "argv": [
+        "python",
+        "tools/validate_constraint_first_slice_successor.py"
+      ]
+    },
+    {
+      "label": "test_constraint_first_slice_adversarial",
+      "argv": [
+        "python",
+        "tools/test_constraint_first_slice_adversarial.py"
+      ]
+    },
+    {
+      "label": "validate_constraint_first_slice_acceptance_gate",
+      "argv": [
+        "python",
+        "tools/validate_constraint_first_slice_acceptance_gate.py"
+      ]
+    },
+    {
+      "label": "test_constraint_first_slice_acceptance_gate_adversarial",
+      "argv": [
+        "python",
+        "tools/test_constraint_first_slice_acceptance_gate_adversarial.py"
+      ]
+    },
+    {
+      "label": "validate_constraint_first_slice_confidence_evaluation",
+      "argv": [
+        "python",
+        "tools/validate_constraint_first_slice_confidence_evaluation.py"
+      ]
+    },
+    {
+      "label": "test_constraint_first_slice_confidence_evaluation_adversarial",
+      "argv": [
+        "python",
+        "tools/test_constraint_first_slice_confidence_evaluation_adversarial.py"
+      ]
+    },
+    {
+      "label": "validate_constraint_first_slice_outcome_coverage",
+      "argv": [
+        "python",
+        "tools/validate_constraint_first_slice_outcome_coverage.py"
+      ]
+    },
+    {
+      "label": "test_constraint_first_slice_outcome_coverage_adversarial",
+      "argv": [
+        "python",
+        "tools/test_constraint_first_slice_outcome_coverage_adversarial.py"
+      ]
+    },
+    {
+      "label": "validate_constraint_first_slice_custody",
+      "argv": [
+        "python",
+        "tools/validate_constraint_first_slice_custody.py"
+      ]
+    },
+    {
+      "label": "test_constraint_first_slice_custody_adversarial",
+      "argv": [
+        "python",
+        "tools/test_constraint_first_slice_custody_adversarial.py"
+      ]
+    },
+    {
+      "label": "validate_constraint_lily_owner_seams",
+      "argv": [
+        "python",
+        "tools/validate_constraint_lily_owner_seams.py"
+      ]
+    },
+    {
+      "label": "nyx_validate_constraint_successor_chain",
+      "argv": [
+        "python",
+        "tools/nyx_validate_constraint_successor_chain.py"
+      ]
+    },
+    {
+      "label": "nyx_test_constraint_successor_chain_adversarial",
+      "argv": [
+        "python",
+        "tools/nyx_test_constraint_successor_chain_adversarial.py"
+      ]
+    },
+    {
+      "label": "validate_constraint_t1_first_slice_attestation",
+      "argv": [
+        "python",
+        "tools/validate_constraint_t1_first_slice_attestation.py",
+        "--attestation",
+        "docs/constraint/validation/HYDRA_CONSTRAINT_BATCH018_T1_NINE_SOURCE_MATERIALIZATION_ATTESTATION_V001_20260926.json"
+      ]
+    },
+    {
+      "label": "validate_constraint_second_slice_batch033_ordinary_t2_normalization",
+      "argv": [
+        "python",
+        "tools/validate_constraint_second_slice_batch033_ordinary_t2_normalization.py"
+      ]
+    },
+    {
+      "label": "test_constraint_second_slice_batch033_ordinary_t2_normalization_adversarial",
+      "argv": [
+        "python",
+        "tools/test_constraint_second_slice_batch033_ordinary_t2_normalization_adversarial.py"
+      ]
+    },
+    {
+      "label": "validate_constraint_second_slice_batch034_t2_evidence_lineage",
+      "argv": [
+        "python",
+        "tools/validate_constraint_second_slice_batch034_t2_evidence_lineage.py"
+      ]
+    },
+    {
+      "label": "test_constraint_second_slice_batch034_t2_evidence_lineage_adversarial",
+      "argv": [
+        "python",
+        "tools/test_constraint_second_slice_batch034_t2_evidence_lineage_adversarial.py"
+      ]
+    },
+    {
+      "label": "validate_public_repository",
+      "argv": [
+        "python",
+        "tools/validate_public_repository.py"
+      ]
+    },
+    {
+      "label": "test_constraint_second_slice_batch034_builder_bytes",
+      "argv": [
+        "python",
+        "tools/test_constraint_second_slice_batch034_builder_bytes.py"
+      ]
+    },
+    {
+      "label": "preserved_F_non_escalation",
+      "argv": [
+        "python",
+        "-B",
+        "<matrix>/thread_f_bound.py",
+        "--repo",
+        "<source>",
+        "--json-output",
+        "<matrix>/F_results.json"
+      ]
+    },
+    {
+      "label": "canary_boundary_probe",
+      "argv": [
+        "python",
+        "-B",
+        "<harness>/canary_boundary_probe.py",
+        "--repo",
+        "<source>"
+      ]
+    },
+    {
+      "label": "temporal_coexistence_probe",
+      "argv": [
+        "python",
+        "-B",
+        "<harness>/temporal_coexistence_probe.py",
+        "--repo",
+        "<source>",
+        "--json-output",
+        "<matrix>/temporal_coexistence_results.json"
+      ]
+    },
+    {
+      "label": "Batch034_rebuild",
+      "argv": [
+        "python",
+        "-B",
+        "tools/build_constraint_second_slice_batch034_t2_evidence_lineage.py",
+        "--output",
+        "<matrix>/rebuilt_binding.json"
+      ]
+    }
+  ],
+  "D_expected_command_count": 42,
+  "D_contexts": [
+    "ordinary checkout",
+    "deep outside cwd",
+    "linked Git worktree with spaces and deep outside cwd"
+  ],
+  "D_remote_binding": [
+    "currentmain d8e45c1ef63dfc1948840e8f2a65aa955023e8b5",
+    "PR143 250520b55129712d77acdafcc9f06d8bf9b7aa88",
+    "PR119 originalhead verifiedancestor of currentmain",
+    "PR138 originalhead verifiedancestor of currentmain"
+  ],
+  "execution_status": "NOT_EXECUTED_FOR_FINAL_GREEN_CANDIDATE",
+  "skip_policy": "Same four named symlink methods; exact WinError1314 only; direct permission probe separately inventoried.",
+  "candidate_commit": "e1015aa974254f998845b25b63b1142c554a7e05",
+  "candidate_tree": "b50ceb98004dce005d589ccfecbbbe6550a8d871",
+  "main": "d8e45c1ef63dfc1948840e8f2a65aa955023e8b5"
+}

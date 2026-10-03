@@ -1,0 +1,83 @@
+{
+  "schema": "NYX_COMBINED_V002_VALIDATION_HARNESS_PROVENANCE_V1",
+  "status": "READY_FOR_EXACT_GREEN_WINDOWS_EXECUTION",
+  "repository": "HYDRADATAAI/Hydra",
+  "source_harness_commit": "c0a7d5e2e0254aba5a848e7b2647ca62413a333c",
+  "source_harness_path": "validation/combined-20261003",
+  "source_successful_run": 37140043550,
+  "current_pins": {
+    "main": "d8e45c1ef63dfc1948840e8f2a65aa955023e8b5",
+    "pr119_head": "417174daa31761ad9eaeba56ca6306b3050ada7a",
+    "candidate_commit": "e1015aa974254f998845b25b63b1142c554a7e05",
+    "candidate_tree": "b50ceb98004dce005d589ccfecbbbe6550a8d871",
+    "file_count": 740,
+    "v005_tree": "caee9d0abbe64a8ecde7b82c568ce20c60964a9e",
+    "expected_native_test_methods": 525,
+    "pr138_head": "8d570da75b594ceca062ba1a53fb6164f6dce3e2",
+    "pr141_head": "6758be71d67f7b2f9430a7711fa7516c0104f47a",
+    "pr119_historical_base": "bf74ad8352cc8681b374e185772085212619f00f",
+    "pr138_merge_base": "a738e851183ed4a21e32bac30a5d0a60762e7193",
+    "pr143_head": "250520b55129712d77acdafcc9f06d8bf9b7aa88",
+    "previous_candidate_commit": "dee8c3fa4cd2e49bd3573f62715c5fe4e2108d0d",
+    "previous_candidate_tree": "9ca099c72f1a440d77119eecc651fd6392dc0ce3",
+    "previous_candidate_main": "a738e851183ed4a21e32bac30a5d0a60762e7193",
+    "pr143_merge_base": "a738e851183ed4a21e32bac30a5d0a60762e7193",
+    "pr119_integrated_in_current_main": true,
+    "pr143_paths": [
+      ".github/workflows/nyx-thread-h-temporal-consistency-windows.yml",
+      "constraint-t1-raw-artifact-store/TEMPORAL_INPUT_BOUNDARY.md",
+      "constraint-t1-raw-artifact-store/src/hydra_constraint_t1_raw/first_slice_materialization.py",
+      "constraint-t1-raw-artifact-store/src/hydra_constraint_t1_raw/ordinary_t2_evidence_lineage.py",
+      "constraint-t1-raw-artifact-store/src/hydra_constraint_t1_raw/ordinary_t2_lineage.py",
+      "constraint-t1-raw-artifact-store/src/hydra_constraint_t1_raw/replay_lineage.py",
+      "constraint-t1-raw-artifact-store/tests/test_first_slice_temporal_consistency.py",
+      "constraint-t1-raw-artifact-store/tests/test_temporal_consistency_boundary.py"
+    ],
+    "pr138_integrated_in_current_main": true,
+    "expected_candidate_parents": [
+      "d8e45c1ef63dfc1948840e8f2a65aa955023e8b5",
+      "250520b55129712d77acdafcc9f06d8bf9b7aa88"
+    ]
+  },
+  "current_expected_native_methods": 525,
+  "current_source_file_count": 740,
+  "current_script_methods_expected": 64,
+  "previous_execution_historical_only": {
+    "candidate_commit": "dee8c3fa4cd2e49bd3573f62715c5fe4e2108d0d",
+    "tree": "9ca099c72f1a440d77119eecc651fd6392dc0ce3",
+    "native_methods": 495,
+    "native_subtests": 669,
+    "source_files": 737,
+    "script_methods": 58,
+    "custom_hostile_cases": 93
+  },
+  "main_drift": "PR119 andPR138 merged externally in two moves. Finalmain d8e45c1 has exact verified V001tree9ca099c7. Original119/138heads are bound as ancestors; finalcandidate has parents[main,PR143]. Source bytes unchanged by main movement.",
+  "composition": "Currentmain exacttree equals verifiedV001; retained duplicate ancestor merge-tree constructions must equal samebaseline; two separate temporaryGitindex overlays construct exact143/resolution/fixturebindings.",
+  "test_first_diagnostic": {
+    "run_id": 37142656231,
+    "candidate_commit": "0390f3ae8a85d4185cdbbdd1f6f9c2ed601ea7a6",
+    "candidate_tree": "076e9d6955e540a3b0e2453b6e5ee8e2c26a5027",
+    "executed_methods": 12,
+    "passed": 2,
+    "errors": 10,
+    "failures": 0,
+    "skips": 0,
+    "failure_signature": "TIMESTAMP_UNVERIFIED at replay builder",
+    "source_hashes_stable": 740,
+    "harness_checks_failed": 0
+  },
+  "retained_guards": [
+    "All15 validationgroups and all prior source suite methods",
+    "23-test report completeness gate; unique terminal reports for every native collectedmethod",
+    "Four named WinError1314 skip exceptions only",
+    "Preserved original E/F cases; F has only same reviewed PR141 rejection expectation change",
+    "Three canaryaggregate probes",
+    "Before/after canonical source/worktree bytes and Gitpath probes",
+    "Source authority/admission/timestamp hold checks",
+    "Complete SHA256-bound artifact and Base64 log export"
+  ],
+  "added_guard": "Six temporalcoexistence methods; every test method AST equals originalreviewed probe, only CLI JSONreporter added to capture method/subtest outcomes separately.",
+  "original_records": "Files prefixed v001_ and original_ are preserved historical harnessrecords, not current counts or candidate pins.",
+  "local_verification": "Static source/AST/YAML/Git-blob verification only; no local HYDRA execution.",
+  "final_green_change_from_red": "Only first-slice testhelper blob a5889de038057dcde70e5b547ec0504ac1ae0201 changes;12testmethod ASTs and all production bytes unchanged."
+}
