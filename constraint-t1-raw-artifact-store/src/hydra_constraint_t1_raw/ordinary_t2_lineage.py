@@ -22,6 +22,32 @@ CONSERVATIVE_AVAILABILITY = "ACQUISITION_TIME_CONSERVATIVE"
 NO_LOOKAHEAD_RULE = "SOURCE_VISIBLE_IFF_AVAILABLE_AT_LTE_AS_OF"
 HISTORICAL_BLOCKER = "PRE_ACQUISITION_HISTORICAL_VERSION_AVAILABILITY_NOT_ESTABLISHED"
 
+# v1 accepts only its existing metadata fields. No timestamp proof extension is
+# approved here: rejecting an unsupported claim prevents normalization from
+# silently discarding it. These allowlists do not authenticate legacy values.
+SOURCE_RECORD_FIELDS = frozenset({
+    "source_id", "source_version_id", "source_locator", "processing_disposition",
+    "historical_backdating_authorized", "capture_intent_id", "content_type_hint",
+    "inbox_filename", "ordinal", "preferred_capture_representation",
+    "publication_date", "publisher", "receipt_acquired_at_policy",
+    "receipt_available_at_policy", "roles", "source_family", "title",
+})
+ATTESTATION_FIELDS = frozenset({
+    "schema_version", "record_id", "slice_id", "as_of", "release_id",
+    "release_sha256", "release_record_file_sha256", "availability_mode",
+    "materialized_source_count", "valid_receipt_count", "ordinary_t2_eligible_count",
+    "all_sources_ordinary_t2_eligible", "historical_availability_backdated",
+    "strict_historical_replay_promoted", "public_raw_content_published",
+    "private_paths_published", "members", "next_action",
+    "predecessor_private_handback_record_id", "provider_exclusion_policy",
+    "queue_record_id", "remaining_replay_boundary",
+})
+ATTESTATION_MEMBER_FIELDS = frozenset({
+    "source_id", "source_version_id", "source_locator", "artifact_sha256",
+    "receipt_sha256", "content_type", "byte_length", "acquired_at", "available_at",
+    "ordinary_t2_eligible", "processing_disposition",
+})
+
 
 class OrdinaryT2LineageError(ValueError):
     pass
@@ -52,6 +78,7 @@ def _source_scope(
     out: dict[str, dict[str, Any]] = {}
     for index, record in enumerate(records):
         _require(isinstance(record, Mapping), f"source_records[{index}]: object required")
+        _require(set(record) <= SOURCE_RECORD_FIELDS, f"source_records[{index}]: unsupported input fields")
         source_id = record.get("source_id")
         source_version_id = record.get("source_version_id")
         source_locator = record.get("source_locator")
@@ -91,6 +118,8 @@ def _attestation_members(
     source_scope: Mapping[str, Mapping[str, Any]],
     expected_slice_id: str,
 ) -> list[dict[str, Any]]:
+    _require(isinstance(attestation, Mapping), "attestation: object required")
+    _require(set(attestation) <= ATTESTATION_FIELDS, "attestation: unsupported input fields")
     _require(attestation.get("slice_id") == expected_slice_id, "attestation slice_id mismatch")
     _require(
         attestation.get("availability_mode") == CONSERVATIVE_AVAILABILITY,
@@ -142,6 +171,10 @@ def _attestation_members(
     seen: set[str] = set()
     for index, member in enumerate(members):
         _require(isinstance(member, Mapping), f"members[{index}]: object required")
+        _require(set(member) <= ATTESTATION_MEMBER_FIELDS, f"members[{index}]: unsupported input fields")
+        if "processing_disposition" in member:
+            _require(member["processing_disposition"] == "ELIGIBLE",
+                     f"members[{index}]: member must remain ELIGIBLE")
         source_id = member.get("source_id")
         _require(
             isinstance(source_id, str) and source_id in source_scope,
@@ -214,7 +247,7 @@ def build_ordinary_t2_lineage(
     source_records: Sequence[Mapping[str, Any]],
     expected_slice_id: str,
 ) -> dict[str, Any]:
-    """Normalize authenticated source-version custody into deterministic T2 lineage."""
+    """Normalize declared custody metadata; this does not verify timestamp authority."""
     scope = _source_scope(source_records)
     members = _attestation_members(
         attestation,
