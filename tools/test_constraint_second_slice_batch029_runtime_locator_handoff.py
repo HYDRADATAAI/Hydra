@@ -16,6 +16,8 @@ from unittest.mock import patch
 
 ROOT = Path(__file__).resolve().parents[1]
 RUNNER = ROOT / "tools/private/HYDRA_CONSTRAINT_T1_SEMICONDUCTOR_BATCH026_BROWSER_CAPTURE_V001_20260927.py"
+TEST_SOURCE_ID = "SRC-SEMI-TEST-RUNTIME-LOCATOR-HANDOFF"
+TEST_SOURCE_VERSION_ID = "SV-SEMI-TEST-RUNTIME-001"
 
 
 def import_runner() -> Any:
@@ -96,6 +98,9 @@ class FakePage:
         self.response: FakeResponse | None = None
         self.closed = False
 
+    def route(self, _pattern: str, _handler: Any) -> None:
+        pass
+
     def on(self, event: str, handler: Any) -> None:
         if event != "response":
             raise AssertionError(f"unexpected event subscription: {event}")
@@ -132,8 +137,8 @@ class RuntimeLocatorHandoffTest(unittest.TestCase):
         runner = import_runner()
         item = {
             "capture_intent_id": "intent-1",
-            "source_id": "SRC-SEMI-MICRON-Q2FY25-REMARKS-2025-03-20",
-            "source_version_id": "SV-SEMI-B026-001",
+            "source_id": TEST_SOURCE_ID,
+            "source_version_id": TEST_SOURCE_VERSION_ID,
             "source_locator": registered_locator,
             "content_type_hint": content_type,
         }
@@ -181,10 +186,10 @@ class RuntimeLocatorHandoffTest(unittest.TestCase):
         return page, output.getvalue(), print_spy
 
     def test_pdf_navigation_response_and_flushed_markers(self) -> None:
-        registered_locator = "https://investors.micron.com/static-files/stale-prepared-remarks.pdf"
+        registered_locator = "https://example.com/static-files/stale-prepared-remarks.pdf"
         capture_locator = (
-            "https://s25.q4cdn.com/621799436/files/doc_financials/2025/q2/"
-            "Micron_FY25_Q2_Prepared_Remarks_2-1.pdf"
+            "https://example.com/reports/2025/q2/"
+            "prepared-remarks.pdf"
         )
         body = b"%PDF-1.7\n" + b"offline fake PDF body\n" * 100
         page, output, print_spy = self.capture(
@@ -224,7 +229,7 @@ class RuntimeLocatorHandoffTest(unittest.TestCase):
             expected_markers,
         )
         for call in marker_calls:
-            self.assertIn("SRC-SEMI-MICRON-Q2FY25-REMARKS-2025-03-20", call.args[0])
+            self.assertIn(TEST_SOURCE_ID, call.args[0])
             self.assertIn(capture_locator, call.args[0])
             self.assertIs(call.kwargs.get("flush"), True)
         marker_positions = [output.index(marker) for marker in expected_markers]
@@ -279,16 +284,16 @@ class RuntimeLocatorHandoffTest(unittest.TestCase):
 
     def test_pdf_validation_rejection_logs_bounded_response_details(self) -> None:
         runner = import_runner()
-        registered_locator = "https://investors.micron.com/static-files/stale-prepared-remarks.pdf"
+        registered_locator = "https://example.com/static-files/stale-prepared-remarks.pdf"
         capture_locator = (
-            "https://s25.q4cdn.com/621799436/files/doc_financials/2025/q2/"
-            "Micron_FY25_Q2_Prepared_Remarks_2-1.pdf"
+            "https://example.com/reports/2025/q2/"
+            "prepared-remarks.pdf"
         )
         body = b"%PDF-1.7\n" + b"x" * (536 - len(b"%PDF-1.7\n"))
         item = {
             "capture_intent_id": "intent-1",
-            "source_id": "SRC-SEMI-MICRON-Q2FY25-REMARKS-2025-03-20",
-            "source_version_id": "SV-SEMI-B026-001",
+            "source_id": TEST_SOURCE_ID,
+            "source_version_id": TEST_SOURCE_VERSION_ID,
             "source_locator": registered_locator,
             "content_type_hint": "application/pdf",
         }

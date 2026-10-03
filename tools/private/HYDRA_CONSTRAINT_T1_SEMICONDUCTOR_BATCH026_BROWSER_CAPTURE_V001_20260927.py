@@ -419,6 +419,7 @@ def fetch_pdf_response(
         remaining_seconds = deadline - time.monotonic()
         if remaining_seconds <= 0:
             raise CaptureError(f"PDF raw HTTP request exceeded its {timeout_ms} ms total timeout")
+        reject_forbidden_capture_request(current_url)
         remaining_ms = max(1, int(remaining_seconds * 1000))
         response = request_context.get(
             current_url,
@@ -439,6 +440,11 @@ def fetch_pdf_response(
             raise CaptureError(f"PDF raw HTTP redirect limit exceeded ({MAX_PDF_HTTP_REDIRECTS})")
 
         next_url = urljoin(current_url, location)
+        try:
+            reject_forbidden_capture_request(next_url)
+        except Exception:
+            dispose_api_response(response)
+            raise
         proposed_chain = (*chain, next_url)
         try:
             validate_redirects(
@@ -833,6 +839,35 @@ def capture_browser_pdf_response_after_403(
             pass
 
 
+def reject_quarantined_capture_item(item: Mapping[str, Any], capture_locator: str) -> None:
+    """Fail closed for quarantined row identities before capture side effects."""
+    tools_dir = Path(__file__).resolve().parents[1]
+    tools_dir_text = str(tools_dir)
+    if tools_dir_text not in sys.path:
+        sys.path.insert(0, tools_dir_text)
+    from constraint_source_quarantine import QuarantinePolicyError, reject_quarantined_capture_item as enforce_quarantine
+
+    repo_root = Path(__file__).resolve().parents[2]
+    try:
+        enforce_quarantine(repo_root, item, capture_locator, operation="browser capture")
+    except QuarantinePolicyError as exc:
+        raise CaptureError(str(exc)) from exc
+
+
+def reject_forbidden_capture_request(locator: str) -> None:
+    """Apply the shared provider and browser-authority policy to each request URL."""
+    tools_dir = Path(__file__).resolve().parents[1]
+    tools_dir_text = str(tools_dir)
+    if tools_dir_text not in sys.path:
+        sys.path.insert(0, tools_dir_text)
+    from constraint_source_quarantine import QuarantinePolicyError, reject_forbidden_capture_locator
+
+    try:
+        reject_forbidden_capture_locator(locator, operation="browser capture request")
+    except QuarantinePolicyError as exc:
+        raise CaptureError(str(exc)) from exc
+
+
 def capture_one(
     *,
     context: Any,
@@ -847,6 +882,7 @@ def capture_one(
     locator_remediation: Mapping[str, Any] | None = None,
 ) -> dict[str, Any]:
     source_id = str(item["source_id"])
+    reject_quarantined_capture_item(item, capture_locator)
     locator = str(capture_locator)
     locator_resolution = locator_resolution_provenance(
         item=item,
@@ -855,7 +891,33 @@ def capture_one(
     )
     page = context.new_page()
     responses: list[Any] = []
+    blocked_provider_requests: list[str] = []
     fallback_retry_active = False
+
+    def guard_provider_request(route: Any) -> None:
+        request_url = str(getattr(getattr(route, "request", None), "url", ""))
+        try:
+            reject_forbidden_capture_request(request_url)
+        except CaptureError:
+            blocked_provider_requests.append(request_url)
+            route.abort("blockedbyclient")
+            return
+        route.continue_()
+
+    if not callable(getattr(page, "route", None)):
+        try:
+            page.close()
+        except Exception:
+            pass
+        raise CaptureError("browser page does not support pre-request provider routing")
+    try:
+        page.route("**/*", guard_provider_request)
+    except Exception as exc:
+        try:
+            page.close()
+        except Exception:
+            pass
+        raise CaptureError(f"unable to install pre-request provider guard: {exc}") from exc
 
     def on_response(response: Any) -> None:
         try:
@@ -891,11 +953,21 @@ def capture_one(
                     f"response_status={response_status} navigation_error={navigation_error!s}",
                     flush=True,
                 )
+            if blocked_provider_requests:
+                raise CaptureError(
+                    "SUPERSEDED_BY_BATCH030_QUARANTINE: blocked forbidden provider request before dispatch: "
+                    f"{blocked_provider_requests[-1]}"
+                )
         else:
             try:
                 page.goto(locator, wait_until="commit", timeout=max(1, navigation_timeout_seconds) * 1000)
             except Exception as exc:
                 navigation_error = exc
+            if blocked_provider_requests:
+                raise CaptureError(
+                    "SUPERSEDED_BY_BATCH030_QUARANTINE: blocked forbidden provider request before dispatch: "
+                    f"{blocked_provider_requests[-1]}"
+                )
 
         deadline = time.monotonic() + max(0, challenge_wait_seconds)
         last_rejection: str | None = None

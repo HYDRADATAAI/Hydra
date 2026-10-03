@@ -148,6 +148,9 @@ class FakePage:
         self.closed = False
         self.cdp_session: FakeCDPSession | None = None
 
+    def route(self, _pattern: str, _handler: Any) -> None:
+        pass
+
     def on(self, _event: str, _callback: Any) -> None:
         return None
 

@@ -126,6 +126,9 @@ class FakePage:
         self.goto_calls = 0
         self.cdp_session: FakeCDPSession | None = None
 
+    def route(self, _pattern: str, _handler: Any) -> None:
+        pass
+
     def on(self, _event: str, _callback: Any) -> None:
         return None
 
@@ -274,6 +277,28 @@ class RawPDFResponseTests(unittest.TestCase):
         self.assertEqual([call["url"] for call in request.calls], [self.locator, final_url])
         self.assertTrue(redirect.disposed)
         self.assertEqual(request.calls[0]["max_redirects"], 0)
+
+    def test_raw_pdf_redirect_to_forbidden_provider_is_rejected_before_second_request(self) -> None:
+        start = "https://example.com/start.pdf"
+        redirect = FakeAPIResponse(
+            status=302,
+            url=start,
+            headers={"Location": "https://%6dicron.com/redirected.pdf"},
+        )
+        request = FakeRequestContext([redirect])
+        context = FakeCaptureContext(request, FakePage(FakeNavigationResponse()))
+
+        with self.assertRaisesRegex(runner.CaptureError, r"ambiguous HTTP\(S\) authority syntax"):
+            runner.fetch_pdf_response(
+                context=context,
+                exact_locator=start,
+                policy="same-origin",
+                timeout_milliseconds=1000,
+            )
+
+        self.assertEqual(len(request.calls), 1)
+        self.assertEqual(request.calls[0]["url"], start)
+        self.assertTrue(redirect.disposed)
 
     def test_exact_policy_rejects_redirect_without_following_it(self) -> None:
         redirect = FakeAPIResponse(
