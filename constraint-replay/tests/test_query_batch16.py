@@ -1,4 +1,7 @@
 import json
+import os
+import subprocess
+import sys
 import shutil
 import tempfile
 import unittest
@@ -121,6 +124,22 @@ class Batch016ReadOnlyQueryTests(unittest.TestCase):
                     self.service.list_cases(min_lead_days=value)
                 with self.assertRaises(ConstraintQueryError):
                     self.service.list_cases(max_lead_days=value)
+
+    def test_cli_rejects_nan_lead_filter(self):
+        script = ROOT / "constraint-replay" / "scripts" / "query_HYDRA_CONSTRAINT_BATCH016_readonly_replay_20260926.py"
+        env = os.environ.copy()
+        source = str(ROOT / "constraint-replay" / "src")
+        env["PYTHONPATH"] = source + os.pathsep + env.get("PYTHONPATH", "")
+        result = subprocess.run(
+            [sys.executable, str(script), "list", "--min-lead-days", "nan"],
+            cwd=ROOT,
+            env=env,
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+        self.assertEqual(2, result.returncode, result.stderr)
+        self.assertIn("min_lead_days must be a non-negative number", result.stderr)
 
     def test_query_contract_rejects_authority_smuggling_fields(self):
         with self.assertRaisesRegex(ConstraintQueryError,"unsupported query fields"):
