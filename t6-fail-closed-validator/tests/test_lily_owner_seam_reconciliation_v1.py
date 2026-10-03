@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import copy
-import hashlib
 import json
 import os
 import sys
@@ -35,10 +34,6 @@ def load(path: Path):
     return json.loads(path.read_text(encoding="utf-8"))
 
 
-def git_blob_sha(path: Path) -> str:
-    data = path.read_bytes()
-    return hashlib.sha1(b"blob " + str(len(data)).encode("ascii") + b"\0" + data).hexdigest()
-
 
 class LilyOwnerSeamReconciliationTests(unittest.TestCase):
     @classmethod
@@ -71,13 +66,13 @@ class LilyOwnerSeamReconciliationTests(unittest.TestCase):
 
     def test_overlay_pins_exact_unchanged_batch010_candidate_blob(self):
         pin = self.docs["overlay"]["predecessor"]["git_blob_sha"]
-        self.assertEqual(pin, git_blob_sha(FILES["candidates"]))
+        self.assertEqual(pin, wrapper_git_blob_sha(FILES["candidates"]))
         self.assertEqual("NONE", self.docs["overlay"]["predecessor"]["mutation"])
 
     def test_wrapper_hash_cleans_crlf_and_rejects_content_tamper(self):
         path = FILES["candidates"]
         pin = self.docs["overlay"]["predecessor"]["git_blob_sha"]
-        lf = path.read_bytes()
+        lf = path.read_bytes().replace(b"\r\n", b"\n")
         crlf = lf.replace(b"\n", b"\r\n")
         git_config = {
             "GIT_CONFIG_COUNT": "1",
