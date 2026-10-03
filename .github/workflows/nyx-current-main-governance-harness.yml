@@ -1,0 +1,77 @@
+name: NYX exact current-main governance swarm
+
+on:
+  push:
+    branches:
+      - nyx/validation-main-d7af-governance-harness-20261003
+
+permissions:
+  contents: read
+
+jobs:
+  governance:
+    runs-on: windows-latest
+    env:
+      PYTHONDONTWRITEBYTECODE: '1'
+      PYTHONUTF8: '1'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: d7af2cb8e56465aab8147f749ed1c65c6f861a1d
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Bind exact main
+        shell: pwsh
+        run: |
+          $head=(git rev-parse HEAD).Trim()
+          $tree=(git rev-parse 'HEAD^{tree}').Trim()
+          if ($head -ne 'd7af2cb8e56465aab8147f749ed1c65c6f861a1d') { throw "main drift: $head" }
+          "EXACT_MAIN=$head"
+          "EXACT_TREE=$tree"
+      - name: T1 raw store and temporal boundaries
+        shell: pwsh
+        run: |
+          $env:PYTHONPATH="$env:GITHUB_WORKSPACE\constraint-t1-raw-artifact-store\src"
+          python -B -m unittest discover -s constraint-t1-raw-artifact-store/tests -t constraint-t1-raw-artifact-store -v
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: T6 fail-closed and owner seam
+        shell: pwsh
+        run: |
+          $env:PYTHONPATH="$env:GITHUB_WORKSPACE\t6-fail-closed-validator\src"
+          python -B -m unittest discover -s t6-fail-closed-validator/tests -t t6-fail-closed-validator -v
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          python -B tools/validate_constraint_lily_owner_seams.py
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: First-slice and successor hostile gates
+        shell: pwsh
+        run: |
+          python -B tools/validate_constraint_first_slice_successor.py
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          python -B tools/test_constraint_first_slice_adversarial.py
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          python -B tools/validate_constraint_first_slice_acceptance_gate.py
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          python -B tools/test_constraint_first_slice_acceptance_gate_adversarial.py
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          python -B tools/validate_constraint_ai_infra_pass005.py
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          python -B tools/nyx_validate_constraint_successor_chain.py
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          python -B tools/nyx_test_constraint_successor_chain_adversarial.py
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Runtime unresolved gates
+        shell: pwsh
+        run: |
+          $env:PYTHONPATH="$env:GITHUB_WORKSPACE\constraint-runtime\src"
+          python -B -m unittest discover -s constraint-runtime/tests -v
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Public validation
+        shell: pwsh
+        run: |
+          python -B tools/validate_public_repository.py
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          git diff --check
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          'CURRENT_MAIN_GOVERNANCE_HARNESS=PASS'
