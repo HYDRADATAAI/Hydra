@@ -138,12 +138,38 @@ class FirstSliceReplayLineageTests(unittest.TestCase):
             attestation=self.attestation,
             registry=self.registry,
         )
-        del packet["historical_replay_blocker"]
-        with self.assertRaisesRegex(
-            ReplayLineageError,
-            "replay-lineage root field set invalid",
-        ):
-            validate_replay_lineage_packet(packet=packet, registry=self.registry)
+        required_root_fields = {
+            "schema_version",
+            "slice_id",
+            "release_id",
+            "release_sha256",
+            "release_created_at",
+            "availability_mode",
+            "source_count",
+            "ordinary_source_version_hash_lineage_complete",
+            "ordinary_current_source_set_ready",
+            "strict_historical_replay_ready",
+            "historical_availability_backdated",
+            "no_lookahead_rule",
+            "historical_replay_blocker",
+            "members",
+            "availability_boundaries",
+            "packet_sha256",
+        }
+        self.assertEqual(set(packet), required_root_fields)
+        for field in sorted(required_root_fields):
+            with self.subTest(field=field):
+                incomplete = dict(packet)
+                del incomplete[field]
+                with self.assertRaises(ReplayLineageError) as raised:
+                    validate_replay_lineage_packet(
+                        packet=incomplete,
+                        registry=self.registry,
+                    )
+                self.assertEqual(
+                    str(raised.exception),
+                    "replay-lineage root field set invalid",
+                )
 
     def test_replay_does_not_drop_unverified_acquisition_status(self):
         from hydra_constraint_t1_raw.first_slice_materialization import FirstSliceMaterializationError
