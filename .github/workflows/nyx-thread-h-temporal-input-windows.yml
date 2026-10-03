@@ -23,6 +23,8 @@ jobs:
       PYTHONDONTWRITEBYTECODE: '1'
       PYTHONUTF8: '1'
     steps:
+      - name: Preserve committed file bytes on Windows
+        run: git config --global core.autocrlf false
       - uses: actions/checkout@v4
         with:
           ref: ${{ github.event.pull_request.head.sha || github.sha }}

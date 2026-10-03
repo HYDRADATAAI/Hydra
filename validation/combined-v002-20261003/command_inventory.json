@@ -1,6 +1,6 @@
 {
   "schema": "NYX_COMBINED_V002_VALIDATION_INVENTORY_V1",
-  "status": "READY_FOR_EXACT_GREEN_WINDOWS_EXECUTION",
+  "status": "READY_FOR_EXACT_CANONICAL_BYTE_REPAIRED_WINDOWS_EXECUTION",
   "source_file_count": 740,
   "groups": {
     "01_T1_raw_artifact_store": [
@@ -21,7 +21,8 @@
       "test_batch018_nine_source_capture_evidence_alignment"
     ],
     "06_Batch033_custody_continuation": [
-      "test_batch033_custody_continuation"
+      "test_batch033_custody_continuation",
+      "Batch033_rebuild"
     ],
     "07_timestamp_gate_successor": [
       "test_timestamp_gate",
@@ -54,6 +55,7 @@
       "validate_constraint_second_slice_batch033",
       "validate_constraint_second_slice_batch034",
       "validate_constraint_first_slice_custody",
+      "Batch033_rebuild",
       "Batch034_rebuild",
       "batch034_builder_bytes"
     ],
@@ -101,7 +103,7 @@
     "expected_methods": 23,
     "scope": "Pure report-accounting helper, separate from HYDRA methods"
   },
-  "C_expected_command_count": 49,
+  "C_expected_command_count": 54,
   "C_recorded_commands": [
     {
       "label": "reproduce_previous_tree_1",
@@ -140,7 +142,7 @@
         "--add",
         "--cacheinfo",
         "100644",
-        "e4a3a00e8120964ad668b6e8fe4386e47a5adaa4",
+        "68aa3475649534c8ff8a4ba11905e5f7bf614d0c",
         ".github/workflows/nyx-thread-h-temporal-consistency-windows.yml"
       ]
     },
@@ -152,12 +154,24 @@
         "--add",
         "--cacheinfo",
         "100644",
+        "3d14bf466210242c5df689ae2aeda485286d337f",
+        ".github/workflows/nyx-thread-h-temporal-input-windows.yml"
+      ]
+    },
+    {
+      "label": "PR143_index_update_1_3",
+      "argv": [
+        "git",
+        "update-index",
+        "--add",
+        "--cacheinfo",
+        "100644",
         "faa1fb3c793b328ac062dfab008aed3917fdd36c",
         "constraint-t1-raw-artifact-store/TEMPORAL_INPUT_BOUNDARY.md"
       ]
     },
     {
-      "label": "PR143_index_update_1_3",
+      "label": "PR143_index_update_1_4",
       "argv": [
         "git",
         "update-index",
@@ -169,7 +183,7 @@
       ]
     },
     {
-      "label": "PR143_index_update_1_4",
+      "label": "PR143_index_update_1_5",
       "argv": [
         "git",
         "update-index",
@@ -181,7 +195,7 @@
       ]
     },
     {
-      "label": "PR143_index_update_1_5",
+      "label": "PR143_index_update_1_6",
       "argv": [
         "git",
         "update-index",
@@ -193,19 +207,19 @@
       ]
     },
     {
-      "label": "PR143_index_update_1_6",
+      "label": "PR143_index_update_1_7",
       "argv": [
         "git",
         "update-index",
         "--add",
         "--cacheinfo",
         "100644",
-        "5ed5e74dae4d2c18a240bb66b91ab02d7fa71aa0",
+        "d864bf4874bb264dc7e3a5afbd02db61201c68d7",
         "constraint-t1-raw-artifact-store/src/hydra_constraint_t1_raw/replay_lineage.py"
       ]
     },
     {
-      "label": "PR143_index_update_1_7",
+      "label": "PR143_index_update_1_8",
       "argv": [
         "git",
         "update-index",
@@ -217,7 +231,7 @@
       ]
     },
     {
-      "label": "PR143_index_update_1_8",
+      "label": "PR143_index_update_1_9",
       "argv": [
         "git",
         "update-index",
@@ -229,12 +243,24 @@
       ]
     },
     {
+      "label": "PR143_index_update_1_10",
+      "argv": [
+        "git",
+        "update-index",
+        "--add",
+        "--cacheinfo",
+        "100644",
+        "23b62754f0cb11f59d7980304a9a78e4da801eae",
+        "tools/build_constraint_second_slice_batch033_ordinary_t2_lineage.py"
+      ]
+    },
+    {
       "label": "PR143_reproduce_tree_1",
       "argv": [
         "git",
         "write-tree"
       ],
-      "expected_tree": "b50ceb98004dce005d589ccfecbbbe6550a8d871"
+      "expected_tree": "a08c1562d14fdf6687dd7df4add5301bf7c268c0"
     },
     {
       "label": "PR143_index_read_2",
@@ -253,7 +279,7 @@
         "--add",
         "--cacheinfo",
         "100644",
-        "e4a3a00e8120964ad668b6e8fe4386e47a5adaa4",
+        "68aa3475649534c8ff8a4ba11905e5f7bf614d0c",
         ".github/workflows/nyx-thread-h-temporal-consistency-windows.yml"
       ]
     },
@@ -265,12 +291,24 @@
         "--add",
         "--cacheinfo",
         "100644",
+        "3d14bf466210242c5df689ae2aeda485286d337f",
+        ".github/workflows/nyx-thread-h-temporal-input-windows.yml"
+      ]
+    },
+    {
+      "label": "PR143_index_update_2_3",
+      "argv": [
+        "git",
+        "update-index",
+        "--add",
+        "--cacheinfo",
+        "100644",
         "faa1fb3c793b328ac062dfab008aed3917fdd36c",
         "constraint-t1-raw-artifact-store/TEMPORAL_INPUT_BOUNDARY.md"
       ]
     },
     {
-      "label": "PR143_index_update_2_3",
+      "label": "PR143_index_update_2_4",
       "argv": [
         "git",
         "update-index",
@@ -282,7 +320,7 @@
       ]
     },
     {
-      "label": "PR143_index_update_2_4",
+      "label": "PR143_index_update_2_5",
       "argv": [
         "git",
         "update-index",
@@ -294,7 +332,7 @@
       ]
     },
     {
-      "label": "PR143_index_update_2_5",
+      "label": "PR143_index_update_2_6",
       "argv": [
         "git",
         "update-index",
@@ -306,19 +344,19 @@
       ]
     },
     {
-      "label": "PR143_index_update_2_6",
+      "label": "PR143_index_update_2_7",
       "argv": [
         "git",
         "update-index",
         "--add",
         "--cacheinfo",
         "100644",
-        "5ed5e74dae4d2c18a240bb66b91ab02d7fa71aa0",
+        "d864bf4874bb264dc7e3a5afbd02db61201c68d7",
         "constraint-t1-raw-artifact-store/src/hydra_constraint_t1_raw/replay_lineage.py"
       ]
     },
     {
-      "label": "PR143_index_update_2_7",
+      "label": "PR143_index_update_2_8",
       "argv": [
         "git",
         "update-index",
@@ -330,7 +368,7 @@
       ]
     },
     {
-      "label": "PR143_index_update_2_8",
+      "label": "PR143_index_update_2_9",
       "argv": [
         "git",
         "update-index",
@@ -342,12 +380,24 @@
       ]
     },
     {
+      "label": "PR143_index_update_2_10",
+      "argv": [
+        "git",
+        "update-index",
+        "--add",
+        "--cacheinfo",
+        "100644",
+        "23b62754f0cb11f59d7980304a9a78e4da801eae",
+        "tools/build_constraint_second_slice_batch033_ordinary_t2_lineage.py"
+      ]
+    },
+    {
       "label": "PR143_reproduce_tree_2",
       "argv": [
         "git",
         "write-tree"
       ],
-      "expected_tree": "b50ceb98004dce005d589ccfecbbbe6550a8d871"
+      "expected_tree": "a08c1562d14fdf6687dd7df4add5301bf7c268c0"
     },
     {
       "label": "collect_all_owners",
@@ -591,6 +641,17 @@
         "--output",
         "<matrix>/rebuilt_binding.json"
       ]
+    },
+    {
+      "label": "Batch033_rebuild",
+      "argv": [
+        "python",
+        "-B",
+        "tools/build_constraint_second_slice_batch033_ordinary_t2_lineage.py",
+        "--output",
+        "<matrix>/rebuilt_batch033_lineage.json"
+      ],
+      "comparator": "Raw git show bytes of exact candidate archive, Git blob verified; no normalization. Expected and observed SHA256/length and exact equality recorded in Batch033_rebuild_byte_proof.json."
     }
   ],
   "D_expected_command_count": 42,
@@ -605,9 +666,18 @@
     "PR119 originalhead verifiedancestor of currentmain",
     "PR138 originalhead verifiedancestor of currentmain"
   ],
-  "execution_status": "NOT_EXECUTED_FOR_FINAL_GREEN_CANDIDATE",
+  "execution_status": "NOT_EXECUTED_FOR_FINAL2_CANDIDATE",
   "skip_policy": "Same four named symlink methods; exact WinError1314 only; direct permission probe separately inventoried.",
-  "candidate_commit": "e1015aa974254f998845b25b63b1142c554a7e05",
-  "candidate_tree": "b50ceb98004dce005d589ccfecbbbe6550a8d871",
-  "main": "d8e45c1ef63dfc1948840e8f2a65aa955023e8b5"
+  "candidate_commit": "82d87e93bb06780a13ad2abb0a19c6dc728087ed",
+  "candidate_tree": "a08c1562d14fdf6687dd7df4add5301bf7c268c0",
+  "main": "d8e45c1ef63dfc1948840e8f2a65aa955023e8b5",
+  "original_PR143_paths": 8,
+  "final_overlay_paths": 10,
+  "explicit_allowances": {
+    "production_resolutions": 2,
+    "test_fixture_adaptations": 1,
+    "Windows_checkout_repairs": 2,
+    "CLI_canonical_byte_writer_repairs": 1
+  },
+  "candidate_parent": "8987662d1af7c7bc5ecda0d27a3b4eec05353f06"
 }

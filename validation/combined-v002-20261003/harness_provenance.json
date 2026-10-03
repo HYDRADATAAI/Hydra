@@ -1,6 +1,6 @@
 {
   "schema": "NYX_COMBINED_V002_VALIDATION_HARNESS_PROVENANCE_V1",
-  "status": "READY_FOR_EXACT_GREEN_WINDOWS_EXECUTION",
+  "status": "READY_FOR_EXACT_CANONICAL_BYTE_REPAIRED_WINDOWS_EXECUTION",
   "repository": "HYDRADATAAI/Hydra",
   "source_harness_commit": "c0a7d5e2e0254aba5a848e7b2647ca62413a333c",
   "source_harness_path": "validation/combined-20261003",
@@ -8,8 +8,8 @@
   "current_pins": {
     "main": "d8e45c1ef63dfc1948840e8f2a65aa955023e8b5",
     "pr119_head": "417174daa31761ad9eaeba56ca6306b3050ada7a",
-    "candidate_commit": "e1015aa974254f998845b25b63b1142c554a7e05",
-    "candidate_tree": "b50ceb98004dce005d589ccfecbbbe6550a8d871",
+    "candidate_commit": "82d87e93bb06780a13ad2abb0a19c6dc728087ed",
+    "candidate_tree": "a08c1562d14fdf6687dd7df4add5301bf7c268c0",
     "file_count": 740,
     "v005_tree": "caee9d0abbe64a8ecde7b82c568ce20c60964a9e",
     "expected_native_test_methods": 525,
@@ -35,6 +35,11 @@
     ],
     "pr138_integrated_in_current_main": true,
     "expected_candidate_parents": [
+      "8987662d1af7c7bc5ecda0d27a3b4eec05353f06"
+    ],
+    "reviewed_parent_commit": "8987662d1af7c7bc5ecda0d27a3b4eec05353f06",
+    "reviewed_parent_tree": "2a108cb6029f141a2099d72ea6bf54e05141d305",
+    "reviewed_parent_parents": [
       "d8e45c1ef63dfc1948840e8f2a65aa955023e8b5",
       "250520b55129712d77acdafcc9f06d8bf9b7aa88"
     ]
@@ -52,7 +57,7 @@
     "custom_hostile_cases": 93
   },
   "main_drift": "PR119 andPR138 merged externally in two moves. Finalmain d8e45c1 has exact verified V001tree9ca099c7. Original119/138heads are bound as ancestors; finalcandidate has parents[main,PR143]. Source bytes unchanged by main movement.",
-  "composition": "Currentmain exacttree equals verifiedV001; retained duplicate ancestor merge-tree constructions must equal samebaseline; two separate temporaryGitindex overlays construct exact143/resolution/fixturebindings.",
+  "composition": "Current main exactly equals verified V001. Two independent Git indexes overlay the original eight PR143 paths plus a main-owned Windows workflow and Batch033 CLI writer. Six allowance rows bind exact modes, Git blobs and SHA256 values. The candidate is an exact child of reviewed source 8987662d; its parent retains the ordered main/PR143 parents, and main/PR143 ancestry is checked directly.",
   "test_first_diagnostic": {
     "run_id": 37142656231,
     "candidate_commit": "0390f3ae8a85d4185cdbbdd1f6f9c2ed601ea7a6",
@@ -79,5 +84,76 @@
   "added_guard": "Six temporalcoexistence methods; every test method AST equals originalreviewed probe, only CLI JSONreporter added to capture method/subtest outcomes separately.",
   "original_records": "Files prefixed v001_ and original_ are preserved historical harnessrecords, not current counts or candidate pins.",
   "local_verification": "Static source/AST/YAML/Git-blob verification only; no local HYDRA execution.",
-  "final_green_change_from_red": "Only first-slice testhelper blob a5889de038057dcde70e5b547ec0504ac1ae0201 changes;12testmethod ASTs and all production bytes unchanged."
+  "first_full_attempt_historical_only": {
+    "run_id": 37143389567,
+    "candidate_commit": "e1015aa974254f998845b25b63b1142c554a7e05",
+    "candidate_tree": "b50ceb98004dce005d589ccfecbbbe6550a8d871",
+    "native_passed": 524,
+    "native_failed": 1,
+    "native_skipped": 0,
+    "native_subtests_passed": 756,
+    "failed_method": "test_first_slice_replay_lineage.py::FirstSliceReplayLineageTests::test_rehashed_recorded_boundary_drift_is_rejected",
+    "script_methods_passed": 64,
+    "coexistence_methods_passed": 6,
+    "coexistence_subtests_passed": 30,
+    "custom_hostile_passed": 93,
+    "source_hashes_stable": 740,
+    "evidence_zip_sha256": "6dfe8ad9ede3d6da8248d73d2f1181cb0cf369065c70438979f690994ccd2cca",
+    "result": "FAIL: only one retained error-message compatibility expectation; all other native methods and probes passed. D correctly did not run after C failed."
+  },
+  "workflow_repair_scope": "Exactly two pre-checkout core.autocrlf=false workflow controls, followed by one Batch033 CLI UTF-8 LF writer repair. Original PR143 diff remains eight paths; final overlay has ten paths.",
+  "first_green_change_from_red_historical_only": "Only first-slice testhelper blob a5889de038057dcde70e5b547ec0504ac1ae0201 changes;12testmethod ASTs and all production bytes unchanged.",
+  "pre_writer_repair_historical_only": {
+    "production": "One replay-lineage error-message literal restored; guard and behavior unchanged.",
+    "CI": "Two Windows workflow steps disable checkout CRLF conversion before checkout.",
+    "tests": "No source test bytes changed after the first full attempt.",
+    "reviewed_source_proof_sha256": "d1e340ffe5327a6aa7a1a16534f5e73c7d156f38fd6d60d1615483bb6a7df5b2",
+    "reviewed_checkout_proof_sha256": "aa1f36221c810e610c88894ca482d6f33d367871fefd34472abfdd739521f307",
+    "C_expected_commands": 51,
+    "D_expected_commands": 42,
+    "explicit_allowances": 5,
+    "final_overlay_paths": 9
+  },
+  "writer_failure_historical_only": {
+    "source_commit": "8987662d1af7c7bc5ecda0d27a3b4eec05353f06",
+    "source_tree": "2a108cb6029f141a2099d72ea6bf54e05141d305",
+    "jobs": [
+      111264369526,
+      111264369846
+    ],
+    "T1_methods_passed_per_job": 154,
+    "source_hashes_stable_per_job": 740,
+    "failure": "Lineage bytes differ",
+    "emitted_digest_recorded_in_prior_logs": false,
+    "canonical_archive": {
+      "CRLF_bytes_differ": true,
+      "JSON_values_unchanged": true,
+      "archive_blob": "103bc591529d3e87ffcafee93cf17c28d42a666c",
+      "archive_bytes": 49796,
+      "archive_path": "docs/constraint/second_slice/semiconductor_advanced_packaging_critical_materials_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH033_SEMICONDUCTOR_ORDINARY_T2_SOURCE_VERSION_LINEAGE_V001_20260928.json",
+      "archive_sha256": "6fd31b8384913bb2aed31c8198f39582533488f7be50075d222520b21802b122",
+      "canonical_UTF8_LF_sha256": "6fd31b8384913bb2aed31c8198f39582533488f7be50075d222520b21802b122",
+      "canonical_bytes_equal_committed_archive": true,
+      "default_Windows_text_CRLF_sha256": "9417207ae30e63cd12c1372d8bdb135f3c6b487f1a4c868e8d063cde7b16c384",
+      "method": "Parse already committed JSON and apply the exact unchanged json.dumps expression; no HYDRA builder execution."
+    },
+    "repair": "Only OS-dependent text output replaced with the same serialized UTF-8 LF bytes."
+  },
+  "final2_repair": {
+    "source_commit": "82d87e93bb06780a13ad2abb0a19c6dc728087ed",
+    "source_tree": "a08c1562d14fdf6687dd7df4add5301bf7c268c0",
+    "parent": "8987662d1af7c7bc5ecda0d27a3b4eec05353f06",
+    "changed_parent_paths": [
+      "tools/build_constraint_second_slice_batch033_ordinary_t2_lineage.py"
+    ],
+    "source_tests_changed": 0,
+    "historical_files_changed": 0,
+    "reviewed_source_proof_sha256": "7a1cf425a51fc24ebab11511858d73703312d7cf3546225bf7cac88eb02fda5c",
+    "reviewed_writer_diagnosis_sha256": "b719206a9796c3308823aeb8f542cf94142dd44f554d54519e4b08bca6d5c197",
+    "new_validation": "Batch033 CLI rebuild compared to raw committed Git blob bytes; record exact digest and size with no normalization.",
+    "C_expected_commands": 54,
+    "D_expected_commands": 42,
+    "explicit_allowances": 6,
+    "final_overlay_paths": 10
+  }
 }

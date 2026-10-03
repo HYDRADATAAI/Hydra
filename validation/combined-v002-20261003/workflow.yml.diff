@@ -1,5 +1,5 @@
 --- V001/workflow.yml
-+++ V002/workflow.yml
++++ V002_final2/workflow.yml
 @@ -1,8 +1,8 @@
 -name: NYX combined candidate Windows C and D
 +name: NYX combined V002 candidate Windows C and D
@@ -39,10 +39,10 @@
 +          git clone --no-checkout https://github.com/HYDRADATAAI/Hydra.git D:\NYX_PORTABLE\COMBINED_V002_20261003\source
            if ($LASTEXITCODE -ne 0) { throw 'Candidate clone failed' }
 -          git -C D:\NYX_PORTABLE\COMBINED_20261003\source fetch origin dee8c3fa4cd2e49bd3573f62715c5fe4e2108d0d
-+          git -C D:\NYX_PORTABLE\COMBINED_V002_20261003\source fetch origin e1015aa974254f998845b25b63b1142c554a7e05
++          git -C D:\NYX_PORTABLE\COMBINED_V002_20261003\source fetch origin 82d87e93bb06780a13ad2abb0a19c6dc728087ed
            if ($LASTEXITCODE -ne 0) { throw 'Pinned preview unavailable' }
 -          git -C D:\NYX_PORTABLE\COMBINED_20261003\source -c core.autocrlf=false checkout --detach dee8c3fa4cd2e49bd3573f62715c5fe4e2108d0d
-+          git -C D:\NYX_PORTABLE\COMBINED_V002_20261003\source -c core.autocrlf=false checkout --detach e1015aa974254f998845b25b63b1142c554a7e05
++          git -C D:\NYX_PORTABLE\COMBINED_V002_20261003\source -c core.autocrlf=false checkout --detach 82d87e93bb06780a13ad2abb0a19c6dc728087ed
            if ($LASTEXITCODE -ne 0) { throw 'Exact candidate checkout failed' }
 -          git -C D:\NYX_PORTABLE\COMBINED_20261003\source config core.autocrlf false
 -          git -C D:\NYX_PORTABLE\COMBINED_20261003\source config core.longpaths true

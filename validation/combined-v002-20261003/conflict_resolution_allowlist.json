@@ -14,14 +14,16 @@
       "git_blob_sha": "e97fd5433b5a227056005a6735b64c5f478a8809"
     },
     {
+      "additional_repair": "One error-message literal restored after hosted legacy-regression mismatch; guard and behavior unchanged.",
       "base_blob": "588004a33f426e38820e2b80b0a5491f027a935f",
       "classification": "PRODUCTION_CONFLICT_RECONCILIATION",
       "incoming_pr143_blob": "f62ae7f5dd055a81a3c7d4a263c8f385e399d2a5",
       "mode": "100644",
       "path": "constraint-t1-raw-artifact-store/src/hydra_constraint_t1_raw/replay_lineage.py",
       "previous_candidate_blob": "98acd836a1185b02d2c90500eecde5953feb1deb",
-      "sha256": "3c707a76924a03fd7e39b0e8889da51f37bd480f9ae53cf67852f04a611f7bac",
-      "git_blob_sha": "5ed5e74dae4d2c18a240bb66b91ab02d7fa71aa0"
+      "previous_reviewed_blob": "5ed5e74dae4d2c18a240bb66b91ab02d7fa71aa0",
+      "sha256": "edad25b174a5b7d89bbd2805ac0a82ebcd2574fd813b0f030cc6d7100ece290f",
+      "git_blob_sha": "d864bf4874bb264dc7e3a5afbd02db61201c68d7"
     }
   ],
   "fixture_adaptations": [
@@ -63,5 +65,78 @@
     "skips": 0,
     "source_hashes_stable": 740,
     "signature": "TIMESTAMP_UNVERIFIED"
+  },
+  "workflow_repairs": [
+    {
+      "classification": "CI_CHECKOUT_EXACT_BYTE_REPAIR_AFTER_HOSTED_CRLF_FAILURE",
+      "mode": "100644",
+      "path": ".github/workflows/nyx-thread-h-temporal-consistency-windows.yml",
+      "previous_reviewed_blob": "e4a3a00e8120964ad668b6e8fe4386e47a5adaa4",
+      "repair": "Insert one git config --global core.autocrlf false step before actions/checkout@v4",
+      "sha256": "668dda970916d55847beb8b98035ef67b1635db8a308417e5e8f3582a586386c",
+      "git_blob_sha": "68aa3475649534c8ff8a4ba11905e5f7bf614d0c"
+    },
+    {
+      "classification": "CI_CHECKOUT_EXACT_BYTE_REPAIR_AFTER_HOSTED_CRLF_FAILURE",
+      "mode": "100644",
+      "path": ".github/workflows/nyx-thread-h-temporal-input-windows.yml",
+      "previous_reviewed_blob": "4f2028e4011d38ddcb4b1d991d8d8bd1c3b89aa9",
+      "repair": "Insert one git config --global core.autocrlf false step before actions/checkout@v4",
+      "sha256": "79234f3ebdf2394c4c0a1b11b6f1c77519374ac43a842bc04271c53ddd5d85ea",
+      "git_blob_sha": "3d14bf466210242c5df689ae2aeda485286d337f"
+    }
+  ],
+  "hosted_full_attempt1": {
+    "run_id": 37143389567,
+    "candidate_commit": "e1015aa974254f998845b25b63b1142c554a7e05",
+    "candidate_tree": "b50ceb98004dce005d589ccfecbbbe6550a8d871",
+    "native_passed": 524,
+    "native_failed": 1,
+    "native_skipped": 0,
+    "native_subtests_passed": 756,
+    "failed_method": "test_first_slice_replay_lineage.py::FirstSliceReplayLineageTests::test_rehashed_recorded_boundary_drift_is_rejected",
+    "script_methods_passed": 64,
+    "coexistence_methods_passed": 6,
+    "coexistence_subtests_passed": 30,
+    "custom_hostile_passed": 93,
+    "source_hashes_stable": 740,
+    "evidence_zip_sha256": "6dfe8ad9ede3d6da8248d73d2f1181cb0cf369065c70438979f690994ccd2cca"
+  },
+  "cli_byte_repairs": [
+    {
+      "classification": "CROSS_PLATFORM_CANONICAL_BYTE_WRITER_REPAIR_AFTER_HOSTED_FAILURE",
+      "mode": "100644",
+      "path": "tools/build_constraint_second_slice_batch033_ordinary_t2_lineage.py",
+      "previous_reviewed_blob": "8f2a8c97648c7bf668cb45816f96ada6b99522a0",
+      "repair": "Replace OS-newline-dependent write_text with binary write of the same serialized UTF-8 LF bytes.",
+      "serialization_expression_unchanged": true,
+      "sha256": "5598f68d63f66030b67b2b044ed3f4c9ff273f27ef14ece20f365b580b88f567",
+      "git_blob_sha": "23b62754f0cb11f59d7980304a9a78e4da801eae"
+    }
+  ],
+  "hosted_writer_failure": {
+    "source_commit": "8987662d1af7c7bc5ecda0d27a3b4eec05353f06",
+    "source_tree": "2a108cb6029f141a2099d72ea6bf54e05141d305",
+    "jobs": [
+      111264369526,
+      111264369846
+    ],
+    "T1_methods_passed_per_job": 154,
+    "source_hashes_stable_per_job": 740,
+    "failure": "Lineage bytes differ",
+    "emitted_digest_recorded_in_prior_logs": false,
+    "canonical_archive": {
+      "CRLF_bytes_differ": true,
+      "JSON_values_unchanged": true,
+      "archive_blob": "103bc591529d3e87ffcafee93cf17c28d42a666c",
+      "archive_bytes": 49796,
+      "archive_path": "docs/constraint/second_slice/semiconductor_advanced_packaging_critical_materials_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH033_SEMICONDUCTOR_ORDINARY_T2_SOURCE_VERSION_LINEAGE_V001_20260928.json",
+      "archive_sha256": "6fd31b8384913bb2aed31c8198f39582533488f7be50075d222520b21802b122",
+      "canonical_UTF8_LF_sha256": "6fd31b8384913bb2aed31c8198f39582533488f7be50075d222520b21802b122",
+      "canonical_bytes_equal_committed_archive": true,
+      "default_Windows_text_CRLF_sha256": "9417207ae30e63cd12c1372d8bdb135f3c6b487f1a4c868e8d063cde7b16c384",
+      "method": "Parse already committed JSON and apply the exact unchanged json.dumps expression; no HYDRA builder execution."
+    },
+    "repair": "Only OS-dependent text output replaced with the same serialized UTF-8 LF bytes."
   }
 }

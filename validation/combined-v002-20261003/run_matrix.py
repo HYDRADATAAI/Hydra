@@ -57,13 +57,13 @@ GROUPS = {
  '03_owner_seam_conformance':['test_lily_owner_seam','validate_constraint_lily_owner_seams'],
  '04_successor_chain_hostile':['nyx_test_constraint_successor_chain_adversarial'],
  '05_Batch018_evidence_alignment':['test_batch018_nine_source_capture_evidence_alignment'],
- '06_Batch033_custody_continuation':['test_batch033_custody_continuation'],
+ '06_Batch033_custody_continuation':['test_batch033_custody_continuation','Batch033_rebuild'],
  '07_timestamp_gate_successor':['test_timestamp_gate','test_timestamp_successor_binding','test_restack_successor_binding'],
  '08_Batch034_evidence_lineage':['test_ordinary_t2_evidence_lineage','batch034_t2_evidence_lineage','batch034_builder_bytes','Batch034_rebuild','preserved_F_non_escalation'],
  '09_Constraint_V018_runtime':['constraint-runtime/tests/','test_unresolved_gates','canary_boundary_probe'],
  '10_public_repository_hygiene':['validate_public_repository','public_root_hygiene'],
  '11_governed_compile_AST':['compile_runtime','governed_ast'],
- '12_manifest_hash_validators':['nyx_validate_constraint_successor_chain','validate_constraint_t1_first_slice_attestation','validate_constraint_second_slice_batch033','validate_constraint_second_slice_batch034','validate_constraint_first_slice_custody','Batch034_rebuild','batch034_builder_bytes'],
+ '12_manifest_hash_validators':['nyx_validate_constraint_successor_chain','validate_constraint_t1_first_slice_attestation','validate_constraint_second_slice_batch033','validate_constraint_second_slice_batch034','validate_constraint_first_slice_custody','Batch033_rebuild','Batch034_rebuild','batch034_builder_bytes'],
  '13_exact_predecessor_recovery':['test_batch033_custody_continuation','test_restack_successor_binding','test_timestamp_successor_binding'],
  '14_unresolved_timestamps':['test_timestamp_gate','test_unverified_metadata_boundary','test_temporal_consistency_boundary','test_first_slice_temporal_consistency','temporal_coexistence_probe','test_pit_conservative_availability','test_constraint_first_slice_outcome_coverage_adversarial','test_unresolved_gates','canary_boundary_probe'],
  '15_authority_admission_non_elevation':['test_authority','test_native_binding_admission','test_native_admission_input_types','test_native_t5_t6_bridge','test_constraint_first_slice_acceptance_gate_adversarial','boundary_state','test_unresolved_gates','preserved_F_non_escalation','temporal_coexistence_probe','admission_held'],
@@ -117,7 +117,13 @@ def main():
     regression_bytes=(root/'constraint-runtime/tests/test_unresolved_gates.py').read_bytes()
     check('preserved_E_regression_bytes',hashlib.sha256(regression_bytes).hexdigest()=='a89c65bcca402ad95e94b6082d1b282f19750a1ca5b543a618b150745f91e0d5',{'source_commit':'53ac6e28cb3088bdaf5d7c2702f44f362998892f','source_path':'constraint-runtime/tests/test_unresolved_gates.py','candidate_runtime_modified':False})
     check('candidate_identity',git('rev-parse','HEAD')==PREVIEW and git('rev-parse','HEAD^{tree}')==TREE,git('show','-s','--format=%H %T %P','HEAD'))
-    check('parents',git('show','-s','--format=%P','HEAD').split()==[MAIN,HEAD143],git('show','-s','--format=%P','HEAD'))
+    check('parents',git('show','-s','--format=%P','HEAD').split()==PINS['expected_candidate_parents'],git('show','-s','--format=%P','HEAD'))
+    check('reviewed_parent_pin',PINS['expected_candidate_parents']==[PINS['reviewed_parent_commit']] and PINS['reviewed_parent_commit']=='8987662d1af7c7bc5ecda0d27a3b4eec05353f06' and PINS['reviewed_parent_tree']=='2a108cb6029f141a2099d72ea6bf54e05141d305',PINS['expected_candidate_parents'])
+    check('reviewed_parent_identity',git('rev-parse',PINS['reviewed_parent_commit']+'^{tree}')==PINS['reviewed_parent_tree'],git('show','-s','--format=%H %T %P',PINS['reviewed_parent_commit']))
+    check('reviewed_parent_parents',PINS['reviewed_parent_parents']==[MAIN,HEAD143] and git('show','-s','--format=%P',PINS['reviewed_parent_commit']).split()==PINS['reviewed_parent_parents'],git('show','-s','--format=%P',PINS['reviewed_parent_commit']))
+    for name,ref in [('current_main',MAIN),('PR143',HEAD143)]:
+        result=subprocess.run(['git','merge-base','--is-ancestor',ref,PREVIEW],cwd=root,capture_output=True)
+        check(name+'_candidate_ancestor',result.returncode==0,{'ancestor':ref,'candidate':PREVIEW})
     check('initial_clean_status',not git('status','--porcelain=v1'),git('status','--porcelain=v1'))
     initial=snapshot(); save('source_hashes_before.json',initial)
     if not all(c['passed'] for c in checks):
@@ -173,9 +179,22 @@ def main():
         return {node.name:ast.dump(node,include_attributes=False) for node in ast.walk(ast.parse(data)) if isinstance(node,ast.FunctionDef) and node.name.startswith('test_')}
     original_methods=fixture_methods(original_fixture);candidate_methods=fixture_methods((root/fixture_path).read_bytes())
     check('all_twelve_PR143_method_bodies_preserved',len(original_methods)==12 and original_methods==candidate_methods,{'original_count':len(original_methods),'candidate_count':len(candidate_methods)})
-    authorized=dict(resolutions);authorized.update(fixtures)
+    ci_rows=resolution_manifest.get('workflow_repairs',[])
+    ci_repairs={row['path']:row for row in ci_rows}
+    expected_ci_paths={
+        '.github/workflows/nyx-thread-h-temporal-input-windows.yml',
+        '.github/workflows/nyx-thread-h-temporal-consistency-windows.yml',
+    }
+    check('workflow_repair_allowlist_exact',len(ci_rows)==2 and set(ci_repairs)==expected_ci_paths and not set(ci_repairs).intersection(set(resolutions)|set(fixtures)),sorted(ci_repairs))
+    cli_rows=resolution_manifest.get('cli_byte_repairs',[])
+    cli_repairs={row['path']:row for row in cli_rows}
+    expected_cli_path='tools/build_constraint_second_slice_batch033_ordinary_t2_lineage.py'
+    check('CLI_byte_repair_allowlist_exact',len(cli_rows)==1 and set(cli_repairs)=={expected_cli_path} and not set(cli_repairs).intersection(set(resolutions)|set(fixtures)|set(ci_repairs)),sorted(cli_repairs))
+    overlay_paths=pr143_paths|set(ci_repairs)|set(cli_repairs)
+    check('exact_final_overlay_scope',len(overlay_paths)==10 and overlay_paths-pr143_paths=={'.github/workflows/nyx-thread-h-temporal-input-windows.yml',expected_cli_path},sorted(overlay_paths))
+    authorized=dict(resolutions);authorized.update(fixtures);authorized.update(ci_repairs);authorized.update(cli_repairs)
     expected_new=dict(maps[PREVIOUS])
-    for path in sorted(pr143_paths):
+    for path in sorted(overlay_paths):
         if path in authorized:
             row=authorized[path]
             check('resolution_mode_'+path,row['mode']=='100644' and re.fullmatch(r'[0-9a-f]{40}',row['git_blob_sha']) is not None and re.fullmatch(r'[0-9a-f]{64}',row['sha256']) is not None,row)
@@ -184,7 +203,7 @@ def main():
         else:
             expected_new[path]=maps[HEAD143][path]
     new_mismatches=[{'path':p,'expected':v,'actual':maps[PREVIEW].get(p)} for p,v in expected_new.items() if maps[PREVIEW].get(p)!=v]
-    check('exact_PR143_and_reviewed_resolution_bytes',not new_mismatches and set(expected_new)==set(maps[PREVIEW]) and len(initial)==PINS['file_count'],{'mismatches':new_mismatches,'candidate_paths':len(initial),'exact_PR143_paths':len(pr143_paths)-len(authorized),'resolved_production_paths':len(resolutions),'reviewed_fixture_adaptations':len(fixtures)})
+    check('exact_PR143_and_reviewed_resolution_bytes',not new_mismatches and set(expected_new)==set(maps[PREVIEW]) and len(initial)==PINS['file_count'],{'mismatches':new_mismatches,'candidate_paths':len(initial),'exact_PR143_paths':len(pr143_paths-set(authorized)),'resolved_production_paths':len(resolutions),'reviewed_fixture_adaptations':len(fixtures),'reviewed_workflow_repairs':len(ci_repairs),'reviewed_CLI_byte_repairs':len(cli_repairs),'overlay_path_count':len(overlay_paths)})
     save('conflict_resolution_binding.json',resolution_manifest)
     if not all(c['passed'] for c in checks):
         save('construction_check.json',checks); raise SystemExit('Resolution binding safety check failed')
@@ -195,7 +214,7 @@ def main():
         index_env=os.environ.copy();index_env['GIT_INDEX_FILE']=str(index)
         code,detail=run('PR143_index_read_'+str(n),['git','read-tree',PREVIOUS],env=index_env)
         check('PR143_index_read_'+str(n),code==0,detail)
-        for ordinal,path in enumerate(sorted(pr143_paths),start=1):
+        for ordinal,path in enumerate(sorted(overlay_paths),start=1):
             mode,kind,blob=expected_new[path].split()
             code,detail=run('PR143_index_update_'+str(n)+'_'+str(ordinal),['git','update-index','--add','--cacheinfo',mode,blob,path],env=index_env)
             check('PR143_index_update_'+str(n)+'_'+str(ordinal),code==0,{'path':path,'detail':detail})
@@ -204,7 +223,7 @@ def main():
     save('construction_check.json',checks)
     if not all(c['passed'] for c in checks): raise SystemExit('Construction safety check failed')
     inventory=[]; parsed=[]; ast_errors=[]
-    selected=[p for p in initial if p.endswith('.py') and (any(p.startswith(x+'/') for x in PACKAGES) or p in ['tools/'+x for x in SCRIPTS])]
+    selected=[p for p in initial if p.endswith('.py') and (any(p.startswith(x+'/') for x in PACKAGES) or p in ['tools/'+x for x in SCRIPTS] or p==expected_cli_path)]
     for p in selected:
         try:
             tree=ast.parse((root/p).read_text(encoding='utf-8-sig'),filename=p); parsed.append(p)
@@ -260,6 +279,16 @@ def main():
     rebuilt=out/'rebuilt_binding.json'
     run('Batch034_rebuild',[sys.executable,'-B','tools/build_constraint_second_slice_batch034_t2_evidence_lineage.py','--output',str(rebuilt)],env=env)
     check('Batch034_rebuild_exact_bytes',rebuilt.exists() and rebuilt.read_bytes()==binding.read_bytes(),{'original':hashlib.sha256(binding.read_bytes()).hexdigest(),'rebuilt':hashlib.sha256(rebuilt.read_bytes()).hexdigest() if rebuilt.exists() else None,'line_endings_only':rebuilt.exists() and rebuilt.read_bytes().replace(b'\r\n',b'\n')==binding.read_bytes().replace(b'\r\n',b'\n')})
+    lineage_path='docs/constraint/second_slice/semiconductor_advanced_packaging_critical_materials_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH033_SEMICONDUCTOR_ORDINARY_T2_SOURCE_VERSION_LINEAGE_V001_20260928.json'
+    lineage_rebuilt=out/'rebuilt_batch033_lineage.json'
+    run('Batch033_rebuild',[sys.executable,'-B',expected_cli_path,'--output',str(lineage_rebuilt)],env=env)
+    lineage_git=subprocess.run(['git','show',PREVIEW+':'+lineage_path],cwd=root,capture_output=True)
+    lineage_expected=lineage_git.stdout
+    lineage_actual=lineage_rebuilt.read_bytes() if lineage_rebuilt.exists() else None
+    lineage_git_blob=git('rev-parse',PREVIEW+':'+lineage_path)
+    lineage_proof={'canonical_path':lineage_path,'canonical_git_blob':lineage_git_blob,'canonical_git_blob_matches':hashlib.sha1(b'blob '+str(len(lineage_expected)).encode()+b'\0'+lineage_expected).hexdigest()==lineage_git_blob,'Git_show_exit_code':lineage_git.returncode,'canonical_sha256':hashlib.sha256(lineage_expected).hexdigest(),'canonical_bytes':len(lineage_expected),'rebuilt_sha256':hashlib.sha256(lineage_actual).hexdigest() if lineage_actual is not None else None,'rebuilt_bytes':len(lineage_actual) if lineage_actual is not None else None,'exact_bytes_equal':lineage_actual==lineage_expected,'source_checkout_equals_Git_blob':(root/lineage_path).read_bytes()==lineage_expected,'normalization_applied':False}
+    save('Batch033_rebuild_byte_proof.json',lineage_proof)
+    check('Batch033_rebuild_exact_bytes',lineage_git.returncode==0 and lineage_proof['canonical_git_blob_matches'] and lineage_proof['source_checkout_equals_Git_blob'] and lineage_proof['exact_bytes_equal'],lineage_proof)
     master=json.loads((root/'docs/constraint/architecture/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH034_MASTER_STATUS_V001_20260928.json').read_text())
     check('admission_held',master['readiness']['SECOND_SLICE_IMPLEMENTATION_ADMITTED']['status']=='NO' and master['first_serious_constraint_run']=='BLOCKED',master['readiness'])
     # Exact governed timestamp/admission state: classification is in review records.
@@ -325,7 +354,7 @@ def main():
              'evidence_records_mutated':False,'canonical_status_claimed':False,'production_status_claimed':False,
              'integration_readiness_claimed':False,'regression_localization':'UNKNOWN' if not allgood else None,
              'Thread_B_handoff':'PASS independently reproduced and inventoried',
-             'pr138_head':HEAD138,'pr141_head':HEAD141,'pr143_head':HEAD143,'previous_candidate_commit':PREVIOUS,'scope':'EXACT_CURRENT_MAIN_PLUS_PR143_WITH_TWO_PRODUCTION_RESOLUTIONS_AND_TEST_FIRST_FIXTURE_ADAPTATION',
+             'pr138_head':HEAD138,'pr141_head':HEAD141,'pr143_head':HEAD143,'previous_candidate_commit':PREVIOUS,'scope':'EXACT_CURRENT_MAIN_PLUS_PR143_WITH_REVIEWED_RESOLUTIONS_FIXTURE_AND_WINDOWS_BYTE_REPAIRS',
              'thread_D_V006':'BLOCKED_BY_THREAD_C' if not allgood else 'ELIGIBLE_FOR_CHANGED_TREE_VALIDATION'}
     save('summary.json',summary)
     save('report_hashes.json',{p.name:hashlib.sha256(p.read_bytes()).hexdigest() for p in sorted(out.iterdir()) if p.is_file() and p.name!='report_hashes.json'})

@@ -291,7 +291,7 @@ def validate_replay_lineage_packet(
             )
         instant = _dt(boundary["as_of"], f"availability_boundaries[{index}].as_of")
         if instant != expected_instants[index]:
-            raise ReplayLineageError("availability boundary differs from member transition")
+            raise ReplayLineageError("recorded availability boundary drifted")
         if last_time is not None and instant <= last_time:
             raise ReplayLineageError("availability boundaries are not strictly increasing")
         last_time = instant
