@@ -31,7 +31,7 @@
     "status": "INSUFFICIENT_FOR_INTENDED_HISTORICAL_CUTOFFS",
     "strict_original_as_of_eligible": false
   },
-  "materialization_attestation_sha256": "74e3b4ef710f1da8910d5588882cfa0672b59f93e8636ce902e3fa34237ad05e",
+  "materialization_attestation_sha256": "fe68784920a6b5437457792fc0c2cd410269f991be76ad85cff766e8df84d81b",
   "materialized_source_count": 9,
   "predecessor_batch": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH017",
   "prior_valid_browser_capture_reuse_count": 2,
@@ -55,7 +55,7 @@
   "slice_id": "AI_DATA_CENTER_POWER_INFRASTRUCTURE_V1",
   "source_hash_inventory": {
     "path": "docs/constraint/first_slice/ai_data_center_power_infrastructure_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH018_AI_DATA_CENTER_POWER_INFRASTRUCTURE_SOURCE_HASH_INVENTORY_V001_20260926.json",
-    "sha256": "82bde12a0715938d873cb7b9222c7d83d82992b9c1ee12438a6d5180a56fb3de"
+    "sha256": "3b169a75ea846673f33939270ff6d1700d1fc5159446490c81ae26357195e531"
   },
   "t5_to_t6_admission_receipt_issued": false,
   "t5_to_t6_inventory_ready": true
