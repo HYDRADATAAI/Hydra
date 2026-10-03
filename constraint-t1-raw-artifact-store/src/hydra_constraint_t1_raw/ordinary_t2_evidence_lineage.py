@@ -39,9 +39,12 @@ def _require(condition: bool, message: str) -> None:
 
 
 def _validate_input_fields(raw: Any, label: str) -> None:
-    """Reject unsupported authority/caveat extensions before normalization."""
+    """Reject unsupported claims and malformed required metadata at every entry."""
     _require(isinstance(raw, Mapping), f"{label}: object required")
     _require(set(raw) <= EVIDENCE_RECORD_FIELDS, f"{label}: unsupported input fields")
+    for field in ("source_id", "origin_artifact"):
+        value = raw.get(field)
+        _require(isinstance(value, str) and value, f"{label}.{field}: nonempty string required")
 
 
 def _dt(value: Any, label: str) -> datetime:
@@ -109,15 +112,7 @@ def build_ordinary_t2_evidence_lineage(
         )
         _require(evidence_id not in seen_evidence, f"duplicate evidence_id: {evidence_id}")
         seen_evidence.add(evidence_id)
-        _require(
-            isinstance(source_id, str) and source_id,
-            f"{evidence_id}: source_id required",
-        )
         origin_artifact = raw.get("origin_artifact")
-        _require(
-            isinstance(origin_artifact, str) and origin_artifact,
-            f"{evidence_id}: origin_artifact required",
-        )
 
         if source_id not in members:
             excluded.append({
@@ -160,13 +155,15 @@ def build_ordinary_t2_evidence_lineage(
     excluded.sort(key=lambda row: (row["evidence_id"], row["source_id"]))
 
     bound_sources = {row["source_id"] for row in bindings}
-    unique_times = sorted(
-        {row["ordinary_t2_available_at"] for row in bindings},
-        key=lambda value: _dt(value, "ordinary_t2_available_at"),
-    )
+    # Equivalent timestamp spellings share one logical boundary; preserve the
+    # original literals in each binding and choose a stable existing boundary.
+    boundary_times: dict[datetime, str] = {}
+    for row in bindings:
+        value = row["ordinary_t2_available_at"]
+        instant = _dt(value, "ordinary_t2_available_at")
+        boundary_times[instant] = min(value, boundary_times.get(instant, value))
     boundaries: list[dict[str, Any]] = []
-    for value in unique_times:
-        cutoff = _dt(value, "boundary.as_of")
+    for cutoff, value in sorted(boundary_times.items()):
         visible = sorted(
             row["evidence_id"]
             for row in bindings
@@ -323,6 +320,7 @@ def validate_ordinary_t2_evidence_lineage(
     boundaries = packet.get("availability_boundaries")
     _require(isinstance(boundaries, list) and boundaries, "evidence availability boundaries missing")
     previous: datetime | None = None
+    boundary_instants: list[datetime] = []
     for index, boundary in enumerate(boundaries):
         _require(
             isinstance(boundary, Mapping)
@@ -332,12 +330,19 @@ def validate_ordinary_t2_evidence_lineage(
         instant = _dt(boundary["as_of"], f"availability_boundaries[{index}].as_of")
         _require(previous is None or instant > previous, "evidence boundaries must be strictly increasing")
         previous = instant
+        boundary_instants.append(instant)
         expected_ids = sorted(
             row["evidence_id"]
             for row in bindings
             if _dt(row["ordinary_t2_available_at"], "ordinary_t2_available_at") <= instant
         )
         _require(boundary["eligible_evidence_ids"] == expected_ids, f"availability_boundaries[{index}]: visible evidence drift")
+    _require(
+        boundary_instants == sorted({
+            _dt(row["ordinary_t2_available_at"], "ordinary_t2_available_at") for row in bindings
+        }),
+        "evidence availability boundary instants incomplete or unexpected",
+    )
     _require(
         boundaries[-1]["eligible_evidence_ids"] == sorted(row["evidence_id"] for row in bindings),
         "final evidence boundary incomplete",
