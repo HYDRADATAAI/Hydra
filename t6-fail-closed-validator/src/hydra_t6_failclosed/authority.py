@@ -98,6 +98,9 @@ def validate_authority(
         if not isinstance(envelope.get(field), str) or not str(envelope[field]).strip():
             issues.append(Issue("authority_identity_invalid", f"{field} must be a non-empty string", f"$.authority.{field}"))
 
+    if envelope.get("authority_role") != "validator_authority":
+        issues.append(Issue("authority_role_invalid", "authority_role must be validator_authority", "$.authority.authority_role"))
+
     bindings = envelope.get("bindings")
     expected_bindings = {
         "input_sha256": input_sha256,
