@@ -82,6 +82,11 @@ class HandoffContextTests(unittest.TestCase):
         self.assertIn("candidate_statement_invalid", _codes(issues))
 
         candidate = _candidate()
+        candidate["statement"] = {}
+        _, issues = validate_handoff(_handoff(candidate))
+        self.assertIn("candidate_statement_invalid", _codes(issues))
+
+        candidate = _candidate()
         candidate["evidence"] = [{"id": "\n", "active_context": {}}]
         _, issues = validate_handoff(_handoff(candidate))
         self.assertIn("candidate_evidence_id_invalid", _codes(issues))
@@ -91,14 +96,18 @@ class HandoffContextTests(unittest.TestCase):
         _, issues = validate_handoff(handoff)
         self.assertIn("handoff_id_invalid", _codes(issues))
 
-    def test_candidate_collections_require_arrays(self) -> None:
-        for field in ("beneficiaries", "forced_expenditures", "relations"):
+    def test_candidate_collections_require_current_shapes(self) -> None:
+        for field in ("beneficiaries", "forced_expenditures"):
             with self.subTest(field=field):
                 candidate = _candidate()
                 candidate[field] = {}
                 _, issues = validate_handoff(_handoff(candidate))
-
                 self.assertIn("candidate_collection_invalid", _codes(issues))
+
+        candidate = _candidate()
+        candidate["relations"] = []
+        _, issues = validate_handoff(_handoff(candidate))
+        self.assertIn("candidate_context_invalid", _codes(issues))
 
     def test_temporal_context_requires_an_object(self) -> None:
         candidate = _candidate()
@@ -147,7 +156,7 @@ def _candidate() -> dict[str, object]:
     return {
         "schema": CANDIDATE_SCHEMA,
         "candidate_id": "candidate-001",
-        "statement": "Synthetic candidate statement.",
+        "statement": {"mechanism": "Synthetic mechanism", "constrained_target": "Synthetic target"},
         "canonicality": "candidate_only",
         "lifecycle_state": "handed_off",
         "lifecycle": [{"state": "created"}, {"state": "handed_off"}],
@@ -157,7 +166,7 @@ def _candidate() -> dict[str, object]:
         "uncertainty": {"confidence": "medium"},
         "beneficiaries": [],
         "forced_expenditures": [],
-        "relations": [],
+        "relations": {"claim_ids": [], "material_scope": {}},
         "temporal": {"observed_at": "2026-09-24T11:00:00Z"},
     }
 
