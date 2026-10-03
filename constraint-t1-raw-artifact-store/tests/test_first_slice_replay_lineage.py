@@ -1,6 +1,9 @@
 from __future__ import annotations
 
 import copy
+import json
+import subprocess
+import sys
 import tempfile
 import unittest
 from pathlib import Path
@@ -81,8 +84,13 @@ class FirstSliceReplayLineageTests(unittest.TestCase):
         self.assertEqual(left, right)
         self.assertEqual(2, left["source_count"])
         self.assertTrue(left["ordinary_source_version_hash_lineage_complete"])
-        self.assertTrue(left["ordinary_current_source_set_ready"])
+        self.assertFalse(left["ordinary_current_source_set_ready"])
         self.assertFalse(left["strict_historical_replay_ready"])
+        self.assertEqual(["SV-A-001", "SV-B-001"], [row["source_version_id"] for row in left["members"]])
+        for packet_member, receipt_member in zip(left["members"], self.attestation["members"]):
+            for field in ("artifact_sha256", "receipt_sha256", "acquired_at", "available_at"):
+                self.assertEqual(receipt_member[field], packet_member[field])
+        self.assertTrue(all(row["eligible_source_ids"] == [] for row in left["availability_boundaries"]))
         validate_replay_lineage_packet(packet=left, registry=self.registry)
 
     def test_as_of_selection_enforces_no_lookahead(self):
@@ -90,24 +98,14 @@ class FirstSliceReplayLineageTests(unittest.TestCase):
             attestation=self.attestation,
             registry=self.registry,
         )
-        before = select_replay_members(
-            packet=packet,
-            registry=self.registry,
-            as_of="2026-09-26T12:59:59Z",
+        self.assertEqual(
+            ["2026-09-26T13:00:00Z", "2026-09-26T13:01:00Z"],
+            [row["as_of"] for row in packet["availability_boundaries"]],
         )
-        first = select_replay_members(
-            packet=packet,
-            registry=self.registry,
-            as_of="2026-09-26T13:00:00Z",
-        )
-        both = select_replay_members(
-            packet=packet,
-            registry=self.registry,
-            as_of="2026-09-26T13:01:00Z",
-        )
-        self.assertEqual([], before)
-        self.assertEqual(["SRC-A"], [row["source_id"] for row in first])
-        self.assertEqual(["SRC-A", "SRC-B"], [row["source_id"] for row in both])
+        for cutoff in ("2026-09-26T12:59:59Z", "2026-09-26T13:00:00Z",
+                       "2026-09-26T13:01:00Z", "2099-01-01T00:00:00Z"):
+            with self.subTest(cutoff=cutoff), self.assertRaisesRegex(ReplayLineageError, "TIMESTAMP_UNVERIFIED"):
+                select_replay_members(packet=packet, registry=self.registry, as_of=cutoff)
 
     def test_quarantined_source_blocks_replay_lineage_completion(self):
         plan = copy.deepcopy(self.plan)
@@ -120,7 +118,7 @@ class FirstSliceReplayLineageTests(unittest.TestCase):
             private_root=private,
             public_repo_root=self.repo,
         )
-        with self.assertRaisesRegex(ReplayLineageError, "all sources must be ordinary-T2 eligible"):
+        with self.assertRaisesRegex(ReplayLineageError, "ELIGIBLE disposition required"):
             build_replay_lineage_packet(
                 attestation=attestation,
                 registry=self.registry,
@@ -167,6 +165,69 @@ class FirstSliceReplayLineageTests(unittest.TestCase):
         ).hexdigest()
         with self.assertRaisesRegex(ReplayLineageError, "improperly promoted"):
             validate_replay_lineage_packet(packet=packet, registry=self.registry)
+
+    def test_self_declared_eligibility_cannot_reopen_the_builder(self):
+        bad = copy.deepcopy(self.attestation)
+        bad["all_sources_ordinary_t2_eligible"] = True
+        bad["ordinary_t2_eligible_count"] = 2
+        bad["ordinary_t2_blocked_count"] = 0
+        for member in bad["members"]:
+            member["ordinary_t2_eligible"] = True
+        with self.assertRaisesRegex(ReplayLineageError, "TIMESTAMP_UNVERIFIED"):
+            build_replay_lineage_packet(attestation=bad, registry=self.registry)
+
+    def test_non_boolean_member_eligibility_cannot_reopen_the_builder(self):
+        for value in (1, "true", None):
+            bad = copy.deepcopy(self.attestation)
+            bad["members"][0]["ordinary_t2_eligible"] = value
+            with self.subTest(value=value), self.assertRaisesRegex(ReplayLineageError, "TIMESTAMP_UNVERIFIED"):
+                build_replay_lineage_packet(attestation=bad, registry=self.registry)
+
+    def test_rehashed_ready_claim_cannot_reopen_selection(self):
+        from hydra_constraint_t1_raw.replay_lineage import _packet_digest
+        packet = build_replay_lineage_packet(attestation=self.attestation, registry=self.registry)
+        packet["ordinary_current_source_set_ready"] = True
+        packet["packet_sha256"] = _packet_digest(packet)
+        with self.assertRaisesRegex(ReplayLineageError, "TIMESTAMP_UNVERIFIED"):
+            validate_replay_lineage_packet(packet=packet, registry=self.registry)
+        with self.assertRaisesRegex(ReplayLineageError, "TIMESTAMP_UNVERIFIED"):
+            select_replay_members(packet=packet, registry=self.registry, as_of="2099-01-01T00:00:00Z")
+
+    def test_rehashed_eligible_boundary_cannot_admit_sources(self):
+        from hydra_constraint_t1_raw.replay_lineage import _packet_digest
+        packet = build_replay_lineage_packet(attestation=self.attestation, registry=self.registry)
+        packet["availability_boundaries"][-1]["eligible_source_ids"] = ["SRC-A", "SRC-B"]
+        packet["packet_sha256"] = _packet_digest(packet)
+        with self.assertRaisesRegex(ReplayLineageError, "eligibility must remain empty"):
+            validate_replay_lineage_packet(packet=packet, registry=self.registry)
+
+    def test_rehashed_recorded_boundary_drift_is_rejected(self):
+        from hydra_constraint_t1_raw.replay_lineage import _packet_digest
+        packet = build_replay_lineage_packet(attestation=self.attestation, registry=self.registry)
+        packet["availability_boundaries"][0]["as_of"] = "2000-01-01T00:00:00Z"
+        packet["packet_sha256"] = _packet_digest(packet)
+        with self.assertRaisesRegex(ReplayLineageError, "recorded availability boundary drifted"):
+            validate_replay_lineage_packet(packet=packet, registry=self.registry)
+
+    def test_cli_reports_non_admitting_lineage_without_claiming_readiness(self):
+        registry = self.base / "registry.json"
+        attestation = self.base / "attestation.json"
+        output = self.base / "lineage.json"
+        registry.write_text(json.dumps(self.registry), encoding="utf-8")
+        attestation.write_text(json.dumps(self.attestation), encoding="utf-8")
+        script = Path(__file__).resolve().parents[2] / "tools/build_constraint_t1_first_slice_replay_lineage.py"
+        args = [sys.executable, "-I", "-B", str(script), "--registry", str(registry),
+                "--attestation", str(attestation), "--output", str(output)]
+        result = subprocess.run(args, capture_output=True, text=True, timeout=30)
+        self.assertEqual(0, result.returncode, result.stdout + result.stderr)
+        self.assertIn("ORDINARY_CURRENT_SOURCE_SET_READY=NO", result.stdout)
+        self.assertNotIn("ORDINARY_CURRENT_SOURCE_SET_READY=YES", result.stdout)
+        self.assertFalse(json.loads(output.read_text(encoding="utf-8"))["ordinary_current_source_set_ready"])
+        blocked = subprocess.run(args + ["--as-of", "2099-01-01T00:00:00Z"],
+                                 capture_output=True, text=True, timeout=30)
+        self.assertEqual(1, blocked.returncode)
+        self.assertIn("TIMESTAMP_UNVERIFIED", blocked.stdout)
+        self.assertNotIn("ORDINARY_CURRENT_SOURCE_SET_READY=YES", blocked.stdout)
 
 
 if __name__ == "__main__":

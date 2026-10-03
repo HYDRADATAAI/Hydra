@@ -1,0 +1,152 @@
+--- historical/run_matrix.py
++++ combined/run_matrix.py
+@@ -10,12 +10,17 @@
+ import sys
+ import time
+ from pathlib import Path
+-
+-MAIN = '8b459719619be497408bdf970b8d1e8830ce93b3'
+-HEAD = '417174daa31761ad9eaeba56ca6306b3050ada7a'
+-BASE = 'bf74ad8352cc8681b374e185772085212619f00f'
+-PREVIEW = 'c0a6b3edf753156413c76ba8d070dde2093b677d'
+-TREE = '23837f20645666b910a80cb53b5c4f4eb243c85b'
++from report_gate import validate_execution_reports
++
++PINS = json.loads((Path(__file__).parent/'candidate_inputs.json').read_text(encoding='utf-8'))
++MAIN = PINS['main']
++HEAD = PINS['pr119_head']
++HEAD138 = PINS['pr138_head']
++HEAD141 = PINS['pr141_head']
++BASE = PINS['pr119_historical_base']
++BASE138 = PINS['pr138_merge_base']
++PREVIEW = PINS['candidate_commit']
++TREE = PINS['candidate_tree']
+ PACKAGES = ['constraint-physical-dependency','constraint-geopolitical-policy',
+             'constraint-replay','constraint-t1-raw-artifact-store',
+             't6-fail-closed-validator','constraint-runtime']
+@@ -50,12 +55,12 @@
+  '06_Batch033_custody_continuation':['test_batch033_custody_continuation'],
+  '07_timestamp_gate_successor':['test_timestamp_gate','test_timestamp_successor_binding','test_restack_successor_binding'],
+  '08_Batch034_evidence_lineage':['test_ordinary_t2_evidence_lineage','batch034_t2_evidence_lineage','batch034_builder_bytes','Batch034_rebuild','preserved_F_non_escalation'],
+- '09_Constraint_V018_runtime':['constraint-runtime/tests/','test_unresolved_gates'],
++ '09_Constraint_V018_runtime':['constraint-runtime/tests/','test_unresolved_gates','canary_boundary_probe'],
+  '10_public_repository_hygiene':['validate_public_repository','public_root_hygiene'],
+  '11_governed_compile_AST':['compile_runtime','governed_ast'],
+  '12_manifest_hash_validators':['nyx_validate_constraint_successor_chain','validate_constraint_t1_first_slice_attestation','validate_constraint_second_slice_batch033','validate_constraint_second_slice_batch034','validate_constraint_first_slice_custody','Batch034_rebuild','batch034_builder_bytes'],
+  '13_exact_predecessor_recovery':['test_batch033_custody_continuation','test_restack_successor_binding','test_timestamp_successor_binding'],
+- '14_unresolved_timestamps':['test_timestamp_gate','test_unverified_metadata_boundary','test_pit_conservative_availability','test_constraint_first_slice_outcome_coverage_adversarial','test_unresolved_gates'],
++ '14_unresolved_timestamps':['test_timestamp_gate','test_unverified_metadata_boundary','test_pit_conservative_availability','test_constraint_first_slice_outcome_coverage_adversarial','test_unresolved_gates','canary_boundary_probe'],
+  '15_authority_admission_non_elevation':['test_authority','test_native_binding_admission','test_native_admission_input_types','test_native_t5_t6_bridge','test_constraint_first_slice_acceptance_gate_adversarial','boundary_state','test_unresolved_gates','preserved_F_non_escalation','admission_held'],
+ }
+ 
+@@ -103,29 +108,46 @@
+     save('environment.json',{'python':sys.version,'executable':sys.executable,'platform':platform.platform(),
+          'git':git('--version'),'runner_os':os.environ.get('RUNNER_OS'),'github_run_id':os.environ.get('GITHUB_RUN_ID'),
+          'candidate_commit':PREVIEW,'candidate_tree':TREE,'current_main':MAIN,'pr119_head':HEAD,
+-         'historical_base':BASE,'runtime_execution':'HOSTED_WINDOWS_NOT_USER_WORKSTATION'})
++         'pr138_head':HEAD138,'pr141_head':HEAD141,'historical_base':BASE,'runtime_execution':'HOSTED_WINDOWS_NOT_USER_WORKSTATION'})
+     regression_bytes=(root/'constraint-runtime/tests/test_unresolved_gates.py').read_bytes()
+     check('preserved_E_regression_bytes',hashlib.sha256(regression_bytes).hexdigest()=='a89c65bcca402ad95e94b6082d1b282f19750a1ca5b543a618b150745f91e0d5',{'source_commit':'53ac6e28cb3088bdaf5d7c2702f44f362998892f','source_path':'constraint-runtime/tests/test_unresolved_gates.py','candidate_runtime_modified':False})
+     check('candidate_identity',git('rev-parse','HEAD')==PREVIEW and git('rev-parse','HEAD^{tree}')==TREE,git('show','-s','--format=%H %T %P','HEAD'))
+-    check('parents',git('show','-s','--format=%P','HEAD').split()==[MAIN,HEAD],git('show','-s','--format=%P','HEAD'))
++    check('parents',git('show','-s','--format=%P','HEAD').split()==[MAIN,HEAD,HEAD138],git('show','-s','--format=%P','HEAD'))
+     check('initial_clean_status',not git('status','--porcelain=v1'),git('status','--porcelain=v1'))
+     initial=snapshot(); save('source_hashes_before.json',initial)
+     if not all(c['passed'] for c in checks):
+         save('checks.json',checks); raise SystemExit('Safety precondition failed')
+-    # Independent tree reproduction does not replace Thread B's own handoff.
++    # Preserve both merge semantics and exact ownership checks for the three-parent candidate.
++    identity=os.environ.copy()
++    identity.update(GIT_AUTHOR_NAME='NYX validation',GIT_AUTHOR_EMAIL='validation@example.invalid',
++                    GIT_COMMITTER_NAME='NYX validation',GIT_COMMITTER_EMAIL='validation@example.invalid',
++                    GIT_AUTHOR_DATE='2026-10-03T00:00:00Z',GIT_COMMITTER_DATE='2026-10-03T00:00:00Z')
++    intermediate_trees=[]
+     for n in [1,2]:
+-        code,text=run('reproduce_tree_'+str(n),['git','merge-tree','--write-tree',MAIN,HEAD])
+-        check('reproduced_tree_'+str(n),code==0 and text.strip()==TREE,text)
++        code,first=run('reproduce_pr119_tree_'+str(n),['git','merge-tree','--write-tree',MAIN,HEAD])
++        check('reproduced_pr119_tree_'+str(n),code==0 and re.fullmatch(r'[0-9a-f]{40}',first.strip()) is not None,first)
++        if code: raise SystemExit('PR119 merge-tree safety check failed')
++        intermediate_trees.append(first.strip())
++        code,commit=run('create_reproduction_parent_'+str(n),['git','commit-tree',first.strip(),'-p',MAIN,'-p',HEAD,'-m','Deterministic intermediate validation object'],env=identity)
++        check('reproduction_parent_'+str(n),code==0 and re.fullmatch(r'[0-9a-f]{40}',commit.strip()) is not None,commit)
++        if code: raise SystemExit('Intermediate object construction failed')
++        code,second=run('reproduce_tree_'+str(n),['git','merge-tree','--write-tree',commit.strip(),HEAD138])
++        check('reproduced_tree_'+str(n),code==0 and second.strip()==TREE,second)
++    check('intermediate_trees_reproducible',len(set(intermediate_trees))==1,intermediate_trees)
+     pr_paths=set(git('diff','--name-only',BASE,HEAD).splitlines())
++    pr138_paths=set(git('diff','--name-only',BASE138,HEAD138).splitlines())
++    check('repair_ownership_disjoint',not pr_paths.intersection(pr138_paths),sorted(pr_paths.intersection(pr138_paths)))
++    ancestor=subprocess.run(['git','merge-base','--is-ancestor',HEAD141,MAIN],cwd=root,capture_output=True)
++    check('PR141_already_in_main',ancestor.returncode==0,{'pr141_head':HEAD141,'main':MAIN})
+     def ls(ref):
+         return {line.split('\t',1)[1]:line.split('\t',1)[0] for line in git('ls-tree','-r',ref).splitlines()}
+-    maps={ref:ls(ref) for ref in [MAIN,HEAD,PREVIEW]}
++    maps={ref:ls(ref) for ref in [MAIN,HEAD,HEAD138,PREVIEW]}
+     mismatches=[]
+     for p,v in maps[PREVIEW].items():
+-        expected=maps[HEAD].get(p) if p in pr_paths else maps[MAIN].get(p)
++        expected=maps[HEAD138].get(p) if p in pr138_paths else maps[HEAD].get(p) if p in pr_paths else maps[MAIN].get(p)
+         if v!=expected: mismatches.append({'path':p,'actual':v,'expected':expected})
+-    expected_paths=(set(maps[MAIN])-pr_paths)|(set(maps[HEAD])&pr_paths)
+-    check('exact_owned_and_main_bytes',not mismatches and set(maps[PREVIEW])==expected_paths,{'pr_owned_paths':len(pr_paths),'candidate_paths':len(initial),'mismatches':mismatches})
++    expected_paths=(set(maps[MAIN])-pr_paths-pr138_paths)|(set(maps[HEAD])&pr_paths)|(set(maps[HEAD138])&pr138_paths)
++    check('exact_owned_and_main_bytes',not mismatches and set(maps[PREVIEW])==expected_paths,{'pr119_owned_paths':len(pr_paths),'pr138_owned_paths':len(pr138_paths),'candidate_paths':len(initial),'mismatches':mismatches})
+     save('construction_check.json',checks)
+     if not all(c['passed'] for c in checks): raise SystemExit('Construction safety check failed')
+     inventory=[]; parsed=[]; ast_errors=[]
+@@ -161,14 +183,25 @@
+         if script=='validate_constraint_t1_first_slice_attestation.py':
+             args+=['--attestation','docs/constraint/validation/HYDRA_CONSTRAINT_BATCH018_T1_NINE_SOURCE_MATERIALIZATION_ATTESTATION_V001_20260926.json']
+         run(script.removesuffix('.py'),args,env=env)
+-    # Preserved F hostile methods; only exact-source PIN changes.
++    # Preserve all original F cases; reviewed PR141 now rejects the same authority input.
+     original=(harness/'thread_f_original.py').read_text(encoding='utf-8')
+     adapted=original.replace("PIN='fa94ab3e2fdd4776d84d110f4233ba84409eb947'", "PIN='"+PREVIEW+"'")
+     def tests_ast(text):
+         return [ast.dump(n,include_attributes=False) for n in ast.walk(ast.parse(text)) if isinstance(n,ast.FunctionDef) and n.name.startswith('test_')]
+-    check('F_regression_methods_preserved',tests_ast(original)==tests_ast(adapted),{'methods':len(tests_ast(original))})
++    old_assertion="""            b=v.build_ordinary_t2_evidence_lineage(lineage_packet=x[1],source_records=x[0]['queue'],evidence_records=ev,expected_slice_id=v.SLICE)
++            self.assertEqual(x[2],b)
++            self.assertIs(b['canonical_t5_t6_admission_promoted'],False)"""
++    new_assertion="""            with self.assertRaisesRegex(v.OrdinaryT2EvidenceLineageError, 'unsupported input fields'):
++                v.build_ordinary_t2_evidence_lineage(lineage_packet=x[1],source_records=x[0]['queue'],evidence_records=ev,expected_slice_id=v.SLICE)"""
++    check('F_exact_rejection_transition_available',adapted.count(old_assertion)==1,{'reviewed_production_PR':141,'changed_method':'test_input_authority_claim_does_not_promote_binding'})
++    adapted=adapted.replace(old_assertion,new_assertion)
++    original_methods={n.name:ast.dump(n,include_attributes=False) for n in ast.walk(ast.parse(original)) if isinstance(n,ast.FunctionDef) and n.name.startswith('test_')}
++    adapted_methods={n.name:ast.dump(n,include_attributes=False) for n in ast.walk(ast.parse(adapted)) if isinstance(n,ast.FunctionDef) and n.name.startswith('test_')}
++    changed_methods=[name for name in original_methods if original_methods[name]!=adapted_methods.get(name)]
++    check('F_regression_methods_preserved',set(original_methods)==set(adapted_methods) and changed_methods==['test_input_authority_claim_does_not_promote_binding'],{'methods':len(original_methods),'unchanged_methods':len(original_methods)-len(changed_methods),'changed_methods':changed_methods,'reason':'PR141 replaces unsupported-input erasure with explicit rejection; same hostile input, original retained'})
+     bound=out/'thread_f_bound.py'; bound.write_text(adapted,encoding='utf-8')
+     run('preserved_F_non_escalation',[sys.executable,'-B',str(bound),'--repo',str(root),'--json-output',str(out/'F_results.json')],env=env)
++    run('canary_boundary_probe',[sys.executable,'-B',str(harness/'canary_boundary_probe.py'),'--repo',str(root)],env=env)
+     binding=root/'docs/constraint/second_slice/semiconductor_advanced_packaging_critical_materials_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH034_SEMICONDUCTOR_ORDINARY_T2_EVIDENCE_LINEAGE_BINDING_V001_20260928.json'
+     rebuilt=out/'rebuilt_binding.json'
+     run('Batch034_rebuild',[sys.executable,'-B','tools/build_constraint_second_slice_batch034_t2_evidence_lineage.py','--output',str(rebuilt)],env=env)
+@@ -202,7 +235,7 @@
+     report_rows=result['reports']
+     method_rows=[r for r in report_rows if r['report_type']=='TestReport']
+     source_map=result.get('source_map',{})
+-    check('all_test_sources_recorded',set(source_map)==set(result['inventory']) and len(source_map)==480,{'sources':len(source_map),'collected':len(result['inventory'])})
++    check('all_test_sources_recorded',set(source_map)==set(result['inventory']) and len(source_map)==PINS['expected_native_test_methods'],{'sources':len(source_map),'collected':len(result['inventory']),'expected_from_preserved_inventory_and_added_methods':PINS['expected_native_test_methods']})
+     subtest_rows=[r for r in report_rows if r['report_type']=='SubTestReport']
+     skipped=[r for r in report_rows if r['outcome']=='skipped']
+     permitted={'test_symlinked_object_tree_into_public_repo_is_rejected','test_symlinked_receipt_tree_into_public_repo_is_rejected','test_symlinked_release_tree_into_public_repo_is_rejected','test_symlinked_object_tree_outside_private_root_is_rejected'}
+@@ -211,6 +244,8 @@
+         r['existing_condition']='constraint-t1-raw-artifact-store/tests/test_store.py:_symlink_or_skip'
+     save('skip_inventory.json',skipped)
+     check('skip_conditions',all(r['allowed'] for r in skipped),skipped)
++    execution_errors=validate_execution_reports(result,expected_count=PINS['expected_native_test_methods'],permitted_skip_methods=permitted)
++    check('execution_reports_complete',not execution_errors,{'errors':execution_errors,'expected_native_methods':PINS['expected_native_test_methods'],'session_exitstatus':result.get('exitstatus')})
+     if (out/'pre_execution_collection.json').exists():
+         check('inventory_not_reduced',json.loads((out/'pre_execution_collection.json').read_text())==result['inventory'],{'collected':len(result['inventory'])})
+     groups={}
+@@ -236,7 +271,7 @@
+              'evidence_records_mutated':False,'canonical_status_claimed':False,'production_status_claimed':False,
+              'integration_readiness_claimed':False,'regression_localization':'UNKNOWN' if not allgood else None,
+              'Thread_B_handoff':'PASS independently reproduced and inventoried',
+-             'scope':'EXACT_CURRENT_MAIN_PLUS_PR119',
++             'pr138_head':HEAD138,'pr141_head':HEAD141,'scope':'EXACT_CURRENT_MAIN_PLUS_PR119_PLUS_PR138_INCLUDING_MERGED_PR141',
+              'thread_D_V006':'BLOCKED_BY_THREAD_C' if not allgood else 'ELIGIBLE_FOR_CHANGED_TREE_VALIDATION'}
+     save('summary.json',summary)
+     save('report_hashes.json',{p.name:hashlib.sha256(p.read_bytes()).hexdigest() for p in sorted(out.iterdir()) if p.is_file() and p.name!='report_hashes.json'})
