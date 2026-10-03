@@ -48,7 +48,8 @@ must contain exactly the distinct availability instants. Equivalent timezone
 or fractional-second spellings share one transition; original member timestamp
 literals remain unchanged. These checks establish internal consistency only.
 
-The first-slice chronology and boundary changes touch files also changed by
-draft PR119. Its branch and historical evidence remain unchanged. Future
-integration must preserve both its eligibility containment and these consistency
-checks; this follow-up does not claim that combined candidate is validated.
+The first-slice path preserves the merged PR119 timestamp containment.
+Recorded boundaries keep empty eligible-source lists, ordinary readiness stays
+false, and V1 selection rejects unverified timestamps. The consistency checks
+above do not grant admission. Generic Batch033/034 metadata behavior remains
+separate from this first-slice denial.
