@@ -173,8 +173,9 @@ def _validate_candidate(candidate: Mapping[str, Any], *, path: str, candidate_id
         issues.append(Issue("candidate_canonicality_escalation", "candidate canonicality must be candidate_only", f"{path}.canonicality", candidate_id))
     if candidate.get("lifecycle_state") != "handed_off":
         issues.append(Issue("candidate_lifecycle_invalid", "candidate lifecycle_state must be handed_off", f"{path}.lifecycle_state", candidate_id))
-    if not _is_nonempty_text(candidate.get("statement")):
-        issues.append(Issue("candidate_statement_invalid", "candidate statement must be a non-empty string", f"{path}.statement", candidate_id))
+    statement = candidate.get("statement")
+    if not (_is_nonempty_text(statement) or (isinstance(statement, Mapping) and bool(statement))):
+        issues.append(Issue("candidate_statement_invalid", "candidate statement must be non-empty text or a non-empty object", f"{path}.statement", candidate_id))
 
     lifecycle = candidate.get("lifecycle")
     if not isinstance(lifecycle, list) or not lifecycle or any(not isinstance(event, Mapping) or not _is_nonempty_text(event.get("state")) for event in lifecycle):
@@ -206,9 +207,11 @@ def _validate_candidate(candidate: Mapping[str, Any], *, path: str, candidate_id
     for field in ("provenance", "temporal", "trust", "uncertainty"):
         if not isinstance(candidate.get(field), Mapping):
             issues.append(Issue("candidate_context_invalid", f"candidate {field} must be an object", f"{path}.{field}", candidate_id))
-    for field in ("beneficiaries", "forced_expenditures", "relations"):
+    for field in ("beneficiaries", "forced_expenditures"):
         if not isinstance(candidate.get(field), list):
             issues.append(Issue("candidate_collection_invalid", f"candidate {field} must be an array", f"{path}.{field}", candidate_id))
+    if not isinstance(candidate.get("relations"), Mapping):
+        issues.append(Issue("candidate_context_invalid", "candidate relations must be an object", f"{path}.relations", candidate_id))
     trust = candidate.get("trust")
     if isinstance(trust, Mapping):
         conflicts = trust.get("conflicts")
