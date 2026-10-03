@@ -3,7 +3,9 @@ import json
 import unittest
 from pathlib import Path
 
+from hydra_constraint_replay import ConstraintMultiDomainQueryService as PublicMultiDomainQueryService
 from hydra_constraint_replay.multidomain import (
+    ConstraintMultiDomainQueryService,
     MULTIDOMAIN_CONTRACT_VERSION,
     MULTIDOMAIN_MODE,
     SOURCE_PAIRS,
@@ -21,6 +23,9 @@ def git_blob_sha(path: Path) -> str:
 
 
 class Batch017MultiDomainManifestTests(unittest.TestCase):
+    def test_multidomain_service_is_exported_from_package_root(self):
+        self.assertIs(PublicMultiDomainQueryService, ConstraintMultiDomainQueryService)
+
     @classmethod
     def setUpClass(cls):
         cls.manifest=json.loads(MANIFEST.read_text(encoding="utf-8"))

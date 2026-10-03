@@ -58,6 +58,7 @@ from .query import (
     QUERY_MODE,
     READ_ONLY_CAPABILITIES,
 )
+from .multidomain import ConstraintMultiDomainQueryService
 from .classified_gold import (
     CLASSIFIED_GOLD_TIER,
     NO_NUMERIC_CONFIDENCE,
@@ -86,6 +87,7 @@ __all__ = [
     "EndToEndReplayError","run_classified_replay_e2e",
     "ConstraintQueryError","ConstraintReplayQueryService",
     "QUERY_CONTRACT_VERSION","QUERY_MODE","READ_ONLY_CAPABILITIES",
+    "ConstraintMultiDomainQueryService",
     "CLASSIFIED_GOLD_TIER","NO_NUMERIC_CONFIDENCE","ClassifiedGoldError",
     "ClassifiedGoldRecord","load_classified_gold_corpus","summarize_classified_gold",
 ]
