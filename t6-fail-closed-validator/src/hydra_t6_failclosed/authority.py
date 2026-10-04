@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import hashlib
 import hmac
-from collections.abc import Mapping
+from collections.abc import Iterable, Mapping
 from datetime import UTC, datetime, timedelta
 from typing import Any, Protocol
 
@@ -23,12 +23,42 @@ HEX64 = set("0123456789abcdef")
 class SignatureVerifier(Protocol):
     def verify(self, *, key_id: str, message: bytes, signature: str, method: str) -> bool: ...
 
+    def allows_role(self, key_id: str, role: str) -> bool: ...
+
 
 class HMACSHA256Verifier:
-    """Verifies HMAC-SHA256 envelopes against explicitly injected trusted keys."""
+    """Verifies HMAC-SHA256 envelopes using explicit keys and key-role grants."""
 
-    def __init__(self, trusted_keys: Mapping[str, bytes]) -> None:
-        self._keys = {str(key): bytes(value) for key, value in trusted_keys.items()}
+    def __init__(self, trusted_keys: Mapping[str, bytes], trusted_key_roles: Mapping[str, Iterable[str]] | None = None) -> None:
+        if not isinstance(trusted_keys, Mapping):
+            raise ValueError("trusted keys must be a mapping")
+        if trusted_key_roles is not None and not isinstance(trusted_key_roles, Mapping):
+            raise ValueError("trusted key roles must be a mapping")
+        self._keys: dict[str, bytes] = {}
+        for key_id, value in trusted_keys.items():
+            if type(key_id) is not str or not key_id or key_id != key_id.strip():
+                raise ValueError("trusted key IDs must be non-empty exact strings")
+            if not isinstance(value, (bytes, bytearray)) or not value:
+                raise ValueError("trusted key values must be non-empty bytes")
+            self._keys[key_id] = bytes(value)
+        self._roles: dict[str, frozenset[str]] = {}
+        role_mapping = trusted_key_roles if trusted_key_roles is not None else {}
+        for key_id, roles in role_mapping.items():
+            if type(key_id) is not str or not key_id or key_id != key_id.strip() or key_id not in self._keys:
+                raise ValueError("trusted role-map key IDs must match an exact trusted key ID")
+            if isinstance(roles, (str, bytes, bytearray, Mapping)) or not isinstance(roles, Iterable):
+                raise ValueError("trusted key roles must be an iterable of exact strings")
+            grants: set[str] = set()
+            for role in roles:
+                if type(role) is not str or not role or role != role.strip():
+                    raise ValueError("trusted roles must be non-empty exact strings")
+                grants.add(role)
+            if not grants:
+                raise ValueError("trusted key role grants must not be empty")
+            self._roles[key_id] = frozenset(grants)
+
+    def allows_role(self, key_id: str, role: str) -> bool:
+        return type(key_id) is str and type(role) is str and role in self._roles.get(key_id, frozenset())
 
     def verify(self, *, key_id: str, message: bytes, signature: str, method: str) -> bool:
         if method != "HMAC-SHA256" or key_id not in self._keys or not _is_hex64(signature):
@@ -95,11 +125,18 @@ def validate_authority(
     if not isinstance(scopes, list) or scopes != [REQUIRED_SCOPE]:
         issues.append(Issue("authority_scope_invalid", "authority scopes must be exactly the single validator scope", "$.authority.scopes"))
     for field in ("authority_id", "authority_name", "authority_role", "key_id"):
-        if not isinstance(envelope.get(field), str) or not str(envelope[field]).strip():
+        if type(envelope.get(field)) is not str or not envelope[field].strip():
             issues.append(Issue("authority_identity_invalid", f"{field} must be a non-empty string", f"$.authority.{field}"))
 
     if envelope.get("authority_role") != "validator_authority":
         issues.append(Issue("authority_role_invalid", "authority_role must be validator_authority", "$.authority.authority_role"))
+
+    method = envelope.get("signature_method")
+    signature = envelope.get("signature")
+    if type(method) is not str or not method:
+        issues.append(Issue("authority_signature_method_invalid", "signature_method must be a non-empty string", "$.authority.signature_method"))
+    if type(signature) is not str or not signature:
+        issues.append(Issue("authority_signature_invalid", "signature must be a non-empty string", "$.authority.signature"))
 
     bindings = envelope.get("bindings")
     expected_bindings = {
@@ -177,23 +214,32 @@ def validate_authority(
             elif predecessor_id is not None and (not chain or chain[-1] != predecessor_id):
                 issues.append(Issue("authority_supersession_chain_ambiguous", "supersession chain must end at predecessor_id", "$.authority.supersession.chain"))
 
-    method = str(envelope.get("signature_method", ""))
-    key_id = str(envelope.get("key_id", ""))
-    signature = str(envelope.get("signature", ""))
+    key_id_value = envelope.get("key_id")
+    key_id = key_id_value if type(key_id_value) is str else ""
+    role_value = envelope.get("authority_role")
+    authority_role = role_value if type(role_value) is str else ""
     if verifier is None:
         issues.append(Issue("authority_verifier_missing", "no signature verifier is configured", "$.authority.signature"))
     else:
         try:
-            verified = verifier.verify(
-                key_id=key_id,
-                message=authority_signing_bytes(envelope),
-                signature=signature,
-                method=method,
-            )
+            allows_role = getattr(verifier, "allows_role", None)
+            role_allowed = callable(allows_role) and allows_role(key_id, authority_role) is True
         except Exception:
-            issues.append(Issue("authority_verifier_error", "signature verifier failed closed", "$.authority.signature"))
+            role_allowed = False
+        if not role_allowed:
+            issues.append(Issue("authority_key_role_untrusted", "the signing key is not trusted for the claimed authority role", "$.authority.authority_role"))
         else:
-            if verified is not True:
+            try:
+                verify = getattr(verifier, "verify", None)
+                signature_valid = (
+                    type(method) is str and bool(method)
+                    and type(signature) is str and bool(signature)
+                    and callable(verify)
+                    and verify(key_id=key_id, message=authority_signing_bytes(envelope), signature=signature, method=method) is True
+                )
+            except Exception:
+                signature_valid = False
+            if not signature_valid:
                 issues.append(Issue("authority_signature_invalid", "authority signature is invalid or key is untrusted", "$.authority.signature"))
 
     return AuthorityResult(not issues, "VALID" if not issues else reason, sorted_issues(issues))
