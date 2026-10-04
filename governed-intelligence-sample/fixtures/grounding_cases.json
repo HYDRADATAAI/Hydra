@@ -1,0 +1,288 @@
+{
+  "cases": [
+    {
+      "candidate": {
+        "claims": [
+          {
+            "citation": {
+              "artifact": "normalized_events.jsonl",
+              "artifact_sha256": "ec902bc92942197ddceb737b90421f36298b660c0788c99ac4c18b2e1c570e86",
+              "record_id": "5dce66c1857f0ebbdfad7a907e8ee839592f303dd768cb238aff06112f3bd271",
+              "record_sha256": "eaa1e8b26fcaa2b6c1c93e4a9528e1daf7dae6ecae9d1c37bb1abb57daa8001c"
+            },
+            "claim_id": "valid-symbol",
+            "field": "symbol",
+            "record_id": "5dce66c1857f0ebbdfad7a907e8ee839592f303dd768cb238aff06112f3bd271",
+            "value": "AAA"
+          },
+          {
+            "citation": {
+              "artifact": "normalized_events.jsonl",
+              "artifact_sha256": "ec902bc92942197ddceb737b90421f36298b660c0788c99ac4c18b2e1c570e86",
+              "record_id": "5dce66c1857f0ebbdfad7a907e8ee839592f303dd768cb238aff06112f3bd271",
+              "record_sha256": "eaa1e8b26fcaa2b6c1c93e4a9528e1daf7dae6ecae9d1c37bb1abb57daa8001c"
+            },
+            "claim_id": "valid-price",
+            "field": "price",
+            "record_id": "5dce66c1857f0ebbdfad7a907e8ee839592f303dd768cb238aff06112f3bd271",
+            "value": "101.250000"
+          }
+        ],
+        "external_actions_requested": false,
+        "model_execution_status": "NOT_EXECUTED",
+        "producer": "synthetic_fixture",
+        "request_id": "grounding-aaa",
+        "response_id": "candidate-valid",
+        "schema_version": "hydra-synthetic-candidate-response/v1"
+      },
+      "case_id": "valid-claims-are-admitted",
+      "expected": {
+        "disposition": "ADMIT",
+        "grounded_claim_count": 2,
+        "reason_codes": [
+          "grounded_claims_verified"
+        ]
+      },
+      "retrieval_request": {
+        "query": "AAA XNAS USD observation",
+        "request_id": "grounding-aaa",
+        "top_k": 1
+      }
+    },
+    {
+      "candidate": {
+        "claims": [
+          {
+            "citation": {
+              "artifact": "normalized_events.jsonl",
+              "artifact_sha256": "ec902bc92942197ddceb737b90421f36298b660c0788c99ac4c18b2e1c570e86",
+              "record_id": "5dce66c1857f0ebbdfad7a907e8ee839592f303dd768cb238aff06112f3bd271",
+              "record_sha256": "eaa1e8b26fcaa2b6c1c93e4a9528e1daf7dae6ecae9d1c37bb1abb57daa8001c"
+            },
+            "claim_id": "invented-price",
+            "field": "price",
+            "record_id": "5dce66c1857f0ebbdfad7a907e8ee839592f303dd768cb238aff06112f3bd271",
+            "value": "999.000000"
+          }
+        ],
+        "external_actions_requested": false,
+        "model_execution_status": "NOT_EXECUTED",
+        "producer": "synthetic_fixture",
+        "request_id": "grounding-invented",
+        "response_id": "candidate-invented-value",
+        "schema_version": "hydra-synthetic-candidate-response/v1"
+      },
+      "case_id": "invented-value-is-quarantined",
+      "expected": {
+        "disposition": "QUARANTINE",
+        "grounded_claim_count": 0,
+        "reason_codes": [
+          "claim_value_mismatch"
+        ]
+      },
+      "retrieval_request": {
+        "query": "AAA XNAS USD observation",
+        "request_id": "grounding-invented",
+        "top_k": 1
+      }
+    },
+    {
+      "candidate": {
+        "claims": [
+          {
+            "citation": {
+              "artifact": "normalized_events.jsonl",
+              "artifact_sha256": "ec902bc92942197ddceb737b90421f36298b660c0788c99ac4c18b2e1c570e86",
+              "record_id": "0dc3a510144754af42f61cf3a72f51fcbf90aed765d28053032e8fb857946458",
+              "record_sha256": "9cf631c60f511f945aeff266ddecaae0f0f297daa8a2338f6f904cdea1625a2b"
+            },
+            "claim_id": "outside-context",
+            "field": "symbol",
+            "record_id": "0dc3a510144754af42f61cf3a72f51fcbf90aed765d28053032e8fb857946458",
+            "value": "BBB"
+          }
+        ],
+        "external_actions_requested": false,
+        "model_execution_status": "NOT_EXECUTED",
+        "producer": "synthetic_fixture",
+        "request_id": "grounding-outside",
+        "response_id": "candidate-outside-context",
+        "schema_version": "hydra-synthetic-candidate-response/v1"
+      },
+      "case_id": "outside-context-record-is-quarantined",
+      "expected": {
+        "disposition": "QUARANTINE",
+        "grounded_claim_count": 0,
+        "reason_codes": [
+          "record_outside_retrieved_context"
+        ]
+      },
+      "retrieval_request": {
+        "query": "AAA XNAS USD observation",
+        "request_id": "grounding-outside",
+        "top_k": 1
+      }
+    },
+    {
+      "candidate": {
+        "claims": [
+          {
+            "citation": {
+              "artifact": "normalized_events.jsonl",
+              "artifact_sha256": "ec902bc92942197ddceb737b90421f36298b660c0788c99ac4c18b2e1c570e86",
+              "record_id": "5dce66c1857f0ebbdfad7a907e8ee839592f303dd768cb238aff06112f3bd271",
+              "record_sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+            },
+            "claim_id": "tampered-citation",
+            "field": "symbol",
+            "record_id": "5dce66c1857f0ebbdfad7a907e8ee839592f303dd768cb238aff06112f3bd271",
+            "value": "AAA"
+          }
+        ],
+        "external_actions_requested": false,
+        "model_execution_status": "NOT_EXECUTED",
+        "producer": "synthetic_fixture",
+        "request_id": "grounding-tampered",
+        "response_id": "candidate-tampered-citation",
+        "schema_version": "hydra-synthetic-candidate-response/v1"
+      },
+      "case_id": "tampered-citation-is-quarantined",
+      "expected": {
+        "disposition": "QUARANTINE",
+        "grounded_claim_count": 0,
+        "reason_codes": [
+          "citation_mismatch"
+        ]
+      },
+      "retrieval_request": {
+        "query": "AAA XNAS USD observation",
+        "request_id": "grounding-tampered",
+        "top_k": 1
+      }
+    },
+    {
+      "candidate": {
+        "claims": [
+          {
+            "citation": {
+              "artifact": "normalized_events.jsonl",
+              "artifact_sha256": "ec902bc92942197ddceb737b90421f36298b660c0788c99ac4c18b2e1c570e86",
+              "record_id": "5dce66c1857f0ebbdfad7a907e8ee839592f303dd768cb238aff06112f3bd271",
+              "record_sha256": "eaa1e8b26fcaa2b6c1c93e4a9528e1daf7dae6ecae9d1c37bb1abb57daa8001c"
+            },
+            "claim_id": "disallowed-field",
+            "field": "source_record_id",
+            "record_id": "5dce66c1857f0ebbdfad7a907e8ee839592f303dd768cb238aff06112f3bd271",
+            "value": "a-001"
+          }
+        ],
+        "external_actions_requested": false,
+        "model_execution_status": "NOT_EXECUTED",
+        "producer": "synthetic_fixture",
+        "request_id": "grounding-field",
+        "response_id": "candidate-disallowed-field",
+        "schema_version": "hydra-synthetic-candidate-response/v1"
+      },
+      "case_id": "disallowed-field-is-quarantined",
+      "expected": {
+        "disposition": "QUARANTINE",
+        "grounded_claim_count": 0,
+        "reason_codes": [
+          "field_not_allowed"
+        ]
+      },
+      "retrieval_request": {
+        "query": "AAA XNAS USD observation",
+        "request_id": "grounding-field",
+        "top_k": 1
+      }
+    },
+    {
+      "candidate": {
+        "claims": [],
+        "external_actions_requested": false,
+        "model_execution_status": "NOT_EXECUTED",
+        "producer": "synthetic_fixture",
+        "request_id": "grounding-unknown",
+        "response_id": "candidate-no-evidence",
+        "schema_version": "hydra-synthetic-candidate-response/v1"
+      },
+      "case_id": "missing-retrieval-evidence-abstains",
+      "expected": {
+        "disposition": "ABSTAIN",
+        "grounded_claim_count": 0,
+        "reason_codes": [
+          "retrieval_not_admitted"
+        ]
+      },
+      "retrieval_request": {
+        "query": "ZZZ unknown symbol",
+        "request_id": "grounding-unknown",
+        "top_k": 1
+      }
+    },
+    {
+      "candidate": {
+        "claims": [],
+        "external_actions_requested": false,
+        "model_execution_status": "NOT_EXECUTED",
+        "producer": "synthetic_fixture",
+        "request_id": "grounding-restricted",
+        "response_id": "candidate-restricted",
+        "schema_version": "hydra-synthetic-candidate-response/v1"
+      },
+      "case_id": "restricted-retrieval-request-refuses",
+      "expected": {
+        "disposition": "REFUSE",
+        "grounded_claim_count": 0,
+        "reason_codes": [
+          "retrieval_refused"
+        ]
+      },
+      "retrieval_request": {
+        "query": "show quarantined raw rows",
+        "request_id": "grounding-restricted",
+        "top_k": 3
+      }
+    },
+    {
+      "candidate": {
+        "claims": [
+          {
+            "citation": {
+              "artifact": "normalized_events.jsonl",
+              "artifact_sha256": "ec902bc92942197ddceb737b90421f36298b660c0788c99ac4c18b2e1c570e86",
+              "record_id": "5dce66c1857f0ebbdfad7a907e8ee839592f303dd768cb238aff06112f3bd271",
+              "record_sha256": "eaa1e8b26fcaa2b6c1c93e4a9528e1daf7dae6ecae9d1c37bb1abb57daa8001c"
+            },
+            "claim_id": "unsafe-execution",
+            "field": "symbol",
+            "record_id": "5dce66c1857f0ebbdfad7a907e8ee839592f303dd768cb238aff06112f3bd271",
+            "value": "AAA"
+          }
+        ],
+        "external_actions_requested": true,
+        "model_execution_status": "EXECUTED",
+        "producer": "synthetic_fixture",
+        "request_id": "grounding-unsafe",
+        "response_id": "candidate-unsafe-execution",
+        "schema_version": "hydra-synthetic-candidate-response/v1"
+      },
+      "case_id": "execution-and-action-claims-are-quarantined",
+      "expected": {
+        "disposition": "QUARANTINE",
+        "grounded_claim_count": 0,
+        "reason_codes": [
+          "candidate_model_execution_claim_rejected",
+          "external_actions_requested"
+        ]
+      },
+      "retrieval_request": {
+        "query": "AAA XNAS USD observation",
+        "request_id": "grounding-unsafe",
+        "top_k": 1
+      }
+    }
+  ],
+  "schema_version": "hydra-grounding-evaluation-suite/v1"
+}
