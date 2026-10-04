@@ -581,7 +581,9 @@ def workflow_step_literal_lines(step_block: str, key: str) -> list[str] | None:
     ]
 
 
-def workflow_step_run_lines(step_block: str) -> list[str] | None:
+def workflow_step_run_lines(
+    step_block: str, *, preserve_indentation: bool = False
+) -> list[str] | None:
     match = re.search(r"(?m)^        run:\s*\|\s*\r?\n", step_block)
     if match is None:
         return None
@@ -591,7 +593,7 @@ def workflow_step_run_lines(step_block: str) -> list[str] | None:
             continue
         if not line.startswith("          "):
             return None
-        lines.append(line.strip())
+        lines.append(line[10:] if preserve_indentation else line.strip())
     return lines
 
 
@@ -959,11 +961,152 @@ def validate_ci_contract(errors: list[str]) -> None:
         'print("SOURCE_ROWS_SNAPSHOT_VERIFIED=7")',
         "python run_recovery_demo.py --output-dir build/operations",
         "OPERATIONS_RECEIPT=PASS",
-        "actions/upload-artifact@v4",
+        "actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+        "actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065",
+        "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02",
+        "actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093",
+        "name: hydra-market-data-pipeline-sample",
+        "name: Download published pipeline outputs",
+        "name: Verify published pipeline artifact round-trip",
+        "PUBLISHED_PIPELINE_ARTIFACT=PASS",
     )
     for fragment in pipeline_fragments:
         if fragment not in pipeline_workflow:
             errors.append(f"market-pipeline CI contract missing: {fragment}")
+
+    pipeline_job = workflow_job_block(pipeline_workflow, "test-and-build")
+    if pipeline_job is None:
+        errors.append("market-pipeline CI test-and-build job is missing")
+    else:
+        if re.search(r"(?m)^    if\s*:", pipeline_job):
+            errors.append("market-pipeline CI job must be unconditional")
+        if re.search(r"(?m)^    continue-on-error\s*:", pipeline_job):
+            errors.append("market-pipeline CI job must fail closed")
+
+        pipeline_steps = workflow_steps(pipeline_job)
+        artifact_step_names = (
+            "Publish synthetic pipeline outputs",
+            "Download published pipeline outputs",
+            "Verify published pipeline artifact round-trip",
+        )
+        names = [name for name, _ in pipeline_steps]
+        if tuple(names[-3:]) != artifact_step_names or any(
+            names.count(name) != 1 for name in artifact_step_names
+        ):
+            errors.append("market-pipeline CI artifact steps must be unique and ordered last")
+
+        pipeline_action_pins = {
+            "actions/checkout": "11d5960a326750d5838078e36cf38b85af677262",
+            "actions/setup-python": "a26af69be951a213d495a4c3e4e4022e16d87065",
+            "actions/upload-artifact": "ea165f8d65b6e75b540449e92b4886f43607fa02",
+            "actions/download-artifact": "d3f86a106a0bac45b974a628896c90dbdf5c8093",
+        }
+        for action, expected_sha in pipeline_action_pins.items():
+            refs = re.findall(
+                rf"(?m)^\s*uses:\s*{re.escape(action)}@([^\s#]+)",
+                pipeline_workflow,
+            )
+            if not refs or any(ref != expected_sha for ref in refs):
+                errors.append(f"market-pipeline CI action pin changed: {action}={refs!r}")
+
+        step_blocks = {
+            name: [block for step_name, block in pipeline_steps if step_name == name]
+            for name in artifact_step_names
+        }
+        if all(len(step_blocks[name]) == 1 for name in artifact_step_names):
+            upload, download, verify = (
+                step_blocks[name][0] for name in artifact_step_names
+            )
+            expected_artifact = "hydra-market-data-pipeline-sample"
+            if workflow_step_scalar(upload, "uses") != [
+                "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02"
+            ]:
+                errors.append("market-pipeline CI upload action changed")
+            if workflow_step_with_scalar(upload, "name") != [expected_artifact]:
+                errors.append("market-pipeline CI upload artifact name changed")
+            expected_paths = [
+                "market-data-pipeline-sample/build/demo/",
+                "market-data-pipeline-sample/build/operations/",
+            ]
+            if workflow_step_literal_lines(upload, "path") != expected_paths:
+                errors.append("market-pipeline CI upload paths changed")
+            if workflow_step_with_scalar(upload, "if-no-files-found") != ["error"]:
+                errors.append("market-pipeline CI upload must fail when outputs are missing")
+            if workflow_step_scalar(upload, "if") or workflow_step_scalar(
+                upload, "continue-on-error"
+            ):
+                errors.append("market-pipeline CI upload must remain fail-closed")
+
+            if workflow_step_scalar(download, "uses") != [
+                "actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093"
+            ]:
+                errors.append("market-pipeline CI download action changed")
+            if workflow_step_with_scalar(download, "name") != [expected_artifact]:
+                errors.append("market-pipeline CI download artifact name changed")
+            if workflow_step_with_scalar(download, "path") != [
+                "${{ runner.temp }}/hydra-market-data-pipeline-published"
+            ]:
+                errors.append("market-pipeline CI download destination changed")
+            if workflow_step_scalar(download, "if") or workflow_step_scalar(
+                download, "continue-on-error"
+            ):
+                errors.append("market-pipeline CI download must remain fail-closed")
+
+            if workflow_step_scalar(verify, "if") or workflow_step_scalar(
+                verify, "continue-on-error"
+            ):
+                errors.append("market-pipeline CI artifact verification must remain fail-closed")
+            if workflow_step_scalar(verify, "uses"):
+                errors.append("market-pipeline CI artifact verification must run Python")
+            if workflow_step_with_scalar(
+                verify, "PUBLISHED_PIPELINE_ARTIFACT_DIR"
+            ) != ["${{ runner.temp }}/hydra-market-data-pipeline-published"]:
+                errors.append("market-pipeline CI verifier download destination changed")
+            expected_verification_run = [
+                "python -I -B - <<'PY'",
+                "import hashlib",
+                "import os",
+                "from pathlib import Path",
+                "def require(condition, detail):",
+                "    if not condition:",
+                "        raise SystemExit(f\"PUBLISHED_PIPELINE_ARTIFACT=FAIL: {detail}\")",
+                "def regular_files(root):",
+                "    require(not root.is_symlink() and root.is_dir(), f\"missing directory: {root}\")",
+                "    files = {}",
+                "    for path in root.rglob(\"*\"):",
+                "        require(not path.is_symlink(), f\"symlink is not allowed: {path}\")",
+                "        if path.is_file():",
+                "            files[path.relative_to(root).as_posix()] = path",
+                "        else:",
+                "            require(path.is_dir(), f\"non-regular entry is not allowed: {path}\")",
+                "    require(bool(files), f\"directory contains no files: {root}\")",
+                "    return files",
+                "source_roots = {",
+                "    \"demo\": Path(\"market-data-pipeline-sample/build/demo\"),",
+                "    \"operations\": Path(\"market-data-pipeline-sample/build/operations\"),",
+                "}",
+                "published_root = Path(os.environ[\"PUBLISHED_PIPELINE_ARTIFACT_DIR\"])",
+                "require(not published_root.is_symlink() and published_root.is_dir(), \"download directory is missing\")",
+                "expected_files = {}",
+                "for label, source_root in source_roots.items():",
+                "    for relative, path in regular_files(source_root).items():",
+                "        expected_files[f\"{label}/{relative}\"] = path",
+                "actual_files = regular_files(published_root)",
+                "missing = sorted(set(expected_files) - set(actual_files))",
+                "extra = sorted(set(actual_files) - set(expected_files))",
+                "require(not missing and not extra, f\"file set changed; missing={missing}, extra={extra}\")",
+                "for name, source in expected_files.items():",
+                "    expected = hashlib.sha256(source.read_bytes()).hexdigest()",
+                "    actual = hashlib.sha256(actual_files[name].read_bytes()).hexdigest()",
+                "    require(actual == expected, f\"SHA-256 mismatch for {name}\")",
+                "print(f\"PUBLISHED_PIPELINE_ARTIFACT=PASS:{len(expected_files)}\")",
+                "PY",
+            ]
+            if workflow_step_run_lines(
+                verify, preserve_indentation=True
+            ) != expected_verification_run:
+                errors.append("market-pipeline CI artifact verifier body changed")
+
     if "SOURCE_ROWS_REPLAYED" in pipeline_workflow:
         errors.append("market-pipeline CI must not claim independent source-row replay")
 

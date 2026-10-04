@@ -1,0 +1,54 @@
+name: Validation only - pipeline artifact regressions
+
+on:
+  pull_request:
+    paths:
+      - 'tools/test_pipeline_artifact_regression.py'
+      - '.github/workflows/validation-pipeline-artifact-regression.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  artifact-regression:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout exact validation head
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          persist-credentials: false
+      - name: Set up original Python boundary
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: '3.11'
+      - name: Record exact clean target
+        env:
+          EXPECTED_VALIDATION_HEAD: ${{ github.event.pull_request.head.sha }}
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$EXPECTED_VALIDATION_HEAD"
+          test -z "$(git status --porcelain)"
+          git rev-parse HEAD > "$RUNNER_TEMP/pipeline-regression-head"
+          git rev-parse 'HEAD^{tree}' > "$RUNNER_TEMP/pipeline-regression-tree"
+          printf 'VALIDATION_HEAD='
+          cat "$RUNNER_TEMP/pipeline-regression-head"
+          printf 'VALIDATION_TREE='
+          cat "$RUNNER_TEMP/pipeline-regression-tree"
+          sha256sum tools/test_pipeline_artifact_regression.py .github/workflows/validation-pipeline-artifact-regression.yml
+          git ls-tree HEAD .github/workflows/market-data-pipeline.yml tools/validate_public_repository.py
+      - name: Run unchanged artifact and validator regressions
+        run: |
+          python -I -B tools/test_pipeline_artifact_regression.py \
+            --repository "$GITHUB_WORKSPACE" \
+            --report "$RUNNER_TEMP/pipeline-artifact-regression.json"
+      - name: Always verify exact source preservation
+        if: always()
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$(cat "$RUNNER_TEMP/pipeline-regression-head")"
+          test "$(git rev-parse 'HEAD^{tree}')" = "$(cat "$RUNNER_TEMP/pipeline-regression-tree")"
+          test -z "$(git status --porcelain)"
+          git diff --exit-code
+          echo PIPELINE_REGRESSION_SOURCE_PRESERVATION=PASS
