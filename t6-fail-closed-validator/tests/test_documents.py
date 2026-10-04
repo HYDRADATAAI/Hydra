@@ -56,9 +56,12 @@ class DocumentContractTests(unittest.TestCase):
 
     def test_excessive_structural_depth_is_rejected_before_downstream_recursion(self) -> None:
         payload = '{"a":' * 140 + '0' + '}' * 140
+        raw = payload.encode("utf-8")
         document = parse_json_document(payload, label="$.document")
         self.assertIsNone(document.value)
         self.assertIn("document_too_deep", {issue.code for issue in document.issues})
+        self.assertEqual(document.raw, raw)
+        self.assertEqual(document.raw_sha256, documents.sha256_hex(raw))
 
     def test_excessive_mapping_depth_is_rejected_during_bounded_snapshot(self) -> None:
         value = {}
