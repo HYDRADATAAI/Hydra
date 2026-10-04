@@ -383,17 +383,21 @@ def _document_depth_exceeds(value: Any, *, max_depth: int) -> bool:
 
 def _document_node_count(value: Mapping[str, Any], *, max_nodes: int) -> int:
     """Count parsed values, excluding the root object, stopping at the limit."""
-    stack = list(value.values())
+    stack = [iter(value.values())]
     nodes = 0
     while stack:
-        current = stack.pop()
+        try:
+            current = next(stack[-1])
+        except StopIteration:
+            stack.pop()
+            continue
         nodes += 1
         if nodes > max_nodes:
             return nodes
         if isinstance(current, Mapping):
-            stack.extend(current.values())
+            stack.append(iter(current.values()))
         elif isinstance(current, list):
-            stack.extend(current)
+            stack.append(iter(current))
     return nodes
 
 
