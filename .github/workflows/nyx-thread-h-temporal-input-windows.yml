@@ -8,6 +8,15 @@ on:
       - constraint-t1-raw-artifact-store/src/hydra_constraint_t1_raw/ordinary_t2_lineage.py
       - constraint-t1-raw-artifact-store/src/hydra_constraint_t1_raw/ordinary_t2_evidence_lineage.py
       - constraint-t1-raw-artifact-store/tests/test_temporal_input_boundary.py
+      - constraint-t1-raw-artifact-store/tests/**
+      - tools/build_constraint_second_slice_batch033_ordinary_t2_lineage.py
+      - tools/build_constraint_second_slice_batch034_t2_evidence_lineage.py
+      - tools/test_constraint_second_slice_batch034_builder_bytes.py
+      - tools/validate_constraint_second_slice_batch034_t2_evidence_lineage.py
+      - tools/test_constraint_second_slice_batch034_t2_evidence_lineage_adversarial.py
+      - docs/constraint/second_slice/semiconductor_advanced_packaging_critical_materials_v1/**
+      - docs/constraint/validation/**
+      - constraint-runtime/**
       - .github/workflows/nyx-thread-h-temporal-input-windows.yml
 
 permissions:

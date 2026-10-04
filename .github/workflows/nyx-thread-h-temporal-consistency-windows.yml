@@ -6,6 +6,14 @@ on:
   pull_request:
     paths:
       - constraint-t1-raw-artifact-store/**
+      - tools/build_constraint_second_slice_batch033_ordinary_t2_lineage.py
+      - tools/build_constraint_second_slice_batch034_t2_evidence_lineage.py
+      - tools/test_constraint_second_slice_batch034_builder_bytes.py
+      - tools/validate_constraint_second_slice_batch034_t2_evidence_lineage.py
+      - tools/test_constraint_second_slice_batch034_t2_evidence_lineage_adversarial.py
+      - docs/constraint/second_slice/semiconductor_advanced_packaging_critical_materials_v1/**
+      - docs/constraint/validation/**
+      - constraint-runtime/**
       - .github/workflows/nyx-thread-h-temporal-consistency-windows.yml
 
 permissions:
