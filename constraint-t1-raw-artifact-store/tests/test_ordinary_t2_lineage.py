@@ -94,6 +94,52 @@ class OrdinaryT2LineageTests(unittest.TestCase):
             expected_slice_id=self.slice_id,
         )
 
+    def test_attestation_counts_require_exact_integer_types(self):
+        valid_one_source_attestation = copy.deepcopy(self.attestation)
+        valid_one_source_attestation["members"] = valid_one_source_attestation["members"][:1]
+        valid_one_source_attestation["materialized_source_count"] = 1
+        valid_one_source_attestation["ordinary_t2_eligible_count"] = 1
+        valid_one_source_packet = build_ordinary_t2_lineage(
+            attestation=valid_one_source_attestation,
+            source_records=self.records[:1],
+            expected_slice_id=self.slice_id,
+        )
+        self.assertEqual(1, valid_one_source_packet["source_count"])
+
+        for field in ("materialized_source_count", "ordinary_t2_eligible_count"):
+            for value in (True, 1.0):
+                with self.subTest(field=field, value=value):
+                    attestation = copy.deepcopy(valid_one_source_attestation)
+                    attestation[field] = value
+                    with self.assertRaises(OrdinaryT2LineageError):
+                        build_ordinary_t2_lineage(
+                            attestation=attestation,
+                            source_records=self.records[:1],
+                            expected_slice_id=self.slice_id,
+                        )
+
+    def test_packet_counts_require_exact_integer_types(self):
+        one_source_attestation = copy.deepcopy(self.attestation)
+        one_source_attestation["members"] = one_source_attestation["members"][:1]
+        one_source_attestation["materialized_source_count"] = 1
+        one_source_attestation["ordinary_t2_eligible_count"] = 1
+        packet = build_ordinary_t2_lineage(
+            attestation=one_source_attestation,
+            source_records=self.records[:1],
+            expected_slice_id=self.slice_id,
+        )
+        for field in ("source_count", "normalized_source_version_count"):
+            for value in (True, 1.0):
+                with self.subTest(field=field, value=value):
+                    malformed = copy.deepcopy(packet)
+                    malformed[field] = value
+                    with self.assertRaises(OrdinaryT2LineageError):
+                        validate_ordinary_t2_lineage(
+                            packet=malformed,
+                            source_records=self.records[:1],
+                            expected_slice_id=self.slice_id,
+                        )
+
     def test_no_lookahead_selection(self):
         packet = self.build()
         self.assertEqual(

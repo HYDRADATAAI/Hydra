@@ -157,13 +157,17 @@ def _attestation_members(
 
     members = attestation.get("members")
     _require(isinstance(members, list), "attestation members missing")
+    ordinary_t2_eligible_count = attestation.get("ordinary_t2_eligible_count")
     _require(
-        attestation.get("ordinary_t2_eligible_count") == len(source_scope),
-        "ordinary-T2 eligible count incomplete",
+        type(ordinary_t2_eligible_count) is int
+        and ordinary_t2_eligible_count == len(source_scope),
+        "ordinary-T2 eligible count incomplete or not an exact integer",
     )
+    materialized_source_count = attestation.get("materialized_source_count")
     _require(
-        attestation.get("materialized_source_count") == len(source_scope),
-        "materialized source count incomplete",
+        type(materialized_source_count) is int
+        and materialized_source_count == len(source_scope),
+        "materialized source count incomplete or not an exact integer",
     )
     _require(len(members) == len(source_scope), "attestation member count differs from source scope")
     if "valid_receipt_count" in attestation:
@@ -336,9 +340,15 @@ def validate_ordinary_t2_lineage(
     _require(packet.get("schema_version") == ORDINARY_T2_LINEAGE_SCHEMA, "ordinary-T2 lineage schema invalid")
     _require(packet.get("slice_id") == expected_slice_id, "ordinary-T2 lineage slice mismatch")
     _require(packet.get("availability_mode") == CONSERVATIVE_AVAILABILITY, "ordinary-T2 availability mode drift")
-    _require(packet.get("source_count") == len(scope), "ordinary-T2 source_count drift")
+    source_count = packet.get("source_count")
     _require(
-        packet.get("normalized_source_version_count") == len(scope),
+        type(source_count) is int and source_count == len(scope),
+        "ordinary-T2 source_count drift",
+    )
+    normalized_source_version_count = packet.get("normalized_source_version_count")
+    _require(
+        type(normalized_source_version_count) is int
+        and normalized_source_version_count == len(scope),
         "ordinary-T2 normalized source-version count drift",
     )
     _require(packet.get("ordinary_source_version_hash_lineage_complete") is True, "ordinary source-version lineage incomplete")
