@@ -3,7 +3,7 @@
   "implementation_id": "HYDRA_CONSTRAINT_FIRST_SLICE_NATIVE_T5_T6_BRIDGE_V002_20261003",
   "implementation_version": "v2",
   "artifact_sha256": "5e4c27fa6b2f96c05adf888f152775b9c61038c6c96f22a1a405f9c604bd66a6",
-  "test_evidence_sha256": "0346a9eda90f39967efe294e375ea0f3d92f9074ac2411e404ef1c45f888f108",
+  "test_evidence_sha256": "74aae3afd2d4a8a19c63659d1c67219b94ea421c8bba5a035835ec9470be479f",
   "producer_stage": "PIPELINE_T5_CONSTRAINT_FORMATION",
   "consumer_stage": "PIPELINE_T6_CANONICAL_CANDIDATE_GOVERNANCE",
   "handoff_schema": "t6-candidate-handoff.v1",
