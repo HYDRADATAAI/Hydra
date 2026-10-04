@@ -6,7 +6,7 @@ import hashlib
 import unittest
 from unittest.mock import patch
 
-from hydra_t6_failclosed.documents import canonical_json_bytes, parse_json_document
+from hydra_t6_failclosed.documents import MAX_DOCUMENT_NODES, canonical_json_bytes, parse_json_document
 
 
 class DocumentMappingBoundsTests(unittest.TestCase):
@@ -223,9 +223,18 @@ class DocumentMappingBoundsTests(unittest.TestCase):
         self.assertEqual(document.issues, ())
         self.assertEqual(document.raw, b'{"true":"yes"}')
 
-    def test_shallow_raw_json_over_node_cap_preserves_raw_and_digest(self):
-        from hydra_t6_failclosed.documents import MAX_DOCUMENT_NODES
+    def test_shallow_raw_json_at_node_cap_is_accepted(self):
+        item_count = MAX_DOCUMENT_NODES - 1
+        raw = b'{"items":[' + b"0," * (item_count - 1) + b"0]}"
 
+        document = parse_json_document(raw, label="input")
+
+        self.assertEqual(document.issues, ())
+        self.assertEqual(document.raw, raw)
+        self.assertEqual(document.raw_sha256, hashlib.sha256(raw).hexdigest())
+        self.assertEqual(len(document.value["items"]), item_count)
+
+    def test_shallow_raw_json_over_node_cap_preserves_raw_and_digest(self):
         raw = b'{"items":[' + b"0," * (MAX_DOCUMENT_NODES - 1) + b"0]}"
 
         document = parse_json_document(raw, label="input")
