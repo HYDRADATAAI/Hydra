@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import csv
+import io
 import json
 import os
 import re
@@ -11,12 +13,24 @@ from pathlib import Path
 from typing import Mapping
 
 from .hashing import canonical_json_bytes, object_sha256, sha256_hex
-from .pipeline import load_aliases, run_pipeline
-from .writers import write_outputs
+from .pipeline import (
+    RUN_SCHEMA,
+    TRANSFORM_VERSION,
+    load_aliases,
+    parse_aliases_bytes,
+    run_pipeline,
+)
+from .writers import (
+    MANIFEST_SCHEMA,
+    NORMALIZED_CSV_COLUMNS,
+    RESOLVED_ALIASES_SCHEMA,
+    SOURCE_SNAPSHOT_SCHEMA,
+    write_outputs,
+)
 
 
 PLAN_SCHEMA = "hydra-market-backfill-plan/v1"
-CHECKPOINT_SCHEMA = "hydra-market-backfill-checkpoint/v1"
+CHECKPOINT_SCHEMA = "hydra-market-backfill-checkpoint/v2"
 OPERATIONS_MANIFEST_SCHEMA = "hydra-market-operations-manifest/v1"
 SOURCE_ID_PATTERN = re.compile(r"^[a-z0-9][a-z0-9._-]{0,79}$")
 ROOT_PLAN_KEYS = {
@@ -194,11 +208,14 @@ def execute_backfill(
         result = run_pipeline(input_csv=item.path, aliases_path=aliases_path)
         if result.source_file_sha256 != item.source_file_sha256:
             raise OperationsError(f"source changed while processing: {item.source_id}")
+        if result.aliases_sha256 != plan.aliases_sha256:
+            raise OperationsError(f"aliases changed while processing: {item.source_id}")
         run_dir = runs_root / result.pipeline_run_id
         outputs = write_outputs(result, output_dir=run_dir)
         manifest_sha256 = sha256_hex(outputs["manifest"].read_bytes())
         completed[item.source_id] = {
             "accepted_rows": len(result.accepted),
+            "aliases_sha256": result.aliases_sha256,
             "manifest_sha256": manifest_sha256,
             "pipeline_run_id": result.pipeline_run_id,
             "quarantined_rows": len(result.quarantined),
@@ -274,6 +291,7 @@ def _verify_completed_sources(
             raw_entry,
             {
                 "accepted_rows",
+                "aliases_sha256",
                 "manifest_sha256",
                 "pipeline_run_id",
                 "quarantined_rows",
@@ -295,7 +313,13 @@ def _verify_completed_sources(
             raise OperationsError(f"checkpoint row accounting mismatch: {source_id}")
         if raw_entry["source_file_sha256"] != planned[source_id].source_file_sha256:
             raise OperationsError(f"checkpoint source digest mismatch: {source_id}")
-        for digest_name in ("manifest_sha256", "source_file_sha256"):
+        if raw_entry["aliases_sha256"] != plan.aliases_sha256:
+            raise OperationsError(f"checkpoint aliases digest mismatch: {source_id}")
+        for digest_name in (
+            "aliases_sha256",
+            "manifest_sha256",
+            "source_file_sha256",
+        ):
             digest = raw_entry[digest_name]
             if not isinstance(digest, str) or not re.fullmatch(r"[0-9a-f]{64}", digest):
                 raise OperationsError(
@@ -315,22 +339,132 @@ def _verify_pipeline_artifacts(run_dir: Path, checkpoint_entry: Mapping[str, obj
     if sha256_hex(manifest_bytes) != checkpoint_entry["manifest_sha256"]:
         raise OperationsError(f"persisted run manifest digest mismatch: {run_dir.name}")
 
-    manifest = _load_strict_json(manifest_path, "pipeline manifest")
+    manifest = _load_strict_json_bytes(manifest_bytes, "pipeline manifest")
     if not isinstance(manifest, dict):
         raise OperationsError("pipeline manifest must be a JSON object")
+    _require_exact_keys(
+        manifest,
+        {
+            "accepted_rows",
+            "aliases_sha256",
+            "inputs",
+            "outputs",
+            "pipeline_run_id",
+            "quarantined_rows",
+            "schema_version",
+            "source_file_sha256",
+            "source_rows",
+            "transform_version",
+        },
+        "pipeline manifest",
+    )
+    if manifest["schema_version"] != MANIFEST_SCHEMA:
+        raise OperationsError(f"persisted pipeline manifest schema mismatch: {run_dir.name}")
+    for count_name in ("accepted_rows", "quarantined_rows", "source_rows"):
+        count = manifest[count_name]
+        if type(count) is not int or count < 0:
+            raise OperationsError(f"persisted {count_name} is invalid: {run_dir.name}")
+    if (
+        manifest["accepted_rows"] + manifest["quarantined_rows"]
+        != manifest["source_rows"]
+    ):
+        raise OperationsError(f"persisted source row accounting mismatch: {run_dir.name}")
+    for digest_name in ("aliases_sha256", "pipeline_run_id", "source_file_sha256"):
+        digest = manifest[digest_name]
+        if not isinstance(digest, str) or not re.fullmatch(r"[0-9a-f]{64}", digest):
+            raise OperationsError(f"persisted {digest_name} is invalid: {run_dir.name}")
+    if manifest["transform_version"] != TRANSFORM_VERSION:
+        raise OperationsError(f"persisted transform version mismatch: {run_dir.name}")
     if manifest.get("pipeline_run_id") != checkpoint_entry["pipeline_run_id"]:
         raise OperationsError(f"persisted pipeline run ID mismatch: {run_dir.name}")
     if manifest.get("accepted_rows") != checkpoint_entry["accepted_rows"]:
         raise OperationsError(f"persisted accepted count mismatch: {run_dir.name}")
     if manifest.get("quarantined_rows") != checkpoint_entry["quarantined_rows"]:
         raise OperationsError(f"persisted quarantine count mismatch: {run_dir.name}")
+    if manifest.get("source_rows") != checkpoint_entry["source_rows"]:
+        raise OperationsError(f"persisted source row count mismatch: {run_dir.name}")
+    if manifest.get("source_file_sha256") != checkpoint_entry["source_file_sha256"]:
+        raise OperationsError(f"persisted source digest mismatch: {run_dir.name}")
+    if manifest.get("aliases_sha256") != checkpoint_entry["aliases_sha256"]:
+        raise OperationsError(f"persisted aliases digest mismatch: {run_dir.name}")
 
+    expected_inputs = {
+        "resolved_aliases_json": {
+            "file": "resolved_symbol_aliases.json",
+            "schema_version": RESOLVED_ALIASES_SCHEMA,
+            "sha256": manifest.get("aliases_sha256"),
+        },
+        "source_csv": {
+            "file": "source_snapshot.csv",
+            "schema_version": SOURCE_SNAPSHOT_SCHEMA,
+            "sha256": manifest.get("source_file_sha256"),
+        },
+    }
+    inputs = manifest.get("inputs")
+    if not isinstance(inputs, dict) or set(inputs) != set(expected_inputs):
+        raise OperationsError(f"persisted input contract mismatch: {run_dir.name}")
+    for name, expected_descriptor in expected_inputs.items():
+        descriptor = inputs[name]
+        if not isinstance(descriptor, dict) or descriptor != expected_descriptor:
+            raise OperationsError(f"persisted input descriptor mismatch: {name}")
+        artifact_path = run_dir / expected_descriptor["file"]
+        if not artifact_path.is_file():
+            raise OperationsError(f"persisted input is missing: {artifact_path.name}")
+        artifact_bytes = artifact_path.read_bytes()
+        if sha256_hex(artifact_bytes) != expected_descriptor["sha256"]:
+            raise OperationsError(f"persisted input digest mismatch: {artifact_path.name}")
+        if name == "source_csv":
+            try:
+                source_text = artifact_bytes.decode("utf-8-sig")
+                source_rows = sum(
+                    1 for _ in csv.DictReader(io.StringIO(source_text, newline=""))
+                )
+            except (UnicodeDecodeError, csv.Error) as exc:
+                raise OperationsError("persisted source snapshot is invalid CSV") from exc
+            if source_rows != manifest["source_rows"]:
+                raise OperationsError("persisted source snapshot row count mismatch")
+        elif name == "resolved_aliases_json":
+            try:
+                normalized_aliases, aliases_sha256 = parse_aliases_bytes(artifact_bytes)
+            except ValueError as exc:
+                raise OperationsError("persisted resolved aliases snapshot is invalid") from exc
+            if canonical_json_bytes(normalized_aliases) != artifact_bytes:
+                raise OperationsError("persisted resolved aliases snapshot is not normalized")
+            if aliases_sha256 != manifest["aliases_sha256"]:
+                raise OperationsError("persisted resolved aliases digest mismatch")
+
+    expected_pipeline_run_id = object_sha256(
+        {
+            "aliases_sha256": manifest["aliases_sha256"],
+            "run_schema": RUN_SCHEMA,
+            "source_file_sha256": manifest["source_file_sha256"],
+            "transform_version": manifest["transform_version"],
+        }
+    )
+    if manifest["pipeline_run_id"] != expected_pipeline_run_id:
+        raise OperationsError(f"persisted pipeline run identity mismatch: {run_dir.name}")
+
+    expected_outputs = {
+        "normalized_events_csv": {
+            "file": "normalized_events.csv",
+            "schema": list(NORMALIZED_CSV_COLUMNS),
+        },
+        "normalized_events_jsonl": {"file": "normalized_events.jsonl"},
+        "quarantine_records_jsonl": {"file": "quarantine_records.jsonl"},
+    }
     outputs = manifest.get("outputs")
-    if not isinstance(outputs, dict) or len(outputs) != 3:
+    if not isinstance(outputs, dict) or set(outputs) != set(expected_outputs):
         raise OperationsError(f"persisted output contract mismatch: {run_dir.name}")
-    for descriptor in outputs.values():
+    for name, expected_descriptor in expected_outputs.items():
+        descriptor = outputs[name]
         if not isinstance(descriptor, dict):
             raise OperationsError(f"persisted output descriptor is invalid: {run_dir.name}")
+        expected_keys = set(expected_descriptor) | {"sha256"}
+        if set(descriptor) != expected_keys:
+            raise OperationsError(f"persisted output descriptor keys mismatch: {name}")
+        for key, expected_value in expected_descriptor.items():
+            if descriptor.get(key) != expected_value:
+                raise OperationsError(f"persisted output descriptor mismatch: {name}")
         file_name = descriptor.get("file")
         expected_sha256 = descriptor.get("sha256")
         if (
@@ -456,6 +590,14 @@ def _ratio(numerator: int, denominator: int) -> str:
 
 
 def _load_strict_json(path: Path, label: str) -> object:
+    try:
+        raw = path.read_bytes()
+    except OSError as exc:
+        raise OperationsError(f"{label} is unreadable or invalid JSON: {exc}") from exc
+    return _load_strict_json_bytes(raw, label)
+
+
+def _load_strict_json_bytes(raw: bytes, label: str) -> object:
     def object_pairs(pairs: list[tuple[str, object]]) -> dict[str, object]:
         result: dict[str, object] = {}
         for key, value in pairs:
@@ -469,11 +611,11 @@ def _load_strict_json(path: Path, label: str) -> object:
 
     try:
         return json.loads(
-            path.read_text(encoding="utf-8-sig"),
+            raw.decode("utf-8-sig"),
             object_pairs_hook=object_pairs,
             parse_constant=reject_constant,
         )
-    except (OSError, UnicodeDecodeError, json.JSONDecodeError) as exc:
+    except (UnicodeDecodeError, json.JSONDecodeError) as exc:
         raise OperationsError(f"{label} is unreadable or invalid JSON: {exc}") from exc
 
 

@@ -14,6 +14,7 @@ from hydra_t6_failclosed.native_binding_admission import (
     CONSUMER_STAGE,
     IMPLEMENTATION_MANIFEST_SCHEMA,
     PRODUCER_STAGE,
+    admission_signing_bytes,
     sign_native_binding_admission,
     validate_native_binding_admission,
 )
@@ -167,6 +168,10 @@ class NativeT5T6AdmissionTests(unittest.TestCase):
         self.assertFalse(result.runtime_activation_authorized)
         self.assertFalse(result.canonical_promotion_authorized)
         self.assertFalse(result.live_source_authorized)
+        self.assertFalse(result.model_training_authorized)
+        self.assertFalse(result.trading_authorized)
+        self.assertFalse(result.to_dict()["model_training_authorized"])
+        self.assertFalse(result.to_dict()["trading_authorized"])
 
     def test_exact_signed_receipt_admits_only_the_implementation_artifact(self) -> None:
         manifest = self.manifest()
@@ -176,6 +181,29 @@ class NativeT5T6AdmissionTests(unittest.TestCase):
         self.assertFalse(result.runtime_activation_authorized)
         self.assertFalse(result.canonical_promotion_authorized)
         self.assertFalse(result.live_source_authorized)
+        self.assertFalse(result.model_training_authorized)
+        self.assertFalse(result.trading_authorized)
+        self.assertFalse(result.to_dict()["model_training_authorized"])
+        self.assertFalse(result.to_dict()["trading_authorized"])
+
+    def test_missing_role_grants_deny_correctly_signed_receipt(self) -> None:
+        manifest = self.manifest()
+        receipt = self.receipt(manifest)
+        verifier = HMACSHA256Verifier({self.key_id: self.key})
+        self.assertTrue(
+            verifier.verify(
+                key_id=self.key_id,
+                message=admission_signing_bytes(receipt),
+                signature=receipt["signature"],
+                method=receipt["signature_method"],
+            )
+        )
+        result = self.validate(manifest, receipt, verifier=verifier)
+        self.assertFalse(result.admitted)
+        self.assertEqual(result.reason, "BLOCKED_AUTHORITY_RECEIPT_INVALID")
+        codes = {issue.code for issue in result.issues}
+        self.assertIn("admission_key_role_untrusted", codes)
+        self.assertNotIn("admission_signature_invalid", codes)
 
     def test_key_with_wrong_role_grant_is_rejected(self) -> None:
         manifest = self.manifest()
@@ -276,14 +304,36 @@ class NativeT5T6AdmissionTests(unittest.TestCase):
         self.assertEqual(result.reason, "BLOCKED_AUTHORITY_RECEIPT_INVALID")
         self.assertIn("admission_receipt_binding_mismatch", {issue.code for issue in result.issues})
 
-    def test_receipt_cannot_smuggle_runtime_or_canonical_authority(self) -> None:
-        manifest = self.manifest()
-        receipt = self.receipt(manifest)
-        receipt["limitations"]["canonical_promotion_authorized"] = True  # type: ignore[index]
-        receipt["signature"] = sign_native_binding_admission(receipt, key=self.key)
-        result = self.validate(manifest, receipt)
-        self.assertFalse(result.admitted)
-        self.assertIn("admission_receipt_scope_escalation", {issue.code for issue in result.issues})
+    def test_each_true_authority_limitation_is_rejected(self) -> None:
+        limitation_names = (
+            "runtime_activation_authorized",
+            "canonical_promotion_authorized",
+            "live_source_authorized",
+            "model_training_authorized",
+            "trading_authorized",
+        )
+        for limitation_name in limitation_names:
+            with self.subTest(limitation_name=limitation_name):
+                manifest = self.manifest()
+                receipt = self.receipt(manifest)
+                limitations = receipt["limitations"]
+                self.assertIsInstance(limitations, dict)
+                limitations[limitation_name] = True
+                self.resign(receipt)
+                self.assertTrue(
+                    self.verifier.verify(
+                        key_id=self.key_id,
+                        message=admission_signing_bytes(receipt),
+                        signature=receipt["signature"],
+                        method="HMAC-SHA256",
+                    )
+                )
+                result = self.validate(manifest, receipt)
+                self.assertFalse(result.admitted)
+                self.assertEqual(result.reason, "BLOCKED_AUTHORITY_RECEIPT_INVALID")
+                codes = {issue.code for issue in result.issues}
+                self.assertIn("admission_receipt_scope_escalation", codes)
+                self.assertNotIn("admission_signature_invalid", codes)
 
     def test_manifest_cannot_request_live_or_runtime_activation(self) -> None:
         manifest = self.manifest()

@@ -18,6 +18,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--pipeline-output-dir", required=True, type=Path)
     parser.add_argument("--policy", required=True, type=Path)
     parser.add_argument("--cases", required=True, type=Path)
+    parser.add_argument("--qrels", required=True, type=Path)
     parser.add_argument("--output-dir", required=True, type=Path)
     return parser
 
@@ -29,6 +30,7 @@ def main(argv: list[str] | None = None) -> int:
         policy = load_retrieval_policy(args.policy)
         report = run_retrieval_evaluation(
             cases_path=args.cases,
+            qrels_path=args.qrels,
             evidence=evidence,
             policy=policy,
             output_dir=args.output_dir,
@@ -40,7 +42,8 @@ def main(argv: list[str] | None = None) -> int:
 
     print(f"GOVERNED_RETRIEVAL_STATUS={report['status']}")
     print(f"RETRIEVAL_CASES={report['case_count']}")
-    print(f"RECALL_AT_K={report['checks']['recall_at_k']}")
+    print(f"MICRO_RECALL_AT_K={report['checks']['micro_recall_at_k']}")
+    print(f"MACRO_RECALL_AT_K={report['checks']['macro_recall_at_k']}")
     print(f"MEAN_RECIPROCAL_RANK={report['checks']['mean_reciprocal_rank']}")
     print(f"MODEL_EXECUTIONS={report['checks']['unauthorized_model_execution_count']}")
     print(f"REPORT={args.output_dir / 'retrieval_evaluation_report.json'}")

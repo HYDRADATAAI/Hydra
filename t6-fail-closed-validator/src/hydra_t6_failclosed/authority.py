@@ -87,9 +87,16 @@ def validate_authority(
     oracle_sha256: str,
 ) -> AuthorityResult:
     issues: list[Issue] = []
+    if not isinstance(now, datetime):
+        return AuthorityResult(False, "AUTHORITY_INVALID", (Issue("authority_now_invalid", "explicit now must be a datetime", "$.now"),))
     if now.tzinfo is None:
         return AuthorityResult(False, "AUTHORITY_INVALID", (Issue("authority_now_naive", "explicit now must include a timezone", "$.now"),))
-    now = now.astimezone(UTC)
+    try:
+        if now.utcoffset() is None:
+            return AuthorityResult(False, "AUTHORITY_INVALID", (Issue("authority_now_naive", "explicit now must include a timezone", "$.now"),))
+        now = now.astimezone(UTC)
+    except Exception:
+        return AuthorityResult(False, "AUTHORITY_INVALID", (Issue("authority_now_invalid", "explicit now has invalid timezone information", "$.now"),))
     if envelope is None:
         return AuthorityResult(False, "AUTHORITY_INVALID", (Issue("authority_missing", "authority envelope is absent", "$.authority"),))
 
@@ -120,6 +127,9 @@ def validate_authority(
     for field in ("authority_id", "authority_name", "authority_role", "key_id"):
         if type(envelope.get(field)) is not str or not envelope[field].strip():
             issues.append(Issue("authority_identity_invalid", f"{field} must be a non-empty string", f"$.authority.{field}"))
+
+    if envelope.get("authority_role") != "validator_authority":
+        issues.append(Issue("authority_role_invalid", "authority_role must be validator_authority", "$.authority.authority_role"))
 
     method = envelope.get("signature_method")
     signature = envelope.get("signature")
@@ -228,9 +238,10 @@ def validate_authority(
                     and verify(key_id=key_id, message=authority_signing_bytes(envelope), signature=signature, method=method) is True
                 )
             except Exception:
-                signature_valid = False
-            if not signature_valid:
-                issues.append(Issue("authority_signature_invalid", "authority signature is invalid or key is untrusted", "$.authority.signature"))
+                issues.append(Issue("authority_verifier_error", "signature verifier failed closed", "$.authority.signature"))
+            else:
+                if not signature_valid:
+                    issues.append(Issue("authority_signature_invalid", "authority signature is invalid or key is untrusted", "$.authority.signature"))
 
     return AuthorityResult(not issues, "VALID" if not issues else reason, sorted_issues(issues))
 

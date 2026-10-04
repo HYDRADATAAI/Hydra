@@ -1,0 +1,117 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "hydra-market-pipeline-manifest/v2",
+  "additionalProperties": false,
+  "properties": {
+    "accepted_rows": {"minimum": 0, "type": "integer"},
+    "aliases_sha256": {"$ref": "#/$defs/sha256"},
+    "inputs": {
+      "additionalProperties": false,
+      "properties": {
+        "resolved_aliases_json": {
+          "additionalProperties": false,
+          "properties": {
+            "file": {"const": "resolved_symbol_aliases.json"},
+            "schema_version": {"const": "hydra-market-resolved-aliases/v1"},
+            "sha256": {"$ref": "#/$defs/sha256"}
+          },
+          "required": ["file", "schema_version", "sha256"],
+          "type": "object"
+        },
+        "source_csv": {
+          "additionalProperties": false,
+          "properties": {
+            "file": {"const": "source_snapshot.csv"},
+            "schema_version": {"const": "hydra-market-source-csv/v1"},
+            "sha256": {"$ref": "#/$defs/sha256"}
+          },
+          "required": ["file", "schema_version", "sha256"],
+          "type": "object"
+        }
+      },
+      "required": ["resolved_aliases_json", "source_csv"],
+      "type": "object"
+    },
+    "outputs": {
+      "additionalProperties": false,
+      "properties": {
+        "normalized_events_csv": {
+          "additionalProperties": false,
+          "properties": {
+            "file": {"const": "normalized_events.csv"},
+            "schema": {
+              "prefixItems": [
+                {"const": "event_id"},
+                {"const": "source_system"},
+                {"const": "source_record_id"},
+                {"const": "symbol"},
+                {"const": "event_time_utc"},
+                {"const": "price"},
+                {"const": "volume"},
+                {"const": "currency"},
+                {"const": "venue"},
+                {"const": "source_file_sha256"},
+                {"const": "raw_record_sha256"},
+                {"const": "source_row_number"},
+                {"const": "transform_version"}
+              ],
+              "items": false,
+              "maxItems": 13,
+              "minItems": 13,
+              "type": "array"
+            },
+            "sha256": {"$ref": "#/$defs/sha256"}
+          },
+          "required": ["file", "schema", "sha256"],
+          "type": "object"
+        },
+        "normalized_events_jsonl": {
+          "additionalProperties": false,
+          "properties": {
+            "file": {"const": "normalized_events.jsonl"},
+            "sha256": {"$ref": "#/$defs/sha256"}
+          },
+          "required": ["file", "sha256"],
+          "type": "object"
+        },
+        "quarantine_records_jsonl": {
+          "additionalProperties": false,
+          "properties": {
+            "file": {"const": "quarantine_records.jsonl"},
+            "sha256": {"$ref": "#/$defs/sha256"}
+          },
+          "required": ["file", "sha256"],
+          "type": "object"
+        }
+      },
+      "required": [
+        "normalized_events_csv",
+        "normalized_events_jsonl",
+        "quarantine_records_jsonl"
+      ],
+      "type": "object"
+    },
+    "pipeline_run_id": {"$ref": "#/$defs/sha256"},
+    "quarantined_rows": {"minimum": 0, "type": "integer"},
+    "schema_version": {"const": "hydra-market-pipeline-manifest/v2"},
+    "source_file_sha256": {"$ref": "#/$defs/sha256"},
+    "source_rows": {"minimum": 0, "type": "integer"},
+    "transform_version": {"const": "hydra-market-normalizer/v1"}
+  },
+  "required": [
+    "accepted_rows",
+    "aliases_sha256",
+    "inputs",
+    "outputs",
+    "pipeline_run_id",
+    "quarantined_rows",
+    "schema_version",
+    "source_file_sha256",
+    "source_rows",
+    "transform_version"
+  ],
+  "type": "object",
+  "$defs": {
+    "sha256": {"pattern": "^[0-9a-f]{64}$", "type": "string"}
+  }
+}

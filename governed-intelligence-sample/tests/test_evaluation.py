@@ -5,7 +5,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from hydra_governed_intelligence import load_evidence, load_policy, run_evaluation
+from hydra_governed_intelligence import ContractError, load_evidence, load_policy, run_evaluation
 
 from tests.support import ROOT, build_pipeline_outputs
 
@@ -76,6 +76,22 @@ class GovernedEvaluationTests(unittest.TestCase):
             report["failures"][0]["case_id"],
             "accepted-observation-has-resolvable-citation",
         )
+
+    def test_unhashable_disposition_fails_with_contract_error(self) -> None:
+        suite = json.loads(
+            (ROOT / "fixtures/evaluation_cases.json").read_text(encoding="utf-8")
+        )
+        suite["cases"][0]["expected"]["disposition"] = []
+        path = self.base / "malformed-evaluation-suite.json"
+        path.write_text(json.dumps(suite), encoding="utf-8")
+
+        with self.assertRaisesRegex(ContractError, "disposition is invalid"):
+            run_evaluation(
+                cases_path=path,
+                evidence=self.evidence,
+                policy=self.policy,
+                output_dir=self.base / "malformed",
+            )
 
 
 if __name__ == "__main__":

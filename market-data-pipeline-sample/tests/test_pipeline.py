@@ -4,9 +4,12 @@ import csv
 import json
 import tempfile
 import unittest
+from decimal import Decimal, InvalidOperation, ROUND_UP, localcontext
 from pathlib import Path
 
 from hydra_market_pipeline import ContractError, run_pipeline, write_outputs
+from hydra_market_pipeline.hashing import canonical_json_bytes, sha256_hex
+from hydra_market_pipeline.pipeline import _parse_price, load_aliases
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -21,6 +24,11 @@ class MarketDataPipelineTests(unittest.TestCase):
         self.assertEqual(len(result.accepted), 3)
         self.assertEqual(len(result.quarantined), 4)
         self.assertEqual({event.symbol for event in result.accepted}, {"AAA", "BBB", "EEE"})
+        self.assertEqual(result.source_csv_bytes, INPUT.read_bytes())
+        self.assertEqual(
+            dict(result.resolved_aliases),
+            json.loads(ALIASES.read_text(encoding="utf-8")),
+        )
 
         errors_by_row = {
             record.source_row_number: set(record.errors)
@@ -62,6 +70,14 @@ class MarketDataPipelineTests(unittest.TestCase):
                 first["manifest"].read_bytes(),
                 second["manifest"].read_bytes(),
             )
+            self.assertEqual(
+                first["source_snapshot"].read_bytes(),
+                second["source_snapshot"].read_bytes(),
+            )
+            self.assertEqual(
+                first["resolved_aliases_json"].read_bytes(),
+                second["resolved_aliases_json"].read_bytes(),
+            )
 
             jsonl_events = [
                 json.loads(line)
@@ -93,6 +109,37 @@ class MarketDataPipelineTests(unittest.TestCase):
             self.assertEqual(manifest["accepted_rows"], 3)
             self.assertEqual(manifest["quarantined_rows"], 4)
             self.assertEqual(manifest["pipeline_run_id"], result.pipeline_run_id)
+            self.assertEqual(manifest["schema_version"], "hydra-market-pipeline-manifest/v2")
+            self.assertEqual(manifest["source_rows"], 7)
+            self.assertEqual(
+                set(manifest["inputs"]),
+                {"resolved_aliases_json", "source_csv"},
+            )
+            self.assertEqual(first["source_snapshot"].read_bytes(), INPUT.read_bytes())
+            self.assertEqual(
+                sha256_hex(first["source_snapshot"].read_bytes()),
+                manifest["source_file_sha256"],
+            )
+            self.assertEqual(
+                first["resolved_aliases_json"].read_bytes(),
+                canonical_json_bytes(dict(result.resolved_aliases)),
+            )
+            self.assertEqual(
+                sha256_hex(first["resolved_aliases_json"].read_bytes()),
+                manifest["aliases_sha256"],
+            )
+            self.assertEqual(
+                manifest["outputs"]["normalized_events_jsonl"]["sha256"],
+                "ec902bc92942197ddceb737b90421f36298b660c0788c99ac4c18b2e1c570e86",
+            )
+            self.assertEqual(
+                manifest["outputs"]["normalized_events_csv"]["sha256"],
+                "c6528dfef24217c710a0eabaafd67c30da9b2a4d544be36a27bc1ca6a5c17385",
+            )
+            self.assertEqual(
+                manifest["outputs"]["quarantine_records_jsonl"]["sha256"],
+                "4fd967d69e63ae92d5862ef8a69803b3071ac3c20d54f7d5738bd4f7a5a6a861",
+            )
             self.assertEqual(
                 manifest["outputs"]["normalized_events_csv"]["schema"],
                 list(csv_events[0].keys()),
@@ -104,10 +151,22 @@ class MarketDataPipelineTests(unittest.TestCase):
 
         self.assertEqual(first.pipeline_run_id, second.pipeline_run_id)
         self.assertEqual(
+            first.pipeline_run_id,
+            "9f03988bf0bc7245e85d13211ed0af8715da2c4e7464f2f7639a8532c33f3c0d",
+        )
+        self.assertEqual(
             [event.event_id for event in first.accepted],
             [event.event_id for event in second.accepted],
         )
         self.assertEqual(len({event.event_id for event in first.accepted}), 3)
+        self.assertEqual(
+            [event.event_id for event in first.accepted],
+            [
+                "0dc3a510144754af42f61cf3a72f51fcbf90aed765d28053032e8fb857946458",
+                "5661c842227f80f2866a673d1e09c092fb7de3a2c3663eaa3f018953d0aa516c",
+                "5dce66c1857f0ebbdfad7a907e8ee839592f303dd768cb238aff06112f3bd271",
+            ],
+        )
 
         for event in first.accepted:
             self.assertEqual(event.source_file_sha256, first.source_file_sha256)
@@ -145,6 +204,41 @@ class MarketDataPipelineTests(unittest.TestCase):
 
             with self.assertRaises(ContractError):
                 run_pipeline(input_csv=broken, aliases_path=ALIASES)
+
+    def test_alias_config_rejects_duplicate_and_normalized_colliding_keys(self) -> None:
+        cases = (
+            ('{"AAA":"AAA","AAA":"BBB"}', "duplicate key"),
+            ('{"AAA":"AAA"," aaa ":"BBB"}', "normalized-key collision"),
+        )
+        with tempfile.TemporaryDirectory() as tmp:
+            aliases_path = Path(tmp) / "aliases.json"
+            for payload, expected_error in cases:
+                with self.subTest(expected_error=expected_error):
+                    aliases_path.write_text(payload, encoding="utf-8")
+                    with self.assertRaisesRegex(ContractError, expected_error):
+                        load_aliases(aliases_path)
+
+    def test_price_quantization_ignores_ambient_decimal_context(self) -> None:
+        with localcontext() as ambient:
+            ambient.prec = 2
+            ambient.rounding = ROUND_UP
+            ambient.traps[InvalidOperation] = False
+            errors: list[str] = []
+            price = _parse_price("123456789.123456", errors)
+
+        self.assertEqual(price, Decimal("123456789.123456"))
+        self.assertEqual(errors, [])
+
+    def test_price_quantization_has_deterministic_precision_boundary(self) -> None:
+        valid_errors: list[str] = []
+        valid_text = "9" * 22 + ".123456"
+        self.assertEqual(_parse_price(valid_text, valid_errors), Decimal(valid_text))
+        self.assertEqual(valid_errors, [])
+
+        invalid_errors: list[str] = []
+        invalid_text = "9" * 23 + ".123456"
+        self.assertIsNone(_parse_price(invalid_text, invalid_errors))
+        self.assertEqual(invalid_errors, ["price_invalid"])
 
 
 if __name__ == "__main__":

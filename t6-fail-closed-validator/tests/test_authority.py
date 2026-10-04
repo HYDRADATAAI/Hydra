@@ -9,6 +9,7 @@ from hydra_t6_failclosed.authority import (
     OPERATION,
     REQUIRED_SCOPE,
     HMACSHA256Verifier,
+    authority_signing_bytes,
     sign_hmac_sha256,
     validate_authority,
 )
@@ -86,6 +87,22 @@ class AuthorityEnvelopeTests(unittest.TestCase):
         self.assertEqual(result.reason, "VALID")
         self.assertEqual(result.issues, ())
 
+    def test_missing_role_grants_deny_correctly_signed_authority(self) -> None:
+        envelope = self._envelope()
+        verifier = HMACSHA256Verifier({self.key_id: self.key})
+        self.assertTrue(
+            verifier.verify(
+                key_id=self.key_id,
+                message=authority_signing_bytes(envelope),
+                signature=envelope["signature"],
+                method="HMAC-SHA256",
+            )
+        )
+        result = self._validate(envelope, verifier=verifier)
+        self.assertFalse(result.valid)
+        self.assertEqual(result.reason, "AUTHORITY_INVALID")
+        self.assertIn("authority_key_role_untrusted", {issue.code for issue in result.issues})
+
     def test_signed_unmapped_role_is_rejected(self) -> None:
         envelope = self._envelope()
         envelope["authority_role"] = "unmapped_role"
@@ -154,7 +171,7 @@ class AuthorityEnvelopeTests(unittest.TestCase):
 
         result = self._validate(self._envelope(), verifier=RaisingSignatureVerifier())
         self.assertFalse(result.valid)
-        self.assertIn("authority_signature_invalid", {issue.code for issue in result.issues})
+        self.assertIn("authority_verifier_error", {issue.code for issue in result.issues})
 
     def test_missing_signature_method_fails_closed(self) -> None:
         class MissingSignatureMethod:
@@ -214,6 +231,15 @@ class AuthorityEnvelopeTests(unittest.TestCase):
         codes = {issue.code for issue in result.issues}
         self.assertIn("authority_signature_method_invalid", codes)
         self.assertIn("authority_signature_invalid", codes)
+
+    def test_signed_wrong_authority_role_is_rejected(self) -> None:
+        envelope = self._envelope()
+        envelope["authority_role"] = "trading_authority"
+        self._resign(envelope)
+        result = self._validate(envelope)
+        self.assertFalse(result.valid)
+        self.assertEqual(result.reason, "AUTHORITY_INVALID")
+        self.assertIn("authority_role_invalid", {issue.code for issue in result.issues})
 
     def test_expired_authority_is_rejected_fail_closed(self) -> None:
         result = self._validate(

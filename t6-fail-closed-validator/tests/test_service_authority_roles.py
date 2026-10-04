@@ -17,42 +17,7 @@ from hydra_t6_failclosed.authority import (
 from hydra_t6_failclosed.documents import canonical_json_bytes
 from hydra_t6_failclosed.handoff import parse_handoff_document
 from hydra_t6_failclosed.service import FailClosedValidator
-
-
-def public_test_schema() -> dict[str, object]:
-    """Return a safe, self-contained receipt schema for this service test."""
-    properties: dict[str, object] = {
-        "authority_envelope_sha256": {"type": "string"},
-        "candidate_ids": {"type": "array", "uniqueItems": True},
-        "canonical_store_mutation_authorized": {"type": "boolean", "const": False},
-        "canonical_truth_selected": {"type": "boolean", "const": False},
-        "external_actions": {"type": "array", "maxItems": 0},
-        "gamma_unfrozen": {"type": "boolean", "const": False},
-        "implementation_status": {"type": "string"},
-        "input_sha256": {"type": "string"},
-        "ml_training_authorized": {"type": "boolean", "const": False},
-        "outcome": {"type": "string", "enum": sorted(ALLOWED_OUTCOMES)},
-        "policy_sha256": {"type": "string"},
-        "ranked_candidate_ids": {"type": "array", "maxItems": 0},
-        "reason": {"type": "string", "enum": sorted(ALLOWED_REASONS)},
-        "receipt_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
-        "schema_version": {"type": "string", "const": RECEIPT_VERSION},
-        "trading_authorized": {"type": "boolean", "const": False},
-        "violations": {"type": "array"},
-    }
-    return {
-        "$id": RECEIPT_SCHEMA_ID,
-        "type": "object",
-        "additionalProperties": False,
-        "required": list(properties),
-        "properties": properties,
-    }
-from hydra_t6_failclosed.receipt import (
-    ALLOWED_OUTCOMES,
-    ALLOWED_REASONS,
-    RECEIPT_SCHEMA_ID,
-    RECEIPT_VERSION,
-)
+from .test_receipt import public_test_schema
 
 
 def _sha256(payload: bytes) -> str:

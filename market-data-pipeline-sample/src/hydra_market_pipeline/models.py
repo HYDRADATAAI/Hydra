@@ -70,6 +70,8 @@ class PipelineResult:
     source_file_sha256: str
     aliases_sha256: str
     transform_version: str
+    source_csv_bytes: bytes
+    resolved_aliases: Mapping[str, str]
     accepted: tuple[NormalizedEvent, ...]
     quarantined: tuple[QuarantineRecord, ...]
 

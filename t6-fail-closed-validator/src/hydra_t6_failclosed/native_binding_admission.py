@@ -80,6 +80,8 @@ class NativeBindingAdmissionResult:
     runtime_activation_authorized: bool = False
     canonical_promotion_authorized: bool = False
     live_source_authorized: bool = False
+    model_training_authorized: bool = False
+    trading_authorized: bool = False
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -89,9 +91,11 @@ class NativeBindingAdmissionResult:
             "issues": [issue.to_dict() for issue in self.issues],
             "live_source_authorized": self.live_source_authorized,
             "manifest_sha256": self.manifest_sha256,
+            "model_training_authorized": self.model_training_authorized,
             "reason": self.reason,
             "receipt_sha256": self.receipt_sha256,
             "runtime_activation_authorized": self.runtime_activation_authorized,
+            "trading_authorized": self.trading_authorized,
         }
 
 
