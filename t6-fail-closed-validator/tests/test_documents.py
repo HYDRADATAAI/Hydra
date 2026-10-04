@@ -263,5 +263,38 @@ class DocumentContractTests(unittest.TestCase):
         self.assertEqual(accepted.value, {"actual": 1})
 
 
+    def test_raw_json_node_count_limit_preserves_boundary_and_raw_evidence(self) -> None:
+        at_limit_payload = (
+            '{"items":['
+            + ",".join("0" for _ in range(documents.MAX_DOCUMENT_NODES - 1))
+            + "]}"
+        )
+        at_limit = parse_json_document(at_limit_payload, label="$.document")
+        self.assertEqual(at_limit.issues, ())
+        self.assertIsNotNone(at_limit.value)
+        self.assertEqual(at_limit.value, {"items": [0] * (documents.MAX_DOCUMENT_NODES - 1)})
+
+        oversized_payload = (
+            '{"items":['
+            + ",".join("0" for _ in range(documents.MAX_DOCUMENT_NODES))
+            + "]}"
+        )
+        oversized_raw = oversized_payload.encode("utf-8")
+        self.assertLess(len(oversized_raw), documents.MAX_DOCUMENT_BYTES)
+        oversized = parse_json_document(oversized_raw, label="$.document")
+        self.assertIsNone(oversized.value)
+        self.assertEqual([issue.code for issue in oversized.issues], ["document_too_large"])
+        self.assertEqual(
+            oversized.issues[0].message,
+            f"$.document exceeds maximum node count {documents.MAX_DOCUMENT_NODES}",
+        )
+        self.assertEqual(
+            oversized.issues[0].evidence,
+            {"node_count": documents.MAX_DOCUMENT_NODES + 1},
+        )
+        self.assertEqual(oversized.raw, oversized_raw)
+        self.assertEqual(oversized.raw_sha256, documents.sha256_hex(oversized_raw))
+
+
 if __name__ == "__main__":
     unittest.main()
