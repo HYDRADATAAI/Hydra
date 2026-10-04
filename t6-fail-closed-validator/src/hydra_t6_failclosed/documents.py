@@ -73,7 +73,7 @@ def _bounded_mapping_snapshot(value: Mapping[str, Any], *, max_bytes: int) -> tu
         size = 2  # JSON quotes
         for char in text:
             codepoint = ord(char)
-            if char in ('"', "\\\\"):
+            if char in ('"', "\\"):
                 size += 2
             elif codepoint < 0x20:
                 size += 2 if char in "\\b\\t\\n\\f\\r" else 6
