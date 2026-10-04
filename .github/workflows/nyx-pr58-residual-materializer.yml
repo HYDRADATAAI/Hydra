@@ -1,0 +1,29 @@
+name: NYX PR58 residual materializer validation
+
+on:
+  push:
+    branches:
+      - nyx/validation-main-b9c-pr58-residual-20261003
+  pull_request:
+    paths:
+      - "tools/materialize_constraint_first_slice_private_t1.py"
+      - "tools/test_constraint_first_slice_private_materialization.py"
+      - ".github/workflows/nyx-pr58-residual-materializer.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Run residual materializer regression
+        env:
+          PYTHONPATH: constraint-t1-raw-artifact-store/src
+        run: python tools/test_constraint_first_slice_private_materialization.py
+      - name: Diff check
+        run: git diff --check
