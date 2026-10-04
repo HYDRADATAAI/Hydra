@@ -5,7 +5,6 @@ from __future__ import annotations
 import hashlib
 import json
 from collections.abc import Mapping
-from copy import deepcopy
 from dataclasses import dataclass
 from typing import Any
 
@@ -38,11 +37,150 @@ def canonical_json_bytes(value: Any) -> bytes:
     ).encode("utf-8")
 
 
+
+class _DocumentTooLargeError(ValueError):
+    def __init__(self, size_bytes: int):
+        self.size_bytes = size_bytes
+        super().__init__("normalized document exceeds configured byte limit")
+
+
+def _bounded_mapping_snapshot(value: Mapping[str, Any], *, max_bytes: int) -> tuple[dict[str, Any], int]:
+    """Copy JSON-compatible mapping data while measuring its canonical UTF-8 size."""
+    active: set[int] = set()
+    nodes = 0
+
+    def string_size(text: str) -> int:
+        size = 2  # JSON quotes
+        for char in text:
+            codepoint = ord(char)
+            if char in ('"', "\\\\"):
+                size += 2
+            elif codepoint < 0x20:
+                size += 2 if char in "\\b\\t\\n\\f\\r" else 6
+            elif codepoint < 0x80:
+                size += 1
+            elif codepoint < 0x800:
+                size += 2
+            elif 0xD800 <= codepoint <= 0xDFFF:
+                raise UnicodeEncodeError("utf-8", text, 0, 1, "surrogates not allowed")
+            elif codepoint < 0x10000:
+                size += 3
+            else:
+                size += 4
+            if size > max_bytes:
+                raise _DocumentTooLargeError(size)
+        return size
+
+    def key_size(key: Any) -> int:
+        if isinstance(key, str):
+            return string_size(key)
+        if key is None:
+            return 6  # "null"
+        if key is True:
+            return 6  # "true"
+        if key is False:
+            return 7  # "false"
+        if isinstance(key, int):
+            # Avoid converting an enormous integer to decimal text.
+            if key.bit_length() > (max_bytes + 2) * 4:
+                raise _DocumentTooLargeError(max_bytes + 1)
+            return len(json.dumps(key, allow_nan=False).encode("ascii")) + 2
+        if isinstance(key, float):
+            return len(json.dumps(key, allow_nan=False).encode("ascii")) + 2
+        raise TypeError("mapping keys must be JSON scalar types")
+
+    def copy_json(item: Any, depth: int = 1) -> tuple[Any, int]:
+        nonlocal nodes
+        nodes += 1
+        if nodes > max_bytes or depth > MAX_DOCUMENT_DEPTH:
+            raise _DocumentTooLargeError(max_bytes + 1)
+        if item is None:
+            return None, 4
+        if item is True:
+            return True, 4
+        if item is False:
+            return False, 5
+        if isinstance(item, str):
+            return item, string_size(item)
+        if isinstance(item, int):
+            if item.bit_length() > (max_bytes + 2) * 4:
+                raise _DocumentTooLargeError(max_bytes + 1)
+            encoded_size = len(json.dumps(item, allow_nan=False).encode("ascii"))
+            return item, encoded_size
+        if isinstance(item, float):
+            encoded_size = len(json.dumps(item, allow_nan=False).encode("ascii"))
+            return item, encoded_size
+        if isinstance(item, (list, tuple)):
+            identity = id(item)
+            if identity in active:
+                raise ValueError("circular reference")
+            active.add(identity)
+            try:
+                iterator = list.__iter__(item) if isinstance(item, list) else tuple.__iter__(item)
+                result = []
+                size = 2
+                for child in iterator:
+                    copied, child_size = copy_json(child, depth + 1)
+                    if result:
+                        size += 1
+                    size += child_size
+                    if size > max_bytes:
+                        raise _DocumentTooLargeError(size)
+                    result.append(copied)
+                return result, size
+            finally:
+                active.remove(identity)
+        if isinstance(item, dict):
+            identity = id(item)
+            if identity in active:
+                raise ValueError("circular reference")
+            active.add(identity)
+            try:
+                result = {}
+                size = 2
+                for key, child in dict.items(item):
+                    child_key_size = key_size(key)
+                    copied, child_size = copy_json(child, depth + 1)
+                    if result:
+                        size += 1
+                    size += child_key_size + 1 + child_size
+                    if size > max_bytes:
+                        raise _DocumentTooLargeError(size)
+                    result[key] = copied
+                return result, size
+            finally:
+                active.remove(identity)
+        raise TypeError(f"unsupported JSON value type: {type(item).__name__}")
+
+    identity = id(value)
+    active.add(identity)
+    try:
+        snapshot: dict[str, Any] = {}
+        size = 2
+        for key in value.keys():
+            value_for_key = value[key]
+            child_key_size = key_size(key)
+            copied, child_size = copy_json(value_for_key, 2)
+            if snapshot:
+                size += 1
+            size += child_key_size + 1 + child_size
+            if size > max_bytes:
+                raise _DocumentTooLargeError(size)
+            snapshot[key] = copied
+        return snapshot, size
+    finally:
+        active.remove(identity)
+
+
 def sha256_hex(value: bytes) -> str:
     return hashlib.sha256(value).hexdigest()
 
 
-def coerce_document_bytes(value: bytes | bytearray | str | Mapping[str, Any] | None) -> bytes:
+def coerce_document_bytes(
+    value: bytes | bytearray | str | Mapping[str, Any] | None,
+    *,
+    max_bytes: int = MAX_DOCUMENT_BYTES,
+) -> bytes:
     if value is None:
         return b""
     if isinstance(value, bytes):
@@ -52,7 +190,8 @@ def coerce_document_bytes(value: bytes | bytearray | str | Mapping[str, Any] | N
     if isinstance(value, str):
         return value.encode("utf-8")
     if isinstance(value, Mapping):
-        return canonical_json_bytes(deepcopy(dict(value)))
+        snapshot, _size = _bounded_mapping_snapshot(value, max_bytes=max_bytes)
+        return canonical_json_bytes(snapshot)
     raise TypeError(f"document must be bytes, text, mapping, or None; got {type(value).__name__}")
 
 
@@ -65,7 +204,15 @@ def parse_json_document(
     if type(label) is not str:
         label = "$.document"
     try:
-        raw = coerce_document_bytes(value)
+        raw = coerce_document_bytes(value, max_bytes=max_bytes)
+    except _DocumentTooLargeError as exc:
+        raw = b""
+        return JSONDocument(
+            raw,
+            sha256_hex(raw),
+            None,
+            (Issue("document_too_large", f"{label} exceeds {max_bytes} bytes", label, evidence={"size_bytes": exc.size_bytes}),),
+        )
     except Exception:
         raw = b""
         return JSONDocument(
