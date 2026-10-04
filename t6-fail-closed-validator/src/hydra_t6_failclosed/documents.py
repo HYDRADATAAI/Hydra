@@ -381,18 +381,22 @@ def _document_depth_exceeds(value: Any, *, max_depth: int) -> bool:
 
 
 def _document_node_count_exceeds(value: Mapping[str, Any], *, max_nodes: int) -> bool:
-    """Count normalized mapping values iteratively, stopping at the configured cap."""
-    stack = list(value.values())
+    """Count normalized mapping values with bounded iterator-frame storage."""
+    stack = [iter(value.values())]
     nodes = 0
     while stack:
-        current = stack.pop()
+        try:
+            current = next(stack[-1])
+        except StopIteration:
+            stack.pop()
+            continue
         nodes += 1
         if nodes > max_nodes:
             return True
         if isinstance(current, Mapping):
-            stack.extend(current.values())
+            stack.append(iter(current.values()))
         elif isinstance(current, list):
-            stack.extend(current)
+            stack.append(iter(current))
     return False
 
 
