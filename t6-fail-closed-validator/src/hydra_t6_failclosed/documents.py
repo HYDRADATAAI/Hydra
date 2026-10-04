@@ -88,9 +88,11 @@ def _bounded_mapping_snapshot(value: Mapping[str, Any], *, max_bytes: int) -> tu
         raise TypeError("mapping keys must be JSON scalar types")
 
     def string_size(text: str) -> int:
-        text = plain_string(text)
         size = 2  # JSON quotes
-        for char in text:
+        if size > max_bytes:
+            raise _DocumentTooLargeError(size)
+        for index in range(str.__len__(text)):
+            char = str.__getitem__(text, index)
             codepoint = ord(char)
             if char in ('"', "\\"):
                 size += 2
@@ -101,7 +103,7 @@ def _bounded_mapping_snapshot(value: Mapping[str, Any], *, max_bytes: int) -> tu
             elif codepoint < 0x800:
                 size += 2
             elif 0xD800 <= codepoint <= 0xDFFF:
-                raise UnicodeEncodeError("utf-8", text, 0, 1, "surrogates not allowed")
+                raise UnicodeEncodeError("utf-8", plain_string(text), index, index + 1, "surrogates not allowed")
             elif codepoint < 0x10000:
                 size += 3
             else:
@@ -112,7 +114,7 @@ def _bounded_mapping_snapshot(value: Mapping[str, Any], *, max_bytes: int) -> tu
 
     def key_size(key: Any) -> int:
         if isinstance(key, str):
-            return string_size(plain_string(key))
+            return string_size(key)
         if key is None:
             return 6  # "null"
         if key is True:
@@ -120,10 +122,10 @@ def _bounded_mapping_snapshot(value: Mapping[str, Any], *, max_bytes: int) -> tu
         if key is False:
             return 7  # "false"
         if isinstance(key, int):
-            number = plain_int(key)
-            # Avoid converting an enormous integer to decimal text.
-            if number.bit_length() > (max_bytes + 2) * 4:
+            # Read the base integer magnitude before making an exact-int copy.
+            if int.bit_length(key) > (max_bytes + 2) * 4:
                 raise _DocumentTooLargeError(max_bytes + 1)
+            number = plain_int(key)
             return len(json.dumps(number, allow_nan=False).encode("ascii")) + 2
         if isinstance(key, float):
             return len(json.dumps(plain_float(key), allow_nan=False).encode("ascii")) + 2
@@ -143,12 +145,12 @@ def _bounded_mapping_snapshot(value: Mapping[str, Any], *, max_bytes: int) -> tu
         if item is False:
             return False, 5
         if isinstance(item, str):
-            normalized = plain_string(item)
-            return normalized, string_size(normalized)
+            encoded_size = string_size(item)
+            return plain_string(item), encoded_size
         if isinstance(item, int):
-            number = plain_int(item)
-            if number.bit_length() > (max_bytes + 2) * 4:
+            if int.bit_length(item) > (max_bytes + 2) * 4:
                 raise _DocumentTooLargeError(max_bytes + 1)
+            number = plain_int(item)
             encoded_size = len(json.dumps(number, allow_nan=False).encode("ascii"))
             return number, encoded_size
         if isinstance(item, float):
@@ -185,8 +187,8 @@ def _bounded_mapping_snapshot(value: Mapping[str, Any], *, max_bytes: int) -> tu
                 seen_key_names: set[str] = set()
                 size = 2
                 for key, child in dict.items(item):
+                    child_key_size = key_size(key)
                     normalized_key = plain_key(key)
-                    child_key_size = key_size(normalized_key)
                     key_name = json_key_name(normalized_key)
                     if key_name in seen_key_names or normalized_key in result:
                         raise DuplicateKeyError(f"duplicate normalized key {key_name!r}")
@@ -212,8 +214,8 @@ def _bounded_mapping_snapshot(value: Mapping[str, Any], *, max_bytes: int) -> tu
         if size > max_bytes:
             raise _DocumentTooLargeError(size)
         for key in value.keys():
+            child_key_size = key_size(key)
             normalized_key = plain_key(key)
-            child_key_size = key_size(normalized_key)
             key_name = json_key_name(normalized_key)
             if key_name in seen_key_names or normalized_key in snapshot:
                 raise DuplicateKeyError(f"duplicate normalized key {key_name!r}")
