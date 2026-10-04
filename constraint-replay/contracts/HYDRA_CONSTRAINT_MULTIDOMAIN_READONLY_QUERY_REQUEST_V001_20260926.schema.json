@@ -1,0 +1,102 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://hydradataai.github.io/schemas/HYDRA_CONSTRAINT_MULTIDOMAIN_READONLY_QUERY_REQUEST_V001_20260926.schema.json",
+  "title": "HYDRA Constraint Multi-Domain Read-Only Query Request V001",
+  "type": "object",
+  "oneOf": [
+    {
+      "properties": {
+        "operation": {
+          "const": "summary"
+        }
+      },
+      "required": [
+        "operation"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "properties": {
+        "operation": {
+          "const": "integrity"
+        }
+      },
+      "required": [
+        "operation"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "properties": {
+        "operation": {
+          "const": "case"
+        },
+        "case_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "max_depth": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 12
+        }
+      },
+      "required": [
+        "operation",
+        "case_id"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "properties": {
+        "operation": {
+          "const": "entity_usage"
+        },
+        "entity_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "max_depth": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 12
+        }
+      },
+      "required": [
+        "operation",
+        "entity_id"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "properties": {
+        "operation": {
+          "const": "list_cases"
+        },
+        "outcome_class": {
+          "enum": [
+            "PARTIAL_REALIZATION",
+            "UNEVALUABLE"
+          ]
+        },
+        "event_type": {
+          "type": "string",
+          "minLength": 1
+        },
+        "physical_entity_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "limit": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100
+        }
+      },
+      "required": [
+        "operation"
+      ],
+      "additionalProperties": false
+    }
+  ]
+}
