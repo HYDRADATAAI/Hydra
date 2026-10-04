@@ -315,7 +315,7 @@ class DocumentContractTests(unittest.TestCase):
 
 
 
-    def test_raw_json_node_overflow_is_rejected_before_json_loads(self) -> None:
+    def test_compact_raw_json_node_overflow_is_rejected_before_json_loads(self) -> None:
         payload = (
             '{"items":['
             + ",".join("0" for _ in range(documents.MAX_DOCUMENT_NODES))
@@ -335,7 +335,7 @@ class DocumentContractTests(unittest.TestCase):
         self.assertEqual(document.raw_sha256, documents.sha256_hex(raw))
 
 
-    def test_raw_json_depth_overflow_is_rejected_before_json_loads(self) -> None:
+    def test_raw_json_depth_overflow_preserves_bytes_before_json_loads(self) -> None:
         payload = '{"a":' * (documents.MAX_DOCUMENT_DEPTH + 1) + "0" + "}" * (documents.MAX_DOCUMENT_DEPTH + 1)
         raw = payload.encode("utf-8")
         with patch.object(documents.json, "loads", side_effect=AssertionError("json.loads called")) as loader:
