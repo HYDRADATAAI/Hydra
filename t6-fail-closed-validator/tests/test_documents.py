@@ -79,7 +79,7 @@ class DocumentContractTests(unittest.TestCase):
     def test_oversized_mapping_is_rejected_before_copy_or_json_serialization(self) -> None:
         value = {"outer": {"inner": "x" * 4096}}
         with (
-            patch.object(documents, "deepcopy") as copier,
+            patch("copy.deepcopy") as copier,
             patch.object(documents, "canonical_json_bytes") as encoder,
         ):
             document = parse_json_document(value, label="$.document", max_bytes=32)
