@@ -108,6 +108,17 @@ class OrdinaryT2EvidenceLineageTests(unittest.TestCase):
             expected_slice_id=self.slice_id,
         )
 
+    def one_source_fixture(self, evidence_records=None):
+        source_records = copy.deepcopy(self.source_records[:1])
+        lineage_packet = copy.deepcopy(self.lineage)
+        lineage_packet["source_count"] = 1
+        lineage_packet["normalized_source_version_count"] = 1
+        lineage_packet["members"] = lineage_packet["members"][:1]
+        lineage_packet["availability_boundaries"] = lineage_packet["availability_boundaries"][:1]
+        if evidence_records is None:
+            evidence_records = copy.deepcopy(self.evidence[:1])
+        return lineage_packet, source_records, copy.deepcopy(evidence_records)
+
     def test_binding_uses_exact_source_versions_and_conservative_availability(self):
         packet = self.build()
         self.assertEqual(2, packet["bound_evidence_count"])
@@ -187,6 +198,176 @@ class OrdinaryT2EvidenceLineageTests(unittest.TestCase):
                 expected_slice_id=self.slice_id,
             )
 
+    def test_evidence_identifiers_must_be_nonblank_in_builder_and_validator(self):
+        packet = self.build()
+        for field in ("evidence_id", "source_id", "origin_artifact"):
+            evidence = copy.deepcopy(self.evidence)
+            evidence[0][field] = " \t\u2003 "
+            with self.subTest(field=field, entry="builder"):
+                with self.assertRaisesRegex(OrdinaryT2EvidenceLineageError, "nonblank string"):
+                    build_ordinary_t2_evidence_lineage(
+                        lineage_packet=self.lineage,
+                        source_records=self.source_records,
+                        evidence_records=evidence,
+                        expected_slice_id=self.slice_id,
+                    )
+            with self.subTest(field=field, entry="validator"):
+                with self.assertRaisesRegex(OrdinaryT2EvidenceLineageError, "nonblank string"):
+                    validate_ordinary_t2_evidence_lineage(
+                        packet=packet,
+                        lineage_packet=self.lineage,
+                        source_records=self.source_records,
+                        evidence_records=evidence,
+                        expected_slice_id=self.slice_id,
+                    )
+
+    def test_all_evidence_counts_reject_float_aliases(self):
+        count_fields = (
+            "input_evidence_record_count",
+            "active_source_count",
+            "bound_evidence_count",
+            "excluded_evidence_count",
+            "active_source_count_with_bound_evidence",
+        )
+        for field in count_fields:
+            packet = self.build()
+            packet[field] = float(packet[field])
+            with self.subTest(field=field):
+                with self.assertRaisesRegex(OrdinaryT2EvidenceLineageError, "must be an integer"):
+                    validate_ordinary_t2_evidence_lineage(
+                        packet=packet,
+                        lineage_packet=self.lineage,
+                        source_records=self.source_records,
+                        evidence_records=self.evidence,
+                        expected_slice_id=self.slice_id,
+                    )
+
+    def test_all_evidence_counts_reject_boolean_aliases_with_one_source(self):
+        lineage_packet, source_records, evidence_records = self.one_source_fixture()
+        packet = build_ordinary_t2_evidence_lineage(
+            lineage_packet=lineage_packet,
+            source_records=source_records,
+            evidence_records=evidence_records,
+            expected_slice_id=self.slice_id,
+        )
+        for field in (
+            "input_evidence_record_count",
+            "active_source_count",
+            "bound_evidence_count",
+            "active_source_count_with_bound_evidence",
+        ):
+            bad_packet = copy.deepcopy(packet)
+            bad_packet[field] = True
+            with self.subTest(field=field):
+                with self.assertRaisesRegex(OrdinaryT2EvidenceLineageError, "must be an integer"):
+                    validate_ordinary_t2_evidence_lineage(
+                        packet=bad_packet,
+                        lineage_packet=lineage_packet,
+                        source_records=source_records,
+                        evidence_records=evidence_records,
+                        expected_slice_id=self.slice_id,
+                    )
+
+        zero_exclusion_packet = copy.deepcopy(packet)
+        zero_exclusion_packet["excluded_evidence_count"] = False
+        with self.assertRaisesRegex(OrdinaryT2EvidenceLineageError, "must be an integer"):
+            validate_ordinary_t2_evidence_lineage(
+                packet=zero_exclusion_packet,
+                lineage_packet=lineage_packet,
+                source_records=source_records,
+                evidence_records=evidence_records,
+                expected_slice_id=self.slice_id,
+            )
+
+        evidence_with_exclusion = [*evidence_records, copy.deepcopy(self.evidence[2])]
+        packet_with_exclusion = build_ordinary_t2_evidence_lineage(
+            lineage_packet=lineage_packet,
+            source_records=source_records,
+            evidence_records=evidence_with_exclusion,
+            expected_slice_id=self.slice_id,
+        )
+        packet_with_exclusion["excluded_evidence_count"] = True
+        with self.assertRaisesRegex(OrdinaryT2EvidenceLineageError, "must be an integer"):
+            validate_ordinary_t2_evidence_lineage(
+                packet=packet_with_exclusion,
+                lineage_packet=lineage_packet,
+                source_records=source_records,
+                evidence_records=evidence_with_exclusion,
+                expected_slice_id=self.slice_id,
+            )
+
+    def test_builder_and_validator_require_nonblank_slice_ids(self):
+        with self.assertRaisesRegex(OrdinaryT2EvidenceLineageError, "expected_slice_id"):
+            build_ordinary_t2_evidence_lineage(
+                lineage_packet=self.lineage,
+                source_records=self.source_records,
+                evidence_records=self.evidence,
+                expected_slice_id=" \t\u2003 ",
+            )
+
+        bad_lineage = copy.deepcopy(self.lineage)
+        bad_lineage["slice_id"] = " \t\u2003 "
+        with self.assertRaises(OrdinaryT2EvidenceLineageError):
+            build_ordinary_t2_evidence_lineage(
+                lineage_packet=bad_lineage,
+                source_records=self.source_records,
+                evidence_records=self.evidence,
+                expected_slice_id=self.slice_id,
+            )
+
+        packet = self.build()
+        with self.assertRaisesRegex(OrdinaryT2EvidenceLineageError, "expected_slice_id"):
+            validate_ordinary_t2_evidence_lineage(
+                packet=packet,
+                lineage_packet=self.lineage,
+                source_records=self.source_records,
+                evidence_records=self.evidence,
+                expected_slice_id=" \t\u2003 ",
+            )
+        packet["slice_id"] = " \t\u2003 "
+        with self.assertRaisesRegex(OrdinaryT2EvidenceLineageError, "slice_id"):
+            validate_ordinary_t2_evidence_lineage(
+                packet=packet,
+                lineage_packet=self.lineage,
+                source_records=self.source_records,
+                evidence_records=self.evidence,
+                expected_slice_id=self.slice_id,
+            )
+
+    def test_validator_malformed_roots_and_evidence_records_use_domain_error(self):
+        packet = self.build()
+        for bad_packet in (None, []):
+            with self.subTest(packet=bad_packet):
+                with self.assertRaises(OrdinaryT2EvidenceLineageError):
+                    validate_ordinary_t2_evidence_lineage(
+                        packet=bad_packet,
+                        lineage_packet=self.lineage,
+                        source_records=self.source_records,
+                        evidence_records=self.evidence,
+                        expected_slice_id=self.slice_id,
+                    )
+
+        with self.assertRaises(OrdinaryT2EvidenceLineageError):
+            validate_ordinary_t2_evidence_lineage(
+                packet=packet,
+                lineage_packet=None,
+                source_records=self.source_records,
+                evidence_records=self.evidence,
+                expected_slice_id=self.slice_id,
+            )
+
+        for bad_evidence_records in (None, {}, "evidence", []):
+            with self.subTest(evidence_records=bad_evidence_records):
+                with self.assertRaises(OrdinaryT2EvidenceLineageError):
+                    validate_ordinary_t2_evidence_lineage(
+                        packet=packet,
+                        lineage_packet=self.lineage,
+                        source_records=self.source_records,
+                        evidence_records=bad_evidence_records,
+                        expected_slice_id=self.slice_id,
+                    )
+
 
 if __name__ == "__main__":
     unittest.main()
+
