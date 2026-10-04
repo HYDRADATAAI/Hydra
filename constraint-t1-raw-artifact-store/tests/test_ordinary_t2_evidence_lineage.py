@@ -370,4 +370,3 @@ class OrdinaryT2EvidenceLineageTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
-
