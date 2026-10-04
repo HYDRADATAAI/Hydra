@@ -258,6 +258,22 @@ class AuthorityEnvelopeTests(unittest.TestCase):
         self.assertIn("authority_signature_method_invalid", codes)
         self.assertIn("authority_signature_invalid", codes)
 
+    def test_timestamp_outside_utc_range_fails_closed(self) -> None:
+        envelope = self._envelope()
+        envelope["issued_at"] = "0001-01-01T00:00:00+23:59"
+        self._resign(envelope)
+        self.assertTrue(
+            self.verifier.verify(
+                key_id=self.key_id,
+                message=authority_signing_bytes(envelope),
+                signature=envelope["signature"],
+                method="HMAC-SHA256",
+            )
+        )
+        result = self._validate(envelope)
+        self.assertFalse(result.valid)
+        self.assertIn("authority_time_invalid", {issue.code for issue in result.issues})
+
     def test_signed_wrong_authority_role_is_rejected(self) -> None:
         envelope = self._envelope()
         envelope["authority_role"] = "trading_authority"

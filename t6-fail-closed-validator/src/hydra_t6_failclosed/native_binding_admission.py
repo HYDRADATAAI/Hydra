@@ -389,13 +389,13 @@ def _parse_time(value: Any, path: str, issues: list[Issue]) -> datetime | None:
         return None
     try:
         parsed = datetime.fromisoformat(value.replace("Z", "+00:00"))
-    except ValueError:
-        issues.append(Issue("admission_time_invalid", "timestamp is not valid ISO-8601", path))
+        if parsed.tzinfo is None:
+            issues.append(Issue("admission_time_invalid", "timestamp must include timezone information", path))
+            return None
+        return parsed.astimezone(UTC)
+    except (ValueError, OverflowError):
+        issues.append(Issue("admission_time_invalid", "timestamp is invalid or outside the supported UTC range", path))
         return None
-    if parsed.tzinfo is None:
-        issues.append(Issue("admission_time_invalid", "timestamp must include timezone information", path))
-        return None
-    return parsed.astimezone(UTC)
 
 
 def _is_hex64(value: Any) -> bool:

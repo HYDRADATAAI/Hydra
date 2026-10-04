@@ -468,6 +468,16 @@ class NativeT5T6AdmissionTests(unittest.TestCase):
         self.assertEqual(result.reason, "BLOCKED_AUTHORITY_RECEIPT_INVALID")
         self.assertIn("admission_now_invalid", {issue.code for issue in result.issues})
 
+    def test_timestamp_outside_utc_range_is_rejected(self) -> None:
+        manifest = self.manifest()
+        receipt = self.receipt(manifest)
+        receipt["issued_at"] = "0001-01-01T00:00:00+23:59"
+        self.resign(receipt)
+        result = self.validate(manifest, receipt)
+        self.assertFalse(result.admitted)
+        self.assertEqual(result.reason, "BLOCKED_AUTHORITY_RECEIPT_INVALID")
+        self.assertIn("admission_time_invalid", {issue.code for issue in result.issues})
+
     def test_naive_now_is_rejected(self) -> None:
         manifest = self.manifest()
         receipt = self.receipt(manifest)
