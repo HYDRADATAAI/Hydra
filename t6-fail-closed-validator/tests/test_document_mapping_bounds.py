@@ -22,6 +22,16 @@ class DocumentMappingBoundsTests(unittest.TestCase):
         self.assertEqual([issue.code for issue in document.issues], ["document_too_large"])
         self.assertGreater(document.issues[0].evidence["size_bytes"], 64)
 
+    def test_empty_mapping_over_limit_stops_before_encoding(self):
+        with patch(
+            "hydra_t6_failclosed.documents.json.dumps",
+            side_effect=AssertionError("encoding must not run"),
+        ):
+            document = parse_json_document({}, label="input", max_bytes=1)
+
+        self.assertEqual([issue.code for issue in document.issues], ["document_too_large"])
+        self.assertEqual(document.issues[0].evidence["size_bytes"], 2)
+
     def test_escape_expansion_is_counted_before_encoding(self):
         value = {"payload": "\\\\" * 40}
 
