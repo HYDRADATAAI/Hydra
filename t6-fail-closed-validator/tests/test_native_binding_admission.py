@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import unittest
+from collections.abc import Mapping
 from datetime import UTC, datetime, timedelta, tzinfo
 
 from hydra_t6_failclosed import HMACSHA256Verifier
@@ -160,6 +161,21 @@ class NativeT5T6AdmissionTests(unittest.TestCase):
             verifier=self.verifier if verifier is None else verifier,
             now=self.now if now is None else now,
         )
+
+    def test_hostile_manifest_mapping_fails_closed(self) -> None:
+        class BrokenMapping(Mapping):
+            def __getitem__(self, key):
+                raise RuntimeError("mapping read failed")
+
+            def __iter__(self):
+                raise RuntimeError("mapping iteration failed")
+
+            def __len__(self):
+                return 1
+
+        result = self.validate(BrokenMapping(), None)
+        self.assertFalse(result.admitted)
+        self.assertIn("document_type_invalid", {issue.code for issue in result.issues})
 
     def test_missing_admission_receipt_fails_closed(self) -> None:
         result = self.validate(self.manifest(), None)
@@ -446,6 +462,16 @@ class NativeT5T6AdmissionTests(unittest.TestCase):
         self.assertFalse(result.admitted)
         self.assertIn("admission_receipt_extra_field", {issue.code for issue in result.issues})
 
+
+    def test_signed_receipt_timestamp_utc_overflow_fails_closed(self) -> None:
+        manifest = self.manifest()
+        receipt = self.receipt(manifest)
+        receipt["issued_at"] = "0001-01-01T00:00:00+23:59"
+        self.resign(receipt)
+
+        result = self.validate(manifest, receipt)
+        self.assertFalse(result.admitted)
+        self.assertIn("admission_time_invalid", {issue.code for issue in result.issues})
 
     def test_non_datetime_now_is_rejected(self) -> None:
         manifest = self.manifest()

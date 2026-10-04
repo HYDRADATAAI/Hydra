@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import unittest
+from collections.abc import Mapping
 from datetime import UTC, datetime, timedelta
 
 from hydra_t6_failclosed.authority import (
@@ -80,6 +81,36 @@ class AuthorityEnvelopeTests(unittest.TestCase):
 
     def _resign(self, envelope: dict[str, object]) -> None:
         envelope["signature"] = sign_hmac_sha256(envelope, key=self.key)
+
+    def test_signed_authority_timestamp_utc_overflow_fails_closed(self) -> None:
+        envelope = self._envelope()
+        envelope["issued_at"] = "0001-01-01T00:00:00+23:59"
+        self._resign(envelope)
+
+        result = self._validate(envelope)
+        self.assertFalse(result.valid)
+        self.assertIn("authority_time_invalid", {issue.code for issue in result.issues})
+
+    def test_authority_mapping_inspection_exceptions_fail_closed(self) -> None:
+        class BrokenMapping(Mapping):
+            def __getitem__(self, key):
+                raise RuntimeError("mapping read failed")
+
+            def __iter__(self):
+                raise RuntimeError("mapping iteration failed")
+
+            def __len__(self):
+                return 1
+
+        top_level = self._validate(BrokenMapping())
+        self.assertFalse(top_level.valid)
+        self.assertIn("authority_input_invalid", {issue.code for issue in top_level.issues})
+
+        envelope = self._envelope()
+        envelope["bindings"] = BrokenMapping()
+        nested = self._validate(envelope)
+        self.assertFalse(nested.valid)
+        self.assertIn("authority_input_invalid", {issue.code for issue in nested.issues})
 
     def test_valid_signed_authority_is_accepted(self) -> None:
         result = self._validate(self._envelope())

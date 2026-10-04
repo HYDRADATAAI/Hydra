@@ -67,6 +67,14 @@ def parse_json_document(
     except (TypeError, ValueError, RecursionError) as exc:
         raw = b""
         return JSONDocument(raw, sha256_hex(raw), None, (Issue("document_type_invalid", str(exc), label),))
+    except Exception:
+        raw = b""
+        return JSONDocument(
+            raw,
+            sha256_hex(raw),
+            None,
+            (Issue("document_type_invalid", "document could not be safely normalized", label),),
+        )
     digest = sha256_hex(raw)
     if not raw:
         return JSONDocument(raw, digest, None, (Issue("document_missing", f"{label} is missing", label),))

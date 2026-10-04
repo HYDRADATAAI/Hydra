@@ -393,7 +393,11 @@ def _parse_time(value: Any, path: str, issues: list[Issue]) -> datetime | None:
     if parsed.tzinfo is None:
         issues.append(Issue("admission_time_invalid", "timestamp must include timezone information", path))
         return None
-    return parsed.astimezone(UTC)
+    try:
+        return parsed.astimezone(UTC)
+    except (OverflowError, ValueError):
+        issues.append(Issue("admission_time_invalid", "timestamp is outside the supported UTC range", path))
+        return None
 
 
 def _is_hex64(value: Any) -> bool:

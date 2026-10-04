@@ -76,7 +76,7 @@ def authority_signing_bytes(envelope: Mapping[str, Any]) -> bytes:
     return canonical_json_bytes(unsigned)
 
 
-def validate_authority(
+def _validate_authority_impl(
     envelope: Mapping[str, Any] | None,
     *,
     verifier: SignatureVerifier | None,
@@ -252,6 +252,34 @@ def validate_authority(
     return AuthorityResult(not issues, "VALID" if not issues else reason, sorted_issues(issues))
 
 
+def validate_authority(
+    envelope: Mapping[str, Any] | None,
+    *,
+    verifier: SignatureVerifier | None,
+    now: datetime,
+    input_sha256: str,
+    policy_sha256: str,
+    output_schema_sha256: str,
+    oracle_sha256: str,
+) -> AuthorityResult:
+    try:
+        return _validate_authority_impl(
+            envelope,
+            verifier=verifier,
+            now=now,
+            input_sha256=input_sha256,
+            policy_sha256=policy_sha256,
+            output_schema_sha256=output_schema_sha256,
+            oracle_sha256=oracle_sha256,
+        )
+    except Exception:
+        return AuthorityResult(
+            False,
+            "AUTHORITY_INVALID",
+            (Issue("authority_input_invalid", "authority envelope could not be safely inspected", "$.authority"),),
+        )
+
+
 def _parse_time(value: Any, path: str, issues: list[Issue]) -> datetime | None:
     if type(value) is not str:
         issues.append(Issue("authority_time_invalid", "timestamp must be an ISO-8601 string", path))
@@ -264,7 +292,11 @@ def _parse_time(value: Any, path: str, issues: list[Issue]) -> datetime | None:
     if parsed.tzinfo is None:
         issues.append(Issue("authority_time_invalid", "timestamp must include timezone information", path))
         return None
-    return parsed.astimezone(UTC)
+    try:
+        return parsed.astimezone(UTC)
+    except (OverflowError, ValueError):
+        issues.append(Issue("authority_time_invalid", "timestamp is outside the supported UTC range", path))
+        return None
 
 
 def _is_hex64(value: str) -> bool:
