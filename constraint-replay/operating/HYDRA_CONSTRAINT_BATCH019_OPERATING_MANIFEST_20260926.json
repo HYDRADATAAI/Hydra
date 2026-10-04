@@ -17,7 +17,7 @@
   "source_authority": {
     "batch018_manifest": {
       "path": "constraint-replay/operating/HYDRA_CONSTRAINT_BATCH018_OPERATING_MANIFEST_20260926.json",
-      "git_blob_sha": "ffb3c20d17ead6431f1670b11794387bfd5696ac"
+      "git_blob_sha": "610a7237552c4645748927b27cb0e2be06631d37"
     },
     "batch018_snapshot": {
       "path": "constraint-replay/operating/HYDRA_CONSTRAINT_BATCH018_OPERATING_SNAPSHOT_20260926.json",

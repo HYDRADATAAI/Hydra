@@ -17,7 +17,7 @@
   "source_authority": {
     "multidomain_manifest": {
       "path": "constraint-replay/runtime/HYDRA_CONSTRAINT_BATCH017_MULTIDOMAIN_READONLY_MANIFEST_20260926.json",
-      "git_blob_sha": "a4abaebe68850fc4ece964f32f25af18ae87d086"
+      "git_blob_sha": "fc42afc6bf5af5ea65d8cb65ef79837cf0e55c94"
     },
     "legacy_evaluation_report": {
       "path": "constraint-replay/EVALUATION_REPORT.md",
