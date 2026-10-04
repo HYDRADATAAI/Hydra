@@ -56,6 +56,9 @@ def _load_json(path: str | Path) -> dict[str, Any]:
 
 
 def _registry_sources(registry: Mapping[str, Any]) -> dict[str, dict[str, Any]]:
+    slice_id = registry.get("slice_id")
+    if not isinstance(slice_id, str) or not slice_id.strip():
+        raise FirstSliceMaterializationError("registry.slice_id required")
     rows = registry.get("sources")
     if not isinstance(rows, list) or not rows:
         raise FirstSliceMaterializationError("registry.sources must be a non-empty list")
@@ -195,6 +198,14 @@ def materialize_capture_plan(
 ) -> dict[str, Any]:
     public_repo = Path(public_repo_root).expanduser().resolve()
     registry_sources = _registry_sources(registry)
+    slice_id = plan.get("slice_id")
+    if not isinstance(slice_id, str) or not slice_id.strip():
+        raise FirstSliceMaterializationError("slice_id required")
+    registry_slice = registry.get("slice_id")
+    if registry_slice != slice_id:
+        raise FirstSliceMaterializationError(
+            f"slice_id mismatch: plan={slice_id!r} registry={registry_slice!r}"
+        )
     rows = _capture_rows(
         plan,
         registry_sources=registry_sources,
@@ -203,20 +214,11 @@ def materialize_capture_plan(
 
     release_id = plan.get("release_id")
     release_created_at = plan.get("release_created_at")
-    slice_id = plan.get("slice_id")
     if not isinstance(release_id, str) or not release_id:
         raise FirstSliceMaterializationError("release_id required")
     if not isinstance(release_created_at, str):
         raise FirstSliceMaterializationError("release_created_at required")
     release_time = _dt(release_created_at, "release_created_at")
-    if not isinstance(slice_id, str) or not slice_id:
-        raise FirstSliceMaterializationError("slice_id required")
-    registry_slice = registry.get("slice_id")
-    if registry_slice != slice_id:
-        raise FirstSliceMaterializationError(
-            f"slice_id mismatch: plan={slice_id!r} registry={registry_slice!r}"
-        )
-
     acquired_times = [_dt(row["acquired_at"], f"{row['source_id']}.acquired_at") for row in rows]
     if release_time < max(acquired_times):
         raise FirstSliceMaterializationError(
@@ -319,7 +321,10 @@ def validate_public_materialization_attestation(
     registry_sources = _registry_sources(registry)
     if attestation.get("schema_version") != ATTESTATION_SCHEMA:
         raise FirstSliceMaterializationError("unsupported attestation schema")
-    if attestation.get("slice_id") != registry.get("slice_id"):
+    slice_id = attestation.get("slice_id")
+    if not isinstance(slice_id, str) or not slice_id.strip():
+        raise FirstSliceMaterializationError("attestation slice_id mismatch")
+    if slice_id != registry.get("slice_id"):
         raise FirstSliceMaterializationError("attestation slice_id mismatch")
     if attestation.get("capture_mode") != "OFFLINE_REVIEWED_LOCAL_BYTES":
         raise FirstSliceMaterializationError("attestation capture mode invalid")

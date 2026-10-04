@@ -58,6 +58,9 @@ def _packet_digest(packet: Mapping[str, Any]) -> str:
 
 
 def _registry_ids(registry: Mapping[str, Any]) -> set[str]:
+    slice_id = registry.get("slice_id")
+    if not isinstance(slice_id, str) or not slice_id.strip():
+        raise ReplayLineageError("registry.slice_id required")
     rows = registry.get("sources")
     if not isinstance(rows, list) or not rows:
         raise ReplayLineageError("registry.sources must be a non-empty list")
@@ -217,7 +220,10 @@ def validate_replay_lineage_packet(
         raise ReplayLineageError("replay-lineage root field set invalid")
     if packet.get("schema_version") != REPLAY_LINEAGE_SCHEMA:
         raise ReplayLineageError("unsupported replay-lineage schema")
-    if packet.get("slice_id") != registry.get("slice_id"):
+    slice_id = packet.get("slice_id")
+    if not isinstance(slice_id, str) or not slice_id.strip():
+        raise ReplayLineageError("replay-lineage slice_id required")
+    if slice_id != registry.get("slice_id"):
         raise ReplayLineageError("replay-lineage slice_id mismatch")
     if packet.get("availability_mode") != "ACQUISITION_TIME_CONSERVATIVE":
         raise ReplayLineageError("replay-lineage availability mode invalid")
