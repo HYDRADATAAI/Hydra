@@ -238,9 +238,10 @@ def validate_authority(
                     and verify(key_id=key_id, message=authority_signing_bytes(envelope), signature=signature, method=method) is True
                 )
             except Exception:
-                signature_valid = False
-            if not signature_valid:
-                issues.append(Issue("authority_signature_invalid", "authority signature is invalid or key is untrusted", "$.authority.signature"))
+                issues.append(Issue("authority_verifier_error", "signature verifier failed closed", "$.authority.signature"))
+            else:
+                if not signature_valid:
+                    issues.append(Issue("authority_signature_invalid", "authority signature is invalid or key is untrusted", "$.authority.signature"))
 
     return AuthorityResult(not issues, "VALID" if not issues else reason, sorted_issues(issues))
 

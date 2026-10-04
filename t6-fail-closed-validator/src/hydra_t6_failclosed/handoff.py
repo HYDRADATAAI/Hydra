@@ -174,8 +174,12 @@ def _validate_candidate(candidate: Mapping[str, Any], *, path: str, candidate_id
     if candidate.get("lifecycle_state") != "handed_off":
         issues.append(Issue("candidate_lifecycle_invalid", "candidate lifecycle_state must be handed_off", f"{path}.lifecycle_state", candidate_id))
     statement = candidate.get("statement")
-    if not (_is_nonempty_text(statement) or (isinstance(statement, Mapping) and bool(statement))):
-        issues.append(Issue("candidate_statement_invalid", "candidate statement must be non-empty text or a non-empty object", f"{path}.statement", candidate_id))
+    statement_mapping_valid = isinstance(statement, Mapping) and all(
+        _is_nonempty_text(statement.get(field))
+        for field in ("mechanism", "constrained_target")
+    )
+    if not (_is_nonempty_text(statement) or statement_mapping_valid):
+        issues.append(Issue("candidate_statement_invalid", "candidate statement must contain non-empty mechanism and constrained_target text", f"{path}.statement", candidate_id))
 
     lifecycle = candidate.get("lifecycle")
     if not isinstance(lifecycle, list) or not lifecycle or any(not isinstance(event, Mapping) or not _is_nonempty_text(event.get("state")) for event in lifecycle):
@@ -256,6 +260,8 @@ def _unresolved_state(value: Any) -> tuple[bool, bool]:
     invalid = False
     if isinstance(value, Mapping):
         for key, nested in value.items():
+            if isinstance(key, str) and key.casefold() == "unresolved" and key != "unresolved":
+                invalid = True
             if key == "unresolved":
                 if not isinstance(nested, list):
                     invalid = True

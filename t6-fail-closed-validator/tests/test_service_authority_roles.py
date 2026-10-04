@@ -17,7 +17,7 @@ from hydra_t6_failclosed.authority import (
 from hydra_t6_failclosed.documents import canonical_json_bytes
 from hydra_t6_failclosed.handoff import parse_handoff_document
 from hydra_t6_failclosed.service import FailClosedValidator
-from test_receipt import public_test_schema
+from .test_receipt import public_test_schema
 
 
 def _sha256(payload: bytes) -> str:

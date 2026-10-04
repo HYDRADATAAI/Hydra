@@ -161,6 +161,8 @@ def _validate_proposals(value: Mapping[str, Any]) -> None:
             raise NativeT5T6BridgeError("proposal candidate fields do not match the reviewed T5 contract")
         candidate_id = candidate["constraint_candidate_id"]
         _require_nonempty(candidate_id, "constraint_candidate_id")
+        _require_nonempty(candidate["constraining_mechanism"], f"{candidate_id}.constraining_mechanism")
+        _require_nonempty(candidate["constrained_target"], f"{candidate_id}.constrained_target")
         ids.append(candidate_id)
         if not isinstance(candidate["classification_candidates"], list):
             raise NativeT5T6BridgeError(f"{candidate_id}: classification_candidates must be an array")

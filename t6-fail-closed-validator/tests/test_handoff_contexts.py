@@ -19,6 +19,13 @@ class HandoffContextTests(unittest.TestCase):
         self.assertEqual(candidate_ids, ("candidate-001",))
         self.assertEqual(issues, ())
 
+    def test_nonblank_scalar_statement_remains_accepted(self) -> None:
+        candidate = _candidate()
+        candidate["statement"] = "A nonblank scalar statement remains supported."
+        candidate_ids, issues = validate_handoff(_handoff(candidate))
+        self.assertEqual(candidate_ids, ("candidate-001",))
+        self.assertEqual(issues, ())
+
     def test_malformed_evidence_context_is_rejected(self) -> None:
         cases = [
             "active",
@@ -39,6 +46,7 @@ class HandoffContextTests(unittest.TestCase):
             {"conflicts": "source disagreement", "contradiction_context": {"unresolved": []}},
             {"conflicts": [], "contradiction_context": []},
             {"conflicts": [], "contradiction_context": {"nested": {"unresolved": True}}},
+            {"conflicts": [], "contradiction_context": {"Unresolved": ["open contradiction"]}},
         ]
 
         for trust in cases:
@@ -85,6 +93,19 @@ class HandoffContextTests(unittest.TestCase):
         candidate["statement"] = {}
         _, issues = validate_handoff(_handoff(candidate))
         self.assertIn("candidate_statement_invalid", _codes(issues))
+
+        invalid_statements = [
+            {"mechanism": " ", "constrained_target": "target"},
+            {"mechanism": "mechanism", "constrained_target": "\t"},
+            {"mechanism": None, "constrained_target": "target"},
+            {"constrained_target": "target"},
+        ]
+        for statement in invalid_statements:
+            with self.subTest(statement=statement):
+                candidate = _candidate()
+                candidate["statement"] = statement
+                _, issues = validate_handoff(_handoff(candidate))
+                self.assertIn("candidate_statement_invalid", _codes(issues))
 
         candidate = _candidate()
         candidate["evidence"] = [{"id": "\n", "active_context": {}}]

@@ -16,12 +16,18 @@ from hydra_t6_failclosed.authority import (
 
 
 class RaisingVerifier:
+    def allows_role(self, key_id: str, role: str) -> bool:
+        return key_id == "test-key" and role == "validator_authority"
+
     def verify(self, **kwargs: Any) -> bool:
         del kwargs
         raise RuntimeError("verifier backend unavailable")
 
 
 class TruthyNonBooleanVerifier:
+    def allows_role(self, key_id: str, role: str) -> bool:
+        return key_id == "test-key" and role == "validator_authority"
+
     def verify(self, **kwargs: Any) -> Any:
         del kwargs
         return "verified"
@@ -100,7 +106,10 @@ class AuthorityVerifierFailureTests(unittest.TestCase):
     def _validate_at(self, now: Any):
         return validate_authority(
             self._envelope(),
-            verifier=HMACSHA256Verifier({"test-key": self.key}),
+            verifier=HMACSHA256Verifier(
+                {"test-key": self.key},
+                trusted_key_roles={"test-key": {"validator_authority"}},
+            ),
             now=now,
             **self.digests,
         )
