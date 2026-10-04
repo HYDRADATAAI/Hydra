@@ -80,6 +80,8 @@ class NativeBindingAdmissionResult:
     runtime_activation_authorized: bool = False
     canonical_promotion_authorized: bool = False
     live_source_authorized: bool = False
+    model_training_authorized: bool = False
+    trading_authorized: bool = False
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -89,9 +91,11 @@ class NativeBindingAdmissionResult:
             "issues": [issue.to_dict() for issue in self.issues],
             "live_source_authorized": self.live_source_authorized,
             "manifest_sha256": self.manifest_sha256,
+            "model_training_authorized": self.model_training_authorized,
             "reason": self.reason,
             "receipt_sha256": self.receipt_sha256,
             "runtime_activation_authorized": self.runtime_activation_authorized,
+            "trading_authorized": self.trading_authorized,
         }
 
 
@@ -234,9 +238,10 @@ def _validate_receipt(
     if value.get("schema_version") != ADMISSION_RECEIPT_SCHEMA:
         issues.append(Issue("admission_receipt_schema_unsupported", "admission receipt schema is unsupported", "$.admission_receipt.schema_version"))
     admission_id = value.get("admission_id")
-    if not isinstance(admission_id, str) or not admission_id.strip():
+    if type(admission_id) is not str or not admission_id.strip():
         issues.append(Issue("admission_receipt_identity_invalid", "admission_id must be a non-empty string", "$.admission_receipt.admission_id"))
-    if value.get("authority_role") != ADMISSION_AUTHORITY_ROLE:
+    authority_role = value.get("authority_role")
+    if type(authority_role) is not str or authority_role != ADMISSION_AUTHORITY_ROLE:
         issues.append(Issue("admission_receipt_role_invalid", "authority_role must be IMPLEMENTATION_CONTRACT", "$.admission_receipt.authority_role"))
     if value.get("decision") != ADMISSION_DECISION:
         issues.append(Issue("admission_receipt_decision_invalid", "decision does not admit the native T5-to-T6 binding", "$.admission_receipt.decision"))
@@ -244,7 +249,8 @@ def _validate_receipt(
         issues.append(Issue("admission_receipt_operation_invalid", "operation does not match the admission gate", "$.admission_receipt.operation"))
     if value.get("scopes") != [ADMISSION_SCOPE]:
         issues.append(Issue("admission_receipt_scope_invalid", "scopes must contain exactly the native T5-to-T6 admission scope", "$.admission_receipt.scopes"))
-    if value.get("implementation_id") != manifest.get("implementation_id"):
+    implementation_id = value.get("implementation_id")
+    if type(implementation_id) is not str or implementation_id != manifest.get("implementation_id"):
         issues.append(Issue("admission_receipt_implementation_mismatch", "receipt implementation_id does not match the manifest", "$.admission_receipt.implementation_id"))
     if value.get("producer_stage") != PRODUCER_STAGE or value.get("consumer_stage") != CONSUMER_STAGE:
         issues.append(Issue("admission_receipt_stage_pair_invalid", "receipt must preserve the frozen T5-to-T6 stage pair", "$.admission_receipt"))
@@ -326,21 +332,45 @@ def _validate_receipt(
     key_id = value.get("key_id")
     method = value.get("signature_method")
     signature = value.get("signature")
-    if not isinstance(key_id, str) or not key_id:
+    key_id_valid = type(key_id) is str and bool(key_id)
+    method_valid = type(method) is str and bool(method)
+    signature_valid = type(signature) is str and bool(signature)
+    if not key_id_valid:
         issues.append(Issue("admission_key_id_invalid", "key_id is required", "$.admission_receipt.key_id"))
-    if not isinstance(method, str) or not method:
+    if not method_valid:
         issues.append(Issue("admission_signature_method_invalid", "signature_method is required", "$.admission_receipt.signature_method"))
-    if not isinstance(signature, str) or not signature:
+    if not signature_valid:
         issues.append(Issue("admission_signature_missing", "signature is required", "$.admission_receipt.signature"))
     elif verifier is None:
         issues.append(Issue("admission_verifier_missing", "no signature verifier is configured", "$.admission_receipt.signature"))
-    elif not verifier.verify(
-        key_id=str(key_id),
-        message=admission_signing_bytes(value),
-        signature=str(signature),
-        method=str(method),
-    ):
-        issues.append(Issue("admission_signature_invalid", "admission signature is invalid or key is untrusted", "$.admission_receipt.signature"))
+    else:
+        try:
+            verify = getattr(verifier, "verify", None)
+            signature_accepted = (
+                key_id_valid and method_valid and callable(verify)
+                and verify(key_id=key_id, message=admission_signing_bytes(value), signature=signature, method=method) is True
+            )
+        except Exception:
+            signature_accepted = False
+        if not signature_accepted:
+            issues.append(Issue("admission_signature_invalid", "admission signature is invalid or key is untrusted", "$.admission_receipt.signature"))
+
+    role_authorized = False
+    if verifier is not None:
+        try:
+            allows_role = getattr(verifier, "allows_role", None)
+            role_authorized = (
+                callable(allows_role) and key_id_valid and type(authority_role) is str
+                and allows_role(key_id, authority_role) is True
+            )
+        except Exception:
+            role_authorized = False
+    if not role_authorized:
+        issues.append(Issue(
+            "admission_key_role_untrusted",
+            "signing key is not explicitly authorized for the admission authority role",
+            "$.admission_receipt.authority_role",
+        ))
     return issues
 
 
