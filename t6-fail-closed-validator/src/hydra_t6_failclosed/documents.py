@@ -62,6 +62,8 @@ def _bounded_mapping_snapshot(value: Mapping[str, Any], *, max_bytes: int) -> tu
     def plain_key(key: Any) -> Any:
         if isinstance(key, str):
             return plain_string(key)
+        if key is True or key is False:
+            return key
         if isinstance(key, int):
             return plain_int(key)
         if isinstance(key, float):
