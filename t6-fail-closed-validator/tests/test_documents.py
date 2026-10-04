@@ -111,7 +111,7 @@ class DocumentContractTests(unittest.TestCase):
             ) as encoder:
                 document = parse_json_document(value, label="$.document", max_bytes=32)
             self.assertIsNone(document.value)
-            self.assertIn("document_type_invalid", {issue.code for issue in document.issues})
+            self.assertIn("document_too_large", {issue.code for issue in document.issues})
             encoder.assert_not_called()
 
     def test_int_subclass_cannot_override_size_preflight(self) -> None:
@@ -123,7 +123,7 @@ class DocumentContractTests(unittest.TestCase):
         with patch.object(documents, "canonical_json_bytes") as encoder:
             document = parse_json_document(value, label="$.document", max_bytes=32)
         self.assertIsNone(document.value)
-        self.assertIn("document_type_invalid", {issue.code for issue in document.issues})
+        self.assertIn("document_too_large", {issue.code for issue in document.issues})
         encoder.assert_not_called()
 
 
@@ -170,6 +170,43 @@ class DocumentContractTests(unittest.TestCase):
         self.assertIsNone(document.value)
         self.assertIn("document_type_invalid", {issue.code for issue in document.issues})
         encoder.assert_not_called()
+
+
+    def test_distinct_numeric_keys_that_compare_equal_fail_closed(self) -> None:
+        from collections.abc import Mapping
+
+        class HostileFloat(float):
+            def __float__(self) -> float:
+                return 999.0
+
+        class PairMapping(Mapping):
+            def __iter__(self):
+                return iter((1, HostileFloat(1.0)))
+
+            def __getitem__(self, key):
+                return "first" if type(key) is int else "second"
+
+            def __len__(self) -> int:
+                return 2
+
+        with patch.object(documents, "canonical_json_bytes") as encoder:
+            document = parse_json_document(PairMapping(), label="$.document", max_bytes=64)
+        self.assertIsNone(document.value)
+        self.assertIn("document_type_invalid", {issue.code for issue in document.issues})
+        encoder.assert_not_called()
+
+
+    def test_string_subclass_key_and_value_normalize_to_plain_text(self) -> None:
+        class HostileString(str):
+            def __iter__(self):
+                return iter(())
+
+        value = {HostileString("field"): HostileString("value")}
+        document = parse_json_document(value, label="$.document")
+        self.assertEqual(document.raw, b'{"field":"value"}')
+        self.assertEqual(document.value, {"field": "value"})
+        self.assertIs(type(next(iter(document.value))), str)
+        self.assertIs(type(document.value["field"]), str)
 
 
 if __name__ == "__main__":
