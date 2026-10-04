@@ -348,7 +348,7 @@ class DocumentContractTests(unittest.TestCase):
 
 
     def test_raw_json_scanner_preserves_string_and_exponent_semantics(self) -> None:
-        payload = r'{"text":"braces { [ ] }, comma , colon : escaped quote \\" and slash \\\\","numbers":[-0,1e+2,1E-2,1e999]}'
+        payload = r'{"text":"braces { [ ] }, comma , colon : escaped quote \" and slash \\\\","numbers":[-0,1e+2,1E-2,1e999]}'
         document = parse_json_document(payload, label="$.document")
         self.assertEqual(document.issues, ())
         self.assertIsNotNone(document.value)

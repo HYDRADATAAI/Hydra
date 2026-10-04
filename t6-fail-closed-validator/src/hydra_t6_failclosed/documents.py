@@ -319,7 +319,7 @@ def _preflight_json_limits(text: str) -> int:
 
     def whitespace() -> None:
         nonlocal position
-        while position < length and text[position] in " \\t\\n\\r":
+        while position < length and text[position] in " \t\n\r":
             position += 1
 
     def require(character: str) -> None:
