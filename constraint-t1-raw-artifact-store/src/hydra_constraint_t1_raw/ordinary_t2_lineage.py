@@ -18,6 +18,9 @@ from typing import Any, Mapping, Sequence
 from urllib.parse import urlsplit
 
 ORDINARY_T2_LINEAGE_SCHEMA = "hydra-constraint-ordinary-t2-source-version-lineage/v1"
+BATCH032_T1_ATTESTATION_SCHEMA = (
+    "hydra-constraint-second-slice-public-t1-materialization-attestation/v1"
+)
 HEX64 = re.compile(r"^[0-9a-f]{64}$")
 CONSERVATIVE_AVAILABILITY = "ACQUISITION_TIME_CONSERVATIVE"
 NO_LOOKAHEAD_RULE = "SOURCE_VISIBLE_IFF_AVAILABLE_AT_LTE_AS_OF"
@@ -87,6 +90,8 @@ def _is_https_source_locator(value: Any) -> bool:
         parsed.scheme == "https"
         and bool(parsed.netloc)
         and bool(hostname)
+        and parsed.username is None
+        and parsed.password is None
         and not any(char.isspace() for char in hostname)
     )
 
@@ -142,6 +147,10 @@ def _attestation_members(
     expected_slice_id: str,
 ) -> list[dict[str, Any]]:
     _require(isinstance(attestation, Mapping), "attestation: object required")
+    _require(
+        attestation.get("schema_version") == BATCH032_T1_ATTESTATION_SCHEMA,
+        "attestation schema invalid",
+    )
     _require(set(attestation) <= ATTESTATION_FIELDS, "attestation: unsupported input fields")
     declared_slice_id = attestation.get("slice_id")
     _require(

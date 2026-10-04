@@ -133,6 +133,19 @@ class OrdinaryT2EvidenceLineageTests(unittest.TestCase):
         self.assertEqual("SOURCE_VERSION_AVAILABLE_AT_ONLY", by_id["EV-B"]["availability_basis"])
         self.assertEqual("SOURCE_NOT_IN_ACTIVE_RELEASE", packet["excluded_evidence"][0]["exclusion_reason"])
 
+    def test_evidence_builder_rejects_credentialed_source_locator_from_lineage_scope(self):
+        credentialed_sources = copy.deepcopy(self.source_records)
+        credentialed_sources[0]["source_locator"] = (
+            "https://alice:secret@example.invalid/a"
+        )
+        with self.assertRaisesRegex(OrdinaryT2EvidenceLineageError, "HTTPS source_locator"):
+            build_ordinary_t2_evidence_lineage(
+                lineage_packet=self.lineage,
+                source_records=credentialed_sources,
+                evidence_records=self.evidence,
+                expected_slice_id=self.slice_id,
+            )
+
     def test_selection_enforces_evidence_no_lookahead(self):
         packet = self.build()
         before = select_ordinary_t2_evidence(

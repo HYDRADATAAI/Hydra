@@ -4,6 +4,7 @@ import copy
 import unittest
 
 from hydra_constraint_t1_raw.ordinary_t2_lineage import (
+    BATCH032_T1_ATTESTATION_SCHEMA,
     OrdinaryT2LineageError,
     build_ordinary_t2_lineage,
     select_ordinary_t2_members,
@@ -31,6 +32,7 @@ class OrdinaryT2LineageTests(unittest.TestCase):
             },
         ]
         self.attestation = {
+            "schema_version": BATCH032_T1_ATTESTATION_SCHEMA,
             "slice_id": self.slice_id,
             "release_id": "REL-X",
             "release_sha256": "a" * 64,
@@ -115,6 +117,48 @@ class OrdinaryT2LineageTests(unittest.TestCase):
                     validate_ordinary_t2_lineage(
                         packet=packet,
                         source_records=self.records,
+                        expected_slice_id=self.slice_id,
+                    )
+
+    def test_builder_requires_exact_batch032_attestation_schema(self):
+        invalid_attestations = []
+        missing = copy.deepcopy(self.attestation)
+        del missing["schema_version"]
+        invalid_attestations.append(missing)
+        wrong = copy.deepcopy(self.attestation)
+        wrong["schema_version"] = "hydra-constraint-second-slice-public-t1-materialization-attestation/v2"
+        invalid_attestations.append(wrong)
+        for bad in invalid_attestations:
+            with self.subTest(schema_version=bad.get("schema_version")):
+                with self.assertRaisesRegex(OrdinaryT2LineageError, "attestation schema invalid"):
+                    build_ordinary_t2_lineage(
+                        attestation=bad,
+                        source_records=self.records,
+                        expected_slice_id=self.slice_id,
+                    )
+
+    def test_source_locators_with_userinfo_are_rejected_by_builder_and_validator(self):
+        for locator in (
+            "https://alice@example.invalid/a",
+            "https://:secret@example.invalid/a",
+            "https://alice:secret@example.invalid/a",
+        ):
+            records = copy.deepcopy(self.records)
+            records[0]["source_locator"] = locator
+            with self.subTest(locator=locator, entry="builder"):
+                with self.assertRaisesRegex(OrdinaryT2LineageError, "HTTPS source_locator"):
+                    build_ordinary_t2_lineage(
+                        attestation=self.attestation,
+                        source_records=records,
+                        expected_slice_id=self.slice_id,
+                    )
+
+            packet = self.build()
+            with self.subTest(locator=locator, entry="validator"):
+                with self.assertRaisesRegex(OrdinaryT2LineageError, "HTTPS source_locator"):
+                    validate_ordinary_t2_lineage(
+                        packet=packet,
+                        source_records=records,
                         expected_slice_id=self.slice_id,
                     )
 
