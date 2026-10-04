@@ -158,6 +158,24 @@ class AuthorityEnvelopeTests(unittest.TestCase):
         self.assertFalse(bindings_result.valid)
         self.assertIn("authority_bindings_invalid", {issue.code for issue in bindings_result.issues})
 
+        revocation_envelope = self._envelope()
+        revocation = revocation_envelope["revocation"]
+        revocation_status = revocation.pop("status")
+        revocation[AliasKey("signed-as-other-revocation-field", "status")] = revocation_status
+        self._resign(revocation_envelope)
+        revocation_result = self._validate(revocation_envelope)
+        self.assertFalse(revocation_result.valid)
+        self.assertIn("authority_revocation_invalid", {issue.code for issue in revocation_result.issues})
+
+        supersession_envelope = self._envelope()
+        supersession = supersession_envelope["supersession"]
+        supersession_status = supersession.pop("status")
+        supersession[AliasKey("signed-as-other-supersession-field", "status")] = supersession_status
+        self._resign(supersession_envelope)
+        supersession_result = self._validate(supersession_envelope)
+        self.assertFalse(supersession_result.valid)
+        self.assertIn("authority_supersession_invalid", {issue.code for issue in supersession_result.issues})
+
     def test_signed_split_view_authority_mapping_is_rejected(self) -> None:
         class SplitViewMapping(Mapping):
             def __init__(self, data):
