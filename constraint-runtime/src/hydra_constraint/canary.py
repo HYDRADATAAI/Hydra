@@ -164,6 +164,8 @@ def load_specs(path: str | Path) -> List[CanarySpec]:
         raise ValueError("live canary config must declare read_only=true")
     if payload.get("ledger_mutation") is not False:
         raise ValueError("live canary config must declare ledger_mutation=false")
+    if payload.get("automatic_trading_action") is not False:
+        raise ValueError("live canary config must declare automatic_trading_action=false")
     return [CanarySpec(**item) for item in payload["sources"]]
 
 

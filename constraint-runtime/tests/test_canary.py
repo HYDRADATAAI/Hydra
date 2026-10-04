@@ -104,5 +104,36 @@ class LiveCanaryTests(unittest.TestCase):
                 load_specs(p)
 
 
+    def test_config_requires_automatic_trading_disabled(self):
+        invalid_configs = [
+            {"read_only": True, "ledger_mutation": False, "sources": []},
+            {
+                "read_only": True,
+                "ledger_mutation": False,
+                "automatic_trading_action": True,
+                "sources": [],
+            },
+        ]
+        for payload in invalid_configs:
+            with self.subTest(payload=payload):
+                with tempfile.TemporaryDirectory() as td:
+                    p = Path(td) / "config.json"
+                    p.write_text(json.dumps(payload))
+                    with self.assertRaisesRegex(
+                        ValueError, "automatic_trading_action=false"
+                    ):
+                        load_specs(p)
+
+        with tempfile.TemporaryDirectory() as td:
+            p = Path(td) / "config.json"
+            p.write_text(json.dumps({
+                "read_only": True,
+                "ledger_mutation": False,
+                "automatic_trading_action": False,
+                "sources": [],
+            }))
+            self.assertEqual(load_specs(p), [])
+
+
 if __name__ == "__main__":
     unittest.main()
