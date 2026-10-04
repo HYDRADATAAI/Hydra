@@ -292,6 +292,173 @@ def coerce_document_bytes(
     raise TypeError(f"document must be bytes, text, mapping, or None; got {type(value).__name__}")
 
 
+
+
+class _JSONPreflightLimitError(ValueError):
+    def __init__(self, code: str, *, node_count: int | None = None):
+        self.code = code
+        self.node_count = node_count
+        super().__init__(code)
+
+
+class _JSONPreflightSyntaxError(ValueError):
+    pass
+
+
+def _preflight_json_limits(text: str) -> int:
+    """Validate JSON structure and enforce limits before json.loads builds a tree.
+
+    The root value is excluded, matching the root mapping contract. Every child
+    object member value and array element counts as one node, including containers.
+    This scanner deliberately does not decode or retain object keys; json.loads
+    remains authoritative for duplicate-key detection and all value semantics.
+    """
+    position = 0
+    nodes = 0
+    length = len(text)
+
+    def whitespace() -> None:
+        nonlocal position
+        while position < length and text[position] in " \\t\\n\\r":
+            position += 1
+
+    def require(character: str) -> None:
+        nonlocal position
+        if position >= length or text[position] != character:
+            raise _JSONPreflightSyntaxError("expected JSON delimiter")
+        position += 1
+
+    def scan_string() -> None:
+        nonlocal position
+        require('"')
+        while position < length:
+            character = text[position]
+            position += 1
+            codepoint = ord(character)
+            if character == '"':
+                return
+            if codepoint < 0x20:
+                raise _JSONPreflightSyntaxError("unescaped control character")
+            if character == "\\":
+                if position >= length:
+                    raise _JSONPreflightSyntaxError("unfinished escape")
+                escape = text[position]
+                position += 1
+                if escape in '"\\/bfnrt':
+                    continue
+                if escape != "u" or position + 4 > length:
+                    raise _JSONPreflightSyntaxError("invalid escape")
+                for _ in range(4):
+                    if text[position] not in "0123456789abcdefABCDEF":
+                        raise _JSONPreflightSyntaxError("invalid unicode escape")
+                    position += 1
+                continue
+        raise _JSONPreflightSyntaxError("unterminated string")
+
+    def scan_number() -> None:
+        nonlocal position
+        if position < length and text[position] == "-":
+            position += 1
+        if position >= length:
+            raise _JSONPreflightSyntaxError("unfinished number")
+        if text[position] == "0":
+            position += 1
+            if position < length and text[position].isdigit():
+                raise _JSONPreflightSyntaxError("leading zero")
+        elif "1" <= text[position] <= "9":
+            while position < length and "0" <= text[position] <= "9":
+                position += 1
+        else:
+            raise _JSONPreflightSyntaxError("invalid number")
+        if position < length and text[position] == ".":
+            position += 1
+            start = position
+            while position < length and "0" <= text[position] <= "9":
+                position += 1
+            if position == start:
+                raise _JSONPreflightSyntaxError("fraction requires digits")
+        if position < length and text[position] in "eE":
+            position += 1
+            if position < length and text[position] in "+-":
+                position += 1
+            start = position
+            while position < length and "0" <= text[position] <= "9":
+                position += 1
+            if position == start:
+                raise _JSONPreflightSyntaxError("exponent requires digits")
+
+    def literal(token: str) -> None:
+        nonlocal position
+        end = position + len(token)
+        if text[position:end] != token:
+            raise _JSONPreflightSyntaxError("invalid literal")
+        position = end
+
+    def value(depth: int, *, count: bool) -> None:
+        nonlocal nodes, position
+        if depth > MAX_DOCUMENT_DEPTH:
+            raise _JSONPreflightLimitError("document_too_deep")
+        whitespace()
+        if position >= length:
+            raise _JSONPreflightSyntaxError("expected JSON value")
+        if count:
+            nodes += 1
+            if nodes > MAX_DOCUMENT_NODES:
+                raise _JSONPreflightLimitError(
+                    "document_too_large", node_count=nodes
+                )
+        character = text[position]
+        if character == "{":
+            position += 1
+            whitespace()
+            if position < length and text[position] == "}":
+                position += 1
+                return
+            while True:
+                whitespace()
+                scan_string()
+                whitespace()
+                require(":")
+                value(depth + 1, count=True)
+                whitespace()
+                if position < length and text[position] == "}":
+                    position += 1
+                    return
+                require(",")
+        if character == "[":
+            position += 1
+            whitespace()
+            if position < length and text[position] == "]":
+                position += 1
+                return
+            while True:
+                value(depth + 1, count=True)
+                whitespace()
+                if position < length and text[position] == "]":
+                    position += 1
+                    return
+                require(",")
+        if character == '"':
+            scan_string()
+            return
+        if character == "t":
+            literal("true")
+            return
+        if character == "f":
+            literal("false")
+            return
+        if character == "n":
+            literal("null")
+            return
+        scan_number()
+
+    value(1, count=False)
+    whitespace()
+    if position != length:
+        raise _JSONPreflightSyntaxError("trailing data")
+    return nodes
+
+
 def parse_json_document(
     value: bytes | bytearray | str | Mapping[str, Any] | None,
     *,
@@ -330,6 +497,29 @@ def parse_json_document(
         )
     try:
         text = raw.decode("utf-8", errors="strict")
+        try:
+            _preflight_json_limits(text)
+        except _JSONPreflightLimitError as exc:
+            evidence = (
+                {"node_count": exc.node_count}
+                if exc.node_count is not None
+                else None
+            )
+            issue = Issue(
+                exc.code,
+                (
+                    f"{label} exceeds maximum node count {MAX_DOCUMENT_NODES}"
+                    if exc.code == "document_too_large"
+                    else f"{label} exceeds maximum nesting depth {MAX_DOCUMENT_DEPTH}"
+                ),
+                label,
+                evidence=evidence,
+            )
+            return JSONDocument(raw, digest, None, (issue,))
+        except _JSONPreflightSyntaxError:
+            # Let json.loads report the canonical syntax error and preserve its
+            # duplicate-key and parse_constant behavior for every non-overflow.
+            pass
         parsed = json.loads(
             text,
             object_pairs_hook=_object_without_duplicates,
