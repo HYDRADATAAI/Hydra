@@ -1,0 +1,219 @@
+{
+  "schema_version": "1.0",
+  "batch_id": "HYDRA_CONSTRAINT_REPLAY_OUTCOME_ENRICHMENT_BATCH009_20260926",
+  "evidence_digest_scope": "sha256(normalized_evidence UTF-8)",
+  "policy": "Batch 009 expands the governed classified-gold path to three additional replay-ready cases. Hypothesis publishers must remain distinct from admitted outcome publishers; causal claims remain no stronger than the cited evidence.",
+  "sources": [
+    {
+      "source_id": "section232-fed-beige-book-2018-04-18",
+      "role": "HISTORICAL_HYPOTHESIS",
+      "publisher": "Board of Governors of the Federal Reserve System",
+      "url": "https://www.federalreserve.gov/monetarypolicy/beigebook201804.htm",
+      "published_at": "2018-04-18T23:59:59Z",
+      "available_at": "2018-04-18T23:59:59Z",
+      "normalized_evidence": "On 18 April 2018, the Federal Reserve Beige Book reported widespread increases in steel prices due to the new tariff, said businesses generally anticipated further price increases in the months ahead particularly for steel and building materials, and noted in the Richmond District that steel and aluminum prices were expected to rise further as a result of the tariffs.",
+      "evidence_digest": "sha256:a5bf000382275a578a2709ebb7ce729d4791285cb036744f399899462fe9ceea"
+    },
+    {
+      "source_id": "section232-usitc-2023-03-15-effects",
+      "role": "OUTCOME",
+      "publisher": "United States International Trade Commission",
+      "url": "https://www.usitc.gov/press_room/news_release/2023/er0315_63679.htm",
+      "published_at": "2023-03-15T23:59:59Z",
+      "available_at": "2023-03-15T23:59:59Z",
+      "observed_at": "2023-03-15T23:59:59Z",
+      "normalized_evidence": "On 15 March 2023, the U.S. International Trade Commission reported that, on average over 2018-2021, Section 232 tariffs reduced imports of affected steel products by 24 percent, increased U.S. steel prices by 2.4 percent, increased U.S. steel production by 1.9 percent, and made U.S. steel production 1.3 billion dollars higher in 2021 due to the tariffs; it also reported average downstream price increases of 0.2 percent and downstream production decreases of 0.6 percent.",
+      "evidence_digest": "sha256:ba2ea949e0c388be8a5fd207ca605e9894a50574d5438031675e9f108e5a0364"
+    },
+    {
+      "source_id": "eu-russian-oil-iea-2022-06-15-hypothesis",
+      "role": "HISTORICAL_HYPOTHESIS",
+      "publisher": "International Energy Agency",
+      "url": "https://www.iea.org/reports/oil-market-report-june-2022",
+      "published_at": "2022-06-15T23:59:59Z",
+      "available_at": "2022-06-15T23:59:59Z",
+      "normalized_evidence": "On 15 June 2022, the International Energy Agency reported that tighter sanctions could force Russia to shut in more wells, that EU countries had agreed to ban 90 percent of the bloc's imports of Russian crude and oil products over six to eight months, and that global oil supply could struggle to keep pace with demand as sanctions came fully into force.",
+      "evidence_digest": "sha256:194e3be1f66bff582b4477988d8d766b4c184a9dbe693721c14b9fb6dfba07f7"
+    },
+    {
+      "source_id": "eu-russian-oil-eurostat-2023-09-25",
+      "role": "OUTCOME",
+      "publisher": "Eurostat",
+      "url": "https://ec.europa.eu/eurostat/web/products-eurostat-news/w/ddn-20230925-1",
+      "published_at": "2023-09-25T23:59:59Z",
+      "available_at": "2023-09-25T23:59:59Z",
+      "observed_at": "2023-09-25T23:59:59Z",
+      "normalized_evidence": "On 25 September 2023, Eurostat reported that the monthly average mass of EU petroleum-oil imports from Russia fell from 8.7 million tonnes in the second quarter of 2022 to 1.6 million tonnes in the second quarter of 2023, an 82 percent decline; Russia's share of total EU petroleum-oil imports fell from 21.6 percent to 4.0 percent while imports from extra-EU partners other than Russia increased by 5.8 million tonnes.",
+      "evidence_digest": "sha256:0dfa4cb73eb4fb58dbfeceeace71469d24a61e2d0a2c06668a02ce339afb8e66"
+    },
+    {
+      "source_id": "panama-imf-2023-11-15-hypothesis",
+      "role": "HISTORICAL_HYPOTHESIS",
+      "publisher": "International Monetary Fund",
+      "url": "https://www.imf.org/en/blogs/articles/2023/11/15/climate-change-is-disrupting-global-trade",
+      "published_at": "2023-11-15T23:59:59Z",
+      "available_at": "2023-11-15T23:59:59Z",
+      "normalized_evidence": "On 15 November 2023, IMF staff reported that drought restrictions at the Panama Canal had reduced throughput by about 15 million tons so far that year, added about six days to transit, and were expected to hamper trade for months, with passages set to fall to 18 ships per day by February from 36 in ordinary times.",
+      "evidence_digest": "sha256:782d85e8cd1c33cc603ae8341bf74e54ac30a33fd6ac07733295877991cd6966"
+    },
+    {
+      "source_id": "panama-unctad-2024-01-26-transits",
+      "role": "OUTCOME",
+      "publisher": "UN Trade and Development (UNCTAD)",
+      "url": "https://unctad.org/news/red-sea-black-sea-and-panama-canal-unctad-raises-alarm-global-trade-disruptions",
+      "published_at": "2024-01-26T23:59:59Z",
+      "available_at": "2024-01-26T23:59:59Z",
+      "observed_at": "2024-01-26T23:59:59Z",
+      "normalized_evidence": "On 26 January 2024, UNCTAD reported that severe drought at the Panama Canal had reduced water levels and produced a 36 percent reduction in total transits over the prior month compared with a year earlier.",
+      "evidence_digest": "sha256:1c0e59178d181c1f740e380974aa4ef667636b31bf070b7b4b274405f11905af"
+    }
+  ],
+  "cases": [
+    {
+      "case_id": "us-section232-steel-tariff-2018",
+      "historical_hypothesis_source_ids": [
+        "section232-fed-beige-book-2018-04-18"
+      ],
+      "outcome_source_ids": [
+        "section232-usitc-2023-03-15-effects"
+      ],
+      "hypothesis_available_at": "2018-04-18T23:59:59Z",
+      "hypothesis_statement": "Federal Reserve business contacts reported tariff-related steel price increases and generally anticipated further steel/building-material price increases in the months ahead.",
+      "hypothesis_independence_basis": "The Federal Reserve System hypothesis publisher is distinct from the USITC outcome publisher; the Beige Book evidence was available years before the retrospective USITC outcome estimates.",
+      "metrics": [
+        {
+          "metric_id": "section232-steel-import-effect",
+          "source_id": "section232-usitc-2023-03-15-effects",
+          "observed_at": "2023-03-15T23:59:59Z",
+          "metric": "affected_steel_import_effect",
+          "value": -24,
+          "unit": "percent"
+        },
+        {
+          "metric_id": "section232-steel-price-effect",
+          "source_id": "section232-usitc-2023-03-15-effects",
+          "observed_at": "2023-03-15T23:59:59Z",
+          "metric": "us_steel_price_effect",
+          "value": 2.4,
+          "unit": "percent"
+        },
+        {
+          "metric_id": "section232-steel-production-effect",
+          "source_id": "section232-usitc-2023-03-15-effects",
+          "observed_at": "2023-03-15T23:59:59Z",
+          "metric": "us_steel_production_effect",
+          "value": 1.9,
+          "unit": "percent"
+        },
+        {
+          "metric_id": "section232-steel-production-2021-dollar-effect",
+          "source_id": "section232-usitc-2023-03-15-effects",
+          "observed_at": "2023-03-15T23:59:59Z",
+          "metric": "us_steel_production_2021_increment",
+          "value": 1.3,
+          "unit": "billion_USD"
+        },
+        {
+          "metric_id": "section232-downstream-price-effect",
+          "source_id": "section232-usitc-2023-03-15-effects",
+          "observed_at": "2023-03-15T23:59:59Z",
+          "metric": "downstream_price_effect",
+          "value": 0.2,
+          "unit": "percent"
+        },
+        {
+          "metric_id": "section232-downstream-production-effect",
+          "source_id": "section232-usitc-2023-03-15-effects",
+          "observed_at": "2023-03-15T23:59:59Z",
+          "metric": "downstream_production_effect",
+          "value": -0.6,
+          "unit": "percent"
+        }
+      ]
+    },
+    {
+      "case_id": "eu-russian-oil-import-restrictions-2022",
+      "historical_hypothesis_source_ids": [
+        "eu-russian-oil-iea-2022-06-15-hypothesis"
+      ],
+      "outcome_source_ids": [
+        "eu-russian-oil-eurostat-2023-09-25"
+      ],
+      "hypothesis_available_at": "2022-06-15T23:59:59Z",
+      "hypothesis_statement": "The IEA expected sanctions and the planned EU embargo to reduce Russian supply availability and force major trade reallocation as the restrictions came into force.",
+      "hypothesis_independence_basis": "The IEA is distinct from Eurostat; its market outlook preceded the later Eurostat trade-flow measurements by more than a year.",
+      "metrics": [
+        {
+          "metric_id": "eu-russian-oil-q2-2022-monthly-mass",
+          "source_id": "eu-russian-oil-eurostat-2023-09-25",
+          "observed_at": "2023-09-25T23:59:59Z",
+          "metric": "russian_petroleum_oil_monthly_average_q2_2022",
+          "value": 8.7,
+          "unit": "million_tonnes"
+        },
+        {
+          "metric_id": "eu-russian-oil-q2-2023-monthly-mass",
+          "source_id": "eu-russian-oil-eurostat-2023-09-25",
+          "observed_at": "2023-09-25T23:59:59Z",
+          "metric": "russian_petroleum_oil_monthly_average_q2_2023",
+          "value": 1.6,
+          "unit": "million_tonnes"
+        },
+        {
+          "metric_id": "eu-russian-oil-mass-change",
+          "source_id": "eu-russian-oil-eurostat-2023-09-25",
+          "observed_at": "2023-09-25T23:59:59Z",
+          "metric": "russian_petroleum_oil_import_mass_change",
+          "value": -82,
+          "unit": "percent"
+        },
+        {
+          "metric_id": "eu-russian-oil-share-q2-2022",
+          "source_id": "eu-russian-oil-eurostat-2023-09-25",
+          "observed_at": "2023-09-25T23:59:59Z",
+          "metric": "russia_share_total_eu_petroleum_oil_imports_q2_2022",
+          "value": 21.6,
+          "unit": "percent"
+        },
+        {
+          "metric_id": "eu-russian-oil-share-q2-2023",
+          "source_id": "eu-russian-oil-eurostat-2023-09-25",
+          "observed_at": "2023-09-25T23:59:59Z",
+          "metric": "russia_share_total_eu_petroleum_oil_imports_q2_2023",
+          "value": 4,
+          "unit": "percent"
+        },
+        {
+          "metric_id": "eu-nonrussian-oil-import-increase",
+          "source_id": "eu-russian-oil-eurostat-2023-09-25",
+          "observed_at": "2023-09-25T23:59:59Z",
+          "metric": "nonrussian_petroleum_oil_monthly_average_increase",
+          "value": 5.8,
+          "unit": "million_tonnes"
+        }
+      ]
+    },
+    {
+      "case_id": "panama-canal-drought-transit-policy-2023",
+      "historical_hypothesis_source_ids": [
+        "panama-imf-2023-11-15-hypothesis"
+      ],
+      "outcome_source_ids": [
+        "panama-unctad-2024-01-26-transits"
+      ],
+      "hypothesis_available_at": "2023-11-15T23:59:59Z",
+      "hypothesis_statement": "IMF staff expected the Panama Canal drought restrictions to continue hampering trade for months after already reducing throughput and increasing transit time.",
+      "hypothesis_independence_basis": "The IMF hypothesis publisher is distinct from UNCTAD, which later measured the transit decline.",
+      "metrics": [
+        {
+          "metric_id": "panama-transit-yoy-reduction-2024-01-26",
+          "source_id": "panama-unctad-2024-01-26-transits",
+          "observed_at": "2024-01-26T23:59:59Z",
+          "metric": "total_transit_change_vs_year_earlier",
+          "value": -36,
+          "unit": "percent"
+        }
+      ]
+    }
+  ]
+}
