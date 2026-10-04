@@ -1,0 +1,219 @@
+{
+  "schema_version": "1.0",
+  "batch_id": "HYDRA_CONSTRAINT_REPLAY_OUTCOME_ENRICHMENT_BATCH012_20260926",
+  "evidence_digest_scope": "sha256(normalized_evidence UTF-8)",
+  "policy": "Batch 012 expands the governed uncalibrated classified-gold path to EU Russian-coal restrictions, Section 45X manufacturing incentives, and EU battery IPCEI. It reuses existing publisher-independence, confidence-admissibility, and outcome-mapping governance without case-specific scoring rules.",
+  "sources": [
+    {
+      "source_id": "coal-iea-2022-07-28-hypothesis",
+      "role": "HISTORICAL_HYPOTHESIS",
+      "publisher": "International Energy Agency",
+      "url": "https://www.iea.org/reports/coal-market-update-july-2022/trade",
+      "published_at": "2022-07-28T23:59:59Z",
+      "available_at": "2022-07-28T23:59:59Z",
+      "normalized_evidence": "On 28 July 2022, the International Energy Agency reported that Russia was expected to experience the biggest drop in coal exports in 2022 as a result of international sanctions and the EU import ban, while EU buyers were seeking alternative suppliers and non-Russian exporters faced constraints replacing Russian volumes.",
+      "evidence_digest": "sha256:f668a4e99479d8178cc1c8a77ffed012a8e21924d2f02c43b13d92b5e8a7720f"
+    },
+    {
+      "source_id": "coal-eurostat-2025-07-03-outcome",
+      "role": "OUTCOME",
+      "publisher": "Eurostat",
+      "url": "https://ec.europa.eu/eurostat/en/web/products-eurostat-news/w/ddn-20250703-1",
+      "published_at": "2025-07-03T23:59:59Z",
+      "available_at": "2025-07-03T23:59:59Z",
+      "observed_at": "2025-07-03T23:59:59Z",
+      "normalized_evidence": "On 3 July 2025, Eurostat reported that EU hard-coal net imports from Russia plummeted by 98 percent between 2021 and 2023 as the EU coal import ban entered into force in August 2022; in 2023, 90 percent of hard-coal net imports came from five suppliers led by Australia and the United States.",
+      "evidence_digest": "sha256:b661cac491725ee4e842d23a9743a0205f93aef15f7527f494c3af3f893b7038"
+    },
+    {
+      "source_id": "45x-doe-2023-05-12-hypothesis",
+      "role": "HISTORICAL_HYPOTHESIS",
+      "publisher": "U.S. Department of Energy",
+      "url": "https://www.energy.gov/policy/articles/president-bidens-investing-america-agenda-boosting-american-manufacturing-and-clean",
+      "published_at": "2023-05-12T23:59:59Z",
+      "available_at": "2023-05-12T23:59:59Z",
+      "normalized_evidence": "On 12 May 2023, the U.S. Department of Energy stated that the Section 45X Advanced Manufacturing Tax Credit, working with domestic-content incentives, could drive a boom in domestic manufacturing and help domestic manufacturers meet the majority of U.S. demand for clean-electricity components by 2030.",
+      "evidence_digest": "sha256:ccb5877573f96aff54016876ecb5297582f32e1ad1a23ad92c00b425c845fc3c"
+    },
+    {
+      "source_id": "45x-treasury-2024-10-24-outcome",
+      "role": "OUTCOME",
+      "publisher": "U.S. Department of the Treasury",
+      "url": "https://home.treasury.gov/news/press-releases/jy2671",
+      "published_at": "2024-10-24T23:59:59Z",
+      "available_at": "2024-10-24T23:59:59Z",
+      "observed_at": "2024-10-24T23:59:59Z",
+      "normalized_evidence": "On 24 October 2024, the U.S. Department of the Treasury reported that the Section 45X Advanced Manufacturing Production Credit had been a major driver of more than 126 billion dollars in announced private-sector clean-energy manufacturing investment since the Inflation Reduction Act passed, including about 77 billion dollars for batteries, 6 billion dollars for critical minerals, 19 billion dollars for solar and 8 billion dollars for wind.",
+      "evidence_digest": "sha256:3e1fff2370470242f858e92d05f3bbc8ce924d5919d4f76cfb0a81e353976047"
+    },
+    {
+      "source_id": "battery-iea-2019-05-27-hypothesis",
+      "role": "HISTORICAL_HYPOTHESIS",
+      "publisher": "International Energy Agency",
+      "url": "https://www.iea.org/reports/global-ev-outlook-2019",
+      "published_at": "2019-05-27T23:59:59Z",
+      "available_at": "2019-05-27T23:59:59Z",
+      "normalized_evidence": "On 27 May 2019, the International Energy Agency reported that policy support was increasingly being extended to battery-manufacturing capacity, that the European Union's Strategic Action Plan for Batteries supported efforts to build a battery value chain in Europe, and that private-sector response to policy signals was driving major investment to expand battery production.",
+      "evidence_digest": "sha256:a38aa5d308957fa76d9a939ccf48e66358cfa960ae68aecc456e519413576302"
+    },
+    {
+      "source_id": "battery-ec-2025-09-16-outcome",
+      "role": "OUTCOME",
+      "publisher": "European Commission",
+      "url": "https://energy.ec.europa.eu/news/focus-supercharging-transition-energy-storage-solutions-2025-09-16_en",
+      "published_at": "2025-09-16T23:59:59Z",
+      "available_at": "2025-09-16T23:59:59Z",
+      "observed_at": "2025-09-16T23:59:59Z",
+      "normalized_evidence": "On 16 September 2025, the European Commission reported that in 2023 the European Union accounted for 8 percent of global lithium-ion battery production capacity and an estimated 90,000 direct jobs in the EU battery sector, up from 61,000 direct jobs in 2022, while noting that the EU still relied on imports to meet about half of its demand.",
+      "evidence_digest": "sha256:d00e464c4fb9a224c9f8e8cba0a3f5999b8b984bf718d5b1a0559700d2c2d342"
+    }
+  ],
+  "cases": [
+    {
+      "case_id": "eu-fifth-package-coal-and-port-restrictions-2022",
+      "historical_hypothesis_source_ids": [
+        "coal-iea-2022-07-28-hypothesis"
+      ],
+      "outcome_source_ids": [
+        "coal-eurostat-2025-07-03-outcome"
+      ],
+      "hypothesis_available_at": "2022-07-28T23:59:59Z",
+      "hypothesis_statement": "The IEA expected Russian coal exports to experience the largest exporter decline in 2022 under sanctions and the EU import ban, with EU buyers reallocating demand to alternative suppliers.",
+      "hypothesis_independence_basis": "The IEA is distinct from Eurostat, whose later trade statistics supplied the admitted outcome evidence.",
+      "metrics": [
+        {
+          "metric_id": "eu-russian-hard-coal-net-import-change-2021-2023",
+          "source_id": "coal-eurostat-2025-07-03-outcome",
+          "observed_at": "2025-07-03T23:59:59Z",
+          "metric": "russian_hard_coal_net_import_change_2021_2023",
+          "value": -98,
+          "unit": "percent"
+        },
+        {
+          "metric_id": "eu-hard-coal-australia-share-2023",
+          "source_id": "coal-eurostat-2025-07-03-outcome",
+          "observed_at": "2025-07-03T23:59:59Z",
+          "metric": "australia_share_eu_hard_coal_net_imports_2023",
+          "value": 25,
+          "unit": "percent"
+        },
+        {
+          "metric_id": "eu-hard-coal-us-share-2023",
+          "source_id": "coal-eurostat-2025-07-03-outcome",
+          "observed_at": "2025-07-03T23:59:59Z",
+          "metric": "us_share_eu_hard_coal_net_imports_2023",
+          "value": 25,
+          "unit": "percent"
+        },
+        {
+          "metric_id": "eu-hard-coal-colombia-share-2023",
+          "source_id": "coal-eurostat-2025-07-03-outcome",
+          "observed_at": "2025-07-03T23:59:59Z",
+          "metric": "colombia_share_eu_hard_coal_net_imports_2023",
+          "value": 18,
+          "unit": "percent"
+        }
+      ]
+    },
+    {
+      "case_id": "us-section45x-advanced-manufacturing-incentive-2022",
+      "historical_hypothesis_source_ids": [
+        "45x-doe-2023-05-12-hypothesis"
+      ],
+      "outcome_source_ids": [
+        "45x-treasury-2024-10-24-outcome"
+      ],
+      "hypothesis_available_at": "2023-05-12T23:59:59Z",
+      "hypothesis_statement": "DOE expected Section 45X, together with complementary domestic-content incentives, to drive a domestic clean-energy manufacturing boom and expand U.S. component production capacity.",
+      "hypothesis_independence_basis": "The U.S. Department of Energy is distinct from the U.S. Department of the Treasury, whose later 45X implementation release supplied the admitted outcome figures.",
+      "metrics": [
+        {
+          "metric_id": "45x-announced-clean-manufacturing-investment",
+          "source_id": "45x-treasury-2024-10-24-outcome",
+          "observed_at": "2024-10-24T23:59:59Z",
+          "metric": "announced_clean_energy_manufacturing_investment",
+          "value": 126,
+          "unit": "billion_USD_minimum"
+        },
+        {
+          "metric_id": "45x-announced-battery-investment",
+          "source_id": "45x-treasury-2024-10-24-outcome",
+          "observed_at": "2024-10-24T23:59:59Z",
+          "metric": "announced_battery_manufacturing_investment",
+          "value": 77,
+          "unit": "billion_USD_approx"
+        },
+        {
+          "metric_id": "45x-announced-critical-mineral-investment",
+          "source_id": "45x-treasury-2024-10-24-outcome",
+          "observed_at": "2024-10-24T23:59:59Z",
+          "metric": "announced_critical_mineral_investment",
+          "value": 6,
+          "unit": "billion_USD_approx"
+        },
+        {
+          "metric_id": "45x-announced-solar-investment",
+          "source_id": "45x-treasury-2024-10-24-outcome",
+          "observed_at": "2024-10-24T23:59:59Z",
+          "metric": "announced_solar_manufacturing_investment",
+          "value": 19,
+          "unit": "billion_USD_approx"
+        },
+        {
+          "metric_id": "45x-announced-wind-investment",
+          "source_id": "45x-treasury-2024-10-24-outcome",
+          "observed_at": "2024-10-24T23:59:59Z",
+          "metric": "announced_wind_manufacturing_investment",
+          "value": 8,
+          "unit": "billion_USD_approx"
+        }
+      ]
+    },
+    {
+      "case_id": "eu-battery-ipcei-state-aid-2019",
+      "historical_hypothesis_source_ids": [
+        "battery-iea-2019-05-27-hypothesis"
+      ],
+      "outcome_source_ids": [
+        "battery-ec-2025-09-16-outcome"
+      ],
+      "hypothesis_available_at": "2019-05-27T23:59:59Z",
+      "hypothesis_statement": "The IEA identified policy support for battery-manufacturing capacity and the EU battery strategy as mechanisms for building a European battery value chain and expanding production investment.",
+      "hypothesis_independence_basis": "The IEA is distinct from the European Commission, whose later battery-sector figures supplied the admitted outcome evidence.",
+      "metrics": [
+        {
+          "metric_id": "eu-battery-global-capacity-share-2023",
+          "source_id": "battery-ec-2025-09-16-outcome",
+          "observed_at": "2025-09-16T23:59:59Z",
+          "metric": "eu_share_global_liion_battery_production_capacity_2023",
+          "value": 8,
+          "unit": "percent"
+        },
+        {
+          "metric_id": "eu-battery-direct-jobs-2023",
+          "source_id": "battery-ec-2025-09-16-outcome",
+          "observed_at": "2025-09-16T23:59:59Z",
+          "metric": "eu_battery_direct_jobs_2023",
+          "value": 90000,
+          "unit": "jobs"
+        },
+        {
+          "metric_id": "eu-battery-direct-jobs-2022",
+          "source_id": "battery-ec-2025-09-16-outcome",
+          "observed_at": "2025-09-16T23:59:59Z",
+          "metric": "eu_battery_direct_jobs_2022",
+          "value": 61000,
+          "unit": "jobs"
+        },
+        {
+          "metric_id": "eu-battery-import-demand-share-2023",
+          "source_id": "battery-ec-2025-09-16-outcome",
+          "observed_at": "2025-09-16T23:59:59Z",
+          "metric": "eu_battery_demand_met_by_imports_2023",
+          "value": 50,
+          "unit": "percent_approx"
+        }
+      ]
+    }
+  ]
+}
