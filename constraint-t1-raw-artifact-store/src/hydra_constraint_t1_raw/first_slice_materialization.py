@@ -14,7 +14,12 @@ from pathlib import Path
 import re
 from typing import Any, Mapping
 
-from .store import RawArtifactStore, build_release_manifest, is_ordinary_t2_eligible
+from .store import (
+    ALLOWED_DISPOSITIONS,
+    RawArtifactStore,
+    build_release_manifest,
+    is_ordinary_t2_eligible,
+)
 
 
 CAPTURE_PLAN_SCHEMA = "hydra-constraint-first-slice-local-capture-plan/v1"
@@ -155,7 +160,7 @@ def _capture_rows(
         disposition = raw.get("processing_disposition", "ELIGIBLE")
         if not isinstance(source_version_id, str) or not source_version_id:
             raise FirstSliceMaterializationError(f"{source_id}: source_version_id required")
-        if not isinstance(content_type, str) or not content_type:
+        if not isinstance(content_type, str) or not content_type.strip():
             raise FirstSliceMaterializationError(f"{source_id}: content_type required")
         if not isinstance(acquired_at, str):
             raise FirstSliceMaterializationError(f"{source_id}: acquired_at required")
@@ -307,6 +312,10 @@ def validate_public_materialization_attestation(
     registry: Mapping[str, Any],
 ) -> None:
     """Check public structure and hashes; this does not verify timestamp authority."""
+    if not isinstance(attestation, Mapping):
+        raise FirstSliceMaterializationError("attestation object required")
+    if not isinstance(registry, Mapping):
+        raise FirstSliceMaterializationError("registry object required")
     registry_sources = _registry_sources(registry)
     if attestation.get("schema_version") != ATTESTATION_SCHEMA:
         raise FirstSliceMaterializationError("unsupported attestation schema")
@@ -391,6 +400,21 @@ def validate_public_materialization_attestation(
         label = f"members[{index}]"
         if not isinstance(member, Mapping) or set(member) != expected_member_fields:
             raise FirstSliceMaterializationError(f"{label}: field set invalid")
+        byte_length = member.get("byte_length")
+        if type(byte_length) is not int or byte_length <= 0:
+            raise FirstSliceMaterializationError(f"{label}.byte_length invalid")
+        content_type = member.get("content_type")
+        if not isinstance(content_type, str) or not content_type.strip():
+            raise FirstSliceMaterializationError(f"{label}.content_type invalid")
+        processing_disposition = member.get("processing_disposition")
+        if (not isinstance(processing_disposition, str)
+                or processing_disposition not in ALLOWED_DISPOSITIONS):
+            raise FirstSliceMaterializationError(f"{label}.processing_disposition invalid")
+        ordinary_eligible = member.get("ordinary_t2_eligible")
+        if type(ordinary_eligible) is not bool:
+            raise FirstSliceMaterializationError(
+                f"{label}.ordinary_t2_eligible must be a boolean"
+            )
         source_version_id = member.get("source_version_id")
         artifact_sha256 = member.get("artifact_sha256")
         receipt_sha256 = member.get("receipt_sha256")
@@ -412,9 +436,9 @@ def validate_public_materialization_attestation(
             raise FirstSliceMaterializationError(
                 f"{label}: conservative attestation requires AVAILABLE_AT=ACQUIRED_AT"
             )
-        if member.get("ordinary_t2_eligible") is True:
+        if ordinary_eligible:
             ordinary_count += 1
-            if member.get("processing_disposition") != "ELIGIBLE":
+            if processing_disposition != "ELIGIBLE":
                 raise FirstSliceMaterializationError(
                     f"{label}: ordinary eligibility conflicts with processing disposition"
                 )
@@ -425,17 +449,21 @@ def validate_public_materialization_attestation(
             "receipt_sha256": receipt_sha256,
         })
 
-    if attestation.get("registry_source_count") != len(registry_sources):
-        raise FirstSliceMaterializationError("registry_source_count drift")
-    if attestation.get("materialized_source_count") != len(members):
-        raise FirstSliceMaterializationError("materialized_source_count drift")
-    if attestation.get("ordinary_t2_eligible_count") != ordinary_count:
-        raise FirstSliceMaterializationError("ordinary_t2_eligible_count drift")
-    if attestation.get("ordinary_t2_blocked_count") != len(members) - ordinary_count:
-        raise FirstSliceMaterializationError("ordinary_t2_blocked_count drift")
+    expected_counts = {
+        "registry_source_count": len(registry_sources),
+        "materialized_source_count": len(members),
+        "ordinary_t2_eligible_count": ordinary_count,
+        "ordinary_t2_blocked_count": len(members) - ordinary_count,
+    }
+    for field, expected_count in expected_counts.items():
+        actual_count = attestation.get(field)
+        if type(actual_count) is not int:
+            raise FirstSliceMaterializationError(f"{field} must be an exact integer")
+        if actual_count != expected_count:
+            raise FirstSliceMaterializationError(f"{field} drift")
     if attestation.get("all_registry_sources_materialized") is not True:
         raise FirstSliceMaterializationError("attestation does not cover all registry sources")
-    if attestation.get("all_sources_ordinary_t2_eligible") != (ordinary_count == len(members)):
+    if attestation.get("all_sources_ordinary_t2_eligible") is not (ordinary_count == len(members)):
         raise FirstSliceMaterializationError("all_sources_ordinary_t2_eligible drift")
 
     release_id = attestation.get("release_id")
