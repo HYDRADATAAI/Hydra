@@ -198,6 +198,23 @@ class OrdinaryT2EvidenceLineageTests(unittest.TestCase):
                 expected_slice_id=self.slice_id,
             )
 
+    def test_validator_rejects_unhashable_output_evidence_ids(self):
+        for disposition, row_key, error in (
+            ("binding", "bindings", "binding evidence identity"),
+            ("excluded", "excluded_evidence", "excluded evidence identity"),
+        ):
+            with self.subTest(disposition=disposition):
+                packet = self.build()
+                packet[row_key][0]["evidence_id"] = []
+                with self.assertRaisesRegex(OrdinaryT2EvidenceLineageError, error):
+                    validate_ordinary_t2_evidence_lineage(
+                        packet=packet,
+                        lineage_packet=self.lineage,
+                        source_records=self.source_records,
+                        evidence_records=self.evidence,
+                        expected_slice_id=self.slice_id,
+                    )
+
     def test_evidence_identifiers_must_be_nonblank_in_builder_and_validator(self):
         packet = self.build()
         for field in ("evidence_id", "source_id", "origin_artifact"):
