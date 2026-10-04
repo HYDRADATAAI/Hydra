@@ -112,6 +112,124 @@ class AuthorityEnvelopeTests(unittest.TestCase):
         self.assertFalse(nested.valid)
         self.assertIn("authority_input_invalid", {issue.code for issue in nested.issues})
 
+    def test_signed_authority_mapping_key_aliases_are_rejected(self) -> None:
+        class AliasKey(str):
+            def __new__(cls, value: str, expected: str):
+                instance = super().__new__(cls, value)
+                instance.expected = expected
+                return instance
+
+            def __eq__(self, other):
+                return str(other) == self.expected
+
+            __hash__ = lambda self: hash(self.expected)
+
+        top_level = self._envelope()
+        value = top_level.pop("schema_version")
+        top_level[AliasKey("signed-as-other-field", "schema_version")] = value
+        self._resign(top_level)
+        self.assertTrue(
+            self.verifier.verify(
+                key_id=self.key_id,
+                message=authority_signing_bytes(top_level),
+                signature=top_level["signature"],
+                method="HMAC-SHA256",
+            )
+        )
+        top_level_result = self._validate(top_level)
+        self.assertFalse(top_level_result.valid)
+        self.assertIn("authority_field_missing", {issue.code for issue in top_level_result.issues})
+
+        bindings_envelope = self._envelope()
+        bindings = dict(bindings_envelope["bindings"])
+        binding_value = bindings.pop("input_sha256")
+        bindings[AliasKey("signed-as-other-digest", "input_sha256")] = binding_value
+        bindings_envelope["bindings"] = bindings
+        self._resign(bindings_envelope)
+        bindings_result = self._validate(bindings_envelope)
+        self.assertFalse(bindings_result.valid)
+        self.assertIn("authority_bindings_invalid", {issue.code for issue in bindings_result.issues})
+
+    def test_signed_split_view_authority_mapping_is_rejected(self) -> None:
+        class SplitViewMapping(Mapping):
+            def __init__(self, data):
+                self.data = data
+
+            def __getitem__(self, key):
+                return self.data[key]
+
+            def __iter__(self):
+                return iter(self.data)
+
+            def __len__(self):
+                return len(self.data)
+
+            def items(self):
+                return [
+                    (key, "TRADE" if key == "operation" else value)
+                    for key, value in self.data.items()
+                ]
+
+        envelope = SplitViewMapping(self._envelope())
+        signature = sign_hmac_sha256(envelope, key=self.key)
+        object.__setattr__(envelope, "signature", signature)
+    def test_signed_split_view_authority_mapping_is_rejected(self) -> None:
+        class SplitViewMapping(Mapping):
+            def __init__(self, data):
+                self.data = data
+
+            def __getitem__(self, key):
+                return self.data[key]
+
+            def __iter__(self):
+                return iter(self.data)
+
+            def __len__(self):
+                return len(self.data)
+
+            def items(self):
+                return [
+                    (key, "TRADE" if key == "operation" else value)
+                    for key, value in self.data.items()
+                ]
+
+        data = self._envelope()
+        envelope = SplitViewMapping(data)
+        data["signature"] = sign_hmac_sha256(envelope, key=self.key)
+        self.assertTrue(
+            self.verifier.verify(
+                key_id=self.key_id,
+                message=authority_signing_bytes(envelope),
+                signature=data["signature"],
+                method="HMAC-SHA256",
+            )
+        )
+
+        result = self._validate(envelope)
+        self.assertFalse(result.valid)
+        self.assertIn("authority_signature_invalid", {issue.code for issue in result.issues})
+
+    def test_signed_negative_int_subclass_sequence_is_rejected(self) -> None:
+        class NegativeLyingInt(int):
+            def __lt__(self, other):
+                return False
+
+        envelope = self._envelope()
+        envelope["revocation"]["sequence"] = NegativeLyingInt(-1)
+        self._resign(envelope)
+        self.assertTrue(
+            self.verifier.verify(
+                key_id=self.key_id,
+                message=authority_signing_bytes(envelope),
+                signature=envelope["signature"],
+                method="HMAC-SHA256",
+            )
+        )
+
+        result = self._validate(envelope)
+        self.assertFalse(result.valid)
+        self.assertIn("authority_revocation_sequence_invalid", {issue.code for issue in result.issues})
+
     def test_valid_signed_authority_is_accepted(self) -> None:
         result = self._validate(self._envelope())
         self.assertTrue(result.valid)
