@@ -42,9 +42,12 @@ def _validate_input_fields(raw: Any, label: str) -> None:
     """Reject unsupported claims and malformed required metadata at every entry."""
     _require(isinstance(raw, Mapping), f"{label}: object required")
     _require(set(raw) <= EVIDENCE_RECORD_FIELDS, f"{label}: unsupported input fields")
-    for field in ("source_id", "origin_artifact"):
+    for field in ("evidence_id", "source_id", "origin_artifact"):
         value = raw.get(field)
-        _require(isinstance(value, str) and value, f"{label}.{field}: nonempty string required")
+        _require(
+            isinstance(value, str) and value.strip(),
+            f"{label}.{field}: nonblank string required",
+        )
 
 
 def _dt(value: Any, label: str) -> datetime:
@@ -79,6 +82,10 @@ def build_ordinary_t2_evidence_lineage(
     expected_slice_id: str,
 ) -> dict[str, Any]:
     """Bind evidence IDs to exact eligible source versions and hashes."""
+    _require(
+        isinstance(expected_slice_id, str) and expected_slice_id.strip(),
+        "expected_slice_id must be a nonblank string",
+    )
     try:
         validate_ordinary_t2_lineage(
             packet=lineage_packet,
@@ -107,7 +114,7 @@ def build_ordinary_t2_evidence_lineage(
         evidence_id = raw.get("evidence_id")
         source_id = raw.get("source_id")
         _require(
-            isinstance(evidence_id, str) and evidence_id,
+            isinstance(evidence_id, str) and evidence_id.strip(),
             f"evidence_records[{index}].evidence_id required",
         )
         _require(evidence_id not in seen_evidence, f"duplicate evidence_id: {evidence_id}")
@@ -216,6 +223,22 @@ def validate_ordinary_t2_evidence_lineage(
     expected_slice_id: str,
 ) -> None:
     """Validate exact evidence-to-source-version lineage and fail-closed authority."""
+    _require(isinstance(packet, Mapping), "evidence-lineage packet must be an object")
+    _require(
+        isinstance(expected_slice_id, str) and expected_slice_id.strip(),
+        "expected_slice_id must be a nonblank string",
+    )
+    declared_slice_id = packet.get("slice_id")
+    _require(
+        isinstance(declared_slice_id, str) and declared_slice_id.strip(),
+        "evidence-lineage slice_id must be a nonblank string",
+    )
+    _require(
+        isinstance(evidence_records, Sequence)
+        and not isinstance(evidence_records, (str, bytes, bytearray))
+        and len(evidence_records) > 0,
+        "evidence records required",
+    )
     try:
         validate_ordinary_t2_lineage(
             packet=lineage_packet,
@@ -242,8 +265,17 @@ def validate_ordinary_t2_evidence_lineage(
     _require(packet.get("slice_id") == expected_slice_id, "evidence-lineage slice mismatch")
     _require(packet.get("source_lineage_release_id") == lineage_packet["release_id"], "source-lineage release id drift")
     _require(packet.get("source_lineage_release_sha256") == lineage_packet["release_sha256"], "source-lineage release sha drift")
-    _require(packet.get("input_evidence_record_count") == len(evidence_records), "input evidence count drift")
-    _require(packet.get("active_source_count") == lineage_packet["source_count"], "active source count drift")
+    input_count = packet.get("input_evidence_record_count")
+    _require(
+        type(input_count) is int and input_count == len(evidence_records),
+        "input evidence count must be an integer matching evidence records",
+    )
+    active_source_count = packet.get("active_source_count")
+    _require(
+        type(active_source_count) is int
+        and active_source_count == lineage_packet["source_count"],
+        "active source count must be an integer matching source lineage",
+    )
     _require(packet.get("ordinary_t2_evidence_lineage_complete_for_active_reviewed_evidence") is True, "active evidence lineage incomplete")
     _require(packet.get("strict_historical_replay_ready") is False, "strict historical replay promoted")
     _require(packet.get("historical_availability_backdated") is False, "historical availability backdated")
@@ -257,15 +289,26 @@ def validate_ordinary_t2_evidence_lineage(
     excluded = packet.get("excluded_evidence")
     _require(isinstance(bindings, list), "bindings list required")
     _require(isinstance(excluded, list), "excluded evidence list required")
-    _require(packet.get("bound_evidence_count") == len(bindings), "bound evidence count drift")
-    _require(packet.get("excluded_evidence_count") == len(excluded), "excluded evidence count drift")
+    bound_count = packet.get("bound_evidence_count")
+    _require(
+        type(bound_count) is int and bound_count == len(bindings),
+        "bound evidence count must be an integer matching bindings",
+    )
+    excluded_count = packet.get("excluded_evidence_count")
+    _require(
+        type(excluded_count) is int and excluded_count == len(excluded),
+        "excluded evidence count must be an integer matching exclusions",
+    )
     _require(len(bindings) + len(excluded) == len(evidence_records), "evidence disposition count mismatch")
 
     input_by_id: dict[str, Mapping[str, Any]] = {}
     for index, raw in enumerate(evidence_records):
         _validate_input_fields(raw, f"evidence_records[{index}]")
         evidence_id = raw.get("evidence_id")
-        _require(isinstance(evidence_id, str) and evidence_id, "input evidence_id invalid")
+        _require(
+            isinstance(evidence_id, str) and evidence_id.strip(),
+            "input evidence_id invalid",
+        )
         _require(evidence_id not in input_by_id, f"duplicate evidence_id: {evidence_id}")
         input_by_id[evidence_id] = raw
 
@@ -314,7 +357,11 @@ def validate_ordinary_t2_evidence_lineage(
         _require(row["origin_artifact"] == raw.get("origin_artifact"), f"{evidence_id}: excluded origin drift")
         _require(row["exclusion_reason"] == EXCLUDED_SOURCE_REASON, f"{evidence_id}: exclusion reason drift")
     _require(seen == set(input_by_id), "not all input evidence was dispositioned")
-    _require(packet.get("active_source_count_with_bound_evidence") == len(bound_sources), "bound active-source count drift")
+    bound_source_count = packet.get("active_source_count_with_bound_evidence")
+    _require(
+        type(bound_source_count) is int and bound_source_count == len(bound_sources),
+        "bound active-source count must be an integer matching bound sources",
+    )
     _require(packet.get("all_active_sources_have_bound_evidence") is (bound_sources == set(members)), "active-source coverage flag drift")
 
     boundaries = packet.get("availability_boundaries")
