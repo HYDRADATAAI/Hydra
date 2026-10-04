@@ -64,9 +64,6 @@ def parse_json_document(
 ) -> JSONDocument:
     try:
         raw = coerce_document_bytes(value)
-    except (TypeError, ValueError, RecursionError) as exc:
-        raw = b""
-        return JSONDocument(raw, sha256_hex(raw), None, (Issue("document_type_invalid", str(exc), label),))
     except Exception:
         raw = b""
         return JSONDocument(

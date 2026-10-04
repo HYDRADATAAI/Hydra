@@ -177,6 +177,25 @@ class NativeT5T6AdmissionTests(unittest.TestCase):
         self.assertFalse(result.admitted)
         self.assertIn("document_type_invalid", {issue.code for issue in result.issues})
 
+    def test_unprintable_mapping_exception_fails_closed(self) -> None:
+        class UnprintableTypeError(TypeError):
+            def __str__(self):
+                raise RuntimeError("exception formatting failed")
+
+        class BrokenMapping(Mapping):
+            def __getitem__(self, key):
+                raise UnprintableTypeError()
+
+            def __iter__(self):
+                raise UnprintableTypeError()
+
+            def __len__(self):
+                return 1
+
+        result = self.validate(BrokenMapping(), None)
+        self.assertFalse(result.admitted)
+        self.assertIn("document_type_invalid", {issue.code for issue in result.issues})
+
     def test_missing_admission_receipt_fails_closed(self) -> None:
         result = self.validate(self.manifest(), None)
         self.assertFalse(result.admitted)
