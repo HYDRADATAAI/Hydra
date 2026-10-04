@@ -369,7 +369,11 @@ def parse_json_document(
 
 def _document_depth_exceeds(value: Any, *, max_depth: int) -> bool:
     """Check nesting depth with iterator-frame storage bounded by nesting depth."""
-    stack = [(iter(value.values()), 1)] if isinstance(value, Mapping) else [(iter(value), 1)] if isinstance(value, list) else []
+    stack: list[tuple[Any, int]] = []
+    if isinstance(value, Mapping):
+        stack.append((iter(value.values()), 1))
+    elif isinstance(value, list):
+        stack.append((iter(value), 1))
     while stack:
         try:
             current = next(stack[-1][0])
