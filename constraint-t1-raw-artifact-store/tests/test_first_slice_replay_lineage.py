@@ -8,7 +8,10 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from hydra_constraint_t1_raw.first_slice_materialization import materialize_capture_plan
+from hydra_constraint_t1_raw.first_slice_materialization import (
+    FirstSliceMaterializationError,
+    materialize_capture_plan,
+)
 from hydra_constraint_t1_raw.replay_lineage import (
     ReplayLineageError,
     build_replay_lineage_packet,
@@ -182,6 +185,49 @@ class FirstSliceReplayLineageTests(unittest.TestCase):
             build_replay_lineage_packet(attestation=None, registry=self.registry)
         with self.assertRaisesRegex(ReplayLineageError, "registry object required"):
             build_replay_lineage_packet(attestation=self.attestation, registry=None)
+
+    def test_replay_builder_rejects_whitespace_slice_ids(self):
+        for slice_id in ("   ", "\t\n", "\u2003", "\u00a0"):
+            with self.subTest(boundary="attestation", slice_id=repr(slice_id)):
+                malformed = copy.deepcopy(self.attestation)
+                malformed["slice_id"] = slice_id
+                with self.assertRaisesRegex(FirstSliceMaterializationError, "attestation slice_id mismatch"):
+                    build_replay_lineage_packet(attestation=malformed, registry=self.registry)
+
+            with self.subTest(boundary="registry", slice_id=repr(slice_id)):
+                malformed_registry = copy.deepcopy(self.registry)
+                malformed_registry["slice_id"] = slice_id
+                with self.assertRaisesRegex(FirstSliceMaterializationError, "registry.slice_id required"):
+                    build_replay_lineage_packet(
+                        attestation=self.attestation,
+                        registry=malformed_registry,
+                    )
+
+    def test_replay_validator_rejects_whitespace_slice_ids(self):
+        packet = build_replay_lineage_packet(
+            attestation=self.attestation,
+            registry=self.registry,
+        )
+        for slice_id in ("   ", "\t\n", "\u2003", "\u00a0"):
+            with self.subTest(boundary="packet", slice_id=repr(slice_id)):
+                malformed_packet = copy.deepcopy(packet)
+                malformed_packet["slice_id"] = slice_id
+                with self.assertRaisesRegex(ReplayLineageError, "replay-lineage slice_id required"):
+                    validate_replay_lineage_packet(
+                        packet=malformed_packet,
+                        registry=self.registry,
+                    )
+
+            with self.subTest(boundary="registry", slice_id=repr(slice_id)):
+                malformed_registry = copy.deepcopy(self.registry)
+                malformed_registry["slice_id"] = slice_id
+                malformed_packet = copy.deepcopy(packet)
+                malformed_packet["slice_id"] = slice_id
+                with self.assertRaisesRegex(ReplayLineageError, "registry.slice_id required"):
+                    validate_replay_lineage_packet(
+                        packet=malformed_packet,
+                        registry=malformed_registry,
+                    )
 
     def test_packet_rejects_missing_root_field(self):
         packet = build_replay_lineage_packet(

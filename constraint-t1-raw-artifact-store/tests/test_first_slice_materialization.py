@@ -96,6 +96,31 @@ class FirstSliceMaterializationTests(unittest.TestCase):
         with self.assertRaisesRegex(FirstSliceMaterializationError, "exactly match registry"):
             self.run_plan(bad)
 
+    def test_capture_plan_and_registry_reject_whitespace_slice_ids_before_store_creation(self):
+        for slice_id in ("   ", "\t\n", "\u2003", "\u00a0"):
+            with self.subTest(boundary="plan", slice_id=repr(slice_id)):
+                bad = copy.deepcopy(self.plan)
+                bad["slice_id"] = slice_id
+                self.assertFalse(self.private.exists())
+                with self.assertRaisesRegex(FirstSliceMaterializationError, "slice_id required"):
+                    self.run_plan(bad)
+                self.assertFalse(self.private.exists())
+
+            with self.subTest(boundary="registry", slice_id=repr(slice_id)):
+                bad_registry = copy.deepcopy(self.registry)
+                bad_plan = copy.deepcopy(self.plan)
+                bad_registry["slice_id"] = slice_id
+                bad_plan["slice_id"] = slice_id
+                self.assertFalse(self.private.exists())
+                with self.assertRaisesRegex(FirstSliceMaterializationError, "registry.slice_id required"):
+                    materialize_capture_plan(
+                        registry=bad_registry,
+                        plan=bad_plan,
+                        private_root=self.private,
+                        public_repo_root=self.repo,
+                    )
+                self.assertFalse(self.private.exists())
+
     def test_whitespace_content_type_is_rejected_before_private_store_creation(self):
         bad = copy.deepcopy(self.plan)
         bad["captures"][1]["content_type"] = "   "
@@ -271,6 +296,29 @@ class FirstSliceMaterializationTests(unittest.TestCase):
             attestation=attestation,
             registry=self.registry,
         )
+
+    def test_public_attestation_and_registry_reject_whitespace_slice_ids(self):
+        attestation = self.run_plan()
+        for slice_id in ("   ", "\t\n", "\u2003", "\u00a0"):
+            with self.subTest(boundary="attestation", slice_id=repr(slice_id)):
+                malformed = copy.deepcopy(attestation)
+                malformed["slice_id"] = slice_id
+                with self.assertRaisesRegex(FirstSliceMaterializationError, "attestation slice_id mismatch"):
+                    validate_public_materialization_attestation(
+                        attestation=malformed,
+                        registry=self.registry,
+                    )
+
+            with self.subTest(boundary="registry", slice_id=repr(slice_id)):
+                malformed_registry = copy.deepcopy(self.registry)
+                malformed_registry["slice_id"] = slice_id
+                malformed_attestation = copy.deepcopy(attestation)
+                malformed_attestation["slice_id"] = slice_id
+                with self.assertRaisesRegex(FirstSliceMaterializationError, "registry.slice_id required"):
+                    validate_public_materialization_attestation(
+                        attestation=malformed_attestation,
+                        registry=malformed_registry,
+                    )
 
     def test_attestation_validator_rejects_non_mapping_roots(self):
         attestation = self.run_plan()
