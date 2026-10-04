@@ -80,6 +80,20 @@ class DocumentMappingBoundsTests(unittest.TestCase):
         self.assertEqual(document.raw, canonical_json_bytes(value))
         self.assertEqual(len(document.raw), 10)
 
+    def test_distinct_string_keys_that_normalize_to_duplicates_are_rejected(self):
+        class IdentityString(str):
+            __hash__ = object.__hash__
+            __eq__ = object.__eq__
+
+        def colliding_mapping():
+            return {IdentityString("field"): 1, IdentityString("field"): 2}
+
+        for value in (colliding_mapping(), {"nested": colliding_mapping()}):
+            with self.subTest(value=value):
+                document = parse_json_document(value, label="input", max_bytes=128)
+                self.assertIsNone(document.value)
+                self.assertEqual([issue.code for issue in document.issues], ["document_type_invalid"])
+
     def test_boolean_mapping_key_keeps_json_encoder_coercion(self):
         value = {True: "yes"}
 
