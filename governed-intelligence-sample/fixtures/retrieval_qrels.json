@@ -1,0 +1,53 @@
+{
+  "corpus_binding": {
+    "normalized_events_sha256": "ec902bc92942197ddceb737b90421f36298b660c0788c99ac4c18b2e1c570e86",
+    "pipeline_manifest_sha256": "f8c232d371dc9151e318cde6fccb54ecd977b2b9c9b0fb779d52a8905fc6b111",
+    "record_ids": [
+      "0dc3a510144754af42f61cf3a72f51fcbf90aed765d28053032e8fb857946458",
+      "5661c842227f80f2866a673d1e09c092fb7de3a2c3663eaa3f018953d0aa516c",
+      "5dce66c1857f0ebbdfad7a907e8ee839592f303dd768cb238aff06112f3bd271"
+    ]
+  },
+  "judgments": [
+    {
+      "case_id": "accepted-aaa-ranks-first",
+      "relevant_record_ids": [
+        "5dce66c1857f0ebbdfad7a907e8ee839592f303dd768cb238aff06112f3bd271"
+      ]
+    },
+    {
+      "case_id": "accepted-bbb-ranks-first",
+      "relevant_record_ids": [
+        "0dc3a510144754af42f61cf3a72f51fcbf90aed765d28053032e8fb857946458"
+      ]
+    },
+    {
+      "case_id": "accepted-eee-ranks-first",
+      "relevant_record_ids": [
+        "5661c842227f80f2866a673d1e09c092fb7de3a2c3663eaa3f018953d0aa516c"
+      ]
+    },
+    {
+      "case_id": "shared-source-bounded-recall",
+      "relevant_record_ids": [
+        "0dc3a510144754af42f61cf3a72f51fcbf90aed765d28053032e8fb857946458",
+        "5dce66c1857f0ebbdfad7a907e8ee839592f303dd768cb238aff06112f3bd271"
+      ]
+    },
+    {
+      "case_id": "currency-only-quality-miss",
+      "relevant_record_ids": [
+        "0dc3a510144754af42f61cf3a72f51fcbf90aed765d28053032e8fb857946458",
+        "5661c842227f80f2866a673d1e09c092fb7de3a2c3663eaa3f018953d0aa516c",
+        "5dce66c1857f0ebbdfad7a907e8ee839592f303dd768cb238aff06112f3bd271"
+      ]
+    },
+    {
+      "case_id": "venue-only-quality-miss",
+      "relevant_record_ids": [
+        "5661c842227f80f2866a673d1e09c092fb7de3a2c3663eaa3f018953d0aa516c"
+      ]
+    }
+  ],
+  "schema_version": "hydra-governed-retrieval-qrels/v1"
+}

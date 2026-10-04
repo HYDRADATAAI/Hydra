@@ -4,9 +4,11 @@ from __future__ import annotations
 
 import hashlib
 import json
+import math
 import re
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
+from types import MappingProxyType
 from typing import Any, Mapping
 
 
@@ -31,6 +33,21 @@ EVENT_FIELDS = {
     "venue",
     "volume",
 }
+EVENT_STRING_FIELDS = {
+    "currency",
+    "event_id",
+    "event_time_utc",
+    "price",
+    "raw_record_sha256",
+    "source_file_sha256",
+    "source_record_id",
+    "source_system",
+    "symbol",
+    "transform_version",
+    "venue",
+}
+NORMALIZED_EVENT_TRANSFORM_VERSION = "hydra-market-normalizer/v1"
+IMMUTABLE_MAPPING_TYPE = type(MappingProxyType({}))
 
 
 class ContractError(ValueError):
@@ -48,6 +65,7 @@ class Policy:
     refused_tasks: tuple[str, ...]
     max_context_records: int
     sha256: str
+    _source_bytes: bytes = field(repr=False, compare=False)
 
 
 @dataclass(frozen=True)
@@ -56,13 +74,18 @@ class Evidence:
     manifest: Mapping[str, Any]
     manifest_sha256: str
     accepted_events: tuple[Mapping[str, Any], ...]
+    normalized_filename: str
     normalized_sha256: str
     quarantine_sha256: str
+    _manifest_bytes: bytes = field(repr=False, compare=False)
+    _output_snapshots: tuple[tuple[str, bytes], ...] = field(
+        repr=False, compare=False
+    )
 
 
 def canonical_json_bytes(value: Any) -> bytes:
     return json.dumps(
-        value,
+        _json_value(value),
         allow_nan=False,
         ensure_ascii=False,
         separators=(",", ":"),
@@ -74,20 +97,55 @@ def sha256_hex(value: bytes) -> str:
     return hashlib.sha256(value).hexdigest()
 
 
+def _freeze_json(value: Any) -> Any:
+    if isinstance(value, dict):
+        return MappingProxyType(
+            {key: _freeze_json(item) for key, item in value.items()}
+        )
+    if isinstance(value, list):
+        return tuple(_freeze_json(item) for item in value)
+    return value
+
+
+def _json_value(value: Any) -> Any:
+    if isinstance(value, Mapping):
+        return {key: _json_value(item) for key, item in value.items()}
+    if isinstance(value, (list, tuple)):
+        return [_json_value(item) for item in value]
+    return value
+
+
 def load_json_document(path: Path) -> Any:
+    document, _ = load_json_document_with_bytes(path)
+    return document
+
+
+def load_json_document_with_bytes(path: Path) -> tuple[Any, bytes]:
+    try:
+        raw = path.read_bytes()
+    except OSError as exc:
+        raise ContractError(f"invalid JSON document {path}: {exc}") from exc
+    return _load_json_bytes(raw, path), raw
+
+
+def _load_json_bytes(raw: bytes, path: Path) -> Any:
     try:
         return json.loads(
-            path.read_text(encoding="utf-8"),
+            raw.decode("utf-8"),
             object_pairs_hook=_unique_object,
             parse_constant=_reject_nonfinite,
         )
-    except (OSError, UnicodeError, json.JSONDecodeError, ContractError) as exc:
+    except (UnicodeError, json.JSONDecodeError, ContractError) as exc:
         raise ContractError(f"invalid JSON document {path}: {exc}") from exc
 
 
 def load_policy(path: str | Path) -> Policy:
     policy_path = Path(path)
-    document = load_json_document(policy_path)
+    document, policy_bytes = load_json_document_with_bytes(policy_path)
+    return _policy_from_document(document, policy_bytes)
+
+
+def _policy_from_document(document: Any, policy_bytes: bytes) -> Policy:
     if not isinstance(document, dict):
         raise ContractError("policy root must be an object")
 
@@ -137,14 +195,77 @@ def load_policy(path: str | Path) -> Policy:
         abstained_tasks=task_groups["abstained_tasks"],
         refused_tasks=task_groups["refused_tasks"],
         max_context_records=document["max_context_records"],
-        sha256=sha256_hex(policy_path.read_bytes()),
+        sha256=sha256_hex(policy_bytes),
+        _source_bytes=policy_bytes,
     )
+
+
+def _validate_policy_binding(policy: Policy) -> None:
+    if type(policy) is not Policy or type(policy._source_bytes) is not bytes:
+        raise IntegrityError("policy semantic binding is invalid")
+    if (
+        type(policy.allowed_tasks) is not tuple
+        or type(policy.abstained_tasks) is not tuple
+        or type(policy.refused_tasks) is not tuple
+        or any(
+            type(task) is not str
+            for group in (
+                policy.allowed_tasks,
+                policy.abstained_tasks,
+                policy.refused_tasks,
+            )
+            for task in group
+        )
+        or type(policy.max_context_records) is not int
+        or type(policy.sha256) is not str
+    ):
+        raise IntegrityError("policy semantic binding is invalid")
+    try:
+        document = _load_json_bytes(policy._source_bytes, Path("<policy snapshot>"))
+        expected = _policy_from_document(document, policy._source_bytes)
+        actual_binding = canonical_json_bytes(_policy_semantic_document(policy))
+        expected_binding = canonical_json_bytes(_policy_semantic_document(expected))
+    except (ContractError, TypeError, ValueError) as exc:
+        raise IntegrityError(f"policy semantic binding is invalid: {exc}") from exc
+    if actual_binding != expected_binding:
+        raise IntegrityError("policy semantic binding is invalid")
+
+
+def _policy_semantic_document(policy: Policy) -> dict[str, Any]:
+    return {
+        "abstained_tasks": list(policy.abstained_tasks),
+        "allowed_tasks": list(policy.allowed_tasks),
+        "max_context_records": policy.max_context_records,
+        "refused_tasks": list(policy.refused_tasks),
+        "sha256": policy.sha256,
+    }
 
 
 def load_evidence(directory: str | Path) -> Evidence:
     root = Path(directory).resolve()
     manifest_path = root / "manifest.json"
-    manifest = load_json_document(manifest_path)
+    manifest, manifest_bytes = load_json_document_with_bytes(manifest_path)
+    _, resolved_outputs = _validated_manifest_outputs(manifest, root)
+
+    output_bytes: dict[str, bytes] = {}
+    for key, path in resolved_outputs.items():
+        try:
+            output_bytes[key] = path.read_bytes()
+        except OSError as exc:
+            raise IntegrityError(f"unable to read manifest output {key}: {exc}") from exc
+
+    return _evidence_from_snapshots(
+        root,
+        manifest,
+        manifest_bytes,
+        output_bytes,
+        resolved_outputs,
+    )
+
+
+def _validated_manifest_outputs(
+    manifest: Any, root: Path
+) -> tuple[dict[str, Any], dict[str, Path]]:
     if not isinstance(manifest, dict):
         raise ContractError("pipeline manifest root must be an object")
     if manifest.get("schema_version") != PIPELINE_MANIFEST_SCHEMA:
@@ -171,16 +292,38 @@ def load_evidence(directory: str | Path) -> Evidence:
         path = (root / filename).resolve()
         if path.parent != root:
             raise ContractError(f"manifest output {key} escapes the artifact directory")
-        try:
-            actual_digest = sha256_hex(path.read_bytes())
-        except OSError as exc:
-            raise IntegrityError(f"unable to read manifest output {key}: {exc}") from exc
-        if actual_digest != digest:
-            raise IntegrityError(f"manifest digest mismatch for {filename}")
         resolved_outputs[key] = path
 
-    accepted = _load_jsonl(resolved_outputs["normalized_events_jsonl"])
-    quarantined = _load_jsonl(resolved_outputs["quarantine_records_jsonl"])
+    return outputs, resolved_outputs
+
+
+def _evidence_from_snapshots(
+    root: Path,
+    manifest: dict[str, Any],
+    manifest_bytes: bytes,
+    output_bytes: Mapping[str, bytes],
+    resolved_outputs: Mapping[str, Path],
+) -> Evidence:
+    outputs, expected_paths = _validated_manifest_outputs(manifest, root)
+    if dict(resolved_outputs) != expected_paths:
+        raise IntegrityError("evidence output paths do not match the manifest")
+    if set(output_bytes) != set(outputs):
+        raise IntegrityError("evidence output snapshots do not match the manifest")
+    for key, descriptor in outputs.items():
+        raw_output = output_bytes[key]
+        if type(raw_output) is not bytes:
+            raise IntegrityError(f"manifest output {key} snapshot is invalid")
+        if sha256_hex(raw_output) != descriptor["sha256"]:
+            raise IntegrityError(f"manifest digest mismatch for {descriptor['file']}")
+
+    accepted = _load_jsonl_bytes(
+        output_bytes["normalized_events_jsonl"],
+        resolved_outputs["normalized_events_jsonl"],
+    )
+    quarantined = _load_jsonl_bytes(
+        output_bytes["quarantine_records_jsonl"],
+        resolved_outputs["quarantine_records_jsonl"],
+    )
     if manifest.get("accepted_rows") != len(accepted):
         raise IntegrityError("accepted row count does not match the manifest")
     if manifest.get("quarantined_rows") != len(quarantined):
@@ -192,32 +335,140 @@ def load_evidence(directory: str | Path) -> Evidence:
 
     seen_ids: set[str] = set()
     for event in accepted:
-        if set(event) != EVENT_FIELDS:
-            raise ContractError("normalized event fields do not match the v1 contract")
-        event_id = event.get("event_id")
-        if not isinstance(event_id, str) or not SHA256_PATTERN.fullmatch(event_id):
-            raise ContractError("normalized event_id is invalid")
+        _validate_normalized_event(event, source_digest=source_digest)
+        event_id = event["event_id"]
         if event_id in seen_ids:
             raise IntegrityError("normalized event_id is duplicated")
         seen_ids.add(event_id)
-        if event.get("source_file_sha256") != source_digest:
-            raise IntegrityError("event source digest does not match the manifest")
-        if not isinstance(event.get("symbol"), str) or not event["symbol"]:
-            raise ContractError("normalized event symbol is invalid")
 
+    immutable_manifest = _freeze_json(manifest)
+    immutable_accepted = tuple(
+        _freeze_json(event) for event in sorted(accepted, key=lambda record: record["event_id"])
+    )
     return Evidence(
         directory=root,
-        manifest=manifest,
-        manifest_sha256=sha256_hex(manifest_path.read_bytes()),
-        accepted_events=tuple(sorted(accepted, key=lambda record: record["event_id"])),
+        manifest=immutable_manifest,
+        manifest_sha256=sha256_hex(manifest_bytes),
+        accepted_events=immutable_accepted,
+        normalized_filename=outputs["normalized_events_jsonl"]["file"],
         normalized_sha256=outputs["normalized_events_jsonl"]["sha256"],
         quarantine_sha256=outputs["quarantine_records_jsonl"]["sha256"],
+        _manifest_bytes=manifest_bytes,
+        _output_snapshots=tuple(
+            (key, output_bytes[key]) for key in sorted(output_bytes)
+        ),
     )
+
+
+def _validate_normalized_event(
+    event: Mapping[str, Any], *, source_digest: str
+) -> None:
+    if set(event) != EVENT_FIELDS:
+        raise ContractError("normalized event fields do not match the v1 contract")
+    for field in EVENT_STRING_FIELDS:
+        if type(event[field]) is not str:
+            raise ContractError(f"normalized event {field} must be a string")
+    for field in ("event_id", "raw_record_sha256", "source_file_sha256"):
+        if not SHA256_PATTERN.fullmatch(event[field]):
+            raise ContractError(f"normalized event {field} is invalid")
+    if event["source_file_sha256"] != source_digest:
+        raise IntegrityError("event source digest does not match the manifest")
+    if type(event["source_row_number"]) is not int or event["source_row_number"] < 2:
+        raise ContractError("normalized event source_row_number is invalid")
+    if type(event["volume"]) is not int or event["volume"] < 0:
+        raise ContractError("normalized event volume is invalid")
+    if event["transform_version"] != NORMALIZED_EVENT_TRANSFORM_VERSION:
+        raise ContractError("normalized event transform_version is invalid")
+
+
+def _validate_evidence_binding(evidence: Evidence) -> None:
+    if type(evidence) is not Evidence:
+        raise IntegrityError("evidence semantic binding is invalid")
+    if (
+        not isinstance(evidence.directory, Path)
+        or type(evidence.manifest_sha256) is not str
+        or type(evidence.accepted_events) is not tuple
+        or type(evidence.normalized_filename) is not str
+        or type(evidence.normalized_sha256) is not str
+        or type(evidence.quarantine_sha256) is not str
+        or type(evidence._manifest_bytes) is not bytes
+        or type(evidence._output_snapshots) is not tuple
+    ):
+        raise IntegrityError("evidence semantic binding is invalid")
+    _require_immutable_json(evidence.manifest)
+    _require_immutable_json(evidence.accepted_events)
+
+    snapshots: dict[str, bytes] = {}
+    for item in evidence._output_snapshots:
+        if (
+            type(item) is not tuple
+            or len(item) != 2
+            or type(item[0]) is not str
+            or type(item[1]) is not bytes
+            or item[0] in snapshots
+        ):
+            raise IntegrityError("evidence output snapshot binding is invalid")
+        snapshots[item[0]] = item[1]
+
+    try:
+        manifest = _load_json_bytes(
+            evidence._manifest_bytes,
+            evidence.directory / "<manifest snapshot>",
+        )
+        _, resolved_outputs = _validated_manifest_outputs(
+            manifest, evidence.directory
+        )
+        expected = _evidence_from_snapshots(
+            evidence.directory,
+            manifest,
+            evidence._manifest_bytes,
+            snapshots,
+            resolved_outputs,
+        )
+        actual_binding = canonical_json_bytes(
+            _evidence_semantic_document(evidence)
+        )
+        expected_binding = canonical_json_bytes(
+            _evidence_semantic_document(expected)
+        )
+    except (ContractError, IntegrityError, OSError, TypeError, ValueError) as exc:
+        raise IntegrityError(f"evidence semantic binding is invalid: {exc}") from exc
+    if actual_binding != expected_binding:
+        raise IntegrityError("evidence semantic binding is invalid")
+
+
+def _evidence_semantic_document(evidence: Evidence) -> dict[str, Any]:
+    return {
+        "accepted_events": evidence.accepted_events,
+        "manifest": evidence.manifest,
+        "manifest_sha256": evidence.manifest_sha256,
+        "normalized_filename": evidence.normalized_filename,
+        "normalized_sha256": evidence.normalized_sha256,
+        "quarantine_sha256": evidence.quarantine_sha256,
+    }
+
+
+def _require_immutable_json(value: Any) -> None:
+    if type(value) is IMMUTABLE_MAPPING_TYPE:
+        for key, item in value.items():
+            if type(key) is not str:
+                raise IntegrityError("evidence semantic binding is invalid")
+            _require_immutable_json(item)
+        return
+    if type(value) is tuple:
+        for item in value:
+            _require_immutable_json(item)
+        return
+    if value is None or type(value) in {bool, int, float, str}:
+        return
+    raise IntegrityError("evidence semantic binding is invalid")
 
 
 def build_decision(
     request: Mapping[str, Any], *, evidence: Evidence, policy: Policy
 ) -> dict[str, Any]:
+    _validate_evidence_binding(evidence)
+    _validate_policy_binding(policy)
     _validate_request(request)
     task_type = request["task_type"]
 
@@ -274,7 +525,7 @@ def build_decision(
     selected = matches[: policy.max_context_records]
     citations = [
         {
-            "artifact": "normalized_events.jsonl",
+            "artifact": evidence.normalized_filename,
             "artifact_sha256": evidence.normalized_sha256,
             "record_id": event["event_id"],
             "record_sha256": sha256_hex(canonical_json_bytes(event)),
@@ -303,6 +554,18 @@ def build_decision(
 def verify_decision(
     decision: Mapping[str, Any], *, evidence: Evidence, policy: Policy
 ) -> None:
+    _require_canonical_decision_json(decision)
+    _validate_evidence_binding(evidence)
+    _validate_policy_binding(policy)
+    request = {
+        "request_id": decision.get("request_id"),
+        "subject": decision.get("subject"),
+        "task_type": decision.get("task_type"),
+    }
+    try:
+        recomputed = build_decision(request, evidence=evidence, policy=policy)
+    except ContractError as exc:
+        raise IntegrityError(f"decision request binding is invalid: {exc}") from exc
     if decision.get("schema_version") != DECISION_SCHEMA:
         raise IntegrityError("decision schema is invalid")
     if decision.get("policy_sha256") != policy.sha256:
@@ -331,6 +594,8 @@ def verify_decision(
     if disposition != "ADMIT":
         if context is not None or citations:
             raise IntegrityError("non-admitted decisions cannot carry context or citations")
+        if canonical_json_bytes(decision) != canonical_json_bytes(recomputed):
+            raise IntegrityError("decision does not match governed recomputation")
         return
     if not isinstance(context, dict) or not citations:
         raise IntegrityError("admitted decisions require context and citations")
@@ -347,12 +612,12 @@ def verify_decision(
                 "record_id": evidence.manifest["pipeline_run_id"],
             }:
                 raise IntegrityError("manifest citation is invalid")
-        elif artifact == "normalized_events.jsonl":
+        elif artifact == evidence.normalized_filename:
             event = events_by_id.get(citation.get("record_id"))
             if event is None:
                 raise IntegrityError("citation record does not resolve")
             expected = {
-                "artifact": "normalized_events.jsonl",
+                "artifact": evidence.normalized_filename,
                 "artifact_sha256": evidence.normalized_sha256,
                 "record_id": event["event_id"],
                 "record_sha256": sha256_hex(canonical_json_bytes(event)),
@@ -404,6 +669,8 @@ def verify_decision(
             raise IntegrityError("quality context must cite only the manifest")
     else:
         raise IntegrityError("admitted context type is invalid")
+    if canonical_json_bytes(decision) != canonical_json_bytes(recomputed):
+        raise IntegrityError("decision does not match governed recomputation")
 
 
 def _decision(
@@ -437,29 +704,51 @@ def _decision(
 def _validate_request(request: Mapping[str, Any]) -> None:
     if not isinstance(request, Mapping):
         raise ContractError("request must be an object")
+    if any(type(key) is not str for key in request):
+        raise ContractError("request field names must be strings")
     if set(request) != {"request_id", "task_type", "subject"}:
         raise ContractError("request fields do not match the v1 contract")
-    if not isinstance(request["request_id"], str) or not REQUEST_ID_PATTERN.fullmatch(
+    if type(request["request_id"]) is not str or not REQUEST_ID_PATTERN.fullmatch(
         request["request_id"]
     ):
         raise ContractError("request_id is invalid")
-    if not isinstance(request["task_type"], str) or not TASK_PATTERN.fullmatch(
+    if type(request["task_type"]) is not str or not TASK_PATTERN.fullmatch(
         request["task_type"]
     ):
         raise ContractError("task_type is invalid")
     subject = request["subject"]
     if subject is not None and (
-        not isinstance(subject, str) or not subject.strip() or len(subject) > 64
+        type(subject) is not str or not subject.strip() or len(subject) > 64
     ):
         raise ContractError("subject must be null or a non-empty string up to 64 characters")
 
 
-def _load_jsonl(path: Path) -> list[dict[str, Any]]:
+def _require_canonical_decision_json(value: Any, *, path: str = "decision") -> None:
+    if type(value) is dict:
+        for key, item in value.items():
+            if type(key) is not str:
+                raise IntegrityError(f"{path} contains a noncanonical object key")
+            _require_canonical_decision_json(item, path=f"{path}.{key}")
+        return
+    if type(value) is list:
+        for index, item in enumerate(value):
+            _require_canonical_decision_json(item, path=f"{path}[{index}]")
+        return
+    if type(value) is float:
+        if not math.isfinite(value):
+            raise IntegrityError(f"{path} contains a non-finite float")
+        return
+    if value is None or type(value) in {bool, int, str}:
+        return
+    raise IntegrityError(f"{path} contains a noncanonical JSON value")
+
+
+def _load_jsonl_bytes(raw: bytes, path: Path) -> list[dict[str, Any]]:
     records: list[dict[str, Any]] = []
     try:
-        lines = path.read_text(encoding="utf-8").splitlines()
-    except (OSError, UnicodeError) as exc:
-        raise ContractError(f"unable to read JSONL artifact {path}: {exc}") from exc
+        lines = raw.decode("utf-8").splitlines()
+    except UnicodeError as exc:
+        raise ContractError(f"unable to decode JSONL artifact {path}: {exc}") from exc
     for line_number, line in enumerate(lines, start=1):
         if not line:
             raise ContractError(f"blank JSONL line in {path} at {line_number}")

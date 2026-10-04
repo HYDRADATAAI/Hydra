@@ -1,4 +1,4 @@
-name: Governed intelligence pre-model and retrieval sample
+name: Governed context, retrieval, and structured grounding sample
 
 on:
   pull_request:
@@ -20,12 +20,15 @@ permissions:
 jobs:
   evaluate:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
 
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
         with:
           python-version: "3.11"
 
@@ -56,20 +59,24 @@ jobs:
             --cases fixtures/evaluation_cases.json \
             --output-dir build/evaluation
 
-      - name: Verify evaluation receipt
+      - name: Check evaluation report contract
         working-directory: governed-intelligence-sample
         run: |
-          python - <<'PY'
+          python -I -B - <<'PY'
           import json
           from pathlib import Path
 
           report = json.loads(Path("build/evaluation/evaluation_report.json").read_text(encoding="utf-8"))
-          assert report["status"] == "PASS", report
-          assert report["case_count"] == 5, report
-          assert report["disposition_counts"] == {"ABSTAIN": 2, "ADMIT": 2, "REFUSE": 1}, report
-          assert report["checks"]["citation_integrity_pass_count"] == 5, report
-          assert report["checks"]["unauthorized_model_execution_count"] == 0, report
-          assert report["checks"]["quarantined_raw_records_exposed_count"] == 0, report
+          def require(actual, expected, label):
+              if actual != expected:
+                  raise SystemExit(f"{label}: expected {expected!r}, got {actual!r}")
+
+          require(report["status"], "PASS", "status")
+          require(report["case_count"], 5, "case_count")
+          require(report["disposition_counts"], {"ABSTAIN": 2, "ADMIT": 2, "REFUSE": 1}, "dispositions")
+          require(report["checks"]["citation_integrity_pass_count"], 5, "citation_integrity")
+          require(report["checks"]["unauthorized_model_execution_count"], 0, "model_execution")
+          require(report["checks"]["quarantined_raw_records_exposed_count"], 0, "raw_exposure")
           print("GOVERNED_INTELLIGENCE_EVAL=PASS")
           PY
 
@@ -82,33 +89,161 @@ jobs:
             --pipeline-output-dir ../market-data-pipeline-sample/build/demo \
             --policy config/retrieval_policy.json \
             --cases fixtures/retrieval_cases.json \
+            --qrels fixtures/retrieval_qrels.json \
             --output-dir build/retrieval
 
-      - name: Verify retrieval benchmark receipt
+      - name: Check retrieval report contract and declared input digests
         working-directory: governed-intelligence-sample
         run: |
-          python - <<'PY'
+          python -I -B - <<'PY'
+          import hashlib
           import json
           from pathlib import Path
 
           report = json.loads(Path("build/retrieval/retrieval_evaluation_report.json").read_text(encoding="utf-8"))
-          assert report["status"] == "PASS", report
-          assert report["case_count"] == 6, report
-          assert report["disposition_counts"] == {"ABSTAIN": 2, "ADMIT": 3, "REFUSE": 1}, report
-          assert report["checks"]["citation_integrity_pass_count"] == 6, report
-          assert report["checks"]["recall_at_k"] == "1.000000", report
-          assert report["checks"]["mean_reciprocal_rank"] == "1.000000", report
-          assert report["checks"]["unauthorized_model_execution_count"] == 0, report
-          assert report["checks"]["quarantined_raw_records_exposed_count"] == 0, report
+          def require(actual, expected, label):
+              if actual != expected:
+                  raise SystemExit(f"{label}: expected {expected!r}, got {actual!r}")
+
+          def digest(path):
+              return hashlib.sha256(Path(path).read_bytes()).hexdigest()
+
+          require(report["schema_version"], "hydra-governed-retrieval-evaluation-report/v3", "schema")
+          require(report["status"], "PASS", "status")
+          require(report["failures"], [], "failures")
+          require(report["case_count"], 13, "case_count")
+          require(report["disposition_counts"], {"ABSTAIN": 6, "ADMIT": 4, "REFUSE": 3}, "dispositions")
+          expected_checks = {
+              "decision_verification_pass_count": 13,
+              "expectation_match_count": 13,
+              "citation_applicable_case_count": 4,
+              "citation_integrity_pass_case_count": 4,
+              "verified_citation_count": 4,
+              "citation_not_applicable_case_count": 9,
+              "quality_case_count": 6,
+              "qrel_case_count": 6,
+              "relevant_judgment_count": 9,
+              "retrieved_relevant_count": 4,
+              "recall_at_k": "0.444444",
+              "micro_recall_at_k": "0.444444",
+              "macro_recall_at_k": "0.583333",
+              "mean_reciprocal_rank": "0.666667",
+              "hard_negative_case_count": 4,
+              "hard_negative_false_admit_count": 0,
+              "unauthorized_model_execution_count": 0,
+              "quarantined_raw_records_exposed_count": 0,
+          }
+          for key, expected in expected_checks.items():
+              require(report["checks"][key], expected, key)
+          manifest = json.loads(Path("../market-data-pipeline-sample/build/demo/manifest.json").read_text(encoding="utf-8"))
+          bindings = report["input_binding"]
+          require(bindings["pipeline_manifest_sha256"], digest("../market-data-pipeline-sample/build/demo/manifest.json"), "manifest_binding")
+          require(bindings["normalized_events_sha256"], manifest["outputs"]["normalized_events_jsonl"]["sha256"], "normalized_binding")
+          require(bindings["retrieval_policy_sha256"], digest("config/retrieval_policy.json"), "policy_binding")
+          require(bindings["retrieval_suite_sha256"], digest("fixtures/retrieval_cases.json"), "suite_binding")
+          require(bindings["retrieval_qrels_sha256"], digest("fixtures/retrieval_qrels.json"), "qrels_binding")
           print("GOVERNED_RETRIEVAL_EVAL=PASS")
           PY
 
+      - name: Build deterministic structured grounding receipts
+        working-directory: governed-intelligence-sample
+        env:
+          PYTHONPATH: src
+        run: |
+          python run_grounding_demo.py \
+            --pipeline-output-dir ../market-data-pipeline-sample/build/demo \
+            --retrieval-policy config/retrieval_policy.json \
+            --grounding-policy config/grounding_policy.json \
+            --cases fixtures/grounding_cases.json \
+            --output-dir build/grounding
+
+      - name: Check grounding report contract and declared input digests
+        working-directory: governed-intelligence-sample
+        run: |
+          python -I -B - <<'PY'
+          import hashlib
+          import json
+          from pathlib import Path
+
+          report = json.loads(Path("build/grounding/grounding_evaluation_report.json").read_text(encoding="utf-8"))
+          def require(actual, expected, label):
+              if actual != expected:
+                  raise SystemExit(f"{label}: expected {expected!r}, got {actual!r}")
+
+          def digest(path):
+              return hashlib.sha256(Path(path).read_bytes()).hexdigest()
+
+          require(report["schema_version"], "hydra-grounding-evaluation-report/v1", "schema")
+          require(report["status"], "PASS", "status")
+          require(report["failures"], [], "failures")
+          require(report["case_count"], 8, "case_count")
+          require(report["disposition_counts"], {"ABSTAIN": 1, "ADMIT": 1, "QUARANTINE": 5, "REFUSE": 1}, "dispositions")
+          expected_checks = {
+              "expectation_match_count": 8,
+              "grounding_integrity_pass_count": 8,
+              "claim_pass_count": 3,
+              "claim_fail_count": 4,
+              "candidate_execution_claim_rejected_count": 1,
+              "required_case_count": 8,
+              "required_case_total": 8,
+              "required_disposition_count": 4,
+              "required_disposition_total": 4,
+              "proof_coverage_status": "PASS",
+              "unauthorized_model_execution_count": 0,
+              "unauthorized_external_action_count": 0,
+              "quarantined_raw_records_exposed_count": 0,
+          }
+          for key, expected in expected_checks.items():
+              require(report["checks"][key], expected, key)
+          bindings = report["input_binding"]
+          require(bindings["grounding_policy_sha256"], digest("config/grounding_policy.json"), "policy_binding")
+          require(bindings["grounding_suite_sha256"], digest("fixtures/grounding_cases.json"), "suite_binding")
+          require(bindings["pipeline_manifest_sha256"], digest("../market-data-pipeline-sample/build/demo/manifest.json"), "manifest_binding")
+          require(bindings["retrieval_policy_sha256"], digest("config/retrieval_policy.json"), "retrieval_policy_binding")
+          print("GOVERNED_GROUNDING_EVAL=PASS")
+          PY
+
+      - name: Verify and package exact artifact snapshots
+        id: package_artifacts
+        run: python -I -B governed-intelligence-sample/src/hydra_governed_intelligence/pre_upload_verifier.py --repository-root . --bundle-path governed-intelligence-sample/build/upload/hydra-governed-intelligence-proof.zip --github-output-path "$GITHUB_OUTPUT"
+
       - name: Publish synthetic pre-model receipts
-        uses: actions/upload-artifact@v4
+        if: ${{ success() && steps.package_artifacts.outcome == 'success' }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: hydra-governed-intelligence-sample
-          path: |
-            governed-intelligence-sample/build/evaluation/
-            governed-intelligence-sample/build/retrieval/
-            market-data-pipeline-sample/build/demo/
+          path: governed-intelligence-sample/build/upload/hydra-governed-intelligence-proof.zip
+          compression-level: 0
           if-no-files-found: error
+
+      - name: Download published proof artifact
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          name: hydra-governed-intelligence-sample
+          path: ${{ runner.temp }}/hydra-governed-intelligence-published-proof
+
+      - name: Verify published proof digest
+        env:
+          DOWNLOADED_BUNDLE_PATH: ${{ runner.temp }}/hydra-governed-intelligence-published-proof/hydra-governed-intelligence-proof.zip
+          EXPECTED_BUNDLE_SHA256: ${{ steps.package_artifacts.outputs.bundle_sha256 }}
+        run: |
+          python -I -B - <<'PY'
+          import hashlib
+          import os
+          import re
+          from pathlib import Path
+
+          def require(condition, detail):
+              if not condition:
+                  raise SystemExit(f"PUBLISHED_ARTIFACT_DIGEST_CHECK=FAIL: {detail}")
+
+          expected = os.environ.get("EXPECTED_BUNDLE_SHA256", "")
+          bundle = Path(os.environ.get("DOWNLOADED_BUNDLE_PATH", ""))
+          require(re.fullmatch(r"[0-9a-f]{64}", expected) is not None, "expected digest is invalid")
+          require(bundle.is_file() and not bundle.is_symlink(), "downloaded inner ZIP is missing")
+          entries = sorted(entry.name for entry in bundle.parent.iterdir())
+          require(entries == [bundle.name], "downloaded artifact member set changed")
+          actual = hashlib.sha256(bundle.read_bytes()).hexdigest()
+          require(actual == expected, f"digest mismatch: expected {expected}, got {actual}")
+          print(f"PUBLISHED_ARTIFACT_DIGEST_CHECK=PASS:{actual}")
+          PY
