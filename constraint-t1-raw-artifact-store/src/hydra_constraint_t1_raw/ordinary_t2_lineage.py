@@ -15,6 +15,7 @@ import json
 import re
 from datetime import datetime
 from typing import Any, Mapping, Sequence
+from urllib.parse import urlsplit
 
 ORDINARY_T2_LINEAGE_SCHEMA = "hydra-constraint-ordinary-t2-source-version-lineage/v1"
 HEX64 = re.compile(r"^[0-9a-f]{64}$")
@@ -71,6 +72,25 @@ def _dt(value: Any, label: str) -> datetime:
     return parsed
 
 
+def _is_https_source_locator(value: Any) -> bool:
+    if not isinstance(value, str) or not value.startswith("https://"):
+        return False
+    if any(char.isspace() or ord(char) < 0x20 or ord(char) == 0x7F for char in value):
+        return False
+    try:
+        parsed = urlsplit(value)
+        hostname = parsed.hostname
+        _ = parsed.port  # Validate any explicit port without restricting its value.
+    except ValueError:
+        return False
+    return (
+        parsed.scheme == "https"
+        and bool(parsed.netloc)
+        and bool(hostname)
+        and not any(char.isspace() for char in hostname)
+    )
+
+
 def _source_scope(
     records: Sequence[Mapping[str, Any]],
 ) -> dict[str, dict[str, Any]]:
@@ -82,14 +102,17 @@ def _source_scope(
         source_id = record.get("source_id")
         source_version_id = record.get("source_version_id")
         source_locator = record.get("source_locator")
-        _require(isinstance(source_id, str) and source_id, f"source_records[{index}].source_id required")
+        _require(
+            isinstance(source_id, str) and source_id.strip(),
+            f"source_records[{index}].source_id required",
+        )
         _require(source_id not in out, f"duplicate source_id: {source_id}")
         _require(
-            isinstance(source_version_id, str) and source_version_id,
+            isinstance(source_version_id, str) and source_version_id.strip(),
             f"{source_id}: source_version_id required",
         )
         _require(
-            isinstance(source_locator, str) and source_locator.startswith("https://"),
+            _is_https_source_locator(source_locator),
             f"{source_id}: HTTPS source_locator required",
         )
         if "processing_disposition" in record:
@@ -120,6 +143,11 @@ def _attestation_members(
 ) -> list[dict[str, Any]]:
     _require(isinstance(attestation, Mapping), "attestation: object required")
     _require(set(attestation) <= ATTESTATION_FIELDS, "attestation: unsupported input fields")
+    declared_slice_id = attestation.get("slice_id")
+    _require(
+        isinstance(declared_slice_id, str) and declared_slice_id.strip(),
+        "attestation slice_id must be a nonblank string",
+    )
     _require(attestation.get("slice_id") == expected_slice_id, "attestation slice_id mismatch")
     _require(
         attestation.get("availability_mode") == CONSERVATIVE_AVAILABILITY,
@@ -149,7 +177,10 @@ def _attestation_members(
 
     release_id = attestation.get("release_id")
     release_sha256 = attestation.get("release_sha256")
-    _require(isinstance(release_id, str) and release_id, "attestation release_id required")
+    _require(
+        isinstance(release_id, str) and release_id.strip(),
+        "attestation release_id required",
+    )
     _require(
         isinstance(release_sha256, str) and HEX64.fullmatch(release_sha256) is not None,
         "attestation release_sha256 invalid",
@@ -157,13 +188,17 @@ def _attestation_members(
 
     members = attestation.get("members")
     _require(isinstance(members, list), "attestation members missing")
+    ordinary_t2_eligible_count = attestation.get("ordinary_t2_eligible_count")
     _require(
-        attestation.get("ordinary_t2_eligible_count") == len(source_scope),
-        "ordinary-T2 eligible count incomplete",
+        type(ordinary_t2_eligible_count) is int
+        and ordinary_t2_eligible_count == len(source_scope),
+        "ordinary-T2 eligible count must be an integer matching active source scope",
     )
+    materialized_source_count = attestation.get("materialized_source_count")
     _require(
-        attestation.get("materialized_source_count") == len(source_scope),
-        "materialized source count incomplete",
+        type(materialized_source_count) is int
+        and materialized_source_count == len(source_scope),
+        "materialized source count must be an integer matching active source scope",
     )
     _require(len(members) == len(source_scope), "attestation member count differs from source scope")
     if "valid_receipt_count" in attestation:
@@ -223,7 +258,7 @@ def _attestation_members(
         content_type = member.get("content_type")
         byte_length = member.get("byte_length")
         _require(
-            isinstance(content_type, str) and content_type,
+            isinstance(content_type, str) and content_type.strip(),
             f"{source_id}: content_type required",
         )
         _require(
@@ -254,6 +289,10 @@ def build_ordinary_t2_lineage(
     expected_slice_id: str,
 ) -> dict[str, Any]:
     """Normalize declared custody metadata; this does not verify timestamp authority."""
+    _require(
+        isinstance(expected_slice_id, str) and expected_slice_id.strip(),
+        "expected_slice_id must be a nonblank string",
+    )
     scope = _source_scope(source_records)
     members = _attestation_members(
         attestation,
@@ -322,6 +361,11 @@ def validate_ordinary_t2_lineage(
     expected_slice_id: str,
 ) -> None:
     """Validate deterministic T2 source-version lineage without authority escalation."""
+    _require(isinstance(packet, Mapping), "ordinary-T2 lineage packet must be an object")
+    _require(
+        isinstance(expected_slice_id, str) and expected_slice_id.strip(),
+        "expected_slice_id must be a nonblank string",
+    )
     allowed = {
         "schema_version", "slice_id", "release_id", "release_sha256",
         "availability_mode", "source_count", "normalized_source_version_count",
@@ -334,12 +378,23 @@ def validate_ordinary_t2_lineage(
     _require(set(packet) == allowed, "ordinary-T2 lineage field set invalid")
     scope = _source_scope(source_records)
     _require(packet.get("schema_version") == ORDINARY_T2_LINEAGE_SCHEMA, "ordinary-T2 lineage schema invalid")
-    _require(packet.get("slice_id") == expected_slice_id, "ordinary-T2 lineage slice mismatch")
-    _require(packet.get("availability_mode") == CONSERVATIVE_AVAILABILITY, "ordinary-T2 availability mode drift")
-    _require(packet.get("source_count") == len(scope), "ordinary-T2 source_count drift")
+    declared_slice_id = packet.get("slice_id")
     _require(
-        packet.get("normalized_source_version_count") == len(scope),
-        "ordinary-T2 normalized source-version count drift",
+        isinstance(declared_slice_id, str) and declared_slice_id.strip(),
+        "ordinary-T2 lineage slice_id must be a nonblank string",
+    )
+    _require(declared_slice_id == expected_slice_id, "ordinary-T2 lineage slice mismatch")
+    _require(packet.get("availability_mode") == CONSERVATIVE_AVAILABILITY, "ordinary-T2 availability mode drift")
+    source_count = packet.get("source_count")
+    _require(
+        type(source_count) is int and source_count == len(scope),
+        "ordinary-T2 source_count must be an integer matching active source scope",
+    )
+    normalized_source_version_count = packet.get("normalized_source_version_count")
+    _require(
+        type(normalized_source_version_count) is int
+        and normalized_source_version_count == len(scope),
+        "ordinary-T2 normalized source-version count must be an integer matching active source scope",
     )
     _require(packet.get("ordinary_source_version_hash_lineage_complete") is True, "ordinary source-version lineage incomplete")
     _require(packet.get("ordinary_current_source_set_ready") is True, "ordinary current source set not ready")
@@ -350,7 +405,7 @@ def validate_ordinary_t2_lineage(
     _require(packet.get("no_lookahead_rule") == NO_LOOKAHEAD_RULE, "no-lookahead rule drift")
     _require(packet.get("historical_replay_blocker") == HISTORICAL_BLOCKER, "historical replay blocker drift")
     _require(
-        isinstance(packet.get("release_id"), str) and packet["release_id"],
+        isinstance(packet.get("release_id"), str) and packet["release_id"].strip(),
         "ordinary-T2 release_id required",
     )
     _require(
@@ -372,6 +427,10 @@ def validate_ordinary_t2_lineage(
         _require(isinstance(row, Mapping), f"members[{index}]: object required")
         _require(set(row) == required_member_fields, f"members[{index}]: field set invalid")
         source_id = row["source_id"]
+        _require(
+            isinstance(source_id, str) and source_id.strip(),
+            f"members[{index}]: source_id must be a nonblank string",
+        )
         _require(source_id in scope, f"members[{index}]: source outside active scope")
         source = scope[source_id]
         _require(row["source_version_id"] == source["source_version_id"], f"{source_id}: version drift")
@@ -388,7 +447,10 @@ def validate_ordinary_t2_lineage(
                 isinstance(row[field], str) and HEX64.fullmatch(row[field]) is not None,
                 f"{source_id}: {field} invalid",
             )
-        _require(isinstance(row["content_type"], str) and row["content_type"], f"{source_id}: content_type invalid")
+        _require(
+            isinstance(row["content_type"], str) and row["content_type"].strip(),
+            f"{source_id}: content_type invalid",
+        )
         _require(
             isinstance(row["byte_length"], int)
             and not isinstance(row["byte_length"], bool)
