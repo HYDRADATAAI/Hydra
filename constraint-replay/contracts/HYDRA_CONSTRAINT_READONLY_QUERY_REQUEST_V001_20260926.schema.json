@@ -1,0 +1,90 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://hydradataai.github.io/schemas/HYDRA_CONSTRAINT_READONLY_QUERY_REQUEST_V001_20260926.schema.json",
+  "title": "HYDRA Constraint Read-Only Query Request V001",
+  "type": "object",
+  "oneOf": [
+    {
+      "properties": {
+        "operation": {
+          "const": "summary"
+        }
+      },
+      "required": [
+        "operation"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "properties": {
+        "operation": {
+          "const": "integrity"
+        }
+      },
+      "required": [
+        "operation"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "properties": {
+        "operation": {
+          "const": "case"
+        },
+        "case_id": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": [
+        "operation",
+        "case_id"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "properties": {
+        "operation": {
+          "const": "list_cases"
+        },
+        "outcome_class": {
+          "enum": [
+            "PARTIAL_REALIZATION",
+            "UNEVALUABLE"
+          ]
+        },
+        "calibrated": {
+          "type": "boolean"
+        },
+        "min_lead_days": {
+          "type": "number",
+          "minimum": 0
+        },
+        "max_lead_days": {
+          "type": "number",
+          "minimum": 0
+        },
+        "calibration_blocker": {
+          "type": "string",
+          "minLength": 1
+        },
+        "sort_by": {
+          "enum": [
+            "case_id",
+            "lead_time_asc",
+            "lead_time_desc"
+          ]
+        },
+        "limit": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100
+        }
+      },
+      "required": [
+        "operation"
+      ],
+      "additionalProperties": false
+    }
+  ]
+}
