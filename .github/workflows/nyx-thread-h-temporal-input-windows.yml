@@ -5,6 +5,7 @@ on:
     branches: [nyx/thread-h-temporal-input-boundary-20261001]
   pull_request:
     paths:
+      - .gitattributes
       - constraint-t1-raw-artifact-store/src/hydra_constraint_t1_raw/ordinary_t2_lineage.py
       - constraint-t1-raw-artifact-store/src/hydra_constraint_t1_raw/ordinary_t2_evidence_lineage.py
       - constraint-t1-raw-artifact-store/tests/test_temporal_input_boundary.py

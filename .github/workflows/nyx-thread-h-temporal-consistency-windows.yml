@@ -5,6 +5,7 @@ on:
     branches: [nyx/thread-h-temporal-consistency-20261003]
   pull_request:
     paths:
+      - .gitattributes
       - constraint-t1-raw-artifact-store/**
       - tools/build_constraint_second_slice_batch033_ordinary_t2_lineage.py
       - tools/build_constraint_second_slice_batch034_t2_evidence_lineage.py
