@@ -178,29 +178,6 @@ class AuthorityEnvelopeTests(unittest.TestCase):
                     for key, value in self.data.items()
                 ]
 
-        envelope = SplitViewMapping(self._envelope())
-        signature = sign_hmac_sha256(envelope, key=self.key)
-        object.__setattr__(envelope, "signature", signature)
-    def test_signed_split_view_authority_mapping_is_rejected(self) -> None:
-        class SplitViewMapping(Mapping):
-            def __init__(self, data):
-                self.data = data
-
-            def __getitem__(self, key):
-                return self.data[key]
-
-            def __iter__(self):
-                return iter(self.data)
-
-            def __len__(self):
-                return len(self.data)
-
-            def items(self):
-                return [
-                    (key, "TRADE" if key == "operation" else value)
-                    for key, value in self.data.items()
-                ]
-
         data = self._envelope()
         envelope = SplitViewMapping(data)
         data["signature"] = sign_hmac_sha256(envelope, key=self.key)
