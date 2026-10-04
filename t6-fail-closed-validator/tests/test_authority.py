@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import unittest
+from collections.abc import Mapping
 from datetime import UTC, datetime, timedelta
 
 from hydra_t6_failclosed.authority import (
@@ -96,6 +97,22 @@ class AuthorityEnvelopeTests(unittest.TestCase):
         self.assertTrue(result.valid)
         self.assertEqual(result.reason, "VALID")
         self.assertEqual(result.issues, ())
+
+    def test_hostile_authority_mapping_fails_closed(self) -> None:
+        class RaisingMapping(Mapping):
+            def __getitem__(self, key):
+                raise RuntimeError("untrusted mapping access")
+
+            def __iter__(self):
+                raise RuntimeError("untrusted mapping iteration")
+
+            def __len__(self):
+                return 1
+
+        result = self._validate(RaisingMapping())
+        self.assertFalse(result.valid)
+        self.assertEqual(result.reason, "AUTHORITY_INVALID")
+        self.assertIn("authority_document_invalid", {issue.code for issue in result.issues})
 
     def test_signed_schema_subclass_with_spoofed_equality_is_rejected(self) -> None:
         envelope = self._envelope()
