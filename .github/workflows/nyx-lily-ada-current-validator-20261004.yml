@@ -1,0 +1,73 @@
+name: NYX Lily ada exact-source current public validation
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/nyx-lily-ada-current-validator-20261004.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  current-validator:
+    name: '${{ matrix.target }} / current public validator'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - target: 'intake166'
+            sha: '9c9066633064cd43b5f3763651215928152d3d60'
+            tree: '47d3117b5704fef92f8b65c0ac376b254705bd47'
+          - target: 'operating183'
+            sha: '22171f84d015805350ad0b3af3ce837d6757f677'
+            tree: 'd09671c65ab96ae73de9c4dd649949114e5b7df1'
+          - target: 'owner167-174'
+            sha: '1b98f5c86e0edca861880bbd1a847826234d6354'
+            tree: '77934feb8f31987ef905575b87af1f546f068587'
+          - target: 'capture115-181-187'
+            sha: '30818f38b42093db73e7fc6eb241d4ae0b1e5e18'
+            tree: '49f4d7c5efb4a38583995332f3aeb42f33291439'
+    steps:
+      - name: Checkout exact source candidate
+        uses: actions/checkout@v4
+        with:
+          ref: '${{ matrix.sha }}'
+          persist-credentials: false
+      - name: Set up governed Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Bind exact source and validator
+        env:
+          EXPECTED_SOURCE_SHA: '${{ matrix.sha }}'
+          EXPECTED_SOURCE_TREE: '${{ matrix.tree }}'
+          EXPECTED_VALIDATOR_BLOB: '1b96dae6410998f175e25e8302a8720e34ac0b0f'
+        run: |
+          test "$(git rev-parse HEAD)" = "$EXPECTED_SOURCE_SHA"
+          test "$(git rev-parse HEAD^{tree})" = "$EXPECTED_SOURCE_TREE"
+          test "$(git hash-object tools/validate_public_repository.py)" = "$EXPECTED_VALIDATOR_BLOB"
+          printf 'SOURCE_COMMIT=%s\n' "$(git rev-parse HEAD)"
+          printf 'SOURCE_TREE=%s\n' "$(git rev-parse HEAD^{tree})"
+          printf 'GOVERNED_SCRIPT_BLOB=%s\n' "$(git hash-object tools/validate_public_repository.py)"
+          python --version
+      - name: Execute current public repository validator
+        env:
+          PYTHONDONTWRITEBYTECODE: '1'
+        run: python tools/validate_public_repository.py
+      - name: Verify source preservation
+        if: always()
+        env:
+          EXPECTED_SOURCE_SHA: '${{ matrix.sha }}'
+          EXPECTED_SOURCE_TREE: '${{ matrix.tree }}'
+          EXPECTED_VALIDATOR_BLOB: '1b96dae6410998f175e25e8302a8720e34ac0b0f'
+        run: |
+          test "$(git rev-parse HEAD)" = "$EXPECTED_SOURCE_SHA"
+          test "$(git rev-parse HEAD^{tree})" = "$EXPECTED_SOURCE_TREE"
+          test "$(git hash-object tools/validate_public_repository.py)" = "$EXPECTED_VALIDATOR_BLOB"
+          git diff --exit-code
+          test -z "$(git status --porcelain)"
+          printf 'SOURCE_COMMIT_AFTER=%s\n' "$(git rev-parse HEAD)"
+          printf 'SOURCE_TREE_AFTER=%s\n' "$(git rev-parse HEAD^{tree})"
+          echo SOURCE_PRESERVATION=PASS
