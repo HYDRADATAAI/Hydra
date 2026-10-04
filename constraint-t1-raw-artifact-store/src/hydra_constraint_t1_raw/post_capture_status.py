@@ -52,20 +52,17 @@ def build_public_status(
         raise PostCaptureStatusError("registry_source_count must equal nine")
     if attestation.get("materialized_source_count") != 9:
         raise PostCaptureStatusError("materialized_source_count must equal nine")
-    if attestation.get("ordinary_t2_eligible_count") != 9:
-        raise PostCaptureStatusError("all nine sources must be ordinary T1->T2 eligible")
-    if attestation.get("ordinary_t2_blocked_count") != 0:
-        raise PostCaptureStatusError("ordinary_t2_blocked_count must be zero")
     if attestation.get("all_registry_sources_materialized") is not True:
         raise PostCaptureStatusError("all registry sources must be materialized")
-    if attestation.get("all_sources_ordinary_t2_eligible") is not True:
-        raise PostCaptureStatusError("all sources must be ordinary T1->T2 eligible")
 
-    for index, member in enumerate(members):
-        if member.get("processing_disposition") != "ELIGIBLE":
-            raise PostCaptureStatusError(f"members[{index}] is not ELIGIBLE")
-        if member.get("ordinary_t2_eligible") is not True:
-            raise PostCaptureStatusError(f"members[{index}] is not ordinary T1->T2 eligible")
+    eligible_count = sum(member.get("ordinary_t2_eligible") is True for member in members)
+    blocked_count = len(members) - eligible_count
+    if attestation.get("ordinary_t2_eligible_count") != eligible_count:
+        raise PostCaptureStatusError("ordinary_t2_eligible_count drift")
+    if attestation.get("ordinary_t2_blocked_count") != blocked_count:
+        raise PostCaptureStatusError("ordinary_t2_blocked_count drift")
+    if attestation.get("all_sources_ordinary_t2_eligible") is not (eligible_count == len(members)):
+        raise PostCaptureStatusError("all_sources_ordinary_t2_eligible drift")
 
     sanitized_members = [
         {
@@ -96,7 +93,9 @@ def build_public_status(
         "release_created_at": attestation["release_created_at"],
         "source_count": 9,
         "materialized_source_count": 9,
-        "ordinary_t2_eligible_count": 9,
+        "ordinary_t2_eligible_count": eligible_count,
+        "ordinary_t2_blocked_count": blocked_count,
+        "all_sources_ordinary_t2_eligible": eligible_count == 9,
         "public_raw_content_published": False,
         "private_paths_published": False,
         "historical_backdating_performed": False,
@@ -109,6 +108,7 @@ def build_public_status(
             "PERSISTED_T1_T2_CURRENT_CUSTODY": "COMPLETE",
         },
         "still_blocked": {
+            "ORDINARY_T1_T2_ELIGIBILITY": "BLOCKED_UNLESS_MEMBER_TIMESTAMP_AUTHORITY_IS_VERIFIED",
             "ORDINARY_POINT_IN_TIME_REPLAY_READY": "NO",
             "HISTORICAL_AVAILABLE_AT_BEFORE_CAPTURE": "UNPROVEN",
             "ORDINARY-POINT-IN-TIME-REPLAY-SOURCE-VERSION-HASHES-INCOMPLETE": "HASH_COMPONENT_COMPLETE_HISTORICAL_AS_OF_COMPONENT_REMAINS_BLOCKED",
