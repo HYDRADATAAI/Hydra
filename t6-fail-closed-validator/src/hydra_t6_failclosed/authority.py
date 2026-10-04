@@ -89,6 +89,12 @@ def validate_authority(
     try:
         snapshot = envelope
         if envelope is not None:
+            if not isinstance(envelope, Mapping):
+                return AuthorityResult(
+                    False,
+                    "AUTHORITY_INVALID",
+                    (Issue("authority_document_invalid", "authority envelope could not be safely normalized", "$.authority"),),
+                )
             document = parse_json_document(envelope, label="$.authority")
             if document.value is None or document.issues:
                 return AuthorityResult(
