@@ -274,14 +274,15 @@ def coerce_document_bytes(
 ) -> bytes:
     if value is None:
         return b""
-    if type(value) is bytes:
-        if len(value) > max_bytes:
-            raise _DocumentTooLargeError(len(value))
-        return value
-    if type(value) is bytearray:
-        if len(value) > max_bytes:
-            raise _DocumentTooLargeError(len(value))
-        return bytes(value)
+    if isinstance(value, (bytes, bytearray)):
+        view = memoryview(value)
+        try:
+            size = view.nbytes
+            if size > max_bytes:
+                raise _DocumentTooLargeError(size)
+            return value if type(value) is bytes else view.tobytes()
+        finally:
+            view.release()
     if isinstance(value, str):
         _bounded_utf8_size(value, max_bytes=max_bytes)
         text = value if type(value) is str else str.__str__(value)
