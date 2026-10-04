@@ -346,6 +346,21 @@ def parse_json_document(
             None,
             (Issue("document_too_deep", f"{label} exceeds maximum nesting depth {MAX_DOCUMENT_DEPTH}", label),),
         )
+    node_count = _document_node_count(parsed, max_nodes=MAX_DOCUMENT_NODES)
+    if node_count > MAX_DOCUMENT_NODES:
+        return JSONDocument(
+            raw,
+            digest,
+            None,
+            (
+                Issue(
+                    "document_too_large",
+                    f"{label} exceeds maximum node count {MAX_DOCUMENT_NODES}",
+                    label,
+                    evidence={"node_count": node_count},
+                ),
+            ),
+        )
     try:
         normalized = dict(parsed)
     except RecursionError as exc:
@@ -364,6 +379,22 @@ def _document_depth_exceeds(value: Any, *, max_depth: int) -> bool:
         elif isinstance(current, list):
             stack.extend((nested, depth + 1) for nested in current)
     return False
+
+
+def _document_node_count(value: Mapping[str, Any], *, max_nodes: int) -> int:
+    """Count parsed values, excluding the root object, stopping at the limit."""
+    stack = list(value.values())
+    nodes = 0
+    while stack:
+        current = stack.pop()
+        nodes += 1
+        if nodes > max_nodes:
+            return nodes
+        if isinstance(current, Mapping):
+            stack.extend(current.values())
+        elif isinstance(current, list):
+            stack.extend(current)
+    return nodes
 
 
 def _object_without_duplicates(pairs: list[tuple[str, Any]]) -> dict[str, Any]:
