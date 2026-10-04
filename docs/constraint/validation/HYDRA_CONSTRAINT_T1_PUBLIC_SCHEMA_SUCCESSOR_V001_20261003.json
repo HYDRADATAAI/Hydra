@@ -70,7 +70,7 @@
     {
       "path": "constraint-t1-raw-artifact-store/tests/test_first_slice_materialization.py",
       "predecessor_git_blob_sha": "b14e44482319ad500e81c1747c32e0465152e345",
-      "successor_git_blob_sha": "505711a0a67be4d85157b9e4e51a100b8ebb4aae"
+      "successor_git_blob_sha": "9a95d0eb3983cc327de84ae2e75298735ca7245c"
     },
     {
       "path": "constraint-t1-raw-artifact-store/tests/test_first_slice_replay_lineage.py",
@@ -89,7 +89,7 @@
     },
     {
       "path": "constraint-t1-raw-artifact-store/tests/test_first_slice_materialization.py",
-      "git_blob_sha": "505711a0a67be4d85157b9e4e51a100b8ebb4aae"
+      "git_blob_sha": "9a95d0eb3983cc327de84ae2e75298735ca7245c"
     },
     {
       "path": "constraint-t1-raw-artifact-store/tests/test_first_slice_replay_lineage.py",
