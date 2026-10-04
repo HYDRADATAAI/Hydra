@@ -5,6 +5,7 @@ import hashlib
 import io
 import json
 import os
+import secrets
 import shutil
 import subprocess
 import tempfile
@@ -396,68 +397,29 @@ class PreUploadVerifierTests(unittest.TestCase):
                 raise
             swapped = True
 
-        if os.name == "nt":
-            real_relative_open = _windows_open_relative
-            real_named_temporary_file = tempfile.NamedTemporaryFile
+        real_token_hex = secrets.token_hex
+        real_named_temporary_file = tempfile.NamedTemporaryFile
 
-            def swap_ancestor_then_create(
-                parent_handle: int,
-                name: str,
-                label: str,
-                *,
-                directory: bool,
-                create: bool = False,
-                writable: bool = False,
-            ) -> int:
-                if create and not attempted:
-                    swap_ancestor()
-                return real_relative_open(
-                    parent_handle,
-                    name,
-                    label,
-                    directory=directory,
-                    create=create,
-                    writable=writable,
-                )
+        def swap_ancestor_then_name(nbytes: int | None = None) -> str:
+            if not attempted:
+                swap_ancestor()
+            return real_token_hex(nbytes)
 
-            def swap_ancestor_then_create_legacy(
-                *args: object,
-                **kwargs: object,
-            ) -> object:
-                if not attempted:
-                    swap_ancestor()
-                return real_named_temporary_file(*args, **kwargs)
+        def swap_ancestor_then_create_legacy(
+            *args: object,
+            **kwargs: object,
+        ) -> object:
+            if not attempted:
+                swap_ancestor()
+            return real_named_temporary_file(*args, **kwargs)
 
-            patchers = (
-                mock.patch(
-                    "hydra_governed_intelligence.pre_upload_verifier._windows_open_relative",
-                    side_effect=swap_ancestor_then_create,
-                ),
-                mock.patch(
-                    "hydra_governed_intelligence.pre_upload_verifier.tempfile.NamedTemporaryFile",
-                    side_effect=swap_ancestor_then_create_legacy,
-                ),
-            )
-        else:
-            real_os_open = os.open
-
-            def swap_ancestor_then_open(
-                path: object,
-                flags: int,
-                mode: int = 0o777,
-                *,
-                dir_fd: int | None = None,
-            ) -> int:
-                if flags & os.O_CREAT and not attempted:
-                    swap_ancestor()
-                return real_os_open(path, flags, mode, dir_fd=dir_fd)
-
-            patchers = (
-                mock.patch(
-                    "hydra_governed_intelligence.pre_upload_verifier.os.open",
-                    side_effect=swap_ancestor_then_open,
-                ),
-            )
+        patchers = (
+            mock.patch("secrets.token_hex", side_effect=swap_ancestor_then_name),
+            mock.patch(
+                "hydra_governed_intelligence.pre_upload_verifier.tempfile.NamedTemporaryFile",
+                side_effect=swap_ancestor_then_create_legacy,
+            ),
+        )
 
         try:
             with contextlib.ExitStack() as stack:
