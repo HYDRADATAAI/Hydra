@@ -1103,6 +1103,59 @@ def validate_ci_contract(errors: list[str]) -> None:
             "governed-intelligence CI permissions must remain contents: read only"
         )
 
+    windows_job = workflow_job_block(
+        intelligence_workflow, "windows-pre-upload-verifier"
+    )
+    if windows_job is None:
+        errors.append("governed-intelligence CI Windows verifier job is missing")
+    else:
+        if not re.search(r"(?m)^    runs-on:\s*windows-latest\s*$", windows_job):
+            errors.append("governed-intelligence CI verifier must run on Windows")
+        if re.search(r"(?m)^    if\s*:", windows_job):
+            errors.append("governed-intelligence CI Windows verifier job must be unconditional")
+        if re.search(r"(?m)^    continue-on-error\s*:", windows_job):
+            errors.append("governed-intelligence CI Windows verifier job must fail closed")
+        windows_steps = workflow_steps(windows_job)
+        expected_windows_steps = (
+            "Checkout",
+            "Set up Python",
+            "Run pre-upload verifier tests on Windows",
+        )
+        if tuple(name for name, _ in windows_steps) != expected_windows_steps:
+            errors.append("governed-intelligence CI Windows verifier steps changed")
+        if "working-directory: governed-intelligence-sample" not in windows_job:
+            errors.append("governed-intelligence CI Windows test directory changed")
+        if 'python-version: "3.11"' not in windows_job:
+            errors.append("governed-intelligence CI Windows Python version changed")
+        if "PYTHONPATH: src" not in windows_job:
+            errors.append("governed-intelligence CI Windows PYTHONPATH changed")
+        windows_checkout = [block for name, block in windows_steps if name == "Checkout"]
+        if len(windows_checkout) != 1 or workflow_step_scalar(
+            windows_checkout[0], "uses"
+        ) != ["actions/checkout@11d5960a326750d5838078e36cf38b85af677262"]:
+            errors.append("governed-intelligence CI Windows checkout action changed")
+        windows_python = [block for name, block in windows_steps if name == "Set up Python"]
+        if len(windows_python) != 1 or workflow_step_scalar(
+            windows_python[0], "uses"
+        ) != ["actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065"]:
+            errors.append("governed-intelligence CI Windows Python action changed")
+        windows_test = [
+            block
+            for name, block in windows_steps
+            if name == "Run pre-upload verifier tests on Windows"
+        ]
+        if len(windows_test) != 1:
+            errors.append("governed-intelligence CI Windows verifier test step changed")
+        else:
+            if workflow_step_scalar(windows_test[0], "if"):
+                errors.append("governed-intelligence CI Windows verifier test must run unconditionally")
+            if workflow_step_scalar(windows_test[0], "continue-on-error"):
+                errors.append("governed-intelligence CI Windows verifier test must fail closed")
+            if workflow_step_scalar(windows_test[0], "run") != [
+                "python -m unittest tests.test_pre_upload_verifier -v"
+            ]:
+                errors.append("governed-intelligence CI Windows verifier test command changed")
+
     evaluate_job = workflow_job_block(intelligence_workflow, "evaluate")
     if evaluate_job is None:
         errors.append("governed-intelligence CI evaluate job is missing")
@@ -1111,6 +1164,13 @@ def validate_ci_contract(errors: list[str]) -> None:
         errors.append("governed-intelligence CI evaluate job must be unconditional")
     if re.search(r"(?m)^    continue-on-error\s*:", evaluate_job):
         errors.append("governed-intelligence CI evaluate job must fail closed")
+
+    if not re.search(
+        r"(?m)^    needs:\s*windows-pre-upload-verifier\s*$", evaluate_job
+    ):
+        errors.append(
+            "governed-intelligence CI evaluate job must depend on Windows verifier"
+        )
 
     required_active_steps = (
         "Checkout",

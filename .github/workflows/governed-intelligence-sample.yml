@@ -39,6 +39,7 @@ jobs:
         run: python -m unittest tests.test_pre_upload_verifier -v
 
   evaluate:
+    needs: windows-pre-upload-verifier
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
