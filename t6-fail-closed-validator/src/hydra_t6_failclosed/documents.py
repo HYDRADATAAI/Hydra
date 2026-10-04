@@ -13,6 +13,7 @@ from .models import Issue
 
 MAX_DOCUMENT_BYTES = 4 * 1024 * 1024
 MAX_DOCUMENT_DEPTH = 128
+MAX_DOCUMENT_NODES = 100_000
 
 
 class DuplicateKeyError(ValueError):
@@ -39,9 +40,10 @@ def canonical_json_bytes(value: Any) -> bytes:
 
 
 class _DocumentTooLargeError(ValueError):
-    def __init__(self, size_bytes: int):
+    def __init__(self, size_bytes: int | None, *, limit: str = "bytes"):
         self.size_bytes = size_bytes
-        super().__init__("normalized document exceeds configured byte limit")
+        self.limit = limit
+        super().__init__("normalized document exceeds configured limit")
 
 
 def _bounded_mapping_snapshot(value: Mapping[str, Any], *, max_bytes: int) -> tuple[dict[str, Any], int]:
@@ -115,8 +117,10 @@ def _bounded_mapping_snapshot(value: Mapping[str, Any], *, max_bytes: int) -> tu
     def copy_json(item: Any, depth: int = 1) -> tuple[Any, int]:
         nonlocal nodes
         nodes += 1
-        if nodes > max_bytes or depth > MAX_DOCUMENT_DEPTH:
-            raise _DocumentTooLargeError(max_bytes + 1)
+        if nodes > min(max_bytes, MAX_DOCUMENT_NODES):
+            raise _DocumentTooLargeError(None, limit="nodes")
+        if depth > MAX_DOCUMENT_DEPTH:
+            raise _DocumentTooLargeError(None, limit="depth")
         if item is None:
             return None, 4
         if item is True:
@@ -239,7 +243,14 @@ def parse_json_document(
             raw,
             sha256_hex(raw),
             None,
-            (Issue("document_too_large", f"{label} exceeds {max_bytes} bytes", label, evidence={"size_bytes": exc.size_bytes}),),
+            (
+                Issue(
+                    "document_too_large",
+                    f"{label} exceeds {max_bytes} bytes" if exc.size_bytes is not None else f"{label} exceeds bounded normalization limits",
+                    label,
+                    evidence={"size_bytes": exc.size_bytes} if exc.size_bytes is not None else {"normalization_limit": exc.limit},
+                ),
+            ),
         )
     except Exception:
         raw = b""
