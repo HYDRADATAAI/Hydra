@@ -258,6 +258,10 @@ class DocumentContractTests(unittest.TestCase):
         self.assertIsNone(document.value)
         self.assertIn("document_too_large", {issue.code for issue in document.issues})
 
+        small = HostileBytearray(b'{"actual":1}')
+        accepted = parse_json_document(small, label="$.document", max_bytes=64)
+        self.assertEqual(accepted.value, {"actual": 1})
+
 
 if __name__ == "__main__":
     unittest.main()
