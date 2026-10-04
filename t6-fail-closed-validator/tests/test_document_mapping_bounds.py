@@ -9,6 +9,21 @@ from hydra_t6_failclosed.documents import canonical_json_bytes, parse_json_docum
 
 
 class DocumentMappingBoundsTests(unittest.TestCase):
+    def test_oversized_raw_text_is_rejected_before_encode(self):
+        class HugeText(str):
+            def encode(self, *args, **kwargs):
+                raise AssertionError("subclass encoder must not run")
+
+        document = parse_json_document(HugeText("x" * 1_000_000), label="input", max_bytes=64)
+
+        self.assertEqual([issue.code for issue in document.issues], ["document_too_large"])
+
+    def test_oversized_bytearray_is_rejected_before_copy(self):
+        document = parse_json_document(bytearray(65), label="input", max_bytes=64)
+
+        self.assertEqual([issue.code for issue in document.issues], ["document_too_large"])
+        self.assertEqual(document.issues[0].evidence["size_bytes"], 65)
+
     def test_oversized_nested_string_stops_before_copy_or_encoding(self):
         value = {"nested": {"payload": "\\n" * 100}}
 
