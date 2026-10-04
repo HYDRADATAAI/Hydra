@@ -188,6 +188,8 @@ def _bounded_mapping_snapshot(value: Mapping[str, Any], *, max_bytes: int) -> tu
     try:
         snapshot: dict[str, Any] = {}
         size = 2
+        if size > max_bytes:
+            raise _DocumentTooLargeError(size)
         for key in value.keys():
             value_for_key = value[key]
             normalized_key = plain_key(key)
