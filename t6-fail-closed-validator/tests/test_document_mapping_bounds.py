@@ -22,6 +22,32 @@ class DocumentMappingBoundsTests(unittest.TestCase):
         self.assertEqual([issue.code for issue in document.issues], ["document_too_large"])
         self.assertGreater(document.issues[0].evidence["size_bytes"], 64)
 
+    def test_escape_expansion_is_counted_before_encoding(self):
+        value = {"payload": "\\\\" * 40}
+
+        with patch(
+            "hydra_t6_failclosed.documents.json.dumps",
+            side_effect=AssertionError("encoding must not run"),
+        ):
+            document = parse_json_document(value, label="input", max_bytes=64)
+
+        self.assertEqual([issue.code for issue in document.issues], ["document_too_large"])
+
+    def test_hostile_integer_subclass_cannot_override_size_check(self):
+        class HostileInt(int):
+            def bit_length(self):
+                return 0
+
+        value = {"number": HostileInt(10**1000)}
+
+        with patch(
+            "hydra_t6_failclosed.documents.json.dumps",
+            side_effect=AssertionError("encoding must not run"),
+        ):
+            document = parse_json_document(value, label="input", max_bytes=64)
+
+        self.assertEqual([issue.code for issue in document.issues], ["document_too_large"])
+
     def test_string_subclass_keys_and_values_use_their_full_builtin_text(self):
         class HostileString(str):
             def __iter__(self):
