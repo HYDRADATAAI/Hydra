@@ -325,6 +325,10 @@ def validate_ordinary_t2_evidence_lineage(
     for row in bindings:
         _require(isinstance(row, Mapping) and set(row) == required_binding_fields, "binding field set invalid")
         evidence_id = row["evidence_id"]
+        _require(
+            isinstance(evidence_id, str) and evidence_id.strip(),
+            "binding evidence identity must be a nonblank string",
+        )
         _require(evidence_id in input_by_id and evidence_id not in seen, f"binding evidence identity drift: {evidence_id}")
         seen.add(evidence_id)
         raw = input_by_id[evidence_id]
@@ -349,6 +353,10 @@ def validate_ordinary_t2_evidence_lineage(
     for row in excluded:
         _require(isinstance(row, Mapping) and set(row) == required_excluded_fields, "excluded evidence field set invalid")
         evidence_id = row["evidence_id"]
+        _require(
+            isinstance(evidence_id, str) and evidence_id.strip(),
+            "excluded evidence identity must be a nonblank string",
+        )
         _require(evidence_id in input_by_id and evidence_id not in seen, f"excluded evidence identity drift: {evidence_id}")
         seen.add(evidence_id)
         raw = input_by_id[evidence_id]
