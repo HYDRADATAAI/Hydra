@@ -8,7 +8,7 @@ from collections.abc import Iterable, Mapping
 from datetime import UTC, datetime, timedelta
 from typing import Any, Protocol
 
-from .documents import canonical_json_bytes, parse_json_document
+from .documents import canonical_json_bytes
 from .models import AuthorityResult, Issue, sorted_issues
 
 
@@ -86,6 +86,34 @@ def validate_authority(
     output_schema_sha256: str,
     oracle_sha256: str,
 ) -> AuthorityResult:
+    try:
+        return _validate_authority_unchecked(
+            envelope,
+            verifier=verifier,
+            now=now,
+            input_sha256=input_sha256,
+            policy_sha256=policy_sha256,
+            output_schema_sha256=output_schema_sha256,
+            oracle_sha256=oracle_sha256,
+        )
+    except Exception:
+        return AuthorityResult(
+            False,
+            "AUTHORITY_INVALID",
+            (Issue("authority_document_invalid", "authority envelope could not be safely validated", "$.authority"),),
+        )
+
+
+def _validate_authority_unchecked(
+    envelope: Mapping[str, Any] | None,
+    *,
+    verifier: SignatureVerifier | None,
+    now: datetime,
+    input_sha256: str,
+    policy_sha256: str,
+    output_schema_sha256: str,
+    oracle_sha256: str,
+) -> AuthorityResult:
     issues: list[Issue] = []
     if not isinstance(now, datetime):
         return AuthorityResult(False, "AUTHORITY_INVALID", (Issue("authority_now_invalid", "explicit now must be a datetime", "$.now"),))
@@ -99,23 +127,6 @@ def validate_authority(
         return AuthorityResult(False, "AUTHORITY_INVALID", (Issue("authority_now_invalid", "explicit now has invalid timezone information", "$.now"),))
     if envelope is None:
         return AuthorityResult(False, "AUTHORITY_INVALID", (Issue("authority_missing", "authority envelope is absent", "$.authority"),))
-    if not isinstance(envelope, Mapping):
-        return AuthorityResult(
-            False,
-            "AUTHORITY_INVALID",
-            (Issue("authority_document_invalid", "authority envelope must be a mapping", "$.authority"),),
-        )
-    try:
-        envelope_doc = parse_json_document(envelope, label="$.authority")
-    except Exception:
-        return AuthorityResult(
-            False,
-            "AUTHORITY_INVALID",
-            (Issue("authority_document_invalid", "authority envelope could not be safely normalized", "$.authority"),),
-        )
-    if envelope_doc.issues or envelope_doc.value is None:
-        return AuthorityResult(False, "AUTHORITY_INVALID", sorted_issues(list(envelope_doc.issues)))
-    envelope = envelope_doc.value
 
     required = {
         "schema_version", "authority_id", "authority_name", "authority_role", "decision",

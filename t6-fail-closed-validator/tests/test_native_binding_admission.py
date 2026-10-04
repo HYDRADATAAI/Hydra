@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import unittest
+from collections.abc import Mapping
 from datetime import UTC, datetime, timedelta, tzinfo
 
 from hydra_t6_failclosed import HMACSHA256Verifier
@@ -165,6 +166,31 @@ class NativeT5T6AdmissionTests(unittest.TestCase):
             verifier=self.verifier if verifier is None else verifier,
             now=self.now if now is None else now,
         )
+
+    def test_hostile_manifest_mapping_fails_closed(self) -> None:
+        class UnprintableTypeError(TypeError):
+            def __str__(self):
+                raise RuntimeError("do not format this exception")
+
+        class RaisingMapping(Mapping):
+            def __getitem__(self, key):
+                raise RuntimeError("untrusted manifest mapping access")
+
+            def __iter__(self):
+                raise UnprintableTypeError()
+
+            def __len__(self):
+                return 1
+
+        result = validate_native_binding_admission(
+            implementation_manifest=RaisingMapping(),
+            admission_receipt=None,
+            verifier=self.verifier,
+            now=self.now,
+        )
+        self.assertFalse(result.admitted)
+        self.assertEqual(result.reason, "BLOCKED_IMPLEMENTATION_MANIFEST_INVALID")
+        self.assertIn("document_type_invalid", {issue.code for issue in result.issues})
 
     def test_missing_admission_receipt_fails_closed(self) -> None:
         result = self.validate(self.manifest(), None)
