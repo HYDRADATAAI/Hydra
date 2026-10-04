@@ -455,10 +455,17 @@ class _RawJSONPreflight:
 
     def exceeds_limits(self) -> bool:
         self._skip_space()
-        # Non-object roots are handled by json.loads and the existing root check.
-        if self.index >= len(self.text) or self.text[self.index] != "{":
+        if self.index >= len(self.text):
             return False
-        if not self._object(1):
+        root_char = self.text[self.index]
+        if root_char == "{":
+            if not self._object(1):
+                return False
+        elif root_char == "[":
+            self._count(1)
+            if not self._array(1):
+                return False
+        else:
             return False
         self._skip_space()
         return self.index == len(self.text)
@@ -521,6 +528,14 @@ def parse_json_document(
     try:
         text = raw.decode("utf-8", errors="strict")
         preflight_limit = _raw_json_limit_exceeded(text)
+        root_char = next((char for char in text if char not in " \t\r\n"), "")
+        if preflight_limit is not None and root_char == "[":
+            return JSONDocument(
+                raw,
+                digest,
+                None,
+                (Issue("document_root_invalid", f"{label} root must be an object", label),),
+            )
         if preflight_limit == "depth":
             return JSONDocument(
                 raw,

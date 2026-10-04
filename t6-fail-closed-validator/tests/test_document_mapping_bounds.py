@@ -292,18 +292,34 @@ class DocumentMappingBoundsTests(unittest.TestCase):
         self.assertEqual(document.issues[0].evidence, {})
         self.assertEqual(document.issues[0].to_dict()["evidence"], {})
 
-    def test_large_raw_array_root_keeps_root_invalid_precedence(self):
+    def test_large_raw_array_root_keeps_root_invalid_precedence_before_json_loads(self):
         raw = b"[" + b"0," * (MAX_DOCUMENT_NODES - 1) + b"0]"
 
         with patch(
             "hydra_t6_failclosed.documents.json.loads",
-            wraps=__import__("json").loads,
-        ) as loads:
+            side_effect=AssertionError("over-limit root array must be rejected before decoding"),
+        ):
             document = parse_json_document(raw, label="input")
 
         self.assertIsNone(document.value)
         self.assertEqual([issue.code for issue in document.issues], ["document_root_invalid"])
-        loads.assert_called_once()
+        self.assertEqual(document.raw, raw)
+        self.assertEqual(document.raw_sha256, hashlib.sha256(raw).hexdigest())
+        self.assertEqual(document.issues[0].to_dict()["code"], "document_root_invalid")
+
+    def test_deep_raw_array_root_keeps_root_invalid_precedence_before_json_loads(self):
+        raw = b"[" * (MAX_DOCUMENT_DEPTH + 1) + b"0" + b"]" * (MAX_DOCUMENT_DEPTH + 1)
+
+        with patch(
+            "hydra_t6_failclosed.documents.json.loads",
+            side_effect=AssertionError("over-depth root array must be rejected before decoding"),
+        ):
+            document = parse_json_document(raw, label="input")
+
+        self.assertIsNone(document.value)
+        self.assertEqual([issue.code for issue in document.issues], ["document_root_invalid"])
+        self.assertEqual(document.raw, raw)
+        self.assertEqual(document.raw_sha256, hashlib.sha256(raw).hexdigest())
 
     def test_raw_preflight_ignores_structure_inside_strings_and_accepts_exponent_edge(self):
         raw = br'{"text":"[{,}] \" \\ \u005b","exponent":1e9999}'
