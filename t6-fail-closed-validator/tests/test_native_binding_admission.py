@@ -5,7 +5,7 @@ from collections.abc import Mapping
 from datetime import UTC, datetime, timedelta, tzinfo
 
 from hydra_t6_failclosed import HMACSHA256Verifier
-from hydra_t6_failclosed.documents import canonical_json_bytes
+from hydra_t6_failclosed.documents import canonical_json_bytes, parse_json_document
 from hydra_t6_failclosed.native_binding_admission import (
     ADMISSION_AUTHORITY_ROLE,
     ADMISSION_DECISION,
@@ -195,6 +195,26 @@ class NativeT5T6AdmissionTests(unittest.TestCase):
         result = self.validate(BrokenMapping(), None)
         self.assertFalse(result.admitted)
         self.assertIn("document_type_invalid", {issue.code for issue in result.issues})
+
+    def test_hostile_document_label_cannot_escape_error_path(self) -> None:
+        class HostileLabel(str):
+            def __format__(self):
+                raise RuntimeError("label formatting failed")
+
+        class BrokenMapping(Mapping):
+            def __getitem__(self, key):
+                raise RuntimeError("mapping read failed")
+
+            def __iter__(self):
+                raise RuntimeError("mapping iteration failed")
+
+            def __len__(self):
+                return 1
+
+        document = parse_json_document(BrokenMapping(), label=HostileLabel("$.hostile"))
+        self.assertIsNone(document.value)
+        self.assertIn("document_type_invalid", {issue.code for issue in document.issues})
+        self.assertEqual(document.issues[0].path, "$.document")
 
     def test_missing_admission_receipt_fails_closed(self) -> None:
         result = self.validate(self.manifest(), None)

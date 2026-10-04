@@ -62,6 +62,8 @@ def parse_json_document(
     label: str,
     max_bytes: int = MAX_DOCUMENT_BYTES,
 ) -> JSONDocument:
+    if type(label) is not str:
+        label = "$.document"
     try:
         raw = coerce_document_bytes(value)
     except Exception:
