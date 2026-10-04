@@ -264,6 +264,12 @@ def validate_authority(
     oracle_sha256: str,
 ) -> AuthorityResult:
     try:
+        if envelope is not None and not isinstance(envelope, Mapping):
+            return AuthorityResult(
+                False,
+                "AUTHORITY_INVALID",
+                (Issue("authority_input_invalid", "authority envelope must be a mapping", "$.authority"),),
+            )
         if envelope is not None:
             document = parse_json_document(envelope, label="$.authority")
             if document.value is None or document.issues:
