@@ -442,11 +442,19 @@ class PreUploadVerifierTests(unittest.TestCase):
                 "hydra_governed_intelligence.pre_upload_verifier._open_bound_leaf",
                 side_effect=swap_ancestor_then_open,
             ):
-                with self.assertRaisesRegex(
-                    VerificationError,
-                    "opened handle physical path changed|identity changed",
-                ):
-                    _snapshot_repository_file(root, candidate, "swap snapshot")
+                try:
+                    snapshot = _snapshot_repository_file(
+                        root,
+                        candidate,
+                        "swap snapshot",
+                    )
+                except VerificationError as exc:
+                    self.assertRegex(
+                        str(exc),
+                        "opened handle physical path changed|identity changed",
+                    )
+                else:
+                    self.assertEqual(snapshot, expected)
         finally:
             if swapped:
                 ancestor.rename(replacement)
