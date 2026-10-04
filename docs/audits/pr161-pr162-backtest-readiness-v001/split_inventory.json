@@ -1,0 +1,1481 @@
+{
+  "schema_version": "hydra-backtest-readiness-split-inventory/v001-audit-only",
+  "status": "AUDIT_ONLY_NO_RUNTIME_AUTHORITY",
+  "audit_generated_at_utc": "2026-10-04T17:53:41.095237+00:00",
+  "audit_time_is_not_source_availability": true,
+  "frozen_repository": {
+    "head": "e4eb1d95c82484a1518dcf037c8d0a99145231bc",
+    "tree": "62d4cdfb1f02d8bc31273711c513c765b030de17",
+    "main_parent": "adaab38e2e2f53c381aa4d2baff38644be92e3d0"
+  },
+  "method": "Standard-library parsing of tracked JSON/JSONL bytes and Git identities only; no HYDRA import, runtime, tests, network, or source mutation.",
+  "scope_search": {
+    "paths": [
+      "constraint-replay",
+      "constraint-geopolitical-policy",
+      "docs/constraint"
+    ],
+    "terms": [
+      "held-out",
+      "holdout",
+      "walk-forward",
+      "out-of-sample",
+      "split manifest",
+      "selection bias",
+      "confidence interval",
+      "bootstrap",
+      "fixed universe"
+    ],
+    "relevant_split_or_uncertainty_artifacts_found": [],
+    "wider_repository_lexical_hits": "Only unrelated assert_hold(out) tests and Python environment bootstrap launcher; not evaluation split evidence."
+  },
+  "summary": {
+    "cases": 22,
+    "replay_cuts": 82,
+    "outcomes": {
+      "PARTIAL_REALIZATION": 17,
+      "UNEVALUABLE": 5
+    },
+    "development_cases": 22,
+    "heldout_cases": 0,
+    "prospective_cases": 0,
+    "calibrated_cases": 0,
+    "observed_link_components": 21,
+    "observed_cross_case_components": 1,
+    "mapping_cases_with_explicit_horizon": 1,
+    "mapping_cases_with_explicit_numeric_target": 0
+  },
+  "scoring_status": {
+    "untouched_run_digest": "db28edfea01800cf85dd234edb99d003d0a185ab39f7ba8cd31af416542890f1",
+    "historical_probability_calibration": "BLOCKED_NO_ADMISSIBLE_NUMERIC_CONFIDENCE",
+    "brier_score": null,
+    "out_of_sample_performance": "NOT_ESTABLISHED",
+    "selection_frame": "NOT_FOUND",
+    "unbiased_negative_denominator": "NOT_FOUND",
+    "benchmark_results": "NOT_FOUND",
+    "frozen_predictor_policy_before_test_outcomes": "NOT_FOUND"
+  },
+  "grouping_policy": {
+    "all_cuts_follow_case": true,
+    "cross_case_links": [
+      "shared exact event_id",
+      "shared exact observation_id",
+      "shared source_id",
+      "identical source URL including versions conservatively",
+      "identical normalized evidence digest"
+    ],
+    "storage_bundle_or_common_publisher_alone_is_not_independence_or_dependence_proof": true,
+    "semantic_related_events_sources": "Must be adjudicated into connected components before any future holdout seal. Observed links are a lower bound on dependence; the 21 observed components are an upper bound on the number of distinct dependency components because additional links can merge them. They are not 21 proven independent samples.",
+    "all_observed_components_assigned_development": true,
+    "random_cut_split_prohibited": true,
+    "retrospective_unseen_test_claim_prohibited": true
+  },
+  "cases": [
+    {
+      "case_id": "bis-semiconductor-controls-2022",
+      "allocation": "DEVELOPMENT_ONLY_ALREADY_EXAMINED",
+      "out_of_sample_eligible": false,
+      "split_group_id": "DEV_OBSERVED_LINK_COMPONENT_001",
+      "source_bundle": "constraint-geopolitical-policy/data/sourced_historical_cases.json",
+      "source_bundle_recorded_blob": "0bfa220181fd06bb22b19a956956305c857c9bbc",
+      "replay_cut_count": 4,
+      "replay_cuts": [
+        {
+          "cut_id": "CUT_001_PRE_FIRST_KNOWN",
+          "replay_t": "2022-10-06T23:59:59Z",
+          "group_must_follow_case": true
+        },
+        {
+          "cut_id": "CUT_002_EVENT_KNOWN",
+          "replay_t": "2022-10-07T00:00:00Z",
+          "group_must_follow_case": true
+        },
+        {
+          "cut_id": "CUT_003_PRE_EFFECTIVE",
+          "replay_t": "2022-10-11T23:59:59Z",
+          "group_must_follow_case": true
+        },
+        {
+          "cut_id": "CUT_004_PRE_EFFECTIVE",
+          "replay_t": "2022-10-20T23:59:59Z",
+          "group_must_follow_case": true
+        }
+      ],
+      "classified_replay_t": "2022-10-07T23:59:59Z",
+      "outcome_class": "PARTIAL_REALIZATION",
+      "outcome_first_observed_at": "2024-08-28T23:59:59Z",
+      "confidence_status": "NO_ADMISSIBLE_NUMERIC_CONFIDENCE",
+      "event_ids": [
+        "bis-sme-controls-2022-10-07",
+        "bis-us-person-support-controls-2022-10-12",
+        "bis-advanced-computing-controls-2022-10-21"
+      ],
+      "observation_ids": [],
+      "historical_hypothesis_source_ids": [
+        "bis-2022-10-07-hypothesis"
+      ],
+      "outcome_source_ids": [
+        "bis-nvidia-2024-08-28-outcome"
+      ],
+      "hypothesis_policy_freeze_before_outcome_proven": false,
+      "assignment_note": "This audit assigns a development-only label; it does not assert an historical split or change repository records."
+    },
+    {
+      "case_id": "black-sea-grain-corridor-2022",
+      "allocation": "DEVELOPMENT_ONLY_ALREADY_EXAMINED",
+      "out_of_sample_eligible": false,
+      "split_group_id": "DEV_OBSERVED_LINK_COMPONENT_002",
+      "source_bundle": "constraint-geopolitical-policy/data/HYDRA_CONSTRAINT_GEOPOLITICAL_POLICY_BATCH002_SOURCED_HISTORICAL_CASES_20260925.json",
+      "source_bundle_recorded_blob": "d6925977e30927190e2c16a48cf7792ab36c63a4",
+      "replay_cut_count": 4,
+      "replay_cuts": [
+        {
+          "cut_id": "CUT_001_PRE_FIRST_KNOWN",
+          "replay_t": "2022-07-22T23:59:58Z",
+          "group_must_follow_case": true
+        },
+        {
+          "cut_id": "CUT_002_EVENT_KNOWN",
+          "replay_t": "2022-07-22T23:59:59Z",
+          "group_must_follow_case": true
+        },
+        {
+          "cut_id": "CUT_003_PRE_OBSERVATION",
+          "replay_t": "2022-08-03T23:59:58Z",
+          "group_must_follow_case": true
+        },
+        {
+          "cut_id": "CUT_004_OBSERVATION_KNOWN",
+          "replay_t": "2022-08-03T23:59:59Z",
+          "group_must_follow_case": true
+        }
+      ],
+      "classified_replay_t": "2022-07-26T23:59:59Z",
+      "outcome_class": "PARTIAL_REALIZATION",
+      "outcome_first_observed_at": "2022-08-05T23:59:59Z",
+      "confidence_status": "NO_ADMISSIBLE_NUMERIC_CONFIDENCE",
+      "event_ids": [
+        "black-sea-grain-safe-transport-mechanism-2022"
+      ],
+      "observation_ids": [
+        "black-sea-first-shipment-cleared-2022-08-03"
+      ],
+      "historical_hypothesis_source_ids": [
+        "bsgi-imf-2022-07-26-hypothesis"
+      ],
+      "outcome_source_ids": [
+        "bsgi-fao-2022-08-05-prices",
+        "bsgi-un-2022-11-01-tonnage",
+        "bsgi-un-2023-05-26-series"
+      ],
+      "hypothesis_policy_freeze_before_outcome_proven": false,
+      "assignment_note": "This audit assigns a development-only label; it does not assert an historical split or change repository records."
+    },
+    {
+      "case_id": "china-gallium-germanium-controls-2023",
+      "allocation": "DEVELOPMENT_ONLY_ALREADY_EXAMINED",
+      "out_of_sample_eligible": false,
+      "split_group_id": "DEV_OBSERVED_LINK_COMPONENT_003",
+      "source_bundle": "constraint-geopolitical-policy/data/HYDRA_CONSTRAINT_GEOPOLITICAL_POLICY_BATCH002_SOURCED_HISTORICAL_CASES_20260925.json",
+      "source_bundle_recorded_blob": "d6925977e30927190e2c16a48cf7792ab36c63a4",
+      "replay_cut_count": 3,
+      "replay_cuts": [
+        {
+          "cut_id": "CUT_001_PRE_FIRST_KNOWN",
+          "replay_t": "2023-07-03T09:59:59Z",
+          "group_must_follow_case": true
+        },
+        {
+          "cut_id": "CUT_002_EVENT_KNOWN",
+          "replay_t": "2023-07-03T10:00:00Z",
+          "group_must_follow_case": true
+        },
+        {
+          "cut_id": "CUT_003_PRE_EFFECTIVE",
+          "replay_t": "2023-07-31T23:59:59Z",
+          "group_must_follow_case": true
+        }
+      ],
+      "classified_replay_t": "2023-07-11T23:59:59Z",
+      "outcome_class": "PARTIAL_REALIZATION",
+      "outcome_first_observed_at": "2024-01-30T23:59:59Z",
+      "confidence_status": "NO_ADMISSIBLE_NUMERIC_CONFIDENCE",
+      "event_ids": [
+        "china-gallium-germanium-export-controls-2023"
+      ],
+      "observation_ids": [],
+      "historical_hypothesis_source_ids": [
+        "gagermanium-iea-2023-07-11-hypothesis"
+      ],
+      "outcome_source_ids": [
+        "gagermanium-usgs-2024-01-30-gallium",
+        "gagermanium-usgs-2024-01-30-germanium"
+      ],
+      "hypothesis_policy_freeze_before_outcome_proven": false,
+      "assignment_note": "This audit assigns a development-only label; it does not assert an historical split or change repository records."
+    },
+    {
+      "case_id": "eastern-mediterranean-offshore-drilling-dispute-2019-2020",
+      "allocation": "DEVELOPMENT_ONLY_ALREADY_EXAMINED",
+      "out_of_sample_eligible": false,
+      "split_group_id": "DEV_OBSERVED_LINK_COMPONENT_004",
+      "source_bundle": "constraint-geopolitical-policy/data/HYDRA_CONSTRAINT_GEOPOLITICAL_POLICY_BATCH004_SOURCED_HISTORICAL_CASES_20260925.json",
+      "source_bundle_recorded_blob": "36f1c1a41c2eb3c051b46fe28a44eadb5e01aa78",
+      "replay_cut_count": 4,
+      "replay_cuts": [
+        {
+          "cut_id": "CUT_001_PRE_FIRST_KNOWN",
+          "replay_t": "2019-11-11T23:59:58Z",
+          "group_must_follow_case": true
+        },
+        {
+          "cut_id": "CUT_002_EVENT_KNOWN",
+          "replay_t": "2019-11-11T23:59:59Z",
+          "group_must_follow_case": true
+        },
+        {
+          "cut_id": "CUT_003_PRE_OBSERVATION",
+          "replay_t": "2020-02-27T23:59:58Z",
+          "group_must_follow_case": true
+        },
+        {
+          "cut_id": "CUT_004_OBSERVATION_KNOWN",
+          "replay_t": "2020-02-27T23:59:59Z",
+          "group_must_follow_case": true
+        }
+      ],
+      "classified_replay_t": "2019-04-01T23:59:59Z",
+      "outcome_class": "UNEVALUABLE",
+      "outcome_first_observed_at": "2023-11-09T17:50:00Z",
+      "confidence_status": "NO_ADMISSIBLE_NUMERIC_CONFIDENCE",
+      "event_ids": [
+        "eu-eastern-mediterranean-drilling-framework-2019-11-11"
+      ],
+      "observation_ids": [
+        "eu-eastern-mediterranean-two-person-listings-2020-02-27"
+      ],
+      "historical_hypothesis_source_ids": [
+        "eastmed-crs-2019-04-01-hypothesis"
+      ],
+      "outcome_source_ids": [
+        "eastmed-council-2023-11-09-outcome"
+      ],
+      "hypothesis_policy_freeze_before_outcome_proven": false,
+      "assignment_note": "This audit assigns a development-only label; it does not assert an historical split or change repository records."
+    },
+    {
+      "case_id": "eu-battery-ipcei-state-aid-2019",
+      "allocation": "DEVELOPMENT_ONLY_ALREADY_EXAMINED",
+      "out_of_sample_eligible": false,
+      "split_group_id": "DEV_OBSERVED_LINK_COMPONENT_005",
+      "source_bundle": "constraint-geopolitical-policy/data/HYDRA_CONSTRAINT_GEOPOLITICAL_POLICY_BATCH003_SOURCED_HISTORICAL_CASES_20260925.json",
+      "source_bundle_recorded_blob": "b1b308498298c142f4506da1215fad99258a3684",
+      "replay_cut_count": 2,
+      "replay_cuts": [
+        {
+          "cut_id": "CUT_001_PRE_FIRST_KNOWN",
+          "replay_t": "2019-12-10T23:59:58Z",
+          "group_must_follow_case": true
+        },
+        {
+          "cut_id": "CUT_002_EVENT_KNOWN",
+          "replay_t": "2019-12-10T23:59:59Z",
+          "group_must_follow_case": true
+        }
+      ],
+      "classified_replay_t": "2019-05-27T23:59:59Z",
+      "outcome_class": "PARTIAL_REALIZATION",
+      "outcome_first_observed_at": "2025-09-16T23:59:59Z",
+      "confidence_status": "NO_ADMISSIBLE_NUMERIC_CONFIDENCE",
+      "event_ids": [
+        "eu-battery-ipcei-state-aid-approved-2019-12"
+      ],
+      "observation_ids": [],
+      "historical_hypothesis_source_ids": [
+        "battery-iea-2019-05-27-hypothesis"
+      ],
+      "outcome_source_ids": [
+        "battery-ec-2025-09-16-outcome"
+      ],
+      "hypothesis_policy_freeze_before_outcome_proven": false,
+      "assignment_note": "This audit assigns a development-only label; it does not assert an historical split or change repository records."
+    },
+    {
+      "case_id": "eu-cbam-transitional-phase-2023",
+      "allocation": "DEVELOPMENT_ONLY_ALREADY_EXAMINED",
+      "out_of_sample_eligible": false,
+      "split_group_id": "DEV_OBSERVED_LINK_COMPONENT_006",
+      "source_bundle": "constraint-geopolitical-policy/data/HYDRA_CONSTRAINT_GEOPOLITICAL_POLICY_BATCH002_SOURCED_HISTORICAL_CASES_20260925.json",
+      "source_bundle_recorded_blob": "d6925977e30927190e2c16a48cf7792ab36c63a4",
+      "replay_cut_count": 3,
+      "replay_cuts": [
+        {
+          "cut_id": "CUT_001_PRE_FIRST_KNOWN",
+          "replay_t": "2023-08-17T23:59:58Z",
+          "group_must_follow_case": true
+        },
+        {
+          "cut_id": "CUT_002_EVENT_KNOWN",
+          "replay_t": "2023-08-17T23:59:59Z",
+          "group_must_follow_case": true
+        },
+        {
+          "cut_id": "CUT_003_PRE_EFFECTIVE",
+          "replay_t": "2023-09-30T23:59:59Z",
+          "group_must_follow_case": true
+        }
+      ],
+      "classified_replay_t": "2021-07-14T23:59:59Z",
+      "outcome_class": "UNEVALUABLE",
+      "outcome_first_observed_at": "2026-01-14T23:59:59Z",
+      "confidence_status": "NO_ADMISSIBLE_NUMERIC_CONFIDENCE",
+      "event_ids": [
+        "eu-cbam-reporting-rules-2023"
+      ],
+      "observation_ids": [],
+      "historical_hypothesis_source_ids": [
+        "cbam-unctad-2021-07-14-hypothesis"
+      ],
+      "outcome_source_ids": [
+        "cbam-ec-2026-01-14-outcome"
+      ],
+      "hypothesis_policy_freeze_before_outcome_proven": false,
+      "assignment_note": "This audit assigns a development-only label; it does not assert an historical split or change repository records."
+    },
+    {
+      "case_id": "eu-fifth-package-coal-and-port-restrictions-2022",
+      "allocation": "DEVELOPMENT_ONLY_ALREADY_EXAMINED",
+      "out_of_sample_eligible": false,
+      "split_group_id": "DEV_OBSERVED_LINK_COMPONENT_007",
+      "source_bundle": "constraint-geopolitical-policy/data/HYDRA_CONSTRAINT_GEOPOLITICAL_POLICY_BATCH003_SOURCED_HISTORICAL_CASES_20260925.json",
+      "source_bundle_recorded_blob": "b1b308498298c142f4506da1215fad99258a3684",
+      "replay_cut_count": 2,
+      "replay_cuts": [
+        {
+          "cut_id": "CUT_001_PRE_FIRST_KNOWN",
+          "replay_t": "2022-04-08T23:59:58Z",
+          "group_must_follow_case": true
+        },
+        {
+          "cut_id": "CUT_002_EVENT_KNOWN",
+          "replay_t": "2022-04-08T23:59:59Z",
+          "group_must_follow_case": true
+        }
+      ],
+      "classified_replay_t": "2022-07-28T23:59:59Z",
+      "outcome_class": "PARTIAL_REALIZATION",
+      "outcome_first_observed_at": "2025-07-03T23:59:59Z",
+      "confidence_status": "NO_ADMISSIBLE_NUMERIC_CONFIDENCE",
+      "event_ids": [
+        "eu-russian-coal-import-embargo-2022-04-08",
+        "eu-russian-flagged-vessels-port-entry-ban-2022-04-08"
+      ],
+      "observation_ids": [],
+      "historical_hypothesis_source_ids": [
+        "coal-iea-2022-07-28-hypothesis"
+      ],
+      "outcome_source_ids": [
+        "coal-eurostat-2025-07-03-outcome"
+      ],
+      "hypothesis_policy_freeze_before_outcome_proven": false,
+      "assignment_note": "This audit assigns a development-only label; it does not assert an historical split or change repository records."
+    },
+    {
+      "case_id": "eu-russian-oil-import-restrictions-2022",
+      "allocation": "DEVELOPMENT_ONLY_ALREADY_EXAMINED",
+      "out_of_sample_eligible": false,
+      "split_group_id": "DEV_OBSERVED_LINK_COMPONENT_008",
+      "source_bundle": "constraint-geopolitical-policy/data/sourced_historical_cases.json",
+      "source_bundle_recorded_blob": "0bfa220181fd06bb22b19a956956305c857c9bbc",
+      "replay_cut_count": 4,
+      "replay_cuts": [
+        {
+          "cut_id": "CUT_001_PRE_FIRST_KNOWN",
+          "replay_t": "2022-06-02T23:59:59Z",
+          "group_must_follow_case": true
+        },
+        {
+          "cut_id": "CUT_002_EVENT_KNOWN",
+          "replay_t": "2022-06-03T00:00:00Z",
+          "group_must_follow_case": true
+        },
+        {
+          "cut_id": "CUT_003_PRE_EFFECTIVE",
+          "replay_t": "2022-12-04T23:59:59Z",
+          "group_must_follow_case": true
+        },
+        {
+          "cut_id": "CUT_004_PRE_EFFECTIVE",
+          "replay_t": "2023-02-04T23:59:59Z",
+          "group_must_follow_case": true
+        }
+      ],
+      "classified_replay_t": "2022-06-15T23:59:59Z",
+      "outcome_class": "PARTIAL_REALIZATION",
+      "outcome_first_observed_at": "2023-09-25T23:59:59Z",
+      "confidence_status": "NO_ADMISSIBLE_NUMERIC_CONFIDENCE",
+      "event_ids": [
+        "eu-crude-oil-transition-2022-12-05",
+        "eu-petroleum-products-transition-2023-02-05"
+      ],
+      "observation_ids": [],
+      "historical_hypothesis_source_ids": [
+        "eu-russian-oil-iea-2022-06-15-hypothesis"
+      ],
+      "outcome_source_ids": [
+        "eu-russian-oil-eurostat-2023-09-25"
+      ],
+      "hypothesis_policy_freeze_before_outcome_proven": false,
+      "assignment_note": "This audit assigns a development-only label; it does not assert an historical split or change repository records."
+    },
+    {
+      "case_id": "germany-uniper-nationalization-2022",
+      "allocation": "DEVELOPMENT_ONLY_ALREADY_EXAMINED",
+      "out_of_sample_eligible": false,
+      "split_group_id": "DEV_OBSERVED_LINK_COMPONENT_009",
+      "source_bundle": "constraint-geopolitical-policy/data/HYDRA_CONSTRAINT_GEOPOLITICAL_POLICY_BATCH002_SOURCED_HISTORICAL_CASES_20260925.json",
+      "source_bundle_recorded_blob": "d6925977e30927190e2c16a48cf7792ab36c63a4",
+      "replay_cut_count": 3,
+      "replay_cuts": [
+        {
+          "cut_id": "CUT_001_PRE_FIRST_KNOWN",
+          "replay_t": "2022-09-21T23:59:58Z",
+          "group_must_follow_case": true
+        },
+        {
+          "cut_id": "CUT_002_EVENT_KNOWN",
+          "replay_t": "2022-09-21T23:59:59Z",
+          "group_must_follow_case": true
+        },
+        {
+          "cut_id": "CUT_003_EVENT_KNOWN",
+          "replay_t": "2022-12-22T23:59:59Z",
+          "group_must_follow_case": true
+        }
+      ],
+      "classified_replay_t": "2022-12-21T23:59:59Z",
+      "outcome_class": "PARTIAL_REALIZATION",
+      "outcome_first_observed_at": "2024-02-28T06:30:00Z",
+      "confidence_status": "NO_ADMISSIBLE_NUMERIC_CONFIDENCE",
+      "event_ids": [
+        "germany-uniper-takeover-announced-2022-09-21",
+        "germany-uniper-state-participation-completed-2022-12-22"
+      ],
+      "observation_ids": [],
+      "historical_hypothesis_source_ids": [
+        "uniper-ec-2022-12-21-hypothesis"
+      ],
+      "outcome_source_ids": [
+        "uniper-2024-02-28-outcome"
+      ],
+      "hypothesis_policy_freeze_before_outcome_proven": false,
+      "assignment_note": "This audit assigns a development-only label; it does not assert an historical split or change repository records."
+    },
+    {
+      "case_id": "germany-wilhelmshaven-lng-commissioning-2022-2023",
+      "allocation": "DEVELOPMENT_ONLY_ALREADY_EXAMINED",
+      "out_of_sample_eligible": false,
+      "split_group_id": "DEV_OBSERVED_LINK_COMPONENT_010",
+      "source_bundle": "constraint-geopolitical-policy/data/HYDRA_CONSTRAINT_GEOPOLITICAL_POLICY_BATCH004_SOURCED_HISTORICAL_CASES_20260925.json",
+      "source_bundle_recorded_blob": "36f1c1a41c2eb3c051b46fe28a44eadb5e01aa78",
+      "replay_cut_count": 5,
+      "replay_cuts": [
+        {
+          "cut_id": "CUT_001_PRE_FIRST_KNOWN",
+          "replay_t": "2022-12-17T23:59:58Z",
+          "group_must_follow_case": true
+        },
+        {
+          "cut_id": "CUT_002_EVENT_KNOWN",
+          "replay_t": "2022-12-17T23:59:59Z",
+          "group_must_follow_case": true
+        },
+        {
+          "cut_id": "CUT_003_PRE_EFFECTIVE",
+          "replay_t": "2022-12-31T23:59:59Z",
+          "group_must_follow_case": true
+        },
+        {
+          "cut_id": "CUT_004_PRE_OBSERVATION",
+          "replay_t": "2023-03-01T23:59:58Z",
+          "group_must_follow_case": true
+        },
+        {
+          "cut_id": "CUT_005_OBSERVATION_KNOWN",
+          "replay_t": "2023-03-01T23:59:59Z",
+          "group_must_follow_case": true
+        }
+      ],
+      "classified_replay_t": "2022-09-29T23:59:59Z",
+      "outcome_class": "PARTIAL_REALIZATION",
+      "outcome_first_observed_at": "2023-01-03T10:00:00Z",
+      "confidence_status": "NO_ADMISSIBLE_NUMERIC_CONFIDENCE",
+      "event_ids": [
+        "wilhelmshaven-lng-terminal-opened-2022-12-17"
+      ],
+      "observation_ids": [
+        "wilhelmshaven-lng-regular-operations-2023-03-01"
+      ],
+      "historical_hypothesis_source_ids": [
+        "wilhelm-bnetza-2022-09-29-hypothesis"
+      ],
+      "outcome_source_ids": [
+        "wilhelm-uniper-2023-01-03-firstcargo",
+        "wilhelm-uniper-2023-12-15-year1"
+      ],
+      "hypothesis_policy_freeze_before_outcome_proven": false,
+      "assignment_note": "This audit assigns a development-only label; it does not assert an historical split or change repository records."
+    },
+    {
+      "case_id": "imo-sulphur-2020-regulation",
+      "allocation": "DEVELOPMENT_ONLY_ALREADY_EXAMINED",
+      "out_of_sample_eligible": false,
+      "split_group_id": "DEV_OBSERVED_LINK_COMPONENT_011",
+      "source_bundle": "constraint-geopolitical-policy/data/HYDRA_CONSTRAINT_GEOPOLITICAL_POLICY_BATCH002_SOURCED_HISTORICAL_CASES_20260925.json",
+      "source_bundle_recorded_blob": "d6925977e30927190e2c16a48cf7792ab36c63a4",
+      "replay_cut_count": 3,
+      "replay_cuts": [
+        {
+          "cut_id": "CUT_001_PRE_FIRST_KNOWN",
+          "replay_t": "2016-10-28T23:59:58Z",
+          "group_must_follow_case": true
+        },
+        {
+          "cut_id": "CUT_002_EVENT_KNOWN",
+          "replay_t": "2016-10-28T23:59:59Z",
+          "group_must_follow_case": true
+        },
+        {
+          "cut_id": "CUT_003_PRE_EFFECTIVE",
+          "replay_t": "2019-12-31T23:59:59Z",
+          "group_must_follow_case": true
+        }
+      ],
+      "classified_replay_t": "2019-12-11T23:59:59Z",
+      "outcome_class": "PARTIAL_REALIZATION",
+      "outcome_first_observed_at": "2021-01-28T23:59:59Z",
+      "confidence_status": "NO_ADMISSIBLE_NUMERIC_CONFIDENCE",
+      "event_ids": [
+        "imo-global-sulphur-limit-2020"
+      ],
+      "observation_ids": [],
+      "historical_hypothesis_source_ids": [
+        "imo2020-epa-2019-12-11-hypothesis"
+      ],
+      "outcome_source_ids": [
+        "imo2020-imo-2021-01-28-outcome"
+      ],
+      "hypothesis_policy_freeze_before_outcome_proven": false,
+      "assignment_note": "This audit assigns a development-only label; it does not assert an historical split or change repository records."
+    },
+    {
+      "case_id": "japan-korea-export-control-relations-2019",
+      "allocation": "DEVELOPMENT_ONLY_ALREADY_EXAMINED",
+      "out_of_sample_eligible": false,
+      "split_group_id": "DEV_OBSERVED_LINK_COMPONENT_012",
+      "source_bundle": "constraint-geopolitical-policy/data/HYDRA_CONSTRAINT_GEOPOLITICAL_POLICY_BATCH004_SOURCED_HISTORICAL_CASES_20260925.json",
+      "source_bundle_recorded_blob": "36f1c1a41c2eb3c051b46fe28a44eadb5e01aa78",
+      "replay_cut_count": 4,
+      "replay_cuts": [
+        {
+          "cut_id": "CUT_001_PRE_FIRST_KNOWN",
+          "replay_t": "2019-07-10T23:59:58Z",
+          "group_must_follow_case": true
+        },
+        {
+          "cut_id": "CUT_002_EVENT_KNOWN",
+          "replay_t": "2019-07-10T23:59:59Z",
+          "group_must_follow_case": true
+        },
+        {
+          "cut_id": "CUT_003_PRE_OBSERVATION",
+          "replay_t": "2019-09-16T23:59:58Z",
+          "group_must_follow_case": true
+        },
+        {
+          "cut_id": "CUT_004_OBSERVATION_KNOWN",
+          "replay_t": "2019-09-16T23:59:59Z",
+          "group_must_follow_case": true
+        }
+      ],
+      "classified_replay_t": "2020-07-29T23:59:59Z",
+      "outcome_class": "UNEVALUABLE",
+      "outcome_first_observed_at": "2023-03-16T23:59:59Z",
+      "confidence_status": "NO_ADMISSIBLE_NUMERIC_CONFIDENCE",
+      "event_ids": [
+        "japan-korea-export-licensing-change-2019-07"
+      ],
+      "observation_ids": [
+        "japan-korea-wto-consultations-request-2019-09-16"
+      ],
+      "historical_hypothesis_source_ids": [
+        "japan-korea-wto-2020-07-29-hypothesis"
+      ],
+      "outcome_source_ids": [
+        "japan-korea-motie-2023-03-16-outcome",
+        "japan-korea-meti-2023-03-17-outcome"
+      ],
+      "hypothesis_policy_freeze_before_outcome_proven": false,
+      "assignment_note": "This audit assigns a development-only label; it does not assert an historical split or change repository records."
+    },
+    {
+      "case_id": "nord-stream-2-certification-state-2021-2022",
+      "allocation": "DEVELOPMENT_ONLY_ALREADY_EXAMINED",
+      "out_of_sample_eligible": false,
+      "split_group_id": "DEV_OBSERVED_LINK_COMPONENT_013",
+      "source_bundle": "constraint-geopolitical-policy/data/HYDRA_CONSTRAINT_GEOPOLITICAL_POLICY_BATCH004_SOURCED_HISTORICAL_CASES_20260925.json",
+      "source_bundle_recorded_blob": "36f1c1a41c2eb3c051b46fe28a44eadb5e01aa78",
+      "replay_cut_count": 3,
+      "replay_cuts": [
+        {
+          "cut_id": "CUT_001_PRE_FIRST_KNOWN",
+          "replay_t": "2021-11-16T23:59:58Z",
+          "group_must_follow_case": true
+        },
+        {
+          "cut_id": "CUT_002_EVENT_KNOWN",
+          "replay_t": "2021-11-16T23:59:59Z",
+          "group_must_follow_case": true
+        },
+        {
+          "cut_id": "CUT_003_EVENT_KNOWN",
+          "replay_t": "2022-02-22T23:59:59Z",
+          "group_must_follow_case": true
+        }
+      ],
+      "classified_replay_t": "2021-11-16T23:59:59Z",
+      "outcome_class": "PARTIAL_REALIZATION",
+      "outcome_first_observed_at": "2022-02-22T23:59:59Z",
+      "confidence_status": "NO_ADMISSIBLE_NUMERIC_CONFIDENCE",
+      "event_ids": [
+        "nord-stream-2-certification-suspended-2021-11-16",
+        "nord-stream-2-certification-halted-2022-02-22"
+      ],
+      "observation_ids": [],
+      "historical_hypothesis_source_ids": [
+        "nord-bnetza-2021-11-16-hypothesis"
+      ],
+      "outcome_source_ids": [
+        "nord-bmwk-2022-02-22-outcome"
+      ],
+      "hypothesis_policy_freeze_before_outcome_proven": false,
+      "assignment_note": "This audit assigns a development-only label; it does not assert an historical split or change repository records."
+    },
+    {
+      "case_id": "panama-canal-drought-transit-policy-2023",
+      "allocation": "DEVELOPMENT_ONLY_ALREADY_EXAMINED",
+      "out_of_sample_eligible": false,
+      "split_group_id": "DEV_OBSERVED_LINK_COMPONENT_014",
+      "source_bundle": "constraint-geopolitical-policy/data/HYDRA_CONSTRAINT_GEOPOLITICAL_POLICY_BATCH003_SOURCED_HISTORICAL_CASES_20260925.json",
+      "source_bundle_recorded_blob": "b1b308498298c142f4506da1215fad99258a3684",
+      "replay_cut_count": 5,
+      "replay_cuts": [
+        {
+          "cut_id": "CUT_001_PRE_FIRST_KNOWN",
+          "replay_t": "2023-10-30T23:59:58Z",
+          "group_must_follow_case": true
+        },
+        {
+          "cut_id": "CUT_002_EVENT_KNOWN",
+          "replay_t": "2023-10-30T23:59:59Z",
+          "group_must_follow_case": true
+        },
+        {
+          "cut_id": "CUT_003_PRE_EFFECTIVE",
+          "replay_t": "2023-10-31T23:59:59Z",
+          "group_must_follow_case": true
+        },
+        {
+          "cut_id": "CUT_004_EVENT_KNOWN",
+          "replay_t": "2023-12-15T23:59:59Z",
+          "group_must_follow_case": true
+        },
+        {
+          "cut_id": "CUT_005_PRE_EFFECTIVE",
+          "replay_t": "2024-01-15T23:59:59Z",
+          "group_must_follow_case": true
+        }
+      ],
+      "classified_replay_t": "2023-11-15T23:59:59Z",
+      "outcome_class": "PARTIAL_REALIZATION",
+      "outcome_first_observed_at": "2024-01-26T23:59:59Z",
+      "confidence_status": "NO_ADMISSIBLE_NUMERIC_CONFIDENCE",
+      "event_ids": [
+        "panama-canal-transit-reductions-a48-2023",
+        "panama-canal-transit-adjustment-a54-2023"
+      ],
+      "observation_ids": [],
+      "historical_hypothesis_source_ids": [
+        "panama-imf-2023-11-15-hypothesis"
+      ],
+      "outcome_source_ids": [
+        "panama-unctad-2024-01-26-transits"
+      ],
+      "hypothesis_policy_freeze_before_outcome_proven": false,
+      "assignment_note": "This audit assigns a development-only label; it does not assert an historical split or change repository records."
+    },
+    {
+      "case_id": "russia-food-import-embargo-2014",
+      "allocation": "DEVELOPMENT_ONLY_ALREADY_EXAMINED",
+      "out_of_sample_eligible": false,
+      "split_group_id": "DEV_OBSERVED_LINK_COMPONENT_015",
+      "source_bundle": "constraint-geopolitical-policy/data/HYDRA_CONSTRAINT_GEOPOLITICAL_POLICY_BATCH003_SOURCED_HISTORICAL_CASES_20260925.json",
+      "source_bundle_recorded_blob": "b1b308498298c142f4506da1215fad99258a3684",
+      "replay_cut_count": 2,
+      "replay_cuts": [
+        {
+          "cut_id": "CUT_001_PRE_FIRST_KNOWN",
+          "replay_t": "2014-08-07T23:59:58Z",
+          "group_must_follow_case": true
+        },
+        {
+          "cut_id": "CUT_002_EVENT_KNOWN",
+          "replay_t": "2014-08-07T23:59:59Z",
+          "group_must_follow_case": true
+        }
+      ],
+      "classified_replay_t": "2014-08-11T23:59:59Z",
+      "outcome_class": "PARTIAL_REALIZATION",
+      "outcome_first_observed_at": "2015-03-03T23:59:59Z",
+      "confidence_status": "NO_ADMISSIBLE_NUMERIC_CONFIDENCE",
+      "event_ids": [
+        "russia-food-import-embargo-announced-2014-08-07"
+      ],
+      "observation_ids": [],
+      "historical_hypothesis_source_ids": [
+        "russia-worldbank-2014-08-11-hypothesis"
+      ],
+      "outcome_source_ids": [
+        "russia-fao-2015-03-03-outcome"
+      ],
+      "hypothesis_policy_freeze_before_outcome_proven": false,
+      "assignment_note": "This audit assigns a development-only label; it does not assert an historical split or change repository records."
+    },
+    {
+      "case_id": "suez-ever-given-2021",
+      "allocation": "DEVELOPMENT_ONLY_ALREADY_EXAMINED",
+      "out_of_sample_eligible": false,
+      "split_group_id": "DEV_OBSERVED_LINK_COMPONENT_016",
+      "source_bundle": "constraint-geopolitical-policy/data/sourced_historical_cases.json",
+      "source_bundle_recorded_blob": "0bfa220181fd06bb22b19a956956305c857c9bbc",
+      "replay_cut_count": 6,
+      "replay_cuts": [
+        {
+          "cut_id": "CUT_001_PRE_FIRST_KNOWN",
+          "replay_t": "2021-03-25T23:59:59Z",
+          "group_must_follow_case": true
+        },
+        {
+          "cut_id": "CUT_002_EVENT_KNOWN",
+          "replay_t": "2021-03-26T00:00:00Z",
+          "group_must_follow_case": true
+        },
+        {
+          "cut_id": "CUT_003_PRE_OBSERVATION",
+          "replay_t": "2021-03-30T23:59:59Z",
+          "group_must_follow_case": true
+        },
+        {
+          "cut_id": "CUT_004_OBSERVATION_KNOWN",
+          "replay_t": "2021-03-31T00:00:00Z",
+          "group_must_follow_case": true
+        },
+        {
+          "cut_id": "CUT_005_PRE_OBSERVATION",
+          "replay_t": "2021-04-22T23:59:59Z",
+          "group_must_follow_case": true
+        },
+        {
+          "cut_id": "CUT_006_OBSERVATION_KNOWN",
+          "replay_t": "2021-04-23T00:00:00Z",
+          "group_must_follow_case": true
+        }
+      ],
+      "classified_replay_t": "2021-03-26T15:41:00Z",
+      "outcome_class": "PARTIAL_REALIZATION",
+      "outcome_first_observed_at": "2021-03-31T23:59:59Z",
+      "confidence_status": "NO_ADMISSIBLE_NUMERIC_CONFIDENCE",
+      "event_ids": [
+        "suez-grounding-disruption-known-2021-03-26"
+      ],
+      "observation_ids": [
+        "suez-navigation-restored-2021-03-31",
+        "suez-container-rate-effect-2021-04-23"
+      ],
+      "historical_hypothesis_source_ids": [
+        "suez-spglobal-2021-03-26-hypothesis"
+      ],
+      "outcome_source_ids": [
+        "suez-sca-2021-03-31-traffic",
+        "suez-unctad-2021-04-23-freight"
+      ],
+      "hypothesis_policy_freeze_before_outcome_proven": false,
+      "assignment_note": "This audit assigns a development-only label; it does not assert an historical split or change repository records."
+    },
+    {
+      "case_id": "us-china-section301-multi-stage-trade-dispute-2018",
+      "allocation": "DEVELOPMENT_ONLY_ALREADY_EXAMINED",
+      "out_of_sample_eligible": false,
+      "split_group_id": "DEV_OBSERVED_LINK_COMPONENT_017",
+      "source_bundle": "constraint-geopolitical-policy/data/HYDRA_CONSTRAINT_GEOPOLITICAL_POLICY_BATCH003_SOURCED_HISTORICAL_CASES_20260925.json",
+      "source_bundle_recorded_blob": "b1b308498298c142f4506da1215fad99258a3684",
+      "replay_cut_count": 7,
+      "replay_cuts": [
+        {
+          "cut_id": "CUT_001_PRE_FIRST_KNOWN",
+          "replay_t": "2018-06-15T23:59:58Z",
+          "group_must_follow_case": true
+        },
+        {
+          "cut_id": "CUT_002_EVENT_KNOWN",
+          "replay_t": "2018-06-15T23:59:59Z",
+          "group_must_follow_case": true
+        },
+        {
+          "cut_id": "CUT_003_PRE_EFFECTIVE",
+          "replay_t": "2018-07-05T23:59:59Z",
+          "group_must_follow_case": true
+        },
+        {
+          "cut_id": "CUT_004_EVENT_KNOWN",
+          "replay_t": "2018-08-07T23:59:59Z",
+          "group_must_follow_case": true
+        },
+        {
+          "cut_id": "CUT_005_PRE_EFFECTIVE",
+          "replay_t": "2018-08-22T23:59:59Z",
+          "group_must_follow_case": true
+        },
+        {
+          "cut_id": "CUT_006_EVENT_KNOWN",
+          "replay_t": "2018-09-18T23:59:59Z",
+          "group_must_follow_case": true
+        },
+        {
+          "cut_id": "CUT_007_PRE_EFFECTIVE",
+          "replay_t": "2018-09-23T23:59:59Z",
+          "group_must_follow_case": true
+        }
+      ],
+      "classified_replay_t": "2018-09-12T23:59:59Z",
+      "outcome_class": "PARTIAL_REALIZATION",
+      "outcome_first_observed_at": "2023-03-15T23:59:59Z",
+      "confidence_status": "NO_ADMISSIBLE_NUMERIC_CONFIDENCE",
+      "event_ids": [
+        "us-section301-list1-action-2018",
+        "us-section301-list2-action-2018",
+        "us-section301-list3-action-2018"
+      ],
+      "observation_ids": [],
+      "historical_hypothesis_source_ids": [
+        "section301-fed-beige-book-2018-09-12"
+      ],
+      "outcome_source_ids": [
+        "section301-usitc-2023-03-15-effects"
+      ],
+      "hypothesis_policy_freeze_before_outcome_proven": false,
+      "assignment_note": "This audit assigns a development-only label; it does not assert an historical split or change repository records."
+    },
+    {
+      "case_id": "us-chips-act-2022",
+      "allocation": "DEVELOPMENT_ONLY_ALREADY_EXAMINED",
+      "out_of_sample_eligible": false,
+      "split_group_id": "DEV_OBSERVED_LINK_COMPONENT_018",
+      "source_bundle": "constraint-geopolitical-policy/data/sourced_historical_cases.json",
+      "source_bundle_recorded_blob": "0bfa220181fd06bb22b19a956956305c857c9bbc",
+      "replay_cut_count": 4,
+      "replay_cuts": [
+        {
+          "cut_id": "CUT_001_PRE_FIRST_KNOWN",
+          "replay_t": "2022-08-08T23:59:59Z",
+          "group_must_follow_case": true
+        },
+        {
+          "cut_id": "CUT_002_EVENT_KNOWN",
+          "replay_t": "2022-08-09T00:00:00Z",
+          "group_must_follow_case": true
+        },
+        {
+          "cut_id": "CUT_003_PRE_OBSERVATION",
+          "replay_t": "2022-08-24T23:59:59Z",
+          "group_must_follow_case": true
+        },
+        {
+          "cut_id": "CUT_004_OBSERVATION_KNOWN",
+          "replay_t": "2022-08-25T00:00:00Z",
+          "group_must_follow_case": true
+        }
+      ],
+      "classified_replay_t": "2021-04-01T23:59:59Z",
+      "outcome_class": "UNEVALUABLE",
+      "outcome_first_observed_at": "2024-08-09T23:59:59Z",
+      "confidence_status": "NO_ADMISSIBLE_NUMERIC_CONFIDENCE",
+      "event_ids": [
+        "us-chips-act-signed-2022-08-09"
+      ],
+      "observation_ids": [
+        "chips-program-implementation-launch-2022-08-25"
+      ],
+      "historical_hypothesis_source_ids": [
+        "chips-bcg-2021-04-01-hypothesis"
+      ],
+      "outcome_source_ids": [
+        "chips-commerce-2024-08-09-outcome"
+      ],
+      "hypothesis_policy_freeze_before_outcome_proven": false,
+      "assignment_note": "This audit assigns a development-only label; it does not assert an historical split or change repository records."
+    },
+    {
+      "case_id": "us-pdvsa-sanctions-2019",
+      "allocation": "DEVELOPMENT_ONLY_ALREADY_EXAMINED",
+      "out_of_sample_eligible": false,
+      "split_group_id": "DEV_OBSERVED_LINK_COMPONENT_019",
+      "source_bundle": "constraint-geopolitical-policy/data/HYDRA_CONSTRAINT_GEOPOLITICAL_POLICY_BATCH002_SOURCED_HISTORICAL_CASES_20260925.json",
+      "source_bundle_recorded_blob": "d6925977e30927190e2c16a48cf7792ab36c63a4",
+      "replay_cut_count": 2,
+      "replay_cuts": [
+        {
+          "cut_id": "CUT_001_PRE_FIRST_KNOWN",
+          "replay_t": "2019-01-28T23:59:58Z",
+          "group_must_follow_case": true
+        },
+        {
+          "cut_id": "CUT_002_EVENT_KNOWN",
+          "replay_t": "2019-01-28T23:59:59Z",
+          "group_must_follow_case": true
+        }
+      ],
+      "classified_replay_t": "2019-05-20T23:59:59Z",
+      "outcome_class": "PARTIAL_REALIZATION",
+      "outcome_first_observed_at": "2019-12-11T23:59:59Z",
+      "confidence_status": "NO_ADMISSIBLE_NUMERIC_CONFIDENCE",
+      "event_ids": [
+        "us-ofac-pdvsa-designation-2019"
+      ],
+      "observation_ids": [],
+      "historical_hypothesis_source_ids": [
+        "pdvsa-eia-2019-05-20-hypothesis"
+      ],
+      "outcome_source_ids": [
+        "pdvsa-opec-2019-12-11-outcome"
+      ],
+      "hypothesis_policy_freeze_before_outcome_proven": false,
+      "assignment_note": "This audit assigns a development-only label; it does not assert an historical split or change repository records."
+    },
+    {
+      "case_id": "us-section232-steel-tariff-2018",
+      "allocation": "DEVELOPMENT_ONLY_ALREADY_EXAMINED",
+      "out_of_sample_eligible": false,
+      "split_group_id": "DEV_OBSERVED_LINK_COMPONENT_017",
+      "source_bundle": "constraint-geopolitical-policy/data/HYDRA_CONSTRAINT_GEOPOLITICAL_POLICY_BATCH002_SOURCED_HISTORICAL_CASES_20260925.json",
+      "source_bundle_recorded_blob": "d6925977e30927190e2c16a48cf7792ab36c63a4",
+      "replay_cut_count": 3,
+      "replay_cuts": [
+        {
+          "cut_id": "CUT_001_PRE_FIRST_KNOWN",
+          "replay_t": "2018-03-15T23:59:58Z",
+          "group_must_follow_case": true
+        },
+        {
+          "cut_id": "CUT_002_EVENT_KNOWN",
+          "replay_t": "2018-03-15T23:59:59Z",
+          "group_must_follow_case": true
+        },
+        {
+          "cut_id": "CUT_003_PRE_EFFECTIVE",
+          "replay_t": "2018-03-23T03:59:59Z",
+          "group_must_follow_case": true
+        }
+      ],
+      "classified_replay_t": "2018-04-18T23:59:59Z",
+      "outcome_class": "PARTIAL_REALIZATION",
+      "outcome_first_observed_at": "2023-03-15T23:59:59Z",
+      "confidence_status": "NO_ADMISSIBLE_NUMERIC_CONFIDENCE",
+      "event_ids": [
+        "us-steel-tariff-proclamation-9705-2018"
+      ],
+      "observation_ids": [],
+      "historical_hypothesis_source_ids": [
+        "section232-fed-beige-book-2018-04-18"
+      ],
+      "outcome_source_ids": [
+        "section232-usitc-2023-03-15-effects"
+      ],
+      "hypothesis_policy_freeze_before_outcome_proven": false,
+      "assignment_note": "This audit assigns a development-only label; it does not assert an historical split or change repository records."
+    },
+    {
+      "case_id": "us-section45x-advanced-manufacturing-incentive-2022",
+      "allocation": "DEVELOPMENT_ONLY_ALREADY_EXAMINED",
+      "out_of_sample_eligible": false,
+      "split_group_id": "DEV_OBSERVED_LINK_COMPONENT_020",
+      "source_bundle": "constraint-geopolitical-policy/data/HYDRA_CONSTRAINT_GEOPOLITICAL_POLICY_BATCH004_SOURCED_HISTORICAL_CASES_20260925.json",
+      "source_bundle_recorded_blob": "36f1c1a41c2eb3c051b46fe28a44eadb5e01aa78",
+      "replay_cut_count": 5,
+      "replay_cuts": [
+        {
+          "cut_id": "CUT_001_PRE_FIRST_KNOWN",
+          "replay_t": "2022-08-16T23:59:58Z",
+          "group_must_follow_case": true
+        },
+        {
+          "cut_id": "CUT_002_EVENT_KNOWN",
+          "replay_t": "2022-08-16T23:59:59Z",
+          "group_must_follow_case": true
+        },
+        {
+          "cut_id": "CUT_003_PRE_EFFECTIVE",
+          "replay_t": "2022-12-31T23:59:59Z",
+          "group_must_follow_case": true
+        },
+        {
+          "cut_id": "CUT_004_PRE_OBSERVATION",
+          "replay_t": "2023-12-14T23:59:58Z",
+          "group_must_follow_case": true
+        },
+        {
+          "cut_id": "CUT_005_OBSERVATION_KNOWN",
+          "replay_t": "2023-12-14T23:59:59Z",
+          "group_must_follow_case": true
+        }
+      ],
+      "classified_replay_t": "2023-05-12T23:59:59Z",
+      "outcome_class": "PARTIAL_REALIZATION",
+      "outcome_first_observed_at": "2024-10-24T23:59:59Z",
+      "confidence_status": "NO_ADMISSIBLE_NUMERIC_CONFIDENCE",
+      "event_ids": [
+        "us-section45x-advanced-manufacturing-credit-enacted-2022"
+      ],
+      "observation_ids": [
+        "us-section45x-proposed-guidance-2023-12-14"
+      ],
+      "historical_hypothesis_source_ids": [
+        "45x-doe-2023-05-12-hypothesis"
+      ],
+      "outcome_source_ids": [
+        "45x-treasury-2024-10-24-outcome"
+      ],
+      "hypothesis_policy_freeze_before_outcome_proven": false,
+      "assignment_note": "This audit assigns a development-only label; it does not assert an historical split or change repository records."
+    },
+    {
+      "case_id": "wto-china-rare-earths-resource-dispute-2014-2015",
+      "allocation": "DEVELOPMENT_ONLY_ALREADY_EXAMINED",
+      "out_of_sample_eligible": false,
+      "split_group_id": "DEV_OBSERVED_LINK_COMPONENT_021",
+      "source_bundle": "constraint-geopolitical-policy/data/HYDRA_CONSTRAINT_GEOPOLITICAL_POLICY_BATCH003_SOURCED_HISTORICAL_CASES_20260925.json",
+      "source_bundle_recorded_blob": "b1b308498298c142f4506da1215fad99258a3684",
+      "replay_cut_count": 4,
+      "replay_cuts": [
+        {
+          "cut_id": "CUT_001_PRE_FIRST_KNOWN",
+          "replay_t": "2014-08-29T23:59:58Z",
+          "group_must_follow_case": true
+        },
+        {
+          "cut_id": "CUT_002_EVENT_KNOWN",
+          "replay_t": "2014-08-29T23:59:59Z",
+          "group_must_follow_case": true
+        },
+        {
+          "cut_id": "CUT_003_PRE_OBSERVATION",
+          "replay_t": "2015-05-20T23:59:58Z",
+          "group_must_follow_case": true
+        },
+        {
+          "cut_id": "CUT_004_OBSERVATION_KNOWN",
+          "replay_t": "2015-05-20T23:59:59Z",
+          "group_must_follow_case": true
+        }
+      ],
+      "classified_replay_t": "2014-03-26T23:59:59Z",
+      "outcome_class": "UNEVALUABLE",
+      "outcome_first_observed_at": "2015-05-20T23:59:59Z",
+      "confidence_status": "NO_ADMISSIBLE_NUMERIC_CONFIDENCE",
+      "event_ids": [
+        "wto-rare-earths-dsb-adoption-2014-08-29"
+      ],
+      "observation_ids": [
+        "wto-rare-earths-implementation-status-2015-05-20"
+      ],
+      "historical_hypothesis_source_ids": [
+        "rareearth-ustr-2014-03-26-hypothesis"
+      ],
+      "outcome_source_ids": [
+        "rareearth-wto-2015-05-20-outcome"
+      ],
+      "hypothesis_policy_freeze_before_outcome_proven": false,
+      "assignment_note": "This audit assigns a development-only label; it does not assert an historical split or change repository records."
+    }
+  ],
+  "observed_dependency_groups": [
+    {
+      "group_id": "DEV_OBSERVED_LINK_COMPONENT_001",
+      "case_ids": [
+        "bis-semiconductor-controls-2022"
+      ],
+      "allocation": "DEVELOPMENT_ONLY",
+      "observed_cross_case_link_keys": [],
+      "semantic_related_event_closure_status": "NOT_EXHAUSTIVELY_CURATED",
+      "independence_claim": false
+    },
+    {
+      "group_id": "DEV_OBSERVED_LINK_COMPONENT_002",
+      "case_ids": [
+        "black-sea-grain-corridor-2022"
+      ],
+      "allocation": "DEVELOPMENT_ONLY",
+      "observed_cross_case_link_keys": [],
+      "semantic_related_event_closure_status": "NOT_EXHAUSTIVELY_CURATED",
+      "independence_claim": false
+    },
+    {
+      "group_id": "DEV_OBSERVED_LINK_COMPONENT_003",
+      "case_ids": [
+        "china-gallium-germanium-controls-2023"
+      ],
+      "allocation": "DEVELOPMENT_ONLY",
+      "observed_cross_case_link_keys": [],
+      "semantic_related_event_closure_status": "NOT_EXHAUSTIVELY_CURATED",
+      "independence_claim": false
+    },
+    {
+      "group_id": "DEV_OBSERVED_LINK_COMPONENT_004",
+      "case_ids": [
+        "eastern-mediterranean-offshore-drilling-dispute-2019-2020"
+      ],
+      "allocation": "DEVELOPMENT_ONLY",
+      "observed_cross_case_link_keys": [],
+      "semantic_related_event_closure_status": "NOT_EXHAUSTIVELY_CURATED",
+      "independence_claim": false
+    },
+    {
+      "group_id": "DEV_OBSERVED_LINK_COMPONENT_005",
+      "case_ids": [
+        "eu-battery-ipcei-state-aid-2019"
+      ],
+      "allocation": "DEVELOPMENT_ONLY",
+      "observed_cross_case_link_keys": [],
+      "semantic_related_event_closure_status": "NOT_EXHAUSTIVELY_CURATED",
+      "independence_claim": false
+    },
+    {
+      "group_id": "DEV_OBSERVED_LINK_COMPONENT_006",
+      "case_ids": [
+        "eu-cbam-transitional-phase-2023"
+      ],
+      "allocation": "DEVELOPMENT_ONLY",
+      "observed_cross_case_link_keys": [],
+      "semantic_related_event_closure_status": "NOT_EXHAUSTIVELY_CURATED",
+      "independence_claim": false
+    },
+    {
+      "group_id": "DEV_OBSERVED_LINK_COMPONENT_007",
+      "case_ids": [
+        "eu-fifth-package-coal-and-port-restrictions-2022"
+      ],
+      "allocation": "DEVELOPMENT_ONLY",
+      "observed_cross_case_link_keys": [],
+      "semantic_related_event_closure_status": "NOT_EXHAUSTIVELY_CURATED",
+      "independence_claim": false
+    },
+    {
+      "group_id": "DEV_OBSERVED_LINK_COMPONENT_008",
+      "case_ids": [
+        "eu-russian-oil-import-restrictions-2022"
+      ],
+      "allocation": "DEVELOPMENT_ONLY",
+      "observed_cross_case_link_keys": [],
+      "semantic_related_event_closure_status": "NOT_EXHAUSTIVELY_CURATED",
+      "independence_claim": false
+    },
+    {
+      "group_id": "DEV_OBSERVED_LINK_COMPONENT_009",
+      "case_ids": [
+        "germany-uniper-nationalization-2022"
+      ],
+      "allocation": "DEVELOPMENT_ONLY",
+      "observed_cross_case_link_keys": [],
+      "semantic_related_event_closure_status": "NOT_EXHAUSTIVELY_CURATED",
+      "independence_claim": false
+    },
+    {
+      "group_id": "DEV_OBSERVED_LINK_COMPONENT_010",
+      "case_ids": [
+        "germany-wilhelmshaven-lng-commissioning-2022-2023"
+      ],
+      "allocation": "DEVELOPMENT_ONLY",
+      "observed_cross_case_link_keys": [],
+      "semantic_related_event_closure_status": "NOT_EXHAUSTIVELY_CURATED",
+      "independence_claim": false
+    },
+    {
+      "group_id": "DEV_OBSERVED_LINK_COMPONENT_011",
+      "case_ids": [
+        "imo-sulphur-2020-regulation"
+      ],
+      "allocation": "DEVELOPMENT_ONLY",
+      "observed_cross_case_link_keys": [],
+      "semantic_related_event_closure_status": "NOT_EXHAUSTIVELY_CURATED",
+      "independence_claim": false
+    },
+    {
+      "group_id": "DEV_OBSERVED_LINK_COMPONENT_012",
+      "case_ids": [
+        "japan-korea-export-control-relations-2019"
+      ],
+      "allocation": "DEVELOPMENT_ONLY",
+      "observed_cross_case_link_keys": [],
+      "semantic_related_event_closure_status": "NOT_EXHAUSTIVELY_CURATED",
+      "independence_claim": false
+    },
+    {
+      "group_id": "DEV_OBSERVED_LINK_COMPONENT_013",
+      "case_ids": [
+        "nord-stream-2-certification-state-2021-2022"
+      ],
+      "allocation": "DEVELOPMENT_ONLY",
+      "observed_cross_case_link_keys": [],
+      "semantic_related_event_closure_status": "NOT_EXHAUSTIVELY_CURATED",
+      "independence_claim": false
+    },
+    {
+      "group_id": "DEV_OBSERVED_LINK_COMPONENT_014",
+      "case_ids": [
+        "panama-canal-drought-transit-policy-2023"
+      ],
+      "allocation": "DEVELOPMENT_ONLY",
+      "observed_cross_case_link_keys": [],
+      "semantic_related_event_closure_status": "NOT_EXHAUSTIVELY_CURATED",
+      "independence_claim": false
+    },
+    {
+      "group_id": "DEV_OBSERVED_LINK_COMPONENT_015",
+      "case_ids": [
+        "russia-food-import-embargo-2014"
+      ],
+      "allocation": "DEVELOPMENT_ONLY",
+      "observed_cross_case_link_keys": [],
+      "semantic_related_event_closure_status": "NOT_EXHAUSTIVELY_CURATED",
+      "independence_claim": false
+    },
+    {
+      "group_id": "DEV_OBSERVED_LINK_COMPONENT_016",
+      "case_ids": [
+        "suez-ever-given-2021"
+      ],
+      "allocation": "DEVELOPMENT_ONLY",
+      "observed_cross_case_link_keys": [],
+      "semantic_related_event_closure_status": "NOT_EXHAUSTIVELY_CURATED",
+      "independence_claim": false
+    },
+    {
+      "group_id": "DEV_OBSERVED_LINK_COMPONENT_017",
+      "case_ids": [
+        "us-china-section301-multi-stage-trade-dispute-2018",
+        "us-section232-steel-tariff-2018"
+      ],
+      "allocation": "DEVELOPMENT_ONLY",
+      "observed_cross_case_link_keys": [
+        "source_url:https://www.usitc.gov/press_room/news_release/2023/er0315_63679.htm"
+      ],
+      "semantic_related_event_closure_status": "NOT_EXHAUSTIVELY_CURATED",
+      "independence_claim": false
+    },
+    {
+      "group_id": "DEV_OBSERVED_LINK_COMPONENT_018",
+      "case_ids": [
+        "us-chips-act-2022"
+      ],
+      "allocation": "DEVELOPMENT_ONLY",
+      "observed_cross_case_link_keys": [],
+      "semantic_related_event_closure_status": "NOT_EXHAUSTIVELY_CURATED",
+      "independence_claim": false
+    },
+    {
+      "group_id": "DEV_OBSERVED_LINK_COMPONENT_019",
+      "case_ids": [
+        "us-pdvsa-sanctions-2019"
+      ],
+      "allocation": "DEVELOPMENT_ONLY",
+      "observed_cross_case_link_keys": [],
+      "semantic_related_event_closure_status": "NOT_EXHAUSTIVELY_CURATED",
+      "independence_claim": false
+    },
+    {
+      "group_id": "DEV_OBSERVED_LINK_COMPONENT_020",
+      "case_ids": [
+        "us-section45x-advanced-manufacturing-incentive-2022"
+      ],
+      "allocation": "DEVELOPMENT_ONLY",
+      "observed_cross_case_link_keys": [],
+      "semantic_related_event_closure_status": "NOT_EXHAUSTIVELY_CURATED",
+      "independence_claim": false
+    },
+    {
+      "group_id": "DEV_OBSERVED_LINK_COMPONENT_021",
+      "case_ids": [
+        "wto-china-rare-earths-resource-dispute-2014-2015"
+      ],
+      "allocation": "DEVELOPMENT_ONLY",
+      "observed_cross_case_link_keys": [],
+      "semantic_related_event_closure_status": "NOT_EXHAUSTIVELY_CURATED",
+      "independence_claim": false
+    }
+  ],
+  "future_cohorts": [],
+  "future_cohort_state": "PROPOSED_PROTOCOL_ONLY_NOT_SEALED_NOT_EXECUTABLE",
+  "evidence_blockers": [
+    "Existing22 case outcomes and artifacts already examined; unseen status cannot be restored by a new split.",
+    "No independently sealed prospective outcome-unseen cohort or first-seen outcome-independent sampling-frame evidence.",
+    "No fixed-universe all-eligible/negative denominator evidence.",
+    "No22-case admissible numerical probabilities; hypothesis language cannot be mapped ad hoc.",
+    "Source-version historical availability and contemporaneous prediction/split seals must be independently proven; content pins and retrospectively declared mapping dates alone do not prove them."
+  ],
+  "implementation_gaps": [
+    "Grouped dependency closure and split/cohort manifest enforcement.",
+    "Frozen predictor/prompt/config/code/input/output and decision-log manifest.",
+    "Fixed-universe inclusion-probability and missingness ledger.",
+    "Target/horizon/maturity/censoring and adjudication manifest schema.",
+    "Baseline, aggregate weighting, clustered uncertainty and fold-consumption reporting."
+  ],
+  "authority": {
+    "source_changes": false,
+    "tests_executed": false,
+    "model_training_authorized": false,
+    "external_acquisition_authorized": false,
+    "canonical_mutation_authorized": false,
+    "readiness_promotion_authorized": false,
+    "native_admission_authorized": false,
+    "trading_authorized": false
+  },
+  "artifacts_read": [
+    {
+      "path": "constraint-geopolitical-policy/data/HYDRA_CONSTRAINT_GEOPOLITICAL_POLICY_BATCH002_SOURCED_HISTORICAL_CASES_20260925.json",
+      "git_blob_sha": "d6925977e30927190e2c16a48cf7792ab36c63a4",
+      "sha256": "cdc8813f5d7fa80485a4ec1eeaf67e976ff4c6c9966d76d498b64aaa90addb66",
+      "bytes": 15016
+    },
+    {
+      "path": "constraint-geopolitical-policy/data/HYDRA_CONSTRAINT_GEOPOLITICAL_POLICY_BATCH003_SOURCED_HISTORICAL_CASES_20260925.json",
+      "git_blob_sha": "b1b308498298c142f4506da1215fad99258a3684",
+      "sha256": "ab3485fab0415d0db79ad8cd886bd354bba59ff21159afb42e0d91724f1b65f9",
+      "bytes": 18117
+    },
+    {
+      "path": "constraint-geopolitical-policy/data/HYDRA_CONSTRAINT_GEOPOLITICAL_POLICY_BATCH004_SOURCED_HISTORICAL_CASES_20260925.json",
+      "git_blob_sha": "36f1c1a41c2eb3c051b46fe28a44eadb5e01aa78",
+      "sha256": "66fab5e3a184889b19c6bd1980876d72d778bb69520406218f5d300603bb6f6f",
+      "bytes": 17433
+    },
+    {
+      "path": "constraint-geopolitical-policy/data/sourced_historical_cases.json",
+      "git_blob_sha": "0bfa220181fd06bb22b19a956956305c857c9bbc",
+      "sha256": "c860106ffb6114a0ec17512f0df8f28cd549f32e4e07e125559e6aa073a725ab",
+      "bytes": 12609
+    },
+    {
+      "path": "constraint-replay/corpus/HYDRA_CONSTRAINT_CLASSIFIED_GOLD_UNCALIBRATED_BATCH014_20260926.jsonl",
+      "git_blob_sha": "a5f09df390f00c4873a5f2b4b839f9b69a54888d",
+      "sha256": "e759f9a26d6e71f45779e5a8f31bb9636f4949d534f4b39461015074a89c798c",
+      "bytes": 26313
+    },
+    {
+      "path": "constraint-replay/corpus/HYDRA_CONSTRAINT_REPLAY_OUTCOME_ENRICHMENT_BATCH007_20260926.json",
+      "git_blob_sha": "fe5a8125f733ffa5449747603959794addd6ae8d",
+      "sha256": "e1a1debe0d131b399cb5d1c5ff8d3e52a323103bb718d3ace4e1830593b2f89f",
+      "bytes": 16354
+    },
+    {
+      "path": "constraint-replay/corpus/HYDRA_CONSTRAINT_REPLAY_OUTCOME_ENRICHMENT_BATCH009_20260926.json",
+      "git_blob_sha": "fc8ab3466099286faa8f4652d6b9689efe6ca948",
+      "sha256": "49d5caf8521c83e3b601a7f23313698357a87f497df7692e5027149b435348d2",
+      "bytes": 11696
+    },
+    {
+      "path": "constraint-replay/corpus/HYDRA_CONSTRAINT_REPLAY_OUTCOME_ENRICHMENT_BATCH010_20260926.json",
+      "git_blob_sha": "c5237195fa260911f1e82144c394bcc8a7d2771b",
+      "sha256": "a7b72ac04a409a404a2f959e99fd0f117eedeb1916ffb848397581c7444107e4",
+      "bytes": 14704
+    },
+    {
+      "path": "constraint-replay/corpus/HYDRA_CONSTRAINT_REPLAY_OUTCOME_ENRICHMENT_BATCH011_20260926.json",
+      "git_blob_sha": "86dffa641bf6e9c5a7053e307ec44b3d6faa4026",
+      "sha256": "120a646e5fe199077bd348f4e0c93eaeea84ab064610701dd599c8361bf33c7d",
+      "bytes": 12764
+    },
+    {
+      "path": "constraint-replay/corpus/HYDRA_CONSTRAINT_REPLAY_OUTCOME_ENRICHMENT_BATCH012_20260926.json",
+      "git_blob_sha": "c5524b5e50f7b461565617e12ceb99e41e0a2b00",
+      "sha256": "db986262c30a07d08f65bc435b43ed074f10ab0d66b028e91b58196fad73827d",
+      "bytes": 11701
+    },
+    {
+      "path": "constraint-replay/corpus/HYDRA_CONSTRAINT_REPLAY_OUTCOME_ENRICHMENT_BATCH013_20260926.json",
+      "git_blob_sha": "b428194a02e8244a5a0d34fcabcde5ca5b53c4da",
+      "sha256": "6c6f2ca2b89cce40a50cbe4906937b607475ac60df0a84dce2efc6e14512cd40",
+      "bytes": 9879
+    },
+    {
+      "path": "constraint-replay/corpus/HYDRA_CONSTRAINT_REPLAY_OUTCOME_ENRICHMENT_BATCH014_20260926.json",
+      "git_blob_sha": "7454a24622055e05d00b726c3f9180eaa70f65b6",
+      "sha256": "d04e40d6d7203dbc42e8cccfa67e96da36c16fbca715ac64e2252408de3ff1a5",
+      "bytes": 14133
+    },
+    {
+      "path": "constraint-replay/corpus/HYDRA_CONSTRAINT_REPLAY_OUTCOME_MAPPING_BATCH008_20260926.json",
+      "git_blob_sha": "6cdd16dfc459c7d61ad0b8717fa84867c0dc9e46",
+      "sha256": "91fd77e990e55c2e3e7ba457b798a1e96be4324b6084917864b04554a2a9c564",
+      "bytes": 3021
+    },
+    {
+      "path": "constraint-replay/corpus/HYDRA_CONSTRAINT_REPLAY_OUTCOME_MAPPING_BATCH009_20260926.json",
+      "git_blob_sha": "8d005237aec668270f9d203c90d1d51fb837d411",
+      "sha256": "0865759dc58dd9aceaeda93c24485c084367ed46873c0a20c927f604f43ba79d",
+      "bytes": 2879
+    },
+    {
+      "path": "constraint-replay/corpus/HYDRA_CONSTRAINT_REPLAY_OUTCOME_MAPPING_BATCH010_20260926.json",
+      "git_blob_sha": "8fade5184250da987c7de7d021cd2e7acfe8ff6e",
+      "sha256": "17f855f1395f9cb3de45abe7a706dcde1f7ce390240e34c472c89e4bc5aabbf6",
+      "bytes": 2774
+    },
+    {
+      "path": "constraint-replay/corpus/HYDRA_CONSTRAINT_REPLAY_OUTCOME_MAPPING_BATCH011_20260926.json",
+      "git_blob_sha": "b4b69fc531bcd6f2b45d8cefa709d403dfee7ada",
+      "sha256": "df458d0cd402a2a1f8eae900377c222cb65e3dea95a8d3107015f3aad31b9cd2",
+      "bytes": 2836
+    },
+    {
+      "path": "constraint-replay/corpus/HYDRA_CONSTRAINT_REPLAY_OUTCOME_MAPPING_BATCH012_20260926.json",
+      "git_blob_sha": "fdb2b3223629d0769310f4ca53ba4f2e08676503",
+      "sha256": "653dd5cb6381c5b63603e901f71b706fc05a7c34d11b731237de28ebfcc1b58f",
+      "bytes": 2898
+    },
+    {
+      "path": "constraint-replay/corpus/HYDRA_CONSTRAINT_REPLAY_OUTCOME_MAPPING_BATCH013_20260926.json",
+      "git_blob_sha": "c7569ae8bcbf6f82197b1f7ef02d65cf8e081c91",
+      "sha256": "5729d22a35acde2162509519ce83b2950b8f82aea45069b1ee8b5cf9aa6121b0",
+      "bytes": 2898
+    },
+    {
+      "path": "constraint-replay/corpus/HYDRA_CONSTRAINT_REPLAY_OUTCOME_MAPPING_BATCH014_20260926.json",
+      "git_blob_sha": "ef1157ec381284c4bb53b4e3173bf9e8e1fd4709",
+      "sha256": "8f9abce785844bdde863f6ad4715c02ba12d55ee2d1326a1aebb4c0c19b5fdea",
+      "bytes": 3836
+    },
+    {
+      "path": "constraint-replay/corpus/HYDRA_CONSTRAINT_REPLAY_READY_CORPUS_BATCH005_20260925.jsonl",
+      "git_blob_sha": "341936053470046548be540e25f35e26b4aac5b7",
+      "sha256": "c0dbf2a94290e50224a503a2c69d7218f62877885c0d83fc86ce30b95c6ea1de",
+      "bytes": 39584
+    },
+    {
+      "path": "constraint-replay/runs/HYDRA_CONSTRAINT_BATCH015_CLASSIFIED_REPLAY_E2E_RUN_20260926.json",
+      "git_blob_sha": "67fc5fb5883fb4ca510eee5a8c908c298d1b5bc9",
+      "sha256": "b67ec91bcf2065e06ee8be766e1934a1758e4b8bbc1ff9c2e29b35869ba4a5c8",
+      "bytes": 15990
+    }
+  ],
+  "publication_note": "Repeated source definitions and mapping bodies omitted from this compact split record; case IDs, all 82 exact cut assignments, source IDs, source-bundle pins, dependency groups and source-artifact identities are retained. The companion case inventory records mapping and evidence eligibility."
+}

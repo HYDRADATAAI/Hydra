@@ -1,0 +1,90 @@
+{
+  "audit_id": "PR161_PR162_BACKTEST_READINESS_V001_20261004",
+  "method": "STATIC_CODE_AND_GOVERNED_DATA_AUDIT",
+  "frozen_at_utc": "2026-10-04T17:53:08.847018+00:00",
+  "repository": "HYDRADATAAI/Hydra",
+  "main_sha": "adaab38e2e2f53c381aa4d2baff38644be92e3d0",
+  "source_commit": "e4eb1d95c82484a1518dcf037c8d0a99145231bc",
+  "source_tree": "62d4cdfb1f02d8bc31273711c513c765b030de17",
+  "pr161_sha": "798ab329eea6c5ef937a04ebd69fc6651df2c5fe",
+  "pr162_sha": "647ec1ba74c8f74c1f632fc1f5823fc60c003247",
+  "compatibility_proof_pr": 256,
+  "supplement_proof_pr": 257,
+  "runtime_executed_for_this_audit": false,
+  "private_bytes_verified_for_this_audit": false,
+  "training_authorized": false,
+  "trading_authorized": false,
+  "admission_effect": "NONE",
+  "key_inputs": [
+    {
+      "path": "constraint-replay/src/hydra_constraint_replay/metrics.py",
+      "git_blob_sha": "0516d5ff149369bf185ef9deb71e19caf07d24e2",
+      "sha256": "312845656a58be71184e1042003e6935c44c7fa078fc2a3c9a865116e598b4fd",
+      "bytes": 1894,
+      "source_url": "https://github.com/HYDRADATAAI/Hydra/blob/e4eb1d95c82484a1518dcf037c8d0a99145231bc/constraint-replay/src/hydra_constraint_replay/metrics.py"
+    },
+    {
+      "path": "constraint-replay/src/hydra_constraint_replay/replay.py",
+      "git_blob_sha": "4e73623ce36be46c5250ac6f19b229a6d3255bb2",
+      "sha256": "b1b27b47109d574499f85b77876189ae1081e7e827a679a75a3fd945643e9746",
+      "bytes": 2984,
+      "source_url": "https://github.com/HYDRADATAAI/Hydra/blob/e4eb1d95c82484a1518dcf037c8d0a99145231bc/constraint-replay/src/hydra_constraint_replay/replay.py"
+    },
+    {
+      "path": "constraint-replay/src/hydra_constraint_replay/models.py",
+      "git_blob_sha": "cdba818e6c876d8a6dd32278e83a57ec913ee663",
+      "sha256": "f847b430e2f8df8ac2611db28f0e9debe8db89270d23d760d674619176529430",
+      "bytes": 1506,
+      "source_url": "https://github.com/HYDRADATAAI/Hydra/blob/e4eb1d95c82484a1518dcf037c8d0a99145231bc/constraint-replay/src/hydra_constraint_replay/models.py"
+    },
+    {
+      "path": "constraint-replay/src/hydra_constraint_replay/outcome_mapping.py",
+      "git_blob_sha": "bd5ca147ece8c1f6952c93ea775f1833054d801d",
+      "sha256": "a132f2c55236971ca6c40481c77f6ba39ec30afc58e775ea95a039bb431a8273",
+      "bytes": 6699,
+      "source_url": "https://github.com/HYDRADATAAI/Hydra/blob/e4eb1d95c82484a1518dcf037c8d0a99145231bc/constraint-replay/src/hydra_constraint_replay/outcome_mapping.py"
+    },
+    {
+      "path": "constraint-replay/src/hydra_constraint_replay/end_to_end.py",
+      "git_blob_sha": "bb55c04e2761edb44ae66d1c00e18171d8e5938e",
+      "sha256": "cb58e1d0b1b07b46432780f9925b8be3de074cc804409f71e39e31532098f531",
+      "bytes": 7749,
+      "source_url": "https://github.com/HYDRADATAAI/Hydra/blob/e4eb1d95c82484a1518dcf037c8d0a99145231bc/constraint-replay/src/hydra_constraint_replay/end_to_end.py"
+    },
+    {
+      "path": "constraint-replay/src/hydra_constraint_replay/query.py",
+      "git_blob_sha": "eb5f5983ad73ac4dc904f117ed764d7ebad7b7c0",
+      "sha256": "0f237ab6e91d4c7fd050c993e6e4695717d9a97424529ba7d39c093b44c85c57",
+      "bytes": 19633,
+      "source_url": "https://github.com/HYDRADATAAI/Hydra/blob/e4eb1d95c82484a1518dcf037c8d0a99145231bc/constraint-replay/src/hydra_constraint_replay/query.py"
+    },
+    {
+      "path": "constraint-replay/src/hydra_constraint_replay/multidomain.py",
+      "git_blob_sha": "efe6eaa29119852f0c429d49f7de937e6d98e71f",
+      "sha256": "39cbf7303b2a214630dacb8fa95bf3cc3fa438640898519909bba371b78c24fa",
+      "bytes": 27530,
+      "source_url": "https://github.com/HYDRADATAAI/Hydra/blob/e4eb1d95c82484a1518dcf037c8d0a99145231bc/constraint-replay/src/hydra_constraint_replay/multidomain.py"
+    },
+    {
+      "path": "constraint-replay/corpus/HYDRA_CONSTRAINT_CLASSIFIED_GOLD_UNCALIBRATED_BATCH014_20260926.jsonl",
+      "git_blob_sha": "a5f09df390f00c4873a5f2b4b839f9b69a54888d",
+      "sha256": "e759f9a26d6e71f45779e5a8f31bb9636f4949d534f4b39461015074a89c798c",
+      "bytes": 26313,
+      "source_url": "https://github.com/HYDRADATAAI/Hydra/blob/e4eb1d95c82484a1518dcf037c8d0a99145231bc/constraint-replay/corpus/HYDRA_CONSTRAINT_CLASSIFIED_GOLD_UNCALIBRATED_BATCH014_20260926.jsonl"
+    },
+    {
+      "path": "constraint-replay/corpus/HYDRA_CONSTRAINT_REPLAY_READY_CORPUS_BATCH005_20260925.jsonl",
+      "git_blob_sha": "341936053470046548be540e25f35e26b4aac5b7",
+      "sha256": "c0dbf2a94290e50224a503a2c69d7218f62877885c0d83fc86ce30b95c6ea1de",
+      "bytes": 39584,
+      "source_url": "https://github.com/HYDRADATAAI/Hydra/blob/e4eb1d95c82484a1518dcf037c8d0a99145231bc/constraint-replay/corpus/HYDRA_CONSTRAINT_REPLAY_READY_CORPUS_BATCH005_20260925.jsonl"
+    },
+    {
+      "path": "constraint-replay/runs/HYDRA_CONSTRAINT_BATCH015_CLASSIFIED_REPLAY_E2E_RUN_20260926.json",
+      "git_blob_sha": "67fc5fb5883fb4ca510eee5a8c908c298d1b5bc9",
+      "sha256": "b67ec91bcf2065e06ee8be766e1934a1758e4b8bbc1ff9c2e29b35869ba4a5c8",
+      "bytes": 15990,
+      "source_url": "https://github.com/HYDRADATAAI/Hydra/blob/e4eb1d95c82484a1518dcf037c8d0a99145231bc/constraint-replay/runs/HYDRA_CONSTRAINT_BATCH015_CLASSIFIED_REPLAY_E2E_RUN_20260926.json"
+    }
+  ]
+}
