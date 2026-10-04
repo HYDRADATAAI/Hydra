@@ -34,15 +34,42 @@ class NativeT5T6BridgeV2Tests(unittest.TestCase):
             created_at="2026-10-03T18:30:00Z",
         )
 
-    def test_valid_inputs_preserve_v1_mapping(self):
-        v2 = self.build()
-        v1 = build_native_t5_t6_handoff(
-            self.proposals,
-            self.overlay,
+    def build_v1(self, proposals=None, overlay=None):
+        return build_native_t5_t6_handoff(
+            self.proposals if proposals is None else proposals,
+            self.overlay if overlay is None else overlay,
             handoff_id="AIDC-FIRST-SLICE-NATIVE-T5-T6-V2-20261003",
             created_at="2026-10-03T18:30:00Z",
         )
-        self.assertEqual(v2, v1)
+
+    def assert_same_bridge_error(self, proposals, overlay):
+        with self.assertRaises(NativeT5T6BridgeError) as v1_error:
+            self.build_v1(proposals=proposals, overlay=overlay)
+        with self.assertRaises(NativeT5T6BridgeError) as v2_error:
+            self.build(proposals=proposals, overlay=overlay)
+        self.assertEqual(str(v2_error.exception), str(v1_error.exception))
+
+    def test_valid_inputs_preserve_v1_mapping(self):
+        self.assertEqual(self.build(), self.build_v1())
+
+    def test_valid_true_inputs_preserve_v1_mapping(self):
+        proposals = deepcopy(self.proposals)
+        overlay = deepcopy(self.overlay)
+        proposals["candidates"][0]["ordinary_t6_eligible"] = True
+        overlay["candidates"][0]["ordinary_t6_eligible"] = True
+        self.assertEqual(
+            self.build(proposals=proposals, overlay=overlay),
+            self.build_v1(proposals=proposals, overlay=overlay),
+        )
+
+    def test_structural_errors_are_delegated_to_v1(self):
+        proposals = deepcopy(self.proposals)
+        del proposals["candidates"][0]["ordinary_t6_eligible"]
+        self.assert_same_bridge_error(proposals, self.overlay)
+
+        overlay = deepcopy(self.overlay)
+        del overlay["candidates"][0]["ordinary_t6_eligible"]
+        self.assert_same_bridge_error(self.proposals, overlay)
 
     def test_proposal_eligibility_must_be_a_boolean(self):
         for value in INVALID_BOOLEAN_VALUES:
