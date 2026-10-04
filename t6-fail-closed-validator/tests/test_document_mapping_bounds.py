@@ -10,6 +10,35 @@ from hydra_t6_failclosed.documents import canonical_json_bytes, parse_json_docum
 
 
 class DocumentMappingBoundsTests(unittest.TestCase):
+    def test_bytes_subclass_cannot_spoof_buffer_length_or_decode(self):
+        class LyingBytes(bytes):
+            def __len__(self):
+                return 0
+
+            def decode(self, *args, **kwargs):
+                return "{}"
+
+            def __bytes__(self):
+                return b"{}"
+
+        document = parse_json_document(LyingBytes(b"x" * 65), label="input", max_bytes=64)
+
+        self.assertEqual([issue.code for issue in document.issues], ["document_too_large"])
+        self.assertEqual(document.issues[0].evidence["size_bytes"], 65)
+
+    def test_bytearray_subclass_cannot_spoof_buffer_length_or_copy(self):
+        class LyingBytearray(bytearray):
+            def __len__(self):
+                return 0
+
+            def __bytes__(self):
+                return b"{}"
+
+        document = parse_json_document(LyingBytearray(b"x" * 65), label="input", max_bytes=64)
+
+        self.assertEqual([issue.code for issue in document.issues], ["document_too_large"])
+        self.assertEqual(document.issues[0].evidence["size_bytes"], 65)
+
     def test_oversized_bytes_are_rejected_before_hashing_payload(self):
         def hash_only_bounded_input(data):
             if data:
