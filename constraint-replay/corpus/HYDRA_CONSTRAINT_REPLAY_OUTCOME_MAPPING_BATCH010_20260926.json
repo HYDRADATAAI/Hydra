@@ -1,0 +1,61 @@
+{
+  "schema_version": "1.0",
+  "batch_id": "HYDRA_CONSTRAINT_REPLAY_OUTCOME_MAPPING_BATCH010_20260926",
+  "rule_set_id": "POSITIVE_CONSTRAINT_RULESET_V1",
+  "declared_at": "2026-09-26T14:03:00Z",
+  "policy": "Batch 010 reuses POSITIVE_CONSTRAINT_RULESET_V1 unchanged. No case-specific threshold is introduced.",
+  "cases": [
+    {
+      "case_id": "us-china-section301-multi-stage-trade-dispute-2018",
+      "mechanism_observed": true,
+      "direction_consistent": true,
+      "explicit_numeric_target_defined": false,
+      "target_met": null,
+      "explicit_horizon_defined": false,
+      "horizon_met": null,
+      "causal_attribution_clean": true,
+      "outcome_observation_complete": true,
+      "contradiction_open": false,
+      "evidence_source_ids": [
+        "section301-fed-beige-book-2018-09-12",
+        "section301-usitc-2023-03-15-effects"
+      ],
+      "rationale": "Tariff-related input-price pressure and supply disruption appeared in the expected direction, and USITC later estimated causal effects on imports, prices and domestic production, but the historical hypothesis did not define a numeric success target."
+    },
+    {
+      "case_id": "china-gallium-germanium-controls-2023",
+      "mechanism_observed": true,
+      "direction_consistent": true,
+      "explicit_numeric_target_defined": false,
+      "target_met": null,
+      "explicit_horizon_defined": false,
+      "horizon_met": null,
+      "causal_attribution_clean": false,
+      "outcome_observation_complete": true,
+      "contradiction_open": false,
+      "evidence_source_ids": [
+        "gagermanium-iea-2023-07-11-hypothesis",
+        "gagermanium-usgs-2024-01-30-gallium",
+        "gagermanium-usgs-2024-01-30-germanium"
+      ],
+      "rationale": "Post-control export interruption and price pressure are consistent with the IEA concentration-risk mechanism, but USGS also identified demand conditions and other market factors alongside availability concerns, so clean single-cause attribution is not asserted."
+    },
+    {
+      "case_id": "imo-sulphur-2020-regulation",
+      "mechanism_observed": true,
+      "direction_consistent": true,
+      "explicit_numeric_target_defined": false,
+      "target_met": null,
+      "explicit_horizon_defined": false,
+      "horizon_met": null,
+      "causal_attribution_clean": true,
+      "outcome_observation_complete": true,
+      "contradiction_open": false,
+      "evidence_source_ids": [
+        "imo2020-epa-2019-12-11-hypothesis",
+        "imo2020-imo-2021-01-28-outcome"
+      ],
+      "rationale": "The regulation produced a large reduction in shipping sulfur-oxide emissions consistent with the expected health/welfare mechanism, but the independent historical hypothesis did not define a numeric outcome target."
+    }
+  ]
+}

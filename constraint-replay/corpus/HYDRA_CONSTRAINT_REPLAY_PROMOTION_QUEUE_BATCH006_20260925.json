@@ -1,0 +1,50 @@
+{
+  "schema_version": "1.0",
+  "batch_id": "HYDRA_CONSTRAINT_REPLAY_PROMOTION_QUEUE_BATCH006_20260925",
+  "policy": "Queue membership means outcome-side evidence is promising enough for targeted enrichment. It does not imply scored-gold eligibility, predicted direction, or evaluation success.",
+  "candidates": [
+    {
+      "case_id": "suez-ever-given-2021",
+      "current_outcome_evidence_level": "SCORABLE_CANDIDATE_QUALITATIVE",
+      "existing_outcome_source_ids": [
+        "sca-2021-03-31-navigation-restored",
+        "unctad-2021-04-23-container-rates"
+      ],
+      "missing_for_scored_gold": [
+        "independent contemporaneous hypothesis source",
+        "historically grounded confidence source/value",
+        "quantitative freight-rate or shipping-cost series with dated provenance",
+        "explicit outcome-class mapping rule"
+      ],
+      "next_evidence_target": "Add a dated quantitative shipping-cost/freight-rate outcome series and a contemporaneous pre-outcome hypothesis source without using later hindsight."
+    },
+    {
+      "case_id": "black-sea-grain-corridor-2022",
+      "current_outcome_evidence_level": "SCORABLE_CANDIDATE_QUANTITATIVE",
+      "existing_outcome_source_ids": [
+        "un-2022-08-03-black-sea-first-shipment"
+      ],
+      "missing_for_scored_gold": [
+        "independent contemporaneous hypothesis source",
+        "historically grounded confidence source/value",
+        "multi-date shipment/throughput outcome series rather than a single first-shipment observation",
+        "explicit outcome-class mapping rule"
+      ],
+      "next_evidence_target": "Extend the first-shipment observation into a sourced time series of corridor shipment volume/throughput while preserving availability dates."
+    },
+    {
+      "case_id": "germany-wilhelmshaven-lng-commissioning-2022-2023",
+      "current_outcome_evidence_level": "SCORABLE_CANDIDATE_OPERATIONAL",
+      "existing_outcome_source_ids": [
+        "uniper-2023-03-01-wilhelmshaven-operations"
+      ],
+      "missing_for_scored_gold": [
+        "independent contemporaneous hypothesis source",
+        "historically grounded confidence source/value",
+        "actual throughput/utilization observations comparable with the sourced 5 bcm/year capacity",
+        "explicit outcome-class mapping rule"
+      ],
+      "next_evidence_target": "Add sourced actual throughput/utilization after commissioning and an independent pre-operation historical hypothesis record."
+    }
+  ]
+}
