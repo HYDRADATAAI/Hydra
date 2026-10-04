@@ -22,6 +22,19 @@ class DocumentMappingBoundsTests(unittest.TestCase):
         self.assertEqual([issue.code for issue in document.issues], ["document_too_large"])
         self.assertGreater(document.issues[0].evidence["size_bytes"], 64)
 
+    def test_string_subclass_keys_and_values_use_their_full_builtin_text(self):
+        class HostileString(str):
+            def __iter__(self):
+                return iter("x")
+
+        value = {HostileString("actual-key"): HostileString("actual-value")}
+
+        document = parse_json_document(value, label="input", max_bytes=128)
+
+        self.assertEqual(document.issues, ())
+        self.assertEqual(document.raw, b'{"actual-key":"actual-value"}')
+        self.assertEqual(document.value, {"actual-key": "actual-value"})
+
     def test_ordinary_mapping_keeps_canonical_bytes_and_value(self):
         value = {
             "z": [1, True, None],
