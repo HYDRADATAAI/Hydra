@@ -36,4 +36,23 @@ class FirstSliceOutcomeShadowReplayTests(unittest.TestCase):
   self.assertEqual(self.receipt["pre_snapshot_sha256"],canonical_sha256(self.replay["windows"][0]["expected_graph_state"])); self.assertEqual(self.receipt["post_snapshot_sha256"],canonical_sha256(self.replay["windows"][1]["expected_graph_state"])); self.assertEqual(pre,self.snap(self.receipt["pre_as_of"])); self.assertEqual(post,self.snap(self.receipt["post_as_of"])); self.assertTrue(self.receipt["repeat_execution_match"])
  def test_ordinary_replay_stays_blocked(self):
   self.assertFalse(self.replay["ordinary_replay_eligible"]); self.assertIsNone(self.replay["source_version_hashes"]["SRC-EATON-TEXAS-TRANSFORMER-CAPACITY-2025-10-08"]); self.assertIn("PIT-002B-FIRST-SLICE-NINE-SOURCE-RAW-CAPTURE-MATERIALIZATION",self.replay["ordinary_replay_blockers"])
+ def test_relief_available_at_is_inclusive_and_excludes_future_path(self):
+  inputs = dict(
+   claim_registry=copy.deepcopy(self.claims),
+   candidates=copy.deepcopy(self.candidates),
+   relief_paths=copy.deepcopy(self.relief),
+   beneficiaries=copy.deepcopy(self.beneficiaries),
+   outcomes=copy.deepcopy(self.outcomes),
+   candidate_overlay=copy.deepcopy(self.overlay),
+  )
+  relief = next(row for row in inputs["relief_paths"]["relief_paths"]
+                if row["relief_path_id"] == "REL-AIDC-004")
+  identity = relief["relief_path_id"]
+  cutoff = "2026-09-26T12:47:00Z"
+  relief["available_at"] = cutoff
+  at_boundary = build_shadow_snapshot(as_of=cutoff, **inputs)
+  self.assertIn(identity, at_boundary["relief_path_ids"])
+  relief["available_at"] = "2026-09-26T12:47:01Z"
+  after_cutoff = build_shadow_snapshot(as_of=cutoff, **inputs)
+  self.assertNotIn(identity, after_cutoff["relief_path_ids"])
 if __name__=="__main__": unittest.main()
