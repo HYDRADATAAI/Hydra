@@ -1,0 +1,103 @@
+{
+  "schema_version": "hydra-constraint-first-slice-source-registry-extension/v1",
+  "record_id": "HYDRA_CONSTRAINT_SEMICONDUCTOR_PASS004_SOURCE_REGISTRY_20260926",
+  "as_of": "2026-09-26",
+  "slice_id": "SEMICONDUCTOR_ADVANCED_PACKAGING_CRITICAL_MATERIALS_V1",
+  "reused_transport_from": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH016_AI_DATA_CENTER_POWER_INFRASTRUCTURE_OUTCOME_SOURCE_REGISTRY_EXTENSION_V001",
+  "runtime_live_source_authority_used": false,
+  "source_content_persisted": false,
+  "sources": [
+    {
+      "source_id": "SRC-SEMI-SKHYNIX-INDIANA-20240403",
+      "publisher": "SK hynix",
+      "title": "SK hynix Signs Investment Agreement of Advanced Chip Packaging with Indiana",
+      "url": "https://news.skhynix.com/en/sk-hynix-signs-investment-agreement-of-advanced-chip-packaging-with-indiana/",
+      "publication_date": "2024-04-03",
+      "publication_date_precision": "DAY",
+      "source_type": "COMPANY_PRESS_RELEASE",
+      "roles": [
+        "ADVANCED_PACKAGING",
+        "HBM"
+      ],
+      "source_locator": "release body, investment and planned mass-production paragraphs",
+      "acquired_at": "2026-09-26T21:10:37Z",
+      "available_at": "2026-09-26T21:10:37Z",
+      "availability_basis": "CONSERVATIVE_MANUAL_WEB_EXTRACT_REVIEW_COMPLETION_NOT_RAW_CAPTURE",
+      "historical_backdating_authorized": false,
+      "ordinary_raw_lineage_eligible": false,
+      "source_version_id": null,
+      "artifact_sha256": null,
+      "strict_original_as_of_eligible": false,
+      "replay_blocker": "T1_RAW_CAPTURE_AND_SOURCE_VERSION_NOT_MATERIALIZED"
+    },
+    {
+      "source_id": "SRC-SEMI-MICRON-HBM3E-20240226",
+      "publisher": "Micron Technology",
+      "title": "Micron Commences Volume Production of Industry-Leading HBM3E Solution to Accelerate the Growth of AI",
+      "url": "https://investors.micron.com/news/press-release/2024/Micron-Commences-Volume-Production-of-Industry-Leading-HBM3E-Solution-to-Accelerate-the-Growth-of-AI-02-26-2024/default.aspx",
+      "publication_date": "2024-02-26",
+      "publication_date_precision": "DAY",
+      "source_type": "COMPANY_PRESS_RELEASE",
+      "roles": [
+        "HBM",
+        "ACCELERATOR_MEMORY"
+      ],
+      "source_locator": "opening paragraph and paragraph on 36GB sampling",
+      "acquired_at": "2026-09-26T21:10:37Z",
+      "available_at": "2026-09-26T21:10:37Z",
+      "availability_basis": "CONSERVATIVE_MANUAL_WEB_EXTRACT_REVIEW_COMPLETION_NOT_RAW_CAPTURE",
+      "historical_backdating_authorized": false,
+      "ordinary_raw_lineage_eligible": false,
+      "source_version_id": null,
+      "artifact_sha256": null,
+      "strict_original_as_of_eligible": false,
+      "replay_blocker": "T1_RAW_CAPTURE_AND_SOURCE_VERSION_NOT_MATERIALIZED"
+    },
+    {
+      "source_id": "SRC-SEMI-TSMC-ARIZONA-20240408",
+      "publisher": "TSMC",
+      "title": "TSMC Arizona and U.S. Department of Commerce Announce up to US$6.6 Billion in Proposed CHIPS Act Direct Funding, the Company Plans Third Leading-Edge Fab in Phoenix",
+      "url": "https://pr.tsmc.com/english/news/3122",
+      "publication_date": "2024-04-08",
+      "publication_date_precision": "DAY",
+      "source_type": "COMPANY_PRESS_RELEASE",
+      "roles": [
+        "FAB_EXPANSION",
+        "WATER_INFRASTRUCTURE"
+      ],
+      "source_locator": "paragraphs on three fab schedules and water reclamation design",
+      "acquired_at": "2026-09-26T21:10:37Z",
+      "available_at": "2026-09-26T21:10:37Z",
+      "availability_basis": "CONSERVATIVE_MANUAL_WEB_EXTRACT_REVIEW_COMPLETION_NOT_RAW_CAPTURE",
+      "historical_backdating_authorized": false,
+      "ordinary_raw_lineage_eligible": false,
+      "source_version_id": null,
+      "artifact_sha256": null,
+      "strict_original_as_of_eligible": false,
+      "replay_blocker": "T1_RAW_CAPTURE_AND_SOURCE_VERSION_NOT_MATERIALIZED"
+    },
+    {
+      "source_id": "SRC-SEMI-AMKOR-TSMC-20241004",
+      "publisher": "TSMC and Amkor Technology",
+      "title": "Amkor and TSMC to Expand Partnership and Collaborate on Advanced Packaging in Arizona",
+      "url": "https://pr.tsmc.com/english/news/3174",
+      "publication_date": "2024-10-04",
+      "publication_date_precision": "DAY",
+      "source_type": "JOINT_COMPANY_PRESS_RELEASE",
+      "roles": [
+        "ADVANCED_PACKAGING",
+        "FOUNDRY_OSAT_DEPENDENCY"
+      ],
+      "source_locator": "opening four paragraphs describing MOU, planned Peoria facility and technology definition",
+      "acquired_at": "2026-09-26T21:10:37Z",
+      "available_at": "2026-09-26T21:10:37Z",
+      "availability_basis": "CONSERVATIVE_MANUAL_WEB_EXTRACT_REVIEW_COMPLETION_NOT_RAW_CAPTURE",
+      "historical_backdating_authorized": false,
+      "ordinary_raw_lineage_eligible": false,
+      "source_version_id": null,
+      "artifact_sha256": null,
+      "strict_original_as_of_eligible": false,
+      "replay_blocker": "T1_RAW_CAPTURE_AND_SOURCE_VERSION_NOT_MATERIALIZED"
+    }
+  ]
+}
