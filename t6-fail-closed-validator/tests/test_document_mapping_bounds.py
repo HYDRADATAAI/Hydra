@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import hashlib
 import unittest
 from unittest.mock import patch
 
@@ -9,6 +10,31 @@ from hydra_t6_failclosed.documents import canonical_json_bytes, parse_json_docum
 
 
 class DocumentMappingBoundsTests(unittest.TestCase):
+    def test_oversized_bytes_are_rejected_before_hashing_payload(self):
+        def hash_only_bounded_input(data):
+            if data:
+                raise AssertionError("oversized payload must not be hashed")
+            return hashlib.sha256(data).hexdigest()
+
+        with patch(
+            "hydra_t6_failclosed.documents.sha256_hex",
+            side_effect=hash_only_bounded_input,
+        ):
+            document = parse_json_document(b"x" * 65, label="input", max_bytes=64)
+
+        self.assertEqual([issue.code for issue in document.issues], ["document_too_large"])
+        self.assertEqual(document.raw, b"")
+        self.assertEqual(document.issues[0].evidence["size_bytes"], 65)
+
+    def test_multibyte_text_crosses_limit_before_encode(self):
+        class MultibyteText(str):
+            def encode(self, *args, **kwargs):
+                raise AssertionError("subclass encoder must not run")
+
+        document = parse_json_document(MultibyteText("é" * 33), label="input", max_bytes=64)
+
+        self.assertEqual([issue.code for issue in document.issues], ["document_too_large"])
+
     def test_oversized_raw_text_is_rejected_before_encode(self):
         class HugeText(str):
             def encode(self, *args, **kwargs):
