@@ -5,7 +5,7 @@ from collections.abc import Mapping
 from datetime import UTC, datetime, timedelta, tzinfo
 
 from hydra_t6_failclosed import HMACSHA256Verifier
-from hydra_t6_failclosed.documents import canonical_json_bytes
+from hydra_t6_failclosed.documents import canonical_json_bytes, parse_json_document
 from hydra_t6_failclosed.native_binding_admission import (
     ADMISSION_AUTHORITY_ROLE,
     ADMISSION_DECISION,
@@ -167,7 +167,7 @@ class NativeT5T6AdmissionTests(unittest.TestCase):
             now=self.now if now is None else now,
         )
 
-    def test_hostile_manifest_mapping_fails_closed(self) -> None:
+    def test_hostile_manifest_mapping_and_label_fail_closed(self) -> None:
         class UnprintableTypeError(TypeError):
             def __str__(self):
                 raise RuntimeError("do not format this exception")
@@ -191,6 +191,16 @@ class NativeT5T6AdmissionTests(unittest.TestCase):
         self.assertFalse(result.admitted)
         self.assertEqual(result.reason, "BLOCKED_IMPLEMENTATION_MANIFEST_INVALID")
         self.assertIn("document_type_invalid", {issue.code for issue in result.issues})
+
+        class HostileLabel(str):
+            def __format__(self, format_spec):
+                raise RuntimeError("untrusted label formatting")
+
+        document = parse_json_document(RaisingMapping(), label=HostileLabel("$.untrusted"))
+        self.assertIsNone(document.value)
+        self.assertEqual(document.issues[0].code, "document_type_invalid")
+        self.assertEqual(document.issues[0].path, "$.document")
+        self.assertEqual(document.issues[0].message, "$.document could not be safely converted to JSON")
 
     def test_missing_admission_receipt_fails_closed(self) -> None:
         result = self.validate(self.manifest(), None)
