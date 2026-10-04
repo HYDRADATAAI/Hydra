@@ -1,0 +1,69 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://hydradataai.github.io/schemas/HYDRA_CONSTRAINT_MULTIDOMAIN_READONLY_QUERY_RESPONSE_V001_20260926.schema.json",
+  "title": "HYDRA Constraint Multi-Domain Read-Only Query Response V001",
+  "type": "object",
+  "required": [
+    "contract_version",
+    "mode",
+    "operation",
+    "source_run_digest_sha256",
+    "capabilities",
+    "result"
+  ],
+  "properties": {
+    "contract_version": {
+      "const": "hydra-constraint-multidomain-readonly/v1"
+    },
+    "mode": {
+      "const": "READ_ONLY_MULTIDOMAIN_HISTORICAL"
+    },
+    "operation": {
+      "enum": [
+        "summary",
+        "integrity",
+        "case",
+        "entity_usage",
+        "list_cases"
+      ]
+    },
+    "source_run_digest_sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "capabilities": {
+      "type": "object",
+      "required": [
+        "canonical_promotion_authorized",
+        "canonical_store_mutation_authorized",
+        "external_actions_authorized",
+        "model_training_authorized",
+        "ranking_authorized",
+        "trading_authorized"
+      ],
+      "properties": {
+        "canonical_promotion_authorized": {
+          "const": false
+        },
+        "canonical_store_mutation_authorized": {
+          "const": false
+        },
+        "external_actions_authorized": {
+          "const": false
+        },
+        "model_training_authorized": {
+          "const": false
+        },
+        "ranking_authorized": {
+          "const": false
+        },
+        "trading_authorized": {
+          "const": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "result": {}
+  },
+  "additionalProperties": false
+}
