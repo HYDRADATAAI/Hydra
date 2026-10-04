@@ -12,7 +12,7 @@ from .context import (
     Policy,
     build_decision,
     canonical_json_bytes,
-    load_json_document,
+    load_json_document_with_bytes,
     sha256_hex,
     verify_decision,
 )
@@ -31,7 +31,7 @@ def run_evaluation(
     output_dir: str | Path,
 ) -> dict[str, Any]:
     suite_path = Path(cases_path)
-    suite = load_json_document(suite_path)
+    suite, suite_bytes = load_json_document_with_bytes(suite_path)
     if not isinstance(suite, dict) or set(suite) != {"schema_version", "cases"}:
         raise ContractError("evaluation suite fields do not match the v1 contract")
     if suite["schema_version"] != EVALUATION_SCHEMA:
@@ -88,7 +88,7 @@ def run_evaluation(
         "disposition_counts": disposition_counts,
         "failures": failures,
         "input_binding": {
-            "evaluation_suite_sha256": sha256_hex(suite_path.read_bytes()),
+            "evaluation_suite_sha256": sha256_hex(suite_bytes),
             "pipeline_manifest_sha256": evidence.manifest_sha256,
             "policy_sha256": policy.sha256,
         },
@@ -105,18 +105,20 @@ def run_evaluation(
     decisions_path = output_root / "decisions.jsonl"
     report_path = output_root / "evaluation_report.json"
     manifest_path = output_root / "output_manifest.json"
-    decisions_path.write_bytes(b"".join(canonical_json_bytes(item) + b"\n" for item in decisions))
-    report_path.write_bytes(_pretty_json_bytes(report))
+    decisions_bytes = b"".join(canonical_json_bytes(item) + b"\n" for item in decisions)
+    report_bytes = _pretty_json_bytes(report)
+    decisions_path.write_bytes(decisions_bytes)
+    report_path.write_bytes(report_bytes)
     output_manifest = {
         "input_binding": report["input_binding"],
         "outputs": {
             "decisions_jsonl": {
                 "file": decisions_path.name,
-                "sha256": sha256_hex(decisions_path.read_bytes()),
+                "sha256": sha256_hex(decisions_bytes),
             },
             "evaluation_report": {
                 "file": report_path.name,
-                "sha256": sha256_hex(report_path.read_bytes()),
+                "sha256": sha256_hex(report_bytes),
             },
         },
         "schema_version": OUTPUT_MANIFEST_SCHEMA,
@@ -143,7 +145,11 @@ def _validate_case(
         "citation_count",
     }:
         raise ContractError(f"evaluation expectation is invalid: {case_id}")
-    if expected["disposition"] not in {"ADMIT", "ABSTAIN", "REFUSE"}:
+    if not isinstance(expected["disposition"], str) or expected["disposition"] not in {
+        "ADMIT",
+        "ABSTAIN",
+        "REFUSE",
+    }:
         raise ContractError(f"evaluation disposition is invalid: {case_id}")
     if not isinstance(expected["reason_code"], str) or not expected["reason_code"]:
         raise ContractError(f"evaluation reason_code is invalid: {case_id}")
