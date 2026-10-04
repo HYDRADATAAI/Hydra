@@ -203,6 +203,9 @@ jobs:
           print("GOVERNED_GROUNDING_EVAL=PASS")
           PY
 
+      - name: Prepare artifact destination
+        run: mkdir -p governed-intelligence-sample/build/upload
+
       - name: Verify and package exact artifact snapshots
         id: package_artifacts
         run: python -I -B governed-intelligence-sample/src/hydra_governed_intelligence/pre_upload_verifier.py --repository-root . --bundle-path governed-intelligence-sample/build/upload/hydra-governed-intelligence-proof.zip --github-output-path "$GITHUB_OUTPUT"

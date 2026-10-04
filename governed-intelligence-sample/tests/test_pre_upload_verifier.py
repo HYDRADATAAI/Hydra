@@ -1,10 +1,12 @@
 from __future__ import annotations
 
+import contextlib
 import hashlib
 import io
 import json
 import os
 import shutil
+import subprocess
 import tempfile
 import unittest
 import zipfile
@@ -28,6 +30,7 @@ from hydra_governed_intelligence.pre_upload_verifier import (
     VerificationError,
     _build_bundle_bytes,
     _open_bound_leaf,
+    _publish_bundle,
     _snapshot_file,
     _snapshot_repository_file,
     _snapshot_verification_inputs,
@@ -127,6 +130,7 @@ class PreUploadVerifierTests(unittest.TestCase):
         self.addCleanup(self.temp_dir.cleanup)
         self.repository = Path(self.temp_dir.name) / "repository"
         shutil.copytree(self.baseline, self.repository)
+        (self.repository / "artifacts").mkdir()
 
     @staticmethod
     def _write_json(path: Path, value: object) -> None:
@@ -135,6 +139,30 @@ class PreUploadVerifierTests(unittest.TestCase):
             encoding="utf-8",
             newline="\n",
         )
+
+    @staticmethod
+    def _create_directory_link(link: Path, target: Path) -> None:
+        if os.name == "nt":
+            result = subprocess.run(
+                ["cmd.exe", "/d", "/c", "mklink", "/J", str(link), str(target)],
+                check=False,
+                capture_output=True,
+                text=True,
+            )
+            if result.returncode != 0:
+                detail = (result.stderr or result.stdout).strip()
+                raise OSError(detail or "unable to create directory junction")
+            return
+        link.symlink_to(target, target_is_directory=True)
+
+    @staticmethod
+    def _remove_directory_link(link: Path) -> None:
+        if not os.path.lexists(link):
+            return
+        if os.name == "nt":
+            link.rmdir()
+        else:
+            link.unlink()
 
     def _rehash_manifest_output(
         self,
@@ -265,7 +293,7 @@ class PreUploadVerifierTests(unittest.TestCase):
 
     def test_failed_replacement_preserves_existing_bundle(self) -> None:
         bundle_path = self.repository / "artifacts" / "proof.zip"
-        bundle_path.parent.mkdir(parents=True)
+        bundle_path.parent.mkdir(parents=True, exist_ok=True)
         bundle_path.write_bytes(b"existing bundle")
         (self.repository / Path(BUNDLE_MEMBERS[0])).unlink()
 
@@ -274,6 +302,183 @@ class PreUploadVerifierTests(unittest.TestCase):
 
         self.assertEqual(bundle_path.read_bytes(), b"existing bundle")
         self.assertEqual(list(bundle_path.parent.glob(f".{bundle_path.name}.*.tmp")), [])
+
+    def test_successful_replacement_overwrites_existing_bundle(self) -> None:
+        bundle_path = self.repository / "artifacts" / "proof.zip"
+
+        _publish_bundle(bundle_path, b"first bundle")
+        _publish_bundle(bundle_path, b"replacement bundle")
+
+        self.assertEqual(bundle_path.read_bytes(), b"replacement bundle")
+        self.assertEqual(list(bundle_path.parent.glob(f".{bundle_path.name}.*.tmp")), [])
+
+    def test_failed_atomic_rename_removes_temporary_bundle(self) -> None:
+        bundle_path = self.repository / "artifacts" / "proof.zip"
+        target = (
+            "hydra_governed_intelligence.pre_upload_verifier._windows_replace_relative"
+            if os.name == "nt"
+            else "hydra_governed_intelligence.pre_upload_verifier.os.replace"
+        )
+
+        with mock.patch(target, side_effect=OSError("injected rename failure")):
+            with self.assertRaisesRegex(VerificationError, "unable to publish atomically"):
+                _publish_bundle(bundle_path, b"bundle bytes")
+
+        self.assertFalse(bundle_path.exists())
+        self.assertEqual(list(bundle_path.parent.glob(f".{bundle_path.name}.*.tmp")), [])
+
+    def test_publish_bundle_rejects_linked_ancestor_without_external_artifact(self) -> None:
+        linked_parent = self.repository / "artifacts"
+        external_parent = Path(self.temp_dir.name) / "external-artifacts"
+        external_parent.mkdir()
+        linked_parent.rmdir()
+        bundle_path = linked_parent / "proof.zip"
+        external_bundle = external_parent / bundle_path.name
+        failure: VerificationError | None = None
+
+        try:
+            self._create_directory_link(linked_parent, external_parent)
+        except (NotImplementedError, OSError) as exc:
+            self.skipTest(f"directory symlink or junction creation unavailable: {exc}")
+
+        try:
+            try:
+                _publish_bundle(bundle_path, b"bundle bytes")
+            except VerificationError as exc:
+                failure = exc
+        finally:
+            self._remove_directory_link(linked_parent)
+
+        self.assertFalse(
+            external_bundle.exists(),
+            "bundle publication followed a linked ancestor into an external directory",
+        )
+        self.assertIsNotNone(failure, "linked publication ancestor must fail closed")
+
+    def test_linked_ancestor_cannot_create_external_parent(self) -> None:
+        linked_parent = self.repository / "redirected-artifacts"
+        external_parent = Path(self.temp_dir.name) / "external-parent"
+        external_parent.mkdir()
+        bundle_path = linked_parent / "missing" / "proof.zip"
+
+        try:
+            self._create_directory_link(linked_parent, external_parent)
+        except (NotImplementedError, OSError) as exc:
+            self.skipTest(f"directory symlink or junction creation unavailable: {exc}")
+
+        try:
+            with self.assertRaises(VerificationError):
+                _publish_bundle(bundle_path, b"bundle bytes")
+        finally:
+            self._remove_directory_link(linked_parent)
+
+        self.assertFalse(external_parent.joinpath("missing").exists())
+
+    def test_ancestor_swap_during_temporary_creation_cannot_redirect_bundle(self) -> None:
+        bound_parent = self.repository / "artifacts"
+        saved_parent = self.repository / "artifacts-original"
+        replacement_parent = Path(self.temp_dir.name) / "replacement-artifacts"
+        replacement_parent.mkdir()
+        bundle_path = bound_parent / "proof.zip"
+        payload = b"bundle bytes"
+        attempted = False
+        swapped = False
+        failure: VerificationError | None = None
+
+        def swap_ancestor() -> None:
+            nonlocal attempted, swapped
+            attempted = True
+            bound_parent.rename(saved_parent)
+            try:
+                replacement_parent.rename(bound_parent)
+            except OSError:
+                saved_parent.rename(bound_parent)
+                raise
+            swapped = True
+
+        if os.name == "nt":
+            real_relative_open = _windows_open_relative
+            real_named_temporary_file = tempfile.NamedTemporaryFile
+
+            def swap_ancestor_then_create(
+                parent_handle: int,
+                name: str,
+                label: str,
+                *,
+                directory: bool,
+                create: bool = False,
+                writable: bool = False,
+            ) -> int:
+                if create and not attempted:
+                    swap_ancestor()
+                return real_relative_open(
+                    parent_handle,
+                    name,
+                    label,
+                    directory=directory,
+                    create=create,
+                    writable=writable,
+                )
+
+            def swap_ancestor_then_create_legacy(
+                *args: object,
+                **kwargs: object,
+            ) -> object:
+                if not attempted:
+                    swap_ancestor()
+                return real_named_temporary_file(*args, **kwargs)
+
+            patchers = (
+                mock.patch(
+                    "hydra_governed_intelligence.pre_upload_verifier._windows_open_relative",
+                    side_effect=swap_ancestor_then_create,
+                ),
+                mock.patch(
+                    "hydra_governed_intelligence.pre_upload_verifier.tempfile.NamedTemporaryFile",
+                    side_effect=swap_ancestor_then_create_legacy,
+                ),
+            )
+        else:
+            real_os_open = os.open
+
+            def swap_ancestor_then_open(
+                path: object,
+                flags: int,
+                mode: int = 0o777,
+                *,
+                dir_fd: int | None = None,
+            ) -> int:
+                if flags & os.O_CREAT and not attempted:
+                    swap_ancestor()
+                return real_os_open(path, flags, mode, dir_fd=dir_fd)
+
+            patchers = (
+                mock.patch(
+                    "hydra_governed_intelligence.pre_upload_verifier.os.open",
+                    side_effect=swap_ancestor_then_open,
+                ),
+            )
+
+        try:
+            with contextlib.ExitStack() as stack:
+                for patcher in patchers:
+                    stack.enter_context(patcher)
+                try:
+                    _publish_bundle(bundle_path, payload)
+                except VerificationError as exc:
+                    failure = exc
+        finally:
+            if swapped:
+                bound_parent.rename(replacement_parent)
+                saved_parent.rename(bound_parent)
+
+        self.assertTrue(attempted)
+        self.assertFalse(
+            (replacement_parent / bundle_path.name).exists(),
+            "bundle publication was redirected into the replacement directory",
+        )
+        if failure is None:
+            self.assertEqual(bundle_path.read_bytes(), payload)
 
     def test_snapshot_rejects_file_replaced_between_lstat_and_open(self) -> None:
         source = self.repository / "snapshot-source.txt"
@@ -461,6 +666,8 @@ class PreUploadVerifierTests(unittest.TestCase):
                 saved_ancestor.rename(ancestor)
 
         self.assertTrue(attempted)
+        if not swapped:
+            self.skipTest("ancestor swap unavailable on this filesystem")
         self.assertNotEqual(
             (replacement / candidate.name).read_bytes(),
             expected,

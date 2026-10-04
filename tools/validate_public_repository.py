@@ -622,7 +622,11 @@ def validate_pre_upload_verifier_contract(errors: list[str]) -> None:
     required_functions = {
         "_build_bundle_bytes",
         "_materialize_snapshots",
+        "_open_bound_parent",
         "_publish_bundle",
+        "_read_bound_file",
+        "_require_bound_directory_path",
+        "_require_safe_bound_destination",
         "_snapshot_file",
         "_snapshot_verification_inputs",
         "_verify_bundle",
@@ -760,7 +764,9 @@ def validate_pre_upload_verifier_contract(errors: list[str]) -> None:
         "os.path.samestat(path_before, descriptor_before)",
         "os.path.samestat(descriptor_before, descriptor_after)",
         "os.path.samestat(descriptor_after, path_after)",
-        "os.replace(temporary_path, destination)",
+        "NtSetInformationFile",
+        "src_dir_fd=parent_handle",
+        "dst_dir_fd=parent_handle",
         '"--github-output-path"',
         'f"input_snapshots_verified={summary.input_snapshots_verified}\\n"',
         'f"source_rows_replayed={summary.source_rows_replayed}\\n"',
@@ -787,6 +793,11 @@ def validate_pre_upload_verifier_contract(errors: list[str]) -> None:
         "test_bundle_metadata_tampering_fails",
         "test_packaging_failure_leaves_no_bundle_or_temporary_file",
         "test_failed_replacement_preserves_existing_bundle",
+        "test_successful_replacement_overwrites_existing_bundle",
+        "test_failed_atomic_rename_removes_temporary_bundle",
+        "test_publish_bundle_rejects_linked_ancestor_without_external_artifact",
+        "test_linked_ancestor_cannot_create_external_parent",
+        "test_ancestor_swap_during_temporary_creation_cannot_redirect_bundle",
         "test_snapshot_rejects_file_replaced_between_lstat_and_open",
         "test_snapshot_rejects_descriptor_identity_change_after_read",
         "test_snapshot_rejects_descriptor_type_change_after_read",
@@ -1024,6 +1035,7 @@ def validate_ci_contract(errors: list[str]) -> None:
         "build/grounding/",
         "timeout-minutes: 15",
         "persist-credentials: false",
+        "mkdir -p governed-intelligence-sample/build/upload",
         "python -I -B governed-intelligence-sample/src/hydra_governed_intelligence/pre_upload_verifier.py --repository-root . --bundle-path governed-intelligence-sample/build/upload/hydra-governed-intelligence-proof.zip --github-output-path \"$GITHUB_OUTPUT\"",
         '"case_count"], 13',
         '"micro_recall_at_k": "0.444444"',
@@ -1111,6 +1123,7 @@ def validate_ci_contract(errors: list[str]) -> None:
         "Check retrieval report contract and declared input digests",
         "Build deterministic structured grounding receipts",
         "Check grounding report contract and declared input digests",
+        "Prepare artifact destination",
         "Verify and package exact artifact snapshots",
     )
     upload_name = "Publish synthetic pre-model receipts"
@@ -1183,6 +1196,13 @@ def validate_ci_contract(errors: list[str]) -> None:
             errors.append(
                 "governed-intelligence CI upload missing-file behavior changed"
             )
+
+    prepare_name = "Prepare artifact destination"
+    if prepare_name in step_blocks:
+        if workflow_step_scalar(step_blocks[prepare_name], "run") != [
+            "mkdir -p governed-intelligence-sample/build/upload"
+        ]:
+            errors.append("governed-intelligence CI artifact destination setup changed")
 
     verifier_name = "Verify and package exact artifact snapshots"
     if verifier_name in step_blocks:

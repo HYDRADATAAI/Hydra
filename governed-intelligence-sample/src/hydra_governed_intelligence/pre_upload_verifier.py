@@ -8,6 +8,7 @@ import io
 import json
 import os
 import re
+import secrets
 import stat
 import sys
 import tempfile
@@ -388,6 +389,8 @@ def _windows_open_relative(
     label: str,
     *,
     directory: bool,
+    create: bool = False,
+    writable: bool = False,
 ) -> int:
     import ctypes
     from ctypes import wintypes
@@ -436,18 +439,25 @@ def _windows_open_relative(
     ntdll.NtCreateFile.restype = wintypes.LONG
 
     generic_read = 0x80000000
+    generic_write = 0x40000000
+    delete_access = 0x00010000
     file_read_attributes = 0x00000080
     synchronize = 0x00100000
     file_share_read = 0x00000001
     file_share_write = 0x00000002
+    file_share_delete = 0x00000004
     file_open = 0x00000001
+    file_create = 0x00000002
     file_directory_file = 0x00000001
     file_synchronous_io_nonalert = 0x00000020
     file_non_directory_file = 0x00000040
     file_open_reparse_point = 0x00200000
-    desired_access = (
-        file_read_attributes | synchronize if directory else generic_read | synchronize
-    )
+    if directory:
+        desired_access = file_read_attributes | synchronize
+    elif writable:
+        desired_access = generic_write | delete_access | file_read_attributes | synchronize
+    else:
+        desired_access = generic_read | synchronize
     create_options = file_synchronous_io_nonalert | file_open_reparse_point
     create_options |= file_directory_file if directory else file_non_directory_file
     status = ntdll.NtCreateFile(
@@ -457,8 +467,8 @@ def _windows_open_relative(
         ctypes.byref(io_status),
         None,
         0,
-        file_share_read | file_share_write,
-        file_open,
+        file_share_read | file_share_write | file_share_delete,
+        file_create if create else file_open,
         create_options,
         None,
         0,
@@ -474,6 +484,124 @@ def _windows_open_relative(
         _windows_close_handle(opened_handle)
         raise
     return opened_handle
+
+
+def _windows_write_handle(handle: int, payload: bytes) -> None:
+    import ctypes
+    from ctypes import wintypes
+
+    kernel32 = ctypes.WinDLL("kernel32", use_last_error=True)
+    kernel32.WriteFile.argtypes = (
+        wintypes.HANDLE,
+        wintypes.LPCVOID,
+        wintypes.DWORD,
+        ctypes.POINTER(wintypes.DWORD),
+        wintypes.LPVOID,
+    )
+    kernel32.WriteFile.restype = wintypes.BOOL
+    kernel32.FlushFileBuffers.argtypes = (wintypes.HANDLE,)
+    kernel32.FlushFileBuffers.restype = wintypes.BOOL
+
+    buffer = ctypes.create_string_buffer(payload)
+    written = wintypes.DWORD()
+    if not kernel32.WriteFile(
+        wintypes.HANDLE(handle),
+        buffer,
+        len(payload),
+        ctypes.byref(written),
+        None,
+    ) or written.value != len(payload):
+        error = ctypes.get_last_error()
+        raise OSError(error, ctypes.FormatError(error))
+    if not kernel32.FlushFileBuffers(wintypes.HANDLE(handle)):
+        error = ctypes.get_last_error()
+        raise OSError(error, ctypes.FormatError(error))
+
+
+def _windows_replace_relative(
+    source_handle: int,
+    parent_handle: int,
+    destination_name: str,
+) -> None:
+    import ctypes
+    from ctypes import wintypes
+
+    class IoStatusBlock(ctypes.Structure):
+        _fields_ = [
+            ("StatusOrPointer", ctypes.c_void_p),
+            ("Information", ctypes.c_size_t),
+        ]
+
+    class FileRenameInformation(ctypes.Structure):
+        _fields_ = [
+            ("ReplaceIfExists", wintypes.BOOLEAN),
+            ("RootDirectory", wintypes.HANDLE),
+            ("FileNameLength", wintypes.DWORD),
+            ("FileName", wintypes.WCHAR * 1),
+        ]
+
+    encoded_name = destination_name.encode("utf-16-le")
+    buffer_size = ctypes.sizeof(FileRenameInformation) + len(encoded_name)
+    buffer = ctypes.create_string_buffer(buffer_size)
+    info = ctypes.cast(buffer, ctypes.POINTER(FileRenameInformation)).contents
+    info.ReplaceIfExists = True
+    info.RootDirectory = wintypes.HANDLE(parent_handle)
+    info.FileNameLength = len(encoded_name)
+    ctypes.memmove(
+        ctypes.addressof(buffer) + FileRenameInformation.FileName.offset,
+        encoded_name,
+        len(encoded_name),
+    )
+
+    io_status = IoStatusBlock()
+    ntdll = ctypes.WinDLL("ntdll", use_last_error=True)
+    ntdll.NtSetInformationFile.argtypes = (
+        wintypes.HANDLE,
+        ctypes.POINTER(IoStatusBlock),
+        wintypes.LPVOID,
+        wintypes.ULONG,
+        ctypes.c_int,
+    )
+    ntdll.NtSetInformationFile.restype = wintypes.LONG
+    file_rename_information = 10
+    status = ntdll.NtSetInformationFile(
+        wintypes.HANDLE(source_handle),
+        ctypes.byref(io_status),
+        buffer,
+        buffer_size,
+        file_rename_information,
+    )
+    if status < 0:
+        ntdll.RtlNtStatusToDosError.restype = wintypes.ULONG
+        error = int(ntdll.RtlNtStatusToDosError(status))
+        raise OSError(error, ctypes.FormatError(error), destination_name)
+
+
+def _windows_mark_delete(handle: int) -> None:
+    import ctypes
+    from ctypes import wintypes
+
+    class FileDispositionInfo(ctypes.Structure):
+        _fields_ = [("DeleteFile", wintypes.BOOLEAN)]
+
+    info = FileDispositionInfo(True)
+    kernel32 = ctypes.WinDLL("kernel32", use_last_error=True)
+    kernel32.SetFileInformationByHandle.argtypes = (
+        wintypes.HANDLE,
+        ctypes.c_int,
+        wintypes.LPVOID,
+        wintypes.DWORD,
+    )
+    kernel32.SetFileInformationByHandle.restype = wintypes.BOOL
+    file_disposition_info = 4
+    if not kernel32.SetFileInformationByHandle(
+        wintypes.HANDLE(handle),
+        file_disposition_info,
+        ctypes.byref(info),
+        ctypes.sizeof(info),
+    ):
+        error = ctypes.get_last_error()
+        raise OSError(error, ctypes.FormatError(error))
 
 
 def _close_bound_directories(handles: list[int]) -> None:
@@ -943,41 +1071,260 @@ def _materialize_snapshots(root: Path, snapshots: dict[str, bytes]) -> None:
         destination.write_bytes(payload)
 
 
-def _publish_bundle(bundle_path: Path, archive_bytes: bytes) -> None:
-    destination = bundle_path.absolute()
-    destination.parent.mkdir(parents=True, exist_ok=True)
-    _require(not destination.is_symlink(), "artifact bundle", "destination is a symbolic link")
+def _open_bound_parent(destination: Path, label: str) -> list[int]:
+    parent = destination.parent
+    anchor = Path(parent.anchor)
+    _require(bool(parent.anchor), label, "destination must be absolute")
+    parts = tuple(parent.parts[1:])
+    _require(
+        all(part not in {"", ".", ".."} for part in parts),
+        label,
+        "destination contains an unsafe path component",
+    )
+    return _open_bound_directory_chain(anchor, parts, label)
 
-    temporary_path: Path | None = None
+
+def _require_bound_directory_path(handle: int, path: Path, label: str) -> None:
+    if os.name == "nt":
+        _windows_validate_handle(handle, label, directory=True)
+        _require_windows_handle_path(handle, path, label)
+        return
+    descriptor = os.fstat(handle)
+    current = path.lstat()
+    _require(
+        stat.S_ISDIR(descriptor.st_mode)
+        and stat.S_ISDIR(current.st_mode)
+        and not _is_symlink_or_reparse(current)
+        and os.path.samestat(descriptor, current),
+        label,
+        "destination parent identity changed",
+    )
+
+
+def _require_safe_bound_destination(
+    parent_handle: int,
+    leaf_name: str,
+    candidate: Path,
+    label: str,
+) -> None:
+    if os.name == "nt":
+        handle: int | None = None
+        try:
+            handle = _windows_open_relative(
+                parent_handle,
+                leaf_name,
+                label,
+                directory=False,
+            )
+            _require_windows_handle_path(handle, candidate, label)
+        except FileNotFoundError:
+            return
+        finally:
+            if handle is not None:
+                _windows_close_handle(handle)
+        return
     try:
-        with tempfile.NamedTemporaryFile(
-            mode="wb",
-            dir=destination.parent,
-            prefix=f".{destination.name}.",
-            suffix=".tmp",
-            delete=False,
-        ) as handle:
-            temporary_path = Path(handle.name)
-            handle.write(archive_bytes)
-            handle.flush()
-            os.fsync(handle.fileno())
-        os.replace(temporary_path, destination)
-        temporary_path = None
+        current = os.stat(leaf_name, dir_fd=parent_handle, follow_symlinks=False)
+    except FileNotFoundError:
+        return
+    _require(
+        stat.S_ISREG(current.st_mode) and not _is_symlink_or_reparse(current),
+        label,
+        "destination is not a regular file",
+    )
+
+
+def _read_bound_file(
+    parent_handle: int,
+    leaf_name: str,
+    candidate: Path,
+    label: str,
+) -> bytes:
+    before: os.stat_result | None = None
+    if os.name != "nt":
+        before = _bound_leaf_lstat(parent_handle, leaf_name, candidate)
         _require(
-            _file_bytes(destination, "published artifact bundle") == archive_bytes,
-            "artifact bundle",
+            stat.S_ISREG(before.st_mode) and not _is_symlink_or_reparse(before),
+            label,
+            "published destination is not a regular file",
+        )
+
+    descriptor = _open_bound_leaf(parent_handle, leaf_name, candidate, label)
+    try:
+        with os.fdopen(descriptor, "rb") as handle:
+            descriptor = -1
+            descriptor_before = os.fstat(handle.fileno())
+            windows_identity: tuple[int, int] | None = None
+            if os.name == "nt":
+                import msvcrt
+
+                raw_handle = msvcrt.get_osfhandle(handle.fileno())
+                windows_identity = _windows_validate_handle(
+                    raw_handle,
+                    label,
+                    directory=False,
+                )
+                _require_windows_handle_path(raw_handle, candidate, label)
+            else:
+                _require(
+                    before is not None and os.path.samestat(before, descriptor_before),
+                    label,
+                    "published destination identity changed while opening",
+                )
+            payload = handle.read()
+            descriptor_after = os.fstat(handle.fileno())
+            _require(
+                stat.S_ISREG(descriptor_before.st_mode)
+                and os.path.samestat(descriptor_before, descriptor_after)
+                and descriptor_before.st_size == descriptor_after.st_size == len(payload)
+                and descriptor_before.st_mtime_ns == descriptor_after.st_mtime_ns,
+                label,
+                "published destination changed while reading",
+            )
+
+        if os.name == "nt":
+            reopened = _windows_open_relative(
+                parent_handle,
+                leaf_name,
+                label,
+                directory=False,
+            )
+            try:
+                _require(
+                    windows_identity
+                    == _windows_validate_handle(reopened, label, directory=False),
+                    label,
+                    "published destination identity changed after reading",
+                )
+                _require_windows_handle_path(reopened, candidate, label)
+            finally:
+                _windows_close_handle(reopened)
+        else:
+            current = _bound_leaf_lstat(parent_handle, leaf_name, candidate)
+            _require(
+                not _is_symlink_or_reparse(current)
+                and os.path.samestat(descriptor_after, current),
+                label,
+                "published destination identity changed after reading",
+            )
+        return payload
+    finally:
+        if descriptor >= 0:
+            os.close(descriptor)
+
+
+def _publish_bundle(bundle_path: Path, archive_bytes: bytes) -> None:
+    label = "artifact bundle"
+    destination = Path(os.path.abspath(bundle_path))
+    _require(destination.name not in {"", ".", ".."}, label, "invalid destination name")
+    directory_handles = _open_bound_parent(destination, label)
+    parent_handle = directory_handles[-1]
+    temporary_name = f".{destination.name}.{secrets.token_hex(12)}.tmp"
+    temporary_descriptor: int | None = None
+    temporary_handle: int | None = None
+    cleanup_errors: list[OSError] = []
+    try:
+        _require_bound_directory_path(parent_handle, destination.parent, label)
+        _require_safe_bound_destination(
+            parent_handle,
+            destination.name,
+            destination,
+            label,
+        )
+
+        if os.name == "nt":
+            temporary_handle = _windows_open_relative(
+                parent_handle,
+                temporary_name,
+                label,
+                directory=False,
+                create=True,
+                writable=True,
+            )
+            _require_windows_handle_path(
+                temporary_handle,
+                destination.parent / temporary_name,
+                label,
+            )
+            _windows_write_handle(temporary_handle, archive_bytes)
+            _windows_replace_relative(
+                temporary_handle,
+                parent_handle,
+                destination.name,
+            )
+            temporary_name = ""
+        else:
+            flags = (
+                os.O_WRONLY
+                | os.O_CREAT
+                | os.O_EXCL
+                | os.O_NOFOLLOW
+                | getattr(os, "O_BINARY", 0)
+            )
+            temporary_descriptor = os.open(
+                temporary_name,
+                flags,
+                0o600,
+                dir_fd=parent_handle,
+            )
+            with os.fdopen(temporary_descriptor, "wb") as handle:
+                temporary_descriptor = None
+                handle.write(archive_bytes)
+                handle.flush()
+                os.fsync(handle.fileno())
+            os.replace(
+                temporary_name,
+                destination.name,
+                src_dir_fd=parent_handle,
+                dst_dir_fd=parent_handle,
+            )
+            temporary_name = ""
+
+        _require_bound_directory_path(parent_handle, destination.parent, label)
+        _require(
+            _read_bound_file(
+                parent_handle,
+                destination.name,
+                destination,
+                "published artifact bundle",
+            )
+            == archive_bytes,
+            label,
             "published bytes changed",
         )
     except VerificationError:
         raise
     except OSError as exc:
-        _fail("artifact bundle", f"unable to publish atomically: {exc}")
+        _fail(label, f"unable to publish atomically: {exc}")
     finally:
-        if temporary_path is not None:
+        if temporary_descriptor is not None:
             try:
-                temporary_path.unlink(missing_ok=True)
-            except OSError:
-                pass
+                os.close(temporary_descriptor)
+            except OSError as exc:
+                cleanup_errors.append(exc)
+        if temporary_handle is not None:
+            if temporary_name:
+                try:
+                    _windows_mark_delete(temporary_handle)
+                except OSError as exc:
+                    cleanup_errors.append(exc)
+            try:
+                _windows_close_handle(temporary_handle)
+            except OSError as exc:
+                cleanup_errors.append(exc)
+        if temporary_name and os.name != "nt":
+            try:
+                os.unlink(temporary_name, dir_fd=parent_handle)
+            except OSError as exc:
+                cleanup_errors.append(exc)
+        _close_bound_directories(directory_handles)
+        if cleanup_errors:
+            detail = "; ".join(str(exc) for exc in cleanup_errors)
+            active_error = sys.exc_info()[1]
+            if active_error is not None:
+                active_error.add_note(f"artifact bundle temporary cleanup failed: {detail}")
+            else:
+                _fail(label, f"temporary cleanup failed: {detail}")
 
 
 def _digest(path: Path, label: str) -> str:
