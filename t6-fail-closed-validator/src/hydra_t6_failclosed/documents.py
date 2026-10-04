@@ -319,7 +319,7 @@ def _preflight_json_limits(text: str) -> int:
 
     def whitespace() -> None:
         nonlocal position
-        while position < length and text[position] in " \\t\\n\\r":
+        while position < length and text[position] in " \t\n\r":
             position += 1
 
     def require(character: str) -> None:
@@ -497,29 +497,38 @@ def parse_json_document(
         )
     try:
         text = raw.decode("utf-8", errors="strict")
-        try:
-            _preflight_json_limits(text)
-        except _JSONPreflightLimitError as exc:
-            evidence = (
-                {"node_count": exc.node_count}
-                if exc.node_count is not None
-                else None
-            )
-            issue = Issue(
-                exc.code,
-                (
-                    f"{label} exceeds maximum node count {MAX_DOCUMENT_NODES}"
-                    if exc.code == "document_too_large"
-                    else f"{label} exceeds maximum nesting depth {MAX_DOCUMENT_DEPTH}"
-                ),
-                label,
-                evidence=evidence,
-            )
-            return JSONDocument(raw, digest, None, (issue,))
-        except _JSONPreflightSyntaxError:
-            # Let json.loads report the canonical syntax error and preserve its
-            # duplicate-key and parse_constant behavior for every non-overflow.
-            pass
+        root_type = next((character for character in text if character not in " \t\n\r"), "")
+        if root_type in "{[":
+            try:
+                _preflight_json_limits(text)
+            except _JSONPreflightLimitError as exc:
+                if root_type == "[":
+                    return JSONDocument(
+                        raw,
+                        digest,
+                        None,
+                        (Issue("document_root_invalid", f"{label} root must be an object", label),),
+                    )
+                evidence = (
+                    {"node_count": exc.node_count}
+                    if exc.node_count is not None
+                    else None
+                )
+                issue = Issue(
+                    exc.code,
+                    (
+                        f"{label} exceeds maximum node count {MAX_DOCUMENT_NODES}"
+                        if exc.code == "document_too_large"
+                        else f"{label} exceeds maximum nesting depth {MAX_DOCUMENT_DEPTH}"
+                    ),
+                    label,
+                    evidence=evidence or {},
+                )
+                return JSONDocument(raw, digest, None, (issue,))
+            except _JSONPreflightSyntaxError:
+                # Let json.loads report the canonical syntax error and preserve its
+                # duplicate-key and parse_constant behavior for every non-overflow.
+                pass
         parsed = json.loads(
             text,
             object_pairs_hook=_object_without_duplicates,

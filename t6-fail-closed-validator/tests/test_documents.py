@@ -348,13 +348,58 @@ class DocumentContractTests(unittest.TestCase):
 
 
     def test_raw_json_scanner_preserves_string_and_exponent_semantics(self) -> None:
-        payload = r'{"text":"braces { [ ] }, comma , colon : escaped quote \\" and slash \\\\","numbers":[-0,1e+2,1E-2,1e999]}'
+        payload = r'{"text":"braces { [ ] }, comma , colon : escaped quote \" and slash \\\\","numbers":[-0,1e+2,1E-2,1e999]}'
         document = parse_json_document(payload, label="$.document")
         self.assertEqual(document.issues, ())
         self.assertIsNotNone(document.value)
         self.assertEqual(document.value["text"], 'braces { [ ] }, comma , colon : escaped quote " and slash \\\\')
         self.assertEqual(document.value["numbers"][:3], [0, 100.0, 0.01])
         self.assertEqual(document.value["numbers"][3], float("inf"))
+
+
+    def test_large_raw_json_array_keeps_root_type_precedence(self) -> None:
+        payload = "[" + ",".join("0" for _ in range(documents.MAX_DOCUMENT_NODES + 1)) + "]"
+        raw = payload.encode("utf-8")
+        with patch.object(documents.json, "loads", side_effect=AssertionError("json.loads called")) as loader:
+            document = parse_json_document(raw, label="$.document")
+        loader.assert_not_called()
+        self.assertIsNone(document.value)
+        self.assertEqual([issue.code for issue in document.issues], ["document_root_invalid"])
+        self.assertEqual(document.raw, raw)
+        self.assertEqual(document.raw_sha256, documents.sha256_hex(raw))
+
+
+    def test_raw_json_node_overflow_is_rejected_before_json_loads(self) -> None:
+        payload = (
+            '{\n\t"items" : [\r\n'
+            + ",\n\t".join("0" for _ in range(documents.MAX_DOCUMENT_NODES))
+            + '\n]\r\n}'
+        )
+        raw = payload.encode("utf-8")
+        with patch.object(documents.json, "loads", side_effect=AssertionError("json.loads called")) as loader:
+            document = parse_json_document(raw, label="$.document")
+        loader.assert_not_called()
+        self.assertIsNone(document.value)
+        self.assertEqual([issue.code for issue in document.issues], ["document_too_large"])
+        self.assertEqual(
+            document.issues[0].evidence,
+            {"node_count": documents.MAX_DOCUMENT_NODES + 1},
+        )
+        self.assertEqual(document.raw, raw)
+        self.assertEqual(document.raw_sha256, documents.sha256_hex(raw))
+
+
+    def test_raw_json_depth_overflow_is_rejected_before_json_loads(self) -> None:
+        payload = '{"a":' * (documents.MAX_DOCUMENT_DEPTH + 1) + "0" + "}" * (documents.MAX_DOCUMENT_DEPTH + 1)
+        raw = payload.encode("utf-8")
+        with patch.object(documents.json, "loads", side_effect=AssertionError("json.loads called")) as loader:
+            document = parse_json_document(raw, label="$.document")
+        loader.assert_not_called()
+        self.assertIsNone(document.value)
+        self.assertEqual([issue.code for issue in document.issues], ["document_too_deep"])
+        self.assertEqual(document.issues[0].to_dict()["evidence"], {})
+        self.assertEqual(document.raw, raw)
+        self.assertEqual(document.raw_sha256, documents.sha256_hex(raw))
 
 
 if __name__ == "__main__":
