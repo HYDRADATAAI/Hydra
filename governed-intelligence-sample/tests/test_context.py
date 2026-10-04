@@ -7,6 +7,7 @@ import unittest
 from dataclasses import replace
 from pathlib import Path
 from types import MappingProxyType
+from typing import Any, Callable
 from unittest.mock import patch
 
 from hydra_governed_intelligence import (
@@ -28,6 +29,63 @@ class GovernedContextTests(unittest.TestCase):
         self.pipeline_dir = build_pipeline_outputs(Path(self.temp_dir.name) / "pipeline")
         self.evidence = load_evidence(self.pipeline_dir)
         self.policy = load_policy(ROOT / "config/policy.json")
+
+    def _new_pipeline_case(self, name: str) -> Path:
+        return build_pipeline_outputs(Path(self.temp_dir.name) / name)
+
+    def _rewrite_manifest(
+        self, directory: Path, mutate: Callable[[dict[str, Any]], None]
+    ) -> None:
+        manifest_path = directory / "manifest.json"
+        manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+        mutate(manifest)
+        manifest_path.write_text(
+            json.dumps(manifest, sort_keys=True, separators=(",", ":")) + "\n",
+            encoding="utf-8",
+        )
+
+    def _rewrite_jsonl(
+        self,
+        directory: Path,
+        output_key: str,
+        mutate: Callable[[list[dict[str, Any]]], None],
+    ) -> None:
+        manifest_path = directory / "manifest.json"
+        manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+        artifact_path = directory / manifest["outputs"][output_key]["file"]
+        records = [
+            json.loads(line)
+            for line in artifact_path.read_text(encoding="utf-8").splitlines()
+        ]
+        mutate(records)
+        artifact_bytes = b"".join(
+            json.dumps(record, sort_keys=True, separators=(",", ":")).encode("utf-8")
+            + b"\n"
+            for record in records
+        )
+        artifact_path.write_bytes(artifact_bytes)
+        manifest["outputs"][output_key]["sha256"] = hashlib.sha256(
+            artifact_bytes
+        ).hexdigest()
+        manifest_path.write_text(
+            json.dumps(manifest, sort_keys=True, separators=(",", ":")) + "\n",
+            encoding="utf-8",
+        )
+
+    def _rewrite_artifact_bytes(
+        self, directory: Path, output_key: str, artifact_bytes: bytes
+    ) -> None:
+        manifest_path = directory / "manifest.json"
+        manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+        artifact_path = directory / manifest["outputs"][output_key]["file"]
+        artifact_path.write_bytes(artifact_bytes)
+        manifest["outputs"][output_key]["sha256"] = hashlib.sha256(
+            artifact_bytes
+        ).hexdigest()
+        manifest_path.write_text(
+            json.dumps(manifest, sort_keys=True, separators=(",", ":")) + "\n",
+            encoding="utf-8",
+        )
 
     def test_admitted_observation_has_exact_resolvable_citation(self) -> None:
         decision = build_decision(
@@ -131,6 +189,287 @@ class GovernedContextTests(unittest.TestCase):
             ContractError, "normalized event currency must be a string"
         ):
             load_evidence(self.pipeline_dir)
+
+    def test_manifest_requires_exact_schema_types_and_bindings(self) -> None:
+        def set_value(path: tuple[str, ...], value: Any) -> Callable[[dict[str, Any]], None]:
+            def mutate(manifest: dict[str, Any]) -> None:
+                target: dict[str, Any] = manifest
+                for key in path[:-1]:
+                    target = target[key]
+                target[path[-1]] = value
+
+            return mutate
+
+        def remove_value(path: tuple[str, ...]) -> Callable[[dict[str, Any]], None]:
+            def mutate(manifest: dict[str, Any]) -> None:
+                target: dict[str, Any] = manifest
+                for key in path[:-1]:
+                    target = target[key]
+                target.pop(path[-1])
+
+            return mutate
+
+        cases = (
+            ("extra-top-level", set_value(("unexpected",), "value")),
+            ("missing-top-level", remove_value(("aliases_sha256",))),
+            ("accepted-float", set_value(("accepted_rows",), 3.0)),
+            ("accepted-bool", set_value(("accepted_rows",), True)),
+            ("quarantined-float", set_value(("quarantined_rows",), 4.0)),
+            ("quarantined-bool", set_value(("quarantined_rows",), False)),
+            ("negative-count", set_value(("accepted_rows",), -1)),
+            ("run-id-type", set_value(("pipeline_run_id",), 7)),
+            ("run-id-format", set_value(("pipeline_run_id",), "not-a-digest")),
+            ("run-id-binding", set_value(("pipeline_run_id",), "0" * 64)),
+            ("aliases-digest", set_value(("aliases_sha256",), "A" * 64)),
+            ("source-digest", set_value(("source_file_sha256",), "bad")),
+            ("transform-version", set_value(("transform_version",), "v2")),
+            (
+                "descriptor-extra-size",
+                set_value(("outputs", "normalized_events_jsonl", "size"), 1),
+            ),
+            (
+                "descriptor-extra-rows",
+                set_value(("outputs", "quarantine_records_jsonl", "rows"), 4),
+            ),
+            (
+                "descriptor-missing-digest",
+                remove_value(("outputs", "normalized_events_jsonl", "sha256")),
+            ),
+            (
+                "descriptor-file-type",
+                set_value(("outputs", "normalized_events_jsonl", "file"), 1),
+            ),
+            (
+                "descriptor-file-name",
+                set_value(
+                    ("outputs", "normalized_events_jsonl", "file"),
+                    "other.jsonl",
+                ),
+            ),
+            (
+                "descriptor-digest-type",
+                set_value(("outputs", "normalized_events_jsonl", "sha256"), 1),
+            ),
+            (
+                "descriptor-digest-format",
+                set_value(
+                    ("outputs", "normalized_events_jsonl", "sha256"),
+                    "not-a-digest",
+                ),
+            ),
+            (
+                "csv-schema-type",
+                set_value(("outputs", "normalized_events_csv", "schema"), "event_id"),
+            ),
+            (
+                "csv-schema-order",
+                lambda manifest: manifest["outputs"]["normalized_events_csv"][
+                    "schema"
+                ].reverse(),
+            ),
+        )
+
+        for name, mutate in cases:
+            with self.subTest(case=name):
+                directory = self._new_pipeline_case(f"manifest-{name}")
+                self._rewrite_manifest(directory, mutate)
+                with self.assertRaises((ContractError, IntegrityError)):
+                    load_evidence(directory)
+
+    def test_manifest_output_filenames_are_safe_and_unique(self) -> None:
+        for name, filename in (
+            ("parent", "../other.jsonl"),
+            ("forward-slash", "nested/other.jsonl"),
+            ("backslash", "nested\\other.jsonl"),
+            ("leading-space", " normalized.jsonl"),
+            ("trailing-space", "normalized.jsonl "),
+        ):
+            with self.subTest(case=name):
+                directory = self._new_pipeline_case(f"filename-{name}")
+                self._rewrite_manifest(
+                    directory,
+                    lambda manifest, filename=filename: manifest["outputs"][
+                        "normalized_events_jsonl"
+                    ].__setitem__("file", filename),
+                )
+                with self.assertRaisesRegex(ContractError, "unsafe file name"):
+                    load_evidence(directory)
+
+        directory = self._new_pipeline_case("filename-duplicate")
+        self._rewrite_manifest(
+            directory,
+            lambda manifest: manifest["outputs"][
+                "quarantine_records_jsonl"
+            ].__setitem__(
+                "file",
+                manifest["outputs"]["normalized_events_jsonl"]["file"],
+            ),
+        )
+        with self.assertRaisesRegex(ContractError, "unsafe file name"):
+            load_evidence(directory)
+
+    def test_manifest_counts_bind_to_exact_artifact_row_counts(self) -> None:
+        for field, value in (("accepted_rows", 2), ("quarantined_rows", 3)):
+            with self.subTest(field=field):
+                directory = self._new_pipeline_case(f"count-binding-{field}")
+                self._rewrite_manifest(
+                    directory,
+                    lambda manifest, field=field, value=value: manifest.__setitem__(
+                        field, value
+                    ),
+                )
+                with self.assertRaisesRegex(IntegrityError, "row count"):
+                    load_evidence(directory)
+
+    def test_normalized_events_require_canonical_values_and_provenance(self) -> None:
+        def replace_field(field: str, value: Any) -> Callable[[list[dict[str, Any]]], None]:
+            return lambda records: records[0].__setitem__(field, value)
+
+        cases = (
+            ("source-system-empty", replace_field("source_system", "")),
+            ("source-system-whitespace", replace_field("source_system", " SYNTH_A")),
+            ("source-system-unknown", replace_field("source_system", "LIVE_FEED")),
+            ("source-record-empty", replace_field("source_record_id", "")),
+            ("source-record-whitespace", replace_field("source_record_id", "   ")),
+            ("symbol-empty", replace_field("symbol", "")),
+            ("symbol-malformed", replace_field("symbol", "bad symbol")),
+            ("timestamp-empty", replace_field("event_time_utc", "")),
+            (
+                "timestamp-invalid-date",
+                replace_field("event_time_utc", "2026-02-30T17:31:00.000000Z"),
+            ),
+            (
+                "timestamp-noncanonical",
+                replace_field("event_time_utc", "2026-09-24T17:31:00Z"),
+            ),
+            ("price-empty", replace_field("price", "")),
+            ("price-nonfinite", replace_field("price", "NaN")),
+            ("price-nonpositive", replace_field("price", "0.000000")),
+            ("price-scale", replace_field("price", "1.0000000")),
+            ("price-notation", replace_field("price", "1e0")),
+            ("currency-empty", replace_field("currency", "")),
+            ("currency-malformed", replace_field("currency", "usd")),
+            ("venue-empty", replace_field("venue", "")),
+            ("venue-malformed", replace_field("venue", "xnas")),
+            ("event-id-binding", replace_field("event_id", "0" * 64)),
+            ("raw-digest-empty", replace_field("raw_record_sha256", "")),
+            ("source-digest-binding", replace_field("source_file_sha256", "0" * 64)),
+            ("row-bool", replace_field("source_row_number", True)),
+            ("row-float", replace_field("source_row_number", 4.0)),
+            ("volume-bool", replace_field("volume", True)),
+            ("volume-float", replace_field("volume", 1.0)),
+            ("volume-negative", replace_field("volume", -1)),
+            ("transform-empty", replace_field("transform_version", "")),
+            ("transform-invalid", replace_field("transform_version", "v2")),
+            ("extra-status", lambda records: records[0].__setitem__("status", "PASS")),
+            ("missing-provenance", lambda records: records[0].pop("raw_record_sha256")),
+        )
+
+        for name, mutate in cases:
+            with self.subTest(case=name):
+                directory = self._new_pipeline_case(f"event-{name}")
+                self._rewrite_jsonl(
+                    directory,
+                    "normalized_events_jsonl",
+                    mutate,
+                )
+                with self.assertRaises((ContractError, IntegrityError)):
+                    load_evidence(directory)
+
+    def test_accepted_jsonl_is_bound_to_csv_and_source_rows(self) -> None:
+        directory = self._new_pipeline_case("csv-binding")
+        csv_path = directory / "normalized_events.csv"
+        altered_csv = csv_path.read_bytes().replace(b"SYNTH_A", b"SYNTH_X", 1)
+        self._rewrite_artifact_bytes(
+            directory,
+            "normalized_events_csv",
+            altered_csv,
+        )
+        with self.assertRaisesRegex(IntegrityError, "CSV rows"):
+            load_evidence(directory)
+
+        directory = self._new_pipeline_case("accepted-row-binding")
+        self._rewrite_jsonl(
+            directory,
+            "normalized_events_jsonl",
+            lambda records: records[1].__setitem__(
+                "source_row_number", records[0]["source_row_number"]
+            ),
+        )
+        with self.assertRaisesRegex(IntegrityError, "source_row_number"):
+            load_evidence(directory)
+
+        directory = self._new_pipeline_case("canonical-jsonl-size")
+        normalized = directory / "normalized_events.jsonl"
+        self._rewrite_artifact_bytes(
+            directory,
+            "normalized_events_jsonl",
+            normalized.read_bytes().replace(b'{"currency"', b'{ "currency"', 1),
+        )
+        with self.assertRaisesRegex(ContractError, "canonical JSONL"):
+            load_evidence(directory)
+
+    def test_quarantine_records_require_exact_internal_bindings(self) -> None:
+        def change_raw_record(records: list[dict[str, Any]]) -> None:
+            records[0]["raw_record"]["price"] = "999.00"
+
+        cases = (
+            ("raw-record-digest", change_raw_record),
+            (
+                "quarantine-id",
+                lambda records: records[0].__setitem__("quarantine_id", "0" * 64),
+            ),
+            (
+                "validation-message",
+                lambda records: records[0].__setitem__(
+                    "validation_messages", ["incorrect"]
+                ),
+            ),
+            (
+                "unknown-error",
+                lambda records: records[0].__setitem__("errors", ["unknown"]),
+            ),
+            ("stage", lambda records: records[0].__setitem__("stage", "other")),
+            ("row-bool", lambda records: records[0].__setitem__("source_row_number", True)),
+            ("extra-field", lambda records: records[0].__setitem__("status", "FAIL")),
+            ("missing-field", lambda records: records[0].pop("raw_record_sha256")),
+        )
+
+        for name, mutate in cases:
+            with self.subTest(case=name):
+                directory = self._new_pipeline_case(f"quarantine-{name}")
+                self._rewrite_jsonl(
+                    directory,
+                    "quarantine_records_jsonl",
+                    mutate,
+                )
+                with self.assertRaises((ContractError, IntegrityError)):
+                    load_evidence(directory)
+
+        def overlap_accepted_row(records: list[dict[str, Any]]) -> None:
+            record = records[0]
+            record["source_row_number"] = 2
+            identity = {
+                "errors": record["errors"],
+                "raw_record_sha256": record["raw_record_sha256"],
+                "source_row_number": record["source_row_number"],
+            }
+            record["quarantine_id"] = hashlib.sha256(
+                json.dumps(
+                    identity,
+                    sort_keys=True,
+                    separators=(",", ":"),
+                ).encode("utf-8")
+            ).hexdigest()
+
+        directory = self._new_pipeline_case("quarantine-overlap")
+        self._rewrite_jsonl(
+            directory,
+            "quarantine_records_jsonl",
+            overlap_accepted_row,
+        )
+        with self.assertRaisesRegex(IntegrityError, "source rows overlap"):
+            load_evidence(directory)
 
     def test_verified_evidence_graph_is_immutable(self) -> None:
         with self.assertRaises(TypeError):

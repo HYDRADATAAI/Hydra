@@ -2,11 +2,15 @@
 
 from __future__ import annotations
 
+import csv
 import hashlib
+import io
 import json
 import math
 import re
 from dataclasses import dataclass, field
+from datetime import datetime
+from decimal import Decimal, InvalidOperation
 from pathlib import Path
 from types import MappingProxyType
 from typing import Any, Mapping
@@ -15,9 +19,26 @@ from typing import Any, Mapping
 POLICY_SCHEMA = "hydra-governed-intelligence-policy/v1"
 DECISION_SCHEMA = "hydra-governed-intelligence-decision/v1"
 PIPELINE_MANIFEST_SCHEMA = "hydra-market-pipeline-manifest/v1"
+PIPELINE_RUN_SCHEMA = "hydra-market-pipeline-run/v1"
 SHA256_PATTERN = re.compile(r"^[0-9a-f]{64}$")
 REQUEST_ID_PATTERN = re.compile(r"^[A-Za-z0-9._-]{1,64}$")
 TASK_PATTERN = re.compile(r"^[a-z0-9_]{1,64}$")
+SYMBOL_PATTERN = re.compile(r"^[A-Z][A-Z0-9.-]{0,15}$")
+VENUE_PATTERN = re.compile(r"^[A-Z0-9][A-Z0-9.-]{0,15}$")
+PRICE_PATTERN = re.compile(r"^(?:0|[1-9]\d*)\.\d{6}$")
+UTC_TIMESTAMP_PATTERN = re.compile(
+    r"^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{6}Z$"
+)
+MANIFEST_FIELDS = {
+    "accepted_rows",
+    "aliases_sha256",
+    "outputs",
+    "pipeline_run_id",
+    "quarantined_rows",
+    "schema_version",
+    "source_file_sha256",
+    "transform_version",
+}
 EVENT_FIELDS = {
     "currency",
     "event_id",
@@ -46,7 +67,68 @@ EVENT_STRING_FIELDS = {
     "transform_version",
     "venue",
 }
+NORMALIZED_CSV_COLUMNS = (
+    "event_id",
+    "source_system",
+    "source_record_id",
+    "symbol",
+    "event_time_utc",
+    "price",
+    "volume",
+    "currency",
+    "venue",
+    "source_file_sha256",
+    "raw_record_sha256",
+    "source_row_number",
+    "transform_version",
+)
 NORMALIZED_EVENT_TRANSFORM_VERSION = "hydra-market-normalizer/v1"
+ALLOWED_SOURCE_SYSTEMS = frozenset({"SYNTH_A", "SYNTH_B", "SYNTH_VENDOR"})
+QUARANTINE_FIELDS = {
+    "errors",
+    "quarantine_id",
+    "raw_record",
+    "raw_record_sha256",
+    "source_row_number",
+    "stage",
+    "validation_messages",
+}
+RAW_RECORD_FIELDS = {
+    "currency",
+    "event_time",
+    "price",
+    "source_record_id",
+    "source_system",
+    "symbol",
+    "venue",
+    "volume",
+}
+QUARANTINE_ERROR_MESSAGES = {
+    "currency_invalid": "currency must be exactly three alphabetic characters",
+    "duplicate_normalized_event": (
+        "normalized symbol, UTC timestamp, and venue already appeared earlier in the file"
+    ),
+    "event_time_invalid": "event_time must be a valid ISO-8601 timestamp",
+    "event_time_missing": "event_time is required",
+    "event_time_timezone_missing": "event_time must include a timezone offset",
+    "price_invalid": "price must be a decimal value",
+    "price_missing": "price is required",
+    "price_non_finite": "price must be finite",
+    "price_non_positive": "price must be greater than zero",
+    "price_scale_exceeds_6": "price may not have more than six fractional digits",
+    "row_extra_values": "row contains values beyond the required CSV columns",
+    "source_record_id_missing": "source_record_id is required",
+    "source_system_invalid": (
+        "source_system is not in the allowed public synthetic source list"
+    ),
+    "source_system_missing": "source_system is required",
+    "symbol_invalid": "symbol must normalize to an allowed uppercase market symbol",
+    "symbol_missing": "symbol is required",
+    "venue_invalid": "venue must be a non-empty uppercase venue identifier",
+    "volume_invalid": "volume must be an integer",
+    "volume_missing": "volume is required",
+    "volume_negative": "volume must be greater than or equal to zero",
+}
 IMMUTABLE_MAPPING_TYPE = type(MappingProxyType({}))
 
 
@@ -266,13 +348,43 @@ def load_evidence(directory: str | Path) -> Evidence:
 def _validated_manifest_outputs(
     manifest: Any, root: Path
 ) -> tuple[dict[str, Any], dict[str, Path]]:
-    if not isinstance(manifest, dict):
+    if type(manifest) is not dict:
         raise ContractError("pipeline manifest root must be an object")
-    if manifest.get("schema_version") != PIPELINE_MANIFEST_SCHEMA:
+    if set(manifest) != MANIFEST_FIELDS:
+        raise ContractError("pipeline manifest fields do not match the v1 contract")
+    if manifest["schema_version"] != PIPELINE_MANIFEST_SCHEMA:
         raise ContractError("unsupported pipeline manifest schema")
+    if manifest["transform_version"] != NORMALIZED_EVENT_TRANSFORM_VERSION:
+        raise ContractError("pipeline transform_version is invalid")
 
-    outputs = manifest.get("outputs")
-    if not isinstance(outputs, dict) or set(outputs) != {
+    for field in (
+        "aliases_sha256",
+        "pipeline_run_id",
+        "source_file_sha256",
+    ):
+        value = manifest[field]
+        if type(value) is not str or not SHA256_PATTERN.fullmatch(value):
+            raise ContractError(f"pipeline {field} is invalid")
+    for field in ("accepted_rows", "quarantined_rows"):
+        value = manifest[field]
+        if type(value) is not int or value < 0:
+            raise ContractError(f"pipeline {field} must be a non-negative integer")
+
+    expected_run_id = sha256_hex(
+        canonical_json_bytes(
+            {
+                "aliases_sha256": manifest["aliases_sha256"],
+                "run_schema": PIPELINE_RUN_SCHEMA,
+                "source_file_sha256": manifest["source_file_sha256"],
+                "transform_version": manifest["transform_version"],
+            }
+        )
+    )
+    if manifest["pipeline_run_id"] != expected_run_id:
+        raise IntegrityError("pipeline_run_id does not match the manifest inputs")
+
+    outputs = manifest["outputs"]
+    if type(outputs) is not dict or set(outputs) != {
         "normalized_events_csv",
         "normalized_events_jsonl",
         "quarantine_records_jsonl",
@@ -280,15 +392,37 @@ def _validated_manifest_outputs(
         raise ContractError("pipeline manifest output set changed")
 
     resolved_outputs: dict[str, Path] = {}
+    seen_filenames: set[str] = set()
     for key, descriptor in outputs.items():
-        if not isinstance(descriptor, dict):
+        if type(descriptor) is not dict:
             raise ContractError(f"manifest output {key} must be an object")
-        filename = descriptor.get("file")
-        digest = descriptor.get("sha256")
-        if not isinstance(filename, str) or Path(filename).name != filename:
+        expected_fields = {"file", "sha256"}
+        if key == "normalized_events_csv":
+            expected_fields.add("schema")
+        if set(descriptor) != expected_fields:
+            raise ContractError(
+                f"manifest output {key} fields do not match the v1 contract"
+            )
+        filename = descriptor["file"]
+        digest = descriptor["sha256"]
+        if (
+            type(filename) is not str
+            or not filename
+            or filename != filename.strip()
+            or "/" in filename
+            or "\\" in filename
+            or filename in {".", ".."}
+            or Path(filename).name != filename
+            or filename.casefold() in seen_filenames
+        ):
             raise ContractError(f"manifest output {key} has an unsafe file name")
-        if not isinstance(digest, str) or not SHA256_PATTERN.fullmatch(digest):
+        seen_filenames.add(filename.casefold())
+        if type(digest) is not str or not SHA256_PATTERN.fullmatch(digest):
             raise ContractError(f"manifest output {key} has an invalid digest")
+        if key == "normalized_events_csv" and descriptor["schema"] != list(
+            NORMALIZED_CSV_COLUMNS
+        ):
+            raise ContractError("manifest normalized CSV schema is invalid")
         path = (root / filename).resolve()
         if path.parent != root:
             raise ContractError(f"manifest output {key} escapes the artifact directory")
@@ -324,22 +458,59 @@ def _evidence_from_snapshots(
         output_bytes["quarantine_records_jsonl"],
         resolved_outputs["quarantine_records_jsonl"],
     )
-    if manifest.get("accepted_rows") != len(accepted):
+    for key, records in (
+        ("normalized_events_jsonl", accepted),
+        ("quarantine_records_jsonl", quarantined),
+    ):
+        canonical_artifact = b"".join(
+            canonical_json_bytes(record) + b"\n" for record in records
+        )
+        if output_bytes[key] != canonical_artifact:
+            raise ContractError(f"manifest output {key} is not canonical JSONL")
+    if manifest["accepted_rows"] != len(accepted):
         raise IntegrityError("accepted row count does not match the manifest")
-    if manifest.get("quarantined_rows") != len(quarantined):
+    if manifest["quarantined_rows"] != len(quarantined):
         raise IntegrityError("quarantined row count does not match the manifest")
 
-    source_digest = manifest.get("source_file_sha256")
-    if not isinstance(source_digest, str) or not SHA256_PATTERN.fullmatch(source_digest):
-        raise ContractError("pipeline source digest is invalid")
+    source_digest = manifest["source_file_sha256"]
 
     seen_ids: set[str] = set()
+    seen_source_rows: set[int] = set()
     for event in accepted:
         _validate_normalized_event(event, source_digest=source_digest)
         event_id = event["event_id"]
         if event_id in seen_ids:
             raise IntegrityError("normalized event_id is duplicated")
         seen_ids.add(event_id)
+        source_row = event["source_row_number"]
+        if source_row in seen_source_rows:
+            raise IntegrityError("normalized source_row_number is duplicated")
+        seen_source_rows.add(source_row)
+    if [event["event_id"] for event in accepted] != sorted(seen_ids):
+        raise IntegrityError("normalized events are not ordered by event_id")
+
+    quarantine_rows: list[int] = []
+    for record in quarantined:
+        _validate_quarantine_record(record)
+        source_row = record["source_row_number"]
+        if source_row in seen_source_rows:
+            raise IntegrityError("accepted and quarantined source rows overlap")
+        if source_row in quarantine_rows:
+            raise IntegrityError("quarantined source_row_number is duplicated")
+        quarantine_rows.append(source_row)
+    if quarantine_rows != sorted(quarantine_rows):
+        raise IntegrityError("quarantine records are not ordered by source row")
+
+    csv_records = _load_normalized_csv_bytes(
+        output_bytes["normalized_events_csv"],
+        resolved_outputs["normalized_events_csv"],
+    )
+    expected_csv_records = [
+        {column: str(event[column]) for column in NORMALIZED_CSV_COLUMNS}
+        for event in accepted
+    ]
+    if csv_records != expected_csv_records:
+        raise IntegrityError("normalized CSV rows do not match normalized JSONL rows")
 
     immutable_manifest = _freeze_json(manifest)
     immutable_accepted = tuple(
@@ -363,22 +534,150 @@ def _evidence_from_snapshots(
 def _validate_normalized_event(
     event: Mapping[str, Any], *, source_digest: str
 ) -> None:
-    if set(event) != EVENT_FIELDS:
+    if type(event) is not dict or set(event) != EVENT_FIELDS:
         raise ContractError("normalized event fields do not match the v1 contract")
     for field in EVENT_STRING_FIELDS:
         if type(event[field]) is not str:
             raise ContractError(f"normalized event {field} must be a string")
+        if not event[field] or event[field] != event[field].strip():
+            raise ContractError(f"normalized event {field} must be non-empty and trimmed")
     for field in ("event_id", "raw_record_sha256", "source_file_sha256"):
         if not SHA256_PATTERN.fullmatch(event[field]):
             raise ContractError(f"normalized event {field} is invalid")
     if event["source_file_sha256"] != source_digest:
         raise IntegrityError("event source digest does not match the manifest")
-    if type(event["source_row_number"]) is not int or event["source_row_number"] < 2:
+    if (
+        type(event["source_row_number"]) is not int
+        or event["source_row_number"] < 2
+    ):
         raise ContractError("normalized event source_row_number is invalid")
     if type(event["volume"]) is not int or event["volume"] < 0:
         raise ContractError("normalized event volume is invalid")
     if event["transform_version"] != NORMALIZED_EVENT_TRANSFORM_VERSION:
         raise ContractError("normalized event transform_version is invalid")
+    if event["source_system"] not in ALLOWED_SOURCE_SYSTEMS:
+        raise ContractError("normalized event source_system is invalid")
+    if not SYMBOL_PATTERN.fullmatch(event["symbol"]):
+        raise ContractError("normalized event symbol is invalid")
+    if not VENUE_PATTERN.fullmatch(event["venue"]):
+        raise ContractError("normalized event venue is invalid")
+    if not re.fullmatch(r"[A-Z]{3}", event["currency"]):
+        raise ContractError("normalized event currency is invalid")
+    if not UTC_TIMESTAMP_PATTERN.fullmatch(event["event_time_utc"]):
+        raise ContractError("normalized event event_time_utc is invalid")
+    try:
+        parsed_time = datetime.strptime(
+            event["event_time_utc"], "%Y-%m-%dT%H:%M:%S.%fZ"
+        )
+    except ValueError as exc:
+        raise ContractError("normalized event event_time_utc is invalid") from exc
+    if (
+        parsed_time.strftime("%Y-%m-%dT%H:%M:%S.%fZ")
+        != event["event_time_utc"]
+    ):
+        raise ContractError("normalized event event_time_utc is invalid")
+    try:
+        price = Decimal(event["price"])
+    except InvalidOperation as exc:
+        raise ContractError("normalized event price is invalid") from exc
+    if (
+        not PRICE_PATTERN.fullmatch(event["price"])
+        or not price.is_finite()
+        or price <= 0
+        or format(price, ".6f") != event["price"]
+    ):
+        raise ContractError("normalized event price is invalid")
+
+    expected_event_id = sha256_hex(
+        canonical_json_bytes(
+            {
+                "event_time_utc": event["event_time_utc"],
+                "symbol": event["symbol"],
+                "venue": event["venue"],
+            }
+        )
+    )
+    if event["event_id"] != expected_event_id:
+        raise IntegrityError("normalized event_id does not match its identity fields")
+
+
+def _validate_quarantine_record(record: Mapping[str, Any]) -> None:
+    if type(record) is not dict or set(record) != QUARANTINE_FIELDS:
+        raise ContractError("quarantine record fields do not match the v1 contract")
+    if record["stage"] != "row_validation":
+        raise ContractError("quarantine record stage is invalid")
+    if (
+        type(record["source_row_number"]) is not int
+        or record["source_row_number"] < 2
+    ):
+        raise ContractError("quarantine record source_row_number is invalid")
+    for field in ("quarantine_id", "raw_record_sha256"):
+        if type(record[field]) is not str or not SHA256_PATTERN.fullmatch(
+            record[field]
+        ):
+            raise ContractError(f"quarantine record {field} is invalid")
+
+    raw_record = record["raw_record"]
+    if type(raw_record) is not dict or set(raw_record) != RAW_RECORD_FIELDS:
+        raise ContractError("quarantine raw_record fields do not match the v1 contract")
+    if any(type(value) is not str for value in raw_record.values()):
+        raise ContractError("quarantine raw_record values must be strings")
+    expected_raw_digest = sha256_hex(canonical_json_bytes(raw_record))
+    if record["raw_record_sha256"] != expected_raw_digest:
+        raise IntegrityError("quarantine raw_record digest is invalid")
+
+    errors = record["errors"]
+    if (
+        type(errors) is not list
+        or not errors
+        or any(type(error) is not str for error in errors)
+        or errors != sorted(set(errors))
+        or any(error not in QUARANTINE_ERROR_MESSAGES for error in errors)
+    ):
+        raise ContractError("quarantine errors are invalid")
+    expected_messages = [QUARANTINE_ERROR_MESSAGES[error] for error in errors]
+    if record["validation_messages"] != expected_messages:
+        raise IntegrityError("quarantine validation messages do not match errors")
+    expected_quarantine_id = sha256_hex(
+        canonical_json_bytes(
+            {
+                "errors": errors,
+                "raw_record_sha256": record["raw_record_sha256"],
+                "source_row_number": record["source_row_number"],
+            }
+        )
+    )
+    if record["quarantine_id"] != expected_quarantine_id:
+        raise IntegrityError("quarantine_id does not match its bound fields")
+
+
+def _load_normalized_csv_bytes(raw: bytes, path: Path) -> list[dict[str, str]]:
+    try:
+        text = raw.decode("utf-8")
+    except UnicodeDecodeError as exc:
+        raise ContractError(f"invalid normalized CSV {path}: {exc}") from exc
+    reader = csv.DictReader(io.StringIO(text, newline=""))
+    if reader.fieldnames != list(NORMALIZED_CSV_COLUMNS):
+        raise ContractError("normalized CSV header does not match the v1 contract")
+
+    records: list[dict[str, str]] = []
+    for row in reader:
+        if None in row or set(row) != set(NORMALIZED_CSV_COLUMNS):
+            raise ContractError("normalized CSV row does not match the v1 contract")
+        if any(type(value) is not str for value in row.values()):
+            raise ContractError("normalized CSV values must be strings")
+        records.append(dict(row))
+    buffer = io.StringIO(newline="")
+    writer = csv.DictWriter(
+        buffer,
+        fieldnames=NORMALIZED_CSV_COLUMNS,
+        lineterminator="\n",
+    )
+    writer.writeheader()
+    writer.writerows(records)
+    if raw != buffer.getvalue().encode("utf-8"):
+        raise ContractError("normalized CSV is not canonically encoded")
+    return records
 
 
 def _validate_evidence_binding(evidence: Evidence) -> None:
