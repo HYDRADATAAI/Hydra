@@ -7,7 +7,7 @@ import copy
 import unittest
 
 from hydra_constraint_t1_raw.ordinary_t2_lineage import (
-    OrdinaryT2LineageError, build_ordinary_t2_lineage,
+    BATCH032_T1_ATTESTATION_SCHEMA, OrdinaryT2LineageError, build_ordinary_t2_lineage,
     validate_ordinary_t2_lineage, select_ordinary_t2_members,
 )
 from hydra_constraint_t1_raw.ordinary_t2_evidence_lineage import (
@@ -32,6 +32,7 @@ class TemporalInputBoundaryTests(unittest.TestCase):
                          "processing_disposition": "ELIGIBLE",
                          "historical_backdating_authorized": False}]
         self.attestation = {
+            "schema_version": BATCH032_T1_ATTESTATION_SCHEMA,
             "slice_id": "TEST", "release_id": "REL", "release_sha256": "a" * 64,
             "availability_mode": "ACQUISITION_TIME_CONSERVATIVE",
             "materialized_source_count": 1, "ordinary_t2_eligible_count": 1,
