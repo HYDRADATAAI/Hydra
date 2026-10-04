@@ -94,6 +94,14 @@ class FirstSliceMaterializationTests(unittest.TestCase):
         with self.assertRaisesRegex(FirstSliceMaterializationError, "exactly match registry"):
             self.run_plan(bad)
 
+    def test_whitespace_content_type_is_rejected_before_private_store_creation(self):
+        bad = copy.deepcopy(self.plan)
+        bad["captures"][1]["content_type"] = "   "
+        self.assertFalse(self.private.exists())
+        with self.assertRaisesRegex(FirstSliceMaterializationError, "SRC-B: content_type required"):
+            self.run_plan(bad)
+        self.assertFalse(self.private.exists())
+
     def test_unregistered_source_is_rejected(self):
         bad = copy.deepcopy(self.plan)
         bad["captures"][0]["source_id"] = "SRC-UNKNOWN"
