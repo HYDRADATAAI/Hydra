@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import unittest
-from datetime import UTC, datetime, timedelta
+from datetime import UTC, datetime, timedelta, tzinfo
 
 from hydra_t6_failclosed import HMACSHA256Verifier
 from hydra_t6_failclosed.documents import canonical_json_bytes
@@ -70,6 +70,11 @@ class _NonCallableSignatureVerifier:
 
     def allows_role(self, key_id, role):
         return True
+
+
+class _RaisingOffsetTimezone(tzinfo):
+    def utcoffset(self, dt):
+        raise RuntimeError("timezone offset unavailable")
 
 
 class NativeT5T6AdmissionTests(unittest.TestCase):
@@ -445,6 +450,23 @@ class NativeT5T6AdmissionTests(unittest.TestCase):
         result = self.validate(manifest, receipt)
         self.assertFalse(result.admitted)
         self.assertIn("admission_receipt_extra_field", {issue.code for issue in result.issues})
+
+    def test_non_datetime_now_is_rejected(self) -> None:
+        manifest = self.manifest()
+        receipt = self.receipt(manifest)
+        result = self.validate(manifest, receipt, now=123)
+        self.assertFalse(result.admitted)
+        self.assertEqual(result.reason, "BLOCKED_AUTHORITY_RECEIPT_INVALID")
+        self.assertIn("admission_now_invalid", {issue.code for issue in result.issues})
+
+    def test_raising_timezone_now_is_rejected(self) -> None:
+        manifest = self.manifest()
+        receipt = self.receipt(manifest)
+        invalid_now = datetime(2026, 9, 25, 22, 0, tzinfo=_RaisingOffsetTimezone())
+        result = self.validate(manifest, receipt, now=invalid_now)
+        self.assertFalse(result.admitted)
+        self.assertEqual(result.reason, "BLOCKED_AUTHORITY_RECEIPT_INVALID")
+        self.assertIn("admission_now_invalid", {issue.code for issue in result.issues})
 
     def test_naive_now_is_rejected(self) -> None:
         manifest = self.manifest()

@@ -15,6 +15,16 @@ from hydra_t6_failclosed.authority import (
 )
 
 
+class _SpoofedAuthoritySchema(str):
+    def __eq__(self, other):
+        return other == AUTHORITY_SCHEMA
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
+
+    __hash__ = str.__hash__
+
+
 class AuthorityEnvelopeTests(unittest.TestCase):
     def setUp(self) -> None:
         self.now = datetime(2026, 9, 24, 18, 0, tzinfo=UTC)
@@ -86,6 +96,22 @@ class AuthorityEnvelopeTests(unittest.TestCase):
         self.assertTrue(result.valid)
         self.assertEqual(result.reason, "VALID")
         self.assertEqual(result.issues, ())
+
+    def test_signed_schema_subclass_with_spoofed_equality_is_rejected(self) -> None:
+        envelope = self._envelope()
+        envelope["schema_version"] = _SpoofedAuthoritySchema("wrong-schema")
+        self._resign(envelope)
+        self.assertTrue(
+            self.verifier.verify(
+                key_id=self.key_id,
+                message=authority_signing_bytes(envelope),
+                signature=envelope["signature"],
+                method="HMAC-SHA256",
+            )
+        )
+        result = self._validate(envelope)
+        self.assertFalse(result.valid)
+        self.assertIn("authority_schema_unsupported", {issue.code for issue in result.issues})
 
     def test_missing_role_grants_deny_correctly_signed_authority(self) -> None:
         envelope = self._envelope()
