@@ -58,6 +58,9 @@ def _packet_digest(packet: Mapping[str, Any]) -> str:
 
 
 def _registry_ids(registry: Mapping[str, Any]) -> set[str]:
+    slice_id = registry.get("slice_id")
+    if not isinstance(slice_id, str) or not slice_id.strip():
+        raise ReplayLineageError("registry.slice_id required")
     rows = registry.get("sources")
     if not isinstance(rows, list) or not rows:
         raise ReplayLineageError("registry.sources must be a non-empty list")
@@ -80,6 +83,19 @@ def build_replay_lineage_packet(
     registry: Mapping[str, Any],
 ) -> dict[str, Any]:
     """Build deterministic lineage metadata with ordinary replay blocked in v1."""
+    if not isinstance(attestation, Mapping):
+        raise ReplayLineageError("attestation object required")
+    if not isinstance(registry, Mapping):
+        raise ReplayLineageError("registry object required")
+    members = attestation.get("members")
+    if isinstance(members, list):
+        for index, member in enumerate(members):
+            if not isinstance(member, Mapping):
+                raise ReplayLineageError(f"members[{index}]: object required")
+            if type(member.get("ordinary_t2_eligible")) is not bool:
+                raise ReplayLineageError(
+                    f"members[{index}]: ordinary-T2 eligibility must be a boolean"
+                )
     validate_public_materialization_attestation(
         attestation=attestation,
         registry=registry,
@@ -168,6 +184,10 @@ def validate_replay_lineage_packet(
     packet: Mapping[str, Any],
     registry: Mapping[str, Any],
 ) -> None:
+    if not isinstance(packet, Mapping):
+        raise ReplayLineageError("packet object required")
+    if not isinstance(registry, Mapping):
+        raise ReplayLineageError("registry object required")
     allowed = {
         "schema_version", "slice_id", "release_id", "release_sha256", "release_created_at",
         "availability_mode", "source_count", "ordinary_source_version_hash_lineage_complete",
@@ -200,7 +220,10 @@ def validate_replay_lineage_packet(
         raise ReplayLineageError("replay-lineage root field set invalid")
     if packet.get("schema_version") != REPLAY_LINEAGE_SCHEMA:
         raise ReplayLineageError("unsupported replay-lineage schema")
-    if packet.get("slice_id") != registry.get("slice_id"):
+    slice_id = packet.get("slice_id")
+    if not isinstance(slice_id, str) or not slice_id.strip():
+        raise ReplayLineageError("replay-lineage slice_id required")
+    if slice_id != registry.get("slice_id"):
         raise ReplayLineageError("replay-lineage slice_id mismatch")
     if packet.get("availability_mode") != "ACQUISITION_TIME_CONSERVATIVE":
         raise ReplayLineageError("replay-lineage availability mode invalid")
@@ -266,7 +289,8 @@ def validate_replay_lineage_packet(
 
     if set(ids) != registry_ids or len(ids) != len(set(ids)):
         raise ReplayLineageError("replay-lineage source set differs from registry")
-    if packet.get("source_count") != len(members):
+    source_count = packet.get("source_count")
+    if type(source_count) is not int or source_count != len(members):
         raise ReplayLineageError("replay-lineage source_count drifted")
 
     release_id = packet.get("release_id")
