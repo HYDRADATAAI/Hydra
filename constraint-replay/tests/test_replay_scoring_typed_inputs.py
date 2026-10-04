@@ -177,13 +177,13 @@ def test_unresolved_boolean_target_stays_outside_brier_denominator(realized):
 
 def test_none_target_does_not_change_existing_brier_denominator():
     cases = [
-        _synthetic_case(confidence=1.0, realized=True),
-        _synthetic_case(confidence=0.0, realized=False, outcome_class="TRUE_NEGATIVE"),
+        _synthetic_case(confidence=0.75, realized=True),
+        _synthetic_case(confidence=0.25, realized=False, outcome_class="TRUE_NEGATIVE"),
         _synthetic_case(confidence=0.8, realized=None),
     ]
     metrics = evaluate_cases(cases)
     assert metrics["case_count"] == 3
     assert metrics["resolved_count"] == 3
-    assert metrics["brier_score"] == 0.0
+    assert metrics["brier_score"] == 0.0625
     assert metrics["precision"] == 1.0
     assert metrics["false_positive_rate"] == 0.0
