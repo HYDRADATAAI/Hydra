@@ -303,7 +303,7 @@ class FirstSliceMaterializationTests(unittest.TestCase):
             with self.subTest(boundary="attestation", slice_id=repr(slice_id)):
                 malformed = copy.deepcopy(attestation)
                 malformed["slice_id"] = slice_id
-                with self.assertRaisesRegex(FirstSliceMaterializationError, "attestation slice_id mismatch"):
+                with self.assertRaisesRegex(FirstSliceMaterializationError, "attestation slice_id required"):
                     validate_public_materialization_attestation(
                         attestation=malformed,
                         registry=self.registry,

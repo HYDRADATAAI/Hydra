@@ -191,7 +191,7 @@ class FirstSliceReplayLineageTests(unittest.TestCase):
             with self.subTest(boundary="attestation", slice_id=repr(slice_id)):
                 malformed = copy.deepcopy(self.attestation)
                 malformed["slice_id"] = slice_id
-                with self.assertRaisesRegex(FirstSliceMaterializationError, "attestation slice_id mismatch"):
+                with self.assertRaisesRegex(FirstSliceMaterializationError, "attestation slice_id required"):
                     build_replay_lineage_packet(attestation=malformed, registry=self.registry)
 
             with self.subTest(boundary="registry", slice_id=repr(slice_id)):

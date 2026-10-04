@@ -403,7 +403,7 @@ def validate_public_materialization_attestation(
         raise FirstSliceMaterializationError("unsupported attestation schema")
     slice_id = attestation.get("slice_id")
     if not isinstance(slice_id, str) or not slice_id.strip():
-        raise FirstSliceMaterializationError("attestation slice_id mismatch")
+        raise FirstSliceMaterializationError("attestation slice_id required")
     if slice_id != registry.get("slice_id"):
         raise FirstSliceMaterializationError("attestation slice_id mismatch")
     if attestation.get("capture_mode") != "OFFLINE_REVIEWED_LOCAL_BYTES":
