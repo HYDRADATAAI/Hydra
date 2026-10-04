@@ -160,7 +160,7 @@ def _capture_rows(
         disposition = raw.get("processing_disposition", "ELIGIBLE")
         if not isinstance(source_version_id, str) or not source_version_id:
             raise FirstSliceMaterializationError(f"{source_id}: source_version_id required")
-        if not isinstance(content_type, str) or not content_type:
+        if not isinstance(content_type, str) or not content_type.strip():
             raise FirstSliceMaterializationError(f"{source_id}: content_type required")
         if not isinstance(acquired_at, str):
             raise FirstSliceMaterializationError(f"{source_id}: acquired_at required")
