@@ -223,7 +223,7 @@ def _attestation_members(
         content_type = member.get("content_type")
         byte_length = member.get("byte_length")
         _require(
-            isinstance(content_type, str) and content_type,
+            isinstance(content_type, str) and content_type.strip(),
             f"{source_id}: content_type required",
         )
         _require(
@@ -388,7 +388,10 @@ def validate_ordinary_t2_lineage(
                 isinstance(row[field], str) and HEX64.fullmatch(row[field]) is not None,
                 f"{source_id}: {field} invalid",
             )
-        _require(isinstance(row["content_type"], str) and row["content_type"], f"{source_id}: content_type invalid")
+        _require(
+            isinstance(row["content_type"], str) and row["content_type"].strip(),
+            f"{source_id}: content_type invalid",
+        )
         _require(
             isinstance(row["byte_length"], int)
             and not isinstance(row["byte_length"], bool)

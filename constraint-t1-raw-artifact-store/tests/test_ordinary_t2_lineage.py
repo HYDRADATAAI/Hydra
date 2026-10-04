@@ -94,6 +94,30 @@ class OrdinaryT2LineageTests(unittest.TestCase):
             expected_slice_id=self.slice_id,
         )
 
+    def test_builder_rejects_whitespace_only_content_type(self):
+        for content_type in ("   ", "\t\n", "\u2003", "\u00a0"):
+            with self.subTest(content_type=repr(content_type)):
+                bad = copy.deepcopy(self.attestation)
+                bad["members"][0]["content_type"] = content_type
+                with self.assertRaisesRegex(OrdinaryT2LineageError, "content_type required"):
+                    build_ordinary_t2_lineage(
+                        attestation=bad,
+                        source_records=self.records,
+                        expected_slice_id=self.slice_id,
+                    )
+
+    def test_validator_rejects_whitespace_only_content_type(self):
+        for content_type in ("   ", "\t\n", "\u2003", "\u00a0"):
+            with self.subTest(content_type=repr(content_type)):
+                packet = self.build()
+                packet["members"][0]["content_type"] = content_type
+                with self.assertRaisesRegex(OrdinaryT2LineageError, "content_type invalid"):
+                    validate_ordinary_t2_lineage(
+                        packet=packet,
+                        source_records=self.records,
+                        expected_slice_id=self.slice_id,
+                    )
+
     def test_no_lookahead_selection(self):
         packet = self.build()
         self.assertEqual(
