@@ -209,5 +209,24 @@ class DocumentContractTests(unittest.TestCase):
         self.assertIs(type(document.value["field"]), str)
 
 
+    def test_oversized_bytes_are_rejected_before_hashing_or_parsing(self) -> None:
+        payload = b'{"value":"' + b"x" * 4096 + b'"}'
+        document = parse_json_document(payload, label="$.document", max_bytes=32)
+        self.assertIsNone(document.value)
+        self.assertIn("document_too_large", {issue.code for issue in document.issues})
+        self.assertEqual(document.raw, b"")
+
+    def test_multibyte_raw_text_uses_utf8_byte_count(self) -> None:
+        payload = '{"é":"é"}'
+        encoded = payload.encode("utf-8")
+        too_small = parse_json_document(payload, label="$.document", max_bytes=len(encoded) - 1)
+        self.assertIsNone(too_small.value)
+        self.assertIn("document_too_large", {issue.code for issue in too_small.issues})
+
+        exact = parse_json_document(payload, label="$.document", max_bytes=len(encoded))
+        self.assertEqual(exact.raw, encoded)
+        self.assertEqual(exact.value, {"é": "é"})
+
+
 if __name__ == "__main__":
     unittest.main()
