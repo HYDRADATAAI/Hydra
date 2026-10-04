@@ -504,4 +504,3 @@ def select_ordinary_t2_members(
 def canonical_json(value: Any) -> str:
     """Stable JSON helper for deterministic fixture generation."""
     return json.dumps(value, ensure_ascii=False, sort_keys=True, separators=(",", ":"), allow_nan=False)
-
