@@ -1,0 +1,87 @@
+name: NYX replay typed-input residual exact-source validation
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/nyx-replay-typed-input-residual-exact-source-20261004.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  residual:
+    name: 'replay-typed-input / ${{ matrix.group }}'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      EXPECTED_SOURCE_SHA: 'e3b4dd000034a769794e378beff4b483ace8bfe1'
+      EXPECTED_SOURCE_TREE: '5d931f6eb42efda127c0f988d0caa272ca9fb3a8'
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - group: 'first-slice-hostile'
+            script: 'tools/test_constraint_first_slice_adversarial.py'
+          - group: 'acceptance-hostile'
+            script: 'tools/test_constraint_first_slice_acceptance_gate_adversarial.py'
+          - group: 'confidence-hostile'
+            script: 'tools/test_constraint_first_slice_confidence_evaluation_adversarial.py'
+          - group: 'outcome-hostile'
+            script: 'tools/test_constraint_first_slice_outcome_coverage_adversarial.py'
+          - group: 'custody-hostile'
+            script: 'tools/test_constraint_first_slice_custody_adversarial.py'
+          - group: 'shadow-replay-windows'
+            script: 'tools/validate_constraint_ai_infra_pass005.py'
+          - group: 'successor-hostile'
+            script: 'tools/nyx_test_constraint_successor_chain_adversarial.py'
+          - group: 'public-repository-validation'
+            script: 'tools/validate_public_repository.py'
+    steps:
+      - name: Checkout exact source candidate
+        uses: actions/checkout@v4
+        with:
+          ref: '${{ env.EXPECTED_SOURCE_SHA }}'
+          persist-credentials: false
+      - name: Set up governed Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Bind exact source identity and governed script
+        env:
+          GOVERNED_SCRIPT: '${{ matrix.script }}'
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$EXPECTED_SOURCE_SHA"
+          test "$(git rev-parse HEAD^{tree})" = "$EXPECTED_SOURCE_TREE"
+          test -z "$(git status --porcelain --untracked-files=all)"
+          expected_script_blob="$(git rev-parse "$EXPECTED_SOURCE_SHA:$GOVERNED_SCRIPT")"
+          test "$(git hash-object "$GOVERNED_SCRIPT")" = "$expected_script_blob"
+          printf 'SOURCE_COMMIT=%s\n' "$(git rev-parse HEAD)"
+          printf 'SOURCE_TREE=%s\n' "$(git rev-parse HEAD^{tree})"
+          printf 'GOVERNED_SCRIPT=%s\n' "$GOVERNED_SCRIPT"
+          printf 'GOVERNED_SCRIPT_BLOB=%s\n' "$expected_script_blob"
+          python --version
+      - name: Execute existing governed command
+        env:
+          PYTHONDONTWRITEBYTECODE: '1'
+          GOVERNED_SCRIPT: '${{ matrix.script }}'
+        run: python "$GOVERNED_SCRIPT"
+      - name: Verify exact identity and source preservation
+        if: always()
+        env:
+          GOVERNED_SCRIPT: '${{ matrix.script }}'
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$EXPECTED_SOURCE_SHA"
+          test "$(git rev-parse HEAD^{tree})" = "$EXPECTED_SOURCE_TREE"
+          expected_script_blob="$(git rev-parse "$EXPECTED_SOURCE_SHA:$GOVERNED_SCRIPT")"
+          test "$(git hash-object "$GOVERNED_SCRIPT")" = "$expected_script_blob"
+          git diff --exit-code
+          git diff --cached --exit-code
+          test -z "$(git status --porcelain --untracked-files=all)"
+          printf 'SOURCE_COMMIT_AFTER=%s\n' "$(git rev-parse HEAD)"
+          printf 'SOURCE_TREE_AFTER=%s\n' "$(git rev-parse HEAD^{tree})"
+          printf 'GOVERNED_SCRIPT_BLOB_AFTER=%s\n' "$expected_script_blob"
+          echo SOURCE_PRESERVATION=PASS
