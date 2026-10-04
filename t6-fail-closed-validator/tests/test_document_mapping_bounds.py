@@ -72,7 +72,7 @@ class DocumentMappingBoundsTests(unittest.TestCase):
         self.assertEqual(document.value, {"actual-key": "actual-value"})
 
     def test_control_escapes_at_exact_byte_limit_keep_canonical_size(self):
-        value = {"x": "\\n"}
+        value = {"x": "\n"}
 
         document = parse_json_document(value, label="input", max_bytes=10)
 
@@ -103,3 +103,4 @@ class DocumentMappingBoundsTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
