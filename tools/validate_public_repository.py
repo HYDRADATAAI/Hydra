@@ -1070,6 +1070,74 @@ def validate_ci_contract(errors: list[str]) -> None:
             errors.append(
                 f"governed-intelligence CI action pin changed: {action}={refs!r}"
             )
+
+    windows_job = workflow_job_block(
+        intelligence_workflow, "windows-pre-upload-verifier"
+    )
+    if windows_job is None:
+        errors.append("governed-intelligence CI Windows verifier job is missing")
+    else:
+        if not re.search(r"(?m)^    runs-on:\s*windows-latest\s*$", windows_job):
+            errors.append("governed-intelligence CI verifier must run on Windows")
+        if re.search(r"(?m)^    if\s*:", windows_job):
+            errors.append("governed-intelligence CI Windows verifier must be unconditional")
+        if re.search(r"(?m)^    continue-on-error\s*:", windows_job):
+            errors.append("governed-intelligence CI Windows verifier must fail closed")
+
+        windows_steps = workflow_steps(windows_job)
+        windows_step_names = [name for name, _ in windows_steps]
+        expected_windows_steps = (
+            "Checkout",
+            "Set up Python",
+            "Run pre-upload verifier tests on Windows",
+        )
+        for required_name in expected_windows_steps:
+            if windows_step_names.count(required_name) != 1:
+                errors.append(
+                    "governed-intelligence CI Windows verifier step count changed: "
+                    f"{required_name}={windows_step_names.count(required_name)}"
+                )
+
+        windows_step_blocks = {
+            name: [block for step_name, block in windows_steps if step_name == name]
+            for name in expected_windows_steps
+        }
+        checkout_blocks = windows_step_blocks["Checkout"]
+        if len(checkout_blocks) == 1:
+            if workflow_step_scalar(checkout_blocks[0], "uses") != [
+                "actions/checkout@11d5960a326750d5838078e36cf38b85af677262"
+            ]:
+                errors.append("governed-intelligence CI Windows checkout binding changed")
+
+        setup_blocks = windows_step_blocks["Set up Python"]
+        if len(setup_blocks) == 1:
+            if workflow_step_scalar(setup_blocks[0], "uses") != [
+                "actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065"
+            ]:
+                errors.append("governed-intelligence CI Windows Python binding changed")
+            if workflow_step_with_scalar(setup_blocks[0], "python-version") != ["3.11"]:
+                errors.append("governed-intelligence CI Windows Python version changed")
+
+        verifier_blocks = windows_step_blocks[
+            "Run pre-upload verifier tests on Windows"
+        ]
+        if len(verifier_blocks) == 1:
+            verifier_block = verifier_blocks[0]
+            if workflow_step_scalar(verifier_block, "run") != [
+                "python -m unittest tests.test_pre_upload_verifier -v"
+            ]:
+                errors.append("governed-intelligence CI Windows verifier invocation changed")
+            if workflow_step_scalar(verifier_block, "working-directory") != [
+                "governed-intelligence-sample"
+            ]:
+                errors.append("governed-intelligence CI Windows verifier directory changed")
+            if workflow_step_with_scalar(verifier_block, "PYTHONPATH") != ["src"]:
+                errors.append("governed-intelligence CI Windows verifier PYTHONPATH changed")
+            if workflow_step_scalar(verifier_block, "if"):
+                errors.append("governed-intelligence CI Windows verifier step must be unconditional")
+            if workflow_step_scalar(verifier_block, "continue-on-error"):
+                errors.append("governed-intelligence CI Windows verifier step must fail closed")
+
     required_gate_lines = (
         'require(report["case_count"], 13, "case_count")',
         'require(report["case_count"], 8, "case_count")',
@@ -1111,6 +1179,13 @@ def validate_ci_contract(errors: list[str]) -> None:
         errors.append("governed-intelligence CI evaluate job must be unconditional")
     if re.search(r"(?m)^    continue-on-error\s*:", evaluate_job):
         errors.append("governed-intelligence CI evaluate job must fail closed")
+    if not re.search(
+        r"(?m)^    needs:\s*['\"]?windows-pre-upload-verifier['\"]?\s*$",
+        evaluate_job,
+    ):
+        errors.append(
+            "governed-intelligence CI evaluate job must depend on Windows verifier"
+        )
 
     required_active_steps = (
         "Checkout",
