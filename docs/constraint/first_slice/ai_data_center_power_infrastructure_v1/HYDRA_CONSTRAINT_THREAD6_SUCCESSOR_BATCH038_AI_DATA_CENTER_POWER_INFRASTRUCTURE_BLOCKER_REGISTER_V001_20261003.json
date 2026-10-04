@@ -41,7 +41,7 @@
   "closed_or_advanced_items": [
     {
       "item_id": "NATIVE-T5-T6-V2-IMPLEMENTATION-AND-TESTS-PRESENTED",
-      "state": "ADVANCED_BY_BATCH038_EXACT_V2_BINDINGS_AND_SIX_PASSING_TESTS"
+      "state": "ADVANCED_BY_BATCH038_EXACT_V2_BINDINGS_AND_FOUR_PASSING_TESTS"
     }
   ],
   "repo_executable_blockers": [],
