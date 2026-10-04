@@ -2,23 +2,6 @@ name: Public repository validation
 
 on:
   pull_request:
-    paths:
-      - "README.md"
-      - ".gitignore"
-      - ".gitattributes"
-      - "aws-market-data-pipeline/**"
-      - "governed-intelligence-sample/**"
-      - "market-data-pipeline-sample/**"
-      - "sql-data-quality-sample/**"
-      - "t6-fail-closed-validator/**"
-      - "tools/validate_public_repository.py"
-      - ".github/workflows/aws-market-data-deploy.yml"
-      - ".github/workflows/aws-market-data-pipeline.yml"
-      - ".github/workflows/governed-intelligence-sample.yml"
-      - ".github/workflows/market-data-pipeline.yml"
-      - ".github/workflows/sql-data-quality-sample.yml"
-      - ".github/workflows/public-repository-validation.yml"
-      - ".github/workflows/t6-validator.yml"
   push:
     branches:
       - main
@@ -44,7 +27,7 @@ permissions:
   contents: read
 
 jobs:
-  validate:
+  public-repository-validation:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout

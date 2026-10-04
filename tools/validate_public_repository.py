@@ -519,6 +519,32 @@ def workflow_job_block(workflow: str, job_name: str) -> str | None:
     return None if match is None else match.group("body")
 
 
+def workflow_event_is_unfiltered(workflow: str, event_name: str) -> bool:
+    matches = list(
+        re.finditer(
+            rf"(?m)^  {re.escape(event_name)}:(?P<inline>[^\r\n]*)$",
+            workflow,
+        )
+    )
+    if len(matches) != 1:
+        return False
+
+    match = matches[0]
+    inline = match.group("inline").split("#", maxsplit=1)[0].strip()
+    if inline not in {"", "{}"}:
+        return False
+
+    next_event = re.search(
+        r"(?m)^  [A-Za-z0-9_-]+:\s*(?:#.*)?$", workflow[match.end() :]
+    )
+    body_end = match.end() + next_event.start() if next_event else len(workflow)
+    body = workflow[match.end() : body_end]
+    return not any(
+        line.strip() and not line.lstrip().startswith("#")
+        for line in body.splitlines()
+    )
+
+
 def workflow_steps(job_block: str) -> list[tuple[str | None, str]]:
     starts = list(
         re.finditer(
@@ -1019,6 +1045,15 @@ def validate_ci_contract(errors: list[str]) -> None:
     intelligence_workflow = (
         ROOT / ".github/workflows/governed-intelligence-sample.yml"
     ).read_text(encoding="utf-8-sig")
+    validation_workflow = (
+        ROOT / ".github/workflows/public-repository-validation.yml"
+    ).read_text(encoding="utf-8-sig")
+    for label, workflow in (
+        ("governed-intelligence", intelligence_workflow),
+        ("public-repository-validation", validation_workflow),
+    ):
+        if not workflow_event_is_unfiltered(workflow, "pull_request"):
+            errors.append(f"{label} CI pull-request trigger must be unfiltered")
     intelligence_fragments = (
         'python-version: "3.11"',
         "actions/checkout@11d5960a326750d5838078e36cf38b85af677262",

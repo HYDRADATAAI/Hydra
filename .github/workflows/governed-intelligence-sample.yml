@@ -2,10 +2,6 @@ name: Governed context, retrieval, and structured grounding sample
 
 on:
   pull_request:
-    paths:
-      - "governed-intelligence-sample/**"
-      - "market-data-pipeline-sample/**"
-      - ".github/workflows/governed-intelligence-sample.yml"
   push:
     branches:
       - main
