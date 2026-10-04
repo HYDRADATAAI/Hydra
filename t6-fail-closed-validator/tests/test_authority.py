@@ -9,6 +9,7 @@ from hydra_t6_failclosed.authority import (
     OPERATION,
     REQUIRED_SCOPE,
     HMACSHA256Verifier,
+    authority_signing_bytes,
     sign_hmac_sha256,
     validate_authority,
 )
@@ -85,6 +86,22 @@ class AuthorityEnvelopeTests(unittest.TestCase):
         self.assertTrue(result.valid)
         self.assertEqual(result.reason, "VALID")
         self.assertEqual(result.issues, ())
+
+    def test_missing_role_grants_deny_correctly_signed_authority(self) -> None:
+        envelope = self._envelope()
+        verifier = HMACSHA256Verifier({self.key_id: self.key})
+        self.assertTrue(
+            verifier.verify(
+                key_id=self.key_id,
+                message=authority_signing_bytes(envelope),
+                signature=envelope["signature"],
+                method="HMAC-SHA256",
+            )
+        )
+        result = self._validate(envelope, verifier=verifier)
+        self.assertFalse(result.valid)
+        self.assertEqual(result.reason, "AUTHORITY_INVALID")
+        self.assertIn("authority_key_role_untrusted", {issue.code for issue in result.issues})
 
     def test_signed_unmapped_role_is_rejected(self) -> None:
         envelope = self._envelope()
