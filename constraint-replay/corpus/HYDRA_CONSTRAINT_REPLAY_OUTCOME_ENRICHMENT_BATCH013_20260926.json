@@ -1,0 +1,157 @@
+{
+  "schema_version": "1.0",
+  "batch_id": "HYDRA_CONSTRAINT_REPLAY_OUTCOME_ENRICHMENT_BATCH013_20260926",
+  "evidence_digest_scope": "sha256(normalized_evidence UTF-8)",
+  "policy": "Batch 013 expands the governed uncalibrated classified-gold path to Russia's 2014 food-import embargo, the 2022 BIS semiconductor controls, and the WTO rare-earths implementation dispute. It reuses existing publisher-independence, confidence-admissibility, contested-evidence, and outcome-mapping governance.",
+  "sources": [
+    {
+      "source_id": "russia-worldbank-2014-08-11-hypothesis",
+      "role": "HISTORICAL_HYPOTHESIS",
+      "publisher": "World Bank",
+      "url": "https://www.worldbank.org/content/dam/Worldbank/document/eca/russia/MEU-Russia-August-13-2014-Eng.pdf",
+      "published_at": "2014-08-11T23:59:59Z",
+      "available_at": "2014-08-11T23:59:59Z",
+      "normalized_evidence": "On 11 August 2014, the World Bank reported that Russia's wide-ranging food-import ban would likely increase short-term inflationary pressure and push the central bank's 2014 inflation target further out of reach.",
+      "evidence_digest": "sha256:3d61818ba3656aca7857c9b300584cc549ea4a963181c9ee640e2d0837298ff1"
+    },
+    {
+      "source_id": "russia-fao-2015-03-03-outcome",
+      "role": "OUTCOME",
+      "publisher": "Food and Agriculture Organization of the United Nations",
+      "url": "https://www.fao.org/giews/food-prices/food-policies/detail/en/c/279299/",
+      "published_at": "2015-03-03T23:59:59Z",
+      "available_at": "2015-03-03T23:59:59Z",
+      "observed_at": "2015-03-03T23:59:59Z",
+      "normalized_evidence": "On 3 March 2015, FAO reported that Russian food prices had risen 14 percent in 2014 and that increases had accelerated, with bread and flour prices up 7 percent and 10 percent respectively over the prior three months; FAO attributed the surge to both ruble depreciation and the embargo on EU and U.S. food products.",
+      "evidence_digest": "sha256:7227b591d6aef24715ea6a2e409d161bad6255750f644b897db4f7c645c07b93"
+    },
+    {
+      "source_id": "bis-2022-10-07-hypothesis",
+      "role": "HISTORICAL_HYPOTHESIS",
+      "publisher": "U.S. Bureau of Industry and Security",
+      "url": "https://www.bis.doc.gov/index.php/documents/about-bis/newsroom/press-releases/3158-2022-10-07-bis-press-release-advanced-computing-and-semiconductor-manufacturing-controls-final/file",
+      "published_at": "2022-10-07T23:59:59Z",
+      "available_at": "2022-10-07T23:59:59Z",
+      "normalized_evidence": "On 7 October 2022, the U.S. Bureau of Industry and Security announced controls on advanced computing chips, supercomputer end uses, semiconductor manufacturing equipment and specified integrated-circuit production end uses in the PRC, stating that the measures were intended to restrict access to advanced computing and semiconductor-manufacturing capabilities of U.S. national-security and foreign-policy concern.",
+      "evidence_digest": "sha256:2fb096bfbdcc6ae593cb705e8478a5e9ee5ab5770b3575cd76de3de81bbfb786"
+    },
+    {
+      "source_id": "bis-nvidia-2024-08-28-outcome",
+      "role": "OUTCOME",
+      "publisher": "NVIDIA Corporation",
+      "url": "https://www.sec.gov/Archives/edgar/data/1045810/000104581024000264/nvda-20240728.htm",
+      "published_at": "2024-08-28T23:59:59Z",
+      "available_at": "2024-08-28T23:59:59Z",
+      "observed_at": "2024-08-28T23:59:59Z",
+      "normalized_evidence": "In its Form 10-Q dated 28 August 2024, NVIDIA reported that it had not received licenses to ship products restricted by the U.S. export-control requirements to China, that partners and customers had experienced delays or non-receipt of licenses, and that China Data Center revenue as a percentage of total Data Center revenue remained below levels seen before the October 2023 export controls; NVIDIA also reported adapting its product portfolio with China-specific products not requiring export licenses.",
+      "evidence_digest": "sha256:de31522b8b670c71c2cd43e93a4db72158cb1d8c75d84bf55ab0ffc50addb1b4"
+    },
+    {
+      "source_id": "rareearth-ustr-2014-03-26-hypothesis",
+      "role": "HISTORICAL_HYPOTHESIS",
+      "publisher": "Office of the United States Trade Representative",
+      "url": "https://ustr.gov/about-us/policy-offices/press-office/press-releases/2014/March/US-wins-victory-in-rare-earths-dispute-with-China",
+      "published_at": "2014-03-26T23:59:59Z",
+      "available_at": "2014-03-26T23:59:59Z",
+      "normalized_evidence": "On 26 March 2014, the U.S. Trade Representative stated that China's rare-earth, tungsten and molybdenum export restraints could artificially increase world prices, lower input costs for Chinese downstream producers, and had caused U.S. manufacturers to pay as much as three times what Chinese competitors paid for the same rare-earth materials.",
+      "evidence_digest": "sha256:b0dfab8aead87f5cefd88c6d3db779d6a5984b1c262cd81279b6e7acaf74266e"
+    },
+    {
+      "source_id": "rareearth-wto-2015-05-20-outcome",
+      "role": "OUTCOME",
+      "publisher": "World Trade Organization",
+      "url": "https://www.wto.org/english/news_e/news15_e/dsb_20may15_e.htm",
+      "published_at": "2015-05-20T23:59:59Z",
+      "available_at": "2015-05-20T23:59:59Z",
+      "observed_at": "2015-05-20T23:59:59Z",
+      "normalized_evidence": "At the WTO Dispute Settlement Body meeting on 20 May 2015, China stated that export duties, export quotas and specified trading-right restrictions on rare earths, tungsten and molybdenum had been removed, while the United States stated that a remaining export-licensing requirement could potentially act as an export restriction and therefore did not share China's assessment of full compliance.",
+      "evidence_digest": "sha256:7c9aa3ab21dd0e24b57490c77efc84a4aebd9dcfcd117a10ce73272451ccff52"
+    }
+  ],
+  "cases": [
+    {
+      "case_id": "russia-food-import-embargo-2014",
+      "historical_hypothesis_source_ids": [
+        "russia-worldbank-2014-08-11-hypothesis"
+      ],
+      "outcome_source_ids": [
+        "russia-fao-2015-03-03-outcome"
+      ],
+      "hypothesis_available_at": "2014-08-11T23:59:59Z",
+      "hypothesis_statement": "The World Bank expected Russia's food-import ban to increase near-term inflationary pressure.",
+      "hypothesis_independence_basis": "The World Bank is distinct from FAO, whose later food-price monitoring supplied the admitted outcome evidence.",
+      "metrics": [
+        {
+          "metric_id": "russia-food-price-change-2014",
+          "source_id": "russia-fao-2015-03-03-outcome",
+          "observed_at": "2015-03-03T23:59:59Z",
+          "metric": "food_price_change_2014",
+          "value": 14,
+          "unit": "percent"
+        },
+        {
+          "metric_id": "russia-bread-price-change-prior-three-months",
+          "source_id": "russia-fao-2015-03-03-outcome",
+          "observed_at": "2015-03-03T23:59:59Z",
+          "metric": "bread_price_change_prior_three_months",
+          "value": 7,
+          "unit": "percent"
+        },
+        {
+          "metric_id": "russia-flour-price-change-prior-three-months",
+          "source_id": "russia-fao-2015-03-03-outcome",
+          "observed_at": "2015-03-03T23:59:59Z",
+          "metric": "flour_price_change_prior_three_months",
+          "value": 10,
+          "unit": "percent"
+        }
+      ]
+    },
+    {
+      "case_id": "bis-semiconductor-controls-2022",
+      "historical_hypothesis_source_ids": [
+        "bis-2022-10-07-hypothesis"
+      ],
+      "outcome_source_ids": [
+        "bis-nvidia-2024-08-28-outcome"
+      ],
+      "hypothesis_available_at": "2022-10-07T23:59:59Z",
+      "hypothesis_statement": "BIS stated that the October 2022 controls were intended to restrict PRC access to specified advanced-computing chips, semiconductor-manufacturing equipment and related production capabilities.",
+      "hypothesis_independence_basis": "BIS is distinct from NVIDIA Corporation, whose later SEC-filed operating disclosure supplied the admitted outcome evidence.",
+      "metrics": [
+        {
+          "metric_id": "bis-nvidia-restricted-product-licenses-received",
+          "source_id": "bis-nvidia-2024-08-28-outcome",
+          "observed_at": "2024-08-28T23:59:59Z",
+          "metric": "restricted_product_licenses_received_for_china",
+          "value": 0,
+          "unit": "licenses"
+        }
+      ],
+      "qualitative_outcomes": [
+        {
+          "source_id": "bis-nvidia-2024-08-28-outcome",
+          "statement": "NVIDIA reported China Data Center revenue share remained below pre-control levels and that it had shifted toward China-specific products not requiring licenses."
+        }
+      ]
+    },
+    {
+      "case_id": "wto-china-rare-earths-resource-dispute-2014-2015",
+      "historical_hypothesis_source_ids": [
+        "rareearth-ustr-2014-03-26-hypothesis"
+      ],
+      "outcome_source_ids": [
+        "rareearth-wto-2015-05-20-outcome"
+      ],
+      "hypothesis_available_at": "2014-03-26T23:59:59Z",
+      "hypothesis_statement": "USTR described China's export restraints as a mechanism that raised foreign input costs and distorted downstream competition, implying that removal of the challenged quotas/duties would address part of that restriction mechanism.",
+      "hypothesis_independence_basis": "USTR is distinct from the WTO Secretariat/Dispute Settlement Body record used for the admitted implementation outcome; the later WTO record also preserves disagreement rather than adopting one party's compliance assessment.",
+      "qualitative_outcomes": [
+        {
+          "source_id": "rareearth-wto-2015-05-20-outcome",
+          "statement": "China reported removal of the challenged duties, quotas and specified trading-right restrictions, while the United States maintained a licensing concern and did not accept full-compliance status."
+        }
+      ]
+    }
+  ]
+}

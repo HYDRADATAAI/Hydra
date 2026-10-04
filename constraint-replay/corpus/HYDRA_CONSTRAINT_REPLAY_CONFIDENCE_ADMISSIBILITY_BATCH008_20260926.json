@@ -1,0 +1,35 @@
+{
+  "schema_version": "1.0",
+  "batch_id": "HYDRA_CONSTRAINT_REPLAY_CONFIDENCE_ADMISSIBILITY_BATCH008_20260926",
+  "policy": "Numeric replay confidence is admissible only from explicit probability semantics, an explicit probability range, or an ordinal-to-probability mapping declared no later than the historical confidence evidence. Qualitative expectations, risk language, targets and operational commitments are not converted into probabilities.",
+  "ordinal_mappings": [],
+  "evidence": [
+    {
+      "evidence_id": "confidence-audit-suez-spglobal-2021-03-26",
+      "case_id": "suez-ever-given-2021",
+      "source_id": "suez-spglobal-2021-03-26-hypothesis",
+      "known_at": "2021-03-26T15:41:00Z",
+      "semantics": "QUALITATIVE_EXPECTATION",
+      "statement": "S&P Global reported that market watchers expected the shipping backlog caused by the Suez closure to take weeks to clear and reported sharply higher freight rates.",
+      "notes": "The phrase 'expected to take weeks' expresses a directional/timing expectation but provides no numeric probability or predeclared ordinal confidence scale."
+    },
+    {
+      "evidence_id": "confidence-audit-bsgi-imf-2022-07-26",
+      "case_id": "black-sea-grain-corridor-2022",
+      "source_id": "bsgi-imf-2022-07-26-hypothesis",
+      "known_at": "2022-07-26T23:59:59Z",
+      "semantics": "QUALITATIVE_RISK",
+      "statement": "The IMF described further trade barriers and the Black Sea blockade as risks to food security and stated that easing logistics hurdles could allay those risks.",
+      "notes": "Risk language and 'could' language are not a probability estimate."
+    },
+    {
+      "evidence_id": "confidence-audit-wilhelm-bnetza-2022-09-29",
+      "case_id": "germany-wilhelmshaven-lng-commissioning-2022-2023",
+      "source_id": "wilhelm-bnetza-2022-09-29-hypothesis",
+      "known_at": "2022-09-29T23:59:59Z",
+      "semantics": "OPERATIONAL_COMMITMENT",
+      "statement": "Bundesnetzagentur stated that the FSRUs were intended to be utilized to as high a degree as possible and that companies would commit to using 100 percent of their allocated unloading slots.",
+      "notes": "The 100 percent figure is an operational slot-use commitment, not the probability that the terminal would achieve a forecast outcome."
+    }
+  ]
+}
