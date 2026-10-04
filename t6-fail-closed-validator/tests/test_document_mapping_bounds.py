@@ -223,6 +223,19 @@ class DocumentMappingBoundsTests(unittest.TestCase):
         self.assertEqual(document.issues, ())
         self.assertEqual(document.raw, b'{"true":"yes"}')
 
+    def test_shallow_raw_json_over_node_cap_preserves_raw_and_digest(self):
+        from hydra_t6_failclosed.documents import MAX_DOCUMENT_NODES
+
+        raw = b'{"items":[' + b"0," * (MAX_DOCUMENT_NODES - 1) + b"0]}"
+
+        document = parse_json_document(raw, label="input")
+
+        self.assertIsNone(document.value)
+        self.assertEqual([issue.code for issue in document.issues], ["document_too_large"])
+        self.assertEqual(document.issues[0].evidence, {"normalization_limit": "nodes"})
+        self.assertEqual(document.raw, raw)
+        self.assertEqual(document.raw_sha256, hashlib.sha256(raw).hexdigest())
+
     def test_ordinary_mapping_keeps_canonical_bytes_and_value(self):
         value = {
             "z": [1, True, None],
