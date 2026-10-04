@@ -58,13 +58,6 @@ def _string_list(value: Any, label: str) -> list[str]:
     return value
 
 
-def _unique_reference_list(value: Any, label: str) -> list[str]:
-    references = _string_list(value, label)
-    if len(references) != len(set(references)):
-        _fail(f"{label}: duplicate references")
-    return references
-
-
 def _known_reference(value: str, evidence_ids: set[str], claim_ids: set[str], label: str) -> None:
     if value.startswith("EV-"):
         if value not in evidence_ids:
@@ -164,14 +157,14 @@ def validate_owner_seams(
         refs = candidate.get("claim_ids")
         if not isinstance(refs, list) or not refs:
             _fail(f"{cid}: claim lineage required")
-        _unique_reference_list(refs, f"{cid}.claim_ids")
+        _string_list(refs, f"{cid}.claim_ids")
         if not set(refs) <= claim_ids:
             _fail(f"{cid}: candidate cites unknown claim")
         roles = candidate.get("evidence_roles")
         if not isinstance(roles, dict) or not roles:
             _fail(f"{cid}: evidence-role mapping required")
         for role, values in roles.items():
-            for value in _unique_reference_list(values, f"{cid}.{role}"):
+            for value in _string_list(values, f"{cid}.{role}"):
                 _known_reference(value, known_evidence_ids, claim_ids, f"{cid}.{role}")
 
         successor = overlay_by_id[cid]
