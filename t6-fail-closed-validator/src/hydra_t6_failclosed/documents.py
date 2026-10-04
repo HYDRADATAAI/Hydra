@@ -49,7 +49,12 @@ def _bounded_mapping_snapshot(value: Mapping[str, Any], *, max_bytes: int) -> tu
     active: set[int] = set()
     nodes = 0
 
+    def plain_string(text: str) -> str:
+        # Bypass overridden subclass iteration and comparison behavior.
+        return text if type(text) is str else str.__str__(text)
+
     def string_size(text: str) -> int:
+        text = plain_string(text)
         size = 2  # JSON quotes
         for char in text:
             codepoint = ord(char)
@@ -73,7 +78,7 @@ def _bounded_mapping_snapshot(value: Mapping[str, Any], *, max_bytes: int) -> tu
 
     def key_size(key: Any) -> int:
         if isinstance(key, str):
-            return string_size(key)
+            return string_size(plain_string(key))
         if key is None:
             return 6  # "null"
         if key is True:
@@ -101,7 +106,8 @@ def _bounded_mapping_snapshot(value: Mapping[str, Any], *, max_bytes: int) -> tu
         if item is False:
             return False, 5
         if isinstance(item, str):
-            return item, string_size(item)
+            normalized = plain_string(item)
+            return normalized, string_size(normalized)
         if isinstance(item, int):
             if item.bit_length() > (max_bytes + 2) * 4:
                 raise _DocumentTooLargeError(max_bytes + 1)
@@ -139,14 +145,15 @@ def _bounded_mapping_snapshot(value: Mapping[str, Any], *, max_bytes: int) -> tu
                 result = {}
                 size = 2
                 for key, child in dict.items(item):
-                    child_key_size = key_size(key)
+                    normalized_key = plain_string(key) if isinstance(key, str) else key
+                    child_key_size = key_size(normalized_key)
                     copied, child_size = copy_json(child, depth + 1)
                     if result:
                         size += 1
                     size += child_key_size + 1 + child_size
                     if size > max_bytes:
                         raise _DocumentTooLargeError(size)
-                    result[key] = copied
+                    result[normalized_key] = copied
                 return result, size
             finally:
                 active.remove(identity)
@@ -159,14 +166,15 @@ def _bounded_mapping_snapshot(value: Mapping[str, Any], *, max_bytes: int) -> tu
         size = 2
         for key in value.keys():
             value_for_key = value[key]
-            child_key_size = key_size(key)
+            normalized_key = plain_string(key) if isinstance(key, str) else key
+            child_key_size = key_size(normalized_key)
             copied, child_size = copy_json(value_for_key, 2)
             if snapshot:
                 size += 1
             size += child_key_size + 1 + child_size
             if size > max_bytes:
                 raise _DocumentTooLargeError(size)
-            snapshot[key] = copied
+            snapshot[normalized_key] = copied
         return snapshot, size
     finally:
         active.remove(identity)
@@ -250,7 +258,7 @@ def parse_json_document(
             (Issue("document_too_deep", f"{label} exceeds maximum nesting depth {MAX_DOCUMENT_DEPTH}", label),),
         )
     try:
-        normalized = deepcopy(dict(parsed))
+        normalized = dict(parsed)
     except RecursionError as exc:
         return JSONDocument(raw, digest, None, (Issue("document_json_invalid", f"{label} is too deeply nested: {exc}", label),))
     return JSONDocument(raw, digest, normalized, ())
