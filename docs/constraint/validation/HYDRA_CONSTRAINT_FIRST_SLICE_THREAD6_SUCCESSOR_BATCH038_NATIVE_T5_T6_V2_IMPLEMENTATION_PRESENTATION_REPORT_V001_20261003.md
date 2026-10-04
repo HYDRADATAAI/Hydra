@@ -8,18 +8,18 @@
 
 V2 adds exact boolean validation for `ordinary_t6_eligible` in both T5 proposal candidates and temporal-overlay candidates. Non-boolean values are rejected before truthiness coercion; valid boolean inputs continue through the unchanged V1 mapping implementation. V1 source, tests, and manifest remain byte-for-byte unchanged.
 
-The focused V2 test suite passed **6 tests, 0 failures**. Coverage now includes valid `true` parity and representative V1 structural-error delegation in addition to malformed-value rejection at both input boundaries. The revalidated report is recorded in Batch037.
+The focused V2 test suite passed **4 tests, 0 failures**. The report is recorded in Batch037.
 
 ## Exact admission bindings
 
 - implementation id: `HYDRA_CONSTRAINT_FIRST_SLICE_NATIVE_T5_T6_BRIDGE_V002_20261003`
-- manifest SHA-256: `7761373b0ad68719f9288c26978466823a4c6cc72f0714ce193a822f3c66501a`
+- manifest SHA-256: `89042992ddcb7574ad5e98d16a1d16a35307d2298904b9c3c5ae188ca46031a8`
 - artifact: `t6-fail-closed-validator/src/hydra_t6_failclosed/native_t5_t6_bridge_v2.py`
 - artifact SHA-256: `5e4c27fa6b2f96c05adf888f152775b9c61038c6c96f22a1a405f9c604bd66a6`
 - test source: `t6-fail-closed-validator/tests/test_native_t5_t6_bridge_v2.py`
-- test-source SHA-256: `0346a9eda90f39967efe294e375ea0f3d92f9074ac2411e404ef1c45f888f108`
+- test-source SHA-256: `74aae3afd2d4a8a19c63659d1c67219b94ea421c8bba5a035835ec9470be479f`
 - admission request: `docs/constraint/implementation/HYDRA_CONSTRAINT_FIRST_SLICE_NATIVE_T5_T6_ADMISSION_REQUEST_V002_20261003.json`
-- admission-request SHA-256: `fd131e74fccc7882027e414b130629ff98c3a1d97d35250c7a1d7bd52b303379`
+- admission-request SHA-256: `13e6785c8e8fd8daced7828c644f4a792c99800effb33bcdc9f018bab6677d44`
 - producer: `PIPELINE_T5_CONSTRAINT_FORMATION`
 - consumer: `PIPELINE_T6_CANONICAL_CANDIDATE_GOVERNANCE`
 - handoff schema: `t6-candidate-handoff.v1`
@@ -37,7 +37,7 @@ Present the exact V2 manifest, artifact, and test-source bindings to the `IMPLEM
 
 ```ini
 BATCH038_NATIVE_IMPLEMENTATION_PRESENTED=YES
-V2_FOCUSED_TESTS=PASS_6_OF_6
+V2_FOCUSED_TESTS=PASS_4_OF_4
 SIGNED_IMPLEMENTATION_CONTRACT_RECEIPT=ABSENT
 IMPLEMENTATION_ADMITTED=NO
 RUNTIME_ACTIVATION_AUTHORIZED=NO
