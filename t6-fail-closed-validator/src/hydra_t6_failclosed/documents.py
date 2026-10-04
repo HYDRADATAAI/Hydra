@@ -53,6 +53,21 @@ def _bounded_mapping_snapshot(value: Mapping[str, Any], *, max_bytes: int) -> tu
         # Bypass overridden subclass iteration and comparison behavior.
         return text if type(text) is str else str.__str__(text)
 
+    def plain_int(number: int) -> int:
+        return number if type(number) is int else int.__index__(number)
+
+    def plain_float(number: float) -> float:
+        return number if type(number) is float else float.__float__(number)
+
+    def plain_key(key: Any) -> Any:
+        if isinstance(key, str):
+            return plain_string(key)
+        if isinstance(key, int):
+            return plain_int(key)
+        if isinstance(key, float):
+            return plain_float(key)
+        return key
+
     def string_size(text: str) -> int:
         text = plain_string(text)
         size = 2  # JSON quotes
@@ -86,12 +101,13 @@ def _bounded_mapping_snapshot(value: Mapping[str, Any], *, max_bytes: int) -> tu
         if key is False:
             return 7  # "false"
         if isinstance(key, int):
+            number = plain_int(key)
             # Avoid converting an enormous integer to decimal text.
-            if key.bit_length() > (max_bytes + 2) * 4:
+            if number.bit_length() > (max_bytes + 2) * 4:
                 raise _DocumentTooLargeError(max_bytes + 1)
-            return len(json.dumps(key, allow_nan=False).encode("ascii")) + 2
+            return len(json.dumps(number, allow_nan=False).encode("ascii")) + 2
         if isinstance(key, float):
-            return len(json.dumps(key, allow_nan=False).encode("ascii")) + 2
+            return len(json.dumps(plain_float(key), allow_nan=False).encode("ascii")) + 2
         raise TypeError("mapping keys must be JSON scalar types")
 
     def copy_json(item: Any, depth: int = 1) -> tuple[Any, int]:
@@ -109,13 +125,15 @@ def _bounded_mapping_snapshot(value: Mapping[str, Any], *, max_bytes: int) -> tu
             normalized = plain_string(item)
             return normalized, string_size(normalized)
         if isinstance(item, int):
-            if item.bit_length() > (max_bytes + 2) * 4:
+            number = plain_int(item)
+            if number.bit_length() > (max_bytes + 2) * 4:
                 raise _DocumentTooLargeError(max_bytes + 1)
-            encoded_size = len(json.dumps(item, allow_nan=False).encode("ascii"))
-            return item, encoded_size
+            encoded_size = len(json.dumps(number, allow_nan=False).encode("ascii"))
+            return number, encoded_size
         if isinstance(item, float):
-            encoded_size = len(json.dumps(item, allow_nan=False).encode("ascii"))
-            return item, encoded_size
+            number = plain_float(item)
+            encoded_size = len(json.dumps(number, allow_nan=False).encode("ascii"))
+            return number, encoded_size
         if isinstance(item, (list, tuple)):
             identity = id(item)
             if identity in active:
@@ -145,7 +163,7 @@ def _bounded_mapping_snapshot(value: Mapping[str, Any], *, max_bytes: int) -> tu
                 result = {}
                 size = 2
                 for key, child in dict.items(item):
-                    normalized_key = plain_string(key) if isinstance(key, str) else key
+                    normalized_key = plain_key(key)
                     child_key_size = key_size(normalized_key)
                     copied, child_size = copy_json(child, depth + 1)
                     if result:
@@ -166,7 +184,7 @@ def _bounded_mapping_snapshot(value: Mapping[str, Any], *, max_bytes: int) -> tu
         size = 2
         for key in value.keys():
             value_for_key = value[key]
-            normalized_key = plain_string(key) if isinstance(key, str) else key
+            normalized_key = plain_key(key)
             child_key_size = key_size(normalized_key)
             copied, child_size = copy_json(value_for_key, 2)
             if snapshot:
