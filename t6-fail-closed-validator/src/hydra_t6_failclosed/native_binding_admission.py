@@ -277,19 +277,26 @@ def _validate_receipt(
     ):
         issues.append(Issue("admission_receipt_scope_escalation", "admission may not authorize runtime activation, canonical promotion, live sources, model training, or trading", "$.admission_receipt.limitations"))
 
+    normalized_now: datetime | None = None
+    if not isinstance(now, datetime):
+        issues.append(Issue("admission_now_invalid", "explicit now must be a datetime", "$.now"))
+    else:
+        try:
+            if now.tzinfo is None or now.utcoffset() is None:
+                issues.append(Issue("admission_now_naive", "explicit now must include timezone information", "$.now"))
+            else:
+                normalized_now = now.astimezone(UTC)
+        except Exception:
+            issues.append(Issue("admission_now_invalid", "explicit now has invalid timezone information", "$.now"))
     issued_at = _parse_time(value.get("issued_at"), "$.admission_receipt.issued_at", issues)
     expires_at = _parse_time(value.get("expires_at"), "$.admission_receipt.expires_at", issues)
-    if now.tzinfo is None:
-        issues.append(Issue("admission_now_naive", "explicit now must include timezone information", "$.now"))
-    else:
-        now = now.astimezone(UTC)
-        if issued_at and expires_at:
-            if issued_at >= expires_at:
-                issues.append(Issue("admission_time_window_invalid", "issued_at must be before expires_at", "$.admission_receipt.expires_at"))
-            elif now < issued_at:
-                issues.append(Issue("admission_not_yet_valid", "admission receipt is not yet valid", "$.admission_receipt.issued_at"))
-            elif now >= expires_at:
-                issues.append(Issue("admission_expired", "admission receipt has expired", "$.admission_receipt.expires_at"))
+    if normalized_now is not None and issued_at and expires_at:
+        if issued_at >= expires_at:
+            issues.append(Issue("admission_time_window_invalid", "issued_at must be before expires_at", "$.admission_receipt.expires_at"))
+        elif normalized_now < issued_at:
+            issues.append(Issue("admission_not_yet_valid", "admission receipt is not yet valid", "$.admission_receipt.issued_at"))
+        elif normalized_now >= expires_at:
+            issues.append(Issue("admission_expired", "admission receipt has expired", "$.admission_receipt.expires_at"))
 
     revocation = value.get("revocation")
     if not isinstance(revocation, Mapping) or set(revocation) != {"status", "checked_at", "source_id", "sequence"}:
@@ -300,10 +307,10 @@ def _validate_receipt(
         checked_at = _parse_time(revocation.get("checked_at"), "$.admission_receipt.revocation.checked_at", issues)
         if checked_at and issued_at and checked_at < issued_at:
             issues.append(Issue("admission_revocation_predates_issue", "revocation evidence predates the admission receipt", "$.admission_receipt.revocation.checked_at"))
-        if checked_at and now.tzinfo is not None:
-            if checked_at > now:
+        if checked_at and normalized_now is not None:
+            if checked_at > normalized_now:
                 issues.append(Issue("admission_revocation_future", "revocation check is in the future", "$.admission_receipt.revocation.checked_at"))
-            elif now - checked_at > MAX_REVOCATION_AGE:
+            elif normalized_now - checked_at > MAX_REVOCATION_AGE:
                 issues.append(Issue("admission_revocation_stale", "revocation evidence is older than 24 hours", "$.admission_receipt.revocation.checked_at"))
         if not isinstance(revocation.get("source_id"), str) or not revocation.get("source_id"):
             issues.append(Issue("admission_revocation_source_invalid", "revocation source_id is required", "$.admission_receipt.revocation.source_id"))

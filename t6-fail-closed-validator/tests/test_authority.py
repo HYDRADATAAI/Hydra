@@ -87,6 +87,47 @@ class AuthorityEnvelopeTests(unittest.TestCase):
         self.assertEqual(result.reason, "VALID")
         self.assertEqual(result.issues, ())
 
+
+    def test_signed_mapping_string_subclasses_cannot_spoof_authority_literals(self) -> None:
+        class EqualitySpoof(str):
+            def __new__(cls, value: str, expected: str):
+                instance = super().__new__(cls, value)
+                instance.expected = expected
+                return instance
+
+            def __eq__(self, other):
+                return str(other) == self.expected
+
+            def __ne__(self, other):
+                return not self.__eq__(other)
+
+            __hash__ = str.__hash__
+
+        envelope = self._envelope()
+        envelope["schema_version"] = EqualitySpoof("wrong-schema", AUTHORITY_SCHEMA)
+        envelope["decision"] = EqualitySpoof("wrong-decision", DECISION)
+        envelope["operation"] = EqualitySpoof("wrong-operation", OPERATION)
+        envelope["scopes"] = [EqualitySpoof("wrong-scope", REQUIRED_SCOPE)]
+        envelope["bindings"] = {
+            key: EqualitySpoof("0" * 64, value)
+            for key, value in envelope["bindings"].items()
+        }
+        envelope["revocation"]["status"] = EqualitySpoof("wrong-status", "not_revoked")
+        envelope["supersession"]["status"] = EqualitySpoof("wrong-status", "current")
+        self._resign(envelope)
+
+        self.assertTrue(
+            self.verifier.verify(
+                key_id=self.key_id,
+                message=authority_signing_bytes(envelope),
+                signature=envelope["signature"],
+                method="HMAC-SHA256",
+            )
+        )
+        result = self._validate(envelope)
+        self.assertFalse(result.valid)
+        self.assertTrue(result.issues)
+
     def test_missing_role_grants_deny_correctly_signed_authority(self) -> None:
         envelope = self._envelope()
         verifier = HMACSHA256Verifier({self.key_id: self.key})
