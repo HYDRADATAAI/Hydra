@@ -261,6 +261,60 @@ class DocumentMappingBoundsTests(unittest.TestCase):
         self.assertEqual(document.raw_sha256, hashlib.sha256(raw).hexdigest())
         self.assertEqual(len(document.value["items"]), item_count)
 
+    def test_raw_json_node_overflow_preflight_skips_json_loads(self):
+        raw = b'{"items":[' + b"0,\n\t\r" * (MAX_DOCUMENT_NODES - 1) + b"0]}"
+
+        with patch(
+            "hydra_t6_failclosed.documents.json.loads",
+            side_effect=AssertionError("over-limit JSON must be rejected before decoding"),
+        ):
+            document = parse_json_document(raw, label="input")
+
+        self.assertIsNone(document.value)
+        self.assertEqual([issue.code for issue in document.issues], ["document_too_large"])
+        self.assertEqual(document.issues[0].evidence, {"normalization_limit": "nodes"})
+        self.assertEqual(document.raw, raw)
+        self.assertEqual(document.raw_sha256, hashlib.sha256(raw).hexdigest())
+
+    def test_raw_json_depth_overflow_preflight_skips_json_loads(self):
+        raw = b'{"items":' + b"[" * MAX_DOCUMENT_DEPTH + b"0" + b"]" * MAX_DOCUMENT_DEPTH + b"}"
+
+        with patch(
+            "hydra_t6_failclosed.documents.json.loads",
+            side_effect=AssertionError("over-depth JSON must be rejected before decoding"),
+        ):
+            document = parse_json_document(raw, label="input")
+
+        self.assertIsNone(document.value)
+        self.assertEqual([issue.code for issue in document.issues], ["document_too_deep"])
+        self.assertEqual(document.raw, raw)
+        self.assertEqual(document.raw_sha256, hashlib.sha256(raw).hexdigest())
+        self.assertEqual(document.issues[0].evidence, {})
+        self.assertEqual(document.issues[0].to_dict()["evidence"], {})
+
+    def test_large_raw_array_root_keeps_root_invalid_precedence(self):
+        raw = b"[" + b"0," * (MAX_DOCUMENT_NODES - 1) + b"0]"
+
+        with patch(
+            "hydra_t6_failclosed.documents.json.loads",
+            wraps=__import__("json").loads,
+        ) as loads:
+            document = parse_json_document(raw, label="input")
+
+        self.assertIsNone(document.value)
+        self.assertEqual([issue.code for issue in document.issues], ["document_root_invalid"])
+        loads.assert_called_once()
+
+    def test_raw_preflight_ignores_structure_inside_strings_and_accepts_exponent_edge(self):
+        raw = br'{"text":"[{,}] \" \\ \u005b","exponent":1e9999}'
+
+        document = parse_json_document(raw, label="input")
+
+        self.assertEqual(document.issues, ())
+        self.assertEqual(document.raw, raw)
+        self.assertTrue(document.value["exponent"] == float("inf"))
+        self.assertIn("[{,}]", document.value["text"])
+
     def test_shallow_raw_json_over_node_cap_preserves_raw_and_digest(self):
         raw = b'{"items":[' + b"0," * (MAX_DOCUMENT_NODES - 1) + b"0]}"
 

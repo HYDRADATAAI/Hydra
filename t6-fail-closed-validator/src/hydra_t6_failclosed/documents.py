@@ -282,6 +282,196 @@ def coerce_document_bytes(
     raise TypeError(f"document must be bytes, text, mapping, or None; got {type(value).__name__}")
 
 
+
+
+class _JSONPreflightLimit(Exception):
+    def __init__(self, limit: str):
+        self.limit = limit
+
+
+class _RawJSONPreflight:
+    """Scan JSON structure without building values, stopping at configured limits."""
+
+    def __init__(self, text: str) -> None:
+        self.text = text
+        self.index = 0
+        self.nodes = 0
+
+    def _skip_space(self) -> None:
+        while self.index < len(self.text) and self.text[self.index] in " \t\r\n":
+            self.index += 1
+
+    def _string(self) -> bool:
+        if self.index >= len(self.text) or self.text[self.index] != '"':
+            return False
+        self.index += 1
+        while self.index < len(self.text):
+            char = self.text[self.index]
+            self.index += 1
+            if char == '"':
+                return True
+            if ord(char) < 0x20:
+                return False
+            if char != "\\":
+                continue
+            if self.index >= len(self.text):
+                return False
+            escape = self.text[self.index]
+            self.index += 1
+            if escape in '"\\/bfnrt':
+                continue
+            if escape != "u" or self.index + 4 > len(self.text):
+                return False
+            digits = self.text[self.index:self.index + 4]
+            if any(digit not in "0123456789abcdefABCDEF" for digit in digits):
+                return False
+            self.index += 4
+        return False
+
+    def _number(self) -> bool:
+        start = self.index
+        if self.index < len(self.text) and self.text[self.index] == "-":
+            self.index += 1
+        if self.index >= len(self.text):
+            self.index = start
+            return False
+        if self.text[self.index] == "0":
+            self.index += 1
+            if self.index < len(self.text) and "0" <= self.text[self.index] <= "9":
+                self.index = start
+                return False
+        elif "1" <= self.text[self.index] <= "9":
+            self.index += 1
+            while self.index < len(self.text) and "0" <= self.text[self.index] <= "9":
+                self.index += 1
+        else:
+            self.index = start
+            return False
+        if self.index < len(self.text) and self.text[self.index] == ".":
+            self.index += 1
+            fraction_start = self.index
+            while self.index < len(self.text) and "0" <= self.text[self.index] <= "9":
+                self.index += 1
+            if self.index == fraction_start:
+                self.index = start
+                return False
+        if self.index < len(self.text) and self.text[self.index] in "eE":
+            self.index += 1
+            if self.index < len(self.text) and self.text[self.index] in "+-":
+                self.index += 1
+            exponent_start = self.index
+            while self.index < len(self.text) and "0" <= self.text[self.index] <= "9":
+                self.index += 1
+            if self.index == exponent_start:
+                self.index = start
+                return False
+        return True
+
+    def _scalar_boundary(self) -> bool:
+        return (
+            self.index == len(self.text)
+            or self.text[self.index] in " \t\r\n,]}"
+        )
+
+    def _count(self, depth: int) -> None:
+        if depth > MAX_DOCUMENT_DEPTH:
+            raise _JSONPreflightLimit("depth")
+        self.nodes += 1
+        if self.nodes > MAX_DOCUMENT_NODES:
+            raise _JSONPreflightLimit("nodes")
+
+    def _object(self, depth: int) -> bool:
+        self.index += 1  # opening brace
+        self._skip_space()
+        if self.index < len(self.text) and self.text[self.index] == "}":
+            self.index += 1
+            return True
+        while True:
+            self._skip_space()
+            if not self._string():
+                return False
+            self._skip_space()
+            if self.index >= len(self.text) or self.text[self.index] != ":":
+                return False
+            self.index += 1
+            if not self._value(depth + 1):
+                return False
+            self._skip_space()
+            if self.index >= len(self.text):
+                return False
+            delimiter = self.text[self.index]
+            self.index += 1
+            if delimiter == "}":
+                return True
+            if delimiter != ",":
+                return False
+
+    def _array(self, depth: int) -> bool:
+        self.index += 1  # opening bracket
+        self._skip_space()
+        if self.index < len(self.text) and self.text[self.index] == "]":
+            self.index += 1
+            return True
+        while True:
+            if not self._value(depth + 1):
+                return False
+            self._skip_space()
+            if self.index >= len(self.text):
+                return False
+            delimiter = self.text[self.index]
+            self.index += 1
+            if delimiter == "]":
+                return True
+            if delimiter != ",":
+                return False
+
+    def _value(self, depth: int) -> bool:
+        self._skip_space()
+        if self.index >= len(self.text):
+            return False
+        char = self.text[self.index]
+        if char == "{":
+            self._count(depth)
+            return self._object(depth)
+        if char == "[":
+            self._count(depth)
+            return self._array(depth)
+        if char == '"':
+            if not self._string() or not self._scalar_boundary():
+                return False
+            self._count(depth)
+            return True
+        for literal in ("true", "false", "null"):
+            if self.text.startswith(literal, self.index):
+                self.index += len(literal)
+                if not self._scalar_boundary():
+                    return False
+                self._count(depth)
+                return True
+        if self._number() and self._scalar_boundary():
+            self._count(depth)
+            return True
+        return False
+
+    def exceeds_limits(self) -> bool:
+        self._skip_space()
+        # Non-object roots are handled by json.loads and the existing root check.
+        if self.index >= len(self.text) or self.text[self.index] != "{":
+            return False
+        if not self._object(1):
+            return False
+        self._skip_space()
+        return self.index == len(self.text)
+
+
+def _raw_json_limit_exceeded(text: str) -> str | None:
+    scanner = _RawJSONPreflight(text)
+    try:
+        return "nodes" if scanner.exceeds_limits() and scanner.nodes > MAX_DOCUMENT_NODES else None
+    except _JSONPreflightLimit as exc:
+        return exc.limit
+
+
 def parse_json_document(
     value: bytes | bytearray | str | Mapping[str, Any] | None,
     *,
@@ -330,6 +520,28 @@ def parse_json_document(
     digest = sha256_hex(raw)
     try:
         text = raw.decode("utf-8", errors="strict")
+        preflight_limit = _raw_json_limit_exceeded(text)
+        if preflight_limit == "depth":
+            return JSONDocument(
+                raw,
+                digest,
+                None,
+                (Issue("document_too_deep", f"{label} exceeds maximum nesting depth {MAX_DOCUMENT_DEPTH}", label, evidence={}),),
+            )
+        if preflight_limit == "nodes":
+            return JSONDocument(
+                raw,
+                digest,
+                None,
+                (
+                    Issue(
+                        "document_too_large",
+                        f"{label} exceeds bounded normalization limits",
+                        label,
+                        evidence={"normalization_limit": "nodes"},
+                    ),
+                ),
+            )
         parsed = json.loads(
             text,
             object_pairs_hook=_object_without_duplicates,
