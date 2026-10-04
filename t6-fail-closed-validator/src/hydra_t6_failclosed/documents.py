@@ -6,7 +6,6 @@ import hashlib
 import json
 import math
 from collections.abc import Mapping
-from copy import deepcopy
 from dataclasses import dataclass
 from typing import Any
 
@@ -348,7 +347,7 @@ def parse_json_document(
             (Issue("document_too_deep", f"{label} exceeds maximum nesting depth {MAX_DOCUMENT_DEPTH}", label),),
         )
     try:
-        normalized = deepcopy(dict(parsed))
+        normalized = dict(parsed)
     except RecursionError as exc:
         return JSONDocument(raw, digest, None, (Issue("document_json_invalid", f"{label} is too deeply nested: {exc}", label),))
     return JSONDocument(raw, digest, normalized, ())
