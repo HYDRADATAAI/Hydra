@@ -154,7 +154,7 @@ class AuthorityEnvelopeTests(unittest.TestCase):
 
         result = self._validate(self._envelope(), verifier=RaisingSignatureVerifier())
         self.assertFalse(result.valid)
-        self.assertIn("authority_signature_invalid", {issue.code for issue in result.issues})
+        self.assertIn("authority_verifier_error", {issue.code for issue in result.issues})
 
     def test_missing_signature_method_fails_closed(self) -> None:
         class MissingSignatureMethod:
