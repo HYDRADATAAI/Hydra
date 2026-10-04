@@ -6,7 +6,7 @@ import hashlib
 import unittest
 from unittest.mock import patch
 
-from hydra_t6_failclosed.documents import MAX_DOCUMENT_NODES, canonical_json_bytes, parse_json_document
+from hydra_t6_failclosed.documents import MAX_DOCUMENT_DEPTH, MAX_DOCUMENT_NODES, canonical_json_bytes, parse_json_document
 
 
 class DocumentMappingBoundsTests(unittest.TestCase):
@@ -222,6 +222,33 @@ class DocumentMappingBoundsTests(unittest.TestCase):
 
         self.assertEqual(document.issues, ())
         self.assertEqual(document.raw, b'{"true":"yes"}')
+
+    def test_raw_json_over_depth_cap_preserves_raw_and_digest(self):
+        raw = (
+            b'{"items":'
+            + b"[" * MAX_DOCUMENT_DEPTH
+            + b"0"
+            + b"]" * MAX_DOCUMENT_DEPTH
+            + b"}"
+        )
+
+        document = parse_json_document(raw, label="input")
+
+        self.assertIsNone(document.value)
+        self.assertEqual([issue.code for issue in document.issues], ["document_too_deep"])
+        self.assertEqual(document.raw, raw)
+        self.assertEqual(document.raw_sha256, hashlib.sha256(raw).hexdigest())
+
+    def test_mapping_over_depth_cap_is_rejected(self):
+        nested = 0
+        for _ in range(MAX_DOCUMENT_DEPTH - 1):
+            nested = [nested]
+
+        document = parse_json_document({"items": nested}, label="input")
+
+        self.assertIsNone(document.value)
+        self.assertEqual([issue.code for issue in document.issues], ["document_too_large"])
+        self.assertEqual(document.issues[0].evidence, {"normalization_limit": "depth"})
 
     def test_shallow_raw_json_at_node_cap_is_accepted(self):
         item_count = MAX_DOCUMENT_NODES - 1
