@@ -320,13 +320,20 @@ class NativeT5T6AdmissionTests(unittest.TestCase):
                 self.assertIsInstance(limitations, dict)
                 limitations[limitation_name] = True
                 self.resign(receipt)
+                self.assertTrue(
+                    self.verifier.verify(
+                        key_id=self.key_id,
+                        message=admission_signing_bytes(receipt),
+                        signature=receipt["signature"],
+                        method="HMAC-SHA256",
+                    )
+                )
                 result = self.validate(manifest, receipt)
                 self.assertFalse(result.admitted)
                 self.assertEqual(result.reason, "BLOCKED_AUTHORITY_RECEIPT_INVALID")
-                self.assertIn(
-                    "admission_receipt_scope_escalation",
-                    {issue.code for issue in result.issues},
-                )
+                codes = {issue.code for issue in result.issues}
+                self.assertIn("admission_receipt_scope_escalation", codes)
+                self.assertNotIn("admission_signature_invalid", codes)
 
     def test_manifest_cannot_request_live_or_runtime_activation(self) -> None:
         manifest = self.manifest()
