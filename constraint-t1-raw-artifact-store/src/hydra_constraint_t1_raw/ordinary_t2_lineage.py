@@ -427,6 +427,10 @@ def validate_ordinary_t2_lineage(
         _require(isinstance(row, Mapping), f"members[{index}]: object required")
         _require(set(row) == required_member_fields, f"members[{index}]: field set invalid")
         source_id = row["source_id"]
+        _require(
+            isinstance(source_id, str) and source_id.strip(),
+            f"members[{index}]: source_id must be a nonblank string",
+        )
         _require(source_id in scope, f"members[{index}]: source outside active scope")
         source = scope[source_id]
         _require(row["source_version_id"] == source["source_version_id"], f"{source_id}: version drift")
