@@ -150,6 +150,109 @@ class FirstSliceMaterializationTests(unittest.TestCase):
             registry=self.registry,
         )
 
+    def test_attestation_validator_rejects_non_mapping_roots(self):
+        attestation = self.run_plan()
+        with self.assertRaisesRegex(
+            FirstSliceMaterializationError,
+            "attestation object required",
+        ):
+            validate_public_materialization_attestation(
+                attestation=None,
+                registry=self.registry,
+            )
+        with self.assertRaisesRegex(
+            FirstSliceMaterializationError,
+            "registry object required",
+        ):
+            validate_public_materialization_attestation(
+                attestation=attestation,
+                registry=None,
+            )
+
+    def test_member_eligibility_requires_a_boolean(self):
+        attestation = self.run_plan()
+        for member in attestation["members"]:
+            self.assertIs(type(member["ordinary_t2_eligible"]), bool)
+        for value in (0, 1, "false", None):
+            with self.subTest(value=value):
+                malformed = copy.deepcopy(attestation)
+                malformed["members"][0]["ordinary_t2_eligible"] = value
+                with self.assertRaisesRegex(
+                    FirstSliceMaterializationError,
+                    "ordinary_t2_eligible must be a boolean",
+                ):
+                    validate_public_materialization_attestation(
+                        attestation=malformed,
+                        registry=self.registry,
+                    )
+
+    def test_attestation_counts_require_exact_integers(self):
+        attestation = self.run_plan()
+        for field in (
+            "registry_source_count",
+            "materialized_source_count",
+            "ordinary_t2_eligible_count",
+            "ordinary_t2_blocked_count",
+        ):
+            with self.subTest(field=field):
+                malformed = copy.deepcopy(attestation)
+                invalid_values = [float(malformed[field])]
+                if field == "ordinary_t2_eligible_count":
+                    invalid_values.append(False)
+                for value in invalid_values:
+                    with self.subTest(value=value):
+                        malformed = copy.deepcopy(attestation)
+                        malformed[field] = value
+                        with self.assertRaisesRegex(
+                            FirstSliceMaterializationError,
+                            f"{field} must be an exact integer",
+                        ):
+                            validate_public_materialization_attestation(
+                                attestation=malformed,
+                                registry=self.registry,
+                            )
+
+    def test_boolean_aggregate_requires_a_boolean(self):
+        attestation = self.run_plan()
+        for value in (0, 0.0):
+            with self.subTest(value=value):
+                malformed = copy.deepcopy(attestation)
+                malformed["all_sources_ordinary_t2_eligible"] = value
+                with self.assertRaisesRegex(
+                    FirstSliceMaterializationError,
+                    "all_sources_ordinary_t2_eligible drift",
+                ):
+                    validate_public_materialization_attestation(
+                        attestation=malformed,
+                        registry=self.registry,
+                    )
+
+    def test_member_metadata_requires_valid_types_and_values(self):
+        attestation = self.run_plan()
+        invalid_members = (
+            ("byte_length", 0),
+            ("byte_length", True),
+            ("content_type", "   "),
+            ("processing_disposition", "UNKNOWN"),
+        )
+        expected_errors = {
+            "byte_length": "members\\[0\\]\\.byte_length invalid",
+            "content_type": "members\\[0\\]\\.content_type invalid",
+            "processing_disposition": "members\\[0\\]\\.processing_disposition invalid",
+        }
+        for field, value in invalid_members:
+            with self.subTest(field=field, value=value):
+                malformed = copy.deepcopy(attestation)
+                malformed["members"][0][field] = value
+                with self.assertRaisesRegex(
+                    FirstSliceMaterializationError,
+                    expected_errors[field],
+                ):
+                    validate_public_materialization_attestation(
+                        attestation=malformed,
+                        registry=self.registry,
+                    )
+
     def test_public_attestation_rejects_missing_root_field(self):
         attestation = self.run_plan()
         required_root_fields = {
