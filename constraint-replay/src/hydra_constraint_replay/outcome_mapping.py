@@ -47,6 +47,10 @@ class OutcomeMappingInputs:
         ):
             if type(getattr(self,field)) is not bool:
                 raise OutcomeMappingError(f"{self.case_id}: {field} must be boolean")
+        for field in ("target_met","horizon_met"):
+            value=getattr(self,field)
+            if value is not None and type(value) is not bool:
+                raise OutcomeMappingError(f"{self.case_id}: {field} must be boolean or None")
         if self.explicit_numeric_target_defined and self.target_met is None:
             raise OutcomeMappingError(f"{self.case_id}: target_met required when target is defined")
         if not self.explicit_numeric_target_defined and self.target_met is not None:
