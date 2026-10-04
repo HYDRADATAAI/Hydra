@@ -1056,17 +1056,23 @@ def validate_ci_contract(errors: list[str]) -> None:
     if "SOURCE_ROWS_SNAPSHOT_VERIFIED" in intelligence_workflow:
         errors.append("governed-intelligence CI source-row replay signal was weakened")
     action_pins = {
-        "actions/checkout": "11d5960a326750d5838078e36cf38b85af677262",
-        "actions/setup-python": "a26af69be951a213d495a4c3e4e4022e16d87065",
-        "actions/upload-artifact": "ea165f8d65b6e75b540449e92b4886f43607fa02",
-        "actions/download-artifact": "d3f86a106a0bac45b974a628896c90dbdf5c8093",
+        "actions/checkout": (
+            "11d5960a326750d5838078e36cf38b85af677262",
+            "11d5960a326750d5838078e36cf38b85af677262",
+        ),
+        "actions/setup-python": (
+            "a26af69be951a213d495a4c3e4e4022e16d87065",
+            "a26af69be951a213d495a4c3e4e4022e16d87065",
+        ),
+        "actions/upload-artifact": ("ea165f8d65b6e75b540449e92b4886f43607fa02",),
+        "actions/download-artifact": ("d3f86a106a0bac45b974a628896c90dbdf5c8093",),
     }
-    for action, expected_sha in action_pins.items():
+    for action, expected_shas in action_pins.items():
         refs = re.findall(
             rf"(?m)^\s*uses:\s*{re.escape(action)}@([^\s#]+)",
             intelligence_workflow,
         )
-        if refs != [expected_sha]:
+        if tuple(refs) != expected_shas:
             errors.append(
                 f"governed-intelligence CI action pin changed: {action}={refs!r}"
             )
@@ -1344,3 +1350,4 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
+
