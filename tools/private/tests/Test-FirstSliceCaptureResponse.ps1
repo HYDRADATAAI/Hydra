@@ -38,7 +38,12 @@ try {
         $caseRoot = Join-Path $TempRoot $CaptureTestMode
         $failed = $false
         try {
-            & (Join-Path $SourceRepo "tools\private\Invoke-HYDRAConstraintFirstSlicePrivateCapture_V001_20260926.ps1") -AuthorizedPublicAcquisition -RepoRoot $FixtureRepo -PrivateRawRoot (Join-Path $caseRoot "raw") -PrivateStagingRoot (Join-Path $caseRoot "staging") -PrivateMetadataRoot (Join-Path $caseRoot "metadata") | Out-Null
+            if ($CaptureTestMode -eq "valid") {
+                & (Join-Path $SourceRepo "tools\private\Invoke-HYDRAConstraintFirstSlicePrivateCapture_V001_20260926.ps1") -AuthorizedPublicAcquisition -RepoRoot $FixtureRepo -PrivateRawRoot (Join-Path $caseRoot "raw") -PrivateStagingRoot (Join-Path $caseRoot "staging") -PrivateMetadataRoot (Join-Path $caseRoot "metadata")
+            }
+            else {
+                & (Join-Path $SourceRepo "tools\private\Invoke-HYDRAConstraintFirstSlicePrivateCapture_V001_20260926.ps1") -AuthorizedPublicAcquisition -RepoRoot $FixtureRepo -PrivateRawRoot (Join-Path $caseRoot "raw") -PrivateStagingRoot (Join-Path $caseRoot "staging") -PrivateMetadataRoot (Join-Path $caseRoot "metadata") | Out-Null
+            }
         }
         catch {
             $failed = $true
