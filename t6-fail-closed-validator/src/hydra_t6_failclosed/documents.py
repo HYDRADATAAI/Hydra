@@ -66,7 +66,11 @@ def _bounded_mapping_snapshot(value: Mapping[str, Any], *, max_bytes: int) -> tu
         size = 2
         if size > remaining:
             raise _DocumentTooLargeError(total + size)
-        for char in text:
+        length = str.__len__(text)
+        if length > remaining - size:
+            raise _DocumentTooLargeError(total + size + length)
+        for index in range(length):
+            char = str.__getitem__(text, index)
             codepoint = ord(char)
             if codepoint in (0x22, 0x5C):  # quote or backslash
                 size += 2
@@ -86,24 +90,55 @@ def _bounded_mapping_snapshot(value: Mapping[str, Any], *, max_bytes: int) -> tu
                 raise _DocumentTooLargeError(total + size)
         return size
 
+    def normalize_key(key: Any) -> Any:
+        if isinstance(key, str):
+            return key if type(key) is str else str.__str__(key)
+        if key is None or key is True or key is False:
+            return key
+        if isinstance(key, int):
+            return key if type(key) is int else int.__index__(key)
+        if isinstance(key, float):
+            return key if type(key) is float else float.__float__(key)
+        raise TypeError("mapping keys must be JSON scalar types")
+
     def key_size(key: Any) -> int:
-        if type(key) is str:
+        if isinstance(key, str):
             return string_size(key)
         if key is None:
             return 6  # quoted "null"
         if key is True:
-            return 6  # quoted "true"
+            return 6  # quoted "true"; check bool before integer
         if key is False:
-            return 7  # quoted "false"
-        if type(key) is int:
-            if key.bit_length() > (max_bytes + 2) * 4:
+            return 7  # quoted "false"; check bool before integer
+        if isinstance(key, int):
+            bit_length = int.bit_length(key)
+            if bit_length > (max_bytes + 2) * 4:
                 raise _DocumentTooLargeError(max_bytes + 1)
-            return len(str(key)) + 2
+            integer = key if type(key) is int else int.__index__(key)
+            return len(str(integer)) + 2
+        if isinstance(key, float):
+            number = key if type(key) is float else float.__float__(key)
+            if not math.isfinite(number):
+                raise ValueError("non-finite mapping key")
+            return len(repr(number)) + 2
+        raise TypeError("mapping keys must be JSON scalar types")
+
+    def json_member_name(key: Any) -> str:
+        if type(key) is str:
+            return key
+        if key is None:
+            return "null"
+        if key is True:
+            return "true"
+        if key is False:
+            return "false"
+        if type(key) is int:
+            return str(key)
         if type(key) is float:
             if not math.isfinite(key):
                 raise ValueError("non-finite mapping key")
-            return len(repr(key)) + 2
-        raise TypeError("mapping keys must be exact JSON scalar types")
+            return repr(key)
+        raise TypeError("mapping keys must be JSON scalar types")
 
     def copy_json(item: Any, depth: int = 1) -> Any:
         nonlocal nodes
@@ -119,19 +154,23 @@ def _bounded_mapping_snapshot(value: Mapping[str, Any], *, max_bytes: int) -> tu
         if item is False:
             consume(5)
             return False
-        if type(item) is str:
-            consume(string_size(item))
-            return item
-        if type(item) is int:
-            if item.bit_length() > (max_bytes + 2) * 4:
+        if isinstance(item, str):
+            size = string_size(item)
+            consume(size)
+            return item if type(item) is str else str.__str__(item)
+        if isinstance(item, int):
+            bit_length = int.bit_length(item)
+            if bit_length > (max_bytes + 2) * 4:
                 raise _DocumentTooLargeError(max_bytes + 1)
-            consume(len(str(item)))
-            return item
-        if type(item) is float:
-            if not math.isfinite(item):
+            normalized = item if type(item) is int else int.__index__(item)
+            consume(len(str(normalized)))
+            return normalized
+        if isinstance(item, float):
+            normalized = item if type(item) is float else float.__float__(item)
+            if not math.isfinite(normalized):
                 raise ValueError("non-finite JSON number")
-            consume(len(repr(item)))
-            return item
+            consume(len(repr(normalized)))
+            return normalized
         if isinstance(item, (list, tuple)):
             identity = id(item)
             if identity in active:
@@ -158,12 +197,19 @@ def _bounded_mapping_snapshot(value: Mapping[str, Any], *, max_bytes: int) -> tu
             try:
                 consume(2)
                 result = {}
+                seen_member_names: set[str] = set()
                 first = True
-                for key, child in dict.items(item):
+                for original_key, child in dict.items(item):
                     if not first:
                         consume(1)
-                    consume(key_size(key) + 1)
+                    member_key_size = key_size(original_key)
+                    consume(member_key_size + 1)
+                    key = normalize_key(original_key)
+                    member_name = json_member_name(key)
+                    if member_name in seen_member_names or key in result:
+                        raise ValueError("duplicate normalized mapping key")
                     result[key] = copy_json(child, depth + 1)
+                    seen_member_names.add(member_name)
                     first = False
                 return result
             finally:
@@ -174,18 +220,24 @@ def _bounded_mapping_snapshot(value: Mapping[str, Any], *, max_bytes: int) -> tu
     active.add(identity)
     try:
         consume(2)
-        snapshot: dict[str, Any] = {}
+        snapshot: dict[Any, Any] = {}
+        seen_member_names: set[str] = set()
         first = True
-        for key in value.keys():
+        for original_key in value.keys():
             if not first:
                 consume(1)
-            consume(key_size(key) + 1)
-            snapshot[key] = copy_json(value[key], 2)
+            member_key_size = key_size(original_key)
+            consume(member_key_size + 1)
+            key = normalize_key(original_key)
+            member_name = json_member_name(key)
+            if member_name in seen_member_names or key in snapshot:
+                raise ValueError("duplicate normalized mapping key")
+            snapshot[key] = copy_json(value[original_key], 2)
+            seen_member_names.add(member_name)
             first = False
         return snapshot, total
     finally:
         active.remove(identity)
-
 
 
 def sha256_hex(value: bytes) -> str:
@@ -194,7 +246,11 @@ def sha256_hex(value: bytes) -> str:
 
 def _bounded_utf8_size(text: str, *, max_bytes: int) -> int:
     size = 0
-    for char in text:
+    length = str.__len__(text)
+    if length > max_bytes:
+        raise _DocumentTooLargeError(length)
+    for index in range(length):
+        char = str.__getitem__(text, index)
         codepoint = ord(char)
         if 0xD800 <= codepoint <= 0xDFFF:
             raise UnicodeEncodeError("utf-8", text, 0, 1, "surrogates not allowed")
@@ -227,8 +283,8 @@ def coerce_document_bytes(
             raise _DocumentTooLargeError(len(value))
         return bytes(value)
     if isinstance(value, str):
+        _bounded_utf8_size(value, max_bytes=max_bytes)
         text = value if type(value) is str else str.__str__(value)
-        _bounded_utf8_size(text, max_bytes=max_bytes)
         return text.encode("utf-8")
     if isinstance(value, Mapping):
         snapshot, _size = _bounded_mapping_snapshot(value, max_bytes=max_bytes)
