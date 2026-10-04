@@ -368,16 +368,22 @@ def parse_json_document(
     return JSONDocument(raw, digest, normalized, ())
 
 
-def _document_depth_exceeds(value: Any, *, max_depth: int) -> bool:
-    stack: list[tuple[Any, int]] = [(value, 1)]
+def _document_depth_exceeds(value: Mapping[str, Any], *, max_depth: int) -> bool:
+    """Check parsed depth without materializing sibling nodes on the stack."""
+    stack = [(iter(value.values()), 2)]
     while stack:
-        current, depth = stack.pop()
+        try:
+            current = next(stack[-1][0])
+        except StopIteration:
+            stack.pop()
+            continue
+        depth = stack[-1][1]
         if depth > max_depth:
             return True
         if isinstance(current, Mapping):
-            stack.extend((nested, depth + 1) for nested in current.values())
+            stack.append((iter(current.values()), depth + 1))
         elif isinstance(current, list):
-            stack.extend((nested, depth + 1) for nested in current)
+            stack.append((iter(current), depth + 1))
     return False
 
 
