@@ -61,6 +61,23 @@ class DocumentMappingBoundsTests(unittest.TestCase):
         self.assertEqual(document.raw, b'{"actual-key":"actual-value"}')
         self.assertEqual(document.value, {"actual-key": "actual-value"})
 
+    def test_control_escapes_at_exact_byte_limit_keep_canonical_size(self):
+        value = {"x": "\\n"}
+
+        document = parse_json_document(value, label="input", max_bytes=10)
+
+        self.assertEqual(document.issues, ())
+        self.assertEqual(document.raw, canonical_json_bytes(value))
+        self.assertEqual(len(document.raw), 10)
+
+    def test_boolean_mapping_key_keeps_json_encoder_coercion(self):
+        value = {True: "yes"}
+
+        document = parse_json_document(value, label="input", max_bytes=32)
+
+        self.assertEqual(document.issues, ())
+        self.assertEqual(document.raw, b'{"true":"yes"}')
+
     def test_ordinary_mapping_keeps_canonical_bytes_and_value(self):
         value = {
             "z": [1, True, None],
