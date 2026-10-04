@@ -3,6 +3,7 @@
 
 from __future__ import annotations
 
+import ast
 import json
 import re
 import sys
@@ -67,6 +68,7 @@ REQUIRED_PATHS = (
     "market-data-pipeline-sample/config/backfill_plan.json",
     "market-data-pipeline-sample/contracts/backfill_plan.schema.json",
     "market-data-pipeline-sample/contracts/input_contract.json",
+    "market-data-pipeline-sample/contracts/pipeline_manifest.schema.json",
     "market-data-pipeline-sample/contracts/normalized_event.schema.json",
     "market-data-pipeline-sample/contracts/quarantine_record.schema.json",
     "market-data-pipeline-sample/data/raw/synthetic_market_events.csv",
@@ -88,17 +90,25 @@ REQUIRED_PATHS = (
     "governed-intelligence-sample/pyproject.toml",
     "governed-intelligence-sample/config/policy.json",
     "governed-intelligence-sample/config/retrieval_policy.json",
+    "governed-intelligence-sample/config/grounding_policy.json",
     "governed-intelligence-sample/contracts/request.schema.json",
     "governed-intelligence-sample/contracts/decision.schema.json",
     "governed-intelligence-sample/fixtures/evaluation_cases.json",
     "governed-intelligence-sample/fixtures/retrieval_cases.json",
+    "governed-intelligence-sample/fixtures/retrieval_qrels.json",
+    "governed-intelligence-sample/fixtures/grounding_cases.json",
     "governed-intelligence-sample/run_demo.py",
     "governed-intelligence-sample/run_retrieval_demo.py",
+    "governed-intelligence-sample/run_grounding_demo.py",
     "governed-intelligence-sample/src/hydra_governed_intelligence/__init__.py",
     "governed-intelligence-sample/src/hydra_governed_intelligence/__main__.py",
     "governed-intelligence-sample/src/hydra_governed_intelligence/cli.py",
     "governed-intelligence-sample/src/hydra_governed_intelligence/context.py",
     "governed-intelligence-sample/src/hydra_governed_intelligence/evaluation.py",
+    "governed-intelligence-sample/src/hydra_governed_intelligence/grounding.py",
+    "governed-intelligence-sample/src/hydra_governed_intelligence/grounding_cli.py",
+    "governed-intelligence-sample/src/hydra_governed_intelligence/pre_upload_verifier.py",
+    "governed-intelligence-sample/src/hydra_governed_intelligence/pipeline_replay.py",
     "governed-intelligence-sample/src/hydra_governed_intelligence/retrieval.py",
     "governed-intelligence-sample/src/hydra_governed_intelligence/retrieval_cli.py",
     "governed-intelligence-sample/src/hydra_governed_intelligence/retrieval_evaluation.py",
@@ -106,6 +116,8 @@ REQUIRED_PATHS = (
     "governed-intelligence-sample/tests/support.py",
     "governed-intelligence-sample/tests/test_context.py",
     "governed-intelligence-sample/tests/test_evaluation.py",
+    "governed-intelligence-sample/tests/test_grounding.py",
+    "governed-intelligence-sample/tests/test_pre_upload_verifier.py",
     "governed-intelligence-sample/tests/test_retrieval.py",
     "governed-intelligence-sample/tests/test_retrieval_evaluation.py",
 )
@@ -150,8 +162,12 @@ def local_target(source: Path, reference: str) -> Path | None:
         return None
 
     if path_text.startswith("/"):
-        return (ROOT / path_text.lstrip("/")).resolve()
-    return (source.parent / path_text).resolve()
+        target = (ROOT / path_text.lstrip("/")).resolve()
+    else:
+        target = (source.parent / path_text).resolve()
+    if not target.is_relative_to(ROOT):
+        return ROOT / ".invalid-outside-repository-link"
+    return target
 
 
 def validate_required_paths(errors: list[str]) -> None:
@@ -271,8 +287,651 @@ def validate_safety_contract(errors: list[str]) -> None:
                 f"expected {expected_value!r}"
             )
 
+    policy_paths = {
+        "context": INTELLIGENCE_SAMPLE / "config/policy.json",
+        "retrieval": INTELLIGENCE_SAMPLE / "config/retrieval_policy.json",
+        "grounding": INTELLIGENCE_SAMPLE / "config/grounding_policy.json",
+    }
+    policies = {}
+    for name, path in policy_paths.items():
+        try:
+            policies[name] = json.loads(path.read_text(encoding="utf-8-sig"))
+        except (OSError, json.JSONDecodeError) as exc:
+            errors.append(f"unable to parse governed-{name} policy: {exc}")
+            return
+    expected_context_policy = {
+        "abstained_tasks": ["production_metric"],
+        "allowed_tasks": ["accepted_observation_summary", "quality_status"],
+        "max_context_records": 2,
+        "model_execution_enabled": False,
+        "refused_tasks": ["trading_instruction"],
+        "schema_version": "hydra-governed-intelligence-policy/v1",
+    }
+    if policies["context"] != expected_context_policy:
+        errors.append("governed-context policy contract changed")
+
+    expected_retrieval_policy = {
+        "field_weights": {
+            "currency": 2,
+            "source_system": 3,
+            "symbol": 8,
+            "venue": 4,
+        },
+        "max_results": 3,
+        "min_score": 8,
+        "model_execution_enabled": False,
+        "non_scoring_terms": ["observation"],
+        "prohibited_terms": [
+            "quarantine",
+            "quarantined",
+            "raw",
+            "reject",
+            "rejected",
+            "rejection",
+            "rejections",
+        ],
+        "schema_version": "hydra-governed-retrieval-policy/v2",
+    }
+    if policies["retrieval"] != expected_retrieval_policy:
+        errors.append("governed-retrieval policy contract changed")
+
+    expected_grounding_policy = {
+        "allowed_claim_fields": [
+            "currency",
+            "event_time_utc",
+            "price",
+            "source_system",
+            "symbol",
+            "venue",
+            "volume",
+        ],
+        "external_actions_enabled": False,
+        "max_claims": 5,
+        "min_claim_failures": 1,
+        "min_claim_passes": 1,
+        "model_execution_enabled": False,
+        "required_case_ids": [
+            "disallowed-field-is-quarantined",
+            "execution-and-action-claims-are-quarantined",
+            "invented-value-is-quarantined",
+            "missing-retrieval-evidence-abstains",
+            "outside-context-record-is-quarantined",
+            "restricted-retrieval-request-refuses",
+            "tampered-citation-is-quarantined",
+            "valid-claims-are-admitted",
+        ],
+        "required_dispositions": ["ABSTAIN", "ADMIT", "QUARANTINE", "REFUSE"],
+        "schema_version": "hydra-grounding-policy/v2",
+    }
+    if policies["grounding"] != expected_grounding_policy:
+        errors.append("grounding policy contract changed")
+
+    try:
+        retrieval_suite = json.loads(
+            (INTELLIGENCE_SAMPLE / "fixtures/retrieval_cases.json").read_text(
+                encoding="utf-8-sig"
+            )
+        )
+        retrieval_qrels = json.loads(
+            (INTELLIGENCE_SAMPLE / "fixtures/retrieval_qrels.json").read_text(
+                encoding="utf-8-sig"
+            )
+        )
+        grounding_suite = json.loads(
+            (INTELLIGENCE_SAMPLE / "fixtures/grounding_cases.json").read_text(
+                encoding="utf-8-sig"
+            )
+        )
+    except (OSError, json.JSONDecodeError) as exc:
+        errors.append(f"unable to parse governed-retrieval fixtures: {exc}")
+        return
+    if retrieval_suite.get("schema_version") != "hydra-governed-retrieval-evaluation-suite/v3":
+        errors.append("governed-retrieval suite must remain schema v3")
+    if retrieval_qrels.get("schema_version") != "hydra-governed-retrieval-qrels/v1":
+        errors.append("governed-retrieval qrels must remain schema v1")
+    case_ids = {case.get("case_id") for case in retrieval_suite.get("cases", [])}
+    expected_retrieval_case_ids = {
+        "accepted-aaa-ranks-first",
+        "accepted-bbb-ranks-first",
+        "accepted-eee-ranks-first",
+        "currency-only-quality-miss",
+        "non-ascii-confusable-request-refuses",
+        "quarantined-symbol-cannot-borrow-metadata-score",
+        "quarantined-symbol-is-not-retrievable",
+        "restricted-corpus-request-refuses",
+        "restricted-synonym-request-refuses",
+        "shared-source-bounded-recall",
+        "unknown-symbol-abstains",
+        "unknown-symbol-cannot-borrow-metadata-score",
+        "venue-only-quality-miss",
+    }
+    required_cases = {
+        "unknown-symbol-cannot-borrow-metadata-score",
+        "quarantined-symbol-cannot-borrow-metadata-score",
+        "restricted-synonym-request-refuses",
+        "non-ascii-confusable-request-refuses",
+    }
+    if not required_cases.issubset(case_ids):
+        errors.append("governed-retrieval suite lost adversarial controls")
+    if case_ids != expected_retrieval_case_ids:
+        errors.append("governed-retrieval case identities changed")
+    retrieval_cases = retrieval_suite.get("cases", [])
+    if len(retrieval_cases) != 13 or len(case_ids) != 13:
+        errors.append("governed-retrieval suite must contain 13 unique cases")
+    expected_retrieval_counts = {"ABSTAIN": 6, "ADMIT": 4, "REFUSE": 3}
+    actual_retrieval_counts = {
+        disposition: sum(
+            case.get("expected", {}).get("disposition") == disposition
+            for case in retrieval_cases
+        )
+        for disposition in expected_retrieval_counts
+    }
+    if actual_retrieval_counts != expected_retrieval_counts:
+        errors.append("governed-retrieval disposition contract changed")
+    expected_groups = {"HARD_NEGATIVE": 4, "QUALITY": 6, "SAFETY_CONTROL": 3}
+    actual_groups = {
+        group: sum(case.get("metric_group") == group for case in retrieval_cases)
+        for group in expected_groups
+    }
+    if actual_groups != expected_groups:
+        errors.append("governed-retrieval metric groups changed")
+    judgments = retrieval_qrels.get("judgments", [])
+    qrel_case_ids = {item.get("case_id") for item in judgments}
+    quality_case_ids = {
+        case.get("case_id")
+        for case in retrieval_cases
+        if case.get("metric_group") == "QUALITY"
+    }
+    relevant_record_count = sum(
+        len(item.get("relevant_record_ids", [])) for item in judgments
+    )
+    if len(judgments) != 6 or qrel_case_ids != quality_case_ids:
+        errors.append("governed-retrieval qrels must match all six quality cases")
+    if relevant_record_count != 9:
+        errors.append("governed-retrieval qrels must contain nine relevance judgments")
+    expected_qrel_case_ids = {
+        "accepted-aaa-ranks-first",
+        "accepted-bbb-ranks-first",
+        "accepted-eee-ranks-first",
+        "currency-only-quality-miss",
+        "shared-source-bounded-recall",
+        "venue-only-quality-miss",
+    }
+    if qrel_case_ids != expected_qrel_case_ids:
+        errors.append("governed-retrieval qrels case identities changed")
+    expected_corpus_binding = {
+        "normalized_events_sha256": "ec902bc92942197ddceb737b90421f36298b660c0788c99ac4c18b2e1c570e86",
+        "pipeline_manifest_sha256": "f3b5ea4b854b862ec24670ad7cd0471858f283e8f474c53d208cf2570528509c",
+        "record_ids": [
+            "0dc3a510144754af42f61cf3a72f51fcbf90aed765d28053032e8fb857946458",
+            "5661c842227f80f2866a673d1e09c092fb7de3a2c3663eaa3f018953d0aa516c",
+            "5dce66c1857f0ebbdfad7a907e8ee839592f303dd768cb238aff06112f3bd271",
+        ],
+    }
+    if retrieval_qrels.get("corpus_binding") != expected_corpus_binding:
+        errors.append("governed-retrieval qrels corpus binding changed")
+
+    grounding_cases = grounding_suite.get("cases", [])
+    grounding_case_ids = {case.get("case_id") for case in grounding_cases}
+    expected_grounding_case_ids = {
+        "disallowed-field-is-quarantined",
+        "execution-and-action-claims-are-quarantined",
+        "invented-value-is-quarantined",
+        "missing-retrieval-evidence-abstains",
+        "outside-context-record-is-quarantined",
+        "restricted-retrieval-request-refuses",
+        "tampered-citation-is-quarantined",
+        "valid-claims-are-admitted",
+    }
+    if grounding_suite.get("schema_version") != "hydra-grounding-evaluation-suite/v1":
+        errors.append("grounding suite must remain schema v1")
+    if grounding_case_ids != expected_grounding_case_ids:
+        errors.append("grounding threat-case identities changed")
+    required_grounding_ids = policies["grounding"].get("required_case_ids", [])
+    if required_grounding_ids != sorted(expected_grounding_case_ids):
+        errors.append("grounding policy required threat-case identities changed")
+    if required_grounding_ids != sorted(set(required_grounding_ids)):
+        errors.append("grounding policy required_case_ids must be sorted and unique")
+    if len(grounding_cases) != 8 or grounding_case_ids != set(required_grounding_ids):
+        errors.append("grounding suite must match all eight policy-bound threat cases")
+    expected_grounding_counts = {
+        "ABSTAIN": 1,
+        "ADMIT": 1,
+        "QUARANTINE": 5,
+        "REFUSE": 1,
+    }
+    actual_grounding_counts = {
+        disposition: sum(
+            case.get("expected", {}).get("disposition") == disposition
+            for case in grounding_cases
+        )
+        for disposition in expected_grounding_counts
+    }
+    if actual_grounding_counts != expected_grounding_counts:
+        errors.append("grounding suite disposition contract changed")
+
+
+def workflow_job_block(workflow: str, job_name: str) -> str | None:
+    match = re.search(
+        rf"(?ms)^  {re.escape(job_name)}:\s*\n(?P<body>.*?)(?=^  [A-Za-z0-9_-]+:\s*(?:#.*)?$|\Z)",
+        workflow,
+    )
+    return None if match is None else match.group("body")
+
+
+def workflow_steps(job_block: str) -> list[tuple[str | None, str]]:
+    starts = list(
+        re.finditer(
+            r"(?m)^      -(?=\s|$)",
+            job_block,
+        )
+    )
+    steps: list[tuple[str | None, str]] = []
+    for index, match in enumerate(starts):
+        end = starts[index + 1].start() if index + 1 < len(starts) else len(job_block)
+        block = job_block[match.start() : end]
+        name_match = re.search(
+            r"(?m)^      -\s+name:\s*([^\r\n#]+?)\s*(?:#.*)?$",
+            block,
+        )
+        name = (
+            None
+            if name_match is None
+            else name_match.group(1).strip().strip("'\"")
+        )
+        steps.append((name, block))
+    return steps
+
+
+def workflow_step_scalar(step_block: str, key: str) -> list[str]:
+    values = re.findall(
+        rf"(?m)^        {re.escape(key)}:\s*([^\r\n#]*?)\s*(?:#.*)?$",
+        step_block,
+    )
+    return [_workflow_scalar_value(value) for value in values]
+
+
+def workflow_step_with_scalar(step_block: str, key: str) -> list[str]:
+    values = re.findall(
+        rf"(?m)^          {re.escape(key)}:\s*([^\r\n#]*?)\s*(?:#.*)?$",
+        step_block,
+    )
+    return [_workflow_scalar_value(value) for value in values]
+
+
+def _workflow_scalar_value(value: str) -> str:
+    result = value.strip()
+    if len(result) >= 2 and result[0] == result[-1] and result[0] in "'\"":
+        return result[1:-1]
+    return result
+
+
+def workflow_step_literal_lines(step_block: str, key: str) -> list[str] | None:
+    match = re.search(
+        rf"(?m)^          {re.escape(key)}:\s*\|\s*\r?\n"
+        r"(?P<body>(?:^            [^\r\n]*(?:\r?\n|\Z))+)",
+        step_block,
+    )
+    if match is None:
+        return None
+    return [
+        line.strip()
+        for line in match.group("body").splitlines()
+        if line.strip()
+    ]
+
+
+def workflow_step_run_lines(step_block: str) -> list[str] | None:
+    match = re.search(r"(?m)^        run:\s*\|\s*\r?\n", step_block)
+    if match is None:
+        return None
+    lines: list[str] = []
+    for line in step_block[match.end() :].splitlines():
+        if not line.strip():
+            continue
+        if not line.startswith("          "):
+            return None
+        lines.append(line.strip())
+    return lines
+
+
+def validate_pre_upload_verifier_contract(errors: list[str]) -> None:
+    source_path = (
+        INTELLIGENCE_SAMPLE
+        / "src"
+        / "hydra_governed_intelligence"
+        / "pre_upload_verifier.py"
+    )
+    test_path = INTELLIGENCE_SAMPLE / "tests" / "test_pre_upload_verifier.py"
+    try:
+        source = source_path.read_text(encoding="utf-8-sig")
+        source_tree = ast.parse(source, filename=str(source_path))
+        test_tree = ast.parse(
+            test_path.read_text(encoding="utf-8-sig"),
+            filename=str(test_path),
+        )
+    except (OSError, SyntaxError) as exc:
+        errors.append(f"unable to parse pre-upload verifier contract: {exc}")
+        return
+
+    functions = {
+        node.name: node
+        for node in source_tree.body
+        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef))
+    }
+    required_functions = {
+        "_build_bundle_bytes",
+        "_materialize_snapshots",
+        "_open_bound_parent",
+        "_publish_bundle",
+        "_read_bound_file",
+        "_require_bound_directory_path",
+        "_require_safe_bound_destination",
+        "_snapshot_file",
+        "_snapshot_verification_inputs",
+        "_verify_bundle",
+        "_verify_manifest",
+        "_verify_report",
+        "_write_github_output",
+        "package_repository_artifacts",
+        "verify_repository_artifacts",
+        "main",
+    }
+    if not required_functions.issubset(functions):
+        errors.append("pre-upload verifier required functions changed")
+        return
+
+    assignments = {
+        target.id: node.value
+        for node in source_tree.body
+        if isinstance(node, ast.Assign)
+        for target in node.targets
+        if isinstance(target, ast.Name)
+    }
+    expected_bundle_members = (
+        "governed-intelligence-sample/build/evaluation/decisions.jsonl",
+        "governed-intelligence-sample/build/evaluation/evaluation_report.json",
+        "governed-intelligence-sample/build/evaluation/output_manifest.json",
+        "governed-intelligence-sample/build/grounding/grounding_evaluation_report.json",
+        "governed-intelligence-sample/build/grounding/grounding_output_manifest.json",
+        "governed-intelligence-sample/build/grounding/grounding_receipts.jsonl",
+        "governed-intelligence-sample/build/retrieval/retrieval_decisions.jsonl",
+        "governed-intelligence-sample/build/retrieval/retrieval_evaluation_report.json",
+        "governed-intelligence-sample/build/retrieval/retrieval_output_manifest.json",
+        "market-data-pipeline-sample/build/demo/manifest.json",
+        "market-data-pipeline-sample/build/demo/normalized_events.csv",
+        "market-data-pipeline-sample/build/demo/normalized_events.jsonl",
+        "market-data-pipeline-sample/build/demo/quarantine_records.jsonl",
+        "market-data-pipeline-sample/build/demo/resolved_symbol_aliases.json",
+        "market-data-pipeline-sample/build/demo/source_snapshot.csv",
+    )
+    expected_support_files = (
+        "governed-intelligence-sample/config/grounding_policy.json",
+        "governed-intelligence-sample/config/policy.json",
+        "governed-intelligence-sample/config/retrieval_policy.json",
+        "governed-intelligence-sample/fixtures/evaluation_cases.json",
+        "governed-intelligence-sample/fixtures/grounding_cases.json",
+        "governed-intelligence-sample/fixtures/retrieval_cases.json",
+        "governed-intelligence-sample/fixtures/retrieval_qrels.json",
+    )
+    try:
+        actual_bundle_members = ast.literal_eval(assignments["BUNDLE_MEMBERS"])
+    except (KeyError, ValueError, TypeError):
+        actual_bundle_members = None
+    if actual_bundle_members != expected_bundle_members:
+        errors.append("pre-upload deterministic bundle member contract changed")
+    try:
+        actual_support_files = ast.literal_eval(
+            assignments["VERIFICATION_SUPPORT_FILES"]
+        )
+    except (KeyError, ValueError, TypeError):
+        actual_support_files = None
+    if actual_support_files != expected_support_files:
+        errors.append("pre-upload verification support-file contract changed")
+
+    verification_calls = [
+        node.func.id
+        for node in ast.walk(functions["verify_repository_artifacts"])
+        if isinstance(node, ast.Call) and isinstance(node.func, ast.Name)
+    ]
+    expected_call_counts = {
+        "_verify_manifest": 4,
+        "_verify_report": 3,
+        "_verify_domain_receipt": 3,
+        "load_evidence": 1,
+        "load_grounding_policy": 1,
+        "load_policy": 1,
+        "load_retrieval_policy": 1,
+    }
+    for name, expected_count in expected_call_counts.items():
+        if verification_calls.count(name) != expected_count:
+            errors.append(
+                "pre-upload verifier active call contract changed: "
+                f"{name}={verification_calls.count(name)}"
+            )
+
+    package_calls = [
+        node.func.id
+        for node in ast.walk(functions["package_repository_artifacts"])
+        if isinstance(node, ast.Call) and isinstance(node.func, ast.Name)
+    ]
+    expected_package_calls = {
+        "_build_bundle_bytes": 1,
+        "_materialize_snapshots": 1,
+        "_publish_bundle": 1,
+        "_snapshot_verification_inputs": 1,
+        "_verify_bundle": 1,
+        "verify_repository_artifacts": 1,
+    }
+    for name, expected_count in expected_package_calls.items():
+        if package_calls.count(name) != expected_count:
+            errors.append(
+                "pre-upload package call contract changed: "
+                f"{name}={package_calls.count(name)}"
+            )
+
+    main_calls = [
+        node.func.id
+        for node in ast.walk(functions["main"])
+        if isinstance(node, ast.Call) and isinstance(node.func, ast.Name)
+    ]
+    if main_calls.count("package_repository_artifacts") != 1:
+        errors.append("pre-upload packager main entry point became inactive")
+    if main_calls.count("_write_github_output") != 1:
+        errors.append("pre-upload GitHub output call shape changed")
+
+    required_source_fragments = (
+        "manifest_outputs == 9",
+        "receipt_count == 26",
+        "input_snapshots_verified == 2",
+        "source_rows_replayed == 7",
+        '"hydra-market-pipeline-manifest/v2"',
+        '"hydra-market-source-csv/v1"',
+        '"hydra-market-resolved-aliases/v1"',
+        '"micro_recall_at_k": "0.444444"',
+        '"macro_recall_at_k": "0.583333"',
+        '"mean_reciprocal_rank": "0.666667"',
+        '"proof_coverage_status": "PASS"',
+        'print("PRE_UPLOAD_ARTIFACT_VERIFICATION=PASS")',
+        'print(f"MANIFEST_OUTPUTS_VERIFIED={summary.manifest_outputs}")',
+        'print(f"RECEIPTS_VERIFIED={summary.receipts}")',
+        "BUNDLE_MEMBERS = (",
+        "ZIP_TIMESTAMP = (1980, 1, 1, 0, 0, 0)",
+        "ZIP_EXTERNAL_ATTR = (stat.S_IFREG | 0o644) << 16",
+        "compression=zipfile.ZIP_STORED",
+        "allowZip64=False",
+        'getattr(os, "O_NOFOLLOW", 0)',
+        "os.path.samestat(path_before, descriptor_before)",
+        "os.path.samestat(descriptor_before, descriptor_after)",
+        "os.path.samestat(descriptor_after, path_after)",
+        "NtSetInformationFile",
+        "src_dir_fd=parent_handle",
+        "dst_dir_fd=parent_handle",
+        '"--github-output-path"',
+        'f"input_snapshots_verified={summary.input_snapshots_verified}\\n"',
+        'f"source_rows_replayed={summary.source_rows_replayed}\\n"',
+        'print(f"INPUT_SNAPSHOTS_VERIFIED={summary.input_snapshots_verified}")',
+        'print(f"SOURCE_ROWS_REPLAYED={summary.source_rows_replayed}")',
+        'print(f"BUNDLE_MEMBERS={summary.bundle_members}")',
+        'print(f"BUNDLE_BYTES={summary.bundle_bytes}")',
+        'print(f"BUNDLE_SHA256={summary.bundle_sha256}")',
+    )
+    for fragment in required_source_fragments:
+        if fragment not in source:
+            errors.append(f"pre-upload verifier contract missing: {fragment}")
+
+    test_methods = {
+        node.name
+        for node in ast.walk(test_tree)
+        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef))
+    }
+    required_tests = {
+        "test_complete_artifact_set_passes",
+        "test_deterministic_bundle_is_byte_identical",
+        "test_bundle_member_metadata_and_payloads_are_exact",
+        "test_bundle_payload_tampering_fails",
+        "test_bundle_metadata_tampering_fails",
+        "test_packaging_failure_leaves_no_bundle_or_temporary_file",
+        "test_failed_replacement_preserves_existing_bundle",
+        "test_successful_replacement_overwrites_existing_bundle",
+        "test_failed_atomic_rename_removes_temporary_bundle",
+        "test_publish_bundle_rejects_linked_ancestor_without_external_artifact",
+        "test_linked_ancestor_cannot_create_external_parent",
+        "test_ancestor_swap_during_temporary_creation_cannot_redirect_bundle",
+        "test_snapshot_rejects_file_replaced_between_lstat_and_open",
+        "test_snapshot_rejects_descriptor_identity_change_after_read",
+        "test_snapshot_rejects_descriptor_type_change_after_read",
+        "test_snapshot_open_uses_no_follow_when_available",
+        "test_cli_appends_bundle_digest_to_github_output",
+        "test_source_mutation_after_snapshot_does_not_change_bundle",
+        "test_manifest_digest_tampering_fails",
+        "test_rehashed_qrels_with_stale_retrieval_metrics_fails",
+        "test_rehashed_grounding_report_with_stale_claim_totals_fails",
+        "test_rehashed_grounding_report_with_stale_dispositions_fails",
+        "test_rehashed_receipt_tampering_fails_semantic_verification",
+        "test_input_snapshot_digest_tampering_fails",
+        "test_manifest_v1_fails_closed",
+        "test_manifest_v2_bundle_member_contract",
+        "test_manifest_v2_summary_contract",
+    }
+    if not required_tests.issubset(test_methods):
+        errors.append("pre-upload verifier tamper tests changed")
+
+
+def validate_manifest_v2_replay_contract(errors: list[str]) -> None:
+    schema_path = PIPELINE / "contracts" / "pipeline_manifest.schema.json"
+    replay_path = (
+        INTELLIGENCE_SAMPLE
+        / "src"
+        / "hydra_governed_intelligence"
+        / "pipeline_replay.py"
+    )
+    try:
+        schema = json.loads(schema_path.read_text(encoding="utf-8-sig"))
+        replay_source = replay_path.read_text(encoding="utf-8-sig")
+        replay_tree = ast.parse(replay_source, filename=str(replay_path))
+    except (OSError, json.JSONDecodeError, SyntaxError) as exc:
+        errors.append(f"unable to parse manifest-v2 replay contract: {exc}")
+        return
+
+    required_manifest_fields = {
+        "accepted_rows",
+        "aliases_sha256",
+        "inputs",
+        "outputs",
+        "pipeline_run_id",
+        "quarantined_rows",
+        "schema_version",
+        "source_file_sha256",
+        "source_rows",
+        "transform_version",
+    }
+    properties = schema.get("properties", {})
+    inputs = properties.get("inputs", {}).get("properties", {})
+    if schema.get("$id") != "hydra-market-pipeline-manifest/v2":
+        errors.append("pipeline manifest schema v2 ID changed")
+    if set(schema.get("required", [])) != required_manifest_fields:
+        errors.append("pipeline manifest schema v2 required fields changed")
+    expected_inputs = {
+        "resolved_aliases_json": (
+            "resolved_symbol_aliases.json",
+            "hydra-market-resolved-aliases/v1",
+        ),
+        "source_csv": ("source_snapshot.csv", "hydra-market-source-csv/v1"),
+    }
+    if set(inputs) != set(expected_inputs):
+        errors.append("pipeline manifest schema v2 input set changed")
+    else:
+        for key, (filename, schema_version) in expected_inputs.items():
+            descriptor = inputs[key].get("properties", {})
+            if descriptor.get("file", {}).get("const") != filename:
+                errors.append(f"pipeline manifest input filename changed: {key}")
+            if descriptor.get("schema_version", {}).get("const") != schema_version:
+                errors.append(f"pipeline manifest input schema changed: {key}")
+
+    functions = {
+        node.name
+        for node in replay_tree.body
+        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef))
+    }
+    required_functions = {
+        "replay_pipeline",
+        "_load_resolved_aliases",
+        "_validate_header",
+        "_quarantine_record",
+        "_jsonl_bytes",
+        "_csv_bytes",
+    }
+    if not required_functions.issubset(functions):
+        errors.append("independent pipeline replay functions changed")
+    if "hydra_market_pipeline" in replay_source:
+        errors.append("independent pipeline replay must not import producer code")
+    replay_fragments = (
+        'PIPELINE_MANIFEST_SCHEMA = "hydra-market-pipeline-manifest/v2"',
+        'SOURCE_CSV_SCHEMA = "hydra-market-source-csv/v1"',
+        'RESOLVED_ALIASES_SCHEMA = "hydra-market-resolved-aliases/v1"',
+        "source_rows=source_rows",
+        "normalized_jsonl=normalized_jsonl",
+        "normalized_csv=normalized_csv",
+        "quarantine_jsonl=quarantine_jsonl",
+    )
+    for fragment in replay_fragments:
+        if fragment not in replay_source:
+            errors.append(f"independent pipeline replay contract missing: {fragment}")
+
 
 def validate_ci_contract(errors: list[str]) -> None:
+    validate_manifest_v2_replay_contract(errors)
+    validate_pre_upload_verifier_contract(errors)
+    documentation_contracts = {
+        ROOT / "README.md": (
+            "15-member deterministic proof package intentionally includes",
+            "all 7 rows are synthetic, including rows designed to quarantine",
+            "Governed context, retrieval, and receipt artifacts remain accepted-only or aggregate-only",
+            "do not expose quarantined row payloads",
+        ),
+        INTELLIGENCE_SAMPLE / "README.md": (
+            "deterministic, uncompressed 15-member ZIP",
+            "all 7 synthetic rows, including rows designed to quarantine",
+            "canonical `resolved_symbol_aliases.json`",
+            "`INPUT_SNAPSHOTS_VERIFIED=2`",
+            "`SOURCE_ROWS_REPLAYED=7`",
+            "do not expose quarantined row payloads",
+        ),
+        PIPELINE / "README.md": (
+            "15-member proof package intentionally carries the exact source snapshot",
+            "all 7 synthetic rows, including rows designed to quarantine",
+            "canonical resolved aliases",
+            "do not expose quarantined row payloads",
+        ),
+    }
+    for path, fragments in documentation_contracts.items():
+        text = path.read_text(encoding="utf-8-sig")
+        for fragment in fragments:
+            if fragment not in text:
+                errors.append(
+                    f"manifest-v2 public documentation contract missing: {path.name}: {fragment}"
+                )
     validator_workflow = (ROOT / ".github/workflows/t6-validator.yml").read_text(
         encoding="utf-8-sig"
     )
@@ -293,6 +952,11 @@ def validate_ci_contract(errors: list[str]) -> None:
         "PYTHONPATH: src",
         "python -m unittest discover -s tests -t . -v",
         "--output-dir build/demo",
+        '"hydra-market-pipeline-manifest/v2"',
+        '"resolved_symbol_aliases.json"',
+        '"source_snapshot.csv"',
+        'print("INPUT_SNAPSHOTS_VERIFIED=2")',
+        'print("SOURCE_ROWS_SNAPSHOT_VERIFIED=7")',
         "python run_recovery_demo.py --output-dir build/operations",
         "OPERATIONS_RECEIPT=PASS",
         "actions/upload-artifact@v4",
@@ -300,6 +964,8 @@ def validate_ci_contract(errors: list[str]) -> None:
     for fragment in pipeline_fragments:
         if fragment not in pipeline_workflow:
             errors.append(f"market-pipeline CI contract missing: {fragment}")
+    if "SOURCE_ROWS_REPLAYED" in pipeline_workflow:
+        errors.append("market-pipeline CI must not claim independent source-row replay")
 
     sql_workflow = (ROOT / ".github/workflows/sql-data-quality-sample.yml").read_text(
         encoding="utf-8-sig"
@@ -355,17 +1021,266 @@ def validate_ci_contract(errors: list[str]) -> None:
     ).read_text(encoding="utf-8-sig")
     intelligence_fragments = (
         'python-version: "3.11"',
+        "actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+        "actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065",
         "working-directory: governed-intelligence-sample",
         "python -m unittest discover -s tests -t . -v",
         "python run_demo.py",
         "GOVERNED_INTELLIGENCE_EVAL=PASS",
         "python run_retrieval_demo.py",
+        "--qrels fixtures/retrieval_qrels.json",
         "GOVERNED_RETRIEVAL_EVAL=PASS",
-        "actions/upload-artifact@v4",
+        "python run_grounding_demo.py",
+        "GOVERNED_GROUNDING_EVAL=PASS",
+        "build/grounding/",
+        "timeout-minutes: 15",
+        "persist-credentials: false",
+        "mkdir -p governed-intelligence-sample/build/upload",
+        "python -I -B governed-intelligence-sample/src/hydra_governed_intelligence/pre_upload_verifier.py --repository-root . --bundle-path governed-intelligence-sample/build/upload/hydra-governed-intelligence-proof.zip --github-output-path \"$GITHUB_OUTPUT\"",
+        '"case_count"], 13',
+        '"micro_recall_at_k": "0.444444"',
+        '"case_count"], 8',
+        '"proof_coverage_status": "PASS"',
+        "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02",
+        "actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093",
+        "compression-level: 0",
+        "EXPECTED_BUNDLE_SHA256: ${{ steps.package_artifacts.outputs.bundle_sha256 }}",
+        "EXPECTED_INPUT_SNAPSHOTS_VERIFIED: ${{ steps.package_artifacts.outputs.input_snapshots_verified }}",
+        "EXPECTED_SOURCE_ROWS_REPLAYED: ${{ steps.package_artifacts.outputs.source_rows_replayed }}",
+        "actual = hashlib.sha256(bundle.read_bytes()).hexdigest()",
+        "require(actual == expected, f\"digest mismatch: expected {expected}, got {actual}\")",
     )
     for fragment in intelligence_fragments:
         if fragment not in intelligence_workflow:
             errors.append(f"governed-intelligence CI contract missing: {fragment}")
+    if "SOURCE_ROWS_SNAPSHOT_VERIFIED" in intelligence_workflow:
+        errors.append("governed-intelligence CI source-row replay signal was weakened")
+    action_pins = {
+        "actions/checkout": "11d5960a326750d5838078e36cf38b85af677262",
+        "actions/setup-python": "a26af69be951a213d495a4c3e4e4022e16d87065",
+        "actions/upload-artifact": "ea165f8d65b6e75b540449e92b4886f43607fa02",
+        "actions/download-artifact": "d3f86a106a0bac45b974a628896c90dbdf5c8093",
+    }
+    for action, expected_sha in action_pins.items():
+        refs = re.findall(
+            rf"(?m)^\s*uses:\s*{re.escape(action)}@([^\s#]+)",
+            intelligence_workflow,
+        )
+        if refs != [expected_sha]:
+            errors.append(
+                f"governed-intelligence CI action pin changed: {action}={refs!r}"
+            )
+    required_gate_lines = (
+        'require(report["case_count"], 13, "case_count")',
+        'require(report["case_count"], 8, "case_count")',
+        '"micro_recall_at_k": "0.444444",',
+        '"macro_recall_at_k": "0.583333",',
+        '"mean_reciprocal_rank": "0.666667",',
+        '"proof_coverage_status": "PASS",',
+    )
+    for line in required_gate_lines:
+        if not re.search(rf"(?m)^\s*{re.escape(line)}\s*$", intelligence_workflow):
+            errors.append(f"governed-intelligence CI gate line changed: {line}")
+    if re.search(r"\bassert\s", intelligence_workflow):
+        errors.append("governed-intelligence CI must not use removable Python asserts")
+    if re.search(r"(?m)^  pull_request_target\s*:", intelligence_workflow):
+        errors.append("governed-intelligence CI must not use pull_request_target")
+    permissions_match = re.search(
+        r"(?ms)^permissions:\s*\r?\n(?P<body>.*?)(?=^\S|\Z)",
+        intelligence_workflow,
+    )
+    permission_lines = (
+        []
+        if permissions_match is None
+        else [
+            line.strip()
+            for line in permissions_match.group("body").splitlines()
+            if line.strip()
+        ]
+    )
+    if permission_lines != ["contents: read"]:
+        errors.append(
+            "governed-intelligence CI permissions must remain contents: read only"
+        )
+
+    evaluate_job = workflow_job_block(intelligence_workflow, "evaluate")
+    if evaluate_job is None:
+        errors.append("governed-intelligence CI evaluate job is missing")
+        return
+    if re.search(r"(?m)^    if\s*:", evaluate_job):
+        errors.append("governed-intelligence CI evaluate job must be unconditional")
+    if re.search(r"(?m)^    continue-on-error\s*:", evaluate_job):
+        errors.append("governed-intelligence CI evaluate job must fail closed")
+
+    required_active_steps = (
+        "Checkout",
+        "Set up Python",
+        "Build governed synthetic pipeline artifacts",
+        "Run pre-model control tests",
+        "Build deterministic context and evaluation receipts",
+        "Check evaluation report contract",
+        "Build deterministic lexical retrieval receipts",
+        "Check retrieval report contract and declared input digests",
+        "Build deterministic structured grounding receipts",
+        "Check grounding report contract and declared input digests",
+        "Prepare artifact destination",
+        "Verify and package exact artifact snapshots",
+    )
+    upload_name = "Publish synthetic pre-model receipts"
+    download_name = "Download published proof artifact"
+    digest_check_name = "Verify published proof digest"
+    expected_step_sequence = required_active_steps + (
+        upload_name,
+        download_name,
+        digest_check_name,
+    )
+    actual_steps = workflow_steps(evaluate_job)
+    actual_step_names = tuple(name for name, _ in actual_steps)
+    if actual_step_names != expected_step_sequence:
+        errors.append(
+            "governed-intelligence CI complete step sequence changed: "
+            f"{actual_step_names!r}"
+        )
+
+    step_blocks: dict[str, str] = {}
+    for required_name in required_active_steps + (download_name, digest_check_name):
+        matches = [block for name, block in actual_steps if name == required_name]
+        if len(matches) != 1:
+            errors.append(
+                "governed-intelligence CI required active step count changed: "
+                f"{required_name}={len(matches)}"
+            )
+            continue
+        step_blocks[required_name] = matches[0]
+        if workflow_step_scalar(matches[0], "if"):
+            errors.append(
+                f"governed-intelligence CI required step must be unconditional: {required_name}"
+            )
+        if workflow_step_scalar(matches[0], "continue-on-error"):
+            errors.append(
+                f"governed-intelligence CI required step must fail closed: {required_name}"
+            )
+
+    upload_matches = [block for name, block in actual_steps if name == upload_name]
+    if len(upload_matches) != 1:
+        errors.append(
+            "governed-intelligence CI upload step count changed: "
+            f"{len(upload_matches)}"
+        )
+    else:
+        upload_block = upload_matches[0]
+        expected_upload_condition = (
+            "${{ success() && steps.package_artifacts.outcome == 'success' }}"
+        )
+        if workflow_step_scalar(upload_block, "if") != [expected_upload_condition]:
+            errors.append("governed-intelligence CI upload success gate changed")
+        if workflow_step_scalar(upload_block, "continue-on-error"):
+            errors.append("governed-intelligence CI upload step must fail closed")
+        if workflow_step_scalar(upload_block, "uses") != [
+            "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02"
+        ]:
+            errors.append("governed-intelligence CI upload action binding changed")
+        if workflow_step_with_scalar(upload_block, "name") != [
+            "hydra-governed-intelligence-sample"
+        ]:
+            errors.append("governed-intelligence CI upload artifact name changed")
+        expected_upload_path = (
+            "governed-intelligence-sample/build/upload/"
+            "hydra-governed-intelligence-proof.zip"
+        )
+        if workflow_step_with_scalar(upload_block, "path") != [expected_upload_path]:
+            errors.append("governed-intelligence CI upload path changed")
+        if workflow_step_with_scalar(upload_block, "compression-level") != ["0"]:
+            errors.append("governed-intelligence CI upload compression changed")
+        if workflow_step_with_scalar(upload_block, "if-no-files-found") != ["error"]:
+            errors.append(
+                "governed-intelligence CI upload missing-file behavior changed"
+            )
+
+    prepare_name = "Prepare artifact destination"
+    if prepare_name in step_blocks:
+        if workflow_step_scalar(step_blocks[prepare_name], "run") != [
+            "mkdir -p governed-intelligence-sample/build/upload"
+        ]:
+            errors.append("governed-intelligence CI artifact destination setup changed")
+
+    verifier_name = "Verify and package exact artifact snapshots"
+    if verifier_name in step_blocks:
+        verifier_block = step_blocks[verifier_name]
+        if workflow_step_scalar(verifier_block, "id") != ["package_artifacts"]:
+            errors.append("governed-intelligence CI package step ID changed")
+        expected_invocation = (
+            "python -I -B governed-intelligence-sample/src/"
+            "hydra_governed_intelligence/pre_upload_verifier.py --repository-root . "
+            "--bundle-path governed-intelligence-sample/build/upload/"
+            "hydra-governed-intelligence-proof.zip --github-output-path "
+            '"$GITHUB_OUTPUT"'
+        )
+        if workflow_step_scalar(verifier_block, "run") != [expected_invocation]:
+            errors.append(
+                "governed-intelligence CI package invocation changed"
+            )
+        if re.search(r"(?m)^        run:\s*[|>]", verifier_block):
+            errors.append(
+                "governed-intelligence CI package step must not use inline code"
+            )
+
+    if download_name in step_blocks:
+        download_block = step_blocks[download_name]
+        if workflow_step_scalar(download_block, "uses") != [
+            "actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093"
+        ]:
+            errors.append("governed-intelligence CI download action binding changed")
+        if workflow_step_with_scalar(download_block, "name") != [
+            "hydra-governed-intelligence-sample"
+        ]:
+            errors.append("governed-intelligence CI download artifact name changed")
+        if workflow_step_with_scalar(download_block, "path") != [
+            "${{ runner.temp }}/hydra-governed-intelligence-published-proof"
+        ]:
+            errors.append("governed-intelligence CI download path changed")
+
+    if digest_check_name in step_blocks:
+        digest_block = step_blocks[digest_check_name]
+        if workflow_step_scalar(digest_block, "uses"):
+            errors.append("governed-intelligence CI digest check must run Python")
+        if workflow_step_with_scalar(digest_block, "DOWNLOADED_BUNDLE_PATH") != [
+            "${{ runner.temp }}/hydra-governed-intelligence-published-proof/"
+            "hydra-governed-intelligence-proof.zip"
+        ]:
+            errors.append("governed-intelligence CI downloaded bundle path changed")
+        if workflow_step_with_scalar(digest_block, "EXPECTED_BUNDLE_SHA256") != [
+            "${{ steps.package_artifacts.outputs.bundle_sha256 }}"
+        ]:
+            errors.append("governed-intelligence CI expected bundle digest changed")
+        expected_digest_run = [
+            "python -I -B - <<'PY'",
+            "import hashlib",
+            "import os",
+            "import re",
+            "from pathlib import Path",
+            "def require(condition, detail):",
+            "if not condition:",
+            'raise SystemExit(f"PUBLISHED_ARTIFACT_DIGEST_CHECK=FAIL: {detail}")',
+            'expected = os.environ.get("EXPECTED_BUNDLE_SHA256", "")',
+            'input_snapshots = os.environ.get("EXPECTED_INPUT_SNAPSHOTS_VERIFIED", "")',
+            'source_rows = os.environ.get("EXPECTED_SOURCE_ROWS_REPLAYED", "")',
+            'bundle = Path(os.environ.get("DOWNLOADED_BUNDLE_PATH", ""))',
+            'require(re.fullmatch(r"[0-9a-f]{64}", expected) is not None, "expected digest is invalid")',
+            'require(input_snapshots == "2", "verified input snapshot count changed")',
+            'require(source_rows == "7", "replayed source row count changed")',
+            'require(bundle.is_file() and not bundle.is_symlink(), "downloaded inner ZIP is missing")',
+            "entries = sorted(entry.name for entry in bundle.parent.iterdir())",
+            'require(entries == [bundle.name], "downloaded artifact member set changed")',
+            "actual = hashlib.sha256(bundle.read_bytes()).hexdigest()",
+            'require(actual == expected, f"digest mismatch: expected {expected}, got {actual}")',
+            'print(f"PUBLISHED_ARTIFACT_DIGEST_CHECK=PASS:{actual}")',
+            "PY",
+        ]
+        if workflow_step_run_lines(digest_block) != expected_digest_run:
+            errors.append(
+                "governed-intelligence CI downloaded digest check changed"
+            )
 
 
 def validate_aws_template_contract(errors: list[str]) -> None:
@@ -411,6 +1326,7 @@ def main() -> int:
         return 1
 
     print("PUBLIC_REPOSITORY_VALIDATION=PASS")
+    print("VALIDATION_SCOPE=REPOSITORY_CONTROLLED_SELF_CHECK")
     print(f"REQUIRED_PATHS={len(REQUIRED_PATHS)}")
     print(f"PUBLIC_TEXT_FILES={len(active_public_text_files())}")
     print("FAIL_CLOSED_CONTRACT=PASS")
