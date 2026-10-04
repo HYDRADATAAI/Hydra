@@ -10,11 +10,17 @@ from __future__ import annotations
 
 import json
 from datetime import datetime
+from html.parser import HTMLParser
 from pathlib import Path
 import re
 from typing import Any, Mapping
 
-from .store import RawArtifactStore, build_release_manifest, is_ordinary_t2_eligible
+from .store import (
+    ALLOWED_DISPOSITIONS,
+    RawArtifactStore,
+    build_release_manifest,
+    is_ordinary_t2_eligible,
+)
 
 
 CAPTURE_PLAN_SCHEMA = "hydra-constraint-first-slice-local-capture-plan/v1"
@@ -155,7 +161,7 @@ def _capture_rows(
         disposition = raw.get("processing_disposition", "ELIGIBLE")
         if not isinstance(source_version_id, str) or not source_version_id:
             raise FirstSliceMaterializationError(f"{source_id}: source_version_id required")
-        if not isinstance(content_type, str) or not content_type:
+        if not isinstance(content_type, str) or not content_type.strip():
             raise FirstSliceMaterializationError(f"{source_id}: content_type required")
         if not isinstance(acquired_at, str):
             raise FirstSliceMaterializationError(f"{source_id}: acquired_at required")
@@ -179,6 +185,76 @@ def _capture_rows(
             f"capture source set must exactly match registry; missing={missing} extra={extra}"
         )
     return normalized
+
+
+class _HTMLPrefixSignals(HTMLParser):
+    """Read bounded presentation hints, not document authenticity or completeness."""
+
+    def __init__(self) -> None:
+        super().__init__(convert_charrefs=True)
+        self.hidden: list[str] = []
+        self.in_head = False
+        self.heading: str | None = None
+        self.heading_parts: list[str] = []
+        self.headings: list[str] = []
+        self.visible_parts: list[str] = []
+
+    def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
+        if tag in {"script", "style", "template"}:
+            self.hidden.append(tag)
+        if self.hidden:
+            return
+        if tag == "head":
+            self.in_head = True
+        if tag in {"title", "h1", "h2"}:
+            self.heading = tag
+            self.heading_parts = []
+
+    def handle_endtag(self, tag: str) -> None:
+        if self.hidden:
+            if tag == self.hidden[-1]:
+                self.hidden.pop()
+            return
+        if tag == self.heading:
+            self.headings.append("".join(self.heading_parts))
+            self.heading = None
+            self.heading_parts = []
+        if tag == "head":
+            self.in_head = False
+
+    def handle_data(self, data: str) -> None:
+        if self.hidden:
+            return
+        if self.heading:
+            self.heading_parts.append(data)
+        if not self.in_head and self.heading != "title":
+            self.visible_parts.append(data)
+
+
+def _validate_body(raw: bytes, *, content_type: str, source_id: str) -> None:
+    if not raw:
+        raise FirstSliceMaterializationError(f"{source_id}: empty staged source body")
+    media_type = content_type.split(";", 1)[0].strip().lower()
+    prefix = raw[:4096].lower()
+    if media_type == "application/pdf":
+        if not raw.startswith(b"%PDF-"):
+            raise FirstSliceMaterializationError(f"{source_id}: PDF signature is absent")
+        return
+    if media_type != "text/html":
+        return
+    if b"<html" not in prefix and b"<!doctype" not in prefix:
+        raise FirstSliceMaterializationError(f"{source_id}: expected HTML source body")
+    presentation = _HTMLPrefixSignals()
+    presentation.feed(raw[:4096].decode("utf-8", errors="replace"))
+    presentation.close()
+    signals = presentation.headings + [
+        "".join(presentation.heading_parts),
+        "".join(presentation.visible_parts),
+    ]
+    for signal in signals:
+        normalized = " ".join(signal.lower().split())
+        if re.match(r"^(?:access denied|captcha|403 forbidden|404 not found)(?=$|[\s:;,.!?-])", normalized):
+            raise FirstSliceMaterializationError(f"{source_id}: error/interstitial source body")
 
 
 def materialize_capture_plan(
@@ -218,11 +294,19 @@ def materialize_capture_plan(
             "release_created_at cannot precede the latest source acquisition"
         )
 
+    # Read and check the complete source set before any private-store mutation.
+    # Persist these exact bytes so a later staging-file change cannot bypass preflight.
+    staged: list[tuple[dict[str, Any], bytes]] = []
+    for row in rows:
+        raw = row["input_path"].read_bytes()
+        _validate_body(raw, content_type=row["content_type"], source_id=row["source_id"])
+        staged.append((row, raw))
+
     store = RawArtifactStore(Path(private_root), public_repo_root=public_repo)
     receipts: list[dict[str, Any]] = []
-    for row in rows:
+    for row, raw in staged:
         receipts.append(store.persist(
-            raw_bytes=row["input_path"].read_bytes(),
+            raw_bytes=raw,
             source_id=row["source_id"],
             source_version_id=row["source_version_id"],
             content_type=row["content_type"],
@@ -307,6 +391,10 @@ def validate_public_materialization_attestation(
     registry: Mapping[str, Any],
 ) -> None:
     """Check public structure and hashes; this does not verify timestamp authority."""
+    if not isinstance(attestation, Mapping):
+        raise FirstSliceMaterializationError("attestation object required")
+    if not isinstance(registry, Mapping):
+        raise FirstSliceMaterializationError("registry object required")
     registry_sources = _registry_sources(registry)
     if attestation.get("schema_version") != ATTESTATION_SCHEMA:
         raise FirstSliceMaterializationError("unsupported attestation schema")
@@ -391,6 +479,21 @@ def validate_public_materialization_attestation(
         label = f"members[{index}]"
         if not isinstance(member, Mapping) or set(member) != expected_member_fields:
             raise FirstSliceMaterializationError(f"{label}: field set invalid")
+        byte_length = member.get("byte_length")
+        if type(byte_length) is not int or byte_length <= 0:
+            raise FirstSliceMaterializationError(f"{label}.byte_length invalid")
+        content_type = member.get("content_type")
+        if not isinstance(content_type, str) or not content_type.strip():
+            raise FirstSliceMaterializationError(f"{label}.content_type invalid")
+        processing_disposition = member.get("processing_disposition")
+        if (not isinstance(processing_disposition, str)
+                or processing_disposition not in ALLOWED_DISPOSITIONS):
+            raise FirstSliceMaterializationError(f"{label}.processing_disposition invalid")
+        ordinary_eligible = member.get("ordinary_t2_eligible")
+        if type(ordinary_eligible) is not bool:
+            raise FirstSliceMaterializationError(
+                f"{label}.ordinary_t2_eligible must be a boolean"
+            )
         source_version_id = member.get("source_version_id")
         artifact_sha256 = member.get("artifact_sha256")
         receipt_sha256 = member.get("receipt_sha256")
@@ -412,9 +515,9 @@ def validate_public_materialization_attestation(
             raise FirstSliceMaterializationError(
                 f"{label}: conservative attestation requires AVAILABLE_AT=ACQUIRED_AT"
             )
-        if member.get("ordinary_t2_eligible") is True:
+        if ordinary_eligible:
             ordinary_count += 1
-            if member.get("processing_disposition") != "ELIGIBLE":
+            if processing_disposition != "ELIGIBLE":
                 raise FirstSliceMaterializationError(
                     f"{label}: ordinary eligibility conflicts with processing disposition"
                 )
@@ -425,17 +528,21 @@ def validate_public_materialization_attestation(
             "receipt_sha256": receipt_sha256,
         })
 
-    if attestation.get("registry_source_count") != len(registry_sources):
-        raise FirstSliceMaterializationError("registry_source_count drift")
-    if attestation.get("materialized_source_count") != len(members):
-        raise FirstSliceMaterializationError("materialized_source_count drift")
-    if attestation.get("ordinary_t2_eligible_count") != ordinary_count:
-        raise FirstSliceMaterializationError("ordinary_t2_eligible_count drift")
-    if attestation.get("ordinary_t2_blocked_count") != len(members) - ordinary_count:
-        raise FirstSliceMaterializationError("ordinary_t2_blocked_count drift")
+    expected_counts = {
+        "registry_source_count": len(registry_sources),
+        "materialized_source_count": len(members),
+        "ordinary_t2_eligible_count": ordinary_count,
+        "ordinary_t2_blocked_count": len(members) - ordinary_count,
+    }
+    for field, expected_count in expected_counts.items():
+        actual_count = attestation.get(field)
+        if type(actual_count) is not int:
+            raise FirstSliceMaterializationError(f"{field} must be an exact integer")
+        if actual_count != expected_count:
+            raise FirstSliceMaterializationError(f"{field} drift")
     if attestation.get("all_registry_sources_materialized") is not True:
         raise FirstSliceMaterializationError("attestation does not cover all registry sources")
-    if attestation.get("all_sources_ordinary_t2_eligible") != (ordinary_count == len(members)):
+    if attestation.get("all_sources_ordinary_t2_eligible") is not (ordinary_count == len(members)):
         raise FirstSliceMaterializationError("all_sources_ordinary_t2_eligible drift")
 
     release_id = attestation.get("release_id")

@@ -1,9 +1,11 @@
 from __future__ import annotations
 
 import copy
+import hashlib
 import tempfile
 import unittest
 from pathlib import Path
+from unittest.mock import patch
 
 from hydra_constraint_t1_raw.first_slice_materialization import (
     FirstSliceMaterializationError,
@@ -94,6 +96,126 @@ class FirstSliceMaterializationTests(unittest.TestCase):
         with self.assertRaisesRegex(FirstSliceMaterializationError, "exactly match registry"):
             self.run_plan(bad)
 
+    def test_whitespace_content_type_is_rejected_before_private_store_creation(self):
+        bad = copy.deepcopy(self.plan)
+        bad["captures"][1]["content_type"] = "   "
+        self.assertFalse(self.private.exists())
+        with self.assertRaisesRegex(FirstSliceMaterializationError, "SRC-B: content_type required"):
+            self.run_plan(bad)
+        self.assertFalse(self.private.exists())
+
+    def test_invalid_last_body_is_rejected_before_any_store_write(self):
+        cases = (
+            ("application/pdf", b"<html>Not a PDF</html>", "PDF signature"),
+            ("application/pdf", b"<!doctype html><html><h1>403 Forbidden</h1></html>", "PDF signature"),
+            ("text/html; charset=UTF-8", b"Not an HTML body", "HTML source body"),
+            ("application/octet-stream", b"", "empty"),
+        )
+        for index, (content_type, raw, diagnostic) in enumerate(cases):
+            with self.subTest(content_type=content_type):
+                self.private = self.base / f"private-invalid-{index}"
+                plan = copy.deepcopy(self.plan)
+                plan["captures"][1]["content_type"] = content_type
+                (self.captures / "b.pdf").write_bytes(raw)
+                with self.assertRaisesRegex(FirstSliceMaterializationError, diagnostic):
+                    self.run_plan(plan)
+                self.assertFalse(self.private.exists())
+
+    def test_error_interstitial_bodies_are_rejected_before_any_store_write(self):
+        for marker in (b"ACCESS DENIED", b"CAPTCHA", b"403 FORBIDDEN", b"404 NOT FOUND"):
+            for prefix, suffix in (
+                (b"<!DOCTYPE html><html>", b"</html>"),
+                (b"<!DOCTYPE html><html><head><title>", b"</title></head></html>"),
+                (b"<!DOCTYPE html><html><body><h1>", b"</h1></body></html>"),
+                (b"<!DOCTYPE html><html><body><h2>", b"</h2></body></html>"),
+            ):
+                with self.subTest(marker=marker, prefix=prefix):
+                    self.private = self.base / f"private-error-{marker.decode().replace(' ', '-')}-{len(prefix)}"
+                    plan = copy.deepcopy(self.plan)
+                    plan["captures"][1]["content_type"] = "text/html; charset=UTF-8"
+                    (self.captures / "b.pdf").write_bytes(prefix + marker + suffix)
+                    with self.assertRaisesRegex(FirstSliceMaterializationError, "error/interstitial"):
+                        self.run_plan(plan)
+                    self.assertFalse(self.private.exists())
+
+    def test_visible_error_heading_normalizes_entities_and_inline_markup(self):
+        (self.captures / "a.html").write_bytes(
+            b"<!doctype html><html><body><h1>Access&nbsp;<span>Denied</span></h1></body></html>"
+        )
+        with self.assertRaisesRegex(FirstSliceMaterializationError, "error/interstitial"):
+            self.run_plan()
+        self.assertFalse(self.private.exists())
+
+    def test_late_body_read_failure_leaves_store_untouched(self):
+        original_read = Path.read_bytes
+        last_input = self.captures / "b.pdf"
+
+        def read_or_fail(path):
+            if path == last_input:
+                raise OSError("synthetic read failure")
+            return original_read(path)
+
+        with patch.object(Path, "read_bytes", read_or_fail):
+            with self.assertRaisesRegex(OSError, "synthetic read failure"):
+                self.run_plan()
+        self.assertFalse(self.private.exists())
+
+    def test_pdf_body_markers_are_not_interstitial_evidence(self):
+        for index, marker in enumerate((b"ACCESS DENIED", b"CAPTCHA", b"403 FORBIDDEN", b"404 NOT FOUND")):
+            with self.subTest(marker=marker):
+                self.private = self.base / f"private-pdf-report-{index}"
+                self.plan["captures"][1]["content_type"] = "Application/PDF; version=1.7"
+                (self.captures / "b.pdf").write_bytes(b"%PDF-1.7\n% Synthetic report topic: " + marker + b"\n")
+                attestation = self.run_plan()
+                self.assertEqual(2, attestation["materialized_source_count"])
+                self.assertEqual(0, attestation["ordinary_t2_eligible_count"])
+
+    def test_html_script_urls_and_hidden_text_are_not_interstitial_evidence(self):
+        (self.captures / "a.html").write_bytes(
+            b'<!doctype html><html><head><title>Quarterly results</title>'
+            b'<script src="https://example.invalid/recaptcha/api.js"></script>'
+            b'<style>/* access denied */</style></head><body>'
+            b'<!-- 403 forbidden --><template>404 not found</template>'
+            b'<h1>Quarterly results</h1><p>Orders increased.</p></body></html>'
+        )
+        self.assertEqual(2, self.run_plan()["materialized_source_count"])
+
+    def test_html_article_mentions_are_not_interstitial_evidence(self):
+        (self.captures / "a.html").write_bytes(
+            b'<!doctype html><html><head><title>Service report</title></head>'
+            b'<body><h1>Service report</h1><p>The release corrected 404 Not Found '
+            b'and 403 Forbidden errors and improved CAPTCHA handling. Earlier '
+            b'access denied incidents are documented here.</p></body></html>'
+        )
+        self.assertEqual(2, self.run_plan()["materialized_source_count"])
+
+    def test_persistence_uses_preflight_bytes_if_staged_file_changes(self):
+        original_read = Path.read_bytes
+        first_input = self.captures / "a.html"
+        original_bytes = original_read(first_input)
+
+        def read_and_change_earlier_input(path):
+            raw = original_read(path)
+            if path == self.captures / "b.pdf":
+                first_input.write_bytes(b"<html>changed after preflight</html>")
+            return raw
+
+        with patch.object(Path, "read_bytes", read_and_change_earlier_input):
+            attestation = self.run_plan()
+        self.assertEqual(
+            hashlib.sha256(original_bytes).hexdigest(),
+            attestation["members"][0]["artifact_sha256"],
+        )
+
+    def test_small_generic_bodies_remain_supported_without_admission(self):
+        plan = copy.deepcopy(self.plan)
+        plan["captures"][1]["content_type"] = "application/octet-stream"
+        (self.captures / "b.pdf").write_bytes(b"synthetic generic body")
+        attestation = self.run_plan(plan)
+        self.assertEqual(2, attestation["materialized_source_count"])
+        self.assertEqual(0, attestation["ordinary_t2_eligible_count"])
+        self.assertFalse(attestation["strict_historical_replay_promoted"])
+
     def test_unregistered_source_is_rejected(self):
         bad = copy.deepcopy(self.plan)
         bad["captures"][0]["source_id"] = "SRC-UNKNOWN"
@@ -149,6 +271,109 @@ class FirstSliceMaterializationTests(unittest.TestCase):
             attestation=attestation,
             registry=self.registry,
         )
+
+    def test_attestation_validator_rejects_non_mapping_roots(self):
+        attestation = self.run_plan()
+        with self.assertRaisesRegex(
+            FirstSliceMaterializationError,
+            "attestation object required",
+        ):
+            validate_public_materialization_attestation(
+                attestation=None,
+                registry=self.registry,
+            )
+        with self.assertRaisesRegex(
+            FirstSliceMaterializationError,
+            "registry object required",
+        ):
+            validate_public_materialization_attestation(
+                attestation=attestation,
+                registry=None,
+            )
+
+    def test_member_eligibility_requires_a_boolean(self):
+        attestation = self.run_plan()
+        for member in attestation["members"]:
+            self.assertIs(type(member["ordinary_t2_eligible"]), bool)
+        for value in (0, 1, "false", None):
+            with self.subTest(value=value):
+                malformed = copy.deepcopy(attestation)
+                malformed["members"][0]["ordinary_t2_eligible"] = value
+                with self.assertRaisesRegex(
+                    FirstSliceMaterializationError,
+                    "ordinary_t2_eligible must be a boolean",
+                ):
+                    validate_public_materialization_attestation(
+                        attestation=malformed,
+                        registry=self.registry,
+                    )
+
+    def test_attestation_counts_require_exact_integers(self):
+        attestation = self.run_plan()
+        for field in (
+            "registry_source_count",
+            "materialized_source_count",
+            "ordinary_t2_eligible_count",
+            "ordinary_t2_blocked_count",
+        ):
+            with self.subTest(field=field):
+                malformed = copy.deepcopy(attestation)
+                invalid_values = [float(malformed[field])]
+                if field == "ordinary_t2_eligible_count":
+                    invalid_values.append(False)
+                for value in invalid_values:
+                    with self.subTest(value=value):
+                        malformed = copy.deepcopy(attestation)
+                        malformed[field] = value
+                        with self.assertRaisesRegex(
+                            FirstSliceMaterializationError,
+                            f"{field} must be an exact integer",
+                        ):
+                            validate_public_materialization_attestation(
+                                attestation=malformed,
+                                registry=self.registry,
+                            )
+
+    def test_boolean_aggregate_requires_a_boolean(self):
+        attestation = self.run_plan()
+        for value in (0, 0.0):
+            with self.subTest(value=value):
+                malformed = copy.deepcopy(attestation)
+                malformed["all_sources_ordinary_t2_eligible"] = value
+                with self.assertRaisesRegex(
+                    FirstSliceMaterializationError,
+                    "all_sources_ordinary_t2_eligible drift",
+                ):
+                    validate_public_materialization_attestation(
+                        attestation=malformed,
+                        registry=self.registry,
+                    )
+
+    def test_member_metadata_requires_valid_types_and_values(self):
+        attestation = self.run_plan()
+        invalid_members = (
+            ("byte_length", 0),
+            ("byte_length", True),
+            ("content_type", "   "),
+            ("processing_disposition", "UNKNOWN"),
+        )
+        expected_errors = {
+            "byte_length": "members\\[0\\]\\.byte_length invalid",
+            "content_type": "members\\[0\\]\\.content_type invalid",
+            "processing_disposition": "members\\[0\\]\\.processing_disposition invalid",
+        }
+        for field, value in invalid_members:
+            with self.subTest(field=field, value=value):
+                malformed = copy.deepcopy(attestation)
+                malformed["members"][0][field] = value
+                with self.assertRaisesRegex(
+                    FirstSliceMaterializationError,
+                    expected_errors[field],
+                ):
+                    validate_public_materialization_attestation(
+                        attestation=malformed,
+                        registry=self.registry,
+                    )
 
     def test_public_attestation_rejects_missing_root_field(self):
         attestation = self.run_plan()
