@@ -188,6 +188,16 @@ class OrdinaryT2LineageTests(unittest.TestCase):
                 expected_slice_id=self.slice_id,
             )
 
+    def test_validator_rejects_unhashable_member_source_id(self):
+        packet = self.build()
+        packet["members"][0]["source_id"] = []
+        with self.assertRaisesRegex(OrdinaryT2LineageError, "source_id must be a nonblank string"):
+            validate_ordinary_t2_lineage(
+                packet=packet,
+                source_records=self.records,
+                expected_slice_id=self.slice_id,
+            )
+
     def test_builder_and_validator_require_nonblank_slice_ids(self):
         with self.assertRaisesRegex(OrdinaryT2LineageError, "expected_slice_id"):
             build_ordinary_t2_lineage(
