@@ -420,4 +420,3 @@ def select_ordinary_t2_evidence(
         if _dt(row["ordinary_t2_available_at"], f"{row['evidence_id']}.ordinary_t2_available_at")
         <= cutoff
     ]
-
