@@ -264,7 +264,8 @@ $CapturePlan = [ordered]@{
 $PlanPath = Join-Path $PrivateMetadataRoot ("HYDRA_CONSTRAINT_FIRST_SLICE_PRIVATE_CAPTURE_PLAN_" + $RunStamp + ".json")
 $AttestationPath = Join-Path $PrivateMetadataRoot ("HYDRA_CONSTRAINT_FIRST_SLICE_PRIVATE_MATERIALIZATION_ATTESTATION_" + $RunStamp + ".json")
 
-$CapturePlan | ConvertTo-Json -Depth 8 | Set-Content -LiteralPath $PlanPath -Encoding UTF8
+$PlanJson = $CapturePlan | ConvertTo-Json -Depth 8
+[System.IO.File]::WriteAllText($PlanPath, $PlanJson, [System.Text.UTF8Encoding]::new($false))
 
 $PreviousPythonPath = $env:PYTHONPATH
 try {
