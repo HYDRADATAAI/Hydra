@@ -188,8 +188,8 @@ def _bounded_mapping_snapshot(value: Mapping[str, Any], *, max_bytes: int) -> tu
                     normalized_key = plain_key(key)
                     child_key_size = key_size(normalized_key)
                     key_name = json_key_name(normalized_key)
-                    if key_name in seen_key_names:
-                        raise DuplicateKeyError(f"duplicate key {key_name!r}")
+                    if key_name in seen_key_names or normalized_key in result:
+                        raise DuplicateKeyError(f"duplicate normalized key {key_name!r}")
                     seen_key_names.add(key_name)
                     copied, child_size = copy_json(child, depth + 1)
                     if result:
@@ -215,8 +215,8 @@ def _bounded_mapping_snapshot(value: Mapping[str, Any], *, max_bytes: int) -> tu
             normalized_key = plain_key(key)
             child_key_size = key_size(normalized_key)
             key_name = json_key_name(normalized_key)
-            if key_name in seen_key_names:
-                raise DuplicateKeyError(f"duplicate key {key_name!r}")
+            if key_name in seen_key_names or normalized_key in snapshot:
+                raise DuplicateKeyError(f"duplicate normalized key {key_name!r}")
             seen_key_names.add(key_name)
             value_for_key = value[key]
             copied, child_size = copy_json(value_for_key, 2)
