@@ -8,6 +8,7 @@ import io
 import json
 import os
 import re
+import secrets
 import stat
 import sys
 import tempfile
@@ -57,6 +58,8 @@ BUNDLE_MEMBERS = (
     "market-data-pipeline-sample/build/demo/normalized_events.csv",
     "market-data-pipeline-sample/build/demo/normalized_events.jsonl",
     "market-data-pipeline-sample/build/demo/quarantine_records.jsonl",
+    "market-data-pipeline-sample/build/demo/resolved_symbol_aliases.json",
+    "market-data-pipeline-sample/build/demo/source_snapshot.csv",
 )
 VERIFICATION_SUPPORT_FILES = (
     "governed-intelligence-sample/config/grounding_policy.json",
@@ -80,12 +83,16 @@ class VerificationError(RuntimeError):
 class VerificationSummary:
     manifest_outputs: int
     receipts: int
+    input_snapshots_verified: int
+    source_rows_replayed: int
 
 
 @dataclass(frozen=True)
 class BundleSummary:
     manifest_outputs: int
     receipts: int
+    input_snapshots_verified: int
+    source_rows_replayed: int
     bundle_members: int
     bundle_bytes: int
     bundle_sha256: str
@@ -140,9 +147,9 @@ def _snapshot_file(path: Path, label: str) -> bytes:
     try:
         path_before = path.lstat()
         _require(
-            not stat.S_ISLNK(path_before.st_mode),
+            not _is_symlink_or_reparse(path_before),
             label,
-            "symbolic links are not allowed",
+            "symbolic links and reparse points are not allowed",
         )
         _require(stat.S_ISREG(path_before.st_mode), label, "missing regular file")
 
@@ -167,7 +174,8 @@ def _snapshot_file(path: Path, label: str) -> bytes:
             path_after = path.lstat()
             _require(
                 stat.S_ISREG(descriptor_after.st_mode)
-                and stat.S_ISREG(path_after.st_mode),
+                and stat.S_ISREG(path_after.st_mode)
+                and not _is_symlink_or_reparse(path_after),
                 label,
                 "file type changed while reading",
             )
@@ -194,13 +202,709 @@ def _snapshot_file(path: Path, label: str) -> bytes:
                 pass
 
 
-def _write_github_output(path: Path, bundle_sha256: str) -> None:
+def _is_symlink_or_reparse(metadata: os.stat_result) -> bool:
+    reparse_flag = getattr(stat, "FILE_ATTRIBUTE_REPARSE_POINT", 0x400)
+    return stat.S_ISLNK(metadata.st_mode) or bool(
+        getattr(metadata, "st_file_attributes", 0) & reparse_flag
+    )
+
+
+def _checked_repository_root(repository_root: Path, label: str) -> Path:
+    root = repository_root.absolute()
+    try:
+        metadata = root.lstat()
+    except OSError as exc:
+        _fail(label, f"unable to inspect repository root: {exc}")
     _require(
-        SHA256_PATTERN.fullmatch(bundle_sha256) is not None,
+        not _is_symlink_or_reparse(metadata),
+        label,
+        "repository root must not be a symbolic link or reparse point",
+    )
+    _require(stat.S_ISDIR(metadata.st_mode), label, "repository root is missing")
+    return root
+
+
+def _relative_snapshot_path(repository_root: Path, candidate: Path, label: str) -> Path:
+    try:
+        relative_path = candidate.absolute().relative_to(repository_root)
+    except ValueError:
+        _fail(label, "path is not contained under the repository root")
+    _require(
+        bool(relative_path.parts)
+        and "." not in relative_path.parts
+        and ".." not in relative_path.parts,
+        label,
+        "unsafe snapshot path",
+    )
+    return relative_path
+
+
+def _windows_close_handle(handle: int) -> None:
+    import ctypes
+
+    kernel32 = ctypes.WinDLL("kernel32", use_last_error=True)
+    kernel32.CloseHandle(ctypes.c_void_p(handle))
+
+
+def _windows_normalize_path(path: str | Path) -> str:
+    normalized = str(path)
+    if normalized.startswith("\\\\?\\UNC\\"):
+        normalized = "\\\\" + normalized[8:]
+    elif normalized.startswith("\\\\?\\"):
+        normalized = normalized[4:]
+    return os.path.normcase(os.path.normpath(normalized))
+
+
+def _windows_final_path(handle: int) -> str:
+    import ctypes
+    from ctypes import wintypes
+
+    kernel32 = ctypes.WinDLL("kernel32", use_last_error=True)
+    kernel32.GetFinalPathNameByHandleW.argtypes = (
+        wintypes.HANDLE,
+        wintypes.LPWSTR,
+        wintypes.DWORD,
+        wintypes.DWORD,
+    )
+    kernel32.GetFinalPathNameByHandleW.restype = wintypes.DWORD
+    buffer = ctypes.create_unicode_buffer(32768)
+    length = kernel32.GetFinalPathNameByHandleW(
+        wintypes.HANDLE(handle),
+        buffer,
+        len(buffer),
+        0,
+    )
+    if length == 0 or length >= len(buffer):
+        error = ctypes.get_last_error()
+        raise OSError(error, ctypes.FormatError(error))
+    return _windows_normalize_path(buffer.value)
+
+
+def _require_windows_handle_path(handle: int, expected: Path, label: str) -> None:
+    _require(
+        _windows_final_path(handle) == _windows_normalize_path(expected),
+        label,
+        "opened handle physical path changed",
+    )
+
+
+def _windows_validate_handle(
+    handle: int,
+    label: str,
+    *,
+    directory: bool,
+) -> tuple[int, int]:
+    import ctypes
+    from ctypes import wintypes
+
+    class ByHandleFileInformation(ctypes.Structure):
+        _fields_ = [
+            ("dwFileAttributes", wintypes.DWORD),
+            ("ftCreationTime", wintypes.FILETIME),
+            ("ftLastAccessTime", wintypes.FILETIME),
+            ("ftLastWriteTime", wintypes.FILETIME),
+            ("dwVolumeSerialNumber", wintypes.DWORD),
+            ("nFileSizeHigh", wintypes.DWORD),
+            ("nFileSizeLow", wintypes.DWORD),
+            ("nNumberOfLinks", wintypes.DWORD),
+            ("nFileIndexHigh", wintypes.DWORD),
+            ("nFileIndexLow", wintypes.DWORD),
+        ]
+
+    kernel32 = ctypes.WinDLL("kernel32", use_last_error=True)
+    kernel32.GetFileInformationByHandle.argtypes = (
+        wintypes.HANDLE,
+        ctypes.POINTER(ByHandleFileInformation),
+    )
+    kernel32.GetFileInformationByHandle.restype = wintypes.BOOL
+
+    info = ByHandleFileInformation()
+    if not kernel32.GetFileInformationByHandle(handle, ctypes.byref(info)):
+        error = ctypes.get_last_error()
+        raise OSError(error, ctypes.FormatError(error))
+
+    file_attribute_directory = 0x00000010
+    file_attribute_reparse_point = 0x00000400
+    if info.dwFileAttributes & file_attribute_reparse_point:
+        _fail(label, "symbolic links and reparse points are not allowed")
+    is_directory = bool(info.dwFileAttributes & file_attribute_directory)
+    if is_directory != directory:
+        _fail(label, "snapshot path type changed")
+    file_index = (info.nFileIndexHigh << 32) | info.nFileIndexLow
+    return (int(info.dwVolumeSerialNumber), file_index)
+
+
+def _windows_open_path(path: Path, label: str, *, directory: bool) -> int:
+    import ctypes
+    from ctypes import wintypes
+
+    kernel32 = ctypes.WinDLL("kernel32", use_last_error=True)
+    kernel32.CreateFileW.argtypes = (
+        wintypes.LPCWSTR,
+        wintypes.DWORD,
+        wintypes.DWORD,
+        wintypes.LPVOID,
+        wintypes.DWORD,
+        wintypes.DWORD,
+        wintypes.HANDLE,
+    )
+    kernel32.CreateFileW.restype = wintypes.HANDLE
+
+    generic_read = 0x80000000
+    file_read_attributes = 0x00000080
+    file_share_read = 0x00000001
+    file_share_write = 0x00000002
+    open_existing = 3
+    file_flag_backup_semantics = 0x02000000
+    file_flag_open_reparse_point = 0x00200000
+    desired_access = file_read_attributes if directory else generic_read
+    flags = file_flag_open_reparse_point
+    if directory:
+        flags |= file_flag_backup_semantics
+
+    handle = kernel32.CreateFileW(
+        str(path),
+        desired_access,
+        file_share_read | file_share_write,
+        None,
+        open_existing,
+        flags,
+        None,
+    )
+    invalid_handle = ctypes.c_void_p(-1).value
+    if handle == invalid_handle:
+        error = ctypes.get_last_error()
+        raise OSError(error, ctypes.FormatError(error), str(path))
+    try:
+        _windows_validate_handle(handle, label, directory=directory)
+    except (OSError, VerificationError):
+        _windows_close_handle(handle)
+        raise
+    return int(handle)
+
+
+def _windows_open_relative(
+    parent_handle: int,
+    name: str,
+    label: str,
+    *,
+    directory: bool,
+    create: bool = False,
+    writable: bool = False,
+) -> int:
+    import ctypes
+    from ctypes import wintypes
+
+    class UnicodeString(ctypes.Structure):
+        _fields_ = [
+            ("Length", wintypes.USHORT),
+            ("MaximumLength", wintypes.USHORT),
+            ("Buffer", wintypes.LPWSTR),
+        ]
+
+    class ObjectAttributes(ctypes.Structure):
+        _fields_ = [
+            ("Length", wintypes.ULONG),
+            ("RootDirectory", wintypes.HANDLE),
+            ("ObjectName", ctypes.POINTER(UnicodeString)),
+            ("Attributes", wintypes.ULONG),
+            ("SecurityDescriptor", wintypes.LPVOID),
+            ("SecurityQualityOfService", wintypes.LPVOID),
+        ]
+
+    class IoStatusBlock(ctypes.Structure):
+        _fields_ = [
+            ("StatusOrPointer", ctypes.c_void_p),
+            ("Information", ctypes.c_size_t),
+        ]
+
+    name_buffer = ctypes.create_unicode_buffer(name)
+    name_bytes = name.encode("utf-16-le")
+    unicode_name = UnicodeString(
+        len(name_bytes),
+        len(name_bytes) + 2,
+        ctypes.cast(name_buffer, wintypes.LPWSTR),
+    )
+    object_attributes = ObjectAttributes(
+        ctypes.sizeof(ObjectAttributes),
+        wintypes.HANDLE(parent_handle),
+        ctypes.pointer(unicode_name),
+        0x00000040,
+        None,
+        None,
+    )
+    io_status = IoStatusBlock()
+    handle = wintypes.HANDLE()
+    ntdll = ctypes.WinDLL("ntdll", use_last_error=True)
+    ntdll.NtCreateFile.restype = wintypes.LONG
+
+    generic_read = 0x80000000
+    generic_write = 0x40000000
+    delete_access = 0x00010000
+    file_read_attributes = 0x00000080
+    synchronize = 0x00100000
+    file_share_read = 0x00000001
+    file_share_write = 0x00000002
+    file_share_delete = 0x00000004
+    file_open = 0x00000001
+    file_create = 0x00000002
+    file_directory_file = 0x00000001
+    file_synchronous_io_nonalert = 0x00000020
+    file_non_directory_file = 0x00000040
+    file_open_reparse_point = 0x00200000
+    if directory:
+        desired_access = file_read_attributes | synchronize
+    elif writable:
+        desired_access = generic_write | delete_access | file_read_attributes | synchronize
+    else:
+        desired_access = generic_read | synchronize
+    create_options = file_synchronous_io_nonalert | file_open_reparse_point
+    create_options |= file_directory_file if directory else file_non_directory_file
+    status = ntdll.NtCreateFile(
+        ctypes.byref(handle),
+        desired_access,
+        ctypes.byref(object_attributes),
+        ctypes.byref(io_status),
+        None,
+        0,
+        file_share_read | file_share_write | file_share_delete,
+        file_create if create else file_open,
+        create_options,
+        None,
+        0,
+    )
+    if status < 0:
+        ntdll.RtlNtStatusToDosError.restype = wintypes.ULONG
+        error = int(ntdll.RtlNtStatusToDosError(status))
+        raise OSError(error, ctypes.FormatError(error), name)
+    opened_handle = int(handle.value)
+    try:
+        _windows_validate_handle(opened_handle, label, directory=directory)
+    except (OSError, VerificationError):
+        _windows_close_handle(opened_handle)
+        raise
+    return opened_handle
+
+
+def _windows_write_handle(handle: int, payload: bytes) -> None:
+    import ctypes
+    from ctypes import wintypes
+
+    kernel32 = ctypes.WinDLL("kernel32", use_last_error=True)
+    kernel32.WriteFile.argtypes = (
+        wintypes.HANDLE,
+        wintypes.LPCVOID,
+        wintypes.DWORD,
+        ctypes.POINTER(wintypes.DWORD),
+        wintypes.LPVOID,
+    )
+    kernel32.WriteFile.restype = wintypes.BOOL
+    kernel32.FlushFileBuffers.argtypes = (wintypes.HANDLE,)
+    kernel32.FlushFileBuffers.restype = wintypes.BOOL
+
+    buffer = ctypes.create_string_buffer(payload)
+    written = wintypes.DWORD()
+    if not kernel32.WriteFile(
+        wintypes.HANDLE(handle),
+        buffer,
+        len(payload),
+        ctypes.byref(written),
+        None,
+    ) or written.value != len(payload):
+        error = ctypes.get_last_error()
+        raise OSError(error, ctypes.FormatError(error))
+    if not kernel32.FlushFileBuffers(wintypes.HANDLE(handle)):
+        error = ctypes.get_last_error()
+        raise OSError(error, ctypes.FormatError(error))
+
+
+def _windows_replace_relative(
+    source_handle: int,
+    parent_handle: int,
+    destination_name: str,
+) -> None:
+    import ctypes
+    from ctypes import wintypes
+
+    class IoStatusBlock(ctypes.Structure):
+        _fields_ = [
+            ("StatusOrPointer", ctypes.c_void_p),
+            ("Information", ctypes.c_size_t),
+        ]
+
+    class FileRenameInformation(ctypes.Structure):
+        _fields_ = [
+            ("ReplaceIfExists", wintypes.BOOLEAN),
+            ("RootDirectory", wintypes.HANDLE),
+            ("FileNameLength", wintypes.DWORD),
+            ("FileName", wintypes.WCHAR * 1),
+        ]
+
+    encoded_name = destination_name.encode("utf-16-le")
+    buffer_size = ctypes.sizeof(FileRenameInformation) + len(encoded_name)
+    buffer = ctypes.create_string_buffer(buffer_size)
+    info = ctypes.cast(buffer, ctypes.POINTER(FileRenameInformation)).contents
+    info.ReplaceIfExists = True
+    info.RootDirectory = wintypes.HANDLE(parent_handle)
+    info.FileNameLength = len(encoded_name)
+    ctypes.memmove(
+        ctypes.addressof(buffer) + FileRenameInformation.FileName.offset,
+        encoded_name,
+        len(encoded_name),
+    )
+
+    io_status = IoStatusBlock()
+    ntdll = ctypes.WinDLL("ntdll", use_last_error=True)
+    ntdll.NtSetInformationFile.argtypes = (
+        wintypes.HANDLE,
+        ctypes.POINTER(IoStatusBlock),
+        wintypes.LPVOID,
+        wintypes.ULONG,
+        ctypes.c_int,
+    )
+    ntdll.NtSetInformationFile.restype = wintypes.LONG
+    file_rename_information = 10
+    status = ntdll.NtSetInformationFile(
+        wintypes.HANDLE(source_handle),
+        ctypes.byref(io_status),
+        buffer,
+        buffer_size,
+        file_rename_information,
+    )
+    if status < 0:
+        ntdll.RtlNtStatusToDosError.restype = wintypes.ULONG
+        error = int(ntdll.RtlNtStatusToDosError(status))
+        raise OSError(error, ctypes.FormatError(error), destination_name)
+
+
+def _windows_mark_delete(handle: int) -> None:
+    import ctypes
+    from ctypes import wintypes
+
+    class FileDispositionInfo(ctypes.Structure):
+        _fields_ = [("DeleteFile", wintypes.BOOLEAN)]
+
+    info = FileDispositionInfo(True)
+    kernel32 = ctypes.WinDLL("kernel32", use_last_error=True)
+    kernel32.SetFileInformationByHandle.argtypes = (
+        wintypes.HANDLE,
+        ctypes.c_int,
+        wintypes.LPVOID,
+        wintypes.DWORD,
+    )
+    kernel32.SetFileInformationByHandle.restype = wintypes.BOOL
+    file_disposition_info = 4
+    if not kernel32.SetFileInformationByHandle(
+        wintypes.HANDLE(handle),
+        file_disposition_info,
+        ctypes.byref(info),
+        ctypes.sizeof(info),
+    ):
+        error = ctypes.get_last_error()
+        raise OSError(error, ctypes.FormatError(error))
+
+
+def _close_bound_directories(handles: list[int]) -> None:
+    for handle in reversed(handles):
+        try:
+            if os.name == "nt":
+                _windows_close_handle(handle)
+            else:
+                os.close(handle)
+        except OSError:
+            pass
+
+
+def _open_bound_directory_chain(
+    repository_root: Path,
+    directory_parts: tuple[str, ...],
+    label: str,
+) -> list[int]:
+    handles: list[int] = []
+    try:
+        if os.name == "nt":
+            current = repository_root
+            expected_physical = repository_root.resolve(strict=True)
+            root_handle = _windows_open_path(current, label, directory=True)
+            handles.append(root_handle)
+            _require_windows_handle_path(root_handle, expected_physical, label)
+            for part in directory_parts:
+                current /= part
+                expected_physical /= part
+                handle = _windows_open_relative(
+                    handles[-1],
+                    part,
+                    label,
+                    directory=True,
+                )
+                handles.append(handle)
+                _require_windows_handle_path(handle, expected_physical, label)
+            return handles
+
+        _require(
+            os.open in os.supports_dir_fd
+            and os.stat in os.supports_dir_fd
+            and os.stat in os.supports_follow_symlinks
+            and bool(getattr(os, "O_NOFOLLOW", 0))
+            and bool(getattr(os, "O_DIRECTORY", 0)),
+            label,
+            "platform lacks safe descriptor-relative traversal",
+        )
+        directory_flags = (
+            os.O_RDONLY
+            | getattr(os, "O_BINARY", 0)
+            | os.O_NOFOLLOW
+            | os.O_DIRECTORY
+        )
+        root_before = repository_root.lstat()
+        root_handle = os.open(repository_root, directory_flags)
+        handles.append(root_handle)
+        root_descriptor = os.fstat(root_handle)
+        _require(
+            stat.S_ISDIR(root_descriptor.st_mode)
+            and os.path.samestat(root_before, root_descriptor),
+            label,
+            "repository root identity changed while opening",
+        )
+
+        for part in directory_parts:
+            before = os.stat(part, dir_fd=handles[-1], follow_symlinks=False)
+            _require(
+                not _is_symlink_or_reparse(before),
+                label,
+                "symbolic-link or reparse-point ancestors are not allowed",
+            )
+            _require(
+                stat.S_ISDIR(before.st_mode),
+                label,
+                "snapshot ancestor is not a directory",
+            )
+            handle = os.open(part, directory_flags, dir_fd=handles[-1])
+            handles.append(handle)
+            descriptor = os.fstat(handle)
+            _require(
+                stat.S_ISDIR(descriptor.st_mode)
+                and os.path.samestat(before, descriptor),
+                label,
+                "snapshot ancestor identity changed while opening",
+            )
+        return handles
+    except VerificationError:
+        _close_bound_directories(handles)
+        raise
+    except OSError as exc:
+        _close_bound_directories(handles)
+        _fail(label, f"unable to open snapshot ancestry: {exc}")
+
+
+def _bound_leaf_lstat(parent_handle: int, leaf_name: str, candidate: Path) -> os.stat_result:
+    if os.name == "nt":
+        return candidate.lstat()
+    return os.stat(
+        leaf_name,
+        dir_fd=parent_handle,
+        follow_symlinks=False,
+    )
+
+
+def _open_bound_leaf(
+    parent_handle: int,
+    leaf_name: str,
+    candidate: Path,
+    label: str,
+) -> int:
+    if os.name == "nt":
+        import msvcrt
+
+        handle = _windows_open_relative(
+            parent_handle,
+            leaf_name,
+            label,
+            directory=False,
+        )
+        try:
+            return msvcrt.open_osfhandle(
+                handle,
+                os.O_RDONLY | getattr(os, "O_BINARY", 0),
+            )
+        except OSError:
+            _windows_close_handle(handle)
+            raise
+    flags = os.O_RDONLY | getattr(os, "O_BINARY", 0) | os.O_NOFOLLOW
+    return os.open(leaf_name, flags, dir_fd=parent_handle)
+
+
+def _snapshot_repository_file(
+    repository_root: Path,
+    candidate: Path,
+    label: str,
+) -> bytes:
+    root = _checked_repository_root(repository_root, label)
+    relative_path = _relative_snapshot_path(root, candidate, label)
+    root_before = root.lstat()
+    directory_handles = _open_bound_directory_chain(
+        root,
+        relative_path.parts[:-1],
+        label,
+    )
+    descriptor: int | None = None
+    try:
+        parent_handle = directory_handles[-1]
+        leaf_name = relative_path.parts[-1]
+        windows_root_identity: tuple[int, int] | None = None
+        if os.name == "nt":
+            windows_root_identity = _windows_validate_handle(
+                directory_handles[0],
+                label,
+                directory=True,
+            )
+            _require(
+                (root_before.st_dev, root_before.st_ino) == windows_root_identity,
+                label,
+                "repository root identity changed while opening",
+            )
+            path_before = None
+        else:
+            path_before = _bound_leaf_lstat(parent_handle, leaf_name, candidate)
+            _require(
+                not _is_symlink_or_reparse(path_before),
+                label,
+                "symbolic links and reparse points are not allowed",
+            )
+            _require(stat.S_ISREG(path_before.st_mode), label, "missing regular file")
+
+        descriptor = _open_bound_leaf(parent_handle, leaf_name, candidate, label)
+        if os.name == "nt":
+            import msvcrt
+
+            expected_physical = root.resolve(strict=True) / relative_path
+            _require_windows_handle_path(
+                msvcrt.get_osfhandle(descriptor),
+                expected_physical,
+                label,
+            )
+        with os.fdopen(descriptor, "rb") as handle:
+            descriptor = None
+            descriptor_before = os.fstat(handle.fileno())
+            _require(
+                stat.S_ISREG(descriptor_before.st_mode)
+                and (
+                    path_before is None
+                    or os.path.samestat(path_before, descriptor_before)
+                ),
+                label,
+                "file identity changed while opening",
+            )
+            payload = handle.read()
+            descriptor_after = os.fstat(handle.fileno())
+            if os.name == "nt":
+                root_after = root.lstat()
+                root_identity_after = _windows_validate_handle(
+                    directory_handles[0],
+                    label,
+                    directory=True,
+                )
+                _require(
+                    windows_root_identity == root_identity_after
+                    and (root_after.st_dev, root_after.st_ino)
+                    == windows_root_identity
+                    and os.path.samestat(root_before, root_after),
+                    label,
+                    "repository root identity changed while reading",
+                )
+                _require_windows_handle_path(
+                    directory_handles[0],
+                    root.resolve(strict=True),
+                    label,
+                )
+                _require(
+                    stat.S_ISREG(descriptor_after.st_mode),
+                    label,
+                    "file type changed while reading",
+                )
+                identity_unchanged = os.path.samestat(
+                    descriptor_before,
+                    descriptor_after,
+                )
+            else:
+                path_after = _bound_leaf_lstat(parent_handle, leaf_name, candidate)
+                _require(
+                    stat.S_ISREG(descriptor_after.st_mode)
+                    and stat.S_ISREG(path_after.st_mode)
+                    and not _is_symlink_or_reparse(path_after),
+                    label,
+                    "file type changed while reading",
+                )
+                identity_unchanged = os.path.samestat(
+                    descriptor_before,
+                    descriptor_after,
+                ) and os.path.samestat(descriptor_after, path_after)
+            _require(
+                identity_unchanged,
+                label,
+                "file identity changed while reading",
+            )
+            _require(
+                descriptor_before.st_size == descriptor_after.st_size == len(payload)
+                and descriptor_before.st_mtime_ns == descriptor_after.st_mtime_ns,
+                label,
+                "file metadata changed while reading",
+            )
+            return payload
+    except VerificationError:
+        raise
+    except OSError as exc:
+        _fail(label, f"unable to snapshot file: {exc}")
+    finally:
+        if descriptor is not None:
+            try:
+                os.close(descriptor)
+            except OSError:
+                pass
+        _close_bound_directories(directory_handles)
+
+
+def _bound_directory_entries(
+    repository_root: Path,
+    relative_directory: Path,
+    label: str,
+) -> set[str]:
+    handles = _open_bound_directory_chain(
+        repository_root,
+        relative_directory.parts,
+        label,
+    )
+    try:
+        if os.name == "nt":
+            return {entry.name for entry in (repository_root / relative_directory).iterdir()}
+        return set(os.listdir(handles[-1]))
+    except OSError as exc:
+        _fail(label, f"unable to enumerate artifact directory: {exc}")
+    finally:
+        _close_bound_directories(handles)
+
+
+def _write_github_output(path: Path, summary: BundleSummary) -> None:
+    _require(
+        SHA256_PATTERN.fullmatch(summary.bundle_sha256) is not None,
         "GitHub step output",
         "bundle SHA-256 is invalid",
     )
-    payload = f"bundle_sha256={bundle_sha256}\n".encode("ascii")
+    _require(
+        summary.input_snapshots_verified == 2,
+        "GitHub step output",
+        "input snapshot count changed",
+    )
+    _require(
+        summary.source_rows_replayed == 7,
+        "GitHub step output",
+        "source row replay count changed",
+    )
+    payload = (
+        f"bundle_sha256={summary.bundle_sha256}\n"
+        f"input_snapshots_verified={summary.input_snapshots_verified}\n"
+        f"source_rows_replayed={summary.source_rows_replayed}\n"
+    ).encode("ascii")
     descriptor: int | None = None
     try:
         flags = os.O_WRONLY | os.O_APPEND | os.O_CREAT | getattr(os, "O_BINARY", 0)
@@ -224,8 +928,22 @@ def _write_github_output(path: Path, bundle_sha256: str) -> None:
 
 
 def _snapshot_verification_inputs(repository_root: Path) -> dict[str, bytes]:
-    root = repository_root.resolve()
-    _require(root.is_dir(), "artifact snapshots", "repository root is missing")
+    root = _checked_repository_root(repository_root, "artifact snapshots")
+
+    candidates: dict[str, Path] = {}
+    for relative_name in VERIFICATION_INPUTS:
+        _require(relative_name.isascii(), relative_name, "path must be ASCII")
+        _require("\\" not in relative_name, relative_name, "path must use POSIX separators")
+        relative_path = Path(relative_name)
+        _require(
+            not relative_path.is_absolute()
+            and "." not in relative_path.parts
+            and ".." not in relative_path.parts,
+            relative_name,
+            "unsafe verification input path",
+        )
+        candidate = root / relative_path
+        candidates[relative_name] = candidate
 
     expected_by_directory: dict[str, set[str]] = {}
     for member in BUNDLE_MEMBERS:
@@ -234,12 +952,11 @@ def _snapshot_verification_inputs(repository_root: Path) -> dict[str, bytes]:
             member_path.name
         )
     for directory_name, expected_names in expected_by_directory.items():
-        directory = root / Path(directory_name)
-        _require(directory.is_dir(), directory_name, "artifact directory is missing")
-        try:
-            actual_names = {entry.name for entry in directory.iterdir()}
-        except OSError as exc:
-            _fail(directory_name, f"unable to enumerate artifact directory: {exc}")
+        actual_names = _bound_directory_entries(
+            root,
+            Path(directory_name),
+            directory_name,
+        )
         _require(
             actual_names == expected_names,
             directory_name,
@@ -247,17 +964,10 @@ def _snapshot_verification_inputs(repository_root: Path) -> dict[str, bytes]:
         )
 
     snapshots: dict[str, bytes] = {}
-    for relative_name in VERIFICATION_INPUTS:
-        _require(relative_name.isascii(), relative_name, "path must be ASCII")
-        _require("\\" not in relative_name, relative_name, "path must use POSIX separators")
-        relative_path = Path(relative_name)
-        _require(
-            not relative_path.is_absolute() and ".." not in relative_path.parts,
-            relative_name,
-            "unsafe verification input path",
-        )
-        snapshots[relative_name] = _snapshot_file(
-            root / relative_path,
+    for relative_name, candidate in candidates.items():
+        snapshots[relative_name] = _snapshot_repository_file(
+            root,
+            candidate,
             f"artifact snapshot:{relative_name}",
         )
     return snapshots
@@ -361,41 +1071,260 @@ def _materialize_snapshots(root: Path, snapshots: dict[str, bytes]) -> None:
         destination.write_bytes(payload)
 
 
-def _publish_bundle(bundle_path: Path, archive_bytes: bytes) -> None:
-    destination = bundle_path.absolute()
-    destination.parent.mkdir(parents=True, exist_ok=True)
-    _require(not destination.is_symlink(), "artifact bundle", "destination is a symbolic link")
+def _open_bound_parent(destination: Path, label: str) -> list[int]:
+    parent = destination.parent
+    anchor = Path(parent.anchor)
+    _require(bool(parent.anchor), label, "destination must be absolute")
+    parts = tuple(parent.parts[1:])
+    _require(
+        all(part not in {"", ".", ".."} for part in parts),
+        label,
+        "destination contains an unsafe path component",
+    )
+    return _open_bound_directory_chain(anchor, parts, label)
 
-    temporary_path: Path | None = None
+
+def _require_bound_directory_path(handle: int, path: Path, label: str) -> None:
+    if os.name == "nt":
+        _windows_validate_handle(handle, label, directory=True)
+        _require_windows_handle_path(handle, path, label)
+        return
+    descriptor = os.fstat(handle)
+    current = path.lstat()
+    _require(
+        stat.S_ISDIR(descriptor.st_mode)
+        and stat.S_ISDIR(current.st_mode)
+        and not _is_symlink_or_reparse(current)
+        and os.path.samestat(descriptor, current),
+        label,
+        "destination parent identity changed",
+    )
+
+
+def _require_safe_bound_destination(
+    parent_handle: int,
+    leaf_name: str,
+    candidate: Path,
+    label: str,
+) -> None:
+    if os.name == "nt":
+        handle: int | None = None
+        try:
+            handle = _windows_open_relative(
+                parent_handle,
+                leaf_name,
+                label,
+                directory=False,
+            )
+            _require_windows_handle_path(handle, candidate, label)
+        except FileNotFoundError:
+            return
+        finally:
+            if handle is not None:
+                _windows_close_handle(handle)
+        return
     try:
-        with tempfile.NamedTemporaryFile(
-            mode="wb",
-            dir=destination.parent,
-            prefix=f".{destination.name}.",
-            suffix=".tmp",
-            delete=False,
-        ) as handle:
-            temporary_path = Path(handle.name)
-            handle.write(archive_bytes)
-            handle.flush()
-            os.fsync(handle.fileno())
-        os.replace(temporary_path, destination)
-        temporary_path = None
+        current = os.stat(leaf_name, dir_fd=parent_handle, follow_symlinks=False)
+    except FileNotFoundError:
+        return
+    _require(
+        stat.S_ISREG(current.st_mode) and not _is_symlink_or_reparse(current),
+        label,
+        "destination is not a regular file",
+    )
+
+
+def _read_bound_file(
+    parent_handle: int,
+    leaf_name: str,
+    candidate: Path,
+    label: str,
+) -> bytes:
+    before: os.stat_result | None = None
+    if os.name != "nt":
+        before = _bound_leaf_lstat(parent_handle, leaf_name, candidate)
         _require(
-            _file_bytes(destination, "published artifact bundle") == archive_bytes,
-            "artifact bundle",
+            stat.S_ISREG(before.st_mode) and not _is_symlink_or_reparse(before),
+            label,
+            "published destination is not a regular file",
+        )
+
+    descriptor = _open_bound_leaf(parent_handle, leaf_name, candidate, label)
+    try:
+        with os.fdopen(descriptor, "rb") as handle:
+            descriptor = -1
+            descriptor_before = os.fstat(handle.fileno())
+            windows_identity: tuple[int, int] | None = None
+            if os.name == "nt":
+                import msvcrt
+
+                raw_handle = msvcrt.get_osfhandle(handle.fileno())
+                windows_identity = _windows_validate_handle(
+                    raw_handle,
+                    label,
+                    directory=False,
+                )
+                _require_windows_handle_path(raw_handle, candidate, label)
+            else:
+                _require(
+                    before is not None and os.path.samestat(before, descriptor_before),
+                    label,
+                    "published destination identity changed while opening",
+                )
+            payload = handle.read()
+            descriptor_after = os.fstat(handle.fileno())
+            _require(
+                stat.S_ISREG(descriptor_before.st_mode)
+                and os.path.samestat(descriptor_before, descriptor_after)
+                and descriptor_before.st_size == descriptor_after.st_size == len(payload)
+                and descriptor_before.st_mtime_ns == descriptor_after.st_mtime_ns,
+                label,
+                "published destination changed while reading",
+            )
+
+        if os.name == "nt":
+            reopened = _windows_open_relative(
+                parent_handle,
+                leaf_name,
+                label,
+                directory=False,
+            )
+            try:
+                _require(
+                    windows_identity
+                    == _windows_validate_handle(reopened, label, directory=False),
+                    label,
+                    "published destination identity changed after reading",
+                )
+                _require_windows_handle_path(reopened, candidate, label)
+            finally:
+                _windows_close_handle(reopened)
+        else:
+            current = _bound_leaf_lstat(parent_handle, leaf_name, candidate)
+            _require(
+                not _is_symlink_or_reparse(current)
+                and os.path.samestat(descriptor_after, current),
+                label,
+                "published destination identity changed after reading",
+            )
+        return payload
+    finally:
+        if descriptor >= 0:
+            os.close(descriptor)
+
+
+def _publish_bundle(bundle_path: Path, archive_bytes: bytes) -> None:
+    label = "artifact bundle"
+    destination = Path(os.path.abspath(bundle_path))
+    _require(destination.name not in {"", ".", ".."}, label, "invalid destination name")
+    directory_handles = _open_bound_parent(destination, label)
+    parent_handle = directory_handles[-1]
+    temporary_name = f".{destination.name}.{secrets.token_hex(12)}.tmp"
+    temporary_descriptor: int | None = None
+    temporary_handle: int | None = None
+    cleanup_errors: list[OSError] = []
+    try:
+        _require_bound_directory_path(parent_handle, destination.parent, label)
+        _require_safe_bound_destination(
+            parent_handle,
+            destination.name,
+            destination,
+            label,
+        )
+
+        if os.name == "nt":
+            temporary_handle = _windows_open_relative(
+                parent_handle,
+                temporary_name,
+                label,
+                directory=False,
+                create=True,
+                writable=True,
+            )
+            _require_windows_handle_path(
+                temporary_handle,
+                destination.parent / temporary_name,
+                label,
+            )
+            _windows_write_handle(temporary_handle, archive_bytes)
+            _windows_replace_relative(
+                temporary_handle,
+                parent_handle,
+                destination.name,
+            )
+            temporary_name = ""
+        else:
+            flags = (
+                os.O_WRONLY
+                | os.O_CREAT
+                | os.O_EXCL
+                | os.O_NOFOLLOW
+                | getattr(os, "O_BINARY", 0)
+            )
+            temporary_descriptor = os.open(
+                temporary_name,
+                flags,
+                0o600,
+                dir_fd=parent_handle,
+            )
+            with os.fdopen(temporary_descriptor, "wb") as handle:
+                temporary_descriptor = None
+                handle.write(archive_bytes)
+                handle.flush()
+                os.fsync(handle.fileno())
+            os.replace(
+                temporary_name,
+                destination.name,
+                src_dir_fd=parent_handle,
+                dst_dir_fd=parent_handle,
+            )
+            temporary_name = ""
+
+        _require_bound_directory_path(parent_handle, destination.parent, label)
+        _require(
+            _read_bound_file(
+                parent_handle,
+                destination.name,
+                destination,
+                "published artifact bundle",
+            )
+            == archive_bytes,
+            label,
             "published bytes changed",
         )
     except VerificationError:
         raise
     except OSError as exc:
-        _fail("artifact bundle", f"unable to publish atomically: {exc}")
+        _fail(label, f"unable to publish atomically: {exc}")
     finally:
-        if temporary_path is not None:
+        if temporary_descriptor is not None:
             try:
-                temporary_path.unlink(missing_ok=True)
-            except OSError:
-                pass
+                os.close(temporary_descriptor)
+            except OSError as exc:
+                cleanup_errors.append(exc)
+        if temporary_handle is not None:
+            if temporary_name:
+                try:
+                    _windows_mark_delete(temporary_handle)
+                except OSError as exc:
+                    cleanup_errors.append(exc)
+            try:
+                _windows_close_handle(temporary_handle)
+            except OSError as exc:
+                cleanup_errors.append(exc)
+        if temporary_name and os.name != "nt":
+            try:
+                os.unlink(temporary_name, dir_fd=parent_handle)
+            except OSError as exc:
+                cleanup_errors.append(exc)
+        _close_bound_directories(directory_handles)
+        if cleanup_errors:
+            detail = "; ".join(str(exc) for exc in cleanup_errors)
+            active_error = sys.exc_info()[1]
+            if active_error is not None:
+                active_error.add_note(f"artifact bundle temporary cleanup failed: {detail}")
+            else:
+                _fail(label, f"temporary cleanup failed: {detail}")
 
 
 def _digest(path: Path, label: str) -> str:
@@ -422,6 +1351,7 @@ def _verify_manifest(
     manifest_name: str,
     schema: str,
     expected_outputs: dict[str, tuple[str, set[str]]],
+    expected_inputs: dict[str, tuple[str, set[str]]] | None = None,
 ) -> tuple[dict[str, object], int]:
     directory = directory.resolve()
     label = f"manifest:{manifest_name}"
@@ -433,38 +1363,54 @@ def _verify_manifest(
     _require(set(outputs) == set(expected_outputs), label, "output set changed")
 
     listed_files: set[str] = set()
-    for key, (expected_file, expected_fields) in expected_outputs.items():
-        descriptor = outputs[key]
-        entry_label = f"{label}:{key}"
-        _require(type(descriptor) is dict, entry_label, "descriptor must be an object")
-        _require(
-            set(descriptor) == expected_fields,
-            entry_label,
-            "descriptor fields changed",
-        )
-        filename = descriptor.get("file")
-        expected_sha = descriptor.get("sha256")
-        _require(type(filename) is str, entry_label, "file must be a string")
-        _require(filename == expected_file, entry_label, "file name changed")
-        _require(Path(filename).name == filename, entry_label, "unsafe file name")
-        _require(
-            type(expected_sha) is str and SHA256_PATTERN.fullmatch(expected_sha),
-            entry_label,
-            "invalid SHA-256",
-        )
-        output_path = (directory / filename).resolve()
-        _require(
-            output_path.parent == directory,
-            entry_label,
-            "output escapes artifact directory",
-        )
-        _require(filename not in listed_files, entry_label, "duplicate output file")
-        listed_files.add(filename)
-        _require(
-            _digest(output_path, entry_label) == expected_sha,
-            entry_label,
-            "SHA-256 mismatch",
-        )
+    descriptor_sets = [("outputs", outputs, expected_outputs)]
+    if expected_inputs is not None:
+        inputs = manifest.get("inputs")
+        _require(type(inputs) is dict, label, "inputs must be an object")
+        _require(set(inputs) == set(expected_inputs), label, "input set changed")
+        descriptor_sets.append(("inputs", inputs, expected_inputs))
+
+    for group_name, descriptors, expected_descriptors in descriptor_sets:
+        for key, (expected_file, expected_fields) in expected_descriptors.items():
+            descriptor = descriptors[key]
+            entry_label = f"{label}:{group_name}:{key}"
+            _require(
+                type(descriptor) is dict,
+                entry_label,
+                "descriptor must be an object",
+            )
+            _require(
+                set(descriptor) == expected_fields,
+                entry_label,
+                "descriptor fields changed",
+            )
+            filename = descriptor.get("file")
+            expected_sha = descriptor.get("sha256")
+            _require(type(filename) is str, entry_label, "file must be a string")
+            _require(filename == expected_file, entry_label, "file name changed")
+            _require(Path(filename).name == filename, entry_label, "unsafe file name")
+            _require(
+                type(expected_sha) is str and SHA256_PATTERN.fullmatch(expected_sha),
+                entry_label,
+                "invalid SHA-256",
+            )
+            artifact_path = (directory / filename).resolve()
+            _require(
+                artifact_path.parent == directory,
+                entry_label,
+                "artifact escapes artifact directory",
+            )
+            _require(
+                filename not in listed_files,
+                entry_label,
+                "duplicate artifact file",
+            )
+            listed_files.add(filename)
+            _require(
+                _digest(artifact_path, entry_label) == expected_sha,
+                entry_label,
+                "SHA-256 mismatch",
+            )
 
     actual_entries = {path.name for path in directory.iterdir()}
     expected_entries = listed_files | {manifest_name}
@@ -691,7 +1637,7 @@ def verify_repository_artifacts(repository_root: Path) -> VerificationSummary:
     pipeline_manifest, pipeline_output_count = _verify_manifest(
         pipeline,
         "manifest.json",
-        "hydra-market-pipeline-manifest/v1",
+        "hydra-market-pipeline-manifest/v2",
         {
             "normalized_events_csv": (
                 "normalized_events.csv",
@@ -706,6 +1652,29 @@ def verify_repository_artifacts(repository_root: Path) -> VerificationSummary:
                 {"file", "sha256"},
             ),
         },
+        {
+            "resolved_aliases_json": (
+                "resolved_symbol_aliases.json",
+                {"file", "schema_version", "sha256"},
+            ),
+            "source_csv": (
+                "source_snapshot.csv",
+                {"file", "schema_version", "sha256"},
+            ),
+        },
+    )
+    pipeline_inputs = pipeline_manifest["inputs"]
+    _require(
+        pipeline_inputs["source_csv"]["schema_version"]
+        == "hydra-market-source-csv/v1",
+        "pipeline manifest",
+        "source snapshot schema changed",
+    )
+    _require(
+        pipeline_inputs["resolved_aliases_json"]["schema_version"]
+        == "hydra-market-resolved-aliases/v1",
+        "pipeline manifest",
+        "resolved aliases schema changed",
     )
     evaluation_dir = intelligence / "build" / "evaluation"
     evaluation_manifest, evaluation_output_count = _verify_manifest(
@@ -923,6 +1892,18 @@ def verify_repository_artifacts(repository_root: Path) -> VerificationSummary:
     )
 
     evidence = load_evidence(pipeline)
+    input_snapshots_verified = len(pipeline_inputs)
+    source_rows_replayed = pipeline_manifest.get("source_rows")
+    _require(
+        input_snapshots_verified == 2,
+        "pipeline replay",
+        "input snapshot count changed",
+    )
+    _require(
+        source_rows_replayed == 7,
+        "pipeline replay",
+        "source row count changed",
+    )
     context_policy = load_policy(intelligence / "config" / "policy.json")
     retrieval_policy = load_retrieval_policy(
         intelligence / "config" / "retrieval_policy.json"
@@ -1220,7 +2201,12 @@ def verify_repository_artifacts(repository_root: Path) -> VerificationSummary:
         "artifact verification",
         "receipt count changed",
     )
-    return VerificationSummary(manifest_outputs=manifest_outputs, receipts=receipt_count)
+    return VerificationSummary(
+        manifest_outputs=manifest_outputs,
+        receipts=receipt_count,
+        input_snapshots_verified=input_snapshots_verified,
+        source_rows_replayed=source_rows_replayed,
+    )
 
 
 def package_repository_artifacts(
@@ -1257,6 +2243,8 @@ def package_repository_artifacts(
     return BundleSummary(
         manifest_outputs=verification.manifest_outputs,
         receipts=verification.receipts,
+        input_snapshots_verified=verification.input_snapshots_verified,
+        source_rows_replayed=verification.source_rows_replayed,
         bundle_members=len(archived_members),
         bundle_bytes=len(archive_bytes),
         bundle_sha256=hashlib.sha256(archive_bytes).hexdigest(),
@@ -1294,7 +2282,7 @@ def main(argv: list[str] | None = None) -> int:
     try:
         summary = package_repository_artifacts(args.repository_root, args.bundle_path)
         if args.github_output_path is not None:
-            _write_github_output(args.github_output_path, summary.bundle_sha256)
+            _write_github_output(args.github_output_path, summary)
     except (VerificationError, ContractError, IntegrityError, OSError) as exc:
         print(f"PRE_UPLOAD_ARTIFACT_VERIFICATION=FAIL: {exc}", file=sys.stderr)
         return 1
@@ -1302,6 +2290,8 @@ def main(argv: list[str] | None = None) -> int:
     print("PRE_UPLOAD_ARTIFACT_VERIFICATION=PASS")
     print(f"MANIFEST_OUTPUTS_VERIFIED={summary.manifest_outputs}")
     print(f"RECEIPTS_VERIFIED={summary.receipts}")
+    print(f"INPUT_SNAPSHOTS_VERIFIED={summary.input_snapshots_verified}")
+    print(f"SOURCE_ROWS_REPLAYED={summary.source_rows_replayed}")
     print(f"BUNDLE_MEMBERS={summary.bundle_members}")
     print(f"BUNDLE_BYTES={summary.bundle_bytes}")
     print(f"BUNDLE_SHA256={summary.bundle_sha256}")

@@ -566,7 +566,7 @@ def _evaluate_claim_safety(
             {
                 "claim_index": claim_index,
                 "reason_codes": reasons,
-                "status": "FAIL" if reasons else "PASS",
+                "status": "FAIL" if reasons else "NOT_EVALUATED",
             }
         )
 

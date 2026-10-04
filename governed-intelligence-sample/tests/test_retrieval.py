@@ -442,7 +442,7 @@ class GovernedRetrievalTests(unittest.TestCase):
                 policy=self.policy,
             )
 
-    def test_citation_uses_manifest_declared_filename(self) -> None:
+    def test_manifest_rejects_renamed_citation_artifact(self) -> None:
         original = self.base / "pipeline" / "normalized_events.jsonl"
         renamed = self.base / "pipeline" / "accepted.jsonl"
         original.rename(renamed)
@@ -450,16 +450,9 @@ class GovernedRetrievalTests(unittest.TestCase):
         manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
         manifest["outputs"]["normalized_events_jsonl"]["file"] = renamed.name
         manifest_path.write_text(json.dumps(manifest), encoding="utf-8")
-        evidence = load_evidence(self.base / "pipeline")
 
-        decision = build_retrieval_decision(
-            {"query": "AAA XNAS USD", "request_id": "renamed", "top_k": 1},
-            evidence=evidence,
-            policy=self.policy,
-        )
-
-        verify_retrieval_decision(decision, evidence=evidence, policy=self.policy)
-        self.assertEqual(decision["citations"][0]["artifact"], "accepted.jsonl")
+        with self.assertRaisesRegex(ContractError, "invalid v2 file name"):
+            load_evidence(self.base / "pipeline")
 
 
 if __name__ == "__main__":

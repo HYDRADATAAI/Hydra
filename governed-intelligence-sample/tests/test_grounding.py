@@ -48,6 +48,14 @@ class GroundingValidationTests(unittest.TestCase):
             grounding_policy=self.grounding_policy,
         )
 
+    def nonempty_nonadmitted_case(self, index: int, label: str) -> dict:
+        case = copy.deepcopy(self.suite["cases"][index])
+        claim = copy.deepcopy(self.suite["cases"][0]["candidate"]["claims"][0])
+        case["candidate"]["response_id"] = f"sensitive-{label}-response"
+        claim["claim_id"] = f"sensitive-{label}-claim"
+        case["candidate"]["claims"] = [claim]
+        return case
+
     def test_valid_structured_claims_are_admitted_with_exact_citation(self) -> None:
         case = self.suite["cases"][0]
         receipt = self.receipt_for(0)
@@ -116,6 +124,58 @@ class GroundingValidationTests(unittest.TestCase):
                 receipt["input_binding"]["candidate"],
                 {"status": "VERIFIED_IN_PROCESS_NOT_DISCLOSED"},
             )
+
+    def test_clean_nonempty_claim_is_not_evaluated_when_retrieval_abstains(self) -> None:
+        case = self.nonempty_nonadmitted_case(5, "abstain")
+
+        receipt = build_grounding_receipt(
+            retrieval_request=case["retrieval_request"],
+            candidate=case["candidate"],
+            evidence=self.evidence,
+            retrieval_policy=self.retrieval_policy,
+            grounding_policy=self.grounding_policy,
+        )
+
+        self.assertEqual(receipt["disposition"], "ABSTAIN")
+        self.assertEqual(receipt["reason_codes"], ["retrieval_not_admitted"])
+        self.assertEqual(
+            receipt["claim_results"],
+            [
+                {
+                    "claim_index": 1,
+                    "reason_codes": [],
+                    "status": "NOT_EVALUATED",
+                }
+            ],
+        )
+        self.assertEqual(receipt["grounded_claims"], [])
+        self.assertEqual(receipt["citations"], [])
+
+    def test_clean_nonempty_claim_is_not_evaluated_when_retrieval_refuses(self) -> None:
+        case = self.nonempty_nonadmitted_case(6, "refuse")
+
+        receipt = build_grounding_receipt(
+            retrieval_request=case["retrieval_request"],
+            candidate=case["candidate"],
+            evidence=self.evidence,
+            retrieval_policy=self.retrieval_policy,
+            grounding_policy=self.grounding_policy,
+        )
+
+        self.assertEqual(receipt["disposition"], "REFUSE")
+        self.assertEqual(receipt["reason_codes"], ["retrieval_refused"])
+        self.assertEqual(
+            receipt["claim_results"],
+            [
+                {
+                    "claim_index": 1,
+                    "reason_codes": [],
+                    "status": "NOT_EVALUATED",
+                }
+            ],
+        )
+        self.assertEqual(receipt["grounded_claims"], [])
+        self.assertEqual(receipt["citations"], [])
 
     def test_execution_and_external_action_claims_are_quarantined(self) -> None:
         receipt = self.receipt_for(7)
@@ -247,7 +307,7 @@ class GroundingValidationTests(unittest.TestCase):
             receipt["reason_codes"],
             ["duplicate_claim_id", "retrieval_refused"],
         )
-        self.assertEqual(receipt["claim_results"][0]["status"], "PASS")
+        self.assertEqual(receipt["claim_results"][0]["status"], "NOT_EVALUATED")
         self.assertEqual(
             receipt["claim_results"][1],
             {
@@ -271,6 +331,75 @@ class GroundingValidationTests(unittest.TestCase):
             retrieval_policy=self.retrieval_policy,
             grounding_policy=self.grounding_policy,
         )
+
+    def test_non_admitted_not_evaluated_status_tampering_is_rejected(self) -> None:
+        case = self.nonempty_nonadmitted_case(5, "tamper")
+        receipt = build_grounding_receipt(
+            retrieval_request=case["retrieval_request"],
+            candidate=case["candidate"],
+            evidence=self.evidence,
+            retrieval_policy=self.retrieval_policy,
+            grounding_policy=self.grounding_policy,
+        )
+        receipt["claim_results"][0]["status"] = "PASS"
+
+        with self.assertRaisesRegex(IntegrityError, "governed recomputation"):
+            verify_grounding_receipt(
+                receipt,
+                retrieval_request=case["retrieval_request"],
+                candidate=case["candidate"],
+                evidence=self.evidence,
+                retrieval_policy=self.retrieval_policy,
+                grounding_policy=self.grounding_policy,
+            )
+
+    def test_non_admitted_receipts_are_deterministic_and_private(self) -> None:
+        for index, label in ((5, "abstain-private"), (6, "refuse-private")):
+            with self.subTest(label=label):
+                case = self.nonempty_nonadmitted_case(index, label)
+                receipts = [
+                    build_grounding_receipt(
+                        retrieval_request=case["retrieval_request"],
+                        candidate=case["candidate"],
+                        evidence=self.evidence,
+                        retrieval_policy=self.retrieval_policy,
+                        grounding_policy=self.grounding_policy,
+                    )
+                    for _ in range(2)
+                ]
+                serialized = json.dumps(receipts[0], sort_keys=True)
+
+                self.assertEqual(receipts[0], receipts[1])
+                self.assertIsNone(receipts[0]["candidate_response_id"])
+                self.assertEqual(receipts[0]["grounded_claims"], [])
+                self.assertEqual(receipts[0]["citations"], [])
+                self.assertEqual(
+                    receipts[0]["input_binding"]["candidate"],
+                    {"status": "VERIFIED_IN_PROCESS_NOT_DISCLOSED"},
+                )
+                self.assertNotIn(case["candidate"]["response_id"], serialized)
+                self.assertNotIn(case["candidate"]["claims"][0]["claim_id"], serialized)
+                self.assertNotIn(case["candidate"]["claims"][0]["value"], serialized)
+                self.assertNotIn("candidate_sha256", serialized)
+
+    def test_non_admitted_claims_do_not_inflate_aggregate_counts(self) -> None:
+        changed = copy.deepcopy(self.suite)
+        for index, label in ((5, "abstain-report"), (6, "refuse-report")):
+            changed["cases"][index] = self.nonempty_nonadmitted_case(index, label)
+        path = self.base / "nonempty-nonadmitted-grounding-suite.json"
+        path.write_text(json.dumps(changed), encoding="utf-8")
+
+        report = run_grounding_evaluation(
+            cases_path=path,
+            evidence=self.evidence,
+            retrieval_policy=self.retrieval_policy,
+            grounding_policy=self.grounding_policy,
+            output_dir=self.base / "nonempty-nonadmitted",
+        )
+
+        self.assertEqual(report["status"], "PASS")
+        self.assertEqual(report["checks"]["claim_pass_count"], 3)
+        self.assertEqual(report["checks"]["claim_fail_count"], 4)
 
     def test_non_admitted_receipt_does_not_echo_candidate_ids(self) -> None:
         case = copy.deepcopy(self.suite["cases"][1])
@@ -448,7 +577,7 @@ class GroundingValidationTests(unittest.TestCase):
                 output_dir=self.base / "malformed-grounding",
             )
 
-    def test_grounding_uses_manifest_declared_citation_filename(self) -> None:
+    def test_grounding_rejects_renamed_citation_artifact(self) -> None:
         pipeline = build_pipeline_outputs(self.base / "renamed-pipeline")
         original = pipeline / "normalized_events.jsonl"
         renamed = pipeline / "accepted.jsonl"
@@ -457,29 +586,9 @@ class GroundingValidationTests(unittest.TestCase):
         manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
         manifest["outputs"]["normalized_events_jsonl"]["file"] = renamed.name
         manifest_path.write_text(json.dumps(manifest), encoding="utf-8")
-        evidence = load_evidence(pipeline)
-        case = copy.deepcopy(self.suite["cases"][0])
-        for claim in case["candidate"]["claims"]:
-            claim["citation"]["artifact"] = renamed.name
 
-        receipt = build_grounding_receipt(
-            retrieval_request=case["retrieval_request"],
-            candidate=case["candidate"],
-            evidence=evidence,
-            retrieval_policy=self.retrieval_policy,
-            grounding_policy=self.grounding_policy,
-        )
-
-        verify_grounding_receipt(
-            receipt,
-            retrieval_request=case["retrieval_request"],
-            candidate=case["candidate"],
-            evidence=evidence,
-            retrieval_policy=self.retrieval_policy,
-            grounding_policy=self.grounding_policy,
-        )
-        self.assertEqual(receipt["disposition"], "ADMIT")
-        self.assertEqual(receipt["citations"][0]["artifact"], renamed.name)
+        with self.assertRaisesRegex(ContractError, "invalid v2 file name"):
+            load_evidence(pipeline)
 
     def test_policy_cannot_enable_model_or_external_actions(self) -> None:
         original = json.loads(

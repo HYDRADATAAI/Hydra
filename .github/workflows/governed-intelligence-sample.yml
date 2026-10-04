@@ -203,6 +203,9 @@ jobs:
           print("GOVERNED_GROUNDING_EVAL=PASS")
           PY
 
+      - name: Prepare artifact destination
+        run: mkdir -p governed-intelligence-sample/build/upload
+
       - name: Verify and package exact artifact snapshots
         id: package_artifacts
         run: python -I -B governed-intelligence-sample/src/hydra_governed_intelligence/pre_upload_verifier.py --repository-root . --bundle-path governed-intelligence-sample/build/upload/hydra-governed-intelligence-proof.zip --github-output-path "$GITHUB_OUTPUT"
@@ -226,6 +229,8 @@ jobs:
         env:
           DOWNLOADED_BUNDLE_PATH: ${{ runner.temp }}/hydra-governed-intelligence-published-proof/hydra-governed-intelligence-proof.zip
           EXPECTED_BUNDLE_SHA256: ${{ steps.package_artifacts.outputs.bundle_sha256 }}
+          EXPECTED_INPUT_SNAPSHOTS_VERIFIED: ${{ steps.package_artifacts.outputs.input_snapshots_verified }}
+          EXPECTED_SOURCE_ROWS_REPLAYED: ${{ steps.package_artifacts.outputs.source_rows_replayed }}
         run: |
           python -I -B - <<'PY'
           import hashlib
@@ -238,8 +243,12 @@ jobs:
                   raise SystemExit(f"PUBLISHED_ARTIFACT_DIGEST_CHECK=FAIL: {detail}")
 
           expected = os.environ.get("EXPECTED_BUNDLE_SHA256", "")
+          input_snapshots = os.environ.get("EXPECTED_INPUT_SNAPSHOTS_VERIFIED", "")
+          source_rows = os.environ.get("EXPECTED_SOURCE_ROWS_REPLAYED", "")
           bundle = Path(os.environ.get("DOWNLOADED_BUNDLE_PATH", ""))
           require(re.fullmatch(r"[0-9a-f]{64}", expected) is not None, "expected digest is invalid")
+          require(input_snapshots == "2", "verified input snapshot count changed")
+          require(source_rows == "7", "replayed source row count changed")
           require(bundle.is_file() and not bundle.is_symlink(), "downloaded inner ZIP is missing")
           entries = sorted(entry.name for entry in bundle.parent.iterdir())
           require(entries == [bundle.name], "downloaded artifact member set changed")
