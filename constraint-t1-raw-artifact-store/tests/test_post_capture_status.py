@@ -62,13 +62,21 @@ class PostCaptureStatusTests(unittest.TestCase):
     def tearDown(self):
         self.temp.cleanup()
 
-    def test_valid_nine_source_attestation_closes_only_raw_materialization(self):
+    def test_valid_nine_source_attestation_closes_raw_materialization_only(self):
         status = build_public_status(
             attestation=self.attestation,
             registry=self.registry,
         )
         self.assertEqual(9, status["source_count"])
-        self.assertEqual(9, status["ordinary_t2_eligible_count"])
+        self.assertEqual(9, status["materialized_source_count"])
+        self.assertEqual(
+            self.attestation["ordinary_t2_eligible_count"],
+            status["ordinary_t2_eligible_count"],
+        )
+        self.assertEqual(
+            self.attestation["ordinary_t2_blocked_count"],
+            status["ordinary_t2_blocked_count"],
+        )
         self.assertEqual(
             "CLOSED_BY_VALIDATED_PRIVATE_T1_ATTESTATION",
             status["closure"]["PIT-002B-FIRST-SLICE-NINE-SOURCE-RAW-CAPTURE-MATERIALIZATION"],
@@ -93,19 +101,24 @@ class PostCaptureStatusTests(unittest.TestCase):
         bad = copy.deepcopy(self.attestation)
         bad["members"] = bad["members"][:8]
         bad["materialized_source_count"] = 8
-        bad["ordinary_t2_eligible_count"] = 8
         with self.assertRaises(PostCaptureStatusError):
             build_public_status(attestation=bad, registry=self.registry)
 
-    def test_quarantined_or_ineligible_source_cannot_close_materialization(self):
-        bad = copy.deepcopy(self.attestation)
-        bad["members"][0]["processing_disposition"] = "QUARANTINED"
-        bad["members"][0]["ordinary_t2_eligible"] = False
-        bad["ordinary_t2_eligible_count"] = 8
-        bad["ordinary_t2_blocked_count"] = 1
-        bad["all_sources_ordinary_t2_eligible"] = False
-        with self.assertRaises(PostCaptureStatusError):
-            build_public_status(attestation=bad, registry=self.registry)
+    def test_ineligible_members_do_not_reopen_raw_materialization(self):
+        status = build_public_status(
+            attestation=self.attestation,
+            registry=self.registry,
+        )
+        self.assertEqual(
+            "CLOSED_BY_VALIDATED_PRIVATE_T1_ATTESTATION",
+            status["closure"]["PIT-002B-FIRST-SLICE-NINE-SOURCE-RAW-CAPTURE-MATERIALIZATION"],
+        )
+        self.assertGreater(status["ordinary_t2_blocked_count"], 0)
+        self.assertFalse(status["all_sources_ordinary_t2_eligible"])
+        self.assertEqual(
+            "BLOCKED_UNLESS_MEMBER_TIMESTAMP_AUTHORITY_IS_VERIFIED",
+            status["still_blocked"]["ORDINARY_T1_T2_ELIGIBILITY"],
+        )
 
     def test_output_contains_no_private_paths_or_raw_bytes(self):
         status = build_public_status(
