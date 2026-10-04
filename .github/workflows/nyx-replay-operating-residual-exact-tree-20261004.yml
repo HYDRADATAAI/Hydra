@@ -1,0 +1,135 @@
+name: NYX replay operating residual exact-tree validation
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/nyx-replay-operating-residual-exact-tree-20261004.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  residual:
+    name: '${{ matrix.target }} / ${{ matrix.group }}'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - target: 'replay221'
+            group: 'first-slice-hostile'
+            sha: '6f40eaeacb206e7240ad17f46e2ac7b5b596f67c'
+            tree: '90c365c88669336af7c400520338b75b94f6325f'
+            script: 'tools/test_constraint_first_slice_adversarial.py'
+          - target: 'replay221'
+            group: 'acceptance-hostile'
+            sha: '6f40eaeacb206e7240ad17f46e2ac7b5b596f67c'
+            tree: '90c365c88669336af7c400520338b75b94f6325f'
+            script: 'tools/test_constraint_first_slice_acceptance_gate_adversarial.py'
+          - target: 'replay221'
+            group: 'confidence-hostile'
+            sha: '6f40eaeacb206e7240ad17f46e2ac7b5b596f67c'
+            tree: '90c365c88669336af7c400520338b75b94f6325f'
+            script: 'tools/test_constraint_first_slice_confidence_evaluation_adversarial.py'
+          - target: 'replay221'
+            group: 'outcome-hostile'
+            sha: '6f40eaeacb206e7240ad17f46e2ac7b5b596f67c'
+            tree: '90c365c88669336af7c400520338b75b94f6325f'
+            script: 'tools/test_constraint_first_slice_outcome_coverage_adversarial.py'
+          - target: 'replay221'
+            group: 'custody-hostile'
+            sha: '6f40eaeacb206e7240ad17f46e2ac7b5b596f67c'
+            tree: '90c365c88669336af7c400520338b75b94f6325f'
+            script: 'tools/test_constraint_first_slice_custody_adversarial.py'
+          - target: 'replay221'
+            group: 'shadow-windows'
+            sha: '6f40eaeacb206e7240ad17f46e2ac7b5b596f67c'
+            tree: '90c365c88669336af7c400520338b75b94f6325f'
+            script: 'tools/validate_constraint_ai_infra_pass005.py'
+          - target: 'replay221'
+            group: 'successor-hostile'
+            sha: '6f40eaeacb206e7240ad17f46e2ac7b5b596f67c'
+            tree: '90c365c88669336af7c400520338b75b94f6325f'
+            script: 'tools/nyx_test_constraint_successor_chain_adversarial.py'
+          - target: 'operating222'
+            group: 'first-slice-hostile'
+            sha: '24a9559e19d916cea7baa1da9841a0c6eb7f425c'
+            tree: '0f78c180ff970948d2529d00c9dc31b15554fdf3'
+            script: 'tools/test_constraint_first_slice_adversarial.py'
+          - target: 'operating222'
+            group: 'acceptance-hostile'
+            sha: '24a9559e19d916cea7baa1da9841a0c6eb7f425c'
+            tree: '0f78c180ff970948d2529d00c9dc31b15554fdf3'
+            script: 'tools/test_constraint_first_slice_acceptance_gate_adversarial.py'
+          - target: 'operating222'
+            group: 'confidence-hostile'
+            sha: '24a9559e19d916cea7baa1da9841a0c6eb7f425c'
+            tree: '0f78c180ff970948d2529d00c9dc31b15554fdf3'
+            script: 'tools/test_constraint_first_slice_confidence_evaluation_adversarial.py'
+          - target: 'operating222'
+            group: 'outcome-hostile'
+            sha: '24a9559e19d916cea7baa1da9841a0c6eb7f425c'
+            tree: '0f78c180ff970948d2529d00c9dc31b15554fdf3'
+            script: 'tools/test_constraint_first_slice_outcome_coverage_adversarial.py'
+          - target: 'operating222'
+            group: 'custody-hostile'
+            sha: '24a9559e19d916cea7baa1da9841a0c6eb7f425c'
+            tree: '0f78c180ff970948d2529d00c9dc31b15554fdf3'
+            script: 'tools/test_constraint_first_slice_custody_adversarial.py'
+          - target: 'operating222'
+            group: 'shadow-windows'
+            sha: '24a9559e19d916cea7baa1da9841a0c6eb7f425c'
+            tree: '0f78c180ff970948d2529d00c9dc31b15554fdf3'
+            script: 'tools/validate_constraint_ai_infra_pass005.py'
+          - target: 'operating222'
+            group: 'successor-hostile'
+            sha: '24a9559e19d916cea7baa1da9841a0c6eb7f425c'
+            tree: '0f78c180ff970948d2529d00c9dc31b15554fdf3'
+            script: 'tools/nyx_test_constraint_successor_chain_adversarial.py'
+          - target: 'operating222'
+            group: 'public-validator'
+            sha: '24a9559e19d916cea7baa1da9841a0c6eb7f425c'
+            tree: '0f78c180ff970948d2529d00c9dc31b15554fdf3'
+            script: 'tools/validate_public_repository.py'
+    steps:
+      - name: Checkout exact source candidate
+        uses: actions/checkout@v4
+        with:
+          ref: '${{ matrix.sha }}'
+          persist-credentials: false
+      - name: Set up governed Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Bind exact source identity
+        env:
+          EXPECTED_SOURCE_SHA: '${{ matrix.sha }}'
+          EXPECTED_SOURCE_TREE: '${{ matrix.tree }}'
+          GOVERNED_SCRIPT: '${{ matrix.script }}'
+        run: |
+          test "$(git rev-parse HEAD)" = "$EXPECTED_SOURCE_SHA"
+          test "$(git rev-parse HEAD^{tree})" = "$EXPECTED_SOURCE_TREE"
+          printf 'SOURCE_COMMIT=%s\n' "$(git rev-parse HEAD)"
+          printf 'SOURCE_TREE=%s\n' "$(git rev-parse HEAD^{tree})"
+          printf 'GOVERNED_SCRIPT=%s\n' "$GOVERNED_SCRIPT"
+          printf 'GOVERNED_SCRIPT_BLOB=%s\n' "$(git hash-object "$GOVERNED_SCRIPT")"
+          python --version
+      - name: Execute existing governed command
+        env:
+          PYTHONDONTWRITEBYTECODE: '1'
+          GOVERNED_SCRIPT: '${{ matrix.script }}'
+        run: python "$GOVERNED_SCRIPT"
+      - name: Verify exact identity and source preservation
+        if: always()
+        env:
+          EXPECTED_SOURCE_SHA: '${{ matrix.sha }}'
+          EXPECTED_SOURCE_TREE: '${{ matrix.tree }}'
+        run: |
+          test "$(git rev-parse HEAD)" = "$EXPECTED_SOURCE_SHA"
+          test "$(git rev-parse HEAD^{tree})" = "$EXPECTED_SOURCE_TREE"
+          git diff --exit-code
+          test -z "$(git status --porcelain)"
+          printf 'SOURCE_COMMIT_AFTER=%s\n' "$(git rev-parse HEAD)"
+          printf 'SOURCE_TREE_AFTER=%s\n' "$(git rev-parse HEAD^{tree})"
+          echo SOURCE_PRESERVATION=PASS
