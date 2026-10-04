@@ -13,6 +13,7 @@ QUEUE=ROOT/"docs/constraint/second_slice/semiconductor_advanced_packaging_critic
 CONTRACT=BASE/"HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH026_SEMICONDUCTOR_PRIVATE_T1_MATERIALIZATION_CONTRACT_V001_20260926.json"
 STATUS=BASE/"HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH026_SEMICONDUCTOR_PRIVATE_T1_MATERIALIZATION_STATUS_V001_20260926.json"
 MASTER=ARCH/"HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH026_MASTER_STATUS_V001_20260926.json"
+SUCCESSOR_STATUS=BASE/"HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH030_SEMICONDUCTOR_MICRON_QUARANTINE_NON_MICRON_REPLACEMENT_STATUS_V001_20260927.json"
 REGISTRIES=[
  BASE/"HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH018_SEMICONDUCTOR_ADVANCED_PACKAGING_CRITICAL_MATERIALS_SOURCE_REGISTRY_V001_20260926.json",
  BASE/"HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH019_SEMICONDUCTOR_FACILITY_MATERIAL_EQUIPMENT_SOURCE_REGISTRY_EXTENSION_V001_20260926.json",
@@ -38,6 +39,7 @@ def main()->int:
     contract=load(CONTRACT)
     status=load(STATUS)
     master=load(MASTER)
+    successor=load(SUCCESSOR_STATUS)
 
     require(queue_doc.get("slice_id")==SLICE,"queue slice_id drifted")
     require(contract.get("slice_id")==SLICE,"contract slice_id drifted")
@@ -124,7 +126,20 @@ def main()->int:
     require(master.get("next_repo_executable_lane")=="NONE","master falsely exposes repo lane")
     require(master.get("first_serious_constraint_run")=="BLOCKED","master falsely serious-run ready")
 
+    require(successor.get("record_id")=="HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH030_SEMICONDUCTOR_MICRON_QUARANTINE_NON_MICRON_REPLACEMENT_STATUS_V001","current successor status identity drifted")
+    require(successor.get("result")=="PASS_MICRON_QUARANTINE_AND_NON_MICRON_REPLACEMENT_READY_CAPTURE_NOT_EXECUTED","current successor must remain capture-not-executed")
+    successor_results=successor.get("results",{})
+    require(successor_results.get("ACTIVE_CAPTURE_SOURCE_COUNT")==38,"current successor active source count drifted")
+    require(successor_results.get("MICRON_ACTIVE_CAPTURE_COUNT")==0,"current successor reintroduced quarantined Micron sources")
+    require(successor_results.get("RAW_SOURCE_VERSIONS_MATERIALIZED")==0,"current successor falsely claims raw capture")
+    require(successor.get("next_required_action")=="RUN_BATCH030_MICRON_FREE_BROWSER_CAPTURE","current successor next action drifted")
+    require(successor.get("repo_executable_modeling_lane")=="NONE","current successor falsely exposes repo lane")
+
     print("CONSTRAINT_SECOND_SLICE_BATCH026_PRIVATE_T1_PACKET_VALIDATION=PASS")
+    print("BATCH026_PACKET_STATUS=HISTORICAL")
+    print("BATCH026_OPERATIONAL_STATUS=SUPERSEDED_BY_BATCH030_QUARANTINE")
+    print("CURRENT_SUCCESSOR_BATCH=030")
+    print("CURRENT_SUCCESSOR_CAPTURE=NOT_EXECUTED")
     print("UNIQUE_SOURCE_CAPTURE_INTENTS=41")
     print("SOURCE_VERSION_IDS_RESERVED=41")
     print("QUEUE_MATCHES_BATCHES_018_025=YES")
@@ -132,7 +147,7 @@ def main()->int:
     print("RAW_SOURCE_VERSIONS_MATERIALIZED=0")
     print("ORDINARY_T2_ELIGIBLE_SOURCES=0")
     print("FIRST_SEMICONDUCTOR_RUN=BLOCKED")
-    print("NEXT_REQUIRED_ACTION=EXECUTE_BATCH026_PRIVATE_CAPTURE_QUEUE_ON_WORKSTATION")
+    print("HISTORICAL_NEXT_REQUIRED_ACTION_AS_OF_2026-09-26=EXECUTE_BATCH026_PRIVATE_CAPTURE_QUEUE_ON_WORKSTATION")
     return 0
 
 if __name__=="__main__":
