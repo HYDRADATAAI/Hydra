@@ -5,7 +5,16 @@ on:
     branches: [nyx/thread-h-temporal-consistency-20261003]
   pull_request:
     paths:
+      - .gitattributes
       - constraint-t1-raw-artifact-store/**
+      - tools/build_constraint_second_slice_batch033_ordinary_t2_lineage.py
+      - tools/build_constraint_second_slice_batch034_t2_evidence_lineage.py
+      - tools/test_constraint_second_slice_batch034_builder_bytes.py
+      - tools/validate_constraint_second_slice_batch034_t2_evidence_lineage.py
+      - tools/test_constraint_second_slice_batch034_t2_evidence_lineage_adversarial.py
+      - docs/constraint/second_slice/semiconductor_advanced_packaging_critical_materials_v1/**
+      - docs/constraint/validation/**
+      - constraint-runtime/**
       - .github/workflows/nyx-thread-h-temporal-consistency-windows.yml
 
 permissions:
@@ -21,7 +30,7 @@ jobs:
       PYTHONDONTWRITEBYTECODE: '1'
       PYTHONUTF8: '1'
     steps:
-      - name: Preserve exact Git blob checkout bytes
+      - name: Preserve committed file bytes on Windows
         run: git config --global core.autocrlf false
       - uses: actions/checkout@v4
         with:
@@ -63,17 +72,16 @@ jobs:
               raise SystemExit("Batch033 reviewed Git blob is not LF-only")
           if Path(relative).read_bytes() != expected:
               raise SystemExit("Batch033 checkout differs from exact reviewed Git blob")
-          windows_expected = expected.replace(b"\n", b"\r\n")
           actual = Path(sys.argv[1]).read_bytes()
-          if actual != windows_expected:
-              raise SystemExit("Batch033 Windows CLI bytes differ from reviewed LF-to-CRLF serialization")
+          if actual != expected:
+              raise SystemExit("Batch033 CLI bytes differ from exact reviewed Git blob")
           print(f"BATCH033_REVIEWED_BLOB_SHA256={hashlib.sha256(expected).hexdigest()}; BYTES={len(expected)}")
-          print(f"BATCH033_WINDOWS_OUTPUT_SHA256={hashlib.sha256(actual).hexdigest()}; BYTES={len(actual)}")
+          print(f"BATCH033_CANONICAL_LF_SHA256={hashlib.sha256(actual).hexdigest()}; BYTES={len(actual)}")
           '@ | python -B - D:\nyx-thread-h-consistency-temp\lineage.json
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           python -B tools/test_constraint_second_slice_batch034_builder_bytes.py -v
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          'BATCH033_WINDOWS_SERIALIZATION_MATCHES_REVIEWED_GIT_BLOB=YES; BATCH034_REVIEWED_GIT_BLOB_BYTES_REPRODUCED=YES; TIMESTAMP_AUTHORITY_VERIFIED=NO'
+          'BATCH033_CANONICAL_UTF8_LF_BYTES_MATCH_REVIEWED_GIT_BLOB=YES; BATCH034_REVIEWED_GIT_BLOB_BYTES_REPRODUCED=YES; TIMESTAMP_AUTHORITY_VERIFIED=NO'
       - name: Integrated Batch034 validator and hostile tests
         if: always()
         run: |
