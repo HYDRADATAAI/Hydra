@@ -1,0 +1,64 @@
+name: NYX PR146 main bab exact-source public validation
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/nyx-pr146-main-bab-public-validation-20261004.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  public-validator:
+    name: '${{ matrix.target }} / exact-source public validator'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - target: 'PR243'
+            sha: '8e943b79cf2324531f83c8354a004b1858a775ab'
+            tree: 'f695b0a0b66aef45f2414b4ad8d408f5aed7e1e0'
+          - target: 'PR244'
+            sha: '07eb2255678493eec02d819a9c2ebb3bc0296e22'
+            tree: 'c5a70dd4acd82c28baecab667b902f666572f3dd'
+    steps:
+      - name: Checkout exact source candidate
+        uses: actions/checkout@v4
+        with:
+          ref: '${{ matrix.sha }}'
+          persist-credentials: false
+      - name: Set up governed Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Bind exact source identity
+        env:
+          EXPECTED_SOURCE_SHA: '${{ matrix.sha }}'
+          EXPECTED_SOURCE_TREE: '${{ matrix.tree }}'
+        run: |
+          test "$(git rev-parse HEAD)" = "$EXPECTED_SOURCE_SHA"
+          test "$(git rev-parse HEAD^{tree})" = "$EXPECTED_SOURCE_TREE"
+          printf 'SOURCE_COMMIT=%s\n' "$(git rev-parse HEAD)"
+          printf 'SOURCE_TREE=%s\n' "$(git rev-parse HEAD^{tree})"
+          printf 'GOVERNED_SCRIPT_BLOB=%s\n' "$(git hash-object tools/validate_public_repository.py)"
+          test "$(git hash-object tools/validate_public_repository.py)" = "c8b0f3ae77825e36ee9b5f58ecb012b9938e863f"
+          python --version
+      - name: Execute current public repository validator
+        env:
+          PYTHONDONTWRITEBYTECODE: '1'
+        run: python tools/validate_public_repository.py
+      - name: Verify exact identity and source preservation
+        if: always()
+        env:
+          EXPECTED_SOURCE_SHA: '${{ matrix.sha }}'
+          EXPECTED_SOURCE_TREE: '${{ matrix.tree }}'
+        run: |
+          test "$(git rev-parse HEAD)" = "$EXPECTED_SOURCE_SHA"
+          test "$(git rev-parse HEAD^{tree})" = "$EXPECTED_SOURCE_TREE"
+          git diff --exit-code
+          test -z "$(git status --porcelain)"
+          printf 'SOURCE_COMMIT_AFTER=%s\n' "$(git rev-parse HEAD)"
+          printf 'SOURCE_TREE_AFTER=%s\n' "$(git rev-parse HEAD^{tree})"
+          echo SOURCE_PRESERVATION=PASS
