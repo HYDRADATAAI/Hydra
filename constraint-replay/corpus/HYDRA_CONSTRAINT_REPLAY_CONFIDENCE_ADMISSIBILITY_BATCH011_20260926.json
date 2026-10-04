@@ -1,0 +1,35 @@
+{
+  "schema_version": "1.0",
+  "batch_id": "HYDRA_CONSTRAINT_REPLAY_CONFIDENCE_ADMISSIBILITY_BATCH011_20260926",
+  "policy": "Batch 011 reuses the Batch 008 confidence semantics unchanged. Forecast direction, expected decline, expected financial stabilization, policy-dollar amounts, and projected facility/job counts are not historical replay probabilities.",
+  "ordinal_mappings": [],
+  "evidence": [
+    {
+      "evidence_id": "confidence-audit-pdvsa-eia-2019-05-20",
+      "case_id": "us-pdvsa-sanctions-2019",
+      "source_id": "pdvsa-eia-2019-05-20-hypothesis",
+      "known_at": "2019-05-20T23:59:59Z",
+      "semantics": "QUALITATIVE_EXPECTATION",
+      "statement": "EIA expected Venezuelan crude production to continue declining in 2019 and said sanctions-related deadlines could accelerate declines.",
+      "notes": "Expected decline and could-accelerate language is directional forecast evidence, not an explicit numeric probability."
+    },
+    {
+      "evidence_id": "confidence-audit-uniper-ec-2022-12-21",
+      "case_id": "germany-uniper-nationalization-2022",
+      "source_id": "uniper-ec-2022-12-21-hypothesis",
+      "known_at": "2022-12-21T23:59:59Z",
+      "semantics": "QUALITATIVE_EXPECTATION",
+      "statement": "The European Commission expected the recapitalisation to restore Uniper's financial position and liquidity and help avoid serious disruption in the German gas market.",
+      "notes": "Policy-effect expectation is not a probability estimate."
+    },
+    {
+      "evidence_id": "confidence-audit-chips-bcg-2021-04-01",
+      "case_id": "us-chips-act-2022",
+      "source_id": "chips-bcg-2021-04-01-hypothesis",
+      "known_at": "2021-04-01T23:59:59Z",
+      "semantics": "QUALITATIVE_EXPECTATION",
+      "statement": "BCG/SIA analysis stated that a roughly 50 billion dollar incentive program could enable construction of 19 advanced fabs over ten years, about double the number expected without action.",
+      "notes": "The 19-fab estimate is a projected quantity conditional on policy, not a probability of realization."
+    }
+  ]
+}
