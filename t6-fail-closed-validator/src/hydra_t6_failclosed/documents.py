@@ -72,6 +72,21 @@ def _bounded_mapping_snapshot(value: Mapping[str, Any], *, max_bytes: int) -> tu
             return plain_float(key)
         return key
 
+    def json_key_name(key: Any) -> str:
+        if isinstance(key, str):
+            return plain_string(key)
+        if key is None:
+            return "null"
+        if key is True:
+            return "true"
+        if key is False:
+            return "false"
+        if isinstance(key, int):
+            return json.dumps(plain_int(key), allow_nan=False)
+        if isinstance(key, float):
+            return json.dumps(plain_float(key), allow_nan=False)
+        raise TypeError("mapping keys must be JSON scalar types")
+
     def string_size(text: str) -> int:
         text = plain_string(text)
         size = 2  # JSON quotes
@@ -167,10 +182,15 @@ def _bounded_mapping_snapshot(value: Mapping[str, Any], *, max_bytes: int) -> tu
             active.add(identity)
             try:
                 result = {}
+                seen_key_names: set[str] = set()
                 size = 2
                 for key, child in dict.items(item):
                     normalized_key = plain_key(key)
                     child_key_size = key_size(normalized_key)
+                    key_name = json_key_name(normalized_key)
+                    if key_name in seen_key_names:
+                        raise DuplicateKeyError(f"duplicate key {key_name!r}")
+                    seen_key_names.add(key_name)
                     copied, child_size = copy_json(child, depth + 1)
                     if result:
                         size += 1
@@ -187,12 +207,17 @@ def _bounded_mapping_snapshot(value: Mapping[str, Any], *, max_bytes: int) -> tu
     active.add(identity)
     try:
         snapshot: dict[str, Any] = {}
+        seen_key_names: set[str] = set()
         size = 2
         if size > max_bytes:
             raise _DocumentTooLargeError(size)
         for key in value.keys():
             normalized_key = plain_key(key)
             child_key_size = key_size(normalized_key)
+            key_name = json_key_name(normalized_key)
+            if key_name in seen_key_names:
+                raise DuplicateKeyError(f"duplicate key {key_name!r}")
+            seen_key_names.add(key_name)
             value_for_key = value[key]
             copied, child_size = copy_json(value_for_key, 2)
             if snapshot:
