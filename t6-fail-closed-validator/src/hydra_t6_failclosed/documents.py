@@ -78,7 +78,7 @@ def _bounded_mapping_snapshot(value: Mapping[str, Any], *, max_bytes: int) -> tu
             if char in ('"', "\\"):
                 size += 2
             elif codepoint < 0x20:
-                size += 2 if char in "\\b\\t\\n\\f\\r" else 6
+                size += 2 if codepoint in (8, 9, 10, 12, 13) else 6
             elif codepoint < 0x80:
                 size += 1
             elif codepoint < 0x800:
