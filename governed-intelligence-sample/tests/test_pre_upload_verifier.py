@@ -548,7 +548,7 @@ class PreUploadVerifierTests(unittest.TestCase):
 
         with self.assertRaisesRegex(
             VerificationError,
-            "symbolic-link or reparse-point ancestors are not allowed",
+            "symbolic links and reparse points are not allowed",
         ):
             _snapshot_verification_inputs(self.repository)
 
