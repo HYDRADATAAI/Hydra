@@ -51,7 +51,7 @@
     },
     {
       "item_id": "NATIVE-T5-T6-V2-TEST-EXECUTION-NOT-RECORDED",
-      "state": "CLOSED_BY_BATCH037_SIX_FOCUSED_V2_TESTS_PASSED"
+      "state": "CLOSED_BY_BATCH037_FOUR_FOCUSED_V2_TESTS_PASSED"
     }
   ],
   "repo_executable_blockers": [],
