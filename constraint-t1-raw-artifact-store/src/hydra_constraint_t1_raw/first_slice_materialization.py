@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import json
 from datetime import datetime
+from html.parser import HTMLParser
 from pathlib import Path
 import re
 from typing import Any, Mapping
@@ -181,6 +182,76 @@ def _capture_rows(
     return normalized
 
 
+class _HTMLPrefixSignals(HTMLParser):
+    """Read bounded presentation hints, not document authenticity or completeness."""
+
+    def __init__(self) -> None:
+        super().__init__(convert_charrefs=True)
+        self.hidden: list[str] = []
+        self.in_head = False
+        self.heading: str | None = None
+        self.heading_parts: list[str] = []
+        self.headings: list[str] = []
+        self.visible_parts: list[str] = []
+
+    def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
+        if tag in {"script", "style", "template"}:
+            self.hidden.append(tag)
+        if self.hidden:
+            return
+        if tag == "head":
+            self.in_head = True
+        if tag in {"title", "h1", "h2"}:
+            self.heading = tag
+            self.heading_parts = []
+
+    def handle_endtag(self, tag: str) -> None:
+        if self.hidden:
+            if tag == self.hidden[-1]:
+                self.hidden.pop()
+            return
+        if tag == self.heading:
+            self.headings.append("".join(self.heading_parts))
+            self.heading = None
+            self.heading_parts = []
+        if tag == "head":
+            self.in_head = False
+
+    def handle_data(self, data: str) -> None:
+        if self.hidden:
+            return
+        if self.heading:
+            self.heading_parts.append(data)
+        if not self.in_head and self.heading != "title":
+            self.visible_parts.append(data)
+
+
+def _validate_body(raw: bytes, *, content_type: str, source_id: str) -> None:
+    if not raw:
+        raise FirstSliceMaterializationError(f"{source_id}: empty staged source body")
+    media_type = content_type.split(";", 1)[0].strip().lower()
+    prefix = raw[:4096].lower()
+    if media_type == "application/pdf":
+        if not raw.startswith(b"%PDF-"):
+            raise FirstSliceMaterializationError(f"{source_id}: PDF signature is absent")
+        return
+    if media_type != "text/html":
+        return
+    if b"<html" not in prefix and b"<!doctype" not in prefix:
+        raise FirstSliceMaterializationError(f"{source_id}: expected HTML source body")
+    presentation = _HTMLPrefixSignals()
+    presentation.feed(raw[:4096].decode("utf-8", errors="replace"))
+    presentation.close()
+    signals = presentation.headings + [
+        "".join(presentation.heading_parts),
+        "".join(presentation.visible_parts),
+    ]
+    for signal in signals:
+        normalized = " ".join(signal.lower().split())
+        if re.match(r"^(?:access denied|captcha|403 forbidden|404 not found)(?=$|[\s:;,.!?-])", normalized):
+            raise FirstSliceMaterializationError(f"{source_id}: error/interstitial source body")
+
+
 def materialize_capture_plan(
     *,
     registry: Mapping[str, Any],
@@ -218,11 +289,19 @@ def materialize_capture_plan(
             "release_created_at cannot precede the latest source acquisition"
         )
 
+    # Read and check the complete source set before any private-store mutation.
+    # Persist these exact bytes so a later staging-file change cannot bypass preflight.
+    staged: list[tuple[dict[str, Any], bytes]] = []
+    for row in rows:
+        raw = row["input_path"].read_bytes()
+        _validate_body(raw, content_type=row["content_type"], source_id=row["source_id"])
+        staged.append((row, raw))
+
     store = RawArtifactStore(Path(private_root), public_repo_root=public_repo)
     receipts: list[dict[str, Any]] = []
-    for row in rows:
+    for row, raw in staged:
         receipts.append(store.persist(
-            raw_bytes=row["input_path"].read_bytes(),
+            raw_bytes=raw,
             source_id=row["source_id"],
             source_version_id=row["source_version_id"],
             content_type=row["content_type"],
