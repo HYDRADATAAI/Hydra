@@ -7,6 +7,7 @@ on:
       - "constraint-t1-raw-artifact-store/**"
       - "t6-fail-closed-validator/**"
       - "tools/validate_constraint_first_slice_successor.py"
+      - "tools/validate_constraint_ai_infra_pass005.py"
       - "tools/validate_constraint_lily_owner_seams.py"
       - "tools/test_constraint_first_slice_adversarial.py"
       - "tools/validate_constraint_first_slice_acceptance_gate.py"
@@ -26,6 +27,7 @@ on:
       - "constraint-t1-raw-artifact-store/**"
       - "t6-fail-closed-validator/**"
       - "tools/validate_constraint_first_slice_successor.py"
+      - "tools/validate_constraint_ai_infra_pass005.py"
       - "tools/validate_constraint_lily_owner_seams.py"
       - "tools/test_constraint_first_slice_adversarial.py"
       - "tools/validate_constraint_first_slice_acceptance_gate.py"
@@ -77,6 +79,8 @@ jobs:
       - name: Run real outcome coverage hostile matrix
         run: python tools/test_constraint_first_slice_outcome_coverage_adversarial.py
 
+      - name: Verify repaired shadow replay against current owner seams
+        run: python tools/validate_constraint_ai_infra_pass005.py
       - name: Validate persisted T1-to-T2 custody
         run: python tools/validate_constraint_first_slice_custody.py
 

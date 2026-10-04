@@ -1,4 +1,4 @@
-name: Governed intelligence pre-model sample
+name: Governed intelligence pre-model and retrieval sample
 
 on:
   pull_request:
@@ -73,11 +73,42 @@ jobs:
           print("GOVERNED_INTELLIGENCE_EVAL=PASS")
           PY
 
+      - name: Build deterministic lexical retrieval receipts
+        working-directory: governed-intelligence-sample
+        env:
+          PYTHONPATH: src
+        run: |
+          python run_retrieval_demo.py \
+            --pipeline-output-dir ../market-data-pipeline-sample/build/demo \
+            --policy config/retrieval_policy.json \
+            --cases fixtures/retrieval_cases.json \
+            --output-dir build/retrieval
+
+      - name: Verify retrieval benchmark receipt
+        working-directory: governed-intelligence-sample
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          report = json.loads(Path("build/retrieval/retrieval_evaluation_report.json").read_text(encoding="utf-8"))
+          assert report["status"] == "PASS", report
+          assert report["case_count"] == 6, report
+          assert report["disposition_counts"] == {"ABSTAIN": 2, "ADMIT": 3, "REFUSE": 1}, report
+          assert report["checks"]["citation_integrity_pass_count"] == 6, report
+          assert report["checks"]["recall_at_k"] == "1.000000", report
+          assert report["checks"]["mean_reciprocal_rank"] == "1.000000", report
+          assert report["checks"]["unauthorized_model_execution_count"] == 0, report
+          assert report["checks"]["quarantined_raw_records_exposed_count"] == 0, report
+          print("GOVERNED_RETRIEVAL_EVAL=PASS")
+          PY
+
       - name: Publish synthetic pre-model receipts
         uses: actions/upload-artifact@v4
         with:
           name: hydra-governed-intelligence-sample
           path: |
             governed-intelligence-sample/build/evaluation/
+            governed-intelligence-sample/build/retrieval/
             market-data-pipeline-sample/build/demo/
           if-no-files-found: error

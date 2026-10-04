@@ -150,6 +150,62 @@ class FirstSliceMaterializationTests(unittest.TestCase):
             registry=self.registry,
         )
 
+    def test_public_attestation_rejects_missing_root_field(self):
+        attestation = self.run_plan()
+        required_root_fields = {
+            "schema_version",
+            "slice_id",
+            "capture_mode",
+            "availability_mode",
+            "network_acquisition_performed_by_materializer",
+            "public_raw_content_published",
+            "release_id",
+            "release_sha256",
+            "release_created_at",
+            "registry_source_count",
+            "materialized_source_count",
+            "ordinary_t2_eligible_count",
+            "ordinary_t2_blocked_count",
+            "all_registry_sources_materialized",
+            "all_sources_ordinary_t2_eligible",
+            "strict_historical_replay_promoted",
+            "historical_availability_backdated",
+            "members",
+        }
+        self.assertEqual(set(attestation), required_root_fields)
+        earlier_diagnostics = {
+            "schema_version": "unsupported attestation schema",
+            "slice_id": "attestation slice_id mismatch",
+            "capture_mode": "attestation capture mode invalid",
+            "availability_mode": "attestation availability mode invalid",
+            "network_acquisition_performed_by_materializer": (
+                "attestation claims network acquisition authority"
+            ),
+            "public_raw_content_published": "attestation claims raw public content",
+            "strict_historical_replay_promoted": (
+                "attestation improperly promotes strict historical replay"
+            ),
+            "historical_availability_backdated": (
+                "attestation backdates historical availability"
+            ),
+        }
+        for field in sorted(required_root_fields):
+            with self.subTest(field=field):
+                incomplete = dict(attestation)
+                del incomplete[field]
+                with self.assertRaises(FirstSliceMaterializationError) as raised:
+                    validate_public_materialization_attestation(
+                        attestation=incomplete,
+                        registry=self.registry,
+                    )
+                self.assertEqual(
+                    str(raised.exception),
+                    earlier_diagnostics.get(
+                        field,
+                        "attestation root field set invalid",
+                    ),
+                )
+
     def test_public_attestation_rejects_private_path_leakage(self):
         attestation = self.run_plan()
         attestation["members"][0]["input_file"] = str(self.captures / "a.html")

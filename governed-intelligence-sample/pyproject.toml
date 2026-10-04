@@ -1,7 +1,7 @@
 [project]
 name = "hydra-governed-intelligence-sample"
 version = "0.1.0"
-description = "Deterministic pre-model context and evaluation proof for HYDRA"
+description = "Deterministic pre-model context and lexical retrieval proof for HYDRA"
 requires-python = ">=3.11"
 dependencies = []
 

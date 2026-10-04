@@ -87,19 +87,27 @@ REQUIRED_PATHS = (
     "governed-intelligence-sample/README.md",
     "governed-intelligence-sample/pyproject.toml",
     "governed-intelligence-sample/config/policy.json",
+    "governed-intelligence-sample/config/retrieval_policy.json",
     "governed-intelligence-sample/contracts/request.schema.json",
     "governed-intelligence-sample/contracts/decision.schema.json",
     "governed-intelligence-sample/fixtures/evaluation_cases.json",
+    "governed-intelligence-sample/fixtures/retrieval_cases.json",
     "governed-intelligence-sample/run_demo.py",
+    "governed-intelligence-sample/run_retrieval_demo.py",
     "governed-intelligence-sample/src/hydra_governed_intelligence/__init__.py",
     "governed-intelligence-sample/src/hydra_governed_intelligence/__main__.py",
     "governed-intelligence-sample/src/hydra_governed_intelligence/cli.py",
     "governed-intelligence-sample/src/hydra_governed_intelligence/context.py",
     "governed-intelligence-sample/src/hydra_governed_intelligence/evaluation.py",
+    "governed-intelligence-sample/src/hydra_governed_intelligence/retrieval.py",
+    "governed-intelligence-sample/src/hydra_governed_intelligence/retrieval_cli.py",
+    "governed-intelligence-sample/src/hydra_governed_intelligence/retrieval_evaluation.py",
     "governed-intelligence-sample/tests/__init__.py",
     "governed-intelligence-sample/tests/support.py",
     "governed-intelligence-sample/tests/test_context.py",
     "governed-intelligence-sample/tests/test_evaluation.py",
+    "governed-intelligence-sample/tests/test_retrieval.py",
+    "governed-intelligence-sample/tests/test_retrieval_evaluation.py",
 )
 
 FORBIDDEN_ACTIVE_PATHS = (
@@ -351,6 +359,8 @@ def validate_ci_contract(errors: list[str]) -> None:
         "python -m unittest discover -s tests -t . -v",
         "python run_demo.py",
         "GOVERNED_INTELLIGENCE_EVAL=PASS",
+        "python run_retrieval_demo.py",
+        "GOVERNED_RETRIEVAL_EVAL=PASS",
         "actions/upload-artifact@v4",
     )
     for fragment in intelligence_fragments:
