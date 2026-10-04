@@ -346,6 +346,20 @@ def parse_json_document(
             None,
             (Issue("document_too_deep", f"{label} exceeds maximum nesting depth {MAX_DOCUMENT_DEPTH}", label),),
         )
+    if _document_node_count_exceeds(parsed, max_nodes=MAX_DOCUMENT_NODES):
+        return JSONDocument(
+            raw,
+            digest,
+            None,
+            (
+                Issue(
+                    "document_too_large",
+                    f"{label} exceeds bounded normalization limits",
+                    label,
+                    evidence={"normalization_limit": "nodes"},
+                ),
+            ),
+        )
     try:
         normalized = dict(parsed)
     except RecursionError as exc:
@@ -363,6 +377,22 @@ def _document_depth_exceeds(value: Any, *, max_depth: int) -> bool:
             stack.extend((nested, depth + 1) for nested in current.values())
         elif isinstance(current, list):
             stack.extend((nested, depth + 1) for nested in current)
+    return False
+
+
+def _document_node_count_exceeds(value: Mapping[str, Any], *, max_nodes: int) -> bool:
+    """Count normalized mapping values iteratively, stopping at the configured cap."""
+    stack = list(value.values())
+    nodes = 0
+    while stack:
+        current = stack.pop()
+        nodes += 1
+        if nodes > max_nodes:
+            return True
+        if isinstance(current, Mapping):
+            stack.extend(current.values())
+        elif isinstance(current, list):
+            stack.extend(current)
     return False
 
 
