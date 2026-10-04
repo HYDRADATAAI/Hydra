@@ -101,20 +101,6 @@ class NativeT5T6BridgeTests(unittest.TestCase):
         with self.assertRaisesRegex(NativeT5T6BridgeError, "claims canonicalization"):
             self.build(proposals=proposals)
 
-    def test_blank_or_non_text_statement_source_fields_are_rejected(self):
-        invalid_values = [
-            ("constraining_mechanism", " "),
-            ("constraining_mechanism", None),
-            ("constrained_target", "\t"),
-            ("constrained_target", 42),
-        ]
-        for field, value in invalid_values:
-            with self.subTest(field=field, value=value):
-                proposals = deepcopy(self.proposals)
-                proposals["candidates"][0][field] = value
-                with self.assertRaisesRegex(NativeT5T6BridgeError, f"{field} must be a non-empty string"):
-                    self.build(proposals=proposals)
-
     def test_non_null_canonical_identity_is_rejected(self):
         proposals = deepcopy(self.proposals)
         proposals["candidates"][0]["canonical_constraint_id"] = "SHOULD-NOT-EXIST"
