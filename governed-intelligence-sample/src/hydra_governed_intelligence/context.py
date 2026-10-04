@@ -26,6 +26,12 @@ TASK_PATTERN = re.compile(r"^[a-z0-9_]{1,64}$")
 SYMBOL_PATTERN = re.compile(r"^[A-Z][A-Z0-9.-]{0,15}$")
 VENUE_PATTERN = re.compile(r"^[A-Z0-9][A-Z0-9.-]{0,15}$")
 PRICE_PATTERN = re.compile(r"^(?:0|[1-9]\d*)\.\d{6}$")
+WINDOWS_DEVICE_PATTERN = re.compile(
+    r"^(?:con|prn|aux|nul|clock\$|conin\$|conout\$|"
+    r"(?:com|lpt)(?:[1-9]|\u00b9|\u00b2|\u00b3))$",
+    re.IGNORECASE,
+)
+WINDOWS_FORBIDDEN_FILENAME_CHARS = frozenset('<>:"/\\|?*')
 UTC_TIMESTAMP_PATTERN = re.compile(
     r"^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{6}Z$"
 )
@@ -138,6 +144,23 @@ class ContractError(ValueError):
 
 class IntegrityError(ValueError):
     """Raised when an artifact no longer matches its pinned digest or counts."""
+
+
+def _is_safe_manifest_filename(filename: Any) -> bool:
+    if type(filename) is not str or not filename or filename in {".", ".."}:
+        return False
+    if filename != filename.strip() or filename.endswith((".", " ")):
+        return False
+    if any(
+        ord(character) < 32
+        or 127 <= ord(character) <= 159
+        or character in WINDOWS_FORBIDDEN_FILENAME_CHARS
+        for character in filename
+    ):
+        return False
+
+    device_stem = filename.split(".", 1)[0].rstrip(" .")
+    return WINDOWS_DEVICE_PATTERN.fullmatch(device_stem) is None
 
 
 @dataclass(frozen=True)
@@ -406,13 +429,7 @@ def _validated_manifest_outputs(
         filename = descriptor["file"]
         digest = descriptor["sha256"]
         if (
-            type(filename) is not str
-            or not filename
-            or filename != filename.strip()
-            or "/" in filename
-            or "\\" in filename
-            or filename in {".", ".."}
-            or Path(filename).name != filename
+            not _is_safe_manifest_filename(filename)
             or filename.casefold() in seen_filenames
         ):
             raise ContractError(f"manifest output {key} has an unsafe file name")
@@ -500,6 +517,14 @@ def _evidence_from_snapshots(
         quarantine_rows.append(source_row)
     if quarantine_rows != sorted(quarantine_rows):
         raise IntegrityError("quarantine records are not ordered by source row")
+
+    actual_source_rows = seen_source_rows | set(quarantine_rows)
+    total_source_rows = manifest["accepted_rows"] + manifest["quarantined_rows"]
+    expected_source_rows = set(range(2, total_source_rows + 2))
+    if actual_source_rows != expected_source_rows:
+        raise IntegrityError(
+            "accepted and quarantined source rows do not form the exact producer partition"
+        )
 
     csv_records = _load_normalized_csv_bytes(
         output_bytes["normalized_events_csv"],

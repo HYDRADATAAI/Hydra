@@ -87,6 +87,19 @@ class GovernedContextTests(unittest.TestCase):
             encoding="utf-8",
         )
 
+    def _rename_manifest_output(
+        self, directory: Path, output_key: str, filename: str
+    ) -> None:
+        manifest_path = directory / "manifest.json"
+        manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+        descriptor = manifest["outputs"][output_key]
+        (directory / descriptor["file"]).rename(directory / filename)
+        descriptor["file"] = filename
+        manifest_path.write_text(
+            json.dumps(manifest, sort_keys=True, separators=(",", ":")) + "\n",
+            encoding="utf-8",
+        )
+
     def test_admitted_observation_has_exact_resolvable_citation(self) -> None:
         decision = build_decision(
             {
@@ -283,6 +296,12 @@ class GovernedContextTests(unittest.TestCase):
             ("backslash", "nested\\other.jsonl"),
             ("leading-space", " normalized.jsonl"),
             ("trailing-space", "normalized.jsonl "),
+            ("trailing-dot", "normalized.jsonl."),
+            ("device-name", "CON.jsonl"),
+            ("device-name-mixed-case", "lPt9.csv"),
+            ("device-name-superscript", "COM\u00b9.jsonl"),
+            ("control-character", "normalized\x1fevents.jsonl"),
+            ("forbidden-character", "normalized:events.jsonl"),
         ):
             with self.subTest(case=name):
                 directory = self._new_pipeline_case(f"filename-{name}")
@@ -308,6 +327,31 @@ class GovernedContextTests(unittest.TestCase):
         with self.assertRaisesRegex(ContractError, "unsafe file name"):
             load_evidence(directory)
 
+        directory = self._new_pipeline_case("filename-casefold-duplicate")
+        self._rewrite_manifest(
+            directory,
+            lambda manifest: manifest["outputs"][
+                "quarantine_records_jsonl"
+            ].__setitem__(
+                "file",
+                manifest["outputs"]["normalized_events_jsonl"]["file"].upper(),
+            ),
+        )
+        with self.assertRaisesRegex(ContractError, "unsafe file name"):
+            load_evidence(directory)
+
+    def test_manifest_output_allows_safe_declared_renames(self) -> None:
+        directory = self._new_pipeline_case("filename-safe-rename")
+        self._rename_manifest_output(
+            directory,
+            "normalized_events_jsonl",
+            "accepted-proof.jsonl",
+        )
+
+        evidence = load_evidence(directory)
+
+        self.assertEqual(evidence.normalized_filename, "accepted-proof.jsonl")
+
     def test_manifest_counts_bind_to_exact_artifact_row_counts(self) -> None:
         for field, value in (("accepted_rows", 2), ("quarantined_rows", 3)):
             with self.subTest(field=field):
@@ -320,6 +364,51 @@ class GovernedContextTests(unittest.TestCase):
                 )
                 with self.assertRaisesRegex(IntegrityError, "row count"):
                     load_evidence(directory)
+
+    def test_source_rows_form_exact_contiguous_producer_partition(self) -> None:
+        directory = self._new_pipeline_case("accepted-dropped-phantom-row")
+
+        def replace_accepted_row(records: list[dict[str, Any]]) -> None:
+            record = next(
+                record for record in records if record["source_row_number"] == 4
+            )
+            record["source_row_number"] = 99
+
+        self._rewrite_jsonl(
+            directory,
+            "normalized_events_jsonl",
+            replace_accepted_row,
+        )
+        with self.assertRaisesRegex(IntegrityError, "exact producer partition"):
+            load_evidence(directory)
+
+        directory = self._new_pipeline_case("quarantine-dropped-phantom-row")
+
+        def replace_quarantine_row(records: list[dict[str, Any]]) -> None:
+            record = next(
+                record for record in records if record["source_row_number"] == 8
+            )
+            record["source_row_number"] = 99
+            identity = {
+                "errors": record["errors"],
+                "raw_record_sha256": record["raw_record_sha256"],
+                "source_row_number": record["source_row_number"],
+            }
+            record["quarantine_id"] = hashlib.sha256(
+                json.dumps(
+                    identity,
+                    sort_keys=True,
+                    separators=(",", ":"),
+                ).encode("utf-8")
+            ).hexdigest()
+
+        self._rewrite_jsonl(
+            directory,
+            "quarantine_records_jsonl",
+            replace_quarantine_row,
+        )
+        with self.assertRaisesRegex(IntegrityError, "exact producer partition"):
+            load_evidence(directory)
 
     def test_normalized_events_require_canonical_values_and_provenance(self) -> None:
         def replace_field(field: str, value: Any) -> Callable[[list[dict[str, Any]]], None]:
