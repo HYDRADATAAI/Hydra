@@ -976,9 +976,9 @@ def validate_ci_contract(errors: list[str]) -> None:
     if pipeline_job is None:
         errors.append("market-pipeline CI test-and-build job is missing")
     else:
-        if re.search(r"(?m)^    if\\s*:", pipeline_job):
+        if re.search(r"(?m)^    if\s*:", pipeline_job):
             errors.append("market-pipeline CI job must be unconditional")
-        if re.search(r"(?m)^    continue-on-error\\s*:", pipeline_job):
+        if re.search(r"(?m)^    continue-on-error\s*:", pipeline_job):
             errors.append("market-pipeline CI job must fail closed")
 
         pipeline_steps = workflow_steps(pipeline_job)
@@ -1001,7 +1001,7 @@ def validate_ci_contract(errors: list[str]) -> None:
         }
         for action, expected_sha in pipeline_action_pins.items():
             refs = re.findall(
-                rf"(?m)^\\s*uses:\\s*{re.escape(action)}@([^\\s#]+)",
+                rf"(?m)^\s*uses:\s*{re.escape(action)}@([^\s#]+)",
                 pipeline_workflow,
             )
             if not refs or any(ref != expected_sha for ref in refs):
