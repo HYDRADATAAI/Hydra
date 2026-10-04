@@ -313,16 +313,19 @@ def parse_json_document(
             None,
             (Issue("document_type_invalid", "document could not be safely normalized", label),),
         )
-    digest = sha256_hex(raw)
     if not raw:
+        digest = sha256_hex(raw)
         return JSONDocument(raw, digest, None, (Issue("document_missing", f"{label} is missing", label),))
-    if len(raw) > max_bytes:
+    raw_size = len(raw)
+    if raw_size > max_bytes:
+        raw = b""
         return JSONDocument(
             raw,
-            digest,
+            sha256_hex(raw),
             None,
-            (Issue("document_too_large", f"{label} exceeds {max_bytes} bytes", label, evidence={"size_bytes": len(raw)}),),
+            (Issue("document_too_large", f"{label} exceeds {max_bytes} bytes", label, evidence={"size_bytes": raw_size}),),
         )
+    digest = sha256_hex(raw)
     try:
         text = raw.decode("utf-8", errors="strict")
         parsed = json.loads(
