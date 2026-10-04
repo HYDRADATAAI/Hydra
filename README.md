@@ -8,7 +8,7 @@
 [![Market data pipeline sample](https://github.com/HYDRADATAAI/Hydra/actions/workflows/market-data-pipeline.yml/badge.svg)](https://github.com/HYDRADATAAI/Hydra/actions/workflows/market-data-pipeline.yml)
 [![SQL data quality sample](https://github.com/HYDRADATAAI/Hydra/actions/workflows/sql-data-quality-sample.yml/badge.svg)](https://github.com/HYDRADATAAI/Hydra/actions/workflows/sql-data-quality-sample.yml)
 [![AWS market data pipeline sample](https://github.com/HYDRADATAAI/Hydra/actions/workflows/aws-market-data-pipeline.yml/badge.svg)](https://github.com/HYDRADATAAI/Hydra/actions/workflows/aws-market-data-pipeline.yml)
-[![Governed context, retrieval, and grounding sample](https://github.com/HYDRADATAAI/Hydra/actions/workflows/governed-intelligence-sample.yml/badge.svg)](https://github.com/HYDRADATAAI/Hydra/actions/workflows/governed-intelligence-sample.yml)
+[![Governed intelligence pre-model and retrieval sample](https://github.com/HYDRADATAAI/Hydra/actions/workflows/governed-intelligence-sample.yml/badge.svg)](https://github.com/HYDRADATAAI/Hydra/actions/workflows/governed-intelligence-sample.yml)
 
 **Project site:** https://hydradataai.github.io/Hydra-Website/  
 **Technical site repository:** https://github.com/HYDRADATAAI/Hydra-Website
@@ -117,6 +117,22 @@ The run:
 
 That behavior is intentional: missing provenance is not converted into invented data merely to make a pipeline appear green.
 
+## Governed historical Constraint replay query
+
+The current public Constraint history work includes a deterministic, read-only query surface over a frozen 22-case historical replay.
+
+The replay state is:
+- 22/22 current historical cases classified;
+- 17 `PARTIAL_REALIZATION`;
+- 5 `UNEVALUABLE`;
+- 0 calibrated cases;
+- 82 point-in-time replay cuts.
+
+The Batch 015 aggregate replay is reproduced in CI from pinned inputs. Batch 016 adds exact case lookup, aggregate summary, filtered case listing, and integrity queries over that frozen result.
+
+This interface is deliberately **read-only**. It does not authorize canonical mutation, ranking, model training, trading, external actions, or T6 activation.
+
+See [`constraint-replay/`](constraint-replay/) for the replay contracts, run artifact, query service, CLI, tests, and provenance reports.
 ## Public data-engineering pipeline sample
 
 A second runnable public example lives in [`market-data-pipeline-sample/`](market-data-pipeline-sample/). It uses **synthetic, non-live** records to demonstrate a compact end-to-end data pipeline:
@@ -178,35 +194,29 @@ The sample includes:
 
 No AWS deployment is claimed until that manual workflow succeeds against a real account. The website should not promote this path as deployed evidence before then.
 
-## Governed context, retrieval, and structured grounding sample
+## Governed intelligence pre-model and retrieval sample
 
-A downstream control proof lives in [`governed-intelligence-sample/`](governed-intelligence-sample/). It consumes the exact synthetic artifacts emitted by the public market-data pipeline and demonstrates three boundaries before any model or agent execution:
+A downstream control proof lives in [`governed-intelligence-sample/`](governed-intelligence-sample/). It consumes the exact synthetic artifacts emitted by the public market-data pipeline and demonstrates the boundary before any model or agent execution:
 
 `manifest integrity -> policy decision -> bounded accepted context -> exact citations -> deterministic evaluation receipt`
 
 It also provides a transparent retrieval benchmark over the same accepted-only evidence:
 
-`accepted records -> digest-bound closed-vocabulary lexical policy -> deterministic ranking -> exact citations -> separately specified qrels -> Recall@k / MRR receipt`
+`accepted records -> digest-bound lexical policy -> deterministic ranking -> exact citations -> Recall@k / MRR receipt`
 
-It also validates synthetic structured candidate claims after retrieval:
+The sample fails closed on artifact drift, excludes quarantined raw rows from context and retrieval, admits only governed evidence, abstains when evidence or production authority is missing, and refuses trading instructions or restricted-corpus requests. Its context and retrieval evaluations verify citations, ranking expectations, and dispositions while recording zero model executions and zero quarantined raw-record exposures.
 
-`governed retrieval -> synthetic structured candidate -> exact field/value/citation validation -> ADMIT / QUARANTINE / ABSTAIN / REFUSE receipt`
-
-The sample freezes verified evidence and policy collections, derives citation filenames from the manifest, and fails closed on artifact drift, unresolved query terms, configured restricted terms, and non-ASCII/confusable queries. Quarantined raw rows never enter context or retrieval. Separately specified record-level qrels keep quality metrics apart from exact regression expectations. Structured candidates are admitted only when every allowed claim exactly matches the retrieved record and citation. Schema-valid candidate safety or grounding defects quarantine the entire candidate without claim leakage; clean candidates inherit retrieval `ABSTAIN` or `REFUSE` outcomes.
-
-This is inspectable control, **lexical retrieval**, and structured-output validation evidence. Candidate responses are committed synthetic fixtures, not model output. It does **not** claim model execution or quality, semantic or embedding retrieval, natural-language intent or claim extraction, autonomous action, live market coverage, production performance, investment advice, or trading authorization.
+This is inspectable pre-model grounding, control, and **lexical retrieval** evidence. It does **not** claim model quality, semantic or embedding retrieval quality, natural-language intent classification, live market coverage, production performance, investment advice, or trading authorization.
 
 Key evidence:
 
 - [`context.py`](governed-intelligence-sample/src/hydra_governed_intelligence/context.py) verifies upstream digests, assembles bounded accepted-record context, and validates citations.
 - [`evaluation.py`](governed-intelligence-sample/src/hydra_governed_intelligence/evaluation.py) emits deterministic decisions, evaluation results, and digest-bound receipts.
 - [`retrieval.py`](governed-intelligence-sample/src/hydra_governed_intelligence/retrieval.py) applies accepted-only weighted lexical ranking with deterministic tie breaking and exact citations.
-- [`retrieval_evaluation.py`](governed-intelligence-sample/src/hydra_governed_intelligence/retrieval_evaluation.py) evaluates exact outcomes separately from digest-bound record-level qrels.
-- [`grounding.py`](governed-intelligence-sample/src/hydra_governed_intelligence/grounding.py) validates structured claims against retrieved records and exact citations before release.
+- [`retrieval_evaluation.py`](governed-intelligence-sample/src/hydra_governed_intelligence/retrieval_evaluation.py) emits Recall@k, mean reciprocal rank, control counts, and digest-bound receipts.
 - [`evaluation_cases.json`](governed-intelligence-sample/fixtures/evaluation_cases.json) makes the admit, abstain, and refuse expectations inspectable.
-- [`retrieval_cases.json`](governed-intelligence-sample/fixtures/retrieval_cases.json) and [`retrieval_qrels.json`](governed-intelligence-sample/fixtures/retrieval_qrels.json) separate behavioral expectations from quality judgments.
-- [`grounding_policy.json`](governed-intelligence-sample/config/grounding_policy.json) and [`grounding_cases.json`](governed-intelligence-sample/fixtures/grounding_cases.json) make allowed fields and fail-closed claim outcomes inspectable.
-- [Governed intelligence CI](https://github.com/HYDRADATAAI/Hydra/actions/workflows/governed-intelligence-sample.yml) checks out the proposed revision, rebuilds its upstream synthetic artifacts, runs that revision's tests and deterministic contract checks, and publishes one packaged snapshot of the verified artifacts, reports, and receipts. It downloads the published artifact and compares the inner ZIP with the digest emitted by the packaging step. The run is repository-controlled evidence for that revision, not independent attestation of untrusted changes.
+- [`retrieval_cases.json`](governed-intelligence-sample/fixtures/retrieval_cases.json) makes ranking, no-evidence, quarantine-exclusion, and restricted-corpus expectations inspectable.
+- [Governed intelligence CI](https://github.com/HYDRADATAAI/Hydra/actions/workflows/governed-intelligence-sample.yml) rebuilds the upstream synthetic artifacts before running the controls and publishing receipts.
 
 ## Fail-closed validator sample
 
@@ -251,7 +261,7 @@ If you have 60 seconds:
 6. Open its [`operations.py`](market-data-pipeline-sample/src/hydra_market_pipeline/operations.py) and recovery tests for checkpoint, backfill, replay, integrity, SLI, and budget behavior.
 7. Inspect [`sql-data-quality-sample/`](sql-data-quality-sample/) for relational SQL, quality classification, joins, CTEs, and window functions.
 8. Inspect [`aws-market-data-pipeline/`](aws-market-data-pipeline/) for the deployment-ready, not-yet-deployed S3 → Lambda → Glue/Athena mapping.
-9. Inspect [`governed-intelligence-sample/`](governed-intelligence-sample/) for immutable verified context, hardened accepted-only lexical ranking, separately specified relevance judgments, exact citations, and synthetic structured-claim grounding.
+9. Inspect [`governed-intelligence-sample/`](governed-intelligence-sample/) for integrity-checked context, accepted-only lexical ranking, exact citations, abstention/refusal controls, and deterministic pre-model evaluation.
 
 ## Current scope
 
@@ -277,4 +287,4 @@ The AWS sample remains deployment-ready rather than deployed until a real manual
 
 ## Maintenance guard
 
-[Public repository validation](https://github.com/HYDRADATAAI/Hydra/actions/workflows/public-repository-validation.yml) performs deterministic, repository-controlled conformance checks over required source/test paths, README links, public terminology, declared contracts, and Python 3.11 workflow structure. Because the validator and workflows are part of the checked revision, a passing run is reproducible self-evidence rather than an independent trust anchor against malicious repository code.
+The public core repository is protected by deterministic CI. [Public repository validation](https://github.com/HYDRADATAAI/Hydra/actions/workflows/public-repository-validation.yml) checks required source/test paths, README links, public terminology, the validator's fail-closed `pyproject.toml` contract, and the Python 3.11 public-sample workflow contracts.

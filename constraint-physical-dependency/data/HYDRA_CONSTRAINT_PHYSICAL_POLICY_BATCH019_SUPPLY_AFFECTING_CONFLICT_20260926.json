@@ -1,0 +1,141 @@
+{
+  "schema_version": "1.0",
+  "batch_id": "HYDRA_CONSTRAINT_PHYSICAL_POLICY_BATCH019_SUPPLY_AFFECTING_CONFLICT_20260926",
+  "evidence_digest_scope": "sha256(normalized_evidence UTF-8)",
+  "sources": [
+    {
+      "source_id": "ukraine-conflict-worldbank-2022-04-26",
+      "source_url": "https://www.worldbank.org/en/news/press-release/2022/04/26/food-and-energy-price-shocks-from-ukraine-war",
+      "publisher": "World Bank",
+      "retrieved_at": "2026-09-26",
+      "known_at": "2022-04-26",
+      "published_at": "2022-04-26",
+      "normalized_evidence": "On 26 April 2022, the World Bank reported that the war in Ukraine had dealt a major shock to commodity markets, altering global patterns of trade, production, and consumption; it said food-commodity price increases involving commodities for which Russia and Ukraine are large producers were the largest since 2008 and forecast wheat prices to rise by more than 40 percent in 2022.",
+      "evidence_hash": "sha256:3a17fc80815eb66340db8569794861cecdc84a72fdedc3b83146e360ce9ea8a1"
+    },
+    {
+      "source_id": "ukraine-conflict-fao-2022-07-05",
+      "source_url": "https://www.fao.org/newsroom/detail/ukraine-fao-scales-up-efforts-to-save-upcoming-harvest-ensure-export-of-vital-grains/en",
+      "publisher": "Food and Agriculture Organization of the United Nations",
+      "retrieved_at": "2026-09-26",
+      "known_at": "2022-07-05",
+      "published_at": "2022-07-05",
+      "normalized_evidence": "On 5 July 2022, FAO reported that war-related disruption had reduced Ukrainian grain exports far below the normal roughly 6 million tonnes per month, with 322,000 tonnes exported in March, 970,000 in April, 1.2 million in May, and over 1 million in June; FAO also reported only 60.9 million tonnes of storage capacity available versus 75 million tonnes before directly affected areas were considered, and spring-crop planting 19.4 percent below the prior year.",
+      "evidence_hash": "sha256:906ec7bde1c26bd22a660b451253ac289f1286a12d179f2a060b0635f150761c"
+    }
+  ],
+  "nodes": [
+    {
+      "node_id": "resource:ukraine-grain-supply-conflict-2022",
+      "kind": "resource",
+      "name": "Ukrainian grain supply affected by the 2022 war",
+      "country_code": "UA",
+      "valid_from": "2022-02-24",
+      "known_at": "2022-04-26",
+      "source_ids": [
+        "ukraine-conflict-worldbank-2022-04-26"
+      ]
+    },
+    {
+      "node_id": "extraction:ukraine-agricultural-production-conflict-2022",
+      "kind": "extraction",
+      "name": "Ukrainian agricultural production affected by the 2022 war",
+      "country_code": "UA",
+      "valid_from": "2022-02-24",
+      "known_at": "2022-04-26",
+      "source_ids": [
+        "ukraine-conflict-worldbank-2022-04-26"
+      ]
+    },
+    {
+      "node_id": "bottleneck:ukraine-war-agricultural-supply-shock-2022",
+      "kind": "bottleneck",
+      "name": "War-related agricultural supply bottleneck in Ukraine",
+      "country_code": "UA",
+      "valid_from": "2022-02-24",
+      "known_at": "2022-04-26",
+      "source_ids": [
+        "ukraine-conflict-worldbank-2022-04-26"
+      ]
+    },
+    {
+      "node_id": "transport:ukraine-grain-export-logistics-conflict-2022",
+      "kind": "transport",
+      "name": "Ukrainian grain export logistics constrained by the 2022 war",
+      "country_code": "UA",
+      "valid_from": "2022-02-24",
+      "known_at": "2022-07-05",
+      "source_ids": [
+        "ukraine-conflict-fao-2022-07-05"
+      ]
+    },
+    {
+      "node_id": "infrastructure:ukraine-grain-storage-conflict-2022",
+      "kind": "infrastructure",
+      "name": "Ukrainian grain storage capacity affected by the 2022 war",
+      "country_code": "UA",
+      "valid_from": "2022-02-24",
+      "known_at": "2022-07-05",
+      "source_ids": [
+        "ukraine-conflict-fao-2022-07-05"
+      ]
+    }
+  ],
+  "edges": [
+    {
+      "edge_id": "edge:ukraine-war-bottleneck-constrains-agricultural-production-2022",
+      "source_id": "bottleneck:ukraine-war-agricultural-supply-shock-2022",
+      "target_id": "extraction:ukraine-agricultural-production-conflict-2022",
+      "relation": "constrains",
+      "valid_from": "2022-02-24",
+      "known_at": "2022-04-26",
+      "source_ids": [
+        "ukraine-conflict-worldbank-2022-04-26"
+      ]
+    },
+    {
+      "edge_id": "edge:ukraine-agricultural-production-supplies-grain-2022",
+      "source_id": "extraction:ukraine-agricultural-production-conflict-2022",
+      "target_id": "resource:ukraine-grain-supply-conflict-2022",
+      "relation": "supplies",
+      "valid_from": "2022-02-24",
+      "known_at": "2022-04-26",
+      "source_ids": [
+        "ukraine-conflict-worldbank-2022-04-26"
+      ]
+    },
+    {
+      "edge_id": "edge:ukraine-grain-transported-via-conflict-logistics-2022",
+      "source_id": "resource:ukraine-grain-supply-conflict-2022",
+      "target_id": "transport:ukraine-grain-export-logistics-conflict-2022",
+      "relation": "transported_via",
+      "valid_from": "2022-02-24",
+      "known_at": "2022-07-05",
+      "source_ids": [
+        "ukraine-conflict-fao-2022-07-05"
+      ]
+    },
+    {
+      "edge_id": "edge:ukraine-war-bottleneck-constrains-export-logistics-2022",
+      "source_id": "bottleneck:ukraine-war-agricultural-supply-shock-2022",
+      "target_id": "transport:ukraine-grain-export-logistics-conflict-2022",
+      "relation": "constrains",
+      "valid_from": "2022-02-24",
+      "known_at": "2022-07-05",
+      "source_ids": [
+        "ukraine-conflict-fao-2022-07-05"
+      ]
+    },
+    {
+      "edge_id": "edge:ukraine-export-logistics-requires-grain-storage-2022",
+      "source_id": "transport:ukraine-grain-export-logistics-conflict-2022",
+      "target_id": "infrastructure:ukraine-grain-storage-conflict-2022",
+      "relation": "requires",
+      "valid_from": "2022-02-24",
+      "known_at": "2022-07-05",
+      "source_ids": [
+        "ukraine-conflict-fao-2022-07-05"
+      ]
+    }
+  ]
+}
