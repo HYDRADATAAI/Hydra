@@ -1,0 +1,43 @@
+name: Constraint policy taxonomy closure
+
+on:
+  pull_request:
+    paths:
+      - "constraint-geopolitical-policy/**"
+      - "constraint-physical-dependency/**"
+      - "constraint-replay/**"
+      - ".github/workflows/constraint-policy-taxonomy-closure.yml"
+  workflow_dispatch:
+
+jobs:
+  taxonomy-closure-contract:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install stacked Constraint packages
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install pytest
+          python -m pip install -e ./constraint-physical-dependency -e ./constraint-replay -e ./constraint-geopolitical-policy
+      - name: Check Batch 019 successor operating snapshot
+        run: >-
+          python constraint-replay/scripts/report_HYDRA_CONSTRAINT_BATCH019_operating_taxonomy_20260926.py
+          snapshot
+          --check constraint-replay/operating/HYDRA_CONSTRAINT_BATCH019_OPERATING_SNAPSHOT_20260926.json
+      - name: Test Batch 019 operating manifest
+        run: python -m pytest -q constraint-replay/tests/test_operating_taxonomy_manifest_batch19.py
+      - name: Test Batch 019 supply-affecting-conflict supplement
+        run: >-
+          python -m unittest discover
+          -s constraint-geopolitical-policy/tests
+          -p "test_HYDRA_CONSTRAINT_BATCH019_supply_affecting_conflict_taxonomy_20260926.py"
+          -v
+      - name: Test Batch 019 operating taxonomy closure
+        run: >-
+          python -m unittest discover
+          -s constraint-geopolitical-policy/tests
+          -p "test_HYDRA_CONSTRAINT_BATCH019_operating_taxonomy_closure_20260926.py"
+          -v

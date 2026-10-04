@@ -1,0 +1,53 @@
+{
+  "schema_version": "1.0",
+  "batch_id": "HYDRA_CONSTRAINT_REPLAY_BATCH015_E2E_20260926",
+  "run_kind": "HYDRA_CONSTRAINT_CLASSIFIED_REPLAY_E2E",
+  "run_digest_sha256": "db28edfea01800cf85dd234edb99d003d0a185ab39f7ba8cd31af416542890f1",
+  "runner": {
+    "module": {
+      "path": "constraint-replay/src/hydra_constraint_replay/end_to_end.py",
+      "git_blob_sha": "bb55c04e2761edb44ae66d1c00e18171d8e5938e"
+    },
+    "cli": {
+      "path": "constraint-replay/scripts/run_HYDRA_CONSTRAINT_BATCH015_classified_replay_e2e_20260926.py",
+      "git_blob_sha": "8d3fb97b17aea487083203a4900e1225c98505c8"
+    }
+  },
+  "inputs": [
+    {
+      "path": "constraint-replay/corpus/HYDRA_CONSTRAINT_REPLAY_READY_CORPUS_BATCH005_20260925.jsonl",
+      "git_blob_sha": "341936053470046548be540e25f35e26b4aac5b7"
+    },
+    {
+      "path": "constraint-replay/corpus/HYDRA_CONSTRAINT_CLASSIFIED_GOLD_UNCALIBRATED_BATCH014_20260926.jsonl",
+      "git_blob_sha": "a5f09df390f00c4873a5f2b4b839f9b69a54888d"
+    },
+    {
+      "path": "constraint-replay/corpus/HYDRA_CONSTRAINT_REPLAY_PROMOTION_AUDIT_BATCH014_20260926.json",
+      "git_blob_sha": "f1e9449dc2ca043cd0f3405038d7571f9fa2dbf3"
+    }
+  ],
+  "output": {
+    "path": "constraint-replay/runs/HYDRA_CONSTRAINT_BATCH015_CLASSIFIED_REPLAY_E2E_RUN_20260926.json",
+    "git_blob_sha": "67fc5fb5883fb4ca510eee5a8c908c298d1b5bc9"
+  },
+  "ci_contracts": [
+    {
+      "path": ".github/workflows/constraint-replay.yml",
+      "git_blob_sha": "93c111c4b187b3567b8d8b4698364fd3d65f5771"
+    },
+    {
+      "path": ".github/workflows/constraint-policy-integration.yml",
+      "git_blob_sha": "5dbbd09dbcaac4741a6fa7bd6bac432e466f0f62"
+    }
+  ],
+  "expected": {
+    "case_count": 22,
+    "replay_cut_count": 82,
+    "classification_coverage": 1,
+    "partial_realization_count": 17,
+    "unevaluable_count": 5,
+    "calibrated_case_count": 0,
+    "brier_score": null
+  }
+}
