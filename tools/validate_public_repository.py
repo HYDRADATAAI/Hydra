@@ -1066,7 +1066,7 @@ def validate_ci_contract(errors: list[str]) -> None:
             rf"(?m)^\s*uses:\s*{re.escape(action)}@([^\s#]+)",
             intelligence_workflow,
         )
-        if refs != [expected_sha]:
+        if not refs or any(ref != expected_sha for ref in refs):
             errors.append(
                 f"governed-intelligence CI action pin changed: {action}={refs!r}"
             )
