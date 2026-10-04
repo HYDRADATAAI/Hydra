@@ -133,6 +133,56 @@ class FirstSliceReplayLineageTests(unittest.TestCase):
         with self.assertRaisesRegex(ReplayLineageError, "packet digest mismatch"):
             validate_replay_lineage_packet(packet=packet, registry=self.registry)
 
+    def test_source_count_requires_an_exact_integer(self):
+        packet = build_replay_lineage_packet(
+            attestation=self.attestation,
+            registry=self.registry,
+        )
+        packet["source_count"] = float(packet["source_count"])
+        from hydra_constraint_t1_raw.replay_lineage import _packet_digest
+        packet["packet_sha256"] = _packet_digest(packet)
+        with self.assertRaisesRegex(ReplayLineageError, "source_count drifted"):
+            validate_replay_lineage_packet(packet=packet, registry=self.registry)
+
+        one_source_registry = copy.deepcopy(self.registry)
+        one_source_registry["sources"] = one_source_registry["sources"][:1]
+        one_source_plan = copy.deepcopy(self.plan)
+        one_source_plan["release_id"] = "REL-SLICE-X-ONE"
+        one_source_plan["captures"] = one_source_plan["captures"][:1]
+        one_source_attestation = materialize_capture_plan(
+            registry=one_source_registry,
+            plan=one_source_plan,
+            private_root=self.base / "private-one-source",
+            public_repo_root=self.repo,
+        )
+        one_source_packet = build_replay_lineage_packet(
+            attestation=one_source_attestation,
+            registry=one_source_registry,
+        )
+        one_source_packet["source_count"] = True
+        one_source_packet["packet_sha256"] = _packet_digest(one_source_packet)
+        with self.assertRaisesRegex(ReplayLineageError, "source_count drifted"):
+            validate_replay_lineage_packet(
+                packet=one_source_packet,
+                registry=one_source_registry,
+            )
+
+    def test_packet_validator_rejects_non_mapping_roots(self):
+        packet = build_replay_lineage_packet(
+            attestation=self.attestation,
+            registry=self.registry,
+        )
+        with self.assertRaisesRegex(ReplayLineageError, "packet object required"):
+            validate_replay_lineage_packet(packet=None, registry=self.registry)
+        with self.assertRaisesRegex(ReplayLineageError, "registry object required"):
+            validate_replay_lineage_packet(packet=packet, registry=None)
+
+    def test_replay_builder_rejects_non_mapping_roots(self):
+        with self.assertRaisesRegex(ReplayLineageError, "attestation object required"):
+            build_replay_lineage_packet(attestation=None, registry=self.registry)
+        with self.assertRaisesRegex(ReplayLineageError, "registry object required"):
+            build_replay_lineage_packet(attestation=self.attestation, registry=None)
+
     def test_packet_rejects_missing_root_field(self):
         packet = build_replay_lineage_packet(
             attestation=self.attestation,
@@ -218,7 +268,10 @@ class FirstSliceReplayLineageTests(unittest.TestCase):
         for value in (1, "true", None):
             bad = copy.deepcopy(self.attestation)
             bad["members"][0]["ordinary_t2_eligible"] = value
-            with self.subTest(value=value), self.assertRaisesRegex(ReplayLineageError, "TIMESTAMP_UNVERIFIED"):
+            with self.subTest(value=value), self.assertRaisesRegex(
+                ReplayLineageError,
+                "ordinary-T2 eligibility must be a boolean",
+            ):
                 build_replay_lineage_packet(attestation=bad, registry=self.registry)
 
     def test_rehashed_ready_claim_cannot_reopen_selection(self):
