@@ -3,11 +3,14 @@
 from __future__ import annotations
 
 import csv
+import ctypes
 import hashlib
 import io
 import json
 import math
+import os
 import re
+import stat
 from dataclasses import dataclass, field
 from datetime import datetime
 from decimal import Decimal, InvalidOperation
@@ -15,10 +18,21 @@ from pathlib import Path
 from types import MappingProxyType
 from typing import Any, Mapping
 
+if os.name == "nt":
+    import msvcrt
+    from ctypes import wintypes
+
+from .pipeline_replay import (
+    PIPELINE_MANIFEST_SCHEMA,
+    RESOLVED_ALIASES_SCHEMA,
+    SOURCE_CSV_SCHEMA,
+    ReplayContractError,
+    replay_pipeline,
+)
+
 
 POLICY_SCHEMA = "hydra-governed-intelligence-policy/v1"
 DECISION_SCHEMA = "hydra-governed-intelligence-decision/v1"
-PIPELINE_MANIFEST_SCHEMA = "hydra-market-pipeline-manifest/v1"
 PIPELINE_RUN_SCHEMA = "hydra-market-pipeline-run/v1"
 SHA256_PATTERN = re.compile(r"^[0-9a-f]{64}$")
 REQUEST_ID_PATTERN = re.compile(r"^[A-Za-z0-9._-]{1,64}$")
@@ -38,12 +52,29 @@ UTC_TIMESTAMP_PATTERN = re.compile(
 MANIFEST_FIELDS = {
     "accepted_rows",
     "aliases_sha256",
+    "inputs",
     "outputs",
     "pipeline_run_id",
     "quarantined_rows",
     "schema_version",
     "source_file_sha256",
+    "source_rows",
     "transform_version",
+}
+INPUT_DESCRIPTORS = {
+    "source_csv": (
+        "source_snapshot.csv",
+        SOURCE_CSV_SCHEMA,
+    ),
+    "resolved_aliases_json": (
+        "resolved_symbol_aliases.json",
+        RESOLVED_ALIASES_SCHEMA,
+    ),
+}
+OUTPUT_FILENAMES = {
+    "normalized_events_csv": "normalized_events.csv",
+    "normalized_events_jsonl": "normalized_events.jsonl",
+    "quarantine_records_jsonl": "quarantine_records.jsonl",
 }
 EVENT_FIELDS = {
     "currency",
@@ -136,6 +167,9 @@ QUARANTINE_ERROR_MESSAGES = {
     "volume_negative": "volume must be greater than or equal to zero",
 }
 IMMUTABLE_MAPPING_TYPE = type(MappingProxyType({}))
+_OPEN_SUPPORTS_DIR_FD = os.open in os.supports_dir_fd
+_STAT_SUPPORTS_DIR_FD = os.stat in os.supports_dir_fd
+_STAT_SUPPORTS_NOFOLLOW = os.stat in os.supports_follow_symlinks
 
 
 class ContractError(ValueError):
@@ -144,6 +178,455 @@ class ContractError(ValueError):
 
 class IntegrityError(ValueError):
     """Raised when an artifact no longer matches its pinned digest or counts."""
+
+
+def _is_link_or_reparse(metadata: os.stat_result) -> bool:
+    if stat.S_ISLNK(metadata.st_mode):
+        return True
+    attributes = getattr(metadata, "st_file_attributes", 0)
+    reparse_flag = getattr(stat, "FILE_ATTRIBUTE_REPARSE_POINT", 0)
+    return bool(reparse_flag and attributes & reparse_flag)
+
+
+def _absolute_path(path: str | Path) -> Path:
+    return Path(os.path.abspath(os.fspath(path)))
+
+
+def _stable_regular_file_bytes(
+    handle: io.BufferedReader,
+    label: str,
+) -> tuple[bytes, os.stat_result, os.stat_result]:
+    before = os.fstat(handle.fileno())
+    if not stat.S_ISREG(before.st_mode):
+        raise IntegrityError(f"{label}: opened descriptor is not a regular file")
+    payload = handle.read()
+    after = os.fstat(handle.fileno())
+    if not stat.S_ISREG(after.st_mode) or not os.path.samestat(before, after):
+        raise IntegrityError(f"{label}: file identity changed while reading")
+    if not (
+        before.st_size == after.st_size == len(payload)
+        and before.st_mtime_ns == after.st_mtime_ns
+    ):
+        raise IntegrityError(f"{label}: file metadata changed while reading")
+    return payload, before, after
+
+
+def _snapshot_regular_file_posix(path: Path, root: Path, label: str) -> bytes:
+    required_flags = ("O_DIRECTORY", "O_NOFOLLOW")
+    if any(not hasattr(os, name) for name in required_flags):
+        raise IntegrityError(
+            f"{label}: platform cannot provide descriptor-relative no-follow opens"
+        )
+    if not (_OPEN_SUPPORTS_DIR_FD and _STAT_SUPPORTS_DIR_FD):
+        raise IntegrityError(
+            f"{label}: platform cannot provide descriptor-relative traversal"
+        )
+    if not _STAT_SUPPORTS_NOFOLLOW:
+        raise IntegrityError(f"{label}: platform cannot inspect a leaf without following")
+
+    directory_flags = (
+        os.O_RDONLY
+        | os.O_DIRECTORY
+        | os.O_NOFOLLOW
+        | getattr(os, "O_CLOEXEC", 0)
+    )
+    leaf_flags = (
+        os.O_RDONLY
+        | os.O_NOFOLLOW
+        | getattr(os, "O_CLOEXEC", 0)
+        | getattr(os, "O_NONBLOCK", 0)
+    )
+    root_descriptor: int | None = None
+    leaf_descriptor: int | None = None
+    try:
+        parts = root.parts
+        if not root.anchor or not parts:
+            raise IntegrityError(f"{label}: evidence root is not absolute")
+        root_descriptor = os.open(root.anchor, directory_flags)
+        for component in parts[1:]:
+            next_descriptor = os.open(
+                component,
+                directory_flags,
+                dir_fd=root_descriptor,
+            )
+            opened = os.fstat(next_descriptor)
+            if not stat.S_ISDIR(opened.st_mode):
+                os.close(next_descriptor)
+                raise IntegrityError(f"{label}: root component is not a directory")
+            os.close(root_descriptor)
+            root_descriptor = next_descriptor
+
+        root_before = os.fstat(root_descriptor)
+        if not stat.S_ISDIR(root_before.st_mode):
+            raise IntegrityError(f"{label}: evidence root is not a directory")
+        leaf_before = os.stat(
+            path.name,
+            dir_fd=root_descriptor,
+            follow_symlinks=False,
+        )
+        if _is_link_or_reparse(leaf_before) or not stat.S_ISREG(leaf_before.st_mode):
+            raise IntegrityError(f"{label}: missing regular no-follow file")
+
+        leaf_descriptor = os.open(
+            path.name,
+            leaf_flags,
+            dir_fd=root_descriptor,
+        )
+        with os.fdopen(leaf_descriptor, "rb") as handle:
+            leaf_descriptor = None
+            descriptor_before = os.fstat(handle.fileno())
+            if not os.path.samestat(leaf_before, descriptor_before):
+                raise IntegrityError(f"{label}: file identity changed while opening")
+            payload, _, descriptor_after = _stable_regular_file_bytes(handle, label)
+            leaf_after = os.stat(
+                path.name,
+                dir_fd=root_descriptor,
+                follow_symlinks=False,
+            )
+            if (
+                _is_link_or_reparse(leaf_after)
+                or not stat.S_ISREG(leaf_after.st_mode)
+                or not os.path.samestat(descriptor_after, leaf_after)
+            ):
+                raise IntegrityError(f"{label}: file identity changed while reading")
+
+        root_after = os.fstat(root_descriptor)
+        if not (
+            stat.S_ISDIR(root_after.st_mode)
+            and os.path.samestat(root_before, root_after)
+        ):
+            raise IntegrityError(f"{label}: root identity changed while reading")
+        return payload
+    except IntegrityError:
+        raise
+    except OSError as exc:
+        raise IntegrityError(f"{label}: unable to snapshot file: {exc}") from exc
+    finally:
+        for descriptor in (leaf_descriptor, root_descriptor):
+            if descriptor is not None:
+                try:
+                    os.close(descriptor)
+                except OSError:
+                    pass
+
+
+if os.name == "nt":
+    _WINDOWS_FILE_ATTRIBUTE_DIRECTORY = 0x00000010
+    _WINDOWS_FILE_ATTRIBUTE_REPARSE_POINT = 0x00000400
+    _WINDOWS_FILE_READ_ATTRIBUTES = 0x00000080
+    _WINDOWS_GENERIC_READ = 0x80000000
+    _WINDOWS_FILE_SHARE_READ = 0x00000001
+    _WINDOWS_FILE_SHARE_WRITE = 0x00000002
+    _WINDOWS_OPEN_EXISTING = 3
+    _WINDOWS_FILE_FLAG_OPEN_REPARSE_POINT = 0x00200000
+    _WINDOWS_FILE_FLAG_BACKUP_SEMANTICS = 0x02000000
+    _WINDOWS_FILE_TYPE_DISK = 0x0001
+    _WINDOWS_INVALID_HANDLE_VALUE = ctypes.c_void_p(-1).value
+
+    class _WindowsFileInformation(ctypes.Structure):
+        _fields_ = [
+            ("dwFileAttributes", wintypes.DWORD),
+            ("ftCreationTime", wintypes.FILETIME),
+            ("ftLastAccessTime", wintypes.FILETIME),
+            ("ftLastWriteTime", wintypes.FILETIME),
+            ("dwVolumeSerialNumber", wintypes.DWORD),
+            ("nFileSizeHigh", wintypes.DWORD),
+            ("nFileSizeLow", wintypes.DWORD),
+            ("nNumberOfLinks", wintypes.DWORD),
+            ("nFileIndexHigh", wintypes.DWORD),
+            ("nFileIndexLow", wintypes.DWORD),
+        ]
+
+    class _WindowsUnicodeString(ctypes.Structure):
+        _fields_ = [
+            ("Length", wintypes.USHORT),
+            ("MaximumLength", wintypes.USHORT),
+            ("Buffer", wintypes.LPWSTR),
+        ]
+
+    class _WindowsObjectAttributes(ctypes.Structure):
+        _fields_ = [
+            ("Length", wintypes.ULONG),
+            ("RootDirectory", wintypes.HANDLE),
+            ("ObjectName", ctypes.POINTER(_WindowsUnicodeString)),
+            ("Attributes", wintypes.ULONG),
+            ("SecurityDescriptor", wintypes.LPVOID),
+            ("SecurityQualityOfService", wintypes.LPVOID),
+        ]
+
+    class _WindowsIoStatusBlock(ctypes.Structure):
+        _fields_ = [
+            ("StatusOrPointer", ctypes.c_void_p),
+            ("Information", ctypes.c_size_t),
+        ]
+
+    _WINDOWS_KERNEL32 = ctypes.WinDLL("kernel32", use_last_error=True)
+    _WINDOWS_CREATE_FILE = _WINDOWS_KERNEL32.CreateFileW
+    _WINDOWS_CREATE_FILE.argtypes = [
+        wintypes.LPCWSTR,
+        wintypes.DWORD,
+        wintypes.DWORD,
+        wintypes.LPVOID,
+        wintypes.DWORD,
+        wintypes.DWORD,
+        wintypes.HANDLE,
+    ]
+    _WINDOWS_CREATE_FILE.restype = wintypes.HANDLE
+    _WINDOWS_CLOSE_HANDLE = _WINDOWS_KERNEL32.CloseHandle
+    _WINDOWS_CLOSE_HANDLE.argtypes = [wintypes.HANDLE]
+    _WINDOWS_CLOSE_HANDLE.restype = wintypes.BOOL
+    _WINDOWS_GET_FILE_INFORMATION = _WINDOWS_KERNEL32.GetFileInformationByHandle
+    _WINDOWS_GET_FILE_INFORMATION.argtypes = [
+        wintypes.HANDLE,
+        ctypes.POINTER(_WindowsFileInformation),
+    ]
+    _WINDOWS_GET_FILE_INFORMATION.restype = wintypes.BOOL
+    _WINDOWS_GET_FILE_TYPE = _WINDOWS_KERNEL32.GetFileType
+    _WINDOWS_GET_FILE_TYPE.argtypes = [wintypes.HANDLE]
+    _WINDOWS_GET_FILE_TYPE.restype = wintypes.DWORD
+    _WINDOWS_GET_FINAL_PATH = _WINDOWS_KERNEL32.GetFinalPathNameByHandleW
+    _WINDOWS_GET_FINAL_PATH.argtypes = [
+        wintypes.HANDLE,
+        wintypes.LPWSTR,
+        wintypes.DWORD,
+        wintypes.DWORD,
+    ]
+    _WINDOWS_GET_FINAL_PATH.restype = wintypes.DWORD
+    _WINDOWS_NTDLL = ctypes.WinDLL("ntdll", use_last_error=True)
+    _WINDOWS_NT_CREATE_FILE = _WINDOWS_NTDLL.NtCreateFile
+    _WINDOWS_NT_CREATE_FILE.argtypes = [
+        ctypes.POINTER(wintypes.HANDLE),
+        wintypes.ULONG,
+        ctypes.POINTER(_WindowsObjectAttributes),
+        ctypes.POINTER(_WindowsIoStatusBlock),
+        ctypes.c_void_p,
+        wintypes.ULONG,
+        wintypes.ULONG,
+        wintypes.ULONG,
+        wintypes.ULONG,
+        ctypes.c_void_p,
+        wintypes.ULONG,
+    ]
+    _WINDOWS_NT_CREATE_FILE.restype = wintypes.LONG
+    _WINDOWS_NT_STATUS_TO_DOS_ERROR = _WINDOWS_NTDLL.RtlNtStatusToDosError
+    _WINDOWS_NT_STATUS_TO_DOS_ERROR.argtypes = [wintypes.LONG]
+    _WINDOWS_NT_STATUS_TO_DOS_ERROR.restype = wintypes.ULONG
+
+
+def _windows_api_path(path: Path) -> str:
+    value = os.fspath(path)
+    if value.startswith("\\\\?\\"):
+        return value
+    if value.startswith("\\\\"):
+        return "\\\\?\\UNC\\" + value[2:]
+    return "\\\\?\\" + value
+
+
+def _windows_normalized_path(value: str | Path) -> str:
+    text = os.fspath(value)
+    if text.startswith("\\\\?\\UNC\\"):
+        text = "\\\\" + text[8:]
+    elif text.startswith("\\\\?\\"):
+        text = text[4:]
+    return os.path.normcase(os.path.normpath(text))
+
+
+def _windows_open_handle(path: Path, *, directory: bool) -> int:
+    if os.name != "nt":
+        raise OSError("Windows handle APIs are unavailable")
+    desired_access = _WINDOWS_FILE_READ_ATTRIBUTES
+    if directory:
+        desired_access |= 0x00000020
+    else:
+        desired_access |= _WINDOWS_GENERIC_READ
+    share_mode = _WINDOWS_FILE_SHARE_READ
+    if directory:
+        share_mode |= _WINDOWS_FILE_SHARE_WRITE
+    flags = _WINDOWS_FILE_FLAG_OPEN_REPARSE_POINT
+    if directory:
+        flags |= _WINDOWS_FILE_FLAG_BACKUP_SEMANTICS
+    handle = _WINDOWS_CREATE_FILE(
+        _windows_api_path(path),
+        desired_access,
+        share_mode,
+        None,
+        _WINDOWS_OPEN_EXISTING,
+        flags,
+        None,
+    )
+    if handle == _WINDOWS_INVALID_HANDLE_VALUE:
+        error = ctypes.get_last_error()
+        raise OSError(error, ctypes.FormatError(error), os.fspath(path))
+    return int(handle)
+
+
+def _windows_open_relative_leaf(root_handle: int, name: str) -> int:
+    if os.name != "nt":
+        raise OSError("Windows handle APIs are unavailable")
+    name_buffer = ctypes.create_unicode_buffer(name)
+    name_bytes = name.encode("utf-16-le")
+    unicode_name = _WindowsUnicodeString(
+        len(name_bytes),
+        len(name_bytes) + 2,
+        ctypes.cast(name_buffer, wintypes.LPWSTR),
+    )
+    object_attributes = _WindowsObjectAttributes(
+        ctypes.sizeof(_WindowsObjectAttributes),
+        wintypes.HANDLE(root_handle),
+        ctypes.pointer(unicode_name),
+        0x00000040,
+        None,
+        None,
+    )
+    io_status = _WindowsIoStatusBlock()
+    handle = wintypes.HANDLE()
+    status = _WINDOWS_NT_CREATE_FILE(
+        ctypes.byref(handle),
+        _WINDOWS_GENERIC_READ | 0x00100000,
+        ctypes.byref(object_attributes),
+        ctypes.byref(io_status),
+        None,
+        0,
+        _WINDOWS_FILE_SHARE_READ,
+        0x00000001,
+        0x00000020 | 0x00000040 | 0x00200000,
+        None,
+        0,
+    )
+    if status < 0:
+        error = int(_WINDOWS_NT_STATUS_TO_DOS_ERROR(status))
+        raise OSError(error, ctypes.FormatError(error), name)
+    return int(handle.value)
+
+
+def _windows_close_handle(handle: int) -> None:
+    if os.name == "nt":
+        _WINDOWS_CLOSE_HANDLE(wintypes.HANDLE(handle))
+
+
+def _windows_handle_information(handle: int) -> tuple[int, int, int]:
+    if os.name != "nt":
+        raise OSError("Windows handle APIs are unavailable")
+    information = _WindowsFileInformation()
+    if not _WINDOWS_GET_FILE_INFORMATION(
+        wintypes.HANDLE(handle),
+        ctypes.byref(information),
+    ):
+        error = ctypes.get_last_error()
+        raise OSError(error, ctypes.FormatError(error))
+    file_index = (information.nFileIndexHigh << 32) | information.nFileIndexLow
+    return (
+        information.dwFileAttributes,
+        information.dwVolumeSerialNumber,
+        file_index,
+    )
+
+
+def _windows_final_path(handle: int) -> str:
+    if os.name != "nt":
+        raise OSError("Windows handle APIs are unavailable")
+    required = _WINDOWS_GET_FINAL_PATH(wintypes.HANDLE(handle), None, 0, 0)
+    if required == 0:
+        error = ctypes.get_last_error()
+        raise OSError(error, ctypes.FormatError(error))
+    buffer = ctypes.create_unicode_buffer(required + 1)
+    written = _WINDOWS_GET_FINAL_PATH(
+        wintypes.HANDLE(handle),
+        buffer,
+        len(buffer),
+        0,
+    )
+    if written == 0 or written >= len(buffer):
+        error = ctypes.get_last_error()
+        raise OSError(error, ctypes.FormatError(error))
+    return _windows_normalized_path(buffer.value)
+
+
+def _snapshot_regular_file_windows(path: Path, root: Path, label: str) -> bytes:
+    root_handle: int | None = None
+    leaf_handle: int | None = None
+    descriptor: int | None = None
+    try:
+        root_handle = _windows_open_handle(root, directory=True)
+        root_information = _windows_handle_information(root_handle)
+        if root_information[0] & _WINDOWS_FILE_ATTRIBUTE_REPARSE_POINT:
+            raise IntegrityError(f"{label}: evidence root is a reparse point")
+        if not root_information[0] & _WINDOWS_FILE_ATTRIBUTE_DIRECTORY:
+            raise IntegrityError(f"{label}: evidence root is not a directory")
+        if _WINDOWS_GET_FILE_TYPE(wintypes.HANDLE(root_handle)) != _WINDOWS_FILE_TYPE_DISK:
+            raise IntegrityError(f"{label}: evidence root is not a disk directory")
+
+        root_final_path = _windows_final_path(root_handle)
+        if root_final_path != _windows_normalized_path(root):
+            raise IntegrityError(
+                f"{label}: evidence root resolves through a reparse point or alias"
+            )
+
+        leaf_handle = _windows_open_relative_leaf(root_handle, path.name)
+        leaf_information = _windows_handle_information(leaf_handle)
+        if leaf_information[0] & _WINDOWS_FILE_ATTRIBUTE_REPARSE_POINT:
+            raise IntegrityError(f"{label}: evidence leaf is a reparse point")
+        if leaf_information[0] & _WINDOWS_FILE_ATTRIBUTE_DIRECTORY:
+            raise IntegrityError(f"{label}: missing regular file")
+        if _WINDOWS_GET_FILE_TYPE(wintypes.HANDLE(leaf_handle)) != _WINDOWS_FILE_TYPE_DISK:
+            raise IntegrityError(f"{label}: evidence leaf is not a disk file")
+
+        leaf_final_path = _windows_final_path(leaf_handle)
+        if (
+            leaf_information[1] != root_information[1]
+            or os.path.dirname(leaf_final_path) != root_final_path
+        ):
+            raise IntegrityError(
+                f"{label}: opened file is not physically contained by the evidence root"
+            )
+
+        descriptor = msvcrt.open_osfhandle(
+            leaf_handle,
+            os.O_RDONLY | getattr(os, "O_BINARY", 0),
+        )
+        leaf_handle = None
+        with os.fdopen(descriptor, "rb") as handle:
+            descriptor = None
+            payload, _, _ = _stable_regular_file_bytes(handle, label)
+            os_handle = msvcrt.get_osfhandle(handle.fileno())
+            leaf_after = _windows_handle_information(os_handle)
+            leaf_path_after = _windows_final_path(os_handle)
+            if leaf_after != leaf_information or leaf_path_after != leaf_final_path:
+                raise IntegrityError(f"{label}: file identity changed while reading")
+
+        root_after = _windows_handle_information(root_handle)
+        if (
+            root_after != root_information
+            or _windows_final_path(root_handle) != root_final_path
+        ):
+            raise IntegrityError(f"{label}: root identity changed while reading")
+        return payload
+    except IntegrityError:
+        raise
+    except OSError as exc:
+        raise IntegrityError(f"{label}: unable to snapshot file: {exc}") from exc
+    finally:
+        if descriptor is not None:
+            try:
+                os.close(descriptor)
+            except OSError:
+                pass
+        if leaf_handle is not None:
+            _windows_close_handle(leaf_handle)
+        if root_handle is not None:
+            _windows_close_handle(root_handle)
+
+
+def _snapshot_regular_file(path: Path, root: Path, label: str) -> bytes:
+    """Capture stable bytes from one direct child of a pinned evidence root."""
+
+    intended_root = _absolute_path(root)
+    intended_path = _absolute_path(path)
+    if intended_path.parent != intended_root:
+        raise IntegrityError(f"{label}: path escapes the evidence root")
+    if os.name == "nt":
+        return _snapshot_regular_file_windows(intended_path, intended_root, label)
+    return _snapshot_regular_file_posix(intended_path, intended_root, label)
 
 
 def _is_safe_manifest_filename(filename: Any) -> bool:
@@ -184,6 +667,9 @@ class Evidence:
     quarantine_sha256: str
     _manifest_bytes: bytes = field(repr=False, compare=False)
     _output_snapshots: tuple[tuple[str, bytes], ...] = field(
+        repr=False, compare=False
+    )
+    _input_snapshots: tuple[tuple[str, bytes], ...] = field(
         repr=False, compare=False
     )
 
@@ -347,17 +833,33 @@ def _policy_semantic_document(policy: Policy) -> dict[str, Any]:
 
 
 def load_evidence(directory: str | Path) -> Evidence:
-    root = Path(directory).resolve()
+    root = _absolute_path(directory)
     manifest_path = root / "manifest.json"
-    manifest, manifest_bytes = load_json_document_with_bytes(manifest_path)
-    _, resolved_outputs = _validated_manifest_outputs(manifest, root)
+    manifest_bytes = _snapshot_regular_file(
+        manifest_path,
+        root,
+        "pipeline manifest",
+    )
+    manifest = _load_json_bytes(manifest_bytes, manifest_path)
+    _, resolved_outputs, _, resolved_inputs = _validated_manifest_artifacts(
+        manifest, root
+    )
 
     output_bytes: dict[str, bytes] = {}
     for key, path in resolved_outputs.items():
-        try:
-            output_bytes[key] = path.read_bytes()
-        except OSError as exc:
-            raise IntegrityError(f"unable to read manifest output {key}: {exc}") from exc
+        output_bytes[key] = _snapshot_regular_file(
+            path,
+            root,
+            f"manifest output {key}",
+        )
+
+    input_bytes: dict[str, bytes] = {}
+    for key, path in resolved_inputs.items():
+        input_bytes[key] = _snapshot_regular_file(
+            path,
+            root,
+            f"manifest input {key}",
+        )
 
     return _evidence_from_snapshots(
         root,
@@ -365,16 +867,27 @@ def load_evidence(directory: str | Path) -> Evidence:
         manifest_bytes,
         output_bytes,
         resolved_outputs,
+        input_bytes,
+        resolved_inputs,
     )
 
 
-def _validated_manifest_outputs(
+def _validated_manifest_artifacts(
     manifest: Any, root: Path
-) -> tuple[dict[str, Any], dict[str, Path]]:
+) -> tuple[
+    dict[str, Any],
+    dict[str, Path],
+    dict[str, Any],
+    dict[str, Path],
+]:
     if type(manifest) is not dict:
         raise ContractError("pipeline manifest root must be an object")
+    if manifest.get("schema_version") == "hydra-market-pipeline-manifest/v1":
+        raise ContractError(
+            "pipeline manifest v1 is non-replayable; v2 input snapshots are required"
+        )
     if set(manifest) != MANIFEST_FIELDS:
-        raise ContractError("pipeline manifest fields do not match the v1 contract")
+        raise ContractError("pipeline manifest fields do not match the v2 contract")
     if manifest["schema_version"] != PIPELINE_MANIFEST_SCHEMA:
         raise ContractError("unsupported pipeline manifest schema")
     if manifest["transform_version"] != NORMALIZED_EVENT_TRANSFORM_VERSION:
@@ -388,10 +901,14 @@ def _validated_manifest_outputs(
         value = manifest[field]
         if type(value) is not str or not SHA256_PATTERN.fullmatch(value):
             raise ContractError(f"pipeline {field} is invalid")
-    for field in ("accepted_rows", "quarantined_rows"):
+    for field in ("accepted_rows", "quarantined_rows", "source_rows"):
         value = manifest[field]
         if type(value) is not int or value < 0:
             raise ContractError(f"pipeline {field} must be a non-negative integer")
+    if manifest["source_rows"] != (
+        manifest["accepted_rows"] + manifest["quarantined_rows"]
+    ):
+        raise IntegrityError("pipeline row counts do not sum to source_rows")
 
     expected_run_id = sha256_hex(
         canonical_json_bytes(
@@ -407,15 +924,45 @@ def _validated_manifest_outputs(
         raise IntegrityError("pipeline_run_id does not match the manifest inputs")
 
     outputs = manifest["outputs"]
-    if type(outputs) is not dict or set(outputs) != {
-        "normalized_events_csv",
-        "normalized_events_jsonl",
-        "quarantine_records_jsonl",
-    }:
+    if type(outputs) is not dict or set(outputs) != set(OUTPUT_FILENAMES):
         raise ContractError("pipeline manifest output set changed")
 
-    resolved_outputs: dict[str, Path] = {}
+    inputs = manifest["inputs"]
+    if type(inputs) is not dict or set(inputs) != set(INPUT_DESCRIPTORS):
+        raise ContractError("pipeline manifest input set changed")
+
+    resolved_inputs: dict[str, Path] = {}
     seen_filenames: set[str] = set()
+    for key, (expected_filename, expected_schema) in INPUT_DESCRIPTORS.items():
+        descriptor = inputs[key]
+        if type(descriptor) is not dict or set(descriptor) != {
+            "file",
+            "schema_version",
+            "sha256",
+        }:
+            raise ContractError(
+                f"manifest input {key} fields do not match the v2 contract"
+            )
+        filename = descriptor["file"]
+        digest = descriptor["sha256"]
+        if filename != expected_filename or not _is_safe_manifest_filename(filename):
+            raise ContractError(f"manifest input {key} has an invalid file name")
+        if descriptor["schema_version"] != expected_schema:
+            raise ContractError(f"manifest input {key} has an invalid schema")
+        if type(digest) is not str or not SHA256_PATTERN.fullmatch(digest):
+            raise ContractError(f"manifest input {key} has an invalid digest")
+        seen_filenames.add(filename.casefold())
+        path = root / filename
+        if path.parent != root:
+            raise ContractError(f"manifest input {key} escapes the artifact directory")
+        resolved_inputs[key] = path
+
+    if inputs["source_csv"]["sha256"] != manifest["source_file_sha256"]:
+        raise IntegrityError("source snapshot digest does not match the manifest")
+    if inputs["resolved_aliases_json"]["sha256"] != manifest["aliases_sha256"]:
+        raise IntegrityError("resolved aliases digest does not match the manifest")
+
+    resolved_outputs: dict[str, Path] = {}
     for key, descriptor in outputs.items():
         if type(descriptor) is not dict:
             raise ContractError(f"manifest output {key} must be an object")
@@ -429,10 +976,11 @@ def _validated_manifest_outputs(
         filename = descriptor["file"]
         digest = descriptor["sha256"]
         if (
-            not _is_safe_manifest_filename(filename)
+            filename != OUTPUT_FILENAMES[key]
+            or not _is_safe_manifest_filename(filename)
             or filename.casefold() in seen_filenames
         ):
-            raise ContractError(f"manifest output {key} has an unsafe file name")
+            raise ContractError(f"manifest output {key} has an invalid v2 file name")
         seen_filenames.add(filename.casefold())
         if type(digest) is not str or not SHA256_PATTERN.fullmatch(digest):
             raise ContractError(f"manifest output {key} has an invalid digest")
@@ -440,12 +988,12 @@ def _validated_manifest_outputs(
             NORMALIZED_CSV_COLUMNS
         ):
             raise ContractError("manifest normalized CSV schema is invalid")
-        path = (root / filename).resolve()
+        path = root / filename
         if path.parent != root:
             raise ContractError(f"manifest output {key} escapes the artifact directory")
         resolved_outputs[key] = path
 
-    return outputs, resolved_outputs
+    return outputs, resolved_outputs, inputs, resolved_inputs
 
 
 def _evidence_from_snapshots(
@@ -454,12 +1002,26 @@ def _evidence_from_snapshots(
     manifest_bytes: bytes,
     output_bytes: Mapping[str, bytes],
     resolved_outputs: Mapping[str, Path],
+    input_bytes: Mapping[str, bytes],
+    resolved_inputs: Mapping[str, Path],
 ) -> Evidence:
-    outputs, expected_paths = _validated_manifest_outputs(manifest, root)
-    if dict(resolved_outputs) != expected_paths:
+    outputs, expected_output_paths, inputs, expected_input_paths = (
+        _validated_manifest_artifacts(manifest, root)
+    )
+    if dict(resolved_outputs) != expected_output_paths:
         raise IntegrityError("evidence output paths do not match the manifest")
+    if dict(resolved_inputs) != expected_input_paths:
+        raise IntegrityError("evidence input paths do not match the manifest")
     if set(output_bytes) != set(outputs):
         raise IntegrityError("evidence output snapshots do not match the manifest")
+    if set(input_bytes) != set(inputs):
+        raise IntegrityError("evidence input snapshots do not match the manifest")
+    for key, descriptor in inputs.items():
+        raw_input = input_bytes[key]
+        if type(raw_input) is not bytes:
+            raise IntegrityError(f"manifest input {key} snapshot is invalid")
+        if sha256_hex(raw_input) != descriptor["sha256"]:
+            raise IntegrityError(f"manifest digest mismatch for {descriptor['file']}")
     for key, descriptor in outputs.items():
         raw_output = output_bytes[key]
         if type(raw_output) is not bytes:
@@ -519,8 +1081,7 @@ def _evidence_from_snapshots(
         raise IntegrityError("quarantine records are not ordered by source row")
 
     actual_source_rows = seen_source_rows | set(quarantine_rows)
-    total_source_rows = manifest["accepted_rows"] + manifest["quarantined_rows"]
-    expected_source_rows = set(range(2, total_source_rows + 2))
+    expected_source_rows = set(range(2, manifest["source_rows"] + 2))
     if actual_source_rows != expected_source_rows:
         raise IntegrityError(
             "accepted and quarantined source rows do not form the exact producer partition"
@@ -537,6 +1098,41 @@ def _evidence_from_snapshots(
     if csv_records != expected_csv_records:
         raise IntegrityError("normalized CSV rows do not match normalized JSONL rows")
 
+    try:
+        replay = replay_pipeline(
+            source_bytes=input_bytes["source_csv"],
+            aliases_bytes=input_bytes["resolved_aliases_json"],
+        )
+    except ReplayContractError as exc:
+        raise ContractError(f"independent pipeline replay failed: {exc}") from exc
+
+    replay_metadata = {
+        "aliases_sha256": replay.aliases_sha256,
+        "pipeline_run_id": replay.pipeline_run_id,
+        "source_file_sha256": replay.source_file_sha256,
+        "source_rows": replay.source_rows,
+    }
+    for field, expected in replay_metadata.items():
+        if manifest[field] != expected:
+            raise IntegrityError(
+                f"pipeline {field} does not match independent replay"
+            )
+    if manifest["accepted_rows"] != len(replay.accepted):
+        raise IntegrityError("accepted row count does not match independent replay")
+    if manifest["quarantined_rows"] != len(replay.quarantined):
+        raise IntegrityError("quarantined row count does not match independent replay")
+
+    replay_outputs = {
+        "normalized_events_jsonl": replay.normalized_jsonl,
+        "normalized_events_csv": replay.normalized_csv,
+        "quarantine_records_jsonl": replay.quarantine_jsonl,
+    }
+    for key, expected_bytes in replay_outputs.items():
+        if output_bytes[key] != expected_bytes:
+            raise IntegrityError(
+                f"manifest output {key} does not match independent pipeline replay"
+            )
+
     immutable_manifest = _freeze_json(manifest)
     immutable_accepted = tuple(
         _freeze_json(event) for event in sorted(accepted, key=lambda record: record["event_id"])
@@ -552,6 +1148,9 @@ def _evidence_from_snapshots(
         _manifest_bytes=manifest_bytes,
         _output_snapshots=tuple(
             (key, output_bytes[key]) for key in sorted(output_bytes)
+        ),
+        _input_snapshots=tuple(
+            (key, input_bytes[key]) for key in sorted(input_bytes)
         ),
     )
 
@@ -717,6 +1316,7 @@ def _validate_evidence_binding(evidence: Evidence) -> None:
         or type(evidence.quarantine_sha256) is not str
         or type(evidence._manifest_bytes) is not bytes
         or type(evidence._output_snapshots) is not tuple
+        or type(evidence._input_snapshots) is not tuple
     ):
         raise IntegrityError("evidence semantic binding is invalid")
     _require_immutable_json(evidence.manifest)
@@ -734,12 +1334,24 @@ def _validate_evidence_binding(evidence: Evidence) -> None:
             raise IntegrityError("evidence output snapshot binding is invalid")
         snapshots[item[0]] = item[1]
 
+    input_snapshots: dict[str, bytes] = {}
+    for item in evidence._input_snapshots:
+        if (
+            type(item) is not tuple
+            or len(item) != 2
+            or type(item[0]) is not str
+            or type(item[1]) is not bytes
+            or item[0] in input_snapshots
+        ):
+            raise IntegrityError("evidence input snapshot binding is invalid")
+        input_snapshots[item[0]] = item[1]
+
     try:
         manifest = _load_json_bytes(
             evidence._manifest_bytes,
             evidence.directory / "<manifest snapshot>",
         )
-        _, resolved_outputs = _validated_manifest_outputs(
+        _, resolved_outputs, _, resolved_inputs = _validated_manifest_artifacts(
             manifest, evidence.directory
         )
         expected = _evidence_from_snapshots(
@@ -748,6 +1360,8 @@ def _validate_evidence_binding(evidence: Evidence) -> None:
             evidence._manifest_bytes,
             snapshots,
             resolved_outputs,
+            input_snapshots,
+            resolved_inputs,
         )
         actual_binding = canonical_json_bytes(
             _evidence_semantic_document(evidence)

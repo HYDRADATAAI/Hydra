@@ -22,19 +22,51 @@ from hydra_governed_intelligence import (
 )
 from hydra_governed_intelligence.pre_upload_verifier import (
     BUNDLE_MEMBERS,
+    BundleSummary,
     ZIP_EXTERNAL_ATTR,
     ZIP_TIMESTAMP,
     VerificationError,
     _build_bundle_bytes,
+    _open_bound_leaf,
     _snapshot_file,
+    _snapshot_repository_file,
     _snapshot_verification_inputs,
     _verify_bundle,
+    _windows_open_path,
+    _windows_open_relative,
     main,
     package_repository_artifacts,
     verify_repository_artifacts,
 )
 
 from tests.support import ROOT, build_pipeline_outputs
+
+
+class PreUploadVerifierStaticContractTests(unittest.TestCase):
+    def test_manifest_v2_bundle_member_contract(self) -> None:
+        self.assertEqual(len(BUNDLE_MEMBERS), 15)
+        self.assertIn(
+            "market-data-pipeline-sample/build/demo/source_snapshot.csv",
+            BUNDLE_MEMBERS,
+        )
+        self.assertIn(
+            "market-data-pipeline-sample/build/demo/resolved_symbol_aliases.json",
+            BUNDLE_MEMBERS,
+        )
+
+    def test_manifest_v2_summary_contract(self) -> None:
+        summary = BundleSummary(
+            manifest_outputs=9,
+            receipts=26,
+            input_snapshots_verified=2,
+            source_rows_replayed=7,
+            bundle_members=15,
+            bundle_bytes=1,
+            bundle_sha256="0" * 64,
+        )
+
+        self.assertEqual(summary.input_snapshots_verified, 2)
+        self.assertEqual(summary.source_rows_replayed, 7)
 
 
 class PreUploadVerifierTests(unittest.TestCase):
@@ -49,6 +81,17 @@ class PreUploadVerifierTests(unittest.TestCase):
         shutil.copytree(ROOT / "config", intelligence / "config")
         shutil.copytree(ROOT / "fixtures", intelligence / "fixtures")
         build_pipeline_outputs(pipeline)
+
+        qrels_path = intelligence / "fixtures" / "retrieval_qrels.json"
+        qrels = json.loads(qrels_path.read_text(encoding="utf-8"))
+        qrels["corpus_binding"]["pipeline_manifest_sha256"] = hashlib.sha256(
+            (pipeline / "manifest.json").read_bytes()
+        ).hexdigest()
+        qrels_path.write_text(
+            json.dumps(qrels, indent=2, sort_keys=True) + "\n",
+            encoding="utf-8",
+            newline="\n",
+        )
 
         evidence = load_evidence(pipeline)
         context_policy = load_policy(intelligence / "config" / "policy.json")
@@ -112,6 +155,8 @@ class PreUploadVerifierTests(unittest.TestCase):
 
         self.assertEqual(summary.manifest_outputs, 9)
         self.assertEqual(summary.receipts, 26)
+        self.assertEqual(summary.input_snapshots_verified, 2)
+        self.assertEqual(summary.source_rows_replayed, 7)
 
     def test_deterministic_bundle_is_byte_identical(self) -> None:
         first_path = self.repository / "artifacts" / "first.zip"
@@ -123,7 +168,7 @@ class PreUploadVerifierTests(unittest.TestCase):
         second_bytes = second_path.read_bytes()
 
         self.assertEqual(first_bytes, second_bytes)
-        self.assertEqual(first.bundle_members, 13)
+        self.assertEqual(first.bundle_members, 15)
         self.assertEqual(first.bundle_members, len(BUNDLE_MEMBERS))
         self.assertEqual(first.bundle_bytes, len(first_bytes))
         self.assertEqual(first.bundle_sha256, hashlib.sha256(first_bytes).hexdigest())
@@ -306,6 +351,189 @@ class PreUploadVerifierTests(unittest.TestCase):
         self.assertEqual(len(observed_flags), 1)
         self.assertTrue(observed_flags[0] & os.O_NOFOLLOW)
 
+    def test_snapshot_rejects_final_reparse_point(self) -> None:
+        source = self.repository / "snapshot-source.txt"
+        source.write_bytes(b"snapshot")
+        metadata = source.lstat()
+        reparse_metadata = mock.Mock(
+            st_mode=metadata.st_mode,
+            st_file_attributes=0x400,
+        )
+
+        with mock.patch.object(Path, "lstat", return_value=reparse_metadata):
+            with self.assertRaisesRegex(
+                VerificationError,
+                "symbolic links and reparse points are not allowed",
+            ):
+                _snapshot_file(source, "snapshot")
+
+    def test_snapshot_rejects_symlinked_ancestor(self) -> None:
+        ancestor = self.repository / "governed-intelligence-sample"
+        target = self.repository / "governed-intelligence-target"
+        ancestor.rename(target)
+        try:
+            ancestor.symlink_to(target, target_is_directory=True)
+        except (NotImplementedError, OSError) as exc:
+            if os.path.lexists(ancestor):
+                ancestor.unlink()
+            target.rename(ancestor)
+            self.skipTest(f"directory symlink creation unavailable: {exc}")
+
+        with self.assertRaisesRegex(
+            VerificationError,
+            "symbolic-link or reparse-point ancestors are not allowed",
+        ):
+            _snapshot_verification_inputs(self.repository)
+
+    def test_snapshot_rejects_symlinked_repository_root(self) -> None:
+        linked_root = Path(self.temp_dir.name) / "repository-link"
+        try:
+            linked_root.symlink_to(self.repository, target_is_directory=True)
+        except (NotImplementedError, OSError) as exc:
+            if os.path.lexists(linked_root):
+                linked_root.unlink()
+            self.skipTest(f"directory symlink creation unavailable: {exc}")
+
+        with self.assertRaisesRegex(
+            VerificationError,
+            "repository root must not be a symbolic link or reparse point",
+        ):
+            _snapshot_verification_inputs(linked_root)
+
+    def test_ancestor_swap_during_leaf_open_cannot_redirect_snapshot(self) -> None:
+        root = self.repository.absolute()
+        ancestor = root / "governed-intelligence-sample" / "config"
+        saved_ancestor = ancestor.with_name("config-original")
+        replacement = ancestor.with_name("config-replacement")
+        shutil.copytree(ancestor, replacement)
+        candidate = ancestor / "policy.json"
+        expected = candidate.read_bytes()
+        (replacement / candidate.name).write_bytes(b"redirected outside snapshot")
+        real_open_bound_leaf = _open_bound_leaf
+        attempted = False
+        swapped = False
+
+        def swap_ancestor_then_open(
+            parent_handle: int,
+            leaf_name: str,
+            opened_candidate: Path,
+            label: str,
+        ) -> int:
+            nonlocal attempted, swapped
+            attempted = True
+            try:
+                ancestor.rename(saved_ancestor)
+                try:
+                    replacement.rename(ancestor)
+                    swapped = True
+                except OSError:
+                    saved_ancestor.rename(ancestor)
+            except OSError:
+                pass
+            return real_open_bound_leaf(
+                parent_handle,
+                leaf_name,
+                opened_candidate,
+                label,
+            )
+
+        try:
+            with mock.patch(
+                "hydra_governed_intelligence.pre_upload_verifier._open_bound_leaf",
+                side_effect=swap_ancestor_then_open,
+            ):
+                with self.assertRaisesRegex(
+                    VerificationError,
+                    "opened handle physical path changed|identity changed",
+                ):
+                    _snapshot_repository_file(root, candidate, "swap snapshot")
+        finally:
+            if swapped:
+                ancestor.rename(replacement)
+                saved_ancestor.rename(ancestor)
+
+        self.assertTrue(attempted)
+        self.assertNotEqual(
+            (replacement / candidate.name).read_bytes(),
+            expected,
+        )
+
+    @unittest.skipUnless(os.name == "nt", "Windows handle semantics only")
+    def test_windows_mocked_leaf_aba_external_file_fails(self) -> None:
+        root = self.repository.absolute()
+        candidate = root / "governed-intelligence-sample" / "config" / "policy.json"
+        external = Path(self.temp_dir.name) / "external-policy.json"
+        external.write_bytes(b"external policy bytes")
+        real_open_relative = _windows_open_relative
+
+        def redirect_leaf_after_path_restored(
+            parent_handle: int,
+            name: str,
+            label: str,
+            *,
+            directory: bool,
+        ) -> int:
+            if not directory and name == candidate.name:
+                return _windows_open_path(external, label, directory=False)
+            return real_open_relative(
+                parent_handle,
+                name,
+                label,
+                directory=directory,
+            )
+
+        with mock.patch(
+            "hydra_governed_intelligence.pre_upload_verifier._windows_open_relative",
+            side_effect=redirect_leaf_after_path_restored,
+        ):
+            with self.assertRaisesRegex(
+                VerificationError,
+                "opened handle physical path changed",
+            ):
+                _snapshot_repository_file(root, candidate, "Windows leaf ABA")
+
+    @unittest.skipUnless(os.name == "nt", "Windows handle semantics only")
+    def test_windows_root_aba_external_handle_fails(self) -> None:
+        root = self.repository.absolute()
+        candidate = root / "governed-intelligence-sample" / "config" / "policy.json"
+        external_root = Path(self.temp_dir.name) / "external-root"
+        external_root.mkdir()
+        real_open_path = _windows_open_path
+
+        def redirect_root_after_lstat(
+            path: Path,
+            label: str,
+            *,
+            directory: bool,
+        ) -> int:
+            if directory and Path(path) == root:
+                return real_open_path(external_root, label, directory=True)
+            return real_open_path(path, label, directory=directory)
+
+        with mock.patch(
+            "hydra_governed_intelligence.pre_upload_verifier._windows_open_path",
+            side_effect=redirect_root_after_lstat,
+        ):
+            with self.assertRaisesRegex(
+                VerificationError,
+                "repository root identity changed|opened handle physical path changed",
+            ):
+                _snapshot_repository_file(root, candidate, "Windows root ABA")
+
+    def test_snapshot_rejects_candidate_outside_repository_root(self) -> None:
+        outside = Path(self.temp_dir.name) / "outside.txt"
+        outside.write_bytes(b"outside repository")
+
+        with self.assertRaisesRegex(
+            VerificationError,
+            "path is not contained under the repository root",
+        ):
+            _snapshot_repository_file(
+                self.repository.resolve(strict=True),
+                outside,
+                "outside snapshot",
+            )
+
     def test_cli_appends_bundle_digest_to_github_output(self) -> None:
         bundle_path = self.repository / "artifacts" / "proof.zip"
         github_output = self.repository / "github-output.txt"
@@ -328,9 +556,44 @@ class PreUploadVerifierTests(unittest.TestCase):
         self.assertEqual(result, 0)
         self.assertEqual(
             github_output.read_text(encoding="utf-8").splitlines(),
-            ["existing=value", f"bundle_sha256={digest}"],
+            [
+                "existing=value",
+                f"bundle_sha256={digest}",
+                "input_snapshots_verified=2",
+                "source_rows_replayed=7",
+            ],
         )
         self.assertIn(f"BUNDLE_SHA256={digest}", stdout.getvalue())
+        self.assertIn("INPUT_SNAPSHOTS_VERIFIED=2", stdout.getvalue())
+        self.assertIn("SOURCE_ROWS_REPLAYED=7", stdout.getvalue())
+
+    def test_input_snapshot_digest_tampering_fails(self) -> None:
+        snapshot_path = (
+            self.repository
+            / "market-data-pipeline-sample"
+            / "build"
+            / "demo"
+            / "source_snapshot.csv"
+        )
+        snapshot_path.write_bytes(snapshot_path.read_bytes() + b"tampered\n")
+
+        with self.assertRaisesRegex(VerificationError, "SHA-256 mismatch"):
+            verify_repository_artifacts(self.repository)
+
+    def test_manifest_v1_fails_closed(self) -> None:
+        manifest_path = (
+            self.repository
+            / "market-data-pipeline-sample"
+            / "build"
+            / "demo"
+            / "manifest.json"
+        )
+        manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+        manifest["schema_version"] = "hydra-market-pipeline-manifest/v1"
+        self._write_json(manifest_path, manifest)
+
+        with self.assertRaisesRegex(VerificationError, "schema changed"):
+            verify_repository_artifacts(self.repository)
 
     def test_manifest_digest_tampering_fails(self) -> None:
         manifest_path = (

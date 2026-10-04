@@ -121,9 +121,9 @@ That behavior is intentional: missing provenance is not converted into invented 
 
 A second runnable public example lives in [`market-data-pipeline-sample/`](market-data-pipeline-sample/). It uses **synthetic, non-live** records to demonstrate a compact end-to-end data pipeline:
 
-`CSV → contract check → normalization → deterministic identity → provenance → quarantine → JSONL / CSV → manifest`
+`CSV + aliases → exact replay snapshots → contract check → normalization → deterministic identity → provenance → quarantine → JSONL / CSV → manifest v2`
 
-The sample intentionally distinguishes **file-level contract drift** from **row-level data-quality defects**: incompatible file schemas fail the run, while malformed or duplicate rows are quarantined with machine-readable reason codes.
+The sample intentionally distinguishes **file-level contract drift** from **row-level data-quality defects**: incompatible file schemas fail the run, while malformed or duplicate rows are quarantined with machine-readable reason codes. Each run also emits two replayable, manifest-declared input snapshots: the exact seven-row synthetic source CSV and the canonical resolved alias map. `raw_record_sha256` commits the normalized mapping of the eight required CSV columns, not unexpected structural cells; the exact `source_snapshot.csv` commits every source byte, and independent replay verifies structural-extra quarantine outcomes.
 
 It also includes a bounded local operations path:
 
@@ -134,7 +134,8 @@ The operations path proves atomic checkpoints, integrity-checked reuse, idempote
 Key evidence:
 
 - [`pipeline.py`](market-data-pipeline-sample/src/hydra_market_pipeline/pipeline.py) performs strict contract checks, normalization, deterministic event identity, provenance hashing, and quarantine decisions.
-- [`writers.py`](market-data-pipeline-sample/src/hydra_market_pipeline/writers.py) emits deterministic JSONL, CSV, quarantine, and run-manifest artifacts.
+- [`writers.py`](market-data-pipeline-sample/src/hydra_market_pipeline/writers.py) emits deterministic JSONL, CSV, quarantine, exact source and resolved-alias snapshots, and manifest v2 artifacts.
+- [`pipeline_manifest.schema.json`](market-data-pipeline-sample/contracts/pipeline_manifest.schema.json) fixes the two replayable input descriptors and three generated output descriptors.
 - [`operations.py`](market-data-pipeline-sample/src/hydra_market_pipeline/operations.py) executes bounded backfills with atomic checkpoints, persisted-artifact verification, deterministic SLIs, and idempotent reuse.
 - [`test_pipeline.py`](market-data-pipeline-sample/tests/test_pipeline.py) verifies expected accept/quarantine counts, deterministic reruns, CSV/JSONL equivalence, provenance, no silent data loss, and file-level contract failure.
 - [`test_operations.py`](market-data-pipeline-sample/tests/test_operations.py) verifies interruption recovery, byte-identical clean/resumed outcomes, tamper rejection, changed-source rejection, budgets, row accounting, and completed replay.
@@ -194,6 +195,8 @@ It also validates synthetic structured candidate claims after retrieval:
 
 The sample freezes verified evidence and policy collections, derives citation filenames from the manifest, and fails closed on artifact drift, unresolved query terms, configured restricted terms, and non-ASCII/confusable queries. Quarantined raw rows never enter context or retrieval. Separately specified record-level qrels keep quality metrics apart from exact regression expectations. Structured candidates are admitted only when every allowed claim exactly matches the retrieved record and citation. Schema-valid candidate safety or grounding defects quarantine the entire candidate without claim leakage; clean candidates inherit retrieval `ABSTAIN` or `REFUSE` outcomes.
 
+The upstream pipeline manifest v2 declares an exact `source_snapshot.csv` and canonical `resolved_symbol_aliases.json`. The 15-member deterministic proof package intentionally includes both replay inputs: all 7 rows are synthetic, including rows designed to quarantine, so governed loading can independently replay the complete fixture and require byte-identical normalized and quarantine outputs. Governed context, retrieval, and receipt artifacts remain accepted-only or aggregate-only and do not expose quarantined row payloads. This verifies declared-source provenance and quarantine outcomes for this fixture; it is not evidence about an undeclared or live source.
+
 This is inspectable control, **lexical retrieval**, and structured-output validation evidence. Candidate responses are committed synthetic fixtures, not model output. It does **not** claim model execution or quality, semantic or embedding retrieval, natural-language intent or claim extraction, autonomous action, live market coverage, production performance, investment advice, or trading authorization.
 
 Key evidence:
@@ -203,10 +206,14 @@ Key evidence:
 - [`retrieval.py`](governed-intelligence-sample/src/hydra_governed_intelligence/retrieval.py) applies accepted-only weighted lexical ranking with deterministic tie breaking and exact citations.
 - [`retrieval_evaluation.py`](governed-intelligence-sample/src/hydra_governed_intelligence/retrieval_evaluation.py) evaluates exact outcomes separately from digest-bound record-level qrels.
 - [`grounding.py`](governed-intelligence-sample/src/hydra_governed_intelligence/grounding.py) validates structured claims against retrieved records and exact citations before release.
+- [`pipeline_replay.py`](governed-intelligence-sample/src/hydra_governed_intelligence/pipeline_replay.py) independently reconstructs accepted and quarantined records from the two manifest-declared input snapshots.
+- [`pre_upload_verifier.py`](governed-intelligence-sample/src/hydra_governed_intelligence/pre_upload_verifier.py) verifies 9 manifested governed outputs, 26 receipts, 2 input snapshots, and 7 replayed source rows before building a deterministic 15-member proof ZIP.
 - [`evaluation_cases.json`](governed-intelligence-sample/fixtures/evaluation_cases.json) makes the admit, abstain, and refuse expectations inspectable.
 - [`retrieval_cases.json`](governed-intelligence-sample/fixtures/retrieval_cases.json) and [`retrieval_qrels.json`](governed-intelligence-sample/fixtures/retrieval_qrels.json) separate behavioral expectations from quality judgments.
 - [`grounding_policy.json`](governed-intelligence-sample/config/grounding_policy.json) and [`grounding_cases.json`](governed-intelligence-sample/fixtures/grounding_cases.json) make allowed fields and fail-closed claim outcomes inspectable.
 - [Governed intelligence CI](https://github.com/HYDRADATAAI/Hydra/actions/workflows/governed-intelligence-sample.yml) checks out the proposed revision, rebuilds its upstream synthetic artifacts, runs that revision's tests and deterministic contract checks, and publishes one packaged snapshot of the verified artifacts, reports, and receipts. It downloads the published artifact and compares the inner ZIP with the digest emitted by the packaging step. The run is repository-controlled evidence for that revision, not independent attestation of untrusted changes.
+
+The proof ZIP byte size and SHA-256 are derived and reported by each successful integrated run; the source documentation does not predeclare a digest or size before those bytes exist. The ZIP is integrity-bound, but reproducing every receipt also requires the verification support files from the pinned repository revision.
 
 ## Fail-closed validator sample
 

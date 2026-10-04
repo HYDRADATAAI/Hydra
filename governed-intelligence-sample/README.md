@@ -13,9 +13,12 @@ It consumes the **synthetic, non-live** artifacts from [`market-data-pipeline-sa
 ## What it proves
 
 - every upstream artifact is checked against its manifest SHA-256 before use;
+- manifest v2 binds an exact source CSV snapshot and canonical resolved-alias snapshot;
+- `raw_record_sha256` commits the normalized mapping of the eight required CSV columns, not unexpected structural cells; the exact source snapshot commits every source byte;
+- an independent replay reconstructs all seven accepted or quarantined source rows and requires byte-identical pipeline outputs;
 - verified evidence and retrieval-policy collections are immutable after loading;
 - citations use the accepted artifact filename declared by the verified manifest;
-- context and retrieval include accepted records only and never expose quarantined raw rows;
+- governed context, retrieval, and receipt artifacts are accepted-only or aggregate-only and never expose quarantined row payloads;
 - missing evidence produces `ABSTAIN`, while trading or restricted-corpus requests produce `REFUSE`;
 - retrieval v2 uses integer field weights, deterministic event-ID tie breaking, and a digest-bound closed vocabulary;
 - unresolved terms cannot borrow score from valid metadata, and non-ASCII/confusable queries fail closed;
@@ -85,10 +88,14 @@ The grounding benchmark writes:
 - `grounding_evaluation_report.json`: expected/actual outcomes and execution/action safety counters;
 - `grounding_output_manifest.json`: SHA-256 bindings for grounding outputs and all input contracts.
 
-GitHub Actions checks out the proposed revision, rebuilds its synthetic upstream evidence, and runs that revision's tests and deterministic contract checks. The final verifier recomputes retrieval metrics from qrels and verified decisions, derives grounding totals from verified receipts, and packages the validated byte snapshots for upload.
+GitHub Actions checks out the proposed revision, rebuilds its synthetic upstream evidence, and runs that revision's tests and deterministic contract checks. The final verifier confirms 2 manifest-declared input snapshots and 7 independently replayed source rows, recomputes retrieval metrics from qrels and verified decisions, derives grounding totals from verified receipts, and packages the validated byte snapshots for upload.
 
 ## CI evidence scope
 
-The workflow publishes one deterministic, uncompressed ZIP containing the exact generated artifact snapshots read by the final verifier. Archive member paths, ordering, timestamps, permissions, compression mode, and contents are fixed and tested; the upload step selects only that package. The workflow then downloads the published artifact and requires its inner ZIP digest to match the packaging step's output. This binds every passing run to the packaged payload and removes mutable source directories from the upload selection.
+The workflow publishes one deterministic, uncompressed 15-member ZIP containing the exact generated artifact snapshots read by the final verifier. It intentionally includes the exact `source_snapshot.csv` with all 7 synthetic rows, including rows designed to quarantine, plus the canonical `resolved_symbol_aliases.json`, so independent replay can verify structural-extra quarantine outcomes and byte-identical outputs from complete declared inputs. Governed context, retrieval, and receipt artifacts remain accepted-only or aggregate-only and do not expose quarantined row payloads. The verifier keeps the governed count at 9 manifested outputs and 26 receipts while separately reporting `INPUT_SNAPSHOTS_VERIFIED=2` and `SOURCE_ROWS_REPLAYED=7`. Archive member paths, ordering, timestamps, permissions, compression mode, and contents are fixed and tested; the upload step selects only that package. The workflow then downloads the published artifact and requires its inner ZIP digest to match the packaging step's output. This binds every passing run to the packaged payload and removes mutable source directories from the upload selection.
+
+The integrated run computes the final ZIP byte size and SHA-256 from the actual 15 members. They are intentionally not hardcoded here before integration regenerates the bound artifacts.
+
+The ZIP is integrity-bound, but reproducing every receipt also requires the verification support files from the pinned repository revision.
 
 The workflow, verifier, and validator are all code from the proposed revision. Their passing run is reproducible, repository-controlled evidence for that revision, not independent attestation or a trust anchor against malicious repository code.

@@ -47,14 +47,36 @@ jobs:
         working-directory: market-data-pipeline-sample
         run: |
           python - <<'PY'
+          import hashlib
           import json
           from pathlib import Path
 
+          def require(condition, detail):
+              if not condition:
+                  raise SystemExit(f"SAMPLE_MANIFEST=FAIL: {detail}")
+
           manifest = json.loads(Path("build/demo/manifest.json").read_text(encoding="utf-8"))
-          assert manifest["accepted_rows"] == 3, manifest
-          assert manifest["quarantined_rows"] == 4, manifest
-          assert manifest["schema_version"] == "hydra-market-pipeline-manifest/v1", manifest
+          inputs = manifest.get("inputs")
+          require(manifest.get("accepted_rows") == 3, "accepted row count changed")
+          require(manifest.get("quarantined_rows") == 4, "quarantined row count changed")
+          require(manifest.get("source_rows") == 7, "source row count changed")
+          require(manifest.get("schema_version") == "hydra-market-pipeline-manifest/v2", "schema changed")
+          require(isinstance(inputs, dict) and set(inputs) == {"resolved_aliases_json", "source_csv"}, "input snapshot set changed")
+          expected = {
+              "resolved_aliases_json": ("resolved_symbol_aliases.json", "hydra-market-resolved-aliases/v1"),
+              "source_csv": ("source_snapshot.csv", "hydra-market-source-csv/v1"),
+          }
+          for key, (filename, schema_version) in expected.items():
+              descriptor = inputs.get(key, {})
+              require(descriptor.get("file") == filename, f"{key} filename changed")
+              require(descriptor.get("schema_version") == schema_version, f"{key} schema changed")
+              actual = hashlib.sha256(Path("build/demo", filename).read_bytes()).hexdigest()
+              require(descriptor.get("sha256") == actual, f"{key} digest mismatch")
+          require(manifest.get("source_file_sha256") == inputs["source_csv"]["sha256"], "source digest binding changed")
+          require(manifest.get("aliases_sha256") == inputs["resolved_aliases_json"]["sha256"], "alias digest binding changed")
           print("SAMPLE_MANIFEST=PASS")
+          print("INPUT_SNAPSHOTS_VERIFIED=2")
+          print("SOURCE_ROWS_SNAPSHOT_VERIFIED=7")
           PY
 
       - name: Prove checkpoint recovery and idempotent replay

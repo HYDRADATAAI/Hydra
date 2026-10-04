@@ -68,6 +68,7 @@ REQUIRED_PATHS = (
     "market-data-pipeline-sample/config/backfill_plan.json",
     "market-data-pipeline-sample/contracts/backfill_plan.schema.json",
     "market-data-pipeline-sample/contracts/input_contract.json",
+    "market-data-pipeline-sample/contracts/pipeline_manifest.schema.json",
     "market-data-pipeline-sample/contracts/normalized_event.schema.json",
     "market-data-pipeline-sample/contracts/quarantine_record.schema.json",
     "market-data-pipeline-sample/data/raw/synthetic_market_events.csv",
@@ -107,6 +108,7 @@ REQUIRED_PATHS = (
     "governed-intelligence-sample/src/hydra_governed_intelligence/grounding.py",
     "governed-intelligence-sample/src/hydra_governed_intelligence/grounding_cli.py",
     "governed-intelligence-sample/src/hydra_governed_intelligence/pre_upload_verifier.py",
+    "governed-intelligence-sample/src/hydra_governed_intelligence/pipeline_replay.py",
     "governed-intelligence-sample/src/hydra_governed_intelligence/retrieval.py",
     "governed-intelligence-sample/src/hydra_governed_intelligence/retrieval_cli.py",
     "governed-intelligence-sample/src/hydra_governed_intelligence/retrieval_evaluation.py",
@@ -459,7 +461,7 @@ def validate_safety_contract(errors: list[str]) -> None:
         errors.append("governed-retrieval qrels case identities changed")
     expected_corpus_binding = {
         "normalized_events_sha256": "ec902bc92942197ddceb737b90421f36298b660c0788c99ac4c18b2e1c570e86",
-        "pipeline_manifest_sha256": "f8c232d371dc9151e318cde6fccb54ecd977b2b9c9b0fb779d52a8905fc6b111",
+        "pipeline_manifest_sha256": "f3b5ea4b854b862ec24670ad7cd0471858f283e8f474c53d208cf2570528509c",
         "record_ids": [
             "0dc3a510144754af42f61cf3a72f51fcbf90aed765d28053032e8fb857946458",
             "5661c842227f80f2866a673d1e09c092fb7de3a2c3663eaa3f018953d0aa516c",
@@ -656,6 +658,8 @@ def validate_pre_upload_verifier_contract(errors: list[str]) -> None:
         "market-data-pipeline-sample/build/demo/normalized_events.csv",
         "market-data-pipeline-sample/build/demo/normalized_events.jsonl",
         "market-data-pipeline-sample/build/demo/quarantine_records.jsonl",
+        "market-data-pipeline-sample/build/demo/resolved_symbol_aliases.json",
+        "market-data-pipeline-sample/build/demo/source_snapshot.csv",
     )
     expected_support_files = (
         "governed-intelligence-sample/config/grounding_policy.json",
@@ -735,6 +739,11 @@ def validate_pre_upload_verifier_contract(errors: list[str]) -> None:
     required_source_fragments = (
         "manifest_outputs == 9",
         "receipt_count == 26",
+        "input_snapshots_verified == 2",
+        "source_rows_replayed == 7",
+        '"hydra-market-pipeline-manifest/v2"',
+        '"hydra-market-source-csv/v1"',
+        '"hydra-market-resolved-aliases/v1"',
         '"micro_recall_at_k": "0.444444"',
         '"macro_recall_at_k": "0.583333"',
         '"mean_reciprocal_rank": "0.666667"',
@@ -753,7 +762,10 @@ def validate_pre_upload_verifier_contract(errors: list[str]) -> None:
         "os.path.samestat(descriptor_after, path_after)",
         "os.replace(temporary_path, destination)",
         '"--github-output-path"',
-        'payload = f"bundle_sha256={bundle_sha256}\\n".encode("ascii")',
+        'f"input_snapshots_verified={summary.input_snapshots_verified}\\n"',
+        'f"source_rows_replayed={summary.source_rows_replayed}\\n"',
+        'print(f"INPUT_SNAPSHOTS_VERIFIED={summary.input_snapshots_verified}")',
+        'print(f"SOURCE_ROWS_REPLAYED={summary.source_rows_replayed}")',
         'print(f"BUNDLE_MEMBERS={summary.bundle_members}")',
         'print(f"BUNDLE_BYTES={summary.bundle_bytes}")',
         'print(f"BUNDLE_SHA256={summary.bundle_sha256}")',
@@ -786,13 +798,129 @@ def validate_pre_upload_verifier_contract(errors: list[str]) -> None:
         "test_rehashed_grounding_report_with_stale_claim_totals_fails",
         "test_rehashed_grounding_report_with_stale_dispositions_fails",
         "test_rehashed_receipt_tampering_fails_semantic_verification",
+        "test_input_snapshot_digest_tampering_fails",
+        "test_manifest_v1_fails_closed",
+        "test_manifest_v2_bundle_member_contract",
+        "test_manifest_v2_summary_contract",
     }
     if not required_tests.issubset(test_methods):
         errors.append("pre-upload verifier tamper tests changed")
 
 
+def validate_manifest_v2_replay_contract(errors: list[str]) -> None:
+    schema_path = PIPELINE / "contracts" / "pipeline_manifest.schema.json"
+    replay_path = (
+        INTELLIGENCE_SAMPLE
+        / "src"
+        / "hydra_governed_intelligence"
+        / "pipeline_replay.py"
+    )
+    try:
+        schema = json.loads(schema_path.read_text(encoding="utf-8-sig"))
+        replay_source = replay_path.read_text(encoding="utf-8-sig")
+        replay_tree = ast.parse(replay_source, filename=str(replay_path))
+    except (OSError, json.JSONDecodeError, SyntaxError) as exc:
+        errors.append(f"unable to parse manifest-v2 replay contract: {exc}")
+        return
+
+    required_manifest_fields = {
+        "accepted_rows",
+        "aliases_sha256",
+        "inputs",
+        "outputs",
+        "pipeline_run_id",
+        "quarantined_rows",
+        "schema_version",
+        "source_file_sha256",
+        "source_rows",
+        "transform_version",
+    }
+    properties = schema.get("properties", {})
+    inputs = properties.get("inputs", {}).get("properties", {})
+    if schema.get("$id") != "hydra-market-pipeline-manifest/v2":
+        errors.append("pipeline manifest schema v2 ID changed")
+    if set(schema.get("required", [])) != required_manifest_fields:
+        errors.append("pipeline manifest schema v2 required fields changed")
+    expected_inputs = {
+        "resolved_aliases_json": (
+            "resolved_symbol_aliases.json",
+            "hydra-market-resolved-aliases/v1",
+        ),
+        "source_csv": ("source_snapshot.csv", "hydra-market-source-csv/v1"),
+    }
+    if set(inputs) != set(expected_inputs):
+        errors.append("pipeline manifest schema v2 input set changed")
+    else:
+        for key, (filename, schema_version) in expected_inputs.items():
+            descriptor = inputs[key].get("properties", {})
+            if descriptor.get("file", {}).get("const") != filename:
+                errors.append(f"pipeline manifest input filename changed: {key}")
+            if descriptor.get("schema_version", {}).get("const") != schema_version:
+                errors.append(f"pipeline manifest input schema changed: {key}")
+
+    functions = {
+        node.name
+        for node in replay_tree.body
+        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef))
+    }
+    required_functions = {
+        "replay_pipeline",
+        "_load_resolved_aliases",
+        "_validate_header",
+        "_quarantine_record",
+        "_jsonl_bytes",
+        "_csv_bytes",
+    }
+    if not required_functions.issubset(functions):
+        errors.append("independent pipeline replay functions changed")
+    if "hydra_market_pipeline" in replay_source:
+        errors.append("independent pipeline replay must not import producer code")
+    replay_fragments = (
+        'PIPELINE_MANIFEST_SCHEMA = "hydra-market-pipeline-manifest/v2"',
+        'SOURCE_CSV_SCHEMA = "hydra-market-source-csv/v1"',
+        'RESOLVED_ALIASES_SCHEMA = "hydra-market-resolved-aliases/v1"',
+        "source_rows=source_rows",
+        "normalized_jsonl=normalized_jsonl",
+        "normalized_csv=normalized_csv",
+        "quarantine_jsonl=quarantine_jsonl",
+    )
+    for fragment in replay_fragments:
+        if fragment not in replay_source:
+            errors.append(f"independent pipeline replay contract missing: {fragment}")
+
+
 def validate_ci_contract(errors: list[str]) -> None:
+    validate_manifest_v2_replay_contract(errors)
     validate_pre_upload_verifier_contract(errors)
+    documentation_contracts = {
+        ROOT / "README.md": (
+            "15-member deterministic proof package intentionally includes",
+            "all 7 rows are synthetic, including rows designed to quarantine",
+            "Governed context, retrieval, and receipt artifacts remain accepted-only or aggregate-only",
+            "do not expose quarantined row payloads",
+        ),
+        INTELLIGENCE_SAMPLE / "README.md": (
+            "deterministic, uncompressed 15-member ZIP",
+            "all 7 synthetic rows, including rows designed to quarantine",
+            "canonical `resolved_symbol_aliases.json`",
+            "`INPUT_SNAPSHOTS_VERIFIED=2`",
+            "`SOURCE_ROWS_REPLAYED=7`",
+            "do not expose quarantined row payloads",
+        ),
+        PIPELINE / "README.md": (
+            "15-member proof package intentionally carries the exact source snapshot",
+            "all 7 synthetic rows, including rows designed to quarantine",
+            "canonical resolved aliases",
+            "do not expose quarantined row payloads",
+        ),
+    }
+    for path, fragments in documentation_contracts.items():
+        text = path.read_text(encoding="utf-8-sig")
+        for fragment in fragments:
+            if fragment not in text:
+                errors.append(
+                    f"manifest-v2 public documentation contract missing: {path.name}: {fragment}"
+                )
     validator_workflow = (ROOT / ".github/workflows/t6-validator.yml").read_text(
         encoding="utf-8-sig"
     )
@@ -813,6 +941,11 @@ def validate_ci_contract(errors: list[str]) -> None:
         "PYTHONPATH: src",
         "python -m unittest discover -s tests -t . -v",
         "--output-dir build/demo",
+        '"hydra-market-pipeline-manifest/v2"',
+        '"resolved_symbol_aliases.json"',
+        '"source_snapshot.csv"',
+        'print("INPUT_SNAPSHOTS_VERIFIED=2")',
+        'print("SOURCE_ROWS_SNAPSHOT_VERIFIED=7")',
         "python run_recovery_demo.py --output-dir build/operations",
         "OPERATIONS_RECEIPT=PASS",
         "actions/upload-artifact@v4",
@@ -820,6 +953,8 @@ def validate_ci_contract(errors: list[str]) -> None:
     for fragment in pipeline_fragments:
         if fragment not in pipeline_workflow:
             errors.append(f"market-pipeline CI contract missing: {fragment}")
+    if "SOURCE_ROWS_REPLAYED" in pipeline_workflow:
+        errors.append("market-pipeline CI must not claim independent source-row replay")
 
     sql_workflow = (ROOT / ".github/workflows/sql-data-quality-sample.yml").read_text(
         encoding="utf-8-sig"
@@ -898,12 +1033,16 @@ def validate_ci_contract(errors: list[str]) -> None:
         "actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093",
         "compression-level: 0",
         "EXPECTED_BUNDLE_SHA256: ${{ steps.package_artifacts.outputs.bundle_sha256 }}",
+        "EXPECTED_INPUT_SNAPSHOTS_VERIFIED: ${{ steps.package_artifacts.outputs.input_snapshots_verified }}",
+        "EXPECTED_SOURCE_ROWS_REPLAYED: ${{ steps.package_artifacts.outputs.source_rows_replayed }}",
         "actual = hashlib.sha256(bundle.read_bytes()).hexdigest()",
         "require(actual == expected, f\"digest mismatch: expected {expected}, got {actual}\")",
     )
     for fragment in intelligence_fragments:
         if fragment not in intelligence_workflow:
             errors.append(f"governed-intelligence CI contract missing: {fragment}")
+    if "SOURCE_ROWS_SNAPSHOT_VERIFIED" in intelligence_workflow:
+        errors.append("governed-intelligence CI source-row replay signal was weakened")
     action_pins = {
         "actions/checkout": "11d5960a326750d5838078e36cf38b85af677262",
         "actions/setup-python": "a26af69be951a213d495a4c3e4e4022e16d87065",
@@ -1104,8 +1243,12 @@ def validate_ci_contract(errors: list[str]) -> None:
             "if not condition:",
             'raise SystemExit(f"PUBLISHED_ARTIFACT_DIGEST_CHECK=FAIL: {detail}")',
             'expected = os.environ.get("EXPECTED_BUNDLE_SHA256", "")',
+            'input_snapshots = os.environ.get("EXPECTED_INPUT_SNAPSHOTS_VERIFIED", "")',
+            'source_rows = os.environ.get("EXPECTED_SOURCE_ROWS_REPLAYED", "")',
             'bundle = Path(os.environ.get("DOWNLOADED_BUNDLE_PATH", ""))',
             'require(re.fullmatch(r"[0-9a-f]{64}", expected) is not None, "expected digest is invalid")',
+            'require(input_snapshots == "2", "verified input snapshot count changed")',
+            'require(source_rows == "7", "replayed source row count changed")',
             'require(bundle.is_file() and not bundle.is_symlink(), "downloaded inner ZIP is missing")',
             "entries = sorted(entry.name for entry in bundle.parent.iterdir())",
             'require(entries == [bundle.name], "downloaded artifact member set changed")',

@@ -577,7 +577,7 @@ class GroundingValidationTests(unittest.TestCase):
                 output_dir=self.base / "malformed-grounding",
             )
 
-    def test_grounding_uses_manifest_declared_citation_filename(self) -> None:
+    def test_grounding_rejects_renamed_citation_artifact(self) -> None:
         pipeline = build_pipeline_outputs(self.base / "renamed-pipeline")
         original = pipeline / "normalized_events.jsonl"
         renamed = pipeline / "accepted.jsonl"
@@ -586,29 +586,9 @@ class GroundingValidationTests(unittest.TestCase):
         manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
         manifest["outputs"]["normalized_events_jsonl"]["file"] = renamed.name
         manifest_path.write_text(json.dumps(manifest), encoding="utf-8")
-        evidence = load_evidence(pipeline)
-        case = copy.deepcopy(self.suite["cases"][0])
-        for claim in case["candidate"]["claims"]:
-            claim["citation"]["artifact"] = renamed.name
 
-        receipt = build_grounding_receipt(
-            retrieval_request=case["retrieval_request"],
-            candidate=case["candidate"],
-            evidence=evidence,
-            retrieval_policy=self.retrieval_policy,
-            grounding_policy=self.grounding_policy,
-        )
-
-        verify_grounding_receipt(
-            receipt,
-            retrieval_request=case["retrieval_request"],
-            candidate=case["candidate"],
-            evidence=evidence,
-            retrieval_policy=self.retrieval_policy,
-            grounding_policy=self.grounding_policy,
-        )
-        self.assertEqual(receipt["disposition"], "ADMIT")
-        self.assertEqual(receipt["citations"][0]["artifact"], renamed.name)
+        with self.assertRaisesRegex(ContractError, "invalid v2 file name"):
+            load_evidence(pipeline)
 
     def test_policy_cannot_enable_model_or_external_actions(self) -> None:
         original = json.loads(
