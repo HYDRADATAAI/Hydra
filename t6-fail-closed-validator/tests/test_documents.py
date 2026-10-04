@@ -228,5 +228,36 @@ class DocumentContractTests(unittest.TestCase):
         self.assertEqual(exact.value, {"é": "é"})
 
 
+    def test_bytes_subclass_cannot_spoof_length_or_decode(self) -> None:
+        class HostileBytes(bytes):
+            def __len__(self) -> int:
+                return 1
+
+            def decode(self, *args, **kwargs) -> str:
+                return '{"decoy":true}'
+
+        too_large = HostileBytes(b'{"value":"' + b"x" * 128 + b'"}')
+        rejected = parse_json_document(too_large, label="$.document", max_bytes=32)
+        self.assertIsNone(rejected.value)
+        self.assertIn("document_too_large", {issue.code for issue in rejected.issues})
+
+        small = HostileBytes(b'{"actual":true}')
+        accepted = parse_json_document(small, label="$.document", max_bytes=64)
+        self.assertEqual(accepted.value, {"actual": True})
+
+    def test_bytearray_subclass_cannot_spoof_length_or_bytes(self) -> None:
+        class HostileBytearray(bytearray):
+            def __len__(self) -> int:
+                return 1
+
+            def __bytes__(self) -> bytes:
+                return b"{}"
+
+        payload = HostileBytearray(b'{"value":"' + b"x" * 128 + b'"}')
+        document = parse_json_document(payload, label="$.document", max_bytes=32)
+        self.assertIsNone(document.value)
+        self.assertIn("document_too_large", {issue.code for issue in document.issues})
+
+
 if __name__ == "__main__":
     unittest.main()
