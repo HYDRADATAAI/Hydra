@@ -55,4 +55,25 @@ class FirstSliceOutcomeShadowReplayTests(unittest.TestCase):
   relief["available_at"] = "2026-09-26T12:47:01Z"
   after_cutoff = build_shadow_snapshot(as_of=cutoff, **inputs)
   self.assertNotIn(identity, after_cutoff["relief_path_ids"])
+ def test_empty_relief_and_beneficiary_lineage_is_not_support(self):
+  cases = (
+   ("relief_paths", "relief_paths", "relief_path_id", "REL-AIDC-004",
+    "relief_path_ids", {"support_claim_ids": [], "support_evidence_ids": []}),
+   ("beneficiaries", "relationships", "beneficiary_relationship_id",
+    "BEN-AIDC-EATON-TRANSFORMER-001", "beneficiary_relationship_ids", {"evidence_lineage": {}}),
+  )
+  for collection, rows_key, id_key, identity, snapshot_key, empty_lineage in cases:
+   with self.subTest(collection=collection):
+    inputs = copy.deepcopy(dict(
+     claim_registry=self.claims, candidates=self.candidates,
+     relief_paths=self.relief, beneficiaries=self.beneficiaries,
+     outcomes=self.outcomes, candidate_overlay=self.overlay,
+    ))
+    cutoff = "2026-09-26T12:47:00Z"
+    expected = build_shadow_snapshot(as_of=cutoff, **inputs)
+    self.assertIn(identity, expected[snapshot_key])
+    row = next(row for row in inputs[collection][rows_key] if row[id_key] == identity)
+    row.update(empty_lineage)
+    expected[snapshot_key].remove(identity)
+    self.assertEqual(expected, build_shadow_snapshot(as_of=cutoff, **inputs))
 if __name__=="__main__": unittest.main()
