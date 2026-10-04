@@ -448,7 +448,7 @@ class FirstSliceMaterializationTests(unittest.TestCase):
         self.assertEqual(set(attestation), required_root_fields)
         earlier_diagnostics = {
             "schema_version": "unsupported attestation schema",
-            "slice_id": "attestation slice_id mismatch",
+            "slice_id": "attestation slice_id required",
             "capture_mode": "attestation capture mode invalid",
             "availability_mode": "attestation availability mode invalid",
             "network_acquisition_performed_by_materializer": (
