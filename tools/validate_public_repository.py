@@ -1165,6 +1165,13 @@ def validate_ci_contract(errors: list[str]) -> None:
     if re.search(r"(?m)^    continue-on-error\s*:", evaluate_job):
         errors.append("governed-intelligence CI evaluate job must fail closed")
 
+    if not re.search(
+        r"(?m)^    needs:\s*windows-pre-upload-verifier\s*$", evaluate_job
+    ):
+        errors.append(
+            "governed-intelligence CI evaluate job must depend on Windows verifier"
+        )
+
     required_active_steps = (
         "Checkout",
         "Set up Python",
