@@ -94,6 +94,22 @@ class DocumentMappingBoundsTests(unittest.TestCase):
                 self.assertIsNone(document.value)
                 self.assertEqual([issue.code for issue in document.issues], ["document_type_invalid"])
 
+    def test_numeric_subclass_keys_that_become_equal_are_rejected(self):
+        class IdentityInt(int):
+            __hash__ = object.__hash__
+            __eq__ = object.__eq__
+
+        class IdentityFloat(float):
+            __hash__ = object.__hash__
+            __eq__ = object.__eq__
+
+        value = {IdentityInt(1): "integer", IdentityFloat(1.0): "float"}
+
+        document = parse_json_document(value, label="input", max_bytes=128)
+
+        self.assertIsNone(document.value)
+        self.assertEqual([issue.code for issue in document.issues], ["document_type_invalid"])
+
     def test_boolean_mapping_key_keeps_json_encoder_coercion(self):
         value = {True: "yes"}
 
