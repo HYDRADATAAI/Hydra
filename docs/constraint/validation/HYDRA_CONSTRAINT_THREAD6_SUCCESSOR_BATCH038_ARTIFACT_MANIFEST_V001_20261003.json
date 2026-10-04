@@ -12,15 +12,15 @@
   "artifacts": [
     {
       "path": "docs/constraint/validation/HYDRA_CONSTRAINT_FIRST_SLICE_THREAD6_SUCCESSOR_BATCH038_NATIVE_T5_T6_V2_IMPLEMENTATION_PRESENTATION_REPORT_V001_20261003.md",
-      "git_blob_sha": "b6a215bdf1f68e67df71575d6c14b1c6ab34fb9e"
+      "git_blob_sha": "a65269ee6206978107d746dd67e9fe03f674e9a0"
     },
     {
       "path": "docs/constraint/first_slice/ai_data_center_power_infrastructure_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH038_AI_DATA_CENTER_POWER_INFRASTRUCTURE_BLOCKER_REGISTER_V001_20261003.json",
-      "git_blob_sha": "13b41c3fc1d56649cf7b148dddbfe803c2dd9156"
+      "git_blob_sha": "3f5d7669726ea45472cdbae165e38827b5b0e52f"
     },
     {
       "path": "docs/constraint/architecture/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH038_MASTER_STATUS_V001_20261003.json",
-      "git_blob_sha": "ee50f696ac0e285bdef498797ce3232ff673ba96"
+      "git_blob_sha": "725b0d6ce39742f7e91e52546473bf80032192dd"
     },
     {
       "path": "t6-fail-closed-validator/src/hydra_t6_failclosed/native_t5_t6_bridge_v2.py",
@@ -28,20 +28,20 @@
     },
     {
       "path": "t6-fail-closed-validator/tests/test_native_t5_t6_bridge_v2.py",
-      "git_blob_sha": "a5db16ac72dd412c0069a233cfc21127096acaac"
+      "git_blob_sha": "239d715da79eca69b080853888d6dcb66d2eee68"
     },
     {
       "path": "docs/constraint/implementation/HYDRA_CONSTRAINT_FIRST_SLICE_NATIVE_T5_T6_IMPLEMENTATION_MANIFEST_V002_20261003.json",
-      "git_blob_sha": "ea372ca305d5351f6348de0871a7464d400cca93"
+      "git_blob_sha": "b9deeb292a7603ab7a96f566273e4184d857bb43"
     },
     {
       "path": "docs/constraint/implementation/HYDRA_CONSTRAINT_FIRST_SLICE_NATIVE_T5_T6_ADMISSION_REQUEST_V002_20261003.json",
-      "git_blob_sha": "4845b5d3f4ab7f2a780f2336893fa9eb52b54900"
+      "git_blob_sha": "5ea792fbedd2f856a692d55244452523280926da"
     }
   ],
   "expected": {
     "v2_test_result": "PASS",
-    "v2_tests_passed": 6,
+    "v2_tests_passed": 4,
     "v2_tests_failed": 0,
     "implementation_admission_request_status": "REQUESTED_NOT_GRANTED",
     "signed_implementation_admission_receipt_present": false,
