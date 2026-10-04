@@ -1,0 +1,33 @@
+{
+  "allowed_claim_fields": [
+    "currency",
+    "event_time_utc",
+    "price",
+    "source_system",
+    "symbol",
+    "venue",
+    "volume"
+  ],
+  "external_actions_enabled": false,
+  "max_claims": 5,
+  "min_claim_failures": 1,
+  "min_claim_passes": 1,
+  "model_execution_enabled": false,
+  "required_case_ids": [
+    "disallowed-field-is-quarantined",
+    "execution-and-action-claims-are-quarantined",
+    "invented-value-is-quarantined",
+    "missing-retrieval-evidence-abstains",
+    "outside-context-record-is-quarantined",
+    "restricted-retrieval-request-refuses",
+    "tampered-citation-is-quarantined",
+    "valid-claims-are-admitted"
+  ],
+  "required_dispositions": [
+    "ABSTAIN",
+    "ADMIT",
+    "QUARANTINE",
+    "REFUSE"
+  ],
+  "schema_version": "hydra-grounding-policy/v2"
+}
