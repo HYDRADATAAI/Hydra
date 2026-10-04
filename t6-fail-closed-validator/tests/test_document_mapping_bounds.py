@@ -10,6 +10,26 @@ from hydra_t6_failclosed.documents import canonical_json_bytes, parse_json_docum
 
 
 class DocumentMappingBoundsTests(unittest.TestCase):
+    def test_accepted_buffer_subclasses_use_underlying_bytes(self):
+        class LyingBytes(bytes):
+            def decode(self, *args, **kwargs):
+                return "{}"
+
+            def __bytes__(self):
+                return b"{}"
+
+        class LyingBytearray(bytearray):
+            def __bytes__(self):
+                return b"{}"
+
+        expected = b'{"actual":1}'
+        for value in (LyingBytes(expected), LyingBytearray(expected)):
+            with self.subTest(type=type(value).__name__):
+                document = parse_json_document(value, label="input", max_bytes=64)
+                self.assertEqual(document.issues, ())
+                self.assertEqual(document.raw, expected)
+                self.assertEqual(document.value, {"actual": 1})
+
     def test_bytes_subclass_cannot_spoof_buffer_length_or_decode(self):
         class LyingBytes(bytes):
             def __len__(self):
