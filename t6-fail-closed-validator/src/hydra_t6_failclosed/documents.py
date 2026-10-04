@@ -46,6 +46,26 @@ class _DocumentTooLargeError(ValueError):
         super().__init__("normalized document exceeds configured limit")
 
 
+
+def _bounded_utf8_size(text: str, *, max_bytes: int) -> int:
+    """Measure input text without allocating its encoded byte string."""
+    size = 0
+    for index in range(str.__len__(text)):
+        codepoint = ord(str.__getitem__(text, index))
+        if 0xD800 <= codepoint <= 0xDFFF:
+            raise UnicodeEncodeError("utf-8", text, index, index + 1, "surrogates not allowed")
+        if codepoint < 0x80:
+            size += 1
+        elif codepoint < 0x800:
+            size += 2
+        elif codepoint < 0x10000:
+            size += 3
+        else:
+            size += 4
+        if size > max_bytes:
+            raise _DocumentTooLargeError(size)
+    return size
+
 def _bounded_mapping_snapshot(value: Mapping[str, Any], *, max_bytes: int) -> tuple[dict[str, Any], int]:
     """Copy JSON-compatible mapping data while measuring its canonical UTF-8 size."""
     active: set[int] = set()
@@ -247,9 +267,13 @@ def coerce_document_bytes(
     if isinstance(value, bytes):
         return value
     if isinstance(value, bytearray):
+        if len(value) > max_bytes:
+            raise _DocumentTooLargeError(len(value))
         return bytes(value)
     if isinstance(value, str):
-        return value.encode("utf-8")
+        _bounded_utf8_size(value, max_bytes=max_bytes)
+        text = value if type(value) is str else str.__str__(value)
+        return text.encode("utf-8")
     if isinstance(value, Mapping):
         snapshot, _size = _bounded_mapping_snapshot(value, max_bytes=max_bytes)
         return canonical_json_bytes(snapshot)
