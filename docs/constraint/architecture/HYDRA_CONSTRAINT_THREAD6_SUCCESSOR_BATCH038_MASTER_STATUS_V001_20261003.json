@@ -82,7 +82,7 @@
       "status": "NO"
     },
     "AI_DATA_CENTER_POWER_INFRASTRUCTURE_V2_IMPLEMENTATION": {
-      "status": "PRESENT_TESTS_PASS_4_OF_4_AUTHORITY_RECEIPT_ABSENT"
+      "status": "PRESENT_TESTS_PASS_6_OF_6_AUTHORITY_RECEIPT_ABSENT"
     }
   },
   "first_serious_constraint_run": "BLOCKED",
