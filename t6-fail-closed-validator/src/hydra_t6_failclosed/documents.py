@@ -103,7 +103,7 @@ def _bounded_mapping_snapshot(value: Mapping[str, Any], *, max_bytes: int) -> tu
             elif codepoint < 0x800:
                 size += 2
             elif 0xD800 <= codepoint <= 0xDFFF:
-                raise UnicodeEncodeError("utf-8", plain_string(text), index, index + 1, "surrogates not allowed")
+                raise UnicodeEncodeError("utf-8", text, index, index + 1, "surrogates not allowed")
             elif codepoint < 0x10000:
                 size += 3
             else:
