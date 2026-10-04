@@ -191,9 +191,9 @@ def _bounded_mapping_snapshot(value: Mapping[str, Any], *, max_bytes: int) -> tu
         if size > max_bytes:
             raise _DocumentTooLargeError(size)
         for key in value.keys():
-            value_for_key = value[key]
             normalized_key = plain_key(key)
             child_key_size = key_size(normalized_key)
+            value_for_key = value[key]
             copied, child_size = copy_json(value_for_key, 2)
             if snapshot:
                 size += 1
