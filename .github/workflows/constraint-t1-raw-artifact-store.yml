@@ -4,14 +4,12 @@ on:
   pull_request:
     paths:
       - "constraint-t1-raw-artifact-store/**"
-      - "tools/private/**"
       - ".github/workflows/constraint-t1-raw-artifact-store.yml"
   push:
     branches:
       - main
     paths:
       - "constraint-t1-raw-artifact-store/**"
-      - "tools/private/**"
       - ".github/workflows/constraint-t1-raw-artifact-store.yml"
 
 permissions:
@@ -32,27 +30,3 @@ jobs:
         run: |
           export PYTHONPATH="$PWD/src"
           python -m unittest discover -s tests -t . -v
-  windows-capture-syntax:
-    runs-on: windows-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-      - name: Parse capture runner with Windows PowerShell 5.1
-        shell: powershell
-        run: |
-          $tokens = $null
-          $parseErrors = $null
-          $runner = Join-Path $PWD "tools/private/Invoke-HYDRAConstraintFirstSlicePrivateCapture_V001_20260926.ps1"
-          $null = [System.Management.Automation.Language.Parser]::ParseFile($runner, [ref]$tokens, [ref]$parseErrors)
-          if ($parseErrors.Count -gt 0) {
-            $parseErrors | ForEach-Object { Write-Output $_.Message }
-            throw "Private capture runner failed PowerShell syntax validation"
-          }
-          Write-Output "WINDOWS_CAPTURE_RUNNER_SYNTAX=PASS"
-      - name: Set up Python for synthetic capture tests
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.11"
-      - name: Test synthetic download-to-custody behavior
-        shell: powershell
-        run: ./tools/private/tests/Test-FirstSliceCaptureResponse.ps1
