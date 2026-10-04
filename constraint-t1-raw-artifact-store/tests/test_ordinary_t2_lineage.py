@@ -96,7 +96,11 @@ class OrdinaryT2LineageTests(unittest.TestCase):
 
     def test_attestation_counts_require_exact_integer_types(self):
         valid_one_source_attestation = copy.deepcopy(self.attestation)
-        valid_one_source_attestation["members"] = valid_one_source_attestation["members"][:1]
+        valid_one_source_attestation["members"] = [
+            member
+            for member in valid_one_source_attestation["members"]
+            if member["source_id"] == self.records[0]["source_id"]
+        ]
         valid_one_source_attestation["materialized_source_count"] = 1
         valid_one_source_attestation["ordinary_t2_eligible_count"] = 1
         valid_one_source_packet = build_ordinary_t2_lineage(
@@ -120,7 +124,11 @@ class OrdinaryT2LineageTests(unittest.TestCase):
 
     def test_packet_counts_require_exact_integer_types(self):
         one_source_attestation = copy.deepcopy(self.attestation)
-        one_source_attestation["members"] = one_source_attestation["members"][:1]
+        one_source_attestation["members"] = [
+            member
+            for member in one_source_attestation["members"]
+            if member["source_id"] == self.records[0]["source_id"]
+        ]
         one_source_attestation["materialized_source_count"] = 1
         one_source_attestation["ordinary_t2_eligible_count"] = 1
         packet = build_ordinary_t2_lineage(
