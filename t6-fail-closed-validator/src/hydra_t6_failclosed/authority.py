@@ -8,7 +8,7 @@ from collections.abc import Iterable, Mapping
 from datetime import UTC, datetime, timedelta
 from typing import Any, Protocol
 
-from .documents import canonical_json_bytes
+from .documents import canonical_json_bytes, parse_json_document
 from .models import AuthorityResult, Issue, sorted_issues
 
 
@@ -87,8 +87,18 @@ def validate_authority(
     oracle_sha256: str,
 ) -> AuthorityResult:
     try:
+        snapshot = envelope
+        if envelope is not None:
+            document = parse_json_document(envelope, label="$.authority")
+            if document.value is None or document.issues:
+                return AuthorityResult(
+                    False,
+                    "AUTHORITY_INVALID",
+                    (Issue("authority_document_invalid", "authority envelope could not be safely normalized", "$.authority"),),
+                )
+            snapshot = document.value
         return _validate_authority_unchecked(
-            envelope,
+            snapshot,
             verifier=verifier,
             now=now,
             input_sha256=input_sha256,
@@ -224,7 +234,7 @@ def _validate_authority_unchecked(
                 issues.append(Issue("authority_revocation_predates_issue", "revocation evidence predates the authority", "$.authority.revocation.checked_at"))
         if type(revocation.get("source_id")) is not str or not revocation.get("source_id"):
             issues.append(Issue("authority_revocation_source_invalid", "revocation source_id is required", "$.authority.revocation.source_id"))
-        if not isinstance(revocation.get("sequence"), int) or isinstance(revocation.get("sequence"), bool) or revocation.get("sequence", 0) < 0:
+        if type(revocation.get("sequence")) is not int or revocation.get("sequence") < 0:
             issues.append(Issue("authority_revocation_sequence_invalid", "revocation sequence must be a non-negative integer", "$.authority.revocation.sequence"))
 
     supersession = envelope.get("supersession")

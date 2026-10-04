@@ -259,7 +259,7 @@ class AuthorityEnvelopeTests(unittest.TestCase):
         self._resign(envelope)
         result = self._validate(envelope)
         self.assertFalse(result.valid)
-        self.assertIn("authority_identity_invalid", {issue.code for issue in result.issues})
+        self.assertIn("authority_key_role_untrusted", {issue.code for issue in result.issues})
 
     def test_string_subclass_signature_method_is_rejected(self) -> None:
         class AliasMethod(str):
@@ -272,8 +272,116 @@ class AuthorityEnvelopeTests(unittest.TestCase):
         result = self._validate(envelope)
         self.assertFalse(result.valid)
         codes = {issue.code for issue in result.issues}
-        self.assertIn("authority_signature_method_invalid", codes)
         self.assertIn("authority_signature_invalid", codes)
+
+    def test_signed_alias_string_keys_are_normalized_before_authority_checks(self) -> None:
+        class AliasKey(str):
+            aliases = {
+                "wrong-schema": "schema_version",
+                "wrong-operation": "operation",
+                "wrong-binding": "input_sha256",
+                "wrong-revocation-status": "status",
+                "wrong-supersession-status": "status",
+            }
+
+            @property
+            def expected(self):
+                return self.aliases[str(self)]
+
+            def __eq__(self, other):
+                return other == self.expected
+
+            def __ne__(self, other):
+                return not self.__eq__(other)
+
+            def __hash__(self):
+                return hash(self.expected)
+
+        cases = (
+            ("envelope", "schema_version", "wrong-schema"),
+            ("envelope", "operation", "wrong-operation"),
+            ("bindings", "input_sha256", "wrong-binding"),
+            ("revocation", "status", "wrong-revocation-status"),
+            ("supersession", "status", "wrong-supersession-status"),
+        )
+        for location, expected_key, underlying_key in cases:
+            with self.subTest(location=location, expected_key=expected_key):
+                envelope = self._envelope()
+                target = envelope if location == "envelope" else envelope[location]
+                value = target.pop(expected_key)
+                target[AliasKey(underlying_key)] = value
+                self._resign(envelope)
+                self.assertTrue(
+                    self.verifier.verify(
+                        key_id=self.key_id,
+                        message=authority_signing_bytes(envelope),
+                        signature=envelope["signature"],
+                        method="HMAC-SHA256",
+                    )
+                )
+                result = self._validate(envelope)
+                self.assertFalse(result.valid)
+
+    def test_split_view_mapping_cannot_validate_one_view_and_sign_another(self) -> None:
+        class SplitViewMapping(Mapping):
+            def __init__(self, values):
+                self.values = values
+
+            def __getitem__(self, key):
+                return self.values[key]
+
+            def __iter__(self):
+                return iter(self.values)
+
+            def __len__(self):
+                return len(self.values)
+
+            def get(self, key, default=None):
+                if key == "operation":
+                    return OPERATION
+                return self.values.get(key, default)
+
+            def items(self):
+                return self.values.items()
+
+        values = self._envelope()
+        values["operation"] = "TRADE"
+        split_view = SplitViewMapping(values)
+        signature = sign_hmac_sha256(split_view, key=self.key)
+        values["signature"] = signature
+        self.assertTrue(
+            self.verifier.verify(
+                key_id=self.key_id,
+                message=authority_signing_bytes(split_view),
+                signature=signature,
+                method="HMAC-SHA256",
+            )
+        )
+        result = self._validate(split_view)
+        self.assertFalse(result.valid)
+        self.assertIn("authority_operation_mismatch", {issue.code for issue in result.issues})
+
+    def test_negative_int_subclass_revocation_sequence_is_rejected(self) -> None:
+        class NegativeSequence(int):
+            def __lt__(self, other):
+                return False
+
+        envelope = self._envelope()
+        revocation = envelope["revocation"]
+        self.assertIsInstance(revocation, dict)
+        revocation["sequence"] = NegativeSequence(-1)
+        self._resign(envelope)
+        self.assertTrue(
+            self.verifier.verify(
+                key_id=self.key_id,
+                message=authority_signing_bytes(envelope),
+                signature=envelope["signature"],
+                method="HMAC-SHA256",
+            )
+        )
+        result = self._validate(envelope)
+        self.assertFalse(result.valid)
+        self.assertIn("authority_revocation_sequence_invalid", {issue.code for issue in result.issues})
 
     def test_timestamp_outside_utc_range_fails_closed(self) -> None:
         envelope = self._envelope()
