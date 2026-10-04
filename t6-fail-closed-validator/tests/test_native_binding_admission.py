@@ -19,12 +19,67 @@ from hydra_t6_failclosed.native_binding_admission import (
 )
 
 
+class _VerifyOnlyVerifier:
+    def __init__(self, delegate):
+        self._delegate = delegate
+
+    def verify(self, **kwargs):
+        return self._delegate.verify(**kwargs)
+
+
+class _RoleDecisionVerifier(_VerifyOnlyVerifier):
+    def __init__(self, delegate, decision=None, *, raises=False):
+        super().__init__(delegate)
+        self._decision = decision
+        self._raises = raises
+
+    def allows_role(self, key_id, role):
+        if self._raises:
+            raise RuntimeError("role registry unavailable")
+        return self._decision
+
+
+class _KeyIdStringAlias(str):
+    def __str__(self):
+        return "native-binding-test-key"
+
+
+class _SignatureResultVerifier(_VerifyOnlyVerifier):
+    def __init__(self, delegate, result=None, *, raises=False):
+        super().__init__(delegate)
+        self._result = result
+        self._raises = raises
+
+    def allows_role(self, key_id, role):
+        return True
+
+    def verify(self, **kwargs):
+        if self._raises:
+            raise RuntimeError("signature verifier unavailable")
+        return self._result
+
+
+class _RoleOnlyVerifier:
+    def allows_role(self, key_id, role):
+        return True
+
+
+class _NonCallableSignatureVerifier:
+    verify = 1
+
+    def allows_role(self, key_id, role):
+        return True
+
+
 class NativeT5T6AdmissionTests(unittest.TestCase):
     def setUp(self) -> None:
         self.now = datetime(2026, 9, 25, 22, 0, tzinfo=UTC)
         self.key = b"native-binding-public-test-key"
         self.key_id = "native-binding-test-key"
-        self.verifier = HMACSHA256Verifier({self.key_id: self.key})
+        self.verifier = HMACSHA256Verifier(
+            {self.key_id: self.key},
+            trusted_key_roles={self.key_id: {ADMISSION_AUTHORITY_ROLE}},
+        )
 
     def manifest(self) -> dict[str, object]:
         return {
@@ -121,6 +176,96 @@ class NativeT5T6AdmissionTests(unittest.TestCase):
         self.assertFalse(result.runtime_activation_authorized)
         self.assertFalse(result.canonical_promotion_authorized)
         self.assertFalse(result.live_source_authorized)
+
+    def test_key_with_wrong_role_grant_is_rejected(self) -> None:
+        manifest = self.manifest()
+        receipt = self.receipt(manifest)
+        verifier = HMACSHA256Verifier(
+            {self.key_id: self.key},
+            trusted_key_roles={self.key_id: {"validator_authority"}},
+        )
+        result = self.validate(manifest, receipt, verifier=verifier)
+        self.assertFalse(result.admitted)
+        self.assertEqual(result.reason, "BLOCKED_AUTHORITY_RECEIPT_INVALID")
+        self.assertIn("admission_key_role_untrusted", {issue.code for issue in result.issues})
+
+    def test_wrong_receipt_role_is_rejected(self) -> None:
+        manifest = self.manifest()
+        receipt = self.receipt(manifest)
+        receipt["authority_role"] = "validator_authority"
+        self.resign(receipt)
+        result = self.validate(manifest, receipt)
+        self.assertFalse(result.admitted)
+        self.assertIn("admission_receipt_role_invalid", {issue.code for issue in result.issues})
+
+    def test_key_id_string_subclass_cannot_alias_trusted_key(self) -> None:
+        manifest = self.manifest()
+        receipt = self.receipt(manifest)
+        receipt["key_id"] = _KeyIdStringAlias("untrusted-native-key")
+        self.resign(receipt)
+        result = self.validate(manifest, receipt)
+        self.assertFalse(result.admitted)
+        codes = {issue.code for issue in result.issues}
+        self.assertIn("admission_signature_invalid", codes)
+        self.assertIn("admission_key_role_untrusted", codes)
+
+    def test_missing_role_method_fails_closed(self) -> None:
+        manifest = self.manifest()
+        receipt = self.receipt(manifest)
+        result = self.validate(manifest, receipt, verifier=_VerifyOnlyVerifier(self.verifier))
+        self.assertFalse(result.admitted)
+        self.assertIn("admission_key_role_untrusted", {issue.code for issue in result.issues})
+
+    def test_nonliteral_true_role_result_fails_closed(self) -> None:
+        for decision in (False, 1, "true", None):
+            manifest = self.manifest()
+            receipt = self.receipt(manifest)
+            verifier = _RoleDecisionVerifier(self.verifier, decision)
+            result = self.validate(manifest, receipt, verifier=verifier)
+            with self.subTest(decision=decision):
+                self.assertFalse(result.admitted)
+                self.assertIn("admission_key_role_untrusted", {issue.code for issue in result.issues})
+
+    def test_role_check_exception_fails_closed(self) -> None:
+        manifest = self.manifest()
+        receipt = self.receipt(manifest)
+        result = self.validate(
+            manifest, receipt, verifier=_RoleDecisionVerifier(self.verifier, raises=True)
+        )
+        self.assertFalse(result.admitted)
+        self.assertIn("admission_key_role_untrusted", {issue.code for issue in result.issues})
+
+    def test_nonliteral_true_signature_result_fails_closed(self) -> None:
+        manifest = self.manifest()
+        receipt = self.receipt(manifest)
+        result = self.validate(
+            manifest, receipt, verifier=_SignatureResultVerifier(self.verifier, 1)
+        )
+        self.assertFalse(result.admitted)
+        self.assertIn("admission_signature_invalid", {issue.code for issue in result.issues})
+
+    def test_signature_verifier_exception_fails_closed(self) -> None:
+        manifest = self.manifest()
+        receipt = self.receipt(manifest)
+        result = self.validate(
+            manifest, receipt, verifier=_SignatureResultVerifier(self.verifier, raises=True)
+        )
+        self.assertFalse(result.admitted)
+        self.assertIn("admission_signature_invalid", {issue.code for issue in result.issues})
+
+    def test_missing_signature_method_fails_closed(self) -> None:
+        manifest = self.manifest()
+        receipt = self.receipt(manifest)
+        result = self.validate(manifest, receipt, verifier=_RoleOnlyVerifier())
+        self.assertFalse(result.admitted)
+        self.assertIn("admission_signature_invalid", {issue.code for issue in result.issues})
+
+    def test_noncallable_signature_method_fails_closed(self) -> None:
+        manifest = self.manifest()
+        receipt = self.receipt(manifest)
+        result = self.validate(manifest, receipt, verifier=_NonCallableSignatureVerifier())
+        self.assertFalse(result.admitted)
+        self.assertIn("admission_signature_invalid", {issue.code for issue in result.issues})
 
     def test_tampered_manifest_is_not_admitted_by_old_receipt(self) -> None:
         manifest = self.manifest()
