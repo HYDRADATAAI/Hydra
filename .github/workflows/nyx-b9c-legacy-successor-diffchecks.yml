@@ -1,0 +1,43 @@
+name: NYX b9c legacy successor diff checks
+
+on:
+  push:
+    branches:
+      - nyx/validation-b9c-legacy-successor-diffchecks-20261004
+
+permissions:
+  contents: read
+
+jobs:
+  diff-checks:
+    runs-on: windows-latest
+    steps:
+      - name: Preserve exact committed bytes
+        shell: pwsh
+        run: |
+          git config --global core.autocrlf false
+          git config --global core.longpaths true
+      - uses: actions/checkout@v4
+        with:
+          ref: b9c1f3a25a51e1c1263a91031a6e04a9b0311dff
+          fetch-depth: 0
+      - name: Validate exact successor surfaces
+        shell: pwsh
+        run: |
+          $ErrorActionPreference='Stop'
+          $base='b9c1f3a25a51e1c1263a91031a6e04a9b0311dff'
+          $cases=@(
+            @{Name='PR181'; Sha='016f802a866e0d402e62d1cf50d7f69bdfed1953'; Count=12},
+            @{Name='PR183'; Sha='1180d6251f69c45d53e59a030dc0f8e3d86b6bcd'; Count=21},
+            @{Name='PR58_RESIDUAL'; Sha='5e181c73127ba4e43017638da53b3ba3b8186714'; Count=2}
+          )
+          foreach($c in $cases){
+            git fetch origin $c.Sha
+            if($LASTEXITCODE -ne 0){ exit $LASTEXITCODE }
+            git diff --check $base $c.Sha
+            if($LASTEXITCODE -ne 0){ exit $LASTEXITCODE }
+            $paths=@(git diff --name-only $base $c.Sha)
+            if($LASTEXITCODE -ne 0){ exit $LASTEXITCODE }
+            if($paths.Count -ne $c.Count){ throw "$($c.Name) changed-path count $($paths.Count), expected $($c.Count)" }
+            "$($c.Name)_DIFF_CHECK=PASS; PATHS=$($paths.Count); SHA=$($c.Sha)"
+          }
