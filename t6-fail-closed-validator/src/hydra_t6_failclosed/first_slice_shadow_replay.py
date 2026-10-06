@@ -84,11 +84,16 @@ def build_shadow_snapshot(*, as_of: str, claim_registry: Mapping[str, Any],
         refs = references(refs)
         return bool(refs) and all(ref in eligible for ref in refs)
 
-    def beneficiary_lineage_supported(lineage):
+    def beneficiary_lineage_supported(lineage, parent_candidate):
         if not lineage:
             return False
         if set(lineage) != _BENEFICIARY_LINEAGE_KEYS:
             raise ValueError("beneficiary evidence lineage roles differ from the declared schema")
+        parent_roles = parent_candidate.get("evidence_roles", {})
+        parent_constraint_refs = (
+            references(parent_roles.get("constraint_support", []))
+            if isinstance(parent_roles, Mapping) else []
+        )
         has_support = False
         for role, raw_refs in lineage.items():
             refs = references(raw_refs)
@@ -96,7 +101,9 @@ def build_shadow_snapshot(*, as_of: str, claim_registry: Mapping[str, Any],
                 continue
             if role == "constraint_evidence":
                 available = all(
-                    ref in constraint_evidence and bool(constraint_evidence[ref] & eligible)
+                    ref in parent_constraint_refs
+                    and ref in constraint_evidence
+                    and bool(constraint_evidence[ref] & eligible)
                     for ref in refs
                 )
             else:
@@ -138,7 +145,9 @@ def build_shadow_snapshot(*, as_of: str, claim_registry: Mapping[str, Any],
             raise ValueError("beneficiary evidence lineage must be a mapping")
         if (_dt(row["available_at"]) <= cutoff
                 and row.get("constraint_candidate_id") in visible_candidates
-                and beneficiary_lineage_supported(lineage)):
+                and beneficiary_lineage_supported(
+                    lineage, candidate_rows[row["constraint_candidate_id"]]
+                )):
             bens.append(bid)
     # An observed fact can remain visible independently of an admitted constraint.
     # Unknown Hydra availability is not evidence that the outcome was visible.
