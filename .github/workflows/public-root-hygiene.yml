@@ -13,22 +13,23 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Reject build-transfer artifacts at repository root
+      - name: Reject tracked build and transfer artifacts
         shell: bash
         run: |
           set -euo pipefail
           failures=0
           while IFS= read -r file; do
-            [[ "$file" == */* ]] && continue
             bad=0
             case "$file" in
-              *.zip|*.zip.sha256|EXTRACT_*.ps1) bad=1 ;;
+              build/*|*/build/*|dist/*|*/dist/*|bin/*|*/bin/*|obj/*|*/obj/*|logs/*|*/logs/*|log/*|*/log/*|artifacts/*|*/artifacts/*|outputs/*|*/outputs/*|results/*|*/results/*) bad=1 ;;
+              archive/*) continue ;;
+              *.zip|*.zip.sha256|EXTRACT_*.ps1|*/EXTRACT_*.ps1) bad=1 ;;
             esac
-            if [[ "$file" =~ \ \([0-9]+\)\.[^/]+$ ]]; then
+            if [[ "$file" != */* && "$file" =~ \ \([0-9]+\)\.[^/]+$ ]]; then
               bad=1
             fi
             if [[ "$bad" -eq 1 ]]; then
-              echo "::error file=$file::Build-transfer artifact is not allowed at repository root."
+              echo "::error file=$file::Generated or transfer artifact is not allowed among tracked files."
               failures=$((failures + 1))
             fi
           done < <(git ls-files)
