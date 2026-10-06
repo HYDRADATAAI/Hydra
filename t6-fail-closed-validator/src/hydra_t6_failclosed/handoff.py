@@ -334,7 +334,7 @@ def _identifier_skeleton(value: str) -> str:
 
 
 def _is_zoned_time(value: Any) -> bool:
-    if type(value) is not str:
+    if not isinstance(value, str):
         return False
     try:
         parsed = datetime.fromisoformat(value.replace("Z", "+00:00"))
