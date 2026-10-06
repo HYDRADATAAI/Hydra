@@ -42,6 +42,24 @@ class LineageReplayTests(unittest.TestCase):
         for key in ("constraint_candidate_ids", "relief_path_ids", "beneficiary_relationship_ids"):
             self.assertEqual([], result[key])
 
+    def test_base_candidate_time_fallback_cascades_without_overlay(self):
+        self.inputs.pop("candidate_overlay")
+        rows = self.inputs["candidates"]["candidates"]
+        for row in rows:
+            row["available_at"] = "2026-09-26T12:47:00Z"
+        future_candidate = next(
+            row for row in rows
+            if row["constraint_candidate_id"] == "T5C-AIDC-US-TRANSFORMER-SUPPLY-001"
+        )
+        future_candidate["available_at"] = "2026-09-26T12:47:01Z"
+
+        result = self.snap()
+
+        self.assertEqual(2, len(result["constraint_candidate_ids"]))
+        self.assertNotIn(future_candidate["constraint_candidate_id"], result["constraint_candidate_ids"])
+        self.assertNotIn("REL-AIDC-004", result["relief_path_ids"])
+        self.assertNotIn("BEN-AIDC-EATON-TRANSFORMER-001", result["beneficiary_relationship_ids"])
+
     def test_future_parent_cascades_without_erasing_other_constraints(self):
         self.inputs["claim_registry"]["claims"][2]["available_at"] = "2027-01-01T00:00:00Z"
         result = self.snap()
