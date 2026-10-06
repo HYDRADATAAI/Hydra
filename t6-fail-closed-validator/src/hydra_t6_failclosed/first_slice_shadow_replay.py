@@ -106,8 +106,14 @@ def build_shadow_snapshot(*, as_of: str, claim_registry: Mapping[str, Any],
                 and row.get("constraint_candidate_id") in visible_candidates and supported(refs)):
             bens.append(bid)
     # An observed fact can remain visible independently of an admitted constraint.
-    outs = [oid for oid, row in outcome_rows.items()
-            if _dt(row["hydra_available_at"]) <= cutoff and claims_supported([row.get("claim_id")])]
+    # Unknown Hydra availability is not evidence that the outcome was visible.
+    outs = []
+    for oid, row in outcome_rows.items():
+        available_at = row["hydra_available_at"]
+        if available_at is None:
+            continue
+        if _dt(available_at) <= cutoff and claims_supported([row.get("claim_id")]):
+            outs.append(oid)
     return {"as_of": as_of, "eligible_claim_ids": sorted(eligible),
             "constraint_candidate_ids": sorted(visible_candidates), "relief_path_ids": sorted(relief),
             "beneficiary_relationship_ids": sorted(bens), "outcome_ids": sorted(outs)}
@@ -128,7 +134,11 @@ def future_leaks(snapshot: Mapping[str, Any], claim_registry: Mapping[str, Any],
         if cid not in claims or _dt(claims[cid]["available_at"]) > cutoff:
             leaks.append("claim:" + cid)
     for oid in snapshot["outcome_ids"]:
-        if oid not in records or _dt(records[oid]["hydra_available_at"]) > cutoff:
+        if oid not in records:
+            leaks.append("outcome:" + oid)
+            continue
+        available_at = records[oid]["hydra_available_at"]
+        if available_at is None or _dt(available_at) > cutoff:
             leaks.append("outcome:" + oid)
     if lineage_inputs:
         expected = build_shadow_snapshot(as_of=snapshot["as_of"], claim_registry=claim_registry,
