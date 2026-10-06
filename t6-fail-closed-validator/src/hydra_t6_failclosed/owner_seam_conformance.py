@@ -119,6 +119,7 @@ def validate_owner_seams(
         _fail("owner-seam inputs must contain list rows")
 
     claim_ids = _unique_ids(claim_rows, "claim_id", "claims")
+    claim_roles = {row["claim_id"]: row.get("claim_role") for row in claim_rows}
     candidate_ids = _unique_ids(candidate_rows, "constraint_candidate_id", "candidates")
     relationship_ids = _unique_ids(beneficiary_rows, "beneficiary_relationship_id", "beneficiaries")
     overlay_ids = _unique_ids(overlay_rows, "constraint_candidate_id", "overlay.candidates")
@@ -248,8 +249,7 @@ def validate_owner_seams(
             for claim_id in lineage[field]:
                 if claim_id not in claim_ids:
                     _fail(f"{rid}.{field}: unknown claim {claim_id}")
-                claim = next(row for row in claim_rows if row["claim_id"] == claim_id)
-                if claim.get("claim_role") not in allowed_roles:
+                if claim_roles[claim_id] not in allowed_roles:
                     _fail(f"{rid}.{field}: claim_role is incompatible with beneficiary lineage")
         # Batch010 also stores prose research limitations here. Preserve those
         # historical notes; validate reference-shaped entries without promoting
