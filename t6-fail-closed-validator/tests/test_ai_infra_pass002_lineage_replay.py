@@ -182,4 +182,3 @@ class LineageReplayTests(unittest.TestCase):
                 row['evidence_lineage'] = value
                 with self.assertRaises(ValueError):
                     self.snap()
-
