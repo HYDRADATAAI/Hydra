@@ -72,10 +72,13 @@ def build_shadow_snapshot(*, as_of: str, claim_registry: Mapping[str, Any],
         return refs
 
     evidence = {}
+    constraint_evidence = {}
     for cid, row in claims.items():
         for field in ("support_evidence_ids", "disconfirming_evidence_ids"):
             for eid in references(row.get(field, [])):
                 evidence.setdefault(eid, set()).add(cid)
+                if field == "support_evidence_ids" and row.get("claim_role") == "CONSTRAINT_EXISTENCE":
+                    constraint_evidence.setdefault(eid, set()).add(cid)
 
     def claims_supported(refs):
         refs = references(refs)
@@ -92,7 +95,10 @@ def build_shadow_snapshot(*, as_of: str, claim_registry: Mapping[str, Any],
             if role == "disconfirming_or_blocking" or not refs:
                 continue
             if role == "constraint_evidence":
-                available = all(ref in evidence and bool(evidence[ref] & eligible) for ref in refs)
+                available = all(
+                    ref in constraint_evidence and bool(constraint_evidence[ref] & eligible)
+                    for ref in refs
+                )
             else:
                 allowed_roles = _BENEFICIARY_CLAIM_ROLE_ALLOWLIST[role]
                 available = all(
