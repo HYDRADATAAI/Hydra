@@ -55,4 +55,54 @@ class FirstSliceOutcomeShadowReplayTests(unittest.TestCase):
   relief["available_at"] = "2026-09-26T12:47:01Z"
   after_cutoff = build_shadow_snapshot(as_of=cutoff, **inputs)
   self.assertNotIn(identity, after_cutoff["relief_path_ids"])
+ def test_shadow_visibility_requires_positive_lineage(self):
+  cases = (
+   ("relief_paths", "relief_paths", "relief_path_id", "REL-AIDC-004",
+    "relief_path_ids", {"support_claim_ids": [], "support_evidence_ids": []}),
+   ("beneficiaries", "relationships", "beneficiary_relationship_id",
+    "BEN-AIDC-EATON-TRANSFORMER-001", "beneficiary_relationship_ids", {"evidence_lineage": {}}),
+   ("beneficiaries_blocking_only", "relationships", "beneficiary_relationship_id",
+    "BEN-AIDC-EATON-TRANSFORMER-001", "beneficiary_relationship_ids",
+    {"evidence_lineage": {
+     "constraint_evidence": [], "entity_connection": [], "advantage_mechanism": [],
+     "capacity_or_availability": [], "economic_or_strategic_capture": [],
+     "disconfirming_or_blocking": ["EV-FERC-ORDER2023-QUEUE-REFORM"],
+    }}),
+   ("beneficiaries_unknown_positive", "relationships", "beneficiary_relationship_id",
+    "BEN-AIDC-EATON-TRANSFORMER-001", "beneficiary_relationship_ids",
+    {"evidence_lineage": {
+     "constraint_evidence": ["CLM-UNKNOWN"], "entity_connection": [],
+     "advantage_mechanism": [], "capacity_or_availability": [],
+     "economic_or_strategic_capture": [], "disconfirming_or_blocking": [],
+    }}),
+  )
+  for collection, rows_key, id_key, identity, snapshot_key, lineage_change in cases:
+   with self.subTest(collection=collection):
+    inputs = copy.deepcopy(dict(
+     claim_registry=self.claims, candidates=self.candidates,
+     relief_paths=self.relief, beneficiaries=self.beneficiaries,
+     outcomes=self.outcomes, candidate_overlay=self.overlay,
+    ))
+    cutoff = "2026-09-26T12:47:00Z"
+    expected = build_shadow_snapshot(as_of=cutoff, **inputs)
+    self.assertIn(identity, expected[snapshot_key])
+    rows_collection = "relief_paths" if collection == "relief_paths" else "beneficiaries"
+    row = next(row for row in inputs[rows_collection][rows_key] if row[id_key] == identity)
+    row.update(lineage_change)
+    if collection == "beneficiaries_blocking_only":
+     lineage = row["evidence_lineage"]
+     self.assertTrue(lineage["disconfirming_or_blocking"])
+     self.assertTrue(all(not values for role, values in lineage.items()
+                         if role != "disconfirming_or_blocking"))
+    if collection == "beneficiaries_unknown_positive":
+     lineage = row["evidence_lineage"]
+     self.assertEqual(["CLM-UNKNOWN"], lineage["constraint_evidence"])
+     claims = inputs["claim_registry"]["claims"]
+     known_references = {claim["claim_id"] for claim in claims}
+     for claim in claims:
+      known_references.update(claim.get("support_evidence_ids", []))
+      known_references.update(claim.get("disconfirming_evidence_ids", []))
+     self.assertNotIn("CLM-UNKNOWN", known_references)
+    expected[snapshot_key].remove(identity)
+    self.assertEqual(expected, build_shadow_snapshot(as_of=cutoff, **inputs))
 if __name__=="__main__": unittest.main()
