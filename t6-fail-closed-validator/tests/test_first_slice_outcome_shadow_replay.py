@@ -55,6 +55,64 @@ class FirstSliceOutcomeShadowReplayTests(unittest.TestCase):
   relief["available_at"] = "2026-09-26T12:47:01Z"
   after_cutoff = build_shadow_snapshot(as_of=cutoff, **inputs)
   self.assertNotIn(identity, after_cutoff["relief_path_ids"])
+ def test_null_outcome_availability_is_excluded_without_hiding_timely_outcomes(self):
+  inputs = dict(
+   claim_registry=copy.deepcopy(self.claims),
+   candidates=copy.deepcopy(self.candidates),
+   relief_paths=copy.deepcopy(self.relief),
+   beneficiaries=copy.deepcopy(self.beneficiaries),
+   outcomes=copy.deepcopy(self.outcomes),
+   candidate_overlay=copy.deepcopy(self.overlay),
+  )
+  null_outcome = copy.deepcopy(inputs["outcomes"]["records"][0])
+  null_outcome["outcome_id"] = "OUT-TEST-NULL-AVAILABLE-001"
+  null_outcome["hydra_available_at"] = None
+  inputs["outcomes"]["records"].append(null_outcome)
+  cutoff = self.replay["windows"][1]["expected_graph_state"]["as_of"]
+
+  snapshot = build_shadow_snapshot(as_of=cutoff, **inputs)
+
+  self.assertEqual(self.snap(cutoff), snapshot)
+  self.assertNotIn(null_outcome["outcome_id"], snapshot["outcome_ids"])
+  visible_null = copy.deepcopy(snapshot)
+  visible_null["outcome_ids"].append(null_outcome["outcome_id"])
+  self.assertEqual(
+   ("outcome:" + null_outcome["outcome_id"],),
+   future_leaks(visible_null, inputs["claim_registry"], inputs["outcomes"]),
+  )
+
+ def test_missing_and_malformed_outcome_availability_remain_strict(self):
+  cutoff = self.replay["windows"][1]["expected_graph_state"]["as_of"]
+  outcome_id = self.outcomes["records"][0]["outcome_id"]
+  visible = self.snap(cutoff)
+  self.assertIn(outcome_id, visible["outcome_ids"])
+
+  cases = (
+   ("missing", KeyError),
+   ("malformed", ValueError),
+  )
+  for case, error in cases:
+   with self.subTest(case=case):
+    inputs = dict(
+     claim_registry=copy.deepcopy(self.claims),
+     candidates=copy.deepcopy(self.candidates),
+     relief_paths=copy.deepcopy(self.relief),
+     beneficiaries=copy.deepcopy(self.beneficiaries),
+     outcomes=copy.deepcopy(self.outcomes),
+     candidate_overlay=copy.deepcopy(self.overlay),
+    )
+    outcome = next(row for row in inputs["outcomes"]["records"]
+                   if row["outcome_id"] == outcome_id)
+    if case == "missing":
+     del outcome["hydra_available_at"]
+    else:
+     outcome["hydra_available_at"] = "not-a-timestamp"
+
+    with self.assertRaises(error):
+     build_shadow_snapshot(as_of=cutoff, **inputs)
+    with self.assertRaises(error):
+     future_leaks(visible, inputs["claim_registry"], inputs["outcomes"])
+
  def test_shadow_visibility_requires_positive_lineage(self):
   cases = (
    ("relief_paths", "relief_paths", "relief_path_id", "REL-AIDC-004",
