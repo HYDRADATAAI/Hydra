@@ -216,7 +216,7 @@ def _require_nonempty(value: Any, label: str) -> None:
 
 
 def _parse_zoned(value: Any, label: str) -> datetime:
-    if not isinstance(value, str):
+    if type(value) is not str:
         raise NativeT5T6BridgeError(f"{label} must be an ISO-8601 string")
     try:
         parsed = datetime.fromisoformat(value.replace("Z", "+00:00"))
