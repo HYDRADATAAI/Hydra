@@ -55,6 +55,56 @@ class FirstSliceOutcomeShadowReplayTests(unittest.TestCase):
   relief["available_at"] = "2026-09-26T12:47:01Z"
   after_cutoff = build_shadow_snapshot(as_of=cutoff, **inputs)
   self.assertNotIn(identity, after_cutoff["relief_path_ids"])
+ def test_shadow_visibility_requires_positive_lineage(self):
+  cases = (
+   ("relief_paths", "relief_paths", "relief_path_id", "REL-AIDC-004",
+    "relief_path_ids", {"support_claim_ids": [], "support_evidence_ids": []}),
+   ("beneficiaries", "relationships", "beneficiary_relationship_id",
+    "BEN-AIDC-EATON-TRANSFORMER-001", "beneficiary_relationship_ids", {"evidence_lineage": {}}),
+   ("beneficiaries_blocking_only", "relationships", "beneficiary_relationship_id",
+    "BEN-AIDC-EATON-TRANSFORMER-001", "beneficiary_relationship_ids",
+    {"evidence_lineage": {
+     "constraint_evidence": [], "entity_connection": [], "advantage_mechanism": [],
+     "capacity_or_availability": [], "economic_or_strategic_capture": [],
+     "disconfirming_or_blocking": ["EV-FERC-ORDER2023-QUEUE-REFORM"],
+    }}),
+   ("beneficiaries_unknown_positive", "relationships", "beneficiary_relationship_id",
+    "BEN-AIDC-EATON-TRANSFORMER-001", "beneficiary_relationship_ids",
+    {"evidence_lineage": {
+     "constraint_evidence": ["CLM-UNKNOWN"], "entity_connection": [],
+     "advantage_mechanism": [], "capacity_or_availability": [],
+     "economic_or_strategic_capture": [], "disconfirming_or_blocking": [],
+    }}),
+  )
+  for collection, rows_key, id_key, identity, snapshot_key, lineage_change in cases:
+   with self.subTest(collection=collection):
+    inputs = copy.deepcopy(dict(
+     claim_registry=self.claims, candidates=self.candidates,
+     relief_paths=self.relief, beneficiaries=self.beneficiaries,
+     outcomes=self.outcomes, candidate_overlay=self.overlay,
+    ))
+    cutoff = "2026-09-26T12:47:00Z"
+    expected = build_shadow_snapshot(as_of=cutoff, **inputs)
+    self.assertIn(identity, expected[snapshot_key])
+    rows_collection = "relief_paths" if collection == "relief_paths" else "beneficiaries"
+    row = next(row for row in inputs[rows_collection][rows_key] if row[id_key] == identity)
+    row.update(lineage_change)
+    if collection == "beneficiaries_blocking_only":
+     lineage = row["evidence_lineage"]
+     self.assertTrue(lineage["disconfirming_or_blocking"])
+     self.assertTrue(all(not values for role, values in lineage.items()
+                         if role != "disconfirming_or_blocking"))
+    if collection == "beneficiaries_unknown_positive":
+     lineage = row["evidence_lineage"]
+     self.assertEqual(["CLM-UNKNOWN"], lineage["constraint_evidence"])
+     claims = inputs["claim_registry"]["claims"]
+     known_references = {claim["claim_id"] for claim in claims}
+     for claim in claims:
+      known_references.update(claim.get("support_evidence_ids", []))
+      known_references.update(claim.get("disconfirming_evidence_ids", []))
+     self.assertNotIn("CLM-UNKNOWN", known_references)
+    expected[snapshot_key].remove(identity)
+    self.assertEqual(expected, build_shadow_snapshot(as_of=cutoff, **inputs))
  def test_claim_availability_boundary_cascades_to_candidate(self):
   inputs = dict(
    claim_registry=copy.deepcopy(self.claims),
@@ -80,5 +130,49 @@ class FirstSliceOutcomeShadowReplayTests(unittest.TestCase):
   expected["constraint_candidate_ids"].remove(candidate_id)
   expected["relief_path_ids"].remove("REL-AIDC-004")
   expected["beneficiary_relationship_ids"].remove("BEN-AIDC-EATON-TRANSFORMER-001")
+  self.assertEqual(expected, after_cutoff)
+ def test_relief_lineage_availability_cascades_without_hiding_parent(self):
+  inputs = dict(
+   claim_registry=copy.deepcopy(self.claims),
+   candidates=copy.deepcopy(self.candidates),
+   relief_paths=copy.deepcopy(self.relief),
+   beneficiaries=copy.deepcopy(self.beneficiaries),
+   outcomes=copy.deepcopy(self.outcomes),
+   candidate_overlay=copy.deepcopy(self.overlay),
+  )
+  cutoff = "2026-09-26T12:47:00Z"
+  baseline = build_shadow_snapshot(as_of=cutoff, **inputs)
+  claim = next(row for row in inputs["claim_registry"]["claims"]
+               if row["claim_id"] == "CLM-AIDC-009")
+  claim["available_at"] = "2026-09-26T12:47:01Z"
+
+  after_cutoff = build_shadow_snapshot(as_of=cutoff, **inputs)
+
+  expected = copy.deepcopy(baseline)
+  expected["relief_path_ids"].remove("REL-AIDC-002")
+  self.assertIn("T5C-AIDC-US-INTERCONNECTION-THROUGHPUT-001",
+                after_cutoff["constraint_candidate_ids"])
+  self.assertEqual(expected, after_cutoff)
+ def test_beneficiary_available_at_is_inclusive_and_excludes_only_row(self):
+  inputs = dict(
+   claim_registry=copy.deepcopy(self.claims),
+   candidates=copy.deepcopy(self.candidates),
+   relief_paths=copy.deepcopy(self.relief),
+   beneficiaries=copy.deepcopy(self.beneficiaries),
+   outcomes=copy.deepcopy(self.outcomes),
+   candidate_overlay=copy.deepcopy(self.overlay),
+  )
+  cutoff = "2026-09-26T12:47:00Z"
+  identity = "BEN-AIDC-EATON-TRANSFORMER-001"
+  beneficiary = next(row for row in inputs["beneficiaries"]["relationships"]
+                     if row["beneficiary_relationship_id"] == identity)
+  beneficiary["available_at"] = cutoff
+  at_boundary = build_shadow_snapshot(as_of=cutoff, **inputs)
+  self.assertIn(identity, at_boundary["beneficiary_relationship_ids"])
+
+  beneficiary["available_at"] = "2026-09-26T12:47:01Z"
+  after_cutoff = build_shadow_snapshot(as_of=cutoff, **inputs)
+  expected = copy.deepcopy(at_boundary)
+  expected["beneficiary_relationship_ids"].remove(identity)
   self.assertEqual(expected, after_cutoff)
 if __name__=="__main__": unittest.main()
