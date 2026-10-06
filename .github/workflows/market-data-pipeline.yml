@@ -174,3 +174,4 @@ jobs:
               require(actual == expected, f"SHA-256 mismatch for {name}")
 
           print(f"PUBLISHED_PIPELINE_ARTIFACT=PASS:{len(expected_files)}")
+          PY

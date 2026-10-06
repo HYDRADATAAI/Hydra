@@ -607,7 +607,9 @@ def workflow_step_literal_lines(step_block: str, key: str) -> list[str] | None:
     ]
 
 
-def workflow_step_run_lines(step_block: str) -> list[str] | None:
+def workflow_step_run_lines(
+    step_block: str, *, preserve_indentation: bool = False
+) -> list[str] | None:
     match = re.search(r"(?m)^        run:\s*\|\s*\r?\n", step_block)
     if match is None:
         return None
@@ -617,7 +619,7 @@ def workflow_step_run_lines(step_block: str) -> list[str] | None:
             continue
         if not line.startswith("          "):
             return None
-        lines.append(line.strip())
+        lines.append(line[10:] if preserve_indentation else line.strip())
     return lines
 
 
@@ -1079,25 +1081,64 @@ def validate_ci_contract(errors: list[str]) -> None:
                 verify, "continue-on-error"
             ):
                 errors.append("market-pipeline CI artifact verification must remain fail-closed")
-            verify_lines = workflow_step_run_lines(verify) or []
-            required_verification_lines = (
-                "expected_files[f\"{label}/{relative}\"] = path",
-                "actual_files[f\"{label}/{relative}\"] = path",
-                "missing = sorted(set(expected_files) - set(actual_files))",
-                "extra = sorted(set(actual_files) - set(expected_files))",
-                "expected = hashlib.sha256(source.read_bytes()).hexdigest()",
-                "actual = hashlib.sha256(actual_files[name].read_bytes()).hexdigest()",
-                "require(actual == expected, f\"SHA-256 mismatch for {name}\")",
-                "print(f\"PUBLISHED_PIPELINE_ARTIFACT=PASS:{len(expected_files)}\")",
+            if workflow_step_scalar(verify, "uses"):
+                errors.append("market-pipeline CI artifact verification must run Python")
+            if workflow_step_with_scalar(
+                verify, "PUBLISHED_PIPELINE_ARTIFACT_DIR"
+            ) != ["${{ runner.temp }}/hydra-market-data-pipeline-published"]:
+                errors.append("market-pipeline CI verifier download destination changed")
+            expected_verification_run = [
+                "python -I -B - <<'PY'",
+                "import hashlib",
+                "import os",
+                "from pathlib import Path",
+                "def require(condition, detail):",
+                "    if not condition:",
+                "        raise SystemExit(f\"PUBLISHED_PIPELINE_ARTIFACT=FAIL: {detail}\")",
+                "def regular_files(root):",
+                "    require(not root.is_symlink() and root.is_dir(), f\"missing directory: {root}\")",
+                "    files = {}",
+                "    for path in root.rglob(\"*\"):",
+                "        require(not path.is_symlink(), f\"symlink is not allowed: {path}\")",
+                "        if path.is_file():",
+                "            files[path.relative_to(root).as_posix()] = path",
+                "        else:",
+                "            require(path.is_dir(), f\"non-regular entry is not allowed: {path}\")",
+                "    require(bool(files), f\"directory contains no files: {root}\")",
+                "    return files",
+                "source_roots = {",
+                "    \"demo\": Path(\"market-data-pipeline-sample/build/demo\"),",
+                "    \"operations\": Path(\"market-data-pipeline-sample/build/operations\"),",
+                "}",
+                "published_root = Path(os.environ[\"PUBLISHED_PIPELINE_ARTIFACT_DIR\"])",
+                "require(not published_root.is_symlink() and published_root.is_dir(), \"download directory is missing\")",
+                "root_entries = list(published_root.iterdir())",
                 "root_names = {path.name for path in root_entries}",
                 "require(root_names == set(source_roots), f\"unexpected artifact root entries: {sorted(root_names)}\")",
-                "require(not path.is_symlink() and path.is_dir(), f\"invalid artifact root entry: {path}\")",
-            )
-            for line in required_verification_lines:
-                if line not in verify_lines:
-                    errors.append(
-                        f"market-pipeline CI artifact verification changed: {line}"
-                    )
+                "for path in root_entries:",
+                "    require(not path.is_symlink() and path.is_dir(), f\"invalid artifact root entry: {path}\")",
+                "expected_files = {}",
+                "actual_files = {}",
+                "for label, source_root in source_roots.items():",
+                "    for relative, path in regular_files(source_root).items():",
+                "        expected_files[f\"{label}/{relative}\"] = path",
+                "    downloaded_root = published_root / label",
+                "    for relative, path in regular_files(downloaded_root).items():",
+                "        actual_files[f\"{label}/{relative}\"] = path",
+                "missing = sorted(set(expected_files) - set(actual_files))",
+                "extra = sorted(set(actual_files) - set(expected_files))",
+                "require(not missing and not extra, f\"file set changed; missing={missing}, extra={extra}\")",
+                "for name, source in expected_files.items():",
+                "    expected = hashlib.sha256(source.read_bytes()).hexdigest()",
+                "    actual = hashlib.sha256(actual_files[name].read_bytes()).hexdigest()",
+                "    require(actual == expected, f\"SHA-256 mismatch for {name}\")",
+                "print(f\"PUBLISHED_PIPELINE_ARTIFACT=PASS:{len(expected_files)}\")",
+                "PY",
+            ]
+            if workflow_step_run_lines(
+                verify, preserve_indentation=True
+            ) != expected_verification_run:
+                errors.append("market-pipeline CI artifact verifier body changed")
 
     if "SOURCE_ROWS_REPLAYED" in pipeline_workflow:
         errors.append("market-pipeline CI must not claim independent source-row replay")
