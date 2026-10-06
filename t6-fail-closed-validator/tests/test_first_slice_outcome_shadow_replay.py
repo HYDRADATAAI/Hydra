@@ -68,8 +68,15 @@ class FirstSliceOutcomeShadowReplayTests(unittest.TestCase):
      "capacity_or_availability": [], "economic_or_strategic_capture": [],
      "disconfirming_or_blocking": ["EV-FERC-ORDER2023-QUEUE-REFORM"],
     }}),
+   ("beneficiaries_unknown_positive", "relationships", "beneficiary_relationship_id",
+    "BEN-AIDC-EATON-TRANSFORMER-001", "beneficiary_relationship_ids",
+    {"evidence_lineage": {
+     "constraint_evidence": ["CLM-UNKNOWN"], "entity_connection": [],
+     "advantage_mechanism": [], "capacity_or_availability": [],
+     "economic_or_strategic_capture": [], "disconfirming_or_blocking": [],
+    }}),
   )
-  for collection, rows_key, id_key, identity, snapshot_key, empty_lineage in cases:
+  for collection, rows_key, id_key, identity, snapshot_key, lineage_change in cases:
    with self.subTest(collection=collection):
     inputs = copy.deepcopy(dict(
      claim_registry=self.claims, candidates=self.candidates,
@@ -79,14 +86,19 @@ class FirstSliceOutcomeShadowReplayTests(unittest.TestCase):
     cutoff = "2026-09-26T12:47:00Z"
     expected = build_shadow_snapshot(as_of=cutoff, **inputs)
     self.assertIn(identity, expected[snapshot_key])
-    rows_collection = "beneficiaries" if collection == "beneficiaries_blocking_only" else collection
+    rows_collection = "relief_paths" if collection == "relief_paths" else "beneficiaries"
     row = next(row for row in inputs[rows_collection][rows_key] if row[id_key] == identity)
-    row.update(empty_lineage)
+    row.update(lineage_change)
     if collection == "beneficiaries_blocking_only":
      lineage = row["evidence_lineage"]
      self.assertTrue(lineage["disconfirming_or_blocking"])
      self.assertTrue(all(not values for role, values in lineage.items()
                          if role != "disconfirming_or_blocking"))
+    if collection == "beneficiaries_unknown_positive":
+     lineage = row["evidence_lineage"]
+     self.assertEqual(["CLM-UNKNOWN"], lineage["constraint_evidence"])
+     self.assertFalse(any(claim["claim_id"] == "CLM-UNKNOWN"
+                          for claim in inputs["claim_registry"]["claims"]))
     expected[snapshot_key].remove(identity)
     self.assertEqual(expected, build_shadow_snapshot(as_of=cutoff, **inputs))
 if __name__=="__main__": unittest.main()
