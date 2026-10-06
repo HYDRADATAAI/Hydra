@@ -256,4 +256,32 @@ class FirstSliceOutcomeShadowReplayTests(unittest.TestCase):
   self.assertIn("CLM-AIDC-005", changed["eligible_claim_ids"])
   self.assertEqual(expected, changed)
 
+ def test_future_leaks_requires_available_outcome_claim(self):
+  cutoff = "2026-09-26T12:47:00Z"
+  outcome_id = self.outcomes["records"][0]["outcome_id"]
+  snapshot = self.snap(cutoff)
+  self.assertIn(outcome_id, snapshot["outcome_ids"])
+  self.assertNotIn("outcome:" + outcome_id,
+                   future_leaks(snapshot, self.claims, self.outcomes))
+
+  for claim_id in (None, "", "CLM-UNKNOWN"):
+   with self.subTest(claim_id=claim_id):
+    outcomes = copy.deepcopy(self.outcomes)
+    outcome = next(row for row in outcomes["records"]
+                   if row["outcome_id"] == outcome_id)
+    outcome["claim_id"] = claim_id
+    self.assertIn("outcome:" + outcome_id,
+                  future_leaks(snapshot, self.claims, outcomes))
+
+  claims = copy.deepcopy(self.claims)
+  outcomes = copy.deepcopy(self.outcomes)
+  outcome = next(row for row in outcomes["records"]
+                 if row["outcome_id"] == outcome_id)
+  claim_id = outcome["claim_id"]
+  claim = next(row for row in claims["claims"]
+               if row["claim_id"] == claim_id)
+  claim["available_at"] = "2026-09-26T12:47:01Z"
+  self.assertIn("outcome:" + outcome_id,
+                future_leaks(snapshot, claims, outcomes))
+
 if __name__=="__main__": unittest.main()
