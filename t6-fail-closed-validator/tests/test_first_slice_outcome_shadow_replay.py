@@ -97,8 +97,12 @@ class FirstSliceOutcomeShadowReplayTests(unittest.TestCase):
     if collection == "beneficiaries_unknown_positive":
      lineage = row["evidence_lineage"]
      self.assertEqual(["CLM-UNKNOWN"], lineage["constraint_evidence"])
-     self.assertFalse(any(claim["claim_id"] == "CLM-UNKNOWN"
-                          for claim in inputs["claim_registry"]["claims"]))
+     claims = inputs["claim_registry"]["claims"]
+     known_references = {claim["claim_id"] for claim in claims}
+     for claim in claims:
+      known_references.update(claim.get("support_evidence_ids", []))
+      known_references.update(claim.get("disconfirming_evidence_ids", []))
+     self.assertNotIn("CLM-UNKNOWN", known_references)
     expected[snapshot_key].remove(identity)
     self.assertEqual(expected, build_shadow_snapshot(as_of=cutoff, **inputs))
 if __name__=="__main__": unittest.main()
