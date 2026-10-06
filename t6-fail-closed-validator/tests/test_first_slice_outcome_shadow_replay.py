@@ -79,7 +79,8 @@ class FirstSliceOutcomeShadowReplayTests(unittest.TestCase):
     cutoff = "2026-09-26T12:47:00Z"
     expected = build_shadow_snapshot(as_of=cutoff, **inputs)
     self.assertIn(identity, expected[snapshot_key])
-    row = next(row for row in inputs[collection][rows_key] if row[id_key] == identity)
+    rows_collection = "beneficiaries" if collection == "beneficiaries_blocking_only" else collection
+    row = next(row for row in inputs[rows_collection][rows_key] if row[id_key] == identity)
     row.update(empty_lineage)
     if collection == "beneficiaries_blocking_only":
      lineage = row["evidence_lineage"]
