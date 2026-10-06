@@ -230,8 +230,8 @@ def validate_owner_seams(
         if not relation.get("benefit_transmission_mechanism"):
             _fail(f"{rid}: missing beneficiary transmission mechanism")
         lineage = relation.get("evidence_lineage")
-        if not isinstance(lineage, dict) or not _REQUIRED_BENEFICIARY_LINEAGE <= set(lineage):
-            _fail(f"{rid}: incomplete beneficiary evidence-role lineage")
+        if not isinstance(lineage, dict) or set(lineage) != _REQUIRED_BENEFICIARY_LINEAGE:
+            _fail(f"{rid}: beneficiary evidence-role lineage must use the declared roles")
         for field in sorted(_REQUIRED_BENEFICIARY_LINEAGE):
             _string_list(lineage[field], f"{rid}.{field}")
         if not set(lineage["constraint_evidence"]) <= set(
