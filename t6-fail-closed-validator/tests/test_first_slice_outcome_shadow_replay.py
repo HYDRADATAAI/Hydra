@@ -149,6 +149,7 @@ class FirstSliceOutcomeShadowReplayTests(unittest.TestCase):
   after_cutoff = build_shadow_snapshot(as_of=cutoff, **inputs)
 
   expected = copy.deepcopy(baseline)
+  expected["eligible_claim_ids"].remove(claim["claim_id"])
   expected["relief_path_ids"].remove("REL-AIDC-002")
   self.assertIn("T5C-AIDC-US-INTERCONNECTION-THROUGHPUT-001",
                 after_cutoff["constraint_candidate_ids"])
