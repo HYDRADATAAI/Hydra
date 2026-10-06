@@ -11,6 +11,22 @@ import json
 from typing import Any, Mapping
 
 
+_BENEFICIARY_LINEAGE_KEYS = {
+    "constraint_evidence",
+    "entity_connection",
+    "advantage_mechanism",
+    "capacity_or_availability",
+    "economic_or_strategic_capture",
+    "disconfirming_or_blocking",
+}
+_BENEFICIARY_CLAIM_ROLE_ALLOWLIST = {
+    "entity_connection": {"ENTITY_CAPABILITY", "ENTITY_CAPACITY_RELIEF", "SUBSTITUTION_RELIEF"},
+    "advantage_mechanism": {"ENTITY_CAPABILITY", "ENTITY_CAPACITY_RELIEF", "SUBSTITUTION_RELIEF"},
+    "capacity_or_availability": {"ENTITY_CAPABILITY", "ENTITY_CAPACITY_RELIEF"},
+    "economic_or_strategic_capture": {"ENTITY_CAPABILITY"},
+}
+
+
 def _dt(value: str) -> datetime:
     try:
         result = datetime.fromisoformat(value.replace("Z", "+00:00"))
@@ -65,13 +81,28 @@ def build_shadow_snapshot(*, as_of: str, claim_registry: Mapping[str, Any],
         refs = references(refs)
         return bool(refs) and all(ref in eligible for ref in refs)
 
-    def supported(refs):
-        refs = references(refs)
-        # Unknown references never count as evidence; empty lineage is not proof.
-        return bool(refs) and all(
-            ref in eligible or (ref in evidence and bool(evidence[ref] & eligible))
-            for ref in refs
-        )
+    def beneficiary_lineage_supported(lineage):
+        if set(lineage) != _BENEFICIARY_LINEAGE_KEYS:
+            raise ValueError("beneficiary evidence lineage roles differ from the declared schema")
+        has_support = False
+        for role, raw_refs in lineage.items():
+            refs = references(raw_refs)
+            if role == "disconfirming_or_blocking" or not refs:
+                continue
+            if role == "constraint_evidence":
+                available = all(ref in evidence and bool(evidence[ref] & eligible) for ref in refs)
+            else:
+                allowed_roles = _BENEFICIARY_CLAIM_ROLE_ALLOWLIST[role]
+                available = all(
+                    ref in eligible and claims[ref].get("claim_role") in allowed_roles
+                    for ref in refs
+                )
+            if not available:
+                return False
+            has_support = True
+        # Empty positive lineage is not proof. Claim references also need to
+        # match the semantics of the lineage field that contains them.
+        return has_support
 
     visible_candidates = set()
     for cid, row in candidate_rows.items():
@@ -97,13 +128,9 @@ def build_shadow_snapshot(*, as_of: str, claim_registry: Mapping[str, Any],
         lineage = row.get("evidence_lineage", {})
         if not isinstance(lineage, Mapping):
             raise ValueError("beneficiary evidence lineage must be a mapping")
-        refs = []
-        for role, values in lineage.items():
-            values = references(values)
-            if role != "disconfirming_or_blocking":
-                refs.extend(values)
         if (_dt(row["available_at"]) <= cutoff
-                and row.get("constraint_candidate_id") in visible_candidates and supported(refs)):
+                and row.get("constraint_candidate_id") in visible_candidates
+                and beneficiary_lineage_supported(lineage)):
             bens.append(bid)
     # An observed fact can remain visible independently of an admitted constraint.
     # Unknown Hydra availability is not evidence that the outcome was visible.
