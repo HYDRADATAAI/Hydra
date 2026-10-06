@@ -82,6 +82,8 @@ def build_shadow_snapshot(*, as_of: str, claim_registry: Mapping[str, Any],
         return bool(refs) and all(ref in eligible for ref in refs)
 
     def beneficiary_lineage_supported(lineage):
+        if not lineage:
+            return False
         if set(lineage) != _BENEFICIARY_LINEAGE_KEYS:
             raise ValueError("beneficiary evidence lineage roles differ from the declared schema")
         has_support = False
