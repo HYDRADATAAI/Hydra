@@ -138,6 +138,7 @@ def validate_owner_seams(
         _fail("typed beneficiary-confidence universe differs from T6 relationship universe")
 
     known_evidence_ids: set[str] = set()
+    constraint_support_evidence_ids: set[str] = set()
     claim_available_at: dict[str, datetime] = {}
     for claim in claim_rows:
         cid = claim["claim_id"]
@@ -147,6 +148,8 @@ def validate_owner_seams(
                 if not isinstance(evidence_id, str) or not evidence_id.startswith("EV-"):
                     _fail(f"{cid}.{field}: invalid evidence reference")
                 known_evidence_ids.add(evidence_id)
+                if field == "support_evidence_ids" and claim.get("claim_role") == "CONSTRAINT_EXISTENCE":
+                    constraint_support_evidence_ids.add(evidence_id)
 
     candidate_by_id = {row["constraint_candidate_id"]: row for row in candidate_rows}
     overlay_by_id = {row["constraint_candidate_id"]: row for row in overlay_rows}
@@ -245,6 +248,8 @@ def validate_owner_seams(
             parent.get("evidence_roles", {}).get("constraint_support", [])
         ):
             _fail(f"{rid}: beneficiary constraint evidence is not inherited from parent constraint support")
+        if not set(lineage["constraint_evidence"]) <= constraint_support_evidence_ids:
+            _fail(f"{rid}: beneficiary constraint evidence lacks positive constraint-role support")
         for field, allowed_roles in _BENEFICIARY_CLAIM_ROLE_ALLOWLIST.items():
             for claim_id in lineage[field]:
                 if claim_id not in claim_ids:
