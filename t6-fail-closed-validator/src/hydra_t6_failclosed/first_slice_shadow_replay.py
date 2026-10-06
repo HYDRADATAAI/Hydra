@@ -133,18 +133,20 @@ def future_leaks(snapshot: Mapping[str, Any], claim_registry: Mapping[str, Any],
     for cid in snapshot["eligible_claim_ids"]:
         if cid not in claims or _dt(claims[cid]["available_at"]) > cutoff:
             leaks.append("claim:" + cid)
-    eligible_claim_ids = set(snapshot["eligible_claim_ids"])
     for oid in snapshot["outcome_ids"]:
         if oid not in records:
             leaks.append("outcome:" + oid)
             continue
         record = records[oid]
-        claim_id = record.get("claim_id")
-        if not isinstance(claim_id, str) or not claim_id or claim_id not in eligible_claim_ids:
-            leaks.append("outcome:" + oid)
-            continue
         available_at = record["hydra_available_at"]
         if available_at is None or _dt(available_at) > cutoff:
+            leaks.append("outcome:" + oid)
+            continue
+        claim_id = record.get("claim_id")
+        if not isinstance(claim_id, str) or not claim_id or claim_id not in claims:
+            leaks.append("outcome:" + oid)
+            continue
+        if _dt(claims[claim_id]["available_at"]) > cutoff:
             leaks.append("outcome:" + oid)
     if lineage_inputs:
         expected = build_shadow_snapshot(as_of=snapshot["as_of"], claim_registry=claim_registry,
