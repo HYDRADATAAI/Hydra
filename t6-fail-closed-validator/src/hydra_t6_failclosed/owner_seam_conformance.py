@@ -16,6 +16,12 @@ _REQUIRED_BENEFICIARY_LINEAGE = {
     "economic_or_strategic_capture",
     "disconfirming_or_blocking",
 }
+_BENEFICIARY_CLAIM_ROLE_ALLOWLIST = {
+    "entity_connection": {"ENTITY_CAPABILITY", "ENTITY_CAPACITY_RELIEF", "SUBSTITUTION_RELIEF"},
+    "advantage_mechanism": {"ENTITY_CAPABILITY", "ENTITY_CAPACITY_RELIEF", "SUBSTITUTION_RELIEF"},
+    "capacity_or_availability": {"ENTITY_CAPABILITY", "ENTITY_CAPACITY_RELIEF"},
+    "economic_or_strategic_capture": {"ENTITY_CAPABILITY"},
+}
 
 RAW_BLOCKER = "PIT-002B-FIRST-SLICE-NINE-SOURCE-RAW-CAPTURE-MATERIALIZATION"
 ADMISSION_BLOCKER = "CI-TEST-008-BLOCKER-001B-NATIVE-T5-T6-SIGNED-ADMISSION-RECEIPT-ABSENT"
@@ -238,15 +244,13 @@ def validate_owner_seams(
             parent.get("evidence_roles", {}).get("constraint_support", [])
         ):
             _fail(f"{rid}: beneficiary constraint evidence is not inherited from parent constraint support")
-        for field in (
-            "entity_connection",
-            "advantage_mechanism",
-            "capacity_or_availability",
-            "economic_or_strategic_capture",
-        ):
+        for field, allowed_roles in _BENEFICIARY_CLAIM_ROLE_ALLOWLIST.items():
             for claim_id in lineage[field]:
                 if claim_id not in claim_ids:
                     _fail(f"{rid}.{field}: unknown claim {claim_id}")
+                claim = next(row for row in claim_rows if row["claim_id"] == claim_id)
+                if claim.get("claim_role") not in allowed_roles:
+                    _fail(f"{rid}.{field}: claim_role is incompatible with beneficiary lineage")
         # Batch010 also stores prose research limitations here. Preserve those
         # historical notes; validate reference-shaped entries without promoting
         # prose into evidence or claiming that raw-source lineage is complete.
