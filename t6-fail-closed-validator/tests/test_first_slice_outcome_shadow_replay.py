@@ -55,12 +55,19 @@ class FirstSliceOutcomeShadowReplayTests(unittest.TestCase):
   relief["available_at"] = "2026-09-26T12:47:01Z"
   after_cutoff = build_shadow_snapshot(as_of=cutoff, **inputs)
   self.assertNotIn(identity, after_cutoff["relief_path_ids"])
- def test_empty_relief_and_beneficiary_lineage_is_not_support(self):
+ def test_shadow_visibility_requires_positive_lineage(self):
   cases = (
    ("relief_paths", "relief_paths", "relief_path_id", "REL-AIDC-004",
     "relief_path_ids", {"support_claim_ids": [], "support_evidence_ids": []}),
    ("beneficiaries", "relationships", "beneficiary_relationship_id",
     "BEN-AIDC-EATON-TRANSFORMER-001", "beneficiary_relationship_ids", {"evidence_lineage": {}}),
+   ("beneficiaries_blocking_only", "relationships", "beneficiary_relationship_id",
+    "BEN-AIDC-EATON-TRANSFORMER-001", "beneficiary_relationship_ids",
+    {"evidence_lineage": {
+     "constraint_evidence": [], "entity_connection": [], "advantage_mechanism": [],
+     "capacity_or_availability": [], "economic_or_strategic_capture": [],
+     "disconfirming_or_blocking": ["EV-FERC-ORDER2023-QUEUE-REFORM"],
+    }}),
   )
   for collection, rows_key, id_key, identity, snapshot_key, empty_lineage in cases:
    with self.subTest(collection=collection):
@@ -74,6 +81,11 @@ class FirstSliceOutcomeShadowReplayTests(unittest.TestCase):
     self.assertIn(identity, expected[snapshot_key])
     row = next(row for row in inputs[collection][rows_key] if row[id_key] == identity)
     row.update(empty_lineage)
+    if collection == "beneficiaries_blocking_only":
+     lineage = row["evidence_lineage"]
+     self.assertTrue(lineage["disconfirming_or_blocking"])
+     self.assertTrue(all(not values for role, values in lineage.items()
+                         if role != "disconfirming_or_blocking"))
     expected[snapshot_key].remove(identity)
     self.assertEqual(expected, build_shadow_snapshot(as_of=cutoff, **inputs))
 if __name__=="__main__": unittest.main()
