@@ -55,4 +55,27 @@ class FirstSliceOutcomeShadowReplayTests(unittest.TestCase):
   relief["available_at"] = "2026-09-26T12:47:01Z"
   after_cutoff = build_shadow_snapshot(as_of=cutoff, **inputs)
   self.assertNotIn(identity, after_cutoff["relief_path_ids"])
+
+ def test_outcome_availability_boundary_excludes_only_future_outcome(self):
+  cutoff = "2026-09-26T01:57:00Z"
+  outcome_id = "OUT-AIDC-EATON-NACOGDOCHES-CAPACITY-ADDED-001"
+  inputs = copy.deepcopy(dict(
+   claim_registry=self.claims, candidates=self.candidates,
+   relief_paths=self.relief, beneficiaries=self.beneficiaries,
+   outcomes=self.outcomes, candidate_overlay=self.overlay))
+  outcome = next(row for row in inputs["outcomes"]["records"]
+                 if row["outcome_id"] == outcome_id)
+  self.assertEqual(cutoff, outcome["hydra_available_at"])
+
+  baseline = build_shadow_snapshot(as_of=cutoff, **inputs)
+  self.assertIn("CLM-AIDC-005", baseline["eligible_claim_ids"])
+  self.assertIn(outcome_id, baseline["outcome_ids"])
+
+  outcome["hydra_available_at"] = "2026-09-26T01:57:01Z"
+  expected = copy.deepcopy(baseline)
+  expected["outcome_ids"].remove(outcome_id)
+  changed = build_shadow_snapshot(as_of=cutoff, **inputs)
+  self.assertIn("CLM-AIDC-005", changed["eligible_claim_ids"])
+  self.assertEqual(expected, changed)
+
 if __name__=="__main__": unittest.main()
