@@ -7,9 +7,9 @@ import os
 import re
 import subprocess
 import sys
-from pathlib import PurePosixPath
+from pathlib import Path, PurePosixPath
 
-ROOT = PurePosixPath(__file__).resolve().parent.parent
+ROOT = Path(__file__).resolve().parent.parent
 PUBLIC_SAMPLE_ROOTS = {
     "aws-market-data-pipeline",
     "governed-intelligence-sample",
