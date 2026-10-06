@@ -22,6 +22,8 @@ REQUIRED_PATHS = (
     "README.md",
     ".github/workflows/public-root-hygiene.yml",
     ".github/workflows/t6-validator.yml",
+    "tools/public_root_hygiene.py",
+    "tools/test_public_root_hygiene.py",
     "t6-fail-closed-validator/README.md",
     "t6-fail-closed-validator/pyproject.toml",
     "t6-fail-closed-validator/src/hydra_t6_failclosed/__init__.py",
@@ -1058,25 +1060,12 @@ def validate_ci_contract(errors: list[str]) -> None:
     hygiene_workflow = (
         ROOT / ".github/workflows/public-root-hygiene.yml"
     ).read_text(encoding="utf-8-sig")
-    if '[[ "$file" == */* ]] && continue' in hygiene_workflow:
-        errors.append("public-root hygiene must inspect nested tracked paths")
     for fragment in (
-        "build/*|*/build/*",
-        "dist/*|*/dist/*",
-        "bin/*|*/bin/*",
-        "obj/*|*/obj/*",
-        "logs/*|*/logs/*",
-        "log/*|*/log/*",
-        "artifacts/*|*/artifacts/*",
-        "outputs/*|*/outputs/*",
-        "results/*|*/results/*",
-        "archive/*) continue ;;",
-        "*.zip|*.zip.sha256|EXTRACT_*.ps1|*/EXTRACT_*.ps1",
+        'python -m unittest discover -s tools -p "test_public_root_hygiene.py" -v',
+        "python tools/public_root_hygiene.py",
     ):
         if fragment not in hygiene_workflow:
-            errors.append(f"public-root hygiene contract missing: {fragment}")
-    if 'if [[ "$file" != */* && "$file" =~' not in hygiene_workflow:
-        errors.append("public-root duplicate-name check must remain root-only")
+            errors.append(f"public-root hygiene CI contract missing: {fragment}")
     intelligence_fragments = (
         'python-version: "3.11"',
         "actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
