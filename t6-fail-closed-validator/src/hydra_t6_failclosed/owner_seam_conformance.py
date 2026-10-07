@@ -138,18 +138,23 @@ def validate_owner_seams(
         _fail("typed beneficiary-confidence universe differs from T6 relationship universe")
 
     known_evidence_ids: set[str] = set()
-    constraint_support_evidence_ids: set[str] = set()
+    constraint_support_evidence_claims: dict[str, set[str]] = {}
     claim_available_at: dict[str, datetime] = {}
     for claim in claim_rows:
         cid = claim["claim_id"]
         claim_available_at[cid] = _aware_dt(claim["available_at"], f"{cid}.available_at")
+        disconfirming_ids = set(_string_list(
+            claim.get("disconfirming_evidence_ids", []), f"{cid}.disconfirming_evidence_ids"
+        ))
         for field in ("support_evidence_ids", "disconfirming_evidence_ids"):
             for evidence_id in _string_list(claim.get(field, []), f"{cid}.{field}"):
                 if not isinstance(evidence_id, str) or not evidence_id.startswith("EV-"):
                     _fail(f"{cid}.{field}: invalid evidence reference")
                 known_evidence_ids.add(evidence_id)
-                if field == "support_evidence_ids" and claim.get("claim_role") == "CONSTRAINT_EXISTENCE":
-                    constraint_support_evidence_ids.add(evidence_id)
+                if (field == "support_evidence_ids"
+                        and claim.get("claim_role") == "CONSTRAINT_EXISTENCE"
+                        and evidence_id not in disconfirming_ids):
+                    constraint_support_evidence_claims.setdefault(evidence_id, set()).add(cid)
 
     candidate_by_id = {row["constraint_candidate_id"]: row for row in candidate_rows}
     overlay_by_id = {row["constraint_candidate_id"]: row for row in overlay_rows}
@@ -248,8 +253,11 @@ def validate_owner_seams(
             parent.get("evidence_roles", {}).get("constraint_support", [])
         ):
             _fail(f"{rid}: beneficiary constraint evidence is not inherited from parent constraint support")
-        if not set(lineage["constraint_evidence"]) <= constraint_support_evidence_ids:
-            _fail(f"{rid}: beneficiary constraint evidence lacks positive constraint-role support")
+        parent_claim_ids = set(parent.get("claim_ids", []))
+        for evidence_id in lineage["constraint_evidence"]:
+            supporting_claims = constraint_support_evidence_claims.get(evidence_id, set())
+            if not supporting_claims & parent_claim_ids:
+                _fail(f"{rid}: beneficiary constraint evidence lacks positive parent-claim support")
         for field, allowed_roles in _BENEFICIARY_CLAIM_ROLE_ALLOWLIST.items():
             for claim_id in lineage[field]:
                 if claim_id not in claim_ids:
