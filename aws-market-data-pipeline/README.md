@@ -51,7 +51,7 @@ The committed fixture is expected to produce **3 accepted / 4 quarantined** rows
 
 [AWS market data pipeline CI](https://github.com/HYDRADATAAI/Hydra/actions/workflows/aws-market-data-pipeline.yml) runs unit tests and local deterministic replay without AWS credentials or network access.
 
-[AWS market data deploy and verify](https://github.com/HYDRADATAAI/Hydra/actions/workflows/aws-market-data-deploy.yml) is manual-only. It requires an `aws-demo` GitHub environment containing an `AWS_DEMO_ROLE_ARN` secret for OIDC federation. A run:
+[AWS market data deploy and verify](https://github.com/HYDRADATAAI/Hydra/actions/workflows/aws-market-data-deploy.yml) is manual-only and restricted to `main`. It requires an `aws-demo` GitHub environment containing an `AWS_DEMO_ROLE_ARN` secret for OIDC federation. The workflow accepts only the reserved demo stack-name prefix and refuses to update an existing stack. Cleanup runs only after that invocation marks its own deployment attempt; teardown defaults to enabled. The SAM-managed deployment artifact bucket can remain outside the stack and must be checked separately. The external role trust policy, permissions, and environment approval rules must be reviewed in GitHub/AWS; repository contents cannot verify them. A run:
 
 The AWS role trust policy should be scoped to this repository and the `aws-demo` environment. Its permissions should be limited to deploying and deleting this sample's prefixed CloudFormation, IAM, Lambda, S3, Glue, Athena, and CloudWatch Logs resources.
 
