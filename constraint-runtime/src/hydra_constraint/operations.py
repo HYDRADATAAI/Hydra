@@ -60,12 +60,26 @@ class DriftGuard:
                 x={}; issues.append("invalid_json")
             records=x.get("records") if isinstance(x,dict) else None
             observed["root_keys"]=sorted(x.keys()) if isinstance(x,dict) else []
-            observed["record_keys"]=sorted(records[0].keys()) if isinstance(records,list) and records else []
+            observed["record_keys"]=sorted(records[0].keys()) if isinstance(records,list) and records and isinstance(records[0],dict) else []
+            observed["record_keys_by_index"]=[
+                sorted(record.keys()) if isinstance(record,dict) else None
+                for record in records
+            ] if isinstance(records,list) else []
+            required_keys=c.get("required_record_keys",[])
             if not isinstance(records,list):
                 issues.append("missing_records_array")
-            for key in c.get("required_record_keys",[]):
-                if not isinstance(records,list) or not records or key not in records[0]:
+            elif not records:
+                for key in required_keys:
                     issues.append("missing_record:"+key)
+            else:
+                for index,record in enumerate(records):
+                    if not isinstance(record,dict):
+                        issues.append(f"invalid_record:{index}")
+                        continue
+                    for key in required_keys:
+                        issue="missing_record:"+key
+                        if key not in record and issue not in issues:
+                            issues.append(issue)
         return DriftResult(source,parser,PARSER_VERSIONS[parser],"FROZEN" if issues else "PASS",_sha(observed),_sha(c),issues)
 
 @dataclass
