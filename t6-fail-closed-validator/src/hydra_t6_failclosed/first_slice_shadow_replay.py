@@ -74,11 +74,15 @@ def build_shadow_snapshot(*, as_of: str, claim_registry: Mapping[str, Any],
     evidence = {}
     constraint_evidence = {}
     for cid, row in claims.items():
-        for field in ("support_evidence_ids", "disconfirming_evidence_ids"):
-            for eid in references(row.get(field, [])):
-                evidence.setdefault(eid, set()).add(cid)
-                if field == "support_evidence_ids" and row.get("claim_role") == "CONSTRAINT_EXISTENCE":
-                    constraint_evidence.setdefault(eid, set()).add(cid)
+        support_ids = references(row.get("support_evidence_ids", []))
+        disconfirming_ids = set(references(row.get("disconfirming_evidence_ids", [])))
+        for eid in support_ids:
+            evidence.setdefault(eid, set()).add(cid)
+            if (row.get("claim_role") == "CONSTRAINT_EXISTENCE"
+                    and eid not in disconfirming_ids):
+                constraint_evidence.setdefault(eid, set()).add(cid)
+        for eid in disconfirming_ids:
+            evidence.setdefault(eid, set()).add(cid)
 
     def claims_supported(refs):
         refs = references(refs)
@@ -94,6 +98,7 @@ def build_shadow_snapshot(*, as_of: str, claim_registry: Mapping[str, Any],
             references(parent_roles.get("constraint_support", []))
             if isinstance(parent_roles, Mapping) else []
         )
+        parent_claim_ids = set(references(parent_candidate.get("claim_ids", [])))
         has_support = False
         for role, raw_refs in lineage.items():
             refs = references(raw_refs)
@@ -103,7 +108,7 @@ def build_shadow_snapshot(*, as_of: str, claim_registry: Mapping[str, Any],
                 available = all(
                     ref in parent_constraint_refs
                     and ref in constraint_evidence
-                    and bool(constraint_evidence[ref] & eligible)
+                    and bool(constraint_evidence[ref] & eligible & parent_claim_ids)
                     for ref in refs
                 )
             else:
