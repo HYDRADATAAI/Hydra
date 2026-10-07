@@ -1083,6 +1083,8 @@ def validate_ci_contract(errors: list[str]) -> None:
                 errors.append("market-pipeline CI artifact verification must remain fail-closed")
             if workflow_step_scalar(verify, "uses"):
                 errors.append("market-pipeline CI artifact verification must run Python")
+            if workflow_step_scalar(verify, "shell") != ["bash"]:
+                errors.append("market-pipeline CI artifact verification shell must be bash")
             if workflow_step_with_scalar(
                 verify, "PUBLISHED_PIPELINE_ARTIFACT_DIR"
             ) != ["${{ runner.temp }}/hydra-market-data-pipeline-published"]:

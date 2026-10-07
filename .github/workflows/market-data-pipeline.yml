@@ -119,6 +119,7 @@ jobs:
           path: ${{ runner.temp }}/hydra-market-data-pipeline-published
 
       - name: Verify published pipeline artifact round-trip
+        shell: bash
         env:
           PUBLISHED_PIPELINE_ARTIFACT_DIR: ${{ runner.temp }}/hydra-market-data-pipeline-published
         run: |
