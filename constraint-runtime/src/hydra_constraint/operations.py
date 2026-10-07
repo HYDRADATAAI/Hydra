@@ -10,7 +10,7 @@ import json
 
 from .runtime import unresolved_admission
 
-PARSER_VERSIONS={"bis_csv":"1.0.0","json_records":"1.0.0","sec_json":"1.0.0"}
+PARSER_VERSIONS={"bis_csv":"1.0.0","json_records":"1.0.1","sec_json":"1.0.0"}
 
 def _sha(value:Any)->str:
     return hashlib.sha256(json.dumps(value,sort_keys=True,separators=(",",":"),default=str).encode()).hexdigest()
