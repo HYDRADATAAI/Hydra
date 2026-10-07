@@ -3,6 +3,7 @@ from __future__ import annotations
 from dataclasses import dataclass, asdict
 from pathlib import Path
 from typing import Any, Dict, List, Optional
+from urllib.parse import urlsplit
 import argparse
 import hashlib
 import json
@@ -49,8 +50,20 @@ class CanaryResult:
         return asdict(self)
 
 
+def _require_https_url(url: str) -> None:
+    parsed = urlsplit(url)
+    if parsed.scheme.lower() != "https" or not parsed.hostname or parsed.username or parsed.password:
+        raise ValueError("live canary URL must be an HTTPS URL with a hostname and no embedded credentials")
+
+
+class _NoRedirectHandler(urllib.request.HTTPRedirectHandler):
+    def redirect_request(self, req, fp, code, msg, headers, newurl):
+        return None
+
+
 class CanaryTransport:
     def fetch(self, spec: CanarySpec, user_agent: str) -> CanaryResponse:
+        _require_https_url(spec.url)
         req = urllib.request.Request(
             spec.url,
             headers={
@@ -59,8 +72,9 @@ class CanaryTransport:
             },
             method="GET",
         )
+        opener = urllib.request.build_opener(_NoRedirectHandler())
         try:
-            with urllib.request.urlopen(req, timeout=spec.timeout_seconds) as response:
+            with opener.open(req, timeout=spec.timeout_seconds) as response:
                 body = response.read(spec.max_bytes + 1)
                 if len(body) > spec.max_bytes:
                     raise ValueError(f"response exceeds max_bytes={spec.max_bytes}")
@@ -164,7 +178,10 @@ def load_specs(path: str | Path) -> List[CanarySpec]:
         raise ValueError("live canary config must declare read_only=true")
     if payload.get("ledger_mutation") is not False:
         raise ValueError("live canary config must declare ledger_mutation=false")
-    return [CanarySpec(**item) for item in payload["sources"]]
+    specs = [CanarySpec(**item) for item in payload["sources"]]
+    for spec in specs:
+        _require_https_url(spec.url)
+    return specs
 
 
 def main() -> int:
