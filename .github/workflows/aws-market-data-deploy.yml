@@ -9,9 +9,9 @@ on:
         default: us-east-1
         type: string
       stack_name:
-        description: CloudFormation stack name
+        description: New stack name using the reserved HYDRA demo prefix
         required: true
-        default: hydra-public-market-pipeline
+        default: hydra-public-market-pipeline-demo-20261007
         type: string
       teardown:
         description: Empty buckets and delete the stack after verification
@@ -29,12 +29,14 @@ concurrency:
 
 jobs:
   deploy-and-verify:
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     environment: aws-demo
     env:
       AWS_REGION: ${{ inputs.aws_region }}
       STACK_NAME: ${{ inputs.stack_name }}
       SAMPLE_DIR: aws-market-data-pipeline
+      HYDRA_STACK_OWNED_BY_RUN: 'false'
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -44,6 +46,14 @@ jobs:
         with:
           python-version: "3.11"
 
+      - name: Validate deployment target
+        run: |
+          set -euo pipefail
+          if [[ ! "$STACK_NAME" =~ ^hydra-public-market-pipeline-demo-[a-z0-9-]{1,32}$ ]]; then
+            echo "Stack name must use the reserved hydra-public-market-pipeline-demo- prefix and a lowercase suffix." >&2
+            exit 1
+          fi
+
       - name: Configure short-lived AWS credentials
         uses: aws-actions/configure-aws-credentials@v6.3.0
         with:
@@ -51,6 +61,22 @@ jobs:
           mask-aws-account-id: true
           role-to-assume: ${{ secrets.AWS_DEMO_ROLE_ARN }}
           role-session-name: hydra-public-aws-proof
+
+      - name: Refuse to modify an existing stack
+        run: |
+          set -euo pipefail
+          set +e
+          description=$(aws cloudformation describe-stacks --stack-name "$STACK_NAME" --region "$AWS_REGION" 2>&1)
+          status=$?
+          set -e
+          if [[ "$status" -eq 0 ]]; then
+            echo "Refusing to update or delete an existing stack." >&2
+            exit 1
+          fi
+          if [[ "$description" != *"does not exist"* ]]; then
+            printf '%s\n' "$description" >&2
+            exit "$status"
+          fi
 
       - name: Set up AWS SAM
         uses: aws-actions/setup-sam@v3
@@ -68,6 +94,9 @@ jobs:
           bucket_suffix="${account_id}-${AWS_REGION}-${stack_hash}"
           raw_bucket_name="hydra-public-raw-${bucket_suffix}"
           curated_bucket_name="hydra-public-curated-${bucket_suffix}"
+          echo "RAW_BUCKET=$raw_bucket_name" >> "$GITHUB_ENV"
+          echo "CURATED_BUCKET=$curated_bucket_name" >> "$GITHUB_ENV"
+          echo "HYDRA_STACK_OWNED_BY_RUN=true" >> "$GITHUB_ENV"
           sam deploy \
             --stack-name "$STACK_NAME" \
             --region "$AWS_REGION" \
@@ -195,7 +224,7 @@ jobs:
           if-no-files-found: error
 
       - name: Empty versioned buckets and delete stack
-        if: ${{ always() && inputs.teardown }}
+        if: ${{ always() && inputs.teardown && env.HYDRA_STACK_OWNED_BY_RUN == 'true' }}
         run: |
           set +e
           output() {
