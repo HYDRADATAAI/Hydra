@@ -202,6 +202,47 @@ def source_inventory(root: Path) -> dict[str, object]:
     return result
 
 
+def verifier_shell(workflow: str, shell: str | None) -> str:
+    """Change only the verifier's step-level shell, preserving its run and env."""
+    start, end = step_span(workflow, VERIFY_NAME)
+    block = workflow[start:end]
+    matches = list(re.finditer(r'(?m)^        shell:[^\r\n]*(?:\r?\n|$)', block))
+    require(len(matches) <= 1, 'verifier shell field is duplicated before probe')
+    if matches:
+        match = matches[0]
+        block = block[:match.start()] + block[match.end():]
+    if shell is not None:
+        first, rest = block.split('\n', 1)
+        block = first + '\n        shell: ' + shell + '\n' + rest
+    return workflow[:start] + block + workflow[end:]
+
+
+def inherited_shell(workflow: str, level: str, shell: str) -> str:
+    """Install one documented workflow/job default; no executable text changes."""
+    if level == 'workflow':
+        require(not re.search(r'(?m)^defaults:', workflow), 'workflow defaults already exist')
+        return replace_once(workflow, '\njobs:\n',
+                            '\ndefaults:\n  run:\n    shell: ' + shell + '\n\njobs:\n')
+    require(level == 'job', 'unknown default shell level')
+    require(not re.search(r'(?m)^    defaults:', workflow), 'job defaults already exist')
+    return replace_once(workflow, '  test-and-build:\n',
+                        '  test-and-build:\n    defaults:\n      run:\n        shell: ' + shell + '\n')
+
+
+def shell_validator_variants(workflow: str) -> list[tuple[str, str, bool]]:
+    """False means rejection is required; explicit bash is the positive control."""
+    inherited = verifier_shell(workflow, None)
+    positive = inherited_shell(verifier_shell(workflow, 'bash'), 'workflow', 'sh')
+    positive = inherited_shell(positive, 'job', 'sh')
+    return [
+        ('explicit_nonexecuting_shell', verifier_shell(workflow, 'cat {0}'), False),
+        ('inherited_job_nonexecuting_shell', inherited_shell(inherited, 'job', 'cat {0}'), False),
+        ('inherited_workflow_nonexecuting_shell', inherited_shell(inherited, 'workflow', 'cat {0}'), False),
+        ('explicit_bash_with_inherited_sh_control', positive, True),
+    ]
+
+
+
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument('--repository', required=True, type=Path)
@@ -281,6 +322,36 @@ def main() -> int:
                         f"expected {'validator acceptance' if name == 'unmodified_positive_control' else 'market-pipeline contract rejection'}; {json.dumps(detail)}")
                 return detail
         record('validator/' + name, validator_case)
+
+    # Shell selection is outside the inline run-body contract. These probes ask
+    # the public validator to reject a nonexecuting custom shell; they do not
+    # dispatch a modified GitHub Actions workflow or execute that custom shell.
+    for name, mutated, should_accept in shell_validator_variants(workflow):
+        def shell_validator_case(name=name, mutated=mutated, should_accept=should_accept):
+            require(extract_run(mutated) == (run, script), 'shell probe changed verifier executable bytes')
+            require(exact_scalar(step_text(mutated, VERIFY_NAME), ARTIFACT_ENV) == DESTINATION,
+                    'shell probe changed verifier environment')
+            require(step_text(mutated, DOWNLOAD_NAME) == step_text(workflow, DOWNLOAD_NAME),
+                    'shell probe changed artifact download step')
+            with tempfile.TemporaryDirectory(prefix='pipeline-shell-validator-case-') as directory:
+                checkout = Path(directory) / 'repository'
+                shutil.copytree(repo, checkout, symlinks=True, ignore=shutil.ignore_patterns('.git'))
+                (checkout / WORKFLOW).write_text(mutated, encoding='utf-8')
+                require((checkout / VALIDATOR).read_bytes() == validator_raw, 'validator bytes changed in shell probe')
+                result = run_process([sys.executable, '-I', '-B', str(checkout / VALIDATOR)],
+                                     checkout, isolated_environment(), 60)
+                detail = output_detail(result)
+                combined = result.stdout + result.stderr
+                passed = (result.returncode == 0 and 'PUBLIC_REPOSITORY_VALIDATION=PASS' in result.stdout
+                          and 'MARKET_PIPELINE_CI_CONTRACT=PASS' in result.stdout)
+                rejected = (result.returncode != 0 and 'PUBLIC_REPOSITORY_VALIDATION=FAIL' in result.stdout
+                            and 'ERROR: market-pipeline CI artifact verification shell must be bash' in result.stdout.splitlines()
+                            and 'Traceback' not in combined)
+                require(passed if should_accept else rejected,
+                        f"expected {'validator acceptance' if should_accept else 'dedicated shell-binding rejection'}; {json.dumps(detail)}")
+                return detail
+        record('validator-shell/' + name, shell_validator_case)
+
 
     clean = (git(repo, 'rev-parse', 'HEAD') == head and git(repo, 'rev-parse', 'HEAD^{tree}') == tree
              and git(repo, 'status', '--porcelain') == ''
