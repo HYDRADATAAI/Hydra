@@ -51,14 +51,19 @@ class LineageReplayTests(unittest.TestCase):
             row for row in rows
             if row["constraint_candidate_id"] == "T5C-AIDC-US-TRANSFORMER-SUPPLY-001"
         )
-        future_candidate["available_at"] = "2026-09-26T12:47:01Z"
+        baseline = self.snap()
+        self.assertIn(future_candidate["constraint_candidate_id"], baseline["constraint_candidate_ids"])
+        self.assertIn("REL-AIDC-004", baseline["relief_path_ids"])
+        self.assertIn("BEN-AIDC-EATON-TRANSFORMER-001", baseline["beneficiary_relationship_ids"])
 
+        future_candidate["available_at"] = "2026-09-26T12:47:01Z"
         result = self.snap()
 
-        self.assertEqual(2, len(result["constraint_candidate_ids"]))
-        self.assertNotIn(future_candidate["constraint_candidate_id"], result["constraint_candidate_ids"])
-        self.assertNotIn("REL-AIDC-004", result["relief_path_ids"])
-        self.assertNotIn("BEN-AIDC-EATON-TRANSFORMER-001", result["beneficiary_relationship_ids"])
+        expected = copy.deepcopy(baseline)
+        expected["constraint_candidate_ids"].remove(future_candidate["constraint_candidate_id"])
+        expected["relief_path_ids"].remove("REL-AIDC-004")
+        expected["beneficiary_relationship_ids"].remove("BEN-AIDC-EATON-TRANSFORMER-001")
+        self.assertEqual(expected, result)
 
     def test_future_parent_cascades_without_erasing_other_constraints(self):
         self.inputs["claim_registry"]["claims"][2]["available_at"] = "2027-01-01T00:00:00Z"
