@@ -31,11 +31,15 @@ def lambda_handler(
     context: object,
     *,
     s3_client: object | None = None,
+    glue_client: object | None = None,
 ) -> dict[str, object]:
     del context
     output_bucket = os.environ.get("CURATED_BUCKET", "").strip()
     if not output_bucket:
         raise RuntimeError("CURATED_BUCKET must be configured")
+    catalog_database = os.environ.get("DATA_CATALOG_DATABASE", "").strip()
+    if not catalog_database:
+        raise RuntimeError("DATA_CATALOG_DATABASE must be configured")
 
     max_source_object_bytes = _max_source_object_bytes()
     client = s3_client or _boto3_s3_client()
@@ -59,6 +63,7 @@ def lambda_handler(
             f"source object exceeds max_source_object_bytes={max_source_object_bytes}"
         )
 
+    catalog = glue_client or _boto3_glue_client()
     processed: list[dict[str, object]] = []
     for source_bucket, source_key, event_object_size, version_id in source_objects:
         get_args: dict[str, object] = {"Bucket": source_bucket, "Key": source_key}
@@ -89,6 +94,7 @@ def lambda_handler(
             raise ValueError("S3 response body length does not match ContentLength")
         batch = process_csv(source_bytes)
         output_keys = _write_batch(client, output_bucket, batch)
+        _publish_partition(catalog, catalog_database, output_bucket, batch.run_id)
         processed.append(
             {
                 "accepted_rows": len(batch.accepted),
@@ -161,6 +167,65 @@ def _write_batch(client: object, bucket: str, batch: ProcessedBatch) -> list[str
     return [destinations[name] for name in ARTIFACT_WRITE_ORDER]
 
 
+
+
+GLUE_PARTITION_COLUMNS = (
+    {"Name": "currency", "Type": "string"},
+    {"Name": "event_id", "Type": "string"},
+    {"Name": "event_time_utc", "Type": "string"},
+    {"Name": "price", "Type": "string"},
+    {"Name": "raw_record_sha256", "Type": "string"},
+    {"Name": "source_file_sha256", "Type": "string"},
+    {"Name": "source_record_id", "Type": "string"},
+    {"Name": "source_row_number", "Type": "bigint"},
+    {"Name": "source_system", "Type": "string"},
+    {"Name": "symbol", "Type": "string"},
+    {"Name": "transform_version", "Type": "string"},
+    {"Name": "venue", "Type": "string"},
+    {"Name": "volume", "Type": "bigint"},
+)
+
+
+def _publish_partition(
+    catalog: object, database: str, bucket: str, run_id: str
+) -> None:
+    """Expose an accepted prefix only after every deterministic artifact is stored."""
+    location = f"s3://{bucket}/curated/accepted/{run_id}/"
+    try:
+        catalog.create_partition(
+            DatabaseName=database,
+            TableName="normalized_events",
+            PartitionInput={
+                "Values": [run_id],
+                "StorageDescriptor": {
+                    "Columns": list(GLUE_PARTITION_COLUMNS),
+                    "InputFormat": "org.apache.hadoop.mapred.TextInputFormat",
+                    "Location": location,
+                    "OutputFormat": "org.apache.hadoop.hive.ql.io.HiveIgnoreKeyTextOutputFormat",
+                    "SerdeInfo": {
+                        "Parameters": {"ignore.malformed.jsons": "false"},
+                        "SerializationLibrary": "org.openx.data.jsonserde.JsonSerDe",
+                    },
+                },
+            },
+        )
+    except Exception as exc:
+        # S3 events can be retried or delivered concurrently for the same content hash.
+        response = getattr(exc, "response", None)
+        error = response.get("Error", {}) if isinstance(response, dict) else {}
+        if error.get("Code") != "AlreadyExistsException":
+            raise
+        existing = catalog.get_partition(
+            DatabaseName=database,
+            TableName="normalized_events",
+            PartitionValues=[run_id],
+        ).get("Partition", {})
+        existing_location = existing.get("StorageDescriptor", {}).get("Location")
+        if existing.get("Values") != [run_id] or existing_location != location:
+            raise RuntimeError(
+                "existing Glue partition does not match this content-addressed run"
+            ) from exc
+
 def _max_source_object_bytes() -> int:
     configured = os.environ.get(
         "MAX_SOURCE_OBJECT_BYTES", str(DEFAULT_MAX_SOURCE_OBJECT_BYTES)
@@ -214,3 +279,9 @@ def _boto3_s3_client() -> object:
     import boto3
 
     return boto3.client("s3")
+
+
+def _boto3_glue_client() -> object:
+    import boto3
+
+    return boto3.client("glue")
