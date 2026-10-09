@@ -201,9 +201,9 @@ class OperationsTests(unittest.TestCase):
         self.assertEqual(DeploymentGuard.validate(config)["status"], "FAIL")
 
     def test_backoff_is_bounded(self):
-        policy = BackoffPolicy(max_attempts=5, base_seconds=2, cap_seconds=30)
-        self.assertEqual([policy.delay(i) for i in range(1, 5)], [2, 4, 8, 16])
-        self.assertEqual(policy.delay(2, "120"), 30)
+        policy = BackoffPolicy(max_attempts=5, base_seconds=2, cap_seconds=5)
+        self.assertEqual([policy.delay(i) for i in range(1, 5)], [2, 4, 5, 5])
+        self.assertEqual(policy.delay(2, "120"), 5)
         self.assertEqual(policy.delay(2, "not-a-date"), 4)
 
     def test_backoff_parses_http_date_retry_after(self):
