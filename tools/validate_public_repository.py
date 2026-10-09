@@ -397,6 +397,9 @@ def validate_workflow_action_uses(errors: list[str]) -> None:
         )
         explicit_key_indicator = re.compile(r"^\s*(?:-\s*)?\?\s*(?:$|\s)")
         alias_key = re.compile(r"^\s*(?:-\s*)?\*[^\s:]+\s*:")
+        block_alias_value = re.compile(
+            r"""^[ \t]*(?:-[ \t]+)?(?:(?:'(?:[^']|'')*'|"(?:\\.|[^"\\])*"|[^'":# \t][^:\r\n]*)[ \t]*:[ \t]*)?\*[^ \t\r\n,\[\]{}]+[ \t]*(?:#.*)?$"""
+        )
         node_property = r"(?:&[^\s,\[\]{}]+|!(?:<[^>]+>|[^\s,\[\]{}]+))"
         decorated_key = re.compile(
             rf"""^\s*(?:-\s*)?(?:{node_property}\s+)+(?P<key>'(?:[^']|'')*'|"(?:\\.|[^"\\])*"|[^:\s]+)\s*:"""
@@ -414,6 +417,12 @@ def validate_workflow_action_uses(errors: list[str]) -> None:
                 run_block_indent = None
             if run_block.match(line):
                 run_block_indent = indentation
+                continue
+            if not run_scalar.match(line) and block_alias_value.match(line):
+                errors.append(
+                    f"unsupported workflow alias value syntax: "
+                    f"{relative}:{line_number}"
+                )
                 continue
             if not run_scalar.match(line) and yaml_line_has_unclosed_quote(line):
                 errors.append(
