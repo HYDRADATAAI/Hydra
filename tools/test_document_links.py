@@ -63,6 +63,37 @@ class DocumentLinkValidationTests(unittest.TestCase):
             )
         self.assertEqual(errors, [])
 
+    def test_longer_tilde_fence_closer_hides_code_links(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            errors = self.validate_markdown(
+                root,
+                "~~~html\\n"
+                "<a href='missing.html'>example</a>\\n"
+                "[example](missing.md)\\n"
+                "~~~~\\n",
+            )
+        self.assertEqual(errors, [])
+
+    def test_outside_target_fails_when_old_sentinel_exists(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            (root / ".invalid-outside-repository-link").write_text(
+                "sentinel", encoding="utf-8"
+            )
+            errors = self.validate_markdown(
+                root, "[escape](../../outside.txt)\\n"
+            )
+        self.assertEqual(len(errors), 1)
+        self.assertIn("escapes repository", errors[0])
+
+    def test_prose_with_closing_bracket_and_paren_is_ignored(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            errors = self.validate_markdown(
+                Path(temporary), "The sequence ](missing.md) appears in prose.\\n"
+            )
+        self.assertEqual(errors, [])
+
     def test_local_valid_and_external_references_pass(self):
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
