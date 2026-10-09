@@ -1258,6 +1258,7 @@ def validate_ci_contract(errors: list[str]) -> None:
         "sql/create_committed_normalized_events.sql",
         "FROM committed_normalized_events",
         "COUNT(*) AS accepted_rows FROM committed_normalized_events",
+        "WHERE pipeline_run_id = '$RUN_ID'",
         '"athena_accepted_rows": int(os.environ["ATHENA_ACCEPTED_ROWS"]),',
         "start-query-execution",
         "--page-size 1000",
