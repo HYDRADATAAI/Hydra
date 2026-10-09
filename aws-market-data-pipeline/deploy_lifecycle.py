@@ -1,4 +1,4 @@
-"""Fail-closed lifecycle helpers for the temporary AWS demo stack."""
+"""Create-only AWS demo lifecycle helper with StackId-bound cleanup."""
 
 from __future__ import annotations
 
@@ -12,11 +12,6 @@ from pathlib import Path
 from typing import Any, Callable, Mapping, Sequence
 
 Runner = Callable[..., subprocess.CompletedProcess[str]]
-OWNERSHIP_TAGS = (
-    "hydra:github-repository",
-    "hydra:github-run-id",
-    "hydra:github-run-attempt",
-)
 BUCKET_RESOURCES = {"RawBucket", "CuratedBucket"}
 
 
@@ -62,42 +57,14 @@ def effective_stack_name(env: Mapping[str, str]) -> str:
     return name
 
 
-def describe_stack(
-    stack_name: str, aws_region: str, *, runner: Runner
-) -> dict[str, Any] | None:
-    result = run(
-        ["aws", "cloudformation", "describe-stacks", "--stack-name", stack_name,
-         "--region", aws_region, "--output", "json"],
-        runner=runner,
-        check=False,
-    )
-    if result.returncode:
-        detail = (result.stderr or result.stdout or "").lower()
-        if "does not exist" in detail:
-            return None
-        raise LifecycleError(
-            "unable to establish stack state; refusing lifecycle action: "
-            + (result.stderr or result.stdout or "describe-stacks failed").strip()
-        )
-    try:
-        stacks = json.loads(result.stdout).get("Stacks", [])
-    except (json.JSONDecodeError, AttributeError) as exc:
-        raise LifecycleError("describe-stacks returned invalid JSON") from exc
-    if len(stacks) != 1 or not isinstance(stacks[0], dict):
-        raise LifecycleError("describe-stacks returned an unexpected result")
-    return stacks[0]
-
-
 def write_github_env(env: Mapping[str, str], key: str, value: str) -> None:
     with Path(required(env, "GITHUB_ENV")).open("a", encoding="utf-8") as stream:
         stream.write(f"{key}={value}\n")
 
 
 def guard(*, env: Mapping[str, str], runner: Runner = subprocess.run) -> str:
-    """Refuse an existing or indeterminate stack and export a unique name."""
+    """Export a run-unique stack name; CreateStack provides the create-only gate."""
     name = effective_stack_name(env)
-    if describe_stack(name, region(env), runner=runner) is not None:
-        raise LifecycleError("refusing to update or delete an existing stack")
     write_github_env(env, "STACK_NAME", name)
     return name
 
@@ -117,30 +84,72 @@ def bucket_names(
     return f"hydra-public-raw-{unique}", f"hydra-public-curated-{unique}"
 
 
+def _stack_id(response: str, *, expected_name: str, aws_region: str) -> str:
+    try:
+        stack_id = json.loads(response)["StackId"]
+    except (json.JSONDecodeError, KeyError, TypeError) as exc:
+        raise LifecycleError("CreateStack did not return a StackId") from exc
+    pattern = (
+        rf"^arn:aws(?:-[a-z]+)?:cloudformation:{re.escape(aws_region)}:"
+        rf"\d{{12}}:stack/{re.escape(expected_name)}/[0-9a-fA-F-]+$"
+    )
+    if not isinstance(stack_id, str) or not re.fullmatch(pattern, stack_id):
+        raise LifecycleError("CreateStack returned an unexpected StackId")
+    return stack_id
+
+
 def deploy(*, env: Mapping[str, str], runner: Runner = subprocess.run) -> str:
-    """Deploy a run-scoped stack with tags used to authorize later cleanup."""
+    """Package with SAM, then create a new stack and persist only its returned ID."""
     name = required(env, "STACK_NAME")
     aws_region = region(env)
-    if describe_stack(name, aws_region, runner=runner) is not None:
-        raise LifecycleError("refusing to update or delete an existing stack")
     raw, curated = bucket_names(name, aws_region, runner=runner)
+    temp_dir = Path(required(env, "RUNNER_TEMP"))
+    temp_dir.mkdir(parents=True, exist_ok=True)
+    packaged_template = temp_dir / "hydra-market-data-packaged-template.yaml"
+    package_prefix = (
+        f"hydra-demo/{required(env, 'GITHUB_RUN_ID')}/"
+        f"{required(env, 'GITHUB_RUN_ATTEMPT')}"
+    )
+    sample_dir = required(env, "SAMPLE_DIR")
+    run(
+        [
+            "sam", "package", "--template-file", str(Path(sample_dir) / "template.json"),
+            "--resolve-s3", "--s3-prefix", package_prefix,
+            "--output-template-file", str(packaged_template), "--region", aws_region,
+        ],
+        runner=runner,
+    )
+    if not packaged_template.is_file():
+        raise LifecycleError("sam package did not produce a template")
+
     tags = {
         **identity(env),
         "hydra:sample": "aws-market-data-pipeline",
         "hydra:data-boundary": "synthetic-non-live",
     }
-    command = [
-        "sam", "deploy", "--stack-name", name, "--region", aws_region,
-        "--resolve-s3", "--capabilities", "CAPABILITY_IAM",
-        "--no-confirm-changeset", "--no-fail-on-empty-changeset",
-        "--parameter-overrides", f"RawBucketName={raw}",
-        f"CuratedBucketName={curated}", "--tags",
-        *[f"{key}={value}" for key, value in tags.items()],
+    create_args = [
+        "aws", "cloudformation", "create-stack", "--stack-name", name,
+        "--template-body", f"file://{packaged_template}",
+        "--capabilities", "CAPABILITY_IAM", "CAPABILITY_AUTO_EXPAND",
+        "--disable-rollback", "--region", aws_region,
+        "--parameters", f"ParameterKey=RawBucketName,ParameterValue={raw}",
+        f"ParameterKey=CuratedBucketName,ParameterValue={curated}",
+        "--tags", *[f"Key={key},Value={value}" for key, value in tags.items()],
+        "--output", "json",
     ]
-    run(command, runner=runner)
+    created = run(create_args, runner=runner)
+    stack_id = _stack_id(created.stdout, expected_name=name, aws_region=aws_region)
+    # Persist the returned ID immediately. A later waiter failure still has a
+    # positively identified stack for the always-run teardown step.
+    write_github_env(env, "STACK_ID", stack_id)
     write_github_env(env, "RAW_BUCKET", raw)
     write_github_env(env, "CURATED_BUCKET", curated)
-    return name
+    run(
+        ["aws", "cloudformation", "wait", "stack-create-complete",
+         "--stack-name", stack_id, "--region", aws_region],
+        runner=runner,
+    )
+    return stack_id
 
 
 def tags_match(observed: Any, expected: Mapping[str, str]) -> bool:
@@ -154,15 +163,9 @@ def tags_match(observed: Any, expected: Mapping[str, str]) -> bool:
     return all(by_key.get(key) == value for key, value in expected.items())
 
 
-def owned_buckets(
-    name: str,
-    aws_region: str,
-    tags: Mapping[str, str],
-    *,
-    runner: Runner,
-) -> list[str]:
+def owned_buckets(stack_id: str, aws_region: str, *, runner: Runner) -> list[str]:
     result = run(
-        ["aws", "cloudformation", "list-stack-resources", "--stack-name", name,
+        ["aws", "cloudformation", "list-stack-resources", "--stack-name", stack_id,
          "--region", aws_region, "--output", "json"],
         runner=runner,
     )
@@ -171,12 +174,12 @@ def owned_buckets(
     except (json.JSONDecodeError, AttributeError) as exc:
         raise LifecycleError("list-stack-resources returned invalid JSON") from exc
 
-    owned: list[str] = []
+    buckets: list[str] = []
     for item in resources:
         if (
             item.get("LogicalResourceId") not in BUCKET_RESOURCES
             or item.get("ResourceType") != "AWS::S3::Bucket"
-            or item.get("ResourceStatus") == "DELETE_COMPLETE"
+            or item.get("ResourceStatus") != "CREATE_COMPLETE"
         ):
             continue
         bucket = item.get("PhysicalResourceId")
@@ -194,9 +197,40 @@ def owned_buckets(
             bucket_tags = json.loads(bucket_result.stdout).get("TagSet", [])
         except (json.JSONDecodeError, AttributeError):
             continue
-        if tags_match(bucket_tags, tags):
-            owned.append(bucket)
-    return owned
+        if tags_match(bucket_tags, identity_from_stack(stack_id, runner=runner, region=aws_region)):
+            buckets.append(bucket)
+    return buckets
+
+
+def identity_from_stack(
+    stack_id: str, *, runner: Runner, region: str
+) -> dict[str, str]:
+    result = run(
+        ["aws", "cloudformation", "describe-stacks", "--stack-name", stack_id,
+         "--region", region, "--output", "json"],
+        runner=runner,
+    )
+    try:
+        stacks = json.loads(result.stdout).get("Stacks", [])
+        if len(stacks) != 1 or stacks[0].get("StackId") != stack_id:
+            raise LifecycleError("StackId could not be re-verified")
+        tags = stacks[0].get("Tags", [])
+    except (json.JSONDecodeError, AttributeError) as exc:
+        raise LifecycleError("describe-stacks returned invalid JSON") from exc
+    expected = {
+        key: value for key, value in {
+            item.get("Key"): item.get("Value")
+            for item in tags if isinstance(item, dict)
+        }.items()
+        if key in {
+            "hydra:github-repository",
+            "hydra:github-run-id",
+            "hydra:github-run-attempt",
+        }
+    }
+    if len(expected) != 3:
+        raise LifecycleError("stack is missing the run-ownership tags")
+    return expected
 
 
 def empty_bucket(bucket: str, aws_region: str, *, runner: Runner) -> None:
@@ -226,17 +260,20 @@ def empty_bucket(bucket: str, aws_region: str, *, runner: Runner) -> None:
 
 
 def teardown(*, env: Mapping[str, str], runner: Runner = subprocess.run) -> bool:
-    """Clean only this attempt's tagged stack and its tagged S3 resources."""
-    name = required(env, "STACK_NAME")
-    aws_region = region(env)
-    tags = identity(env)
-    stack = describe_stack(name, aws_region, runner=runner)
-    if stack is None or not tags_match(stack.get("Tags"), tags):
+    """Empty verified CREATE_COMPLETE buckets, then delete only the captured StackId."""
+    stack_id = env.get("STACK_ID", "").strip()
+    if not stack_id:
         return False
-    for bucket in owned_buckets(name, aws_region, tags, runner=runner):
+    aws_region = region(env)
+    expected_tags = identity(env)
+    actual_tags = identity_from_stack(stack_id, runner=runner, region=aws_region)
+    if actual_tags != expected_tags:
+        return False
+    for bucket in owned_buckets(stack_id, aws_region, runner=runner):
         empty_bucket(bucket, aws_region, runner=runner)
     run(
-        ["sam", "delete", "--stack-name", name, "--region", aws_region, "--no-prompts"],
+        ["aws", "cloudformation", "delete-stack", "--stack-name", stack_id,
+         "--region", aws_region],
         runner=runner,
     )
     return True
