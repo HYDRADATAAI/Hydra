@@ -11,6 +11,8 @@ import tomllib
 from pathlib import Path
 from urllib.parse import unquote, urlsplit
 
+import yaml
+
 ROOT = Path(__file__).resolve().parents[1]
 COMPONENT = ROOT / "t6-fail-closed-validator"
 PIPELINE = ROOT / "market-data-pipeline-sample"
@@ -926,9 +928,61 @@ def validate_manifest_v2_replay_contract(errors: list[str]) -> None:
             errors.append(f"independent pipeline replay contract missing: {fragment}")
 
 
+def workflow_action_refs(workflow_text: str) -> list[str]:
+    document = yaml.load(workflow_text, Loader=yaml.BaseLoader)
+    jobs = document.get("jobs") if isinstance(document, dict) else None
+    if not isinstance(jobs, dict):
+        raise ValueError("workflow jobs mapping is missing")
+    references = []
+    for job in jobs.values():
+        if not isinstance(job, dict):
+            continue
+        if isinstance(job.get("uses"), str):
+            references.append(job["uses"])
+        steps = job.get("steps", [])
+        if isinstance(steps, list):
+            references.extend(
+                step["uses"]
+                for step in steps
+                if isinstance(step, dict) and isinstance(step.get("uses"), str)
+            )
+    return references
+
+
+def workflow_action_ref_is_pinned(action_ref: str) -> bool:
+    if action_ref.startswith("./"):
+        return True
+    if action_ref.startswith("docker://"):
+        return re.search(r"@sha256:[0-9a-f]{64}$", action_ref) is not None
+    revision = action_ref.rpartition("@")[2]
+    return re.fullmatch(r"[0-9a-f]{40}", revision) is not None
+
+
 def validate_ci_contract(errors: list[str]) -> None:
     validate_manifest_v2_replay_contract(errors)
     validate_pre_upload_verifier_contract(errors)
+
+    workflow_dir = ROOT / ".github" / "workflows"
+    workflow_files = sorted(
+        list(workflow_dir.glob("*.yml")) + list(workflow_dir.glob("*.yaml"))
+    )
+    for workflow_path in workflow_files:
+        try:
+            action_refs = workflow_action_refs(
+                workflow_path.read_text(encoding="utf-8-sig")
+            )
+        except (OSError, yaml.YAMLError, ValueError) as exc:
+            errors.append(
+                f"unable to parse workflow actions in "
+                f"{workflow_path.relative_to(ROOT)}: {exc}"
+            )
+            continue
+        for action_ref in action_refs:
+            if not workflow_action_ref_is_pinned(action_ref):
+                errors.append(
+                    f"workflow action must use a full commit SHA or image digest: "
+                    f"{workflow_path.relative_to(ROOT)}: {action_ref}"
+                )
     documentation_contracts = {
         ROOT / "README.md": (
             "15-member deterministic proof package intentionally includes",
@@ -1120,12 +1174,12 @@ def validate_ci_contract(errors: list[str]) -> None:
     )
     aws_fragments = (
         'python-version: "3.11"',
-        "aws-actions/setup-sam@v3",
+        "aws-actions/setup-sam@89ddb14d60e682855e3fea4be85b3c56485de310",
         "sam validate --lint --template-file template.json",
         "python -m unittest discover -s tests -t . -v",
         "python local_demo.py --output-dir build/local",
         "AWS_SAMPLE_MANIFEST=PASS",
-        "actions/upload-artifact@v4",
+        "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02",
     )
     for fragment in aws_fragments:
         if fragment not in aws_workflow:
