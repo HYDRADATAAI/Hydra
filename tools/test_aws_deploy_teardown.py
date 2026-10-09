@@ -277,7 +277,7 @@ class DeployTeardownOwnershipTests(unittest.TestCase):
         self.assertNotEqual(result.returncode, 0, result.stdout + result.stderr)
         self.assertIn("not bound to this stack resource", result.stderr)
         self.assertEqual(len(logs["cleanup"]), 1)
-        self.assertIn(RAW_BUCKET, logs["cleanup"][0])
+        self.assertIn("s3://" + RAW_BUCKET, logs["cleanup"][0])
         self.assertFalse(logs["sam"])
 
     def test_unexpected_stack_status_stops_before_resource_lookup(self):
