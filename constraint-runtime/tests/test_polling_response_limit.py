@@ -34,6 +34,14 @@ class ReadStream:
 
 
 class PollingResponseLimitTests(unittest.TestCase):
+    def test_response_limits_reject_nonpositive_and_non_integer_values(self):
+        for value in (0, -1, True, 1.5, "3"):
+            with self.subTest(value=value):
+                with self.assertRaises(ValueError):
+                    UrllibTransport(max_bytes=value)
+                with self.assertRaises(ValueError):
+                    PollRunner(None, None, None, object(), max_response_bytes=value)
+
     def test_success_response_reads_exact_limit_with_one_byte_probe(self):
         stream = ReadStream(b"abc")
         with patch("hydra_constraint.polling.urllib.request.urlopen", return_value=stream):
