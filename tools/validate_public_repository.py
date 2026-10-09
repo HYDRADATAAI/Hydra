@@ -966,6 +966,9 @@ def athena_success_commands_are_valid(run_script: object) -> bool:
     """Require active result retrieval and verifier commands in the SUCCEEDED branch."""
     if not isinstance(run_script, str):
         return False
+    expected_query = "query=\"SELECT COUNT(*) AS accepted_rows FROM committed_normalized_events WHERE pipeline_run_id = '$RUN_ID'\""
+    if expected_query not in run_script:
+        return False
 
     success = re.search(
         r'(?m)^[ \t]*if \[\[ "\$state" == "SUCCEEDED" \]\]; then[ \t]*$',
