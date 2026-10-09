@@ -63,7 +63,7 @@ The AWS role trust policy should be scoped to this repository and the `aws-demo`
 6. publishes sanitized verification evidence as a workflow artifact;
 7. tears the stack down by default, including versioned S3 objects.
 
-The workflow derives stable, globally unique bucket names from the AWS account, region, and stack name. Those names remain outside the published evidence artifact, and the configured action masks the account identifier in workflow logs.
+Each invocation appends its GitHub run ID and attempt to the supplied stack name, then derives stable, globally unique bucket names from the AWS account, region, and resulting stack name. Teardown is enabled only after the new stack reaches `CREATE_COMPLETE`, and versioned-object deletion is paginated. Bucket names remain outside the published evidence artifact, and the configured action masks the account identifier in workflow logs.
 
 The deploy workflow is not evidence until it completes successfully against a real AWS account. No repository secret, account identifier, bucket name, or role ARN is committed here.
 
