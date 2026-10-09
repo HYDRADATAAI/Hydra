@@ -1120,16 +1120,51 @@ def validate_ci_contract(errors: list[str]) -> None:
     )
     aws_fragments = (
         'python-version: "3.11"',
-        "aws-actions/setup-sam@v3",
+        "aws-actions/setup-sam@89ddb14d60e682855e3fea4be85b3c56485de310",
         "sam validate --lint --template-file template.json",
         "python -m unittest discover -s tests -t . -v",
         "python local_demo.py --output-dir build/local",
         "AWS_SAMPLE_MANIFEST=PASS",
-        "actions/upload-artifact@v4",
+        "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02",
     )
     for fragment in aws_fragments:
         if fragment not in aws_workflow:
             errors.append(f"aws-sample CI contract missing: {fragment}")
+
+    workflow_action_pin_contracts = {
+        ".github/workflows/sql-data-quality-sample.yml": [
+            ("actions/checkout", "11d5960a326750d5838078e36cf38b85af677262"),
+            ("actions/setup-python", "a26af69be951a213d495a4c3e4e4022e16d87065"),
+        ],
+        ".github/workflows/aws-market-data-pipeline.yml": [
+            ("actions/checkout", "11d5960a326750d5838078e36cf38b85af677262"),
+            ("actions/setup-python", "a26af69be951a213d495a4c3e4e4022e16d87065"),
+            ("aws-actions/setup-sam", "89ddb14d60e682855e3fea4be85b3c56485de310"),
+            ("actions/upload-artifact", "ea165f8d65b6e75b540449e92b4886f43607fa02"),
+        ],
+        ".github/workflows/nyx-constraint-successor-chain.yml": [
+            ("actions/checkout", "11d5960a326750d5838078e36cf38b85af677262"),
+            ("actions/setup-python", "a26af69be951a213d495a4c3e4e4022e16d87065"),
+        ],
+        ".github/workflows/constraint-t1-raw-artifact-store.yml": [
+            ("actions/checkout", "11d5960a326750d5838078e36cf38b85af677262"),
+            ("actions/setup-python", "a26af69be951a213d495a4c3e4e4022e16d87065"),
+        ],
+        ".github/workflows/constraint-first-slice-integration.yml": [
+            ("actions/checkout", "11d5960a326750d5838078e36cf38b85af677262"),
+            ("actions/setup-python", "a26af69be951a213d495a4c3e4e4022e16d87065"),
+        ],
+    }
+    for workflow_path, expected_refs in workflow_action_pin_contracts.items():
+        workflow = (ROOT / workflow_path).read_text(encoding="utf-8-sig")
+        actual_refs = re.findall(
+            r"(?m)^\s*-\s*uses:\s*([^@\s]+)@([^\s#]+)",
+            workflow,
+        )
+        if any(re.fullmatch(r"[0-9a-f]{40}", ref) is None for _, ref in actual_refs):
+            errors.append(f"{workflow_path} actions must use full commit SHAs")
+        if sorted(actual_refs) != sorted(expected_refs):
+            errors.append(f"{workflow_path} action pins changed: {actual_refs!r}")
 
     deploy_workflow = (ROOT / ".github/workflows/aws-market-data-deploy.yml").read_text(
         encoding="utf-8-sig"
