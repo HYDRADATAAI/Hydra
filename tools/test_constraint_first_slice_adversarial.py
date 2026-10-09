@@ -18,9 +18,11 @@ VALIDATION_DIR = ROOT / "docs/constraint/validation"
 
 MANIFEST_NAMES = [
     f"HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH{n:03d}_ARTIFACT_MANIFEST_V001_20260925.json"
-    for n in range(3, 10)
+    for n in range(3, 8)
 ] + [
-    "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH010_ARTIFACT_MANIFEST_V002_20260925.json"
+    "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH008_ARTIFACT_MANIFEST_V002_20260925.json",
+    "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH009_ARTIFACT_MANIFEST_V001_20260925.json",
+    "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH010_ARTIFACT_MANIFEST_V002_20260925.json",
 ]
 
 
@@ -190,7 +192,7 @@ def case_raw_materialization_falsely_claimed(root: Path) -> None:
         root,
         relative,
         mutate,
-        manifest_name="HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH008_ARTIFACT_MANIFEST_V001_20260925.json",
+        manifest_name="HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH008_ARTIFACT_MANIFEST_V002_20260925.json",
     )
 
 
@@ -282,8 +284,16 @@ def case_master_falsely_ready(root: Path) -> None:
         root,
         relative,
         mutate,
-        manifest_name="HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH008_ARTIFACT_MANIFEST_V001_20260925.json",
+        manifest_name="HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH008_ARTIFACT_MANIFEST_V002_20260925.json",
     )
+
+
+def case_batch008_supersession_boundary_removed(root: Path) -> None:
+    name = "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH008_ARTIFACT_MANIFEST_V002_20260925.json"
+    path = root / "docs/constraint/validation" / name
+    manifest = json.loads(path.read_text(encoding="utf-8"))
+    manifest["supersedes"]["predecessor_preserved"] = False
+    path.write_text(json.dumps(manifest, indent=2) + "\\n", encoding="utf-8")
 
 
 def main() -> int:
@@ -297,6 +307,7 @@ def main() -> int:
         ("candidate_mints_canonical", case_candidate_mints_canonical, "Batch010 minted canonical constraint ID"),
         ("beneficiary_falsely_qualified", case_beneficiary_falsely_qualified, "Batch010 fabricated qualified beneficiary"),
         ("master_falsely_ready", case_master_falsely_ready, "master falsely claims full-run readiness"),
+        ("batch008_supersession_boundary_removed", case_batch008_supersession_boundary_removed, "Batch008 manifest supersession boundary drifted"),
     ]
     for name, mutator, expected in cases:
         expect_failure(name, mutator, expected)
