@@ -189,7 +189,7 @@ jobs:
       - name: Run bounded Athena verification query
         run: |
           set -euo pipefail
-          query='SELECT symbol, COUNT(*) AS row_count FROM committed_normalized_events GROUP BY symbol ORDER BY symbol'
+          query="SELECT COUNT(*) AS accepted_rows FROM committed_normalized_events"
           QUERY_ID=$(aws athena start-query-execution \
             --query-string "$query" \
             --query-execution-context "Database=$GLUE_DATABASE" \
@@ -202,6 +202,27 @@ jobs:
             state=$(aws athena get-query-execution --query-execution-id "$QUERY_ID" --query 'QueryExecution.Status.State' --output text)
             if [[ "$state" == "SUCCEEDED" ]]; then
               aws athena get-query-results --query-execution-id "$QUERY_ID" > "$SAMPLE_DIR/build/deployed/athena_query_results.json"
+              observed=$(python - <<'PY'
+          import json
+          from pathlib import Path
+
+          result = json.loads(
+              Path("aws-market-data-pipeline/build/deployed/athena_query_results.json").read_text(encoding="utf-8")
+          )
+          rows = result["ResultSet"]["Rows"]
+          if len(rows) != 2:
+              raise SystemExit(f"expected one Athena result row, got {len(rows) - 1}")
+          value = rows[1]["Data"][0].get("VarCharValue")
+          try:
+              accepted_rows = int(value)
+          except (TypeError, ValueError) as exc:
+              raise SystemExit(f"Athena returned an invalid accepted-row count: {value!r}") from exc
+          if accepted_rows != 3:
+              raise SystemExit(f"expected 3 accepted rows from committed view, got {accepted_rows}")
+          print(accepted_rows)
+          PY
+          )
+              echo "ATHENA_ACCEPTED_ROWS=$observed" >> "$GITHUB_ENV"
               exit 0
             fi
             if [[ "$state" == "FAILED" || "$state" == "CANCELLED" ]]; then
@@ -226,6 +247,7 @@ jobs:
           manifest = json.loads((root / "manifest.json").read_text(encoding="utf-8"))
           evidence = {
               "accepted_rows": manifest["accepted_rows"],
+              "athena_accepted_rows": int(os.environ["ATHENA_ACCEPTED_ROWS"]),
               "athena_query_state": "SUCCEEDED",
               "aws_region": os.environ["AWS_REGION"],
               "deployed_outputs_match_local_replay": True,

@@ -109,6 +109,12 @@ class TemplateContractTests(unittest.TestCase):
         columns = {column["Name"]: column["Type"] for column in table["StorageDescriptor"]["Columns"]}
         self.assertEqual(columns["outputs"], "map<string,struct<sha256:string>>")
         self.assertEqual(columns["pipeline_run_id"], "string")
+        serde = table["StorageDescriptor"]["SerdeInfo"]
+        self.assertEqual(
+            serde["SerializationLibrary"],
+            "org.apache.hive.hcatalog.data.JsonSerDe",
+        )
+        self.assertEqual(serde["Parameters"]["ignore.malformed.jsons"], "false")
 
         sql_path = ROOT / "sql" / "create_committed_normalized_events.sql"
         sql = sql_path.read_text(encoding="utf-8")

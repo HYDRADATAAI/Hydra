@@ -261,7 +261,7 @@
             "OutputFormat": "org.apache.hadoop.hive.ql.io.HiveIgnoreKeyTextOutputFormat",
             "SerdeInfo": {
               "Parameters": {"ignore.malformed.jsons": "false"},
-              "SerializationLibrary": "org.openx.data.jsonserde.JsonSerDe"
+              "SerializationLibrary": "org.apache.hive.hcatalog.data.JsonSerDe"
             }
           },
           "TableType": "EXTERNAL_TABLE"
