@@ -62,11 +62,16 @@ class FakeS3:
 
 
 def s3_event(
-    key: str = "raw/synthetic+market.csv", *, size: int | None = None
+    key: str = "raw/synthetic+market.csv",
+    *,
+    size: int | None = None,
+    version_id: str | None = "version-1",
 ) -> dict[str, object]:
     object_data: dict[str, object] = {"key": key}
     if size is not None:
         object_data["size"] = size
+    if version_id is not None:
+        object_data["versionId"] = version_id
     return {
         "Records": [
             {
@@ -94,6 +99,7 @@ class LambdaHandlerTests(unittest.TestCase):
 
         self.assertEqual(result["status"], "PASS")
         self.assertEqual(client.get_calls[0]["Key"], "raw/synthetic market.csv")
+        self.assertEqual(client.get_calls[0]["VersionId"], "version-1")
         self.assertEqual(len(client.put_calls), 3)
         self.assertEqual(
             [call["Key"] for call in client.put_calls],
@@ -147,7 +153,11 @@ class LambdaHandlerTests(unittest.TestCase):
                 "eventSource": "aws:s3",
                 "s3": {
                     "bucket": {"name": "hydra-raw-example"},
-                    "object": {"key": "raw/oversized.csv", "size": 9},
+                    "object": {
+                        "key": "raw/oversized.csv",
+                        "size": 9,
+                        "versionId": "version-2",
+                    },
                 },
             }
         )
@@ -225,6 +235,40 @@ class LambdaHandlerTests(unittest.TestCase):
                 )
 
         self.assertEqual(client.put_calls, [])
+
+    def test_invalid_or_over_limit_cap_fails_before_get(self):
+        for configured_limit in ("1.5", "2000001", "0"):
+            with self.subTest(configured_limit=configured_limit):
+                client = FakeS3(FIXTURE.read_bytes())
+                with patch.dict(
+                    os.environ,
+                    {
+                        "CURATED_BUCKET": "curated",
+                        "MAX_SOURCE_OBJECT_BYTES": configured_limit,
+                    },
+                ):
+                    with self.assertRaisesRegex(
+                        RuntimeError, "MAX_SOURCE_OBJECT_BYTES"
+                    ):
+                        lambda_handler(
+                            s3_event(size=len(FIXTURE.read_bytes())),
+                            None,
+                            s3_client=client,
+                        )
+                self.assertEqual(client.get_calls, [])
+                self.assertEqual(client.put_calls, [])
+
+    def test_missing_event_version_uses_current_object_compatibility_path(self):
+        source = FIXTURE.read_bytes()
+        client = FakeS3(source)
+        with patch.dict(os.environ, {"CURATED_BUCKET": "curated"}):
+            lambda_handler(
+                s3_event(size=len(source), version_id=None),
+                None,
+                s3_client=client,
+            )
+
+        self.assertNotIn("VersionId", client.get_calls[0])
 
     def test_non_s3_event_fails_closed(self):
         with patch.dict(os.environ, {"CURATED_BUCKET": "curated"}):
