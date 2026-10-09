@@ -222,6 +222,48 @@ class LambdaHandlerTests(unittest.TestCase):
         self.assertTrue(body.closed)
         self.assertEqual(len(client.put_calls), 3)
 
+    def test_event_size_content_length_mismatch_rejects_before_body_read(self):
+        body = TrackingBody(b"unused")
+        client = FakeS3(b"", content_length=6, body=body)
+        with patch.dict(
+            os.environ,
+            {"CURATED_BUCKET": "curated", "MAX_SOURCE_OBJECT_BYTES": "8"},
+        ):
+            with self.assertRaisesRegex(
+                ValueError, "event object size does not match"
+            ):
+                lambda_handler(s3_event(size=7), None, s3_client=client)
+
+        self.assertEqual(len(client.get_calls), 1)
+        self.assertEqual(body.read_sizes, [])
+        self.assertTrue(body.closed)
+        self.assertEqual(client.put_calls, [])
+
+    def test_invalid_content_length_rejects_without_read_or_writes(self):
+        for content_length in (-1, 1.5, "6"):
+            with self.subTest(content_length=content_length):
+                body = TrackingBody(b"unused")
+                client = FakeS3(
+                    b"", content_length=content_length, body=body
+                )
+                with patch.dict(
+                    os.environ,
+                    {
+                        "CURATED_BUCKET": "curated",
+                        "MAX_SOURCE_OBJECT_BYTES": "8",
+                    },
+                ):
+                    with self.assertRaisesRegex(
+                        ValueError,
+                        "ContentLength must be a non-negative integer",
+                    ):
+                        lambda_handler(s3_event(size=7), None, s3_client=client)
+
+                self.assertEqual(len(client.get_calls), 1)
+                self.assertEqual(body.read_sizes, [])
+                self.assertTrue(body.closed)
+                self.assertEqual(client.put_calls, [])
+
     def test_content_length_mismatch_fails_before_output_writes(self):
         source = FIXTURE.read_bytes()
         client = FakeS3(source, body=TrackingBody(source[:-1]))
