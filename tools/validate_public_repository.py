@@ -1140,12 +1140,12 @@ def validate_ci_contract(errors: list[str]) -> None:
     )
     aws_fragments = (
         'python-version: "3.11"',
-        "aws-actions/setup-sam@v3",
+        "aws-actions/setup-sam@89ddb14d60e682855e3fea4be85b3c56485de310",
         "sam validate --lint --template-file template.json",
         "python -m unittest discover -s tests -t . -v",
         "python local_demo.py --output-dir build/local",
         "AWS_SAMPLE_MANIFEST=PASS",
-        "actions/upload-artifact@v4",
+        "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02",
     )
     for fragment in aws_fragments:
         if fragment not in aws_workflow:
