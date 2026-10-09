@@ -62,6 +62,7 @@ class DocumentLinkValidationTests(unittest.TestCase):
             )
             errors = self.validate_markdown(root, markdown)
         self.assertEqual(errors, [])
+
     def test_code_spans_and_fences_are_not_links(self):
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
@@ -135,6 +136,7 @@ class DocumentLinkValidationTests(unittest.TestCase):
             )
             errors = self.validate_markdown(root, markdown)
         self.assertEqual(errors, [])
+
 
 if __name__ == "__main__":
     unittest.main()
