@@ -1154,7 +1154,7 @@ def validate_ci_contract(errors: list[str]) -> None:
     for workflow_path, expected_refs in workflow_action_pin_contracts.items():
         workflow = (ROOT / workflow_path).read_text(encoding="utf-8-sig")
         actual_refs = re.findall(
-            r"(?m)^\s+uses:\s*([^@\s]+)@([^\s#]+)",
+            r"(?m)^[ \t]+(?:-[ \t]+)?uses:[ \t]*([^@\s]+)@([^\s#]+)",
             workflow,
         )
         if any(re.fullmatch(r"[0-9a-f]{40}", ref) is None for _, ref in actual_refs):
