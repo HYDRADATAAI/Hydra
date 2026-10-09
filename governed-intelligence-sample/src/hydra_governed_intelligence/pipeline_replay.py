@@ -15,7 +15,7 @@ from typing import Any, Mapping
 
 PIPELINE_MANIFEST_SCHEMA = "hydra-market-pipeline-manifest/v2"
 PIPELINE_RUN_SCHEMA = "hydra-market-pipeline-run/v1"
-TRANSFORM_VERSION = "hydra-market-normalizer/v1"
+TRANSFORM_VERSION = "hydra-market-normalizer/v2"
 SOURCE_CSV_SCHEMA = "hydra-market-source-csv/v1"
 RESOLVED_ALIASES_SCHEMA = "hydra-market-resolved-aliases/v1"
 ROW_VALIDATION_STAGE = "row_validation"

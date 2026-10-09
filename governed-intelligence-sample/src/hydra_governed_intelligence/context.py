@@ -119,7 +119,7 @@ NORMALIZED_CSV_COLUMNS = (
     "source_row_number",
     "transform_version",
 )
-NORMALIZED_EVENT_TRANSFORM_VERSION = "hydra-market-normalizer/v1"
+NORMALIZED_EVENT_TRANSFORM_VERSION = "hydra-market-normalizer/v2"
 ALLOWED_SOURCE_SYSTEMS = frozenset({"SYNTH_A", "SYNTH_B", "SYNTH_VENDOR"})
 QUARANTINE_FIELDS = {
     "errors",

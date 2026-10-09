@@ -30,6 +30,6 @@
     "source_file_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
     "raw_record_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
     "source_row_number": {"type": "integer", "minimum": 2},
-    "transform_version": {"const": "hydra-market-normalizer/v1"}
+    "transform_version": {"const": "hydra-market-normalizer/v2"}
   }
 }

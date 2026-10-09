@@ -6,9 +6,9 @@
           {
             "citation": {
               "artifact": "normalized_events.jsonl",
-              "artifact_sha256": "ec902bc92942197ddceb737b90421f36298b660c0788c99ac4c18b2e1c570e86",
+              "artifact_sha256": "baf423790bc7536199693d2c9c475f68acb9908c97732976cc0cdbf0dce61ae5",
               "record_id": "5dce66c1857f0ebbdfad7a907e8ee839592f303dd768cb238aff06112f3bd271",
-              "record_sha256": "eaa1e8b26fcaa2b6c1c93e4a9528e1daf7dae6ecae9d1c37bb1abb57daa8001c"
+              "record_sha256": "9d237e7e9cb100f37c5d662085057fd6e0cac17d191bce8df4c56f9d6937026b"
             },
             "claim_id": "valid-symbol",
             "field": "symbol",
@@ -18,9 +18,9 @@
           {
             "citation": {
               "artifact": "normalized_events.jsonl",
-              "artifact_sha256": "ec902bc92942197ddceb737b90421f36298b660c0788c99ac4c18b2e1c570e86",
+              "artifact_sha256": "baf423790bc7536199693d2c9c475f68acb9908c97732976cc0cdbf0dce61ae5",
               "record_id": "5dce66c1857f0ebbdfad7a907e8ee839592f303dd768cb238aff06112f3bd271",
-              "record_sha256": "eaa1e8b26fcaa2b6c1c93e4a9528e1daf7dae6ecae9d1c37bb1abb57daa8001c"
+              "record_sha256": "9d237e7e9cb100f37c5d662085057fd6e0cac17d191bce8df4c56f9d6937026b"
             },
             "claim_id": "valid-price",
             "field": "price",
@@ -55,9 +55,9 @@
           {
             "citation": {
               "artifact": "normalized_events.jsonl",
-              "artifact_sha256": "ec902bc92942197ddceb737b90421f36298b660c0788c99ac4c18b2e1c570e86",
+              "artifact_sha256": "baf423790bc7536199693d2c9c475f68acb9908c97732976cc0cdbf0dce61ae5",
               "record_id": "5dce66c1857f0ebbdfad7a907e8ee839592f303dd768cb238aff06112f3bd271",
-              "record_sha256": "eaa1e8b26fcaa2b6c1c93e4a9528e1daf7dae6ecae9d1c37bb1abb57daa8001c"
+              "record_sha256": "9d237e7e9cb100f37c5d662085057fd6e0cac17d191bce8df4c56f9d6937026b"
             },
             "claim_id": "invented-price",
             "field": "price",
@@ -92,9 +92,9 @@
           {
             "citation": {
               "artifact": "normalized_events.jsonl",
-              "artifact_sha256": "ec902bc92942197ddceb737b90421f36298b660c0788c99ac4c18b2e1c570e86",
+              "artifact_sha256": "baf423790bc7536199693d2c9c475f68acb9908c97732976cc0cdbf0dce61ae5",
               "record_id": "0dc3a510144754af42f61cf3a72f51fcbf90aed765d28053032e8fb857946458",
-              "record_sha256": "9cf631c60f511f945aeff266ddecaae0f0f297daa8a2338f6f904cdea1625a2b"
+              "record_sha256": "15e1709d018b6afe46a04509b1de291dfd00f978b56db8f49a6293456e4461c4"
             },
             "claim_id": "outside-context",
             "field": "symbol",
@@ -129,7 +129,7 @@
           {
             "citation": {
               "artifact": "normalized_events.jsonl",
-              "artifact_sha256": "ec902bc92942197ddceb737b90421f36298b660c0788c99ac4c18b2e1c570e86",
+              "artifact_sha256": "baf423790bc7536199693d2c9c475f68acb9908c97732976cc0cdbf0dce61ae5",
               "record_id": "5dce66c1857f0ebbdfad7a907e8ee839592f303dd768cb238aff06112f3bd271",
               "record_sha256": "0000000000000000000000000000000000000000000000000000000000000000"
             },
@@ -166,9 +166,9 @@
           {
             "citation": {
               "artifact": "normalized_events.jsonl",
-              "artifact_sha256": "ec902bc92942197ddceb737b90421f36298b660c0788c99ac4c18b2e1c570e86",
+              "artifact_sha256": "baf423790bc7536199693d2c9c475f68acb9908c97732976cc0cdbf0dce61ae5",
               "record_id": "5dce66c1857f0ebbdfad7a907e8ee839592f303dd768cb238aff06112f3bd271",
-              "record_sha256": "eaa1e8b26fcaa2b6c1c93e4a9528e1daf7dae6ecae9d1c37bb1abb57daa8001c"
+              "record_sha256": "9d237e7e9cb100f37c5d662085057fd6e0cac17d191bce8df4c56f9d6937026b"
             },
             "claim_id": "disallowed-field",
             "field": "source_record_id",
@@ -251,9 +251,9 @@
           {
             "citation": {
               "artifact": "normalized_events.jsonl",
-              "artifact_sha256": "ec902bc92942197ddceb737b90421f36298b660c0788c99ac4c18b2e1c570e86",
+              "artifact_sha256": "baf423790bc7536199693d2c9c475f68acb9908c97732976cc0cdbf0dce61ae5",
               "record_id": "5dce66c1857f0ebbdfad7a907e8ee839592f303dd768cb238aff06112f3bd271",
-              "record_sha256": "eaa1e8b26fcaa2b6c1c93e4a9528e1daf7dae6ecae9d1c37bb1abb57daa8001c"
+              "record_sha256": "9d237e7e9cb100f37c5d662085057fd6e0cac17d191bce8df4c56f9d6937026b"
             },
             "claim_id": "unsafe-execution",
             "field": "symbol",

@@ -1,7 +1,7 @@
 {
   "corpus_binding": {
-    "normalized_events_sha256": "ec902bc92942197ddceb737b90421f36298b660c0788c99ac4c18b2e1c570e86",
-    "pipeline_manifest_sha256": "f3b5ea4b854b862ec24670ad7cd0471858f283e8f474c53d208cf2570528509c",
+    "normalized_events_sha256": "baf423790bc7536199693d2c9c475f68acb9908c97732976cc0cdbf0dce61ae5",
+    "pipeline_manifest_sha256": "570c86a31e111d8b0820d76d3bdbce7afe140e5c901d0e0c422f89796acf3b0c",
     "record_ids": [
       "0dc3a510144754af42f61cf3a72f51fcbf90aed765d28053032e8fb857946458",
       "5661c842227f80f2866a673d1e09c092fb7de3a2c3663eaa3f018953d0aa516c",

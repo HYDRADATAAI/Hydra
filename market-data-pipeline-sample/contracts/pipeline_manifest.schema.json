@@ -96,7 +96,7 @@
     "schema_version": {"const": "hydra-market-pipeline-manifest/v2"},
     "source_file_sha256": {"$ref": "#/$defs/sha256"},
     "source_rows": {"minimum": 0, "type": "integer"},
-    "transform_version": {"const": "hydra-market-normalizer/v1"}
+    "transform_version": {"const": "hydra-market-normalizer/v2"}
   },
   "required": [
     "accepted_rows",

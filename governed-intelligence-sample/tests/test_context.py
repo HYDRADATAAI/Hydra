@@ -1400,5 +1400,98 @@ class GovernedContextTests(unittest.TestCase):
             load_policy(policy_path)
 
 
+class PipelineReplayHeaderCompatibilityTests(unittest.TestCase):
+    def _assert_header_variant_replays(self, *, padded: bool) -> None:
+        from tests.support import PIPELINE, run_pipeline, write_outputs
+
+        source = (PIPELINE / "data/raw/synthetic_market_events.csv").read_bytes()
+        header, body = source.split(b"\n", 1)
+        candidate_header = (
+            b",".join(b" " + field + b" " for field in header.split(b","))
+            if padded
+            else header
+        )
+        candidate = candidate_header + b"\n" + body
+        self.assertEqual(candidate.split(b"\n", 1)[1], body)
+        self.assertEqual(candidate_header != header, padded)
+
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            source_path = root / "source.csv"
+            source_path.write_bytes(candidate)
+            result = run_pipeline(
+                input_csv=source_path,
+                aliases_path=PIPELINE / "config/symbol_aliases.json",
+            )
+            self.assertEqual(result.transform_version, "hydra-market-normalizer/v2")
+            self.assertEqual(result.source_csv_bytes, candidate)
+            self.assertEqual(result.source_file_sha256, hashlib.sha256(candidate).hexdigest())
+            self.assertEqual(sorted(event.symbol for event in result.accepted), ["AAA", "BBB", "EEE"])
+            self.assertEqual(
+                {record.source_row_number: tuple(record.errors) for record in result.quarantined},
+                {
+                    3: ("duplicate_normalized_event",),
+                    5: ("event_time_invalid",),
+                    6: ("price_non_positive",),
+                    8: ("source_system_invalid",),
+                },
+            )
+            expected_aliases = json.loads(
+                (PIPELINE / "config/symbol_aliases.json").read_text(encoding="utf-8")
+            )
+            alias_bytes = json.dumps(
+                expected_aliases, allow_nan=False, ensure_ascii=False,
+                separators=(",", ":"), sort_keys=True,
+            ).encode("utf-8")
+            self.assertEqual(dict(result.resolved_aliases), expected_aliases)
+            self.assertEqual(result.aliases_sha256, hashlib.sha256(alias_bytes).hexdigest())
+            run_identity = {
+                "aliases_sha256": result.aliases_sha256,
+                "run_schema": "hydra-market-pipeline-run/v1",
+                "source_file_sha256": result.source_file_sha256,
+                "transform_version": "hydra-market-normalizer/v2",
+            }
+            run_bytes = json.dumps(
+                run_identity, allow_nan=False, ensure_ascii=False,
+                separators=(",", ":"), sort_keys=True,
+            ).encode("utf-8")
+            self.assertEqual(result.pipeline_run_id, hashlib.sha256(run_bytes).hexdigest())
+
+            output_dir = root / "outputs"
+            outputs = write_outputs(result, output_dir=output_dir)
+            self.assertEqual(outputs["source_snapshot"].read_bytes(), candidate)
+            self.assertEqual(outputs["resolved_aliases_json"].read_bytes(), alias_bytes)
+            manifest_bytes = outputs["manifest"].read_bytes()
+            manifest = json.loads(manifest_bytes)
+            self.assertEqual(manifest["accepted_rows"], 3)
+            self.assertEqual(manifest["quarantined_rows"], 4)
+            self.assertEqual(manifest["source_rows"], 7)
+            self.assertEqual(manifest["pipeline_run_id"], result.pipeline_run_id)
+            for key in ("aliases_sha256", "source_file_sha256", "transform_version"):
+                self.assertEqual(manifest[key], run_identity[key])
+
+            evidence = load_evidence(output_dir)
+            self.assertEqual(evidence.manifest_sha256, hashlib.sha256(manifest_bytes).hexdigest())
+            self.assertEqual(evidence.manifest["pipeline_run_id"], result.pipeline_run_id)
+            self.assertEqual(evidence.manifest["transform_version"], "hydra-market-normalizer/v2")
+            self.assertEqual(
+                [dict(event) for event in evidence.accepted_events],
+                [event.json_record() for event in result.accepted],
+            )
+            self.assertEqual(
+                dict(evidence._input_snapshots),
+                {"source_csv": candidate, "resolved_aliases_json": alias_bytes},
+            )
+            for key, snapshot in evidence._output_snapshots:
+                self.assertEqual(snapshot, (output_dir / manifest["outputs"][key]["file"]).read_bytes())
+                self.assertEqual(hashlib.sha256(snapshot).hexdigest(), manifest["outputs"][key]["sha256"])
+
+    def test_unpadded_v2_artifacts_pass_independent_replay(self) -> None:
+        self._assert_header_variant_replays(padded=False)
+
+    def test_padded_v2_artifacts_pass_independent_replay(self) -> None:
+        self._assert_header_variant_replays(padded=True)
+
+
 if __name__ == "__main__":
     unittest.main()
