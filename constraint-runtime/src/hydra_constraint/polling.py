@@ -202,23 +202,27 @@ class PollRunner:
         self.transport=transport; self.sleeper=sleeper or time
 
     def validate_live_spec(self,spec):
-        try:
-            parsed_url=urlsplit(spec.url)
-            host=(parsed_url.hostname or "").casefold().rstrip(".")
-            port=parsed_url.port
-        except (AttributeError,TypeError,ValueError) as exc:
-            raise ValueError("SEC polling requires a valid HTTPS SEC URL") from exc
-        is_sec_host=host=="sec.gov" or host.endswith(".sec.gov")
-        sec_fields=(
+        sec_selector=(
             str(spec.adapter).casefold()=="sec_edgar"
             or str(spec.source_class).casefold()=="sec_edgar"
             or str(spec.parser).casefold()=="sec_json"
-            or is_sec_host
         )
-        if not sec_fields:
+        try:
+            parsed_url=urlsplit(spec.url)
+            host=(parsed_url.hostname or "").casefold().rstrip(".")
+        except (AttributeError,TypeError,ValueError) as exc:
+            if sec_selector:
+                raise ValueError("SEC polling requires a valid HTTPS SEC URL") from exc
+            return
+        is_sec_host=host=="sec.gov" or host.endswith(".sec.gov")
+        if not sec_selector and not is_sec_host:
             return
         if (spec.adapter,spec.source_class,spec.parser)!=("sec_edgar","sec_edgar","sec_json"):
             raise ValueError("SEC polling requires matching sec_edgar adapter/source_class and sec_json parser")
+        try:
+            port=parsed_url.port
+        except ValueError as exc:
+            raise ValueError("SEC polling requires a valid HTTPS SEC URL") from exc
         if parsed_url.scheme.casefold()!="https" or not is_sec_host or port not in (None,443):
             raise ValueError("SEC polling requires an HTTPS URL on sec.gov or a subdomain")
         if not isinstance(spec.headers,Mapping):
