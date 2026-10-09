@@ -282,9 +282,9 @@ jobs:
             token=""
             while :; do
               if [[ -n "$token" ]]; then
-                versions=$(aws s3api list-object-versions --bucket "$bucket_name" --region "$AWS_REGION" --max-items 1000 --starting-token "$token" --output json)
+                versions=$(aws s3api list-object-versions --bucket "$bucket_name" --region "$AWS_REGION" --page-size 1000 --max-items 1000 --starting-token "$token" --output json)
               else
-                versions=$(aws s3api list-object-versions --bucket "$bucket_name" --region "$AWS_REGION" --max-items 1000 --output json)
+                versions=$(aws s3api list-object-versions --bucket "$bucket_name" --region "$AWS_REGION" --page-size 1000 --max-items 1000 --output json)
               fi
               deletions=$(jq '{Objects: (((.Versions // []) + (.DeleteMarkers // [])) | map({Key,VersionId})), Quiet: true}' <<< "$versions")
               if [[ $(jq '.Objects | length' <<< "$deletions") -gt 0 ]]; then
