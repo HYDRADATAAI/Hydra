@@ -200,8 +200,7 @@ class PollRunner:
         self.durable=durable; self.cursors=cursors; self.archive=archive
         self.transport=transport; self.sleeper=sleeper or time
         self.clock=clock or time.monotonic
-        self._source_locks_lock=threading.Lock()
-        self._source_locks={}
+        self._poll_lock=threading.Lock()
         self._last_request_at={}
         self._next_request_at={}
 
@@ -236,10 +235,6 @@ class PollRunner:
             deadline,self._next_request_at.get(spec.name,deadline)
         )
 
-    def _source_request_lock(self,name):
-        with self._source_locks_lock:
-            return self._source_locks.setdefault(name,threading.Lock())
-
     def validate_live_spec(self,spec):
         if spec.source_class=="sec_edgar":
             ua=spec.headers.get("User-Agent","")
@@ -250,32 +245,35 @@ class PollRunner:
 
     def poll(self,spec,cursor_value=None):
         interval=self._request_interval(spec)
+        with self._poll_lock:
+            return self._poll_locked(spec,cursor_value,interval)
+
+    def _poll_locked(self,spec,cursor_value,interval):
         before=self.cursors.adapter(spec.name).get("cursor")
         statuses=[]; hashes=[]; delays=[]; response=None; error=None
         for attempt in range(1,spec.backoff.max_attempts+1):
-            with self._source_request_lock(spec.name):
-                self._pace_request(spec,interval)
-                try:
-                    response=self.transport.fetch(spec.url,spec.headers)
-                except Exception as exc:
-                    error=str(exc); response=None
-                if response is None:
-                    delay=spec.backoff.delay(attempt)
-                    self._defer_source(spec,delay)
-                    if attempt<spec.backoff.max_attempts:
-                        delays.append(delay); self.sleeper.sleep(delay); continue
-                    break
-                statuses.append(response.status)
-                hashes.append(self.archive.archive(spec.name,response,attempt))
-                if response.status==200:
-                    break
-                if response.status not in RETRYABLE:
-                    error=f"HTTP {response.status}"; break
-                delay=spec.backoff.delay(attempt,response.headers.get("retry-after"))
+            self._pace_request(spec,interval)
+            try:
+                response=self.transport.fetch(spec.url,spec.headers)
+            except Exception as exc:
+                error=str(exc); response=None
+            if response is None:
+                delay=spec.backoff.delay(attempt)
                 self._defer_source(spec,delay)
-                if attempt>=spec.backoff.max_attempts:
-                    error=f"HTTP {response.status}"; break
-                delays.append(delay); self.sleeper.sleep(delay)
+                if attempt<spec.backoff.max_attempts:
+                    delays.append(delay); self.sleeper.sleep(delay); continue
+                break
+            statuses.append(response.status)
+            hashes.append(self.archive.archive(spec.name,response,attempt))
+            if response.status==200:
+                break
+            if response.status not in RETRYABLE:
+                error=f"HTTP {response.status}"; break
+            delay=spec.backoff.delay(attempt,response.headers.get("retry-after"))
+            self._defer_source(spec,delay)
+            if attempt>=spec.backoff.max_attempts:
+                error=f"HTTP {response.status}"; break
+            delays.append(delay); self.sleeper.sleep(delay)
 
         if response is None or response.status!=200:
             self.cursors.mark_error(spec.name,polled_at=response.captured_at if response else utc_now(),error=error or "poll failed")
