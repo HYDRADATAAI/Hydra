@@ -136,6 +136,30 @@ class LambdaHandlerTests(unittest.TestCase):
         self.assertEqual(client.get_calls, [])
         self.assertEqual(client.put_calls, [])
 
+    def test_any_oversized_event_record_is_rejected_before_get_or_put(self):
+        event = s3_event(size=5)
+        event["Records"].append(
+            {
+                "eventName": "ObjectCreated:Put",
+                "eventSource": "aws:s3",
+                "s3": {
+                    "bucket": {"name": "hydra-raw-example"},
+                    "object": {"key": "raw/oversized.csv", "size": 9},
+                },
+            }
+        )
+        client = FakeS3(b"small")
+
+        with patch.dict(
+            os.environ,
+            {"CURATED_BUCKET": "curated", "MAX_SOURCE_OBJECT_BYTES": "8"},
+        ):
+            with self.assertRaisesRegex(ValueError, "source object exceeds"):
+                lambda_handler(event, None, s3_client=client)
+
+        self.assertEqual(client.get_calls, [])
+        self.assertEqual(client.put_calls, [])
+
     def test_get_object_content_length_rejects_before_body_read(self):
         body = TrackingBody(b"unread body")
         client = FakeS3(b"", content_length=9, body=body)
