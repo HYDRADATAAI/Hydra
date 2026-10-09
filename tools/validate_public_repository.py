@@ -349,11 +349,11 @@ def validate_workflow_action_uses(errors: list[str]) -> None:
         explicit_uses_key = re.compile(
             r"""^\s*(?:-\s*)?\?\s*(?P<key>uses|'(?:[^']|'')*'|"(?:\\.|[^"\\])*")\s*$"""
         )
-        explicit_key_indicator = re.compile(r"^\\s*(?:-\\s*)?\\?\\s*(?:$|\\s)")
-        alias_key = re.compile(r"^\\s*(?:-\\s*)?\\*[^\\s:]+\\s*:")
-        node_property = r"(?:&[^\\s,\\[\\]{}]+|!(?:<[^>]+>|[^\\s,\\[\\]{}]+))"
+        explicit_key_indicator = re.compile(r"^\s*(?:-\s*)?\?\s*(?:$|\s)")
+        alias_key = re.compile(r"^\s*(?:-\s*)?\*[^\s:]+\s*:")
+        node_property = r"(?:&[^\s,\[\]{}]+|!(?:<[^>]+>|[^\s,\[\]{}]+))"
         decorated_key = re.compile(
-            rf"""^\\s*(?:-\\s*)?(?:{node_property}\\s+)+(?P<key>'(?:[^']|'')*'|"(?:\\\\.|[^"\\\\])*"|[^:\\s]+)\\s*:"""
+            rf"""^\s*(?:-\s*)?(?:{node_property}\s+)+(?P<key>'(?:[^']|'')*'|"(?:\\.|[^"\\])*"|[^:\s]+)\s*:"""
         )
         run_block = re.compile(r"^\s*(?:-\s*)?run\s*:\s*[|>](?:[+-]?\d?|[0-9]?[+-]?)\s*(?:#.*)?$")
         run_scalar = re.compile(r"^\s*(?:-\s*)?run\s*:")
