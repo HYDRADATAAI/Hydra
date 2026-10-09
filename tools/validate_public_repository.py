@@ -1156,6 +1156,8 @@ def validate_ci_contract(errors: list[str]) -> None:
         "sam deploy",
         "--query 'Stacks[0].StackStatus'",
         "CREATE_COMPLETE",
+        "timeout-minutes: 75",
+        "seq 1 360",
         "hydra:deployment-run",
         "stack_owner",
         "ResourceStatus == \"DELETE_FAILED\"",
