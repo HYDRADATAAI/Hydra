@@ -38,6 +38,31 @@ class DocumentLinkValidationTests(unittest.TestCase):
         self.assertTrue(any("missing/page.html" in error for error in errors))
         self.assertTrue(any("images/missing.png" in error for error in errors))
 
+    def test_balanced_and_escaped_parentheses_in_destinations(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            docs = root / "docs"
+            docs.mkdir()
+            (docs / "guide_(v2).md").write_text("guide", encoding="utf-8")
+            errors = self.validate_markdown(
+                root,
+                "[balanced](guide_(v2).md) [escaped](guide_\\(v2\\).md)\\n",
+            )
+        self.assertEqual(errors, [])
+
+    def test_code_spans_and_fences_are_not_links(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            errors = self.validate_markdown(
+                root,
+                "Example `[missing](missing.md) <a href='also-missing.html'>`\\n"
+                "```html\\n"
+                "<a href='fenced-missing.html'>example</a>\\n"
+                "[example](fenced-missing.md)\\n"
+                "```\\n",
+            )
+        self.assertEqual(errors, [])
+
     def test_local_valid_and_external_references_pass(self):
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
