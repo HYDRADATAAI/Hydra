@@ -189,7 +189,7 @@ jobs:
       - name: Run bounded Athena verification query
         run: |
           set -euo pipefail
-          query="SELECT COUNT(*) AS accepted_rows FROM committed_normalized_events"
+          query="SELECT COUNT(*) AS accepted_rows FROM committed_normalized_events WHERE pipeline_run_id = '$RUN_ID'"
           QUERY_ID=$(aws athena start-query-execution \
             --query-string "$query" \
             --query-execution-context "Database=$GLUE_DATABASE" \
