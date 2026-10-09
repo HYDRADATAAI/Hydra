@@ -322,6 +322,23 @@ class PollRateLimitTests(unittest.TestCase):
         self.assertEqual(transport.request_times,[0.0,1.5])
         self.assertEqual(clock.delays,[1.5])
 
+    def test_final_transport_failure_backoff_applies_to_later_poll(self):
+        clock=self.FakeClock()
+        transport=self.FakeTransport(clock,fail_first=True)
+        runner=PollRunner(
+            durable=None,cursors=self.FakeCursors(),archive=self.FakeArchive(),transport=transport,
+            sleeper=clock,clock=clock.monotonic,
+        )
+        spec=self.make_spec(
+            max_rps=10,backoff=BackoffPolicy(max_attempts=1,base_seconds=0.75,cap_seconds=2)
+        )
+
+        self.assertEqual(runner.poll(spec).status,"FAILED")
+        runner.poll(spec)
+
+        self.assertEqual(transport.request_times,[0.0,0.75])
+        self.assertEqual(clock.delays,[0.75])
+
     def test_slow_request_does_not_get_an_extra_rate_wait(self):
         clock=self.FakeClock()
         transport=self.FakeTransport(clock,latency=0.8)
