@@ -1,6 +1,6 @@
 import unittest
 
-from validate_public_repository import workflow_action_refs
+from tools.validate_public_repository import workflow_action_refs
 
 
 class WorkflowActionRefsTests(unittest.TestCase):
