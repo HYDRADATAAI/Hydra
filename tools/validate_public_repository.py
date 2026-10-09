@@ -9,9 +9,9 @@ import re
 import sys
 import tomllib
 from pathlib import Path
+from urllib.parse import unquote, urlsplit
 
 import yaml
-from urllib.parse import unquote, urlsplit
 
 ROOT = Path(__file__).resolve().parents[1]
 COMPONENT = ROOT / "t6-fail-closed-validator"
@@ -949,6 +949,15 @@ def workflow_action_refs(workflow_text: str) -> list[str]:
     return references
 
 
+def workflow_action_ref_is_pinned(action_ref: str) -> bool:
+    if action_ref.startswith("./"):
+        return True
+    if action_ref.startswith("docker://"):
+        return re.search(r"@sha256:[0-9a-f]{64}$", action_ref) is not None
+    revision = action_ref.rpartition("@")[2]
+    return re.fullmatch(r"[0-9a-f]{40}", revision) is not None
+
+
 def validate_ci_contract(errors: list[str]) -> None:
     validate_manifest_v2_replay_contract(errors)
     validate_pre_upload_verifier_contract(errors)
@@ -969,14 +978,7 @@ def validate_ci_contract(errors: list[str]) -> None:
             )
             continue
         for action_ref in action_refs:
-            if action_ref.startswith("./"):
-                continue
-            if action_ref.startswith("docker://"):
-                pinned = re.search(r"@sha256:[0-9a-f]{64}$", action_ref)
-            else:
-                revision = action_ref.rpartition("@")[2]
-                pinned = re.fullmatch(r"[0-9a-f]{40}", revision)
-            if pinned is None:
+            if not workflow_action_ref_is_pinned(action_ref):
                 errors.append(
                     f"workflow action must use a full commit SHA or image digest: "
                     f"{workflow_path.relative_to(ROOT)}: {action_ref}"
