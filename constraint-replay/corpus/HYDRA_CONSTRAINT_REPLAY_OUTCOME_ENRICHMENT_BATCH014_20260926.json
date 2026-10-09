@@ -1,0 +1,210 @@
+{
+  "schema_version": "1.0",
+  "batch_id": "HYDRA_CONSTRAINT_REPLAY_OUTCOME_ENRICHMENT_BATCH014_20260926",
+  "evidence_digest_scope": "sha256(normalized_evidence UTF-8)",
+  "policy": "Batch 014 closes classification coverage for the final four replay-ready cases without weakening governance. Thin, contested, or incomplete outcome windows are admitted as UNEVALUABLE rather than forced into realized outcome classes.",
+  "sources": [
+    {
+      "source_id": "nord-bnetza-2021-11-16-hypothesis",
+      "role": "HISTORICAL_HYPOTHESIS",
+      "publisher": "Bundesnetzagentur",
+      "url": "https://www.bundesnetzagentur.de/SharedDocs/Pressemitteilungen/EN/2021/20211116_NOS2.html",
+      "published_at": "2021-11-16T23:59:59Z",
+      "available_at": "2021-11-16T23:59:59Z",
+      "normalized_evidence": "On 16 November 2021, Germany's Federal Network Agency suspended the Nord Stream 2 certification procedure and stated that certification would remain suspended until specified assets and human resources were transferred to a German-law subsidiary and the necessary documentation was resubmitted and found complete.",
+      "evidence_digest": "sha256:801d626f5b6833206b2e2dc3151e1f4521ebc5d41f3eba9d25b2ec2f4d85b244"
+    },
+    {
+      "source_id": "nord-bmwk-2022-02-22-outcome",
+      "role": "OUTCOME",
+      "publisher": "German Federal Ministry for Economic Affairs and Climate Action",
+      "url": "https://www.bmwk.de/Redaktion/EN/Pressemitteilungen/2022/02/20220222-minister-habeck-comments-on-the-situation-in-eastern-ukraine-and-the-discontinuation-of-the-certification-procedure-for-nord-stream-2.html",
+      "published_at": "2022-02-22T23:59:59Z",
+      "available_at": "2022-02-22T23:59:59Z",
+      "observed_at": "2022-02-22T23:59:59Z",
+      "normalized_evidence": "On 22 February 2022, Germany's Federal Ministry for Economic Affairs and Climate Action announced that the Federal Government had withdrawn the prior Security of Supply Report for Nord Stream 2 and halted the certification procedure pending reassessment, meaning the Bundesnetzagentur could not issue a favourable certification decision while the report remained withdrawn.",
+      "evidence_digest": "sha256:386dc60d92212e67a3203e73a340a4221b6160a20edb7f2ea24f66bb5b93586d"
+    },
+    {
+      "source_id": "japan-korea-wto-2020-07-29-hypothesis",
+      "role": "HISTORICAL_HYPOTHESIS",
+      "publisher": "World Trade Organization",
+      "url": "https://www.wto.org/english/news_e/news20_e/dsb_29jul20_e.htm",
+      "published_at": "2020-07-29T23:59:59Z",
+      "available_at": "2020-07-29T23:59:59Z",
+      "normalized_evidence": "On 29 July 2020, the WTO Dispute Settlement Body established a panel concerning Japan's export licensing policies for fluorinated polyimide, resist polymers and hydrogen fluoride. Korea stated that the requirements had seriously restricted exports and created delays, uncertainty and costs for Korean importers, while Japan maintained that its measures were consistent with international export-control practices.",
+      "evidence_digest": "sha256:8a73d749e73968deb216aad50b4604d9001d67a984ed95a9293496931883416a"
+    },
+    {
+      "source_id": "japan-korea-motie-2023-03-16-outcome",
+      "role": "OUTCOME",
+      "publisher": "Republic of Korea Ministry of Trade, Industry and Energy",
+      "url": "https://english.motie.go.kr/eng/article/EATCLdfa319ada/1227/view",
+      "published_at": "2023-03-16T23:59:59Z",
+      "available_at": "2023-03-16T23:59:59Z",
+      "observed_at": "2023-03-16T23:59:59Z",
+      "normalized_evidence": "On 16 March 2023, Korea's Ministry of Trade, Industry and Energy reported that Japan had decided to suspend export regulations on hydrogen fluoride, fluorinated polyimide and EUV photoresist by restoring the special general comprehensive permit system, and that Korea would withdraw its WTO complaint upon Japan's action.",
+      "evidence_digest": "sha256:feb3d42b76f8de8d9871aa2e3f0aaf291e1cd27c4551677c02315eded6c9cf7c"
+    },
+    {
+      "source_id": "japan-korea-meti-2023-03-17-outcome",
+      "role": "OUTCOME",
+      "publisher": "Japan Ministry of Economy, Trade and Industry",
+      "url": "https://www.meti.go.jp/english/speeches/press_conferences/2023/0317001.html",
+      "published_at": "2023-03-17T23:59:59Z",
+      "available_at": "2023-03-17T23:59:59Z",
+      "observed_at": "2023-03-17T23:59:59Z",
+      "normalized_evidence": "On 17 March 2023, Japan's Ministry of Economy, Trade and Industry stated that the recent export-control announcement should not be understood as lifting the measures and that Japan had not decided to restore Korea's former Group A or white-list status.",
+      "evidence_digest": "sha256:cecb8eef9f7cc7d15ca3b13eae75922e0eb50406ad2f39fee9fd3ee7083a3c7f"
+    },
+    {
+      "source_id": "eastmed-crs-2019-04-01-hypothesis",
+      "role": "HISTORICAL_HYPOTHESIS",
+      "publisher": "Congressional Research Service",
+      "url": "https://www.congress.gov/crs_external_products/IF/PDF/IF10749/IF10749.6.pdf",
+      "published_at": "2019-04-01T23:59:59Z",
+      "available_at": "2019-04-01T23:59:59Z",
+      "normalized_evidence": "In an updated 1 April 2019 report, the U.S. Congressional Research Service stated that Turkish naval operations and opposition to Republic of Cyprus gas exploration had raised tensions between Ankara and Nicosia and negatively affected settlement negotiations, while noting that commercial development of discovered gas could take years or decades and remained economically uncertain.",
+      "evidence_digest": "sha256:687828f0528794dd6edd58a2c2bc81910266a81c885b80577f5c961abf7f2cb4"
+    },
+    {
+      "source_id": "eastmed-council-2023-11-09-outcome",
+      "role": "OUTCOME",
+      "publisher": "Council of the European Union",
+      "url": "https://www.consilium.europa.eu/en/press/press-releases/2023/11/09/unauthorised-drilling-activities-in-the-eastern-mediterranean-council-prolongs-restrictive-measures/",
+      "published_at": "2023-11-09T17:50:00Z",
+      "available_at": "2023-11-09T17:50:00Z",
+      "observed_at": "2023-11-09T17:50:00Z",
+      "normalized_evidence": "On 9 November 2023, the Council of the European Union renewed for another year the restrictive-measures framework concerning what it described as unauthorised drilling activities in the Eastern Mediterranean. The Council stated that two individuals remained listed and that the EU would maintain its ability to impose targeted restrictive measures.",
+      "evidence_digest": "sha256:680721a380077aa29c5a38e2484c8cf84565aa0b5bc7b09ba9e8b27f84dc8364"
+    },
+    {
+      "source_id": "cbam-unctad-2021-07-14-hypothesis",
+      "role": "HISTORICAL_HYPOTHESIS",
+      "publisher": "UN Trade and Development",
+      "url": "https://unctad.org/publication/european-union-carbon-border-adjustment-mechanism-implications-developing-countries",
+      "published_at": "2021-07-14T23:59:59Z",
+      "available_at": "2021-07-14T23:59:59Z",
+      "normalized_evidence": "On 14 July 2021, UNCTAD reported that modelling of a prospective EU carbon border adjustment mechanism showed that carbon pricing combined with CBAM would shift international trade toward more carbon-efficient production, reduce exports from some developing countries in favour of developed countries, and produce only a small reduction in global carbon dioxide emissions.",
+      "evidence_digest": "sha256:72b12375fa94a0db291d5f06a03d55f2a4ca47b732d0b8037e90fb376a9ad554"
+    },
+    {
+      "source_id": "cbam-ec-2026-01-14-outcome",
+      "role": "OUTCOME",
+      "publisher": "European Commission Directorate-General for Taxation and Customs Union",
+      "url": "https://taxation-customs.ec.europa.eu/news/cbam-successfully-entered-force-1-january-2026-2026-01-14_en",
+      "published_at": "2026-01-14T23:59:59Z",
+      "available_at": "2026-01-14T23:59:59Z",
+      "observed_at": "2026-01-14T23:59:59Z",
+      "normalized_evidence": "On 14 January 2026, the European Commission reported that CBAM had successfully entered its definitive regime on 1 January 2026 after the 2023-2025 transitional phase. By 7 January 2026, more than 12,000 economic operators had submitted authorisation applications, more than 4,100 had obtained authorised declarant status, 10,483 CBAM import customs declarations had been validated, and declarations from 1-6 January covered 1,655,613 tonnes of goods.",
+      "evidence_digest": "sha256:c2cc80d92e62533f28c917e8452fb84aee54e46c961430f1fda3b41047893845"
+    }
+  ],
+  "cases": [
+    {
+      "case_id": "nord-stream-2-certification-state-2021-2022",
+      "historical_hypothesis_source_ids": [
+        "nord-bnetza-2021-11-16-hypothesis"
+      ],
+      "outcome_source_ids": [
+        "nord-bmwk-2022-02-22-outcome"
+      ],
+      "hypothesis_available_at": "2021-11-16T23:59:59Z",
+      "hypothesis_statement": "Bundesnetzagentur stated that Nord Stream 2 certification would remain suspended until specified German-law organizational and documentation conditions were satisfied.",
+      "hypothesis_independence_basis": "Bundesnetzagentur is institutionally distinct from the Federal Ministry for Economic Affairs and Climate Action, whose later security-of-supply reassessment supplied the admitted outcome evidence.",
+      "qualitative_outcomes": [
+        {
+          "source_id": "nord-bmwk-2022-02-22-outcome",
+          "statement": "The Federal Government later withdrew the prior Security of Supply Report and halted the certification procedure, so a favourable certification decision could not be issued while the report remained withdrawn."
+        }
+      ]
+    },
+    {
+      "case_id": "japan-korea-export-control-relations-2019",
+      "historical_hypothesis_source_ids": [
+        "japan-korea-wto-2020-07-29-hypothesis"
+      ],
+      "outcome_source_ids": [
+        "japan-korea-motie-2023-03-16-outcome",
+        "japan-korea-meti-2023-03-17-outcome"
+      ],
+      "hypothesis_available_at": "2020-07-29T23:59:59Z",
+      "hypothesis_statement": "The WTO panel-establishment record preserved Korea's claim that Japan's licensing requirements seriously restricted exports and created delays, uncertainty and costs, alongside Japan's contrary characterization of the measures as ordinary export controls.",
+      "hypothesis_independence_basis": "The WTO Secretariat record is distinct from both Korean MOTIE and Japanese METI, whose later and differently worded normalization statements supply the admitted outcome evidence.",
+      "qualitative_outcomes": [
+        {
+          "source_id": "japan-korea-motie-2023-03-16-outcome",
+          "statement": "Korea reported that Japan had suspended the three-item export regulations and that Korea would withdraw its WTO complaint."
+        },
+        {
+          "source_id": "japan-korea-meti-2023-03-17-outcome",
+          "statement": "Japan stated that the measures should not be understood as having been lifted and that white-list status had not yet been restored."
+        }
+      ]
+    },
+    {
+      "case_id": "eastern-mediterranean-offshore-drilling-dispute-2019-2020",
+      "historical_hypothesis_source_ids": [
+        "eastmed-crs-2019-04-01-hypothesis"
+      ],
+      "outcome_source_ids": [
+        "eastmed-council-2023-11-09-outcome"
+      ],
+      "hypothesis_available_at": "2019-04-01T23:59:59Z",
+      "hypothesis_statement": "CRS described competing Eastern Mediterranean hydrocarbon claims and drilling-related naval activity as raising tensions and negatively affecting Cyprus settlement negotiations, while commercial gas development remained uncertain.",
+      "hypothesis_independence_basis": "The Congressional Research Service is distinct from the Council of the European Union, whose later sanctions-renewal record supplies the admitted outcome evidence.",
+      "qualitative_outcomes": [
+        {
+          "source_id": "eastmed-council-2023-11-09-outcome",
+          "statement": "The Council renewed the drilling-related sanctions framework, kept two individuals listed and maintained its ability to impose further targeted measures; the underlying maritime and sovereignty dispute remained unresolved."
+        }
+      ]
+    },
+    {
+      "case_id": "eu-cbam-transitional-phase-2023",
+      "historical_hypothesis_source_ids": [
+        "cbam-unctad-2021-07-14-hypothesis"
+      ],
+      "outcome_source_ids": [
+        "cbam-ec-2026-01-14-outcome"
+      ],
+      "hypothesis_available_at": "2021-07-14T23:59:59Z",
+      "hypothesis_statement": "UNCTAD modelled CBAM as shifting trade toward more carbon-efficient production and reducing some developing-country exports, while only modestly reducing global emissions.",
+      "hypothesis_independence_basis": "UNCTAD is distinct from the European Commission's customs administration, whose later implementation figures supply the admitted operational outcome evidence.",
+      "metrics": [
+        {
+          "metric_id": "cbam-authorisation-applications-2026-01-07",
+          "source_id": "cbam-ec-2026-01-14-outcome",
+          "observed_at": "2026-01-14T23:59:59Z",
+          "metric": "cbam_authorisation_applications_by_2026_01_07",
+          "value": 12000,
+          "unit": "operators_minimum"
+        },
+        {
+          "metric_id": "cbam-authorised-declarants-2026-01-07",
+          "source_id": "cbam-ec-2026-01-14-outcome",
+          "observed_at": "2026-01-14T23:59:59Z",
+          "metric": "authorised_cbam_declarants_by_2026_01_07",
+          "value": 4100,
+          "unit": "operators_minimum"
+        },
+        {
+          "metric_id": "cbam-import-declarations-2026-01-01-07",
+          "source_id": "cbam-ec-2026-01-14-outcome",
+          "observed_at": "2026-01-14T23:59:59Z",
+          "metric": "validated_cbam_import_customs_declarations",
+          "value": 10483,
+          "unit": "declarations"
+        },
+        {
+          "metric_id": "cbam-goods-tonnage-first-window",
+          "source_id": "cbam-ec-2026-01-14-outcome",
+          "observed_at": "2026-01-14T23:59:59Z",
+          "metric": "cbam_goods_declared_first_reporting_window",
+          "value": 1655613,
+          "unit": "tonnes"
+        }
+      ]
+    }
+  ]
+}
