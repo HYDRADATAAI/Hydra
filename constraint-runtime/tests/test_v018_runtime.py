@@ -146,17 +146,47 @@ class LedgerPersistenceTests(unittest.TestCase):
             "headline":"official","event_key":"X1","event_type":"material_export_control","target":"Gallium",
             "occurred_at":"2026-09-29T12:00:00Z","known_at":"2026-09-29T12:01:00Z",
             "effective_at":"2026-10-15T00:00:00Z","captured_at":"2026-09-29T12:02:00Z",
-            "source_id":"OFFICIAL","source_class":"federal_register","source_priority":100,
+            "source_id":"OFFICIAL","source_class":"federal_register",
             "external_record_id":"X1","evidence_class":"A1","severity":0.8,"jurisdiction":"Global",
         }
         low = dict(official, effective_at="2026-10-01T00:00:00Z",
                    captured_at="2026-09-29T13:00:00Z",source_id="LOW",
-                   source_class="secondary_report",source_priority=40,external_record_id="LOW")
-        ledger.ingest_adapted(official)
+                   source_class="secondary_report",external_record_id="LOW")
+        official_entry = ledger.ingest_adapted(official)
         entry = ledger.ingest_adapted(low)
+        self.assertEqual(official_entry.source_priority, 100)
+        self.assertEqual(entry.source_priority, 40)
         self.assertEqual(entry.action, "QUARANTINE")
         self.assertEqual(ledger.active_events()[0]["effective_at"], "2026-10-15T00:00:00Z")
         self.assertEqual(ledger.verify_chain()["status"], "PASS")
+
+    def test_source_priority_claims_cannot_override_source_class_rank(self):
+        normalizer = EventNormalizer(GRAPH, aliases=ALIASES)
+        official = {
+            "headline":"official","event_key":"X-RANK","event_type":"material_export_control","target":"Gallium",
+            "occurred_at":"2026-09-29T12:00:00Z","known_at":"2026-09-29T12:01:00Z",
+            "effective_at":"2026-10-15T00:00:00Z","captured_at":"2026-09-29T12:02:00Z",
+            "source_id":"OFFICIAL","source_class":"federal_register","source_priority":100,
+            "external_record_id":"X-RANK","evidence_class":"A1","severity":0.8,"jurisdiction":"Global",
+        }
+        for claimed_priority in (40, 101):
+            with self.subTest(claimed_priority=claimed_priority):
+                ledger = AppendOnlyEventLedger(normalizer)
+                ledger.ingest_adapted(official)
+                low = dict(
+                    official,
+                    effective_at="2026-10-01T00:00:00Z",
+                    captured_at="2026-09-29T13:00:00Z",
+                    source_id="LOW",
+                    source_class="secondary_report",
+                    source_priority=claimed_priority,
+                    external_record_id="LOW",
+                )
+                with self.assertRaisesRegex(ValueError, "source_priority mismatch"):
+                    ledger.ingest_adapted(low)
+                self.assertEqual(len(ledger.entries), 1)
+                self.assertEqual(ledger.active_events()[0]["effective_at"], "2026-10-15T00:00:00Z")
+                self.assertEqual(ledger.verify_chain()["status"], "PASS")
 
     def test_restart_recovers_same_tip(self):
         normalizer = EventNormalizer(GRAPH, aliases=ALIASES)
