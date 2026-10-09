@@ -15,6 +15,7 @@ on:
       - "sql-data-quality-sample/**"
       - "t6-fail-closed-validator/**"
       - "tools/validate_public_repository.py"
+      - "tools/tests/**"
       - ".github/workflows/aws-market-data-deploy.yml"
       - ".github/workflows/aws-market-data-pipeline.yml"
       - ".github/workflows/governed-intelligence-sample.yml"
@@ -40,3 +41,6 @@ jobs:
 
       - name: Validate public core-repository contract
         run: python tools/validate_public_repository.py
+
+      - name: Test workflow action reference scanner
+        run: python -m unittest discover -s tools/tests -v
