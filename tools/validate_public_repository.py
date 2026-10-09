@@ -247,6 +247,33 @@ def flow_mapping_contains_unsupported_uses_key(line: str) -> bool:
     return False
 
 
+def _skip_yaml_node_properties(line: str, start: int) -> int:
+    """Skip YAML anchor and tag properties before a node in a flow mapping."""
+    while start < len(line):
+        while start < len(line) and line[start].isspace():
+            start += 1
+        if start >= len(line):
+            return start
+        if line[start] == "&":
+            start += 1
+            while start < len(line) and not line[start].isspace():
+                start += 1
+            continue
+        if line[start] == "!":
+            if line.startswith("!<", start):
+                end = line.find(">", start + 2)
+                if end < 0:
+                    return len(line)
+                start = end + 1
+            else:
+                start += 1
+                while start < len(line) and not line[start].isspace():
+                    start += 1
+            continue
+        return start
+    return start
+
+
 def _flow_uses_key_after(line: str, start: int) -> bool:
     while start < len(line) and line[start].isspace():
         start += 1
@@ -254,8 +281,16 @@ def _flow_uses_key_after(line: str, start: int) -> bool:
         start += 1
         while start < len(line) and line[start].isspace():
             start += 1
+    start = _skip_yaml_node_properties(line, start)
     if start >= len(line):
         return False
+    if line[start] == "*":
+        cursor = start + 1
+        while cursor < len(line) and not line[cursor].isspace() and line[cursor] not in ",]}":
+            cursor += 1
+        while cursor < len(line) and line[cursor].isspace():
+            cursor += 1
+        return cursor < len(line) and line[cursor] == ":"
     if line[start] in {"'", '"'}:
         quote = line[start]
         cursor = start + 1
@@ -314,6 +349,12 @@ def validate_workflow_action_uses(errors: list[str]) -> None:
         explicit_uses_key = re.compile(
             r"""^\s*(?:-\s*)?\?\s*(?P<key>uses|'(?:[^']|'')*'|"(?:\\.|[^"\\])*")\s*$"""
         )
+        explicit_key_indicator = re.compile(r"^\\s*(?:-\\s*)?\\?\\s*(?:$|\\s)")
+        alias_key = re.compile(r"^\\s*(?:-\\s*)?\\*[^\\s:]+\\s*:")
+        node_property = r"(?:&[^\\s,\\[\\]{}]+|!(?:<[^>]+>|[^\\s,\\[\\]{}]+))"
+        decorated_key = re.compile(
+            rf"""^\\s*(?:-\\s*)?(?:{node_property}\\s+)+(?P<key>'(?:[^']|'')*'|"(?:\\\\.|[^"\\\\])*"|[^:\\s]+)\\s*:"""
+        )
         run_block = re.compile(r"^\s*(?:-\s*)?run\s*:\s*[|>](?:[+-]?\d?|[0-9]?[+-]?)\s*(?:#.*)?$")
         run_scalar = re.compile(r"^\s*(?:-\s*)?run\s*:")
         for line_number, line in enumerate(lines, start=1):
@@ -330,6 +371,14 @@ def validate_workflow_action_uses(errors: list[str]) -> None:
             if match is None:
                 quoted_key_match = quoted_uses_key.match(line)
                 explicit_key_match = explicit_uses_key.match(line)
+                decorated_key_match = decorated_key.match(line)
+                decorated_key_is_uses = (
+                    decorated_key_match is not None
+                    and (
+                        decorated_key_match.group("key") == "uses"
+                        or quoted_yaml_key_is_uses(decorated_key_match.group("key"))
+                    )
+                )
                 quoted_key_is_uses = (
                     (quoted_key_match is not None and quoted_yaml_key_is_uses(quoted_key_match.group("key")))
                     or (
@@ -340,6 +389,9 @@ def validate_workflow_action_uses(errors: list[str]) -> None:
                 )
                 if (
                     quoted_key_is_uses
+                    or decorated_key_is_uses
+                    or explicit_key_indicator.match(line) is not None
+                    or alias_key.match(line) is not None
                     or (explicit_key_match is not None and explicit_key_match.group("key") == "uses")
                     or (
                         not run_scalar.match(line)
