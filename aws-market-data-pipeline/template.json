@@ -26,10 +26,10 @@
       "AllowedValues": [1, 3, 5, 7, 14, 30]
     },
     "MaxSourceObjectBytes": {
-      "Type": "Number",
-      "Default": 1048576,
-      "MinValue": 1,
-      "Description": "Maximum CSV object size accepted by the Lambda transform, in bytes."
+      "Type": "String",
+      "Default": "1048576",
+      "AllowedPattern": "^(?:[1-9][0-9]{0,5}|1[0-9]{6}|2000000)$",
+      "Description": "Maximum CSV object size accepted by the Lambda transform, from 1 through 2000000 bytes."
     },
     "RawBucketName": {
       "Type": "String",
@@ -162,7 +162,7 @@
             "Statement": [
               {
                 "Effect": "Allow",
-                "Action": ["s3:GetObject"],
+                "Action": ["s3:GetObject", "s3:GetObjectVersion"],
                 "Resource": {
                   "Fn::Sub": "arn:${AWS::Partition}:s3:::${RawBucketName}/raw/*"
                 }
