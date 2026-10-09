@@ -1,0 +1,60 @@
+{
+  "schema_version": "1.0",
+  "batch_id": "HYDRA_CONSTRAINT_REPLAY_OUTCOME_MAPPING_BATCH013_20260926",
+  "rule_set_id": "POSITIVE_CONSTRAINT_RULESET_V1",
+  "declared_at": "2026-09-26T19:45:00Z",
+  "policy": "Batch 013 reuses POSITIVE_CONSTRAINT_RULESET_V1 unchanged. The rare-earths case deliberately exercises the open-contradiction to UNEVALUABLE path.",
+  "cases": [
+    {
+      "case_id": "russia-food-import-embargo-2014",
+      "mechanism_observed": true,
+      "direction_consistent": true,
+      "explicit_numeric_target_defined": false,
+      "target_met": null,
+      "explicit_horizon_defined": false,
+      "horizon_met": null,
+      "causal_attribution_clean": false,
+      "outcome_observation_complete": true,
+      "contradiction_open": false,
+      "evidence_source_ids": [
+        "russia-worldbank-2014-08-11-hypothesis",
+        "russia-fao-2015-03-03-outcome"
+      ],
+      "rationale": "Food-price inflation accelerated in the expected direction, but FAO explicitly attributed the observed rise to both ruble depreciation and the food embargo; the embargo is therefore not treated as a sole cause."
+    },
+    {
+      "case_id": "bis-semiconductor-controls-2022",
+      "mechanism_observed": true,
+      "direction_consistent": true,
+      "explicit_numeric_target_defined": false,
+      "target_met": null,
+      "explicit_horizon_defined": false,
+      "horizon_met": null,
+      "causal_attribution_clean": false,
+      "outcome_observation_complete": true,
+      "contradiction_open": false,
+      "evidence_source_ids": [
+        "bis-2022-10-07-hypothesis",
+        "bis-nvidia-2024-08-28-outcome"
+      ],
+      "rationale": "Restricted advanced-computing shipments faced licensing barriers and NVIDIA reported no licenses for specified restricted China products plus a China Data Center revenue share below pre-control levels, but subsequent 2023 control updates and product redesign/adaptation prevent clean attribution to the October 2022 rule alone."
+    },
+    {
+      "case_id": "wto-china-rare-earths-resource-dispute-2014-2015",
+      "mechanism_observed": true,
+      "direction_consistent": true,
+      "explicit_numeric_target_defined": false,
+      "target_met": null,
+      "explicit_horizon_defined": false,
+      "horizon_met": null,
+      "causal_attribution_clean": false,
+      "outcome_observation_complete": true,
+      "contradiction_open": true,
+      "evidence_source_ids": [
+        "rareearth-ustr-2014-03-26-hypothesis",
+        "rareearth-wto-2015-05-20-outcome"
+      ],
+      "rationale": "The challenged duties, quotas and specified trading-right restrictions were reported removed, but the WTO record preserves a U.S. concern that a remaining licensing requirement could itself restrict exports and records disagreement over full compliance. The case therefore remains UNEVALUABLE rather than forcing a compliance verdict."
+    }
+  ]
+}
