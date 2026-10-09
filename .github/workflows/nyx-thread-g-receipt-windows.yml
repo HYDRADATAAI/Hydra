@@ -39,10 +39,39 @@ jobs:
       - name: Reproduce pinned baseline and check candidate
         working-directory: D:\NYX_PORTABLE\THREAD_G_REPO
         run: python -B validation/thread_g/run_windows.py
+      - name: Verify expected receipt outputs
+        if: always()
+        run: |
+          $required = @(
+            'baseline.json',
+            'baseline.log',
+            'repaired_types.json',
+            'repaired_types.log',
+            'existing_admission.json',
+            'existing_admission.log',
+            'existing_bridge.json',
+            'existing_bridge.log',
+            'RESULT.json',
+            'SOURCE_HASHES.json'
+          )
+          foreach ($name in $required) {
+            $path = Join-Path 'D:\NYX_PORTABLE\THREAD_G_RECEIPT_REPAIR' $name
+            if (-not (Test-Path -LiteralPath $path -PathType Leaf)) { throw "Expected receipt output missing: $name" }
+          }
       - name: Preserve exact results
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: thread-g-receipt-windows-${{ github.sha }}
-          path: D:\NYX_PORTABLE\THREAD_G_RECEIPT_REPAIR/*.*
+          path: |
+            D:\NYX_PORTABLE\THREAD_G_RECEIPT_REPAIR\baseline.json
+            D:\NYX_PORTABLE\THREAD_G_RECEIPT_REPAIR\baseline.log
+            D:\NYX_PORTABLE\THREAD_G_RECEIPT_REPAIR\repaired_types.json
+            D:\NYX_PORTABLE\THREAD_G_RECEIPT_REPAIR\repaired_types.log
+            D:\NYX_PORTABLE\THREAD_G_RECEIPT_REPAIR\existing_admission.json
+            D:\NYX_PORTABLE\THREAD_G_RECEIPT_REPAIR\existing_admission.log
+            D:\NYX_PORTABLE\THREAD_G_RECEIPT_REPAIR\existing_bridge.json
+            D:\NYX_PORTABLE\THREAD_G_RECEIPT_REPAIR\existing_bridge.log
+            D:\NYX_PORTABLE\THREAD_G_RECEIPT_REPAIR\RESULT.json
+            D:\NYX_PORTABLE\THREAD_G_RECEIPT_REPAIR\SOURCE_HASHES.json
           if-no-files-found: error
