@@ -1173,7 +1173,7 @@ def validate_ci_contract(errors: list[str]) -> None:
     }
     for action, expected_sha in deploy_action_pins.items():
         refs = re.findall(
-            rf"(?m)^\\s*uses:\\s*{re.escape(action)}@([^\\s#]+)",
+            rf"(?m)^\s*uses:\s*{re.escape(action)}@([^\s#]+)",
             deploy_workflow,
         )
         if not refs or any(ref != expected_sha for ref in refs):
