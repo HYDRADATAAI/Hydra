@@ -5,6 +5,7 @@ import unittest
 from datetime import datetime
 
 from hydra_constraint_t1_raw.ordinary_t2_lineage import (
+    BATCH032_T1_ATTESTATION_SCHEMA,
     OrdinaryT2LineageError,
     build_ordinary_t2_lineage,
     select_ordinary_t2_members,
@@ -46,6 +47,7 @@ class TemporalConsistencyBoundaryTests(unittest.TestCase):
              "historical_backdating_authorized": False},
         ]
         self.attestation = {
+            "schema_version": BATCH032_T1_ATTESTATION_SCHEMA,
             "slice_id": "SYNTHETIC", "release_id": "REL-SYNTHETIC",
             "release_sha256": "a" * 64,
             "availability_mode": "ACQUISITION_TIME_CONSERVATIVE",
