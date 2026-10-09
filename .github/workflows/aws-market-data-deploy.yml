@@ -224,6 +224,7 @@ jobs:
           if-no-files-found: error
 
       - name: Empty versioned buckets and delete stack
+        timeout-minutes: 75
         if: ${{ always() && inputs.teardown && steps.deploy_stack.outcome != 'skipped' }}
         run: |
           set -euo pipefail
@@ -246,7 +247,7 @@ jobs:
           fi
 
           stack_status=$(jq -r '.Stacks[0].StackStatus' <<< "$stack_description")
-          for attempt in $(seq 1 60); do
+          for attempt in $(seq 1 360); do
             case "$stack_status" in
               CREATE_IN_PROGRESS|ROLLBACK_IN_PROGRESS)
                 sleep 10
