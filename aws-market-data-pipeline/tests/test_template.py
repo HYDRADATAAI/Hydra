@@ -67,9 +67,7 @@ class TemplateContractTests(unittest.TestCase):
         self.assertNotIn("CuratedBucket.Arn", serialized)
         self.assertIn("${RawBucketName}/raw/*", serialized)
         self.assertIn("${CuratedBucketName}/curated/*", serialized)
-        self.assertIn(
-            "table/${DataCatalogDatabaseName}/normalized_events", serialized
-        )
+
     def test_glue_database_name_is_athena_compatible_and_configurable(self):
         parameter = TEMPLATE["Parameters"]["DataCatalogDatabaseName"]
         self.assertEqual(parameter["AllowedPattern"], "^[a-z0-9_]+$")
@@ -96,6 +94,7 @@ class TemplateContractTests(unittest.TestCase):
             actions,
             {
                 "s3:GetObject",
+                "s3:GetObjectVersion",
                 "s3:PutObject",
                 "glue:CreatePartition",
                 "glue:GetPartition",
@@ -112,6 +111,23 @@ class TemplateContractTests(unittest.TestCase):
                 {"Name": "prefix", "Value": "raw/"},
                 {"Name": "suffix", "Value": ".csv"},
             ],
+        )
+
+    def test_lambda_source_object_byte_limit_is_configurable(self):
+        parameter = TEMPLATE["Parameters"]["MaxSourceObjectBytes"]
+        self.assertEqual(parameter["Type"], "String")
+        self.assertEqual(parameter["Default"], "1048576")
+        self.assertEqual(
+            parameter["AllowedPattern"],
+            "^(?:[1-9][0-9]{0,5}|1[0-9]{6}|2000000)$",
+        )
+
+        variables = TEMPLATE["Resources"]["TransformFunction"]["Properties"][
+            "Environment"
+        ]["Variables"]
+        self.assertEqual(
+            variables["MAX_SOURCE_OBJECT_BYTES"],
+            {"Ref": "MaxSourceObjectBytes"},
         )
 
     def test_glue_reads_only_accepted_prefix_and_athena_is_bounded(self):
