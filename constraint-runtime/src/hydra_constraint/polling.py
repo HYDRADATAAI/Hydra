@@ -199,14 +199,29 @@ class PollRunner:
         self.transport=transport; self.sleeper=sleeper or time
 
     def validate_live_spec(self,spec):
-        if spec.source_class=="sec_edgar":
-            ua=spec.headers.get("User-Agent","")
-            if not ua or "REPLACE_" in ua:
-                raise ValueError("SEC live polling requires real User-Agent/contact")
-            if spec.max_rps>10:
-                raise ValueError("SEC max_rps exceeds fair-access ceiling")
+        sec_fields=(spec.adapter=="sec_edgar" or spec.source_class=="sec_edgar" or spec.parser=="sec_json")
+        if not sec_fields:
+            return
+        if (spec.adapter,spec.source_class,spec.parser)!=("sec_edgar","sec_edgar","sec_json"):
+            raise ValueError("SEC polling requires matching sec_edgar adapter/source_class and sec_json parser")
+        user_agent_values=[
+            value for key,value in spec.headers.items()
+            if str(key).casefold()=="user-agent"
+        ]
+        if len(user_agent_values)!=1 or not isinstance(user_agent_values[0],str):
+            raise ValueError("SEC live polling requires one real User-Agent/contact header")
+        user_agent=user_agent_values[0].strip()
+        if not user_agent or "REPLACE_" in user_agent.upper():
+            raise ValueError("SEC live polling requires real User-Agent/contact")
+        try:
+            max_rps=float(spec.max_rps)
+        except (TypeError,ValueError) as exc:
+            raise ValueError("SEC max_rps must be a number at or below the fair-access ceiling") from exc
+        if max_rps>10:
+            raise ValueError("SEC max_rps exceeds fair-access ceiling")
 
     def poll(self,spec,cursor_value=None):
+        self.validate_live_spec(spec)
         before=self.cursors.adapter(spec.name).get("cursor")
         statuses=[]; hashes=[]; delays=[]; response=None; error=None
         for attempt in range(1,spec.backoff.max_attempts+1):
