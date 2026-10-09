@@ -95,7 +95,12 @@ class TemplateContractTests(unittest.TestCase):
         actions = {action for statement in statements for action in statement["Action"]}
         self.assertEqual(
             actions,
-            {"s3:GetObject", "s3:PutObject", "glue:CreatePartition"},
+            {
+                "s3:GetObject",
+                "s3:PutObject",
+                "glue:CreatePartition",
+                "glue:GetPartition",
+            },
         )
         serialized = json.dumps(statements, sort_keys=True)
         self.assertNotIn('"Resource": "*"', serialized)
