@@ -273,10 +273,11 @@ class PollRateLimitTests(unittest.TestCase):
             return HttpResponse(url,503,headers,b"retry","2026-10-09T12:00:00Z")
 
     def make_spec(self,**kwargs):
+        backoff=kwargs.pop("backoff",BackoffPolicy(max_attempts=2,base_seconds=0.1,cap_seconds=2))
         return PollSpec(
             name="sec",adapter="sec_edgar",source_class="sec_edgar",url="https://www.sec.gov/data",
             parser="sec_json",cadence_minutes=1,stale_after_minutes=5,
-            backoff=BackoffPolicy(max_attempts=2,base_seconds=0.1,cap_seconds=2),**kwargs
+            backoff=backoff,**kwargs
         )
 
     def test_retry_attempts_respect_rate_interval(self):
