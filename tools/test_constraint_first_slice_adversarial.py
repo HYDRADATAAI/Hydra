@@ -293,7 +293,7 @@ def case_batch008_supersession_boundary_removed(root: Path) -> None:
     path = root / "docs/constraint/validation" / name
     manifest = json.loads(path.read_text(encoding="utf-8"))
     manifest["supersedes"]["predecessor_preserved"] = False
-    path.write_text(json.dumps(manifest, indent=2) + "\\n", encoding="utf-8")
+    path.write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
 
 
 def main() -> int:
