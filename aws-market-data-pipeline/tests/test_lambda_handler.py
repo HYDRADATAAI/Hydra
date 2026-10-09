@@ -18,13 +18,16 @@ _CONTENT_LENGTH_UNSET = object()
 
 
 class TrackingBody(io.BytesIO):
-    def __init__(self, value: bytes):
+    def __init__(self, value: bytes, *, max_chunk_size: int | None = None):
         super().__init__(value)
+        self.max_chunk_size = max_chunk_size
         self.read_sizes: list[int] = []
         self.bytes_read = 0
 
     def read(self, size: int = -1) -> bytes:
         self.read_sizes.append(size)
+        if self.max_chunk_size is not None and size >= 0:
+            size = min(size, self.max_chunk_size)
         chunk = super().read(size)
         self.bytes_read += len(chunk)
         return chunk
@@ -191,7 +194,8 @@ class LambdaHandlerTests(unittest.TestCase):
 
     def test_object_exactly_at_configured_limit_is_processed(self):
         source = FIXTURE.read_bytes()
-        client = FakeS3(source)
+        body = TrackingBody(source, max_chunk_size=7)
+        client = FakeS3(source, body=body)
         with patch.dict(
             os.environ,
             {
@@ -204,6 +208,8 @@ class LambdaHandlerTests(unittest.TestCase):
             )
 
         self.assertEqual(result["status"], "PASS")
+        self.assertGreater(len(body.read_sizes), 1)
+        self.assertTrue(body.closed)
         self.assertEqual(len(client.put_calls), 3)
 
     def test_content_length_mismatch_fails_before_output_writes(self):
