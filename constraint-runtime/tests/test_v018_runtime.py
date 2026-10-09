@@ -169,10 +169,10 @@ class LedgerPersistenceTests(unittest.TestCase):
             "source_id":"OFFICIAL","source_class":"federal_register","source_priority":100,
             "external_record_id":"X-RANK","evidence_class":"A1","severity":0.8,"jurisdiction":"Global",
         }
-        for claimed_priority in (40, 101):
+        for claimed_priority in (39, 101):
             with self.subTest(claimed_priority=claimed_priority):
                 ledger = AppendOnlyEventLedger(normalizer)
-                ledger.ingest_adapted(official)
+                official_entry = ledger.ingest_adapted(official)
                 low = dict(
                     official,
                     effective_at="2026-10-01T00:00:00Z",
@@ -185,6 +185,19 @@ class LedgerPersistenceTests(unittest.TestCase):
                 with self.assertRaisesRegex(ValueError, "source_priority mismatch"):
                     ledger.ingest_adapted(low)
                 self.assertEqual(len(ledger.entries), 1)
+                self.assertEqual(ledger.tip_hash, official_entry.entry_hash)
+                self.assertEqual(ledger._active[official_entry.fingerprint]["priority"], 100)
+                self.assertEqual(ledger.active_events()[0]["effective_at"], "2026-10-15T00:00:00Z")
+                self.assertEqual(ledger.verify_chain()["status"], "PASS")
+
+                valid_entry = ledger.ingest_adapted(dict(low, source_priority=40))
+                self.assertEqual(valid_entry.action, "QUARANTINE")
+                self.assertEqual(valid_entry.source_class, "secondary_report")
+                self.assertEqual(valid_entry.source_priority, 40)
+                self.assertEqual(len(ledger.entries), 2)
+                self.assertEqual(valid_entry.prior_entry_hash, official_entry.entry_hash)
+                self.assertEqual(ledger.tip_hash, valid_entry.entry_hash)
+                self.assertEqual(ledger._active[official_entry.fingerprint]["priority"], 100)
                 self.assertEqual(ledger.active_events()[0]["effective_at"], "2026-10-15T00:00:00Z")
                 self.assertEqual(ledger.verify_chain()["status"], "PASS")
 
