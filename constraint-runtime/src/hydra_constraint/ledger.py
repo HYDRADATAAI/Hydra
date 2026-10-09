@@ -25,6 +25,20 @@ def _canon(value: Any) -> str:
 def _sha(value: Any) -> str:
     return hashlib.sha256(_canon(value).encode("utf-8")).hexdigest()
 
+def _source_authority(raw: Dict[str,Any]) -> tuple[str,int]:
+    source_class=str(raw.get("source_class") or "secondary_report")
+    if source_class not in SOURCE_PRIORITY:
+        raise ValueError(f"unknown source_class: {source_class}")
+    priority=SOURCE_PRIORITY[source_class]
+    claimed=raw.get("source_priority")
+    if claimed is not None and (
+        isinstance(claimed,bool) or not isinstance(claimed,int) or claimed!=priority
+    ):
+        raise ValueError(
+            f"source_priority mismatch for {source_class}: expected {priority}"
+        )
+    return source_class,priority
+
 @dataclass
 class LedgerEntry:
     sequence:int
@@ -62,8 +76,7 @@ class AppendOnlyEventLedger:
     def _append(self,action,event,raw,reason,supersedes_sequence=None):
         if action not in VALID_ACTIONS:
             raise ValueError(action)
-        source_class=str(raw.get("source_class") or "secondary_report")
-        priority=int(raw.get("source_priority",SOURCE_PRIORITY.get(source_class,0)))
+        source_class,priority=_source_authority(raw)
         version=self._versions.get(event.fingerprint,0)+1
         seq=len(self.entries)+1
         payload=event.to_dict()
@@ -91,6 +104,7 @@ class AppendOnlyEventLedger:
         return entry
 
     def ingest_adapted(self,raw:Dict[str,Any])->LedgerEntry:
+        source_class,priority=_source_authority(raw)
         try:
             incoming=self.normalizer.normalize(raw)
         except IngestError as exc:
@@ -115,7 +129,6 @@ class AppendOnlyEventLedger:
 
         fp=incoming.fingerprint
         current=self._active.get(fp)
-        priority=int(raw.get("source_priority",0))
         if current is None:
             entry=self._append("CREATE",incoming,raw,"new canonical event")
             self._active[fp]={"event":incoming,"priority":priority,"sequence":entry.sequence,"retracted":False}
