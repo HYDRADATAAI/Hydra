@@ -67,4 +67,4 @@ This sample is infrastructure and deterministic test evidence for a small synthe
 - live market-data ingestion;
 - customer traffic, trading, or ML execution.
 
-Website promotion should occur only after a successful manual deployment produces inspectable, sanitized evidence.
+Only consider re-enabling the manual workflow or promoting this sample after safe deployment and teardown are verified and a successful run produces inspectable, sanitized evidence.
