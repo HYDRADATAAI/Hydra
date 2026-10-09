@@ -23,6 +23,7 @@ ARTIFACT_WRITE_ORDER = (
     "manifest.json",
 )
 DEFAULT_MAX_SOURCE_OBJECT_BYTES = 1_048_576
+MAX_SOURCE_OBJECT_BYTES_LIMIT = 2_000_000
 
 
 def lambda_handler(
@@ -40,22 +41,30 @@ def lambda_handler(
     client = s3_client or _boto3_s3_client()
     source_objects = sorted(
         _source_objects(event),
-        key=lambda item: (item[0], item[1], item[2] if item[2] is not None else -1),
+        key=lambda item: (
+            item[0],
+            item[1],
+            item[2] if item[2] is not None else -1,
+            item[3] or "",
+        ),
     )
     if not source_objects:
         raise ValueError("event contains no S3 ObjectCreated records")
 
     if any(
         object_size is not None and object_size > max_source_object_bytes
-        for _, _, object_size in source_objects
+        for _, _, object_size, _ in source_objects
     ):
         raise ValueError(
             f"source object exceeds max_source_object_bytes={max_source_object_bytes}"
         )
 
     processed: list[dict[str, object]] = []
-    for source_bucket, source_key, event_object_size in source_objects:
-        response = client.get_object(Bucket=source_bucket, Key=source_key)
+    for source_bucket, source_key, event_object_size, version_id in source_objects:
+        get_args: dict[str, object] = {"Bucket": source_bucket, "Key": source_key}
+        if version_id is not None:
+            get_args["VersionId"] = version_id
+        response = client.get_object(**get_args)
         body = response["Body"]
         try:
             content_length = response.get("ContentLength")
@@ -95,8 +104,10 @@ def lambda_handler(
     return {"processed": processed, "status": "PASS"}
 
 
-def _source_objects(event: dict[str, Any]) -> list[tuple[str, str, int | None]]:
-    objects: list[tuple[str, str, int | None]] = []
+def _source_objects(
+    event: dict[str, Any],
+) -> list[tuple[str, str, int | None, str | None]]:
+    objects: list[tuple[str, str, int | None, str | None]] = []
     records = event.get("Records", [])
     if not isinstance(records, list):
         raise ValueError("event Records must be a list")
@@ -119,8 +130,11 @@ def _source_objects(event: dict[str, Any]) -> list[tuple[str, str, int | None]]:
         object_size = object_data.get("size")
         if object_size is not None and (type(object_size) is not int or object_size < 0):
             raise ValueError("S3 event object size must be a non-negative integer")
+        version_id = object_data.get("versionId")
+        if version_id is not None and (not isinstance(version_id, str) or not version_id):
+            raise ValueError("S3 event object versionId must be a non-empty string")
         if isinstance(bucket, str) and isinstance(key, str):
-            objects.append((bucket, unquote_plus(key), object_size))
+            objects.append((bucket, unquote_plus(key), object_size, version_id))
     return objects
 
 
@@ -155,8 +169,10 @@ def _max_source_object_bytes() -> int:
         limit = int(configured)
     except (TypeError, ValueError) as exc:
         raise RuntimeError("MAX_SOURCE_OBJECT_BYTES must be a positive integer") from exc
-    if limit < 1:
-        raise RuntimeError("MAX_SOURCE_OBJECT_BYTES must be a positive integer")
+    if not 1 <= limit <= MAX_SOURCE_OBJECT_BYTES_LIMIT:
+        raise RuntimeError(
+            f"MAX_SOURCE_OBJECT_BYTES must be between 1 and {MAX_SOURCE_OBJECT_BYTES_LIMIT}"
+        )
     return limit
 
 
