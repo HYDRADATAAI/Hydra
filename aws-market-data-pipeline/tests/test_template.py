@@ -80,6 +80,10 @@ class TemplateContractTests(unittest.TestCase):
 
     def test_lambda_is_bounded_and_least_privilege(self):
         function = TEMPLATE["Resources"]["TransformFunction"]["Properties"]
+        self.assertEqual(
+            function["Environment"]["Variables"]["DATA_CATALOG_DATABASE"],
+            {"Ref": "DataCatalogDatabaseName"},
+        )
         self.assertEqual(function["Runtime"], "python3.11")
         self.assertEqual(function["MemorySize"], 128)
         self.assertEqual(function["Timeout"], 30)
@@ -88,7 +92,13 @@ class TemplateContractTests(unittest.TestCase):
         actions = {action for statement in statements for action in statement["Action"]}
         self.assertEqual(
             actions,
-            {"s3:GetObject", "s3:GetObjectVersion", "s3:PutObject"},
+            {
+                "s3:GetObject",
+                "s3:GetObjectVersion",
+                "s3:PutObject",
+                "glue:CreatePartition",
+                "glue:GetPartition",
+            },
         )
         serialized = json.dumps(statements, sort_keys=True)
         self.assertNotIn('"Resource": "*"', serialized)
@@ -122,8 +132,24 @@ class TemplateContractTests(unittest.TestCase):
 
     def test_glue_reads_only_accepted_prefix_and_athena_is_bounded(self):
         table = TEMPLATE["Resources"]["NormalizedEventsTable"]["Properties"]
-        location = table["TableInput"]["StorageDescriptor"]["Location"]["Fn::Sub"]
+        table_input = table["TableInput"]
+        location = table_input["StorageDescriptor"]["Location"]["Fn::Sub"]
         self.assertTrue(location.endswith("/curated/accepted/"))
+        self.assertEqual(
+            table_input["PartitionKeys"],
+            [{"Name": "pipeline_run_id", "Type": "string"}],
+        )
+        self.assertNotIn(
+            "pipeline_run_id",
+            {column["Name"] for column in table_input["StorageDescriptor"]["Columns"]},
+        )
+        self.assertNotIn("projection.enabled", table_input["Parameters"])
+        self.assertFalse(
+            any(
+                resource["Type"] == "AWS::Glue::Crawler"
+                for resource in TEMPLATE["Resources"].values()
+            )
+        )
 
         workgroup = TEMPLATE["Resources"]["AthenaWorkGroup"]["Properties"]
         config = workgroup["WorkGroupConfiguration"]
