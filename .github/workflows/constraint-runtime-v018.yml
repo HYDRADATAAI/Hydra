@@ -11,6 +11,9 @@ on:
       - "constraint-runtime/**"
       - ".github/workflows/constraint-runtime-v018.yml"
 
+permissions:
+  contents: read
+
 jobs:
   runtime:
     runs-on: ubuntu-latest

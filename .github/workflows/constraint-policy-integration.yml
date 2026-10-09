@@ -9,6 +9,9 @@ on:
       - ".github/workflows/constraint-policy-integration.yml"
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 jobs:
   policy-physical-replay-contract:
     runs-on: ubuntu-latest

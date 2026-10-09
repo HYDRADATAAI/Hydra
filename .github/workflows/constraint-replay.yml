@@ -10,6 +10,9 @@ on:
       - "constraint-replay/**"
       - ".github/workflows/constraint-replay.yml"
 
+permissions:
+  contents: read
+
 jobs:
   replay-tests:
     runs-on: ubuntu-latest
