@@ -67,6 +67,13 @@ class TemplateContractTests(unittest.TestCase):
         self.assertNotIn("CuratedBucket.Arn", serialized)
         self.assertIn("${RawBucketName}/raw/*", serialized)
         self.assertIn("${CuratedBucketName}/curated/*", serialized)
+        self.assertIn(
+            "table/${DataCatalogDatabaseName}/normalized_events", serialized
+        )
+        self.assertEqual(
+            function["Environment"]["Variables"]["DATA_CATALOG_DATABASE"],
+            {"Ref": "DataCatalogDatabaseName"},
+        )
 
     def test_glue_database_name_is_athena_compatible_and_configurable(self):
         parameter = TEMPLATE["Parameters"]["DataCatalogDatabaseName"]
@@ -86,7 +93,10 @@ class TemplateContractTests(unittest.TestCase):
         self.assertEqual(function["ReservedConcurrentExecutions"], 2)
         statements = function["Policies"][0]["Statement"]
         actions = {action for statement in statements for action in statement["Action"]}
-        self.assertEqual(actions, {"s3:GetObject", "s3:PutObject"})
+        self.assertEqual(
+            actions,
+            {"s3:GetObject", "s3:PutObject", "glue:CreatePartition"},
+        )
         serialized = json.dumps(statements, sort_keys=True)
         self.assertNotIn('"Resource": "*"', serialized)
 
@@ -102,8 +112,17 @@ class TemplateContractTests(unittest.TestCase):
 
     def test_glue_reads_only_accepted_prefix_and_athena_is_bounded(self):
         table = TEMPLATE["Resources"]["NormalizedEventsTable"]["Properties"]
-        location = table["TableInput"]["StorageDescriptor"]["Location"]["Fn::Sub"]
+        table_input = table["TableInput"]
+        location = table_input["StorageDescriptor"]["Location"]["Fn::Sub"]
         self.assertTrue(location.endswith("/curated/accepted/"))
+        self.assertEqual(
+            table_input["PartitionKeys"],
+            [{"Name": "pipeline_run_id", "Type": "string"}],
+        )
+        self.assertNotIn(
+            "pipeline_run_id",
+            {column["Name"] for column in table_input["StorageDescriptor"]["Columns"]},
+        )
 
         workgroup = TEMPLATE["Resources"]["AthenaWorkGroup"]["Properties"]
         config = workgroup["WorkGroupConfiguration"]
