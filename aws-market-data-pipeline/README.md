@@ -6,16 +6,16 @@ This sample maps the public deterministic market-data pipeline onto a small AWS 
 
 ## Flow
 
-`synthetic CSV -> private raw S3 -> Python 3.11 Lambda -> accepted/quarantine S3 prefixes -> Glue table -> bounded Athena query`
+`synthetic CSV -> private raw S3 -> Python 3.11 Lambda -> accepted/quarantine/manifests S3 objects -> Glue partition commit -> bounded Athena query`
 
-The Lambda transform performs strict file-contract validation, row normalization, deterministic event identity, provenance hashing, explicit quarantine, and deterministic manifest generation. Replaying identical source bytes targets the same content-addressed object keys and emits the same bytes.
+The Lambda transform performs strict file-contract validation, row normalization, deterministic event identity, provenance hashing, explicit quarantine, and deterministic manifest generation. It writes accepted JSONL, quarantine JSONL, and the manifest before registering a Glue partition for the accepted run. The partition is the Glue/Athena visibility commit: if any artifact write fails, Athena cannot query that run through `normalized_events`. Replaying identical source bytes targets the same content-addressed object keys and emits the same bytes; an already registered partition is safe for that deterministic replay. Direct S3 readers can still see an accepted object left by a failed later write, so they should require a manifest or Glue partition before consuming a run.
 
 ## AWS resources
 
 - two private, encrypted, versioned S3 buckets with bounded retention;
 - one S3-triggered Python 3.11 Lambda function;
 - least-privilege object-level read/write permissions;
-- one Glue database and external table over accepted JSONL only;
+- one Glue database and partitioned external table over accepted JSONL only; Lambda registers each run partition only after all three artifacts are stored;
 - one Athena workgroup with enforced encrypted output and a 1 GiB scan cutoff;
 - one explicit CloudWatch log group with bounded retention.
 
