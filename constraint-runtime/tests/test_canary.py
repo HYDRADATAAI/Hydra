@@ -124,7 +124,11 @@ class LiveCanaryTests(unittest.TestCase):
                 self.requests.append(req.full_url)
                 headers = Message()
                 headers["Location"] = redirect_url
-                return addinfourl(BytesIO(b"redirect"), headers, req.full_url, 302)
+                response = addinfourl(BytesIO(b"redirect"), headers, req.full_url, 302)
+                response.status = 302
+                response.reason = "Found"
+                response.msg = "Found"
+                return response
 
         recording_https = RecordingHttpsHandler()
         no_redirect = _NoRedirectHandler()
