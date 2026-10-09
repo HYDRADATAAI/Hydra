@@ -280,6 +280,24 @@ class DeployTeardownOwnershipTests(unittest.TestCase):
         self.assertIn("s3://" + RAW_BUCKET, logs["cleanup"][0])
         self.assertFalse(logs["sam"])
 
+    def test_delete_failed_bucket_is_cleaned_and_other_resource_states_are_skipped(self):
+        result, logs = self.run_teardown(resources=[
+            {
+                "LogicalResourceId": "RawBucket",
+                "PhysicalResourceId": RAW_BUCKET,
+                "ResourceStatus": "DELETE_FAILED",
+            },
+            {
+                "LogicalResourceId": "CuratedBucket",
+                "PhysicalResourceId": "hydra-public-curated-expected",
+                "ResourceStatus": "UPDATE_COMPLETE",
+            },
+        ])
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertEqual(len(logs["cleanup"]), 1)
+        self.assertIn("s3://" + RAW_BUCKET, logs["cleanup"][0])
+        self.assertTrue(logs["sam"])
+
     def test_unexpected_stack_status_stops_before_resource_lookup(self):
         result, logs = self.run_teardown(status="DELETE_IN_PROGRESS")
         self.assertNotEqual(result.returncode, 0, result.stdout + result.stderr)
