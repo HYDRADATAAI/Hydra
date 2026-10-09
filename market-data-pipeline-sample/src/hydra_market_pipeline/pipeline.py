@@ -127,7 +127,7 @@ def run_pipeline(
         raise ContractError("input CSV must be valid UTF-8") from exc
 
     reader = csv.DictReader(io.StringIO(text, newline=""))
-    _validate_header(reader.fieldnames)
+    reader.fieldnames = _validate_header(reader.fieldnames)
 
     accepted: list[NormalizedEvent] = []
     quarantined: list[QuarantineRecord] = []
@@ -229,7 +229,7 @@ def run_pipeline(
     )
 
 
-def _validate_header(fieldnames: list[str] | None) -> None:
+def _validate_header(fieldnames: list[str] | None) -> list[str]:
     if fieldnames is None:
         raise ContractError("input CSV has no header")
     normalized = [field.strip() for field in fieldnames]
@@ -241,6 +241,7 @@ def _validate_header(fieldnames: list[str] | None) -> None:
             "input CSV contract mismatch: "
             f"missing={missing}, extra={extra}, duplicates={duplicates}"
         )
+    return normalized
 
 
 def _parse_event_time(value: str, errors: list[str]) -> datetime | None:
