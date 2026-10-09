@@ -1049,6 +1049,16 @@ def validate_ci_contract(errors: list[str]) -> None:
                 errors.append(
                     f"manifest-v2 public documentation contract missing: {path.name}: {fragment}"
                 )
+    public_validation_workflow = (
+        ROOT / ".github/workflows/public-repository-validation.yml"
+    ).read_text(encoding="utf-8-sig")
+    link_test_command = (
+        "python -m unittest tools/test_workflow_action_refs.py "
+        "tools/test_document_links.py -v"
+    )
+    if link_test_command not in public_validation_workflow:
+        errors.append("public repository validation must run its link regression tests")
+
     validator_workflow = (ROOT / ".github/workflows/t6-validator.yml").read_text(
         encoding="utf-8-sig"
     )
