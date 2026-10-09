@@ -14,22 +14,64 @@ ROOT = Path(__file__).resolve().parents[1]
 FIXTURE = ROOT / "fixtures" / "synthetic_market_events.csv"
 
 
+_CONTENT_LENGTH_UNSET = object()
+
+
+class TrackingBody(io.BytesIO):
+    def __init__(self, value: bytes, *, max_chunk_size: int | None = None):
+        super().__init__(value)
+        self.max_chunk_size = max_chunk_size
+        self.read_sizes: list[int] = []
+        self.bytes_read = 0
+
+    def read(self, size: int = -1) -> bytes:
+        self.read_sizes.append(size)
+        if self.max_chunk_size is not None and size >= 0:
+            size = min(size, self.max_chunk_size)
+        chunk = super().read(size)
+        self.bytes_read += len(chunk)
+        return chunk
+
+
 class FakeS3:
-    def __init__(self, source: bytes):
+    def __init__(
+        self,
+        source: bytes,
+        *,
+        content_length: object = _CONTENT_LENGTH_UNSET,
+        body: object | None = None,
+    ):
         self.source = source
+        self.content_length = content_length
+        self.body = body if body is not None else io.BytesIO(source)
         self.get_calls: list[dict[str, object]] = []
         self.put_calls: list[dict[str, object]] = []
 
     def get_object(self, **kwargs):
         self.get_calls.append(kwargs)
-        return {"Body": io.BytesIO(self.source)}
+        response = {"Body": self.body}
+        if self.content_length is _CONTENT_LENGTH_UNSET:
+            response["ContentLength"] = len(self.source)
+        elif self.content_length is not None:
+            response["ContentLength"] = self.content_length
+        return response
 
     def put_object(self, **kwargs):
         self.put_calls.append(kwargs)
         return {"ETag": '"synthetic"'}
 
 
-def s3_event(key: str = "raw/synthetic+market.csv") -> dict[str, object]:
+def s3_event(
+    key: str = "raw/synthetic+market.csv",
+    *,
+    size: int | None = None,
+    version_id: str | None = "version-1",
+) -> dict[str, object]:
+    object_data: dict[str, object] = {"key": key}
+    if size is not None:
+        object_data["size"] = size
+    if version_id is not None:
+        object_data["versionId"] = version_id
     return {
         "Records": [
             {
@@ -37,7 +79,7 @@ def s3_event(key: str = "raw/synthetic+market.csv") -> dict[str, object]:
                 "eventSource": "aws:s3",
                 "s3": {
                     "bucket": {"name": "hydra-raw-example"},
-                    "object": {"key": key},
+                    "object": object_data,
                 },
             }
         ]
@@ -51,10 +93,13 @@ class LambdaHandlerTests(unittest.TestCase):
         client = FakeS3(source)
 
         with patch.dict(os.environ, {"CURATED_BUCKET": "hydra-curated-example"}):
-            result = lambda_handler(s3_event(), None, s3_client=client)
+            result = lambda_handler(
+                s3_event(size=len(source)), None, s3_client=client
+            )
 
         self.assertEqual(result["status"], "PASS")
         self.assertEqual(client.get_calls[0]["Key"], "raw/synthetic market.csv")
+        self.assertEqual(client.get_calls[0]["VersionId"], "version-1")
         self.assertEqual(len(client.put_calls), 3)
         self.assertEqual(
             [call["Key"] for call in client.put_calls],
@@ -80,13 +125,196 @@ class LambdaHandlerTests(unittest.TestCase):
         second = FakeS3(source)
 
         with patch.dict(os.environ, {"CURATED_BUCKET": "curated"}):
-            lambda_handler(s3_event(), None, s3_client=first)
-            lambda_handler(s3_event(), None, s3_client=second)
+            lambda_handler(
+                s3_event(size=len(source)), None, s3_client=first
+            )
+            lambda_handler(
+                s3_event(size=len(source)), None, s3_client=second
+            )
 
         self.assertEqual(
             [(call["Key"], call["Body"]) for call in first.put_calls],
             [(call["Key"], call["Body"]) for call in second.put_calls],
         )
+
+    def test_event_size_rejects_before_get_object(self):
+        client = FakeS3(b"small")
+        with patch.dict(
+            os.environ,
+            {"CURATED_BUCKET": "curated", "MAX_SOURCE_OBJECT_BYTES": "8"},
+        ):
+            with self.assertRaisesRegex(ValueError, "source object exceeds"):
+                lambda_handler(s3_event(size=9), None, s3_client=client)
+
+        self.assertEqual(client.get_calls, [])
+        self.assertEqual(client.put_calls, [])
+
+    def test_any_oversized_event_record_is_rejected_before_get_or_put(self):
+        event = s3_event(size=5)
+        event["Records"].append(
+            {
+                "eventName": "ObjectCreated:Put",
+                "eventSource": "aws:s3",
+                "s3": {
+                    "bucket": {"name": "hydra-raw-example"},
+                    "object": {
+                        "key": "raw/oversized.csv",
+                        "size": 9,
+                        "versionId": "version-2",
+                    },
+                },
+            }
+        )
+        client = FakeS3(b"small")
+
+        with patch.dict(
+            os.environ,
+            {"CURATED_BUCKET": "curated", "MAX_SOURCE_OBJECT_BYTES": "8"},
+        ):
+            with self.assertRaisesRegex(ValueError, "source object exceeds"):
+                lambda_handler(event, None, s3_client=client)
+
+        self.assertEqual(client.get_calls, [])
+        self.assertEqual(client.put_calls, [])
+
+    def test_get_object_content_length_rejects_before_body_read(self):
+        body = TrackingBody(b"unread body")
+        client = FakeS3(b"", content_length=9, body=body)
+        with patch.dict(
+            os.environ,
+            {"CURATED_BUCKET": "curated", "MAX_SOURCE_OBJECT_BYTES": "8"},
+        ):
+            with self.assertRaisesRegex(ValueError, "source object exceeds"):
+                lambda_handler(s3_event(size=8), None, s3_client=client)
+
+        self.assertEqual(len(client.get_calls), 1)
+        self.assertEqual(body.read_sizes, [])
+        self.assertTrue(body.closed)
+        self.assertEqual(client.put_calls, [])
+
+    def test_capped_body_read_rejects_when_size_metadata_is_missing(self):
+        body = TrackingBody(b"123456789")
+        client = FakeS3(b"", content_length=None, body=body)
+        with patch.dict(
+            os.environ,
+            {"CURATED_BUCKET": "curated", "MAX_SOURCE_OBJECT_BYTES": "8"},
+        ):
+            with self.assertRaisesRegex(ValueError, "body exceeds max_bytes=8"):
+                lambda_handler(s3_event(), None, s3_client=client)
+
+        self.assertEqual(body.bytes_read, 9)
+        self.assertTrue(body.closed)
+        self.assertEqual(client.put_calls, [])
+
+    def test_object_exactly_at_configured_limit_is_processed(self):
+        source = FIXTURE.read_bytes()
+        body = TrackingBody(source, max_chunk_size=7)
+        client = FakeS3(source, body=body)
+        with patch.dict(
+            os.environ,
+            {
+                "CURATED_BUCKET": "curated",
+                "MAX_SOURCE_OBJECT_BYTES": str(len(source)),
+            },
+        ):
+            result = lambda_handler(
+                s3_event(size=len(source)), None, s3_client=client
+            )
+
+        self.assertEqual(result["status"], "PASS")
+        self.assertGreater(len(body.read_sizes), 1)
+        self.assertTrue(body.closed)
+        self.assertEqual(len(client.put_calls), 3)
+
+    def test_event_size_content_length_mismatch_rejects_before_body_read(self):
+        body = TrackingBody(b"unused")
+        client = FakeS3(b"", content_length=6, body=body)
+        with patch.dict(
+            os.environ,
+            {"CURATED_BUCKET": "curated", "MAX_SOURCE_OBJECT_BYTES": "8"},
+        ):
+            with self.assertRaisesRegex(
+                ValueError, "event object size does not match"
+            ):
+                lambda_handler(s3_event(size=7), None, s3_client=client)
+
+        self.assertEqual(len(client.get_calls), 1)
+        self.assertEqual(body.read_sizes, [])
+        self.assertTrue(body.closed)
+        self.assertEqual(client.put_calls, [])
+
+    def test_invalid_content_length_rejects_without_read_or_writes(self):
+        for content_length in (-1, 1.5, "6"):
+            with self.subTest(content_length=content_length):
+                body = TrackingBody(b"unused")
+                client = FakeS3(
+                    b"", content_length=content_length, body=body
+                )
+                with patch.dict(
+                    os.environ,
+                    {
+                        "CURATED_BUCKET": "curated",
+                        "MAX_SOURCE_OBJECT_BYTES": "8",
+                    },
+                ):
+                    with self.assertRaisesRegex(
+                        ValueError,
+                        "ContentLength must be a non-negative integer",
+                    ):
+                        lambda_handler(s3_event(size=7), None, s3_client=client)
+
+                self.assertEqual(len(client.get_calls), 1)
+                self.assertEqual(body.read_sizes, [])
+                self.assertTrue(body.closed)
+                self.assertEqual(client.put_calls, [])
+
+    def test_content_length_mismatch_fails_before_output_writes(self):
+        source = FIXTURE.read_bytes()
+        client = FakeS3(source, body=TrackingBody(source[:-1]))
+        with patch.dict(
+            os.environ,
+            {"CURATED_BUCKET": "curated"},
+        ):
+            with self.assertRaisesRegex(ValueError, "body length does not match"):
+                lambda_handler(
+                    s3_event(size=len(source)), None, s3_client=client
+                )
+
+        self.assertEqual(client.put_calls, [])
+
+    def test_invalid_or_over_limit_cap_fails_before_get(self):
+        for configured_limit in ("1.5", "2000001", "0"):
+            with self.subTest(configured_limit=configured_limit):
+                client = FakeS3(FIXTURE.read_bytes())
+                with patch.dict(
+                    os.environ,
+                    {
+                        "CURATED_BUCKET": "curated",
+                        "MAX_SOURCE_OBJECT_BYTES": configured_limit,
+                    },
+                ):
+                    with self.assertRaisesRegex(
+                        RuntimeError, "MAX_SOURCE_OBJECT_BYTES"
+                    ):
+                        lambda_handler(
+                            s3_event(size=len(FIXTURE.read_bytes())),
+                            None,
+                            s3_client=client,
+                        )
+                self.assertEqual(client.get_calls, [])
+                self.assertEqual(client.put_calls, [])
+
+    def test_missing_event_version_uses_current_object_compatibility_path(self):
+        source = FIXTURE.read_bytes()
+        client = FakeS3(source)
+        with patch.dict(os.environ, {"CURATED_BUCKET": "curated"}):
+            lambda_handler(
+                s3_event(size=len(source), version_id=None),
+                None,
+                s3_client=client,
+            )
+
+        self.assertNotIn("VersionId", client.get_calls[0])
 
     def test_non_s3_event_fails_closed(self):
         with patch.dict(os.environ, {"CURATED_BUCKET": "curated"}):
