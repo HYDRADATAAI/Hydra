@@ -22,6 +22,7 @@ ARTIFACT_WRITE_ORDER = (
     "quarantine_records.jsonl",
     "manifest.json",
 )
+DEFAULT_MAX_SOURCE_OBJECT_BYTES = 1_048_576
 
 
 def lambda_handler(
@@ -35,15 +36,34 @@ def lambda_handler(
     if not output_bucket:
         raise RuntimeError("CURATED_BUCKET must be configured")
 
+    max_source_object_bytes = _max_source_object_bytes()
     client = s3_client or _boto3_s3_client()
     source_objects = sorted(_source_objects(event))
     if not source_objects:
         raise ValueError("event contains no S3 ObjectCreated records")
 
     processed: list[dict[str, object]] = []
-    for source_bucket, source_key in source_objects:
+    for source_bucket, source_key, event_object_size in source_objects:
+        if event_object_size is not None and event_object_size > max_source_object_bytes:
+            raise ValueError(
+                f"source object exceeds max_source_object_bytes={max_source_object_bytes}"
+            )
         response = client.get_object(Bucket=source_bucket, Key=source_key)
-        source_bytes = _body_bytes(response["Body"])
+        content_length = response.get("ContentLength")
+        if content_length is not None:
+            if type(content_length) is not int or content_length < 0:
+                raise ValueError("S3 get_object ContentLength must be a non-negative integer")
+            if content_length > max_source_object_bytes:
+                raise ValueError(
+                    f"source object exceeds max_source_object_bytes={max_source_object_bytes}"
+                )
+            if event_object_size is not None and content_length != event_object_size:
+                raise ValueError("S3 event object size does not match get_object ContentLength")
+        source_bytes = _body_bytes(
+            response["Body"], max_bytes=max_source_object_bytes
+        )
+        if content_length is not None and len(source_bytes) != content_length:
+            raise ValueError("S3 response body length does not match ContentLength")
         batch = process_csv(source_bytes)
         output_keys = _write_batch(client, output_bucket, batch)
         processed.append(
@@ -61,8 +81,8 @@ def lambda_handler(
     return {"processed": processed, "status": "PASS"}
 
 
-def _source_objects(event: dict[str, Any]) -> list[tuple[str, str]]:
-    objects: list[tuple[str, str]] = []
+def _source_objects(event: dict[str, Any]) -> list[tuple[str, str, int | None]]:
+    objects: list[tuple[str, str, int | None]] = []
     records = event.get("Records", [])
     if not isinstance(records, list):
         raise ValueError("event Records must be a list")
@@ -74,10 +94,19 @@ def _source_objects(event: dict[str, Any]) -> list[tuple[str, str]]:
         if not str(record.get("eventName", "")).startswith("ObjectCreated:"):
             continue
         s3 = record.get("s3", {})
-        bucket = s3.get("bucket", {}).get("name")
-        key = s3.get("object", {}).get("key")
+        if not isinstance(s3, dict):
+            continue
+        bucket_data = s3.get("bucket", {})
+        object_data = s3.get("object", {})
+        if not isinstance(bucket_data, dict) or not isinstance(object_data, dict):
+            continue
+        bucket = bucket_data.get("name")
+        key = object_data.get("key")
+        object_size = object_data.get("size")
+        if object_size is not None and (type(object_size) is not int or object_size < 0):
+            raise ValueError("S3 event object size must be a non-negative integer")
         if isinstance(bucket, str) and isinstance(key, str):
-            objects.append((bucket, unquote_plus(key)))
+            objects.append((bucket, unquote_plus(key), object_size))
     return objects
 
 
@@ -104,11 +133,47 @@ def _write_batch(client: object, bucket: str, batch: ProcessedBatch) -> list[str
     return [destinations[name] for name in ARTIFACT_WRITE_ORDER]
 
 
-def _body_bytes(body: object) -> bytes:
-    value = body.read() if hasattr(body, "read") else body
-    if not isinstance(value, bytes):
+def _max_source_object_bytes() -> int:
+    configured = os.environ.get(
+        "MAX_SOURCE_OBJECT_BYTES", str(DEFAULT_MAX_SOURCE_OBJECT_BYTES)
+    )
+    try:
+        limit = int(configured)
+    except (TypeError, ValueError) as exc:
+        raise RuntimeError("MAX_SOURCE_OBJECT_BYTES must be a positive integer") from exc
+    if limit < 1:
+        raise RuntimeError("MAX_SOURCE_OBJECT_BYTES must be a positive integer")
+    return limit
+
+
+def _body_bytes(body: object, *, max_bytes: int) -> bytes:
+    if isinstance(body, bytes):
+        if len(body) > max_bytes:
+            raise ValueError(f"S3 object body exceeds max_bytes={max_bytes}")
+        return body
+
+    read = getattr(body, "read", None)
+    if not callable(read):
         raise TypeError("S3 object Body must resolve to bytes")
-    return value
+
+    chunks: list[bytes] = []
+    total = 0
+    try:
+        while True:
+            chunk = read(min(64 * 1024, max_bytes + 1 - total))
+            if not isinstance(chunk, bytes):
+                raise TypeError("S3 object Body must resolve to bytes")
+            if not chunk:
+                break
+            total += len(chunk)
+            if total > max_bytes:
+                raise ValueError(f"S3 object body exceeds max_bytes={max_bytes}")
+            chunks.append(chunk)
+        return b"".join(chunks)
+    finally:
+        close = getattr(body, "close", None)
+        if callable(close):
+            close()
 
 
 def _boto3_s3_client() -> object:
