@@ -261,6 +261,25 @@ class DeployTeardownOwnershipTests(unittest.TestCase):
         self.assertFalse(logs["cleanup"])
         self.assertFalse(logs["sam"])
 
+    def test_curated_bucket_mismatch_stops_before_that_bucket_cleanup(self):
+        result, logs = self.run_teardown(resources=[
+            {
+                "LogicalResourceId": "RawBucket",
+                "PhysicalResourceId": RAW_BUCKET,
+                "ResourceStatus": "CREATE_COMPLETE",
+            },
+            {
+                "LogicalResourceId": "CuratedBucket",
+                "PhysicalResourceId": "some-other-bucket",
+                "ResourceStatus": "CREATE_COMPLETE",
+            },
+        ])
+        self.assertNotEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertIn("not bound to this stack resource", result.stderr)
+        self.assertEqual(len(logs["cleanup"]), 1)
+        self.assertIn(RAW_BUCKET, logs["cleanup"][0])
+        self.assertFalse(logs["sam"])
+
     def test_unexpected_stack_status_stops_before_resource_lookup(self):
         result, logs = self.run_teardown(status="DELETE_IN_PROGRESS")
         self.assertNotEqual(result.returncode, 0, result.stdout + result.stderr)
@@ -286,6 +305,20 @@ class DeployTeardownOwnershipTests(unittest.TestCase):
         self.assertEqual(len(version_calls), 2)
         self.assertIn("page-2", version_calls[1])
         self.assertEqual(len(delete_calls), 2)
+        self.assertTrue(logs["sam"])
+
+    def test_empty_version_page_continues_to_next_page(self):
+        result, logs = self.run_teardown(page_1={
+            "Versions": [],
+            "DeleteMarkers": [],
+            "NextToken": "page-2",
+        })
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        version_calls = [call for call in logs["aws"] if call[:2] == ["s3api", "list-object-versions"]]
+        delete_calls = [call for call in logs["aws"] if call[:2] == ["s3api", "delete-objects"]]
+        self.assertEqual(len(version_calls), 2)
+        self.assertIn("page-2", version_calls[1])
+        self.assertEqual(len(delete_calls), 1)
         self.assertTrue(logs["sam"])
 
     def test_version_delete_errors_stop_before_stack_delete(self):
