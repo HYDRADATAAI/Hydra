@@ -38,16 +38,23 @@ def lambda_handler(
 
     max_source_object_bytes = _max_source_object_bytes()
     client = s3_client or _boto3_s3_client()
-    source_objects = sorted(_source_objects(event))
+    source_objects = sorted(
+        _source_objects(event),
+        key=lambda item: (item[0], item[1], item[2] if item[2] is not None else -1),
+    )
     if not source_objects:
         raise ValueError("event contains no S3 ObjectCreated records")
 
+    if any(
+        object_size is not None and object_size > max_source_object_bytes
+        for _, _, object_size in source_objects
+    ):
+        raise ValueError(
+            f"source object exceeds max_source_object_bytes={max_source_object_bytes}"
+        )
+
     processed: list[dict[str, object]] = []
     for source_bucket, source_key, event_object_size in source_objects:
-        if event_object_size is not None and event_object_size > max_source_object_bytes:
-            raise ValueError(
-                f"source object exceeds max_source_object_bytes={max_source_object_bytes}"
-            )
         response = client.get_object(Bucket=source_bucket, Key=source_key)
         body = response["Body"]
         try:
