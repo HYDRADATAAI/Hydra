@@ -56,6 +56,10 @@ REQUIRED_PATHS = (
     "aws-market-data-pipeline/tests/test_processor.py",
     "aws-market-data-pipeline/tests/test_lambda_handler.py",
     "aws-market-data-pipeline/tests/test_template.py",
+    "aws-market-data-pipeline/tests/test_athena_query_results.py",
+    "aws-market-data-pipeline/verify_athena_query_results.py",
+    "aws-market-data-pipeline/sql/create_committed_normalized_events.sql",
+    "tools/test_aws_deploy_validator_contract.py",
     "sql-data-quality-sample/README.md",
     "sql-data-quality-sample/fixtures/synthetic_market_events.csv",
     "sql-data-quality-sample/sql/01_schema.sql",
@@ -958,6 +962,43 @@ def workflow_action_ref_is_pinned(action_ref: str) -> bool:
     return re.fullmatch(r"[0-9a-f]{40}", revision) is not None
 
 
+def athena_success_commands_are_valid(run_script: object) -> bool:
+    """Require active result retrieval and verifier commands in the SUCCEEDED branch."""
+    if not isinstance(run_script, str):
+        return False
+    expected_query = "query=\"SELECT COUNT(*) AS accepted_rows FROM committed_normalized_events WHERE pipeline_run_id = '$RUN_ID'\""
+    if expected_query not in run_script:
+        return False
+
+    success = re.search(
+        r'(?m)^[ \t]*if \[\[ "\$state" == "SUCCEEDED" \]\]; then[ \t]*$',
+        run_script,
+    )
+    failed = re.search(
+        r'(?m)^[ \t]*if \[\[ "\$state" == "FAILED" \|\| "\$state" == "CANCELLED" \]\]; then[ \t]*$',
+        run_script,
+    )
+    if success is None or failed is None or failed.start() <= success.end():
+        return False
+
+    success_block = run_script[success.end() : failed.start()]
+    normalized_block = re.sub(r"[ \t]*\\\r?\n[ \t]*", " ", success_block)
+    active_lines = [line.strip() for line in normalized_block.splitlines()]
+    result_read = (
+        'aws athena get-query-results --query-execution-id "$QUERY_ID" '
+        '> "$SAMPLE_DIR/build/deployed/athena_query_results.json"'
+    )
+    verifier = (
+        'python "$SAMPLE_DIR/verify_athena_query_results.py" '
+        '--results-path "$SAMPLE_DIR/build/deployed/athena_query_results.json" '
+        '--github-env "$GITHUB_ENV"'
+    )
+    try:
+        return active_lines.index(result_read) < active_lines.index(verifier)
+    except ValueError:
+        return False
+
+
 def validate_ci_contract(errors: list[str]) -> None:
     validate_manifest_v2_replay_contract(errors)
     validate_pre_upload_verifier_contract(errors)
@@ -1216,6 +1257,12 @@ def validate_ci_contract(errors: list[str]) -> None:
         "stack_owner",
         "ResourceStatus == \"DELETE_FAILED\"",
         "deployed_outputs_match_local_replay",
+        "Create manifest-gated Athena consumer view",
+        "sql/create_committed_normalized_events.sql",
+        "FROM committed_normalized_events",
+        "COUNT(*) AS accepted_rows FROM committed_normalized_events",
+        "WHERE pipeline_run_id = '$RUN_ID'",
+        '"athena_accepted_rows": int(os.environ["ATHENA_ACCEPTED_ROWS"]),',
         "start-query-execution",
         "--page-size 1000",
         "--max-items 1000",
@@ -1227,6 +1274,32 @@ def validate_ci_contract(errors: list[str]) -> None:
     for fragment in deploy_fragments:
         if fragment not in deploy_workflow:
             errors.append(f"aws-deploy workflow contract missing: {fragment}")
+
+    try:
+        deploy_document = yaml.load(deploy_workflow, Loader=yaml.BaseLoader)
+        deploy_job = deploy_document["jobs"]["deploy-and-verify"]
+        athena_steps = [
+            step
+            for step in deploy_job["steps"]
+            if isinstance(step, dict)
+            and step.get("name") == "Run bounded Athena verification query"
+        ]
+        expected_verifier = (
+            'python "$SAMPLE_DIR/verify_athena_query_results.py" '
+            '--results-path "$SAMPLE_DIR/build/deployed/athena_query_results.json" '
+            '--github-env "$GITHUB_ENV"'
+        )
+        if len(athena_steps) != 1:
+            errors.append("aws-deploy Athena verification step count changed")
+        else:
+            run_script = athena_steps[0].get("run", "")
+            if not athena_success_commands_are_valid(run_script):
+                errors.append(
+                    "aws-deploy Athena success step must run active result retrieval before the row-count verifier"
+                )
+    except (KeyError, TypeError, yaml.YAMLError, ValueError) as exc:
+        errors.append(f"aws-deploy Athena verification step is invalid: {exc}")
+
     if re.search(r"(?m)^  (?:pull_request|push):", deploy_workflow):
         errors.append("aws-deploy workflow must remain manual-only")
 
@@ -1639,6 +1712,7 @@ def validate_aws_template_contract(errors: list[str]) -> None:
         "TransformFunction": "AWS::Serverless::Function",
         "DataCatalogDatabase": "AWS::Glue::Database",
         "NormalizedEventsTable": "AWS::Glue::Table",
+        "ManifestTable": "AWS::Glue::Table",
         "AthenaWorkGroup": "AWS::Athena::WorkGroup",
     }
     for name, resource_type in expected.items():

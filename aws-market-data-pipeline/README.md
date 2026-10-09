@@ -6,16 +6,19 @@ This sample maps the public deterministic market-data pipeline onto a small AWS 
 
 ## Flow
 
-`synthetic CSV -> private raw S3 -> Python 3.11 Lambda -> accepted/quarantine S3 prefixes -> Glue table -> bounded Athena query`
+`synthetic CSV -> private raw S3 -> Python 3.11 Lambda -> accepted/quarantine/manifests S3 prefixes -> Glue source tables -> manifest-gated Athena view`
 
 The Lambda transform performs strict file-contract validation, row normalization, deterministic event identity, provenance hashing, explicit quarantine, and deterministic manifest generation. Replaying identical source bytes targets the same content-addressed object keys and emits the same bytes.
+
+The three S3 objects are written separately, so a failed invocation can leave an accepted object without its manifest. The `normalized_events` Glue table is the raw accepted-prefix source and may expose such an incomplete run if queried directly. Use the `committed_normalized_events` Athena view for sample consumption; its inner join to `run_manifests` hides rows until the manifest confirms that the normalized-output entry exists. The manual deploy workflow creates this view before its Athena check and fails unless it returns all **3 accepted fixture rows**. The view gates visibility but does not recompute the output hash. This stack defines no reader role. The standard Athena view is not an access-control boundary: querying it requires access to the underlying S3 data, so consumers with that access can bypass the view. Treat it as a tested consumer convention. Enforceable view-only access would require a separately designed protected Data Catalog view and Lake Formation permissions, which this sample does not provision.
 
 ## AWS resources
 
 - two private, encrypted, versioned S3 buckets with bounded retention;
 - one S3-triggered Python 3.11 Lambda function;
 - least-privilege object-level read/write permissions;
-- one Glue database and external table over accepted JSONL only;
+- one Glue database with external tables over accepted JSONL and per-run manifests;
+- one Athena view that exposes accepted rows only when their run manifest exists and contains the accepted-output entry;
 - one Athena workgroup with enforced encrypted output and a 1 GiB scan cutoff;
 - one explicit CloudWatch log group with bounded retention.
 

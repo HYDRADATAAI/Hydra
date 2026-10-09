@@ -244,6 +244,37 @@
         }
       }
     },
+    "ManifestTable": {
+      "Type": "AWS::Glue::Table",
+      "Properties": {
+        "CatalogId": {"Ref": "AWS::AccountId"},
+        "DatabaseName": {"Ref": "DataCatalogDatabase"},
+        "TableInput": {
+          "Description": "Commit manifests for complete synthetic HYDRA market-data batches",
+          "Name": "run_manifests",
+          "Parameters": {"classification": "json"},
+          "StorageDescriptor": {
+            "Columns": [
+              {"Name": "accepted_rows", "Type": "bigint"},
+              {"Name": "outputs", "Type": "map<string,struct<sha256:string>>"},
+              {"Name": "pipeline_run_id", "Type": "string"},
+              {"Name": "quarantined_rows", "Type": "bigint"},
+              {"Name": "schema_version", "Type": "string"},
+              {"Name": "source_file_sha256", "Type": "string"},
+              {"Name": "transform_version", "Type": "string"}
+            ],
+            "InputFormat": "org.apache.hadoop.mapred.TextInputFormat",
+            "Location": {"Fn::Sub": "s3://${CuratedBucket}/curated/manifests/"},
+            "OutputFormat": "org.apache.hadoop.hive.ql.io.HiveIgnoreKeyTextOutputFormat",
+            "SerdeInfo": {
+              "Parameters": {"ignore.malformed.jsons": "false"},
+              "SerializationLibrary": "org.apache.hive.hcatalog.data.JsonSerDe"
+            }
+          },
+          "TableType": "EXTERNAL_TABLE"
+        }
+      }
+    },
     "AthenaWorkGroup": {
       "Type": "AWS::Athena::WorkGroup",
       "Properties": {
