@@ -105,16 +105,20 @@ class UrllibTransport:
             raise ValueError("max_bytes must be a positive integer")
         self.max_bytes=max_bytes
 
-    def fetch(self,url,headers=None,timeout=20):
+    def fetch(self,url,headers=None,timeout=20,max_bytes=None):
+        if max_bytes is None:
+            max_bytes=self.max_bytes
+        if not isinstance(max_bytes,int) or isinstance(max_bytes,bool) or max_bytes<=0:
+            raise ValueError("max_bytes must be a positive integer")
         req=urllib.request.Request(url,headers=headers or {},method="GET")
         try:
             with urllib.request.urlopen(req,timeout=timeout) as r:
                 status=int(r.status)
-                body=_read_bounded(r,self.max_bytes,status)
+                body=_read_bounded(r,max_bytes,status)
                 return HttpResponse(url,status,{k.lower():v for k,v in r.headers.items()},body,utc_now())
         except urllib.error.HTTPError as e:
             status=int(e.code)
-            body=_read_bounded(e,self.max_bytes,status)
+            body=_read_bounded(e,max_bytes,status)
             return HttpResponse(url,status,{k.lower():v for k,v in (e.headers.items() if e.headers else [])},body,utc_now())
 
 class RecordingSleeper:
@@ -238,7 +242,10 @@ class PollRunner:
         statuses=[]; hashes=[]; delays=[]; response=None; error=None
         for attempt in range(1,spec.backoff.max_attempts+1):
             try:
-                response=self.transport.fetch(spec.url,spec.headers)
+                if isinstance(self.transport,UrllibTransport):
+                    response=self.transport.fetch(spec.url,spec.headers,max_bytes=self.max_response_bytes)
+                else:
+                    response=self.transport.fetch(spec.url,spec.headers)
             except ResponseTooLargeError as exc:
                 if exc.status is not None:
                     statuses.append(exc.status)
