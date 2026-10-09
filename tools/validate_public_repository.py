@@ -1145,6 +1145,7 @@ def validate_ci_contract(errors: list[str]) -> None:
         "aws-actions/setup-sam@89ddb14d60e682855e3fea4be85b3c56485de310",
         "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02",
         "path: aws-market-data-pipeline/build/deployed/deployment_evidence.json",
+        "STACK_NAME: ${{ inputs.stack_name }}-${{ github.run_id }}-${{ github.run_attempt }}",
         "if: github.ref == 'refs/heads/main'",
         "hydra-public-market-pipeline-demo-",
         "Validate deployment target",
@@ -1153,8 +1154,13 @@ def validate_ci_contract(errors: list[str]) -> None:
         "HYDRA_STACK_OWNED_BY_RUN",
         "inputs.teardown && env.HYDRA_STACK_OWNED_BY_RUN == 'true'",
         "sam deploy",
+        "--query 'Stacks[0].StackStatus'",
+        "CREATE_COMPLETE",
         "deployed_outputs_match_local_replay",
         "start-query-execution",
+        "--max-items 1000",
+        '--starting-token "$token"',
+        "NextToken",
         "inputs.teardown",
         "sam delete",
     )
@@ -1163,6 +1169,18 @@ def validate_ci_contract(errors: list[str]) -> None:
             errors.append(f"aws-deploy workflow contract missing: {fragment}")
     if re.search(r"(?m)^  (?:pull_request|push):", deploy_workflow):
         errors.append("aws-deploy workflow must remain manual-only")
+
+    sam_deploy_position = deploy_workflow.index("sam deploy")
+    status_guard_position = deploy_workflow.index(
+        'if [[ "$stack_status" != "CREATE_COMPLETE" ]]'
+    )
+    ownership_marker_position = deploy_workflow.index(
+        'echo "HYDRA_STACK_OWNED_BY_RUN=true"'
+    )
+    if not (
+        sam_deploy_position < status_guard_position < ownership_marker_position
+    ):
+        errors.append("aws-deploy ownership must follow successful new-stack creation")
 
     deploy_action_pins = {
         "actions/checkout": "11d5960a326750d5838078e36cf38b85af677262",
