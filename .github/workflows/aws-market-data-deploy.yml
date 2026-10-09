@@ -225,7 +225,7 @@ jobs:
           if-no-files-found: error
 
       - name: Empty versioned buckets and delete stack
-        if: \${{ always() && inputs.teardown && env.HYDRA_STACK_DEPLOY_ATTEMPTED == 'true' }}
+        if: ${{ always() && inputs.teardown && env.HYDRA_STACK_DEPLOY_ATTEMPTED == 'true' }}
         run: |
           set -euo pipefail
           set +e
