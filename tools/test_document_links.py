@@ -26,6 +26,14 @@ class DocumentLinkValidationTests(unittest.TestCase):
         self.assertEqual(len(errors), 1)
         self.assertIn("missing/guide.md", errors[0])
 
+    def test_inline_markdown_missing_target_fails(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            errors = self.validate_markdown(
+                Path(temporary), "[missing](missing.md)\\n"
+            )
+        self.assertEqual(len(errors), 1)
+        self.assertIn("missing.md", errors[0])
+
     def test_html_href_and_src_missing_targets_fail(self):
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
