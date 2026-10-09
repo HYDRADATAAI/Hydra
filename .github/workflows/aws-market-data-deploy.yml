@@ -39,10 +39,10 @@ jobs:
       HYDRA_STACK_OWNED_BY_RUN: 'false'
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
 
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
         with:
           python-version: "3.11"
 
@@ -55,7 +55,7 @@ jobs:
           fi
 
       - name: Configure short-lived AWS credentials
-        uses: aws-actions/configure-aws-credentials@v6.3.0
+        uses: aws-actions/configure-aws-credentials@e1253824e5c10ff9df46874f81ed3ec929e19cfd # v6.3.0
         with:
           aws-region: ${{ inputs.aws_region }}
           mask-aws-account-id: true
@@ -79,7 +79,7 @@ jobs:
           fi
 
       - name: Set up AWS SAM
-        uses: aws-actions/setup-sam@v3
+        uses: aws-actions/setup-sam@89ddb14d60e682855e3fea4be85b3c56485de310 # v3
 
       - name: Validate and build
         run: |
@@ -217,10 +217,10 @@ jobs:
           PY
 
       - name: Publish sanitized deployment evidence
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: hydra-aws-market-data-deployment-evidence
-          path: aws-market-data-pipeline/build/deployed/
+          path: aws-market-data-pipeline/build/deployed/deployment_evidence.json
           if-no-files-found: error
 
       - name: Empty versioned buckets and delete stack

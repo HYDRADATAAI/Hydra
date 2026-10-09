@@ -1139,6 +1139,12 @@ def validate_ci_contract(errors: list[str]) -> None:
         "id-token: write",
         "AWS_DEMO_ROLE_ARN",
         "mask-aws-account-id: true",
+        "actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+        "actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065",
+        "aws-actions/configure-aws-credentials@e1253824e5c10ff9df46874f81ed3ec929e19cfd",
+        "aws-actions/setup-sam@89ddb14d60e682855e3fea4be85b3c56485de310",
+        "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02",
+        "path: aws-market-data-pipeline/build/deployed/deployment_evidence.json",
         "if: github.ref == 'refs/heads/main'",
         "hydra-public-market-pipeline-demo-",
         "Validate deployment target",
@@ -1157,6 +1163,56 @@ def validate_ci_contract(errors: list[str]) -> None:
             errors.append(f"aws-deploy workflow contract missing: {fragment}")
     if re.search(r"(?m)^  (?:pull_request|push):", deploy_workflow):
         errors.append("aws-deploy workflow must remain manual-only")
+
+    deploy_action_pins = {
+        "actions/checkout": "11d5960a326750d5838078e36cf38b85af677262",
+        "actions/setup-python": "a26af69be951a213d495a4c3e4e4022e16d87065",
+        "aws-actions/configure-aws-credentials": "e1253824e5c10ff9df46874f81ed3ec929e19cfd",
+        "aws-actions/setup-sam": "89ddb14d60e682855e3fea4be85b3c56485de310",
+        "actions/upload-artifact": "ea165f8d65b6e75b540449e92b4886f43607fa02",
+    }
+    for action, expected_sha in deploy_action_pins.items():
+        refs = re.findall(
+            rf"(?m)^\s*uses:\s*{re.escape(action)}@([^\s#]+)",
+            deploy_workflow,
+        )
+        if not refs or any(ref != expected_sha for ref in refs):
+            errors.append(f"aws-deploy action pin changed: {action}={refs!r}")
+
+    deploy_job = workflow_job_block(deploy_workflow, "deploy-and-verify")
+    if deploy_job is None:
+        errors.append("aws-deploy job is missing")
+    else:
+        deploy_steps = workflow_steps(deploy_job)
+        publish_steps = [
+            block
+            for name, block in deploy_steps
+            if name == "Publish sanitized deployment evidence"
+        ]
+        artifact_upload_steps = [
+            block
+            for _, block in deploy_steps
+            if any(
+                reference.startswith("actions/upload-artifact@")
+                for reference in workflow_step_scalar(block, "uses")
+            )
+        ]
+        if len(artifact_upload_steps) != 1:
+            errors.append("aws-deploy must contain exactly one artifact upload")
+        if len(publish_steps) != 1:
+            errors.append("aws-deploy sanitized evidence upload step count changed")
+        else:
+            publish_step = publish_steps[0]
+            if workflow_step_scalar(publish_step, "uses") != [
+                "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02"
+            ]:
+                errors.append("aws-deploy evidence upload action changed")
+            if workflow_step_with_scalar(publish_step, "path") != [
+                "aws-market-data-pipeline/build/deployed/deployment_evidence.json"
+            ]:
+                errors.append("aws-deploy evidence upload must publish only the sanitized evidence JSON")
+            if workflow_step_with_scalar(publish_step, "if-no-files-found") != ["error"]:
+                errors.append("aws-deploy evidence upload must fail when evidence is missing")
 
     intelligence_workflow = (
         ROOT / ".github/workflows/governed-intelligence-sample.yml"
