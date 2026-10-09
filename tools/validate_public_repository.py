@@ -1257,9 +1257,9 @@ def validate_ci_contract(errors: list[str]) -> None:
             result_read = 'aws athena get-query-results --query-execution-id "$QUERY_ID" > "$SAMPLE_DIR/build/deployed/athena_query_results.json"'
             if isinstance(run_script, str):
                 normalized_run_script = re.sub(
-                    r"\\s+",
+                    r"\s+",
                     " ",
-                    run_script.replace("\\\\\n", " "),
+                    re.sub(r"\\\s+", " ", run_script),
                 ).strip()
             else:
                 normalized_run_script = ""
