@@ -223,7 +223,7 @@ class PollRunner:
             port=parsed_url.port
         except ValueError as exc:
             raise ValueError("SEC polling requires a valid HTTPS SEC URL") from exc
-        if parsed_url.scheme.casefold()!="https" or not is_sec_host or port not in (None,443):
+        if (parsed_url.scheme.casefold()!="https" or not is_sec_host or port not in (None,443)\n                or parsed_url.username is not None or parsed_url.password is not None):
             raise ValueError("SEC polling requires an HTTPS URL on sec.gov or a subdomain")
         if not isinstance(spec.headers,Mapping):
             raise ValueError("SEC polling headers must be a mapping with one User-Agent")
@@ -240,7 +240,7 @@ class PollRunner:
             raise ValueError("SEC max_rps must be a finite number above zero and at or below 10")
         try:
             max_rps=float(spec.max_rps)
-        except (TypeError,ValueError) as exc:
+        except (TypeError,ValueError,OverflowError) as exc:
             raise ValueError("SEC max_rps must be a finite number above zero and at or below 10") from exc
         if not math.isfinite(max_rps) or max_rps<=0 or max_rps>10:
             raise ValueError("SEC max_rps must be a finite number above zero and at or below 10")
