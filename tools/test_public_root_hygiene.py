@@ -1,20 +1,32 @@
 import unittest
 
-from public_root_hygiene import tracked_path_violation
+from public_root_hygiene import tracked_path_violation, tracked_paths
 
 
 class TrackedPathHygieneTests(unittest.TestCase):
     def test_generated_outputs_under_public_samples_are_rejected(self) -> None:
-        paths = (
-            "governed-intelligence-sample/build/grounding/output_manifest.json",
-            "market-data-pipeline-sample/build/demo/manifest.json",
-            "sql-data-quality-sample/results/query.csv",
+        sample_roots = (
+            "aws-market-data-pipeline",
+            "governed-intelligence-sample",
+            "market-data-pipeline-sample",
+            "sql-data-quality-sample",
+            "t6-fail-closed-validator",
         )
-        for path in paths:
-            with self.subTest(path=path):
-                self.assertEqual(
-                    tracked_path_violation(path), "generated output directory"
-                )
+        output_directories = (
+            "artifacts", "bin", "build", "dist", "log", "logs",
+            "obj", "outputs", "results",
+        )
+        for root in sample_roots:
+            for directory in output_directories:
+                for path in (
+                    f"{root}/{directory}/output.json",
+                    f"{root.upper()}/{directory}/output.json",
+                    f"{root}/{directory.upper()}/output.json",
+                ):
+                    with self.subTest(path=path):
+                        self.assertEqual(
+                            tracked_path_violation(path), "generated output directory"
+                        )
 
     def test_transfer_artifacts_are_rejected_outside_archive(self) -> None:
         paths = (
@@ -44,6 +56,11 @@ class TrackedPathHygieneTests(unittest.TestCase):
         for path in paths:
             with self.subTest(path=path):
                 self.assertIsNone(tracked_path_violation(path))
+
+    def test_tracked_paths_reads_the_git_index(self) -> None:
+        paths = tracked_paths()
+        self.assertIn("tools/public_root_hygiene.py", paths)
+        self.assertIn("tools/test_public_root_hygiene.py", paths)
 
     def test_only_root_duplicate_download_names_are_rejected(self) -> None:
         self.assertEqual(
