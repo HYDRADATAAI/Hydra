@@ -6,7 +6,7 @@ import unittest
 from pathlib import Path
 from unittest.mock import patch
 
-from function.app import lambda_handler
+from function.app import GLUE_PARTITION_COLUMNS, lambda_handler
 from function.processor import process_csv
 
 
@@ -40,12 +40,16 @@ class FakeS3:
         *,
         content_length: object = _CONTENT_LENGTH_UNSET,
         body: object | None = None,
+        operations=None,
+        fail_on_put=None,
     ):
         self.source = source
         self.content_length = content_length
         self.body = body if body is not None else io.BytesIO(source)
         self.get_calls: list[dict[str, object]] = []
         self.put_calls: list[dict[str, object]] = []
+        self.operations = operations if operations is not None else []
+        self.fail_on_put = fail_on_put
 
     def get_object(self, **kwargs):
         self.get_calls.append(kwargs)
@@ -58,7 +62,35 @@ class FakeS3:
 
     def put_object(self, **kwargs):
         self.put_calls.append(kwargs)
+        self.operations.append(("put", kwargs["Key"]))
+        if self.fail_on_put == len(self.put_calls):
+            raise RuntimeError("injected S3 failure")
         return {"ETag": '"synthetic"'}
+
+
+
+class AlreadyExistsError(Exception):
+    response = {"Error": {"Code": "AlreadyExistsException"}}
+
+
+class FakeGlue:
+    def __init__(self, operations=None, existing_partition=None):
+        self.operations = operations if operations is not None else []
+        self.partition_calls: list[dict[str, object]] = []
+        self.existing_partition = existing_partition
+        self.get_partition_calls: list[dict[str, object]] = []
+
+    def create_partition(self, **kwargs):
+        self.partition_calls.append(kwargs)
+        self.operations.append(("partition", kwargs["PartitionInput"]["Values"][0]))
+        if self.existing_partition is not None:
+            raise AlreadyExistsError()
+        self.existing_partition = kwargs["PartitionInput"]
+        return {}
+
+    def get_partition(self, **kwargs):
+        self.get_partition_calls.append(kwargs)
+        return {"Partition": self.existing_partition}
 
 
 def s3_event(
@@ -87,14 +119,29 @@ def s3_event(
 
 
 class LambdaHandlerTests(unittest.TestCase):
+    def setUp(self):
+        database = patch.dict(
+            os.environ, {"DATA_CATALOG_DATABASE": "hydra_public_market_data"}
+        )
+        database.start()
+        self.addCleanup(database.stop)
+        glue_client = patch("function.app._boto3_glue_client", side_effect=FakeGlue)
+        glue_client.start()
+        self.addCleanup(glue_client.stop)
+
     def test_handler_writes_encrypted_deterministic_objects(self):
         source = FIXTURE.read_bytes()
         expected = process_csv(source)
-        client = FakeS3(source)
+        operations = []
+        client = FakeS3(source, operations=operations)
+        glue = FakeGlue(operations)
 
         with patch.dict(os.environ, {"CURATED_BUCKET": "hydra-curated-example"}):
             result = lambda_handler(
-                s3_event(size=len(source)), None, s3_client=client
+                s3_event(size=len(source)),
+                None,
+                s3_client=client,
+                glue_client=glue,
             )
 
         self.assertEqual(result["status"], "PASS")
@@ -110,6 +157,10 @@ class LambdaHandlerTests(unittest.TestCase):
             ],
         )
         self.assertTrue(client.put_calls[-1]["Key"].endswith("/manifest.json"))
+        self.assertEqual(
+            [kind for kind, _ in operations], ["put", "put", "put", "partition"]
+        )
+        self.assertEqual(glue.partition_calls[0]["PartitionInput"]["Values"], [expected.run_id])
         for call in client.put_calls:
             self.assertEqual(call["Bucket"], "hydra-curated-example")
             self.assertEqual(call["ServerSideEncryption"], "AES256")
@@ -311,6 +362,80 @@ class LambdaHandlerTests(unittest.TestCase):
             )
 
         self.assertNotIn("VersionId", client.get_calls[0])
+
+    def test_duplicate_partition_is_accepted_only_for_exact_run_location(self):
+        source = FIXTURE.read_bytes()
+        expected = process_csv(source)
+        expected_partition = {
+            "Values": [expected.run_id],
+            "StorageDescriptor": {
+                "Columns": list(GLUE_PARTITION_COLUMNS),
+                "InputFormat": "org.apache.hadoop.mapred.TextInputFormat",
+                "Location": f"s3://curated/curated/accepted/{expected.run_id}/",
+                "OutputFormat": "org.apache.hadoop.hive.ql.io.HiveIgnoreKeyTextOutputFormat",
+                "SerdeInfo": {
+                    "Parameters": {"ignore.malformed.jsons": "false"},
+                    "SerializationLibrary": "org.openx.data.jsonserde.JsonSerDe",
+                },
+            },
+        }
+
+        with patch.dict(os.environ, {"CURATED_BUCKET": "curated"}):
+            matching_glue = FakeGlue(existing_partition=expected_partition)
+            lambda_handler(
+                s3_event(),
+                None,
+                s3_client=FakeS3(source),
+                glue_client=matching_glue,
+            )
+            self.assertEqual(len(matching_glue.get_partition_calls), 1)
+
+            malformed_descriptor = {
+                "Values": [expected.run_id],
+                "StorageDescriptor": {
+                    **expected_partition["StorageDescriptor"],
+                    "Columns": [{"Name": "symbol", "Type": "integer"}],
+                },
+            }
+            with self.assertRaisesRegex(RuntimeError, "does not match"):
+                lambda_handler(
+                    s3_event(),
+                    None,
+                    s3_client=FakeS3(source),
+                    glue_client=FakeGlue(existing_partition=malformed_descriptor),
+                )
+
+            mismatch = {
+                "Values": [expected.run_id],
+                "StorageDescriptor": {"Location": "s3://curated/wrong-prefix/"},
+            }
+            with self.assertRaisesRegex(RuntimeError, "does not match"):
+                lambda_handler(
+                    s3_event(),
+                    None,
+                    s3_client=FakeS3(source),
+                    glue_client=FakeGlue(existing_partition=mismatch),
+                )
+
+    def test_failed_artifact_write_never_registers_queryable_partition(self):
+        source = FIXTURE.read_bytes()
+        for failed_write in (1, 2, 3):
+            with self.subTest(failed_write=failed_write):
+                operations = []
+                client = FakeS3(source, operations=operations, fail_on_put=failed_write)
+                glue = FakeGlue(operations)
+
+                with patch.dict(os.environ, {"CURATED_BUCKET": "curated"}):
+                    with self.assertRaisesRegex(RuntimeError, "injected S3 failure"):
+                        lambda_handler(
+                            s3_event(),
+                            None,
+                            s3_client=client,
+                            glue_client=glue,
+                        )
+
+                self.assertEqual(glue.partition_calls, [])
+                self.assertNotIn("partition", [kind for kind, _ in operations])
 
     def test_non_s3_event_fails_closed(self):
         with patch.dict(os.environ, {"CURATED_BUCKET": "curated"}):

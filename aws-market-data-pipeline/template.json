@@ -134,7 +134,8 @@
         "Environment": {
           "Variables": {
             "CURATED_BUCKET": {"Ref": "CuratedBucket"},
-            "MAX_SOURCE_OBJECT_BYTES": {"Ref": "MaxSourceObjectBytes"}
+            "MAX_SOURCE_OBJECT_BYTES": {"Ref": "MaxSourceObjectBytes"},
+            "DATA_CATALOG_DATABASE": {"Ref": "DataCatalogDatabaseName"}
           }
         },
         "Events": {
@@ -173,6 +174,15 @@
                 "Resource": {
                   "Fn::Sub": "arn:${AWS::Partition}:s3:::${CuratedBucketName}/curated/*"
                 }
+              },
+              {
+                "Effect": "Allow",
+                "Action": ["glue:CreatePartition", "glue:GetPartition"],
+                "Resource": [
+                  {"Fn::Sub": "arn:${AWS::Partition}:glue:${AWS::Region}:${AWS::AccountId}:catalog"},
+                  {"Fn::Sub": "arn:${AWS::Partition}:glue:${AWS::Region}:${AWS::AccountId}:database/${DataCatalogDatabaseName}"},
+                  {"Fn::Sub": "arn:${AWS::Partition}:glue:${AWS::Region}:${AWS::AccountId}:table/${DataCatalogDatabaseName}/normalized_events"}
+                ]
               }
             ]
           }
@@ -220,7 +230,6 @@
               {"Name": "currency", "Type": "string"},
               {"Name": "event_id", "Type": "string"},
               {"Name": "event_time_utc", "Type": "string"},
-              {"Name": "pipeline_run_id", "Type": "string"},
               {"Name": "price", "Type": "string"},
               {"Name": "raw_record_sha256", "Type": "string"},
               {"Name": "source_file_sha256", "Type": "string"},
@@ -240,7 +249,8 @@
               "SerializationLibrary": "org.openx.data.jsonserde.JsonSerDe"
             }
           },
-          "TableType": "EXTERNAL_TABLE"
+          "TableType": "EXTERNAL_TABLE",
+          "PartitionKeys": [{"Name": "pipeline_run_id", "Type": "string"}]
         }
       }
     },

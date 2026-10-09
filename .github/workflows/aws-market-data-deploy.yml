@@ -142,7 +142,12 @@ jobs:
           set -euo pipefail
           manifest="s3://$CURATED_BUCKET/curated/manifests/$RUN_ID/manifest.json"
           for attempt in $(seq 1 30); do
-            if aws s3 ls "$manifest" --region "$AWS_REGION" >/dev/null 2>&1; then
+            if aws s3 ls "$manifest" --region "$AWS_REGION" >/dev/null 2>&1 \
+              && aws glue get-partition \
+                --database-name "$GLUE_DATABASE" \
+                --table-name normalized_events \
+                --partition-values "$RUN_ID" \
+                --region "$AWS_REGION" >/dev/null 2>&1; then
               exit 0
             fi
             sleep 5
@@ -164,7 +169,7 @@ jobs:
       - name: Run bounded Athena verification query
         run: |
           set -euo pipefail
-          query='SELECT symbol, COUNT(*) AS row_count FROM normalized_events GROUP BY symbol ORDER BY symbol'
+          query="SELECT COUNT(*) AS row_count FROM normalized_events WHERE pipeline_run_id = '$RUN_ID'"
           QUERY_ID=$(aws athena start-query-execution \
             --query-string "$query" \
             --query-execution-context "Database=$GLUE_DATABASE" \
@@ -177,6 +182,18 @@ jobs:
             state=$(aws athena get-query-execution --query-execution-id "$QUERY_ID" --query 'QueryExecution.Status.State' --output text)
             if [[ "$state" == "SUCCEEDED" ]]; then
               aws athena get-query-results --query-execution-id "$QUERY_ID" > "$SAMPLE_DIR/build/deployed/athena_query_results.json"
+              python - <<'PY'
+          import json
+          from pathlib import Path
+
+          result = json.loads(
+              (Path("aws-market-data-pipeline/build/deployed/athena_query_results.json"))
+              .read_text(encoding="utf-8")
+          )
+          rows = result["ResultSet"]["Rows"]
+          observed = int(rows[1]["Data"][0]["VarCharValue"])
+          assert observed == 3, f"expected 3 accepted rows in committed partition, got {observed}"
+          PY
               exit 0
             fi
             if [[ "$state" == "FAILED" || "$state" == "CANCELLED" ]]; then
