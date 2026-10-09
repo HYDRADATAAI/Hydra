@@ -170,7 +170,7 @@
               },
               {
                 "Effect": "Allow",
-                "Action": ["glue:CreatePartition"],
+                "Action": ["glue:CreatePartition", "glue:GetPartition"],
                 "Resource": [
                   {"Fn::Sub": "arn:${AWS::Partition}:glue:${AWS::Region}:${AWS::AccountId}:catalog"},
                   {"Fn::Sub": "arn:${AWS::Partition}:glue:${AWS::Region}:${AWS::AccountId}:database/${DataCatalogDatabaseName}"},
