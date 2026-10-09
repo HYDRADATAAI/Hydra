@@ -183,6 +183,42 @@ LEGACY_MUTABLE_WORKFLOW_USES: dict[tuple[str, str], int] = {
 }
 
 
+def yaml_line_has_unclosed_quote(line: str) -> bool:
+    """Detect multiline quoted scalars the line-oriented workflow scanner cannot parse."""
+    quote: str | None = None
+    escaped = False
+    index = 0
+    while index < len(line):
+        character = line[index]
+        if quote is not None:
+            if quote == '"' and escaped:
+                escaped = False
+                index += 1
+                continue
+            if quote == '"' and character == "\\":
+                escaped = True
+                index += 1
+                continue
+            if (
+                quote == "'"
+                and character == "'"
+                and index + 1 < len(line)
+                and line[index + 1] == "'"
+            ):
+                index += 2
+                continue
+            if character == quote:
+                quote = None
+            index += 1
+            continue
+        if character == "#" and (index == 0 or line[index - 1].isspace()):
+            break
+        if character in {"'", '"'}:
+            quote = character
+        index += 1
+    return quote is not None
+
+
 def quoted_yaml_key_is_uses(value: str) -> bool:
     """Decode common YAML quoted-key escapes when checking for a uses key."""
     if len(value) < 2 or value[0] != value[-1] or value[0] not in {"'", '"'}:
@@ -375,6 +411,12 @@ def validate_workflow_action_uses(errors: list[str]) -> None:
                 run_block_indent = None
             if run_block.match(line):
                 run_block_indent = indentation
+                continue
+            if not run_scalar.match(line) and yaml_line_has_unclosed_quote(line):
+                errors.append(
+                    f"unsupported multiline quoted workflow syntax: "
+                    f"{relative}:{line_number}"
+                )
                 continue
 
             match = uses_line.match(line)
