@@ -15,6 +15,8 @@ on:
       - "sql-data-quality-sample/**"
       - "t6-fail-closed-validator/**"
       - "tools/validate_public_repository.py"
+      - "tools/test_workflow_action_refs.py"
+      - ".github/workflows/nyx-thread-g-receipt-windows.yml"
       - ".github/workflows/aws-market-data-deploy.yml"
       - ".github/workflows/aws-market-data-pipeline.yml"
       - ".github/workflows/governed-intelligence-sample.yml"
@@ -43,6 +45,9 @@ jobs:
 
       - name: Test workflow action reference parsing
         run: python -m unittest tools/test_workflow_action_refs.py -v
+
+      - name: Test Windows receipt workflow contract
+        run: python -m unittest tools.test_workflow_action_refs.WorkflowActionRefsTests.test_receipt_workflow_validates_hashes_before_comparison -v
 
       - name: Validate public core-repository contract
         run: python tools/validate_public_repository.py

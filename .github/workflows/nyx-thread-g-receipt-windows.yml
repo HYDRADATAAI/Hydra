@@ -47,7 +47,16 @@ jobs:
           $reportPath = Join-Path $root 'RESULT.json'
           if (Test-Path -LiteralPath $reportPath -PathType Leaf) {
             $report = Get-Content -Raw -LiteralPath $reportPath | ConvertFrom-Json
-            if ($report.baseline_source_sha256 -ne $report.candidate_source_sha256) {
+            $baselineHash = $report.baseline_source_sha256
+            $candidateHash = $report.candidate_source_sha256
+            if ($baselineHash -isnot [string] -or $candidateHash -isnot [string]) {
+              throw 'RESULT.json must contain baseline and candidate source hashes'
+            }
+            if (-not [regex]::IsMatch($baselineHash, '\A[0-9a-f]{64}\z') -or
+                -not [regex]::IsMatch($candidateHash, '\A[0-9a-f]{64}\z')) {
+              throw 'RESULT.json source hashes must be lowercase SHA-256 values'
+            }
+            if ($baselineHash -cne $candidateHash) {
               $required += @(
                 'repaired_types.json',
                 'repaired_types.log',
