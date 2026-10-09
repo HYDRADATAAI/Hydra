@@ -291,7 +291,7 @@ def validate_workflow_action_uses(errors: list[str]) -> None:
         errors.append("GitHub Actions workflows directory is missing")
         return
 
-    uses_line = re.compile(r"^\s*(?:-\s*)?uses:\s*(.*?)\s*$")
+    uses_line = re.compile(r"^\s*(?:-\s*)?uses\s*:\s*(.*?)\s*$")
     commit_sha = re.compile(r"^[0-9a-fA-F]{40}$")
     observed_legacy: dict[tuple[str, str], int] = {}
     workflow_files = sorted(
