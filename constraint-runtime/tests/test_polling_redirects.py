@@ -30,15 +30,32 @@ class PollingRedirectTests(unittest.TestCase):
                     transport.fetch(url)
                 build_opener.assert_not_called()
 
-    def test_redirect_handler_refuses_to_create_follow_up_request(self):
-        handler = _NoRedirectHandler()
+    def test_transport_installs_handler_that_refuses_redirects(self):
+        class Response:
+            status = 200
+            headers = {}
+
+            def __enter__(self):
+                return self
+
+            def __exit__(self, *_args):
+                return False
+
+            def read(self):
+                return b"ok"
+
+        with patch("hydra_constraint.polling.urllib.request.build_opener") as build_opener:
+            build_opener.return_value.open.return_value = Response()
+            UrllibTransport().fetch("https://data.sec.gov/feed")
+
+        handler = build_opener.call_args.args[0]
+        self.assertIsInstance(handler, _NoRedirectHandler)
         request = Request("https://data.sec.gov/feed")
-
-        redirected = handler.redirect_request(
-            request, None, 302, "Found", {}, "https://other.example/feed"
+        self.assertIsNone(
+            handler.redirect_request(
+                request, None, 302, "Found", {}, "https://other.example/feed"
+            )
         )
-
-        self.assertIsNone(redirected)
 
     def test_polling_redirect_fails_and_preserves_cursor(self):
         class Cursors:
