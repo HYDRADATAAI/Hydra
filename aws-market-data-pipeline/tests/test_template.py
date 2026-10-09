@@ -128,6 +128,13 @@ class TemplateContractTests(unittest.TestCase):
             "pipeline_run_id",
             {column["Name"] for column in table_input["StorageDescriptor"]["Columns"]},
         )
+        self.assertNotIn("projection.enabled", table_input["Parameters"])
+        self.assertFalse(
+            any(
+                resource["Type"] == "AWS::Glue::Crawler"
+                for resource in TEMPLATE["Resources"].values()
+            )
+        )
 
         workgroup = TEMPLATE["Resources"]["AthenaWorkGroup"]["Properties"]
         config = workgroup["WorkGroupConfiguration"]
