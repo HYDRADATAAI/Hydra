@@ -1,0 +1,77 @@
+{
+  "schema": "HYDRA_CONSTRAINT_T1_PUBLIC_SCHEMA_BODY_PREFLIGHT_CONTINUATION_V1",
+  "record_id": "HYDRA_CONSTRAINT_T1_PUBLIC_SCHEMA_BODY_PREFLIGHT_CONTINUATION_V001_20261004",
+  "as_of": "2026-10-04",
+  "repository": "HYDRADATAAI/Hydra",
+  "scope": "DECLARATIVE_CODE_BLOB_CONTINUATION_ONLY",
+  "integration_base_commit": "6dd79a85cdba1f2cd90c2e8815f6d881ac73efad",
+  "integration_base_tree": "8c8325a4bd8e9be28ba596e088d8d44d4f67a4af",
+  "predecessor_record": {
+    "path": "docs/constraint/validation/HYDRA_CONSTRAINT_T1_PUBLIC_SCHEMA_SUCCESSOR_V001_20261003.json",
+    "git_blob_sha": "23c9d97dca6515da90de0d5db603beb3fdce10b7",
+    "sha256": "92f20635c48edcf49988d2f98bc98d1a9dbc92cc9e17bf79988c1dd89132ab40",
+    "source_commit": "20113f16f584de5bf8c011436acc168ccff140eb",
+    "source_tree": "088a43fb370c0052451f9bac6f69dc115eba1b87"
+  },
+  "additional_code_input": {
+    "name": "PR58_MINIMAL_CURRENT_MAIN_V002",
+    "local_commit": "be0d866a3a1189ca77f8c20b70a3400f80c7419d",
+    "hosted_candidate": "4723dc212d0f2513e68937b3e74b7ea3cae3af28",
+    "tree": "0de7aecebac6944f1feaeb95d2d7ab2d66b0bd33",
+    "artifacts": [
+      {
+        "path": "constraint-t1-raw-artifact-store/src/hydra_constraint_t1_raw/first_slice_materialization.py",
+        "git_blob_sha": "4f93bb94c1523f40f8de869868de0e05be2ced61"
+      },
+      {
+        "path": "constraint-t1-raw-artifact-store/tests/test_first_slice_materialization.py",
+        "git_blob_sha": "6481bf6478f9677ebfafd7329095c20fe92687a9"
+      }
+    ]
+  },
+  "transitions": [
+    {
+      "path": "constraint-t1-raw-artifact-store/src/hydra_constraint_t1_raw/first_slice_materialization.py",
+      "predecessor_git_blob_sha": "80e1b1a06f01992edbef477acef759c29b2031bd",
+      "successor_git_blob_sha": "e4eb5aeb7fdfcf967e66e81ff52d8c40aac39ad2"
+    },
+    {
+      "path": "constraint-t1-raw-artifact-store/tests/test_first_slice_materialization.py",
+      "predecessor_git_blob_sha": "8dc8878b15100c6bd6931cdfc8d523107cf4b96f",
+      "successor_git_blob_sha": "a314c9b83a11a8a6e1ea997c5db22c579e6ffe6a"
+    }
+  ],
+  "retained_predecessor_artifacts": [
+    {
+      "path": "constraint-t1-raw-artifact-store/src/hydra_constraint_t1_raw/replay_lineage.py",
+      "git_blob_sha": "c2a6bc233aa1d12c28799c90e5606fa2cd900f5d"
+    },
+    {
+      "path": "constraint-t1-raw-artifact-store/tests/test_first_slice_replay_lineage.py",
+      "git_blob_sha": "3bd168b7b8ebd93e8fbed10f1e78f025b73f9b2e"
+    }
+  ],
+  "preserved_historical_manifest": {
+    "path": "docs/constraint/validation/HYDRA_CONSTRAINT_BATCH017_NINE_SOURCE_PRIVATE_RECORD_ARTIFACT_MANIFEST_V001_20260926.json",
+    "git_blob_sha": "7734fcb8852ae1af065415d11aeb984b11f0f8e3",
+    "sha256": "92959b7c73de0b37d01afe304481ef8addb14c334a4035476d75695af99aea2a"
+  },
+  "construction": "Three-way functional merge of the two shared files against exact main; concatenate independent test insertions at an empty common-base insertion point; preserve both sets of test method bodies.",
+  "predecessor_artifacts_rewritten": false,
+  "existing_runtime_consumer_claimed": false,
+  "combined_runtime_validation_claimed": false,
+  "acceptance_effect": "NONE",
+  "trusted_timestamp_verifier": "NOT_IMPLEMENTED",
+  "ordinary_replay_promoted": false,
+  "strict_historical_replay_promoted": false,
+  "historical_availability": "UNPROVEN",
+  "canonical_admission_promoted": false,
+  "implementation_admitted": false,
+  "runtime_activated": false,
+  "full_constraint_run_ready": false,
+  "first_serious_constraint_run": "BLOCKED",
+  "new_network_acquisition_authorization_granted": false,
+  "historical_capture_authorizations_changed": false,
+  "raw_source_bodies_published": false,
+  "outcome_or_evaluation_threshold_changed": false
+}
