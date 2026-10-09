@@ -104,5 +104,56 @@ class LiveCanaryTests(unittest.TestCase):
                 load_specs(p)
 
 
+    def test_config_requires_automatic_trading_disabled(self):
+        base = {"read_only": True, "ledger_mutation": False, "sources": []}
+        for payload in (
+            base,
+            {**base, "automatic_trading_action": True},
+        ):
+            with self.subTest(payload=payload), tempfile.TemporaryDirectory() as td:
+                p = Path(td) / "config.json"
+                p.write_text(json.dumps(payload))
+                with self.assertRaisesRegex(
+                    ValueError, "automatic_trading_action=false"
+                ):
+                    load_specs(p)
+
+        with tempfile.TemporaryDirectory() as td:
+            p = Path(td) / "config.json"
+            p.write_text(json.dumps({**base, "automatic_trading_action": False}))
+            self.assertEqual(load_specs(p), [])
+
+    def test_config_requires_explicit_boolean_source_enabled(self):
+        source = {
+            "name": "sec_edgar",
+            "url": "https://data.sec.gov/submissions/test.json",
+            "required_markers": [],
+        }
+        base = {
+            "read_only": True,
+            "ledger_mutation": False,
+            "automatic_trading_action": False,
+        }
+        for enabled_config in (
+            source,
+            {**source, "enabled": 0},
+            {**source, "enabled": "false"},
+        ):
+            payload = {**base, "sources": [enabled_config]}
+            with self.subTest(enabled=enabled_config.get("enabled", "<missing>")), tempfile.TemporaryDirectory() as td:
+                p = Path(td) / "config.json"
+                p.write_text(json.dumps(payload))
+                with self.assertRaisesRegex(ValueError, "enabled as a boolean"):
+                    load_specs(p)
+
+        payload = {**base, "sources": [{**source, "enabled": False}]}
+        with tempfile.TemporaryDirectory() as td:
+            p = Path(td) / "config.json"
+            p.write_text(json.dumps(payload))
+            specs = load_specs(p)
+            self.assertEqual(len(specs), 1)
+            self.assertFalse(specs[0].enabled)
+
+
 if __name__ == "__main__":
     unittest.main()
