@@ -18,6 +18,7 @@ class TemplateContractTests(unittest.TestCase):
             "TransformFunction": "AWS::Serverless::Function",
             "DataCatalogDatabase": "AWS::Glue::Database",
             "NormalizedEventsTable": "AWS::Glue::Table",
+            "ManifestTable": "AWS::Glue::Table",
             "AthenaWorkGroup": "AWS::Athena::WorkGroup",
         }
         self.assertEqual(
@@ -99,6 +100,24 @@ class TemplateContractTests(unittest.TestCase):
                 {"Name": "suffix", "Value": ".csv"},
             ],
         )
+
+    def test_manifest_table_and_consumer_view_gate_partial_publication(self):
+        table = TEMPLATE["Resources"]["ManifestTable"]["Properties"]["TableInput"]
+        self.assertEqual(table["Name"], "run_manifests")
+        location = table["StorageDescriptor"]["Location"]["Fn::Sub"]
+        self.assertTrue(location.endswith("/curated/manifests/"))
+        columns = {column["Name"]: column["Type"] for column in table["StorageDescriptor"]["Columns"]}
+        self.assertEqual(columns["outputs"], "map<string,struct<sha256:string>>")
+        self.assertEqual(columns["pipeline_run_id"], "string")
+
+        sql_path = ROOT / "sql" / "create_committed_normalized_events.sql"
+        sql = sql_path.read_text(encoding="utf-8")
+        self.assertIn("JOIN run_manifests", sql)
+        self.assertIn("n.pipeline_run_id = m.pipeline_run_id", sql)
+        self.assertIn("m.outputs['normalized_events.jsonl'].sha256 IS NOT NULL", sql)
+        workflow = (ROOT.parent / ".github" / "workflows" / "aws-market-data-deploy.yml").read_text(encoding="utf-8")
+        self.assertIn("sql/create_committed_normalized_events.sql", workflow)
+        self.assertIn("FROM committed_normalized_events", workflow)
 
     def test_glue_reads_only_accepted_prefix_and_athena_is_bounded(self):
         table = TEMPLATE["Resources"]["NormalizedEventsTable"]["Properties"]

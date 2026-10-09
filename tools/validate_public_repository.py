@@ -56,6 +56,7 @@ REQUIRED_PATHS = (
     "aws-market-data-pipeline/tests/test_processor.py",
     "aws-market-data-pipeline/tests/test_lambda_handler.py",
     "aws-market-data-pipeline/tests/test_template.py",
+    "aws-market-data-pipeline/sql/create_committed_normalized_events.sql",
     "sql-data-quality-sample/README.md",
     "sql-data-quality-sample/fixtures/synthetic_market_events.csv",
     "sql-data-quality-sample/sql/01_schema.sql",
@@ -1216,6 +1217,9 @@ def validate_ci_contract(errors: list[str]) -> None:
         "stack_owner",
         "ResourceStatus == \"DELETE_FAILED\"",
         "deployed_outputs_match_local_replay",
+        "Create manifest-gated Athena consumer view",
+        "sql/create_committed_normalized_events.sql",
+        "FROM committed_normalized_events",
         "start-query-execution",
         "--page-size 1000",
         "--max-items 1000",
@@ -1639,6 +1643,7 @@ def validate_aws_template_contract(errors: list[str]) -> None:
         "TransformFunction": "AWS::Serverless::Function",
         "DataCatalogDatabase": "AWS::Glue::Database",
         "NormalizedEventsTable": "AWS::Glue::Table",
+        "ManifestTable": "AWS::Glue::Table",
         "AthenaWorkGroup": "AWS::Athena::WorkGroup",
     }
     for name, resource_type in expected.items():

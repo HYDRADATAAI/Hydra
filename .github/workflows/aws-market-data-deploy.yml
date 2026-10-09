@@ -161,10 +161,35 @@ jobs:
           cmp "$SAMPLE_DIR/build/local/quarantine_records.jsonl" "$SAMPLE_DIR/build/deployed/quarantine_records.jsonl"
           cmp "$SAMPLE_DIR/build/local/manifest.json" "$SAMPLE_DIR/build/deployed/manifest.json"
 
+      - name: Create manifest-gated Athena consumer view
+        run: |
+          set -euo pipefail
+          query=$(cat "$SAMPLE_DIR/sql/create_committed_normalized_events.sql")
+          QUERY_ID=$(aws athena start-query-execution \
+            --query-string "$query" \
+            --query-execution-context "Database=$GLUE_DATABASE" \
+            --work-group "$ATHENA_WORKGROUP" \
+            --region "$AWS_REGION" \
+            --query QueryExecutionId \
+            --output text)
+          for attempt in $(seq 1 30); do
+            state=$(aws athena get-query-execution --query-execution-id "$QUERY_ID" --query 'QueryExecution.Status.State' --output text)
+            if [[ "$state" == "SUCCEEDED" ]]; then
+              exit 0
+            fi
+            if [[ "$state" == "FAILED" || "$state" == "CANCELLED" ]]; then
+              aws athena get-query-execution --query-execution-id "$QUERY_ID"
+              exit 1
+            fi
+            sleep 5
+          done
+          echo "Timed out waiting for Athena view creation query $QUERY_ID" >&2
+          exit 1
+
       - name: Run bounded Athena verification query
         run: |
           set -euo pipefail
-          query='SELECT symbol, COUNT(*) AS row_count FROM normalized_events GROUP BY symbol ORDER BY symbol'
+          query='SELECT symbol, COUNT(*) AS row_count FROM committed_normalized_events GROUP BY symbol ORDER BY symbol'
           QUERY_ID=$(aws athena start-query-execution \
             --query-string "$query" \
             --query-execution-context "Database=$GLUE_DATABASE" \

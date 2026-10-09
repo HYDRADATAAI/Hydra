@@ -23,7 +23,14 @@
     "LogRetentionDays": {
       "Type": "Number",
       "Default": 14,
-      "AllowedValues": [1, 3, 5, 7, 14, 30]
+      "AllowedValues": [
+        1,
+        3,
+        5,
+        7,
+        14,
+        30
+      ]
     },
     "RawBucketName": {
       "Type": "String",
@@ -37,7 +44,9 @@
       "DeletionPolicy": "Delete",
       "UpdateReplacePolicy": "Delete",
       "Properties": {
-        "BucketName": {"Ref": "RawBucketName"},
+        "BucketName": {
+          "Ref": "RawBucketName"
+        },
         "BucketEncryption": {
           "ServerSideEncryptionConfiguration": [
             {
@@ -50,10 +59,14 @@
         "LifecycleConfiguration": {
           "Rules": [
             {
-              "ExpirationInDays": {"Ref": "ArtifactRetentionDays"},
+              "ExpirationInDays": {
+                "Ref": "ArtifactRetentionDays"
+              },
               "Id": "ExpireSyntheticRawObjects",
               "NoncurrentVersionExpiration": {
-                "NoncurrentDays": {"Ref": "ArtifactRetentionDays"}
+                "NoncurrentDays": {
+                  "Ref": "ArtifactRetentionDays"
+                }
               },
               "Prefix": "raw/",
               "Status": "Enabled"
@@ -61,7 +74,11 @@
           ]
         },
         "OwnershipControls": {
-          "Rules": [{"ObjectOwnership": "BucketOwnerEnforced"}]
+          "Rules": [
+            {
+              "ObjectOwnership": "BucketOwnerEnforced"
+            }
+          ]
         },
         "PublicAccessBlockConfiguration": {
           "BlockPublicAcls": true,
@@ -70,10 +87,18 @@
           "RestrictPublicBuckets": true
         },
         "Tags": [
-          {"Key": "hydra:sample", "Value": "aws-market-data-pipeline"},
-          {"Key": "hydra:data-boundary", "Value": "synthetic-non-live"}
+          {
+            "Key": "hydra:sample",
+            "Value": "aws-market-data-pipeline"
+          },
+          {
+            "Key": "hydra:data-boundary",
+            "Value": "synthetic-non-live"
+          }
         ],
-        "VersioningConfiguration": {"Status": "Enabled"}
+        "VersioningConfiguration": {
+          "Status": "Enabled"
+        }
       }
     },
     "CuratedBucket": {
@@ -81,7 +106,9 @@
       "DeletionPolicy": "Delete",
       "UpdateReplacePolicy": "Delete",
       "Properties": {
-        "BucketName": {"Ref": "CuratedBucketName"},
+        "BucketName": {
+          "Ref": "CuratedBucketName"
+        },
         "BucketEncryption": {
           "ServerSideEncryptionConfiguration": [
             {
@@ -94,10 +121,14 @@
         "LifecycleConfiguration": {
           "Rules": [
             {
-              "ExpirationInDays": {"Ref": "ArtifactRetentionDays"},
+              "ExpirationInDays": {
+                "Ref": "ArtifactRetentionDays"
+              },
               "Id": "ExpireSyntheticCuratedObjects",
               "NoncurrentVersionExpiration": {
-                "NoncurrentDays": {"Ref": "ArtifactRetentionDays"}
+                "NoncurrentDays": {
+                  "Ref": "ArtifactRetentionDays"
+                }
               },
               "Prefix": "",
               "Status": "Enabled"
@@ -105,7 +136,11 @@
           ]
         },
         "OwnershipControls": {
-          "Rules": [{"ObjectOwnership": "BucketOwnerEnforced"}]
+          "Rules": [
+            {
+              "ObjectOwnership": "BucketOwnerEnforced"
+            }
+          ]
         },
         "PublicAccessBlockConfiguration": {
           "BlockPublicAcls": true,
@@ -114,33 +149,53 @@
           "RestrictPublicBuckets": true
         },
         "Tags": [
-          {"Key": "hydra:sample", "Value": "aws-market-data-pipeline"},
-          {"Key": "hydra:data-boundary", "Value": "synthetic-non-live"}
+          {
+            "Key": "hydra:sample",
+            "Value": "aws-market-data-pipeline"
+          },
+          {
+            "Key": "hydra:data-boundary",
+            "Value": "synthetic-non-live"
+          }
         ],
-        "VersioningConfiguration": {"Status": "Enabled"}
+        "VersioningConfiguration": {
+          "Status": "Enabled"
+        }
       }
     },
     "TransformFunction": {
       "Type": "AWS::Serverless::Function",
       "Properties": {
-        "Architectures": ["x86_64"],
+        "Architectures": [
+          "x86_64"
+        ],
         "CodeUri": "function/",
         "Environment": {
           "Variables": {
-            "CURATED_BUCKET": {"Ref": "CuratedBucket"}
+            "CURATED_BUCKET": {
+              "Ref": "CuratedBucket"
+            }
           }
         },
         "Events": {
           "RawCsvUpload": {
             "Type": "S3",
             "Properties": {
-              "Bucket": {"Ref": "RawBucket"},
+              "Bucket": {
+                "Ref": "RawBucket"
+              },
               "Events": "s3:ObjectCreated:*",
               "Filter": {
                 "S3Key": {
                   "Rules": [
-                    {"Name": "prefix", "Value": "raw/"},
-                    {"Name": "suffix", "Value": ".csv"}
+                    {
+                      "Name": "prefix",
+                      "Value": "raw/"
+                    },
+                    {
+                      "Name": "suffix",
+                      "Value": ".csv"
+                    }
                   ]
                 }
               }
@@ -155,14 +210,18 @@
             "Statement": [
               {
                 "Effect": "Allow",
-                "Action": ["s3:GetObject"],
+                "Action": [
+                  "s3:GetObject"
+                ],
                 "Resource": {
                   "Fn::Sub": "arn:${AWS::Partition}:s3:::${RawBucketName}/raw/*"
                 }
               },
               {
                 "Effect": "Allow",
-                "Action": ["s3:PutObject"],
+                "Action": [
+                  "s3:PutObject"
+                ],
                 "Resource": {
                   "Fn::Sub": "arn:${AWS::Partition}:s3:::${CuratedBucketName}/curated/*"
                 }
@@ -185,51 +244,111 @@
       "DeletionPolicy": "Delete",
       "UpdateReplacePolicy": "Delete",
       "Properties": {
-        "LogGroupName": {"Fn::Sub": "/aws/lambda/${TransformFunction}"},
-        "RetentionInDays": {"Ref": "LogRetentionDays"}
+        "LogGroupName": {
+          "Fn::Sub": "/aws/lambda/${TransformFunction}"
+        },
+        "RetentionInDays": {
+          "Ref": "LogRetentionDays"
+        }
       }
     },
     "DataCatalogDatabase": {
       "Type": "AWS::Glue::Database",
       "Properties": {
-        "CatalogId": {"Ref": "AWS::AccountId"},
+        "CatalogId": {
+          "Ref": "AWS::AccountId"
+        },
         "DatabaseInput": {
           "Description": "HYDRA synthetic non-live market-data sample",
-          "Name": {"Ref": "DataCatalogDatabaseName"}
+          "Name": {
+            "Ref": "DataCatalogDatabaseName"
+          }
         }
       }
     },
     "NormalizedEventsTable": {
       "Type": "AWS::Glue::Table",
       "Properties": {
-        "CatalogId": {"Ref": "AWS::AccountId"},
-        "DatabaseName": {"Ref": "DataCatalogDatabase"},
+        "CatalogId": {
+          "Ref": "AWS::AccountId"
+        },
+        "DatabaseName": {
+          "Ref": "DataCatalogDatabase"
+        },
         "TableInput": {
           "Description": "Accepted synthetic HYDRA market events",
           "Name": "normalized_events",
-          "Parameters": {"classification": "json"},
+          "Parameters": {
+            "classification": "json"
+          },
           "StorageDescriptor": {
             "Columns": [
-              {"Name": "currency", "Type": "string"},
-              {"Name": "event_id", "Type": "string"},
-              {"Name": "event_time_utc", "Type": "string"},
-              {"Name": "pipeline_run_id", "Type": "string"},
-              {"Name": "price", "Type": "string"},
-              {"Name": "raw_record_sha256", "Type": "string"},
-              {"Name": "source_file_sha256", "Type": "string"},
-              {"Name": "source_record_id", "Type": "string"},
-              {"Name": "source_row_number", "Type": "bigint"},
-              {"Name": "source_system", "Type": "string"},
-              {"Name": "symbol", "Type": "string"},
-              {"Name": "transform_version", "Type": "string"},
-              {"Name": "venue", "Type": "string"},
-              {"Name": "volume", "Type": "bigint"}
+              {
+                "Name": "currency",
+                "Type": "string"
+              },
+              {
+                "Name": "event_id",
+                "Type": "string"
+              },
+              {
+                "Name": "event_time_utc",
+                "Type": "string"
+              },
+              {
+                "Name": "pipeline_run_id",
+                "Type": "string"
+              },
+              {
+                "Name": "price",
+                "Type": "string"
+              },
+              {
+                "Name": "raw_record_sha256",
+                "Type": "string"
+              },
+              {
+                "Name": "source_file_sha256",
+                "Type": "string"
+              },
+              {
+                "Name": "source_record_id",
+                "Type": "string"
+              },
+              {
+                "Name": "source_row_number",
+                "Type": "bigint"
+              },
+              {
+                "Name": "source_system",
+                "Type": "string"
+              },
+              {
+                "Name": "symbol",
+                "Type": "string"
+              },
+              {
+                "Name": "transform_version",
+                "Type": "string"
+              },
+              {
+                "Name": "venue",
+                "Type": "string"
+              },
+              {
+                "Name": "volume",
+                "Type": "bigint"
+              }
             ],
             "InputFormat": "org.apache.hadoop.mapred.TextInputFormat",
-            "Location": {"Fn::Sub": "s3://${CuratedBucket}/curated/accepted/"},
+            "Location": {
+              "Fn::Sub": "s3://${CuratedBucket}/curated/accepted/"
+            },
             "OutputFormat": "org.apache.hadoop.hive.ql.io.HiveIgnoreKeyTextOutputFormat",
             "SerdeInfo": {
-              "Parameters": {"ignore.malformed.jsons": "false"},
+              "Parameters": {
+                "ignore.malformed.jsons": "false"
+              },
               "SerializationLibrary": "org.openx.data.jsonserde.JsonSerDe"
             }
           },
@@ -241,31 +360,134 @@
       "Type": "AWS::Athena::WorkGroup",
       "Properties": {
         "Description": "Bounded queries over HYDRA synthetic non-live outputs",
-        "Name": {"Fn::Sub": "hydra-public-${AWS::StackName}"},
+        "Name": {
+          "Fn::Sub": "hydra-public-${AWS::StackName}"
+        },
         "RecursiveDeleteOption": true,
         "State": "ENABLED",
         "Tags": [
-          {"Key": "hydra:sample", "Value": "aws-market-data-pipeline"},
-          {"Key": "hydra:data-boundary", "Value": "synthetic-non-live"}
+          {
+            "Key": "hydra:sample",
+            "Value": "aws-market-data-pipeline"
+          },
+          {
+            "Key": "hydra:data-boundary",
+            "Value": "synthetic-non-live"
+          }
         ],
         "WorkGroupConfiguration": {
           "BytesScannedCutoffPerQuery": 1073741824,
           "EnforceWorkGroupConfiguration": true,
           "PublishCloudWatchMetricsEnabled": false,
           "ResultConfiguration": {
-            "EncryptionConfiguration": {"EncryptionOption": "SSE_S3"},
-            "OutputLocation": {"Fn::Sub": "s3://${CuratedBucket}/athena-results/"}
+            "EncryptionConfiguration": {
+              "EncryptionOption": "SSE_S3"
+            },
+            "OutputLocation": {
+              "Fn::Sub": "s3://${CuratedBucket}/athena-results/"
+            }
           }
+        }
+      }
+    },
+    "ManifestTable": {
+      "Type": "AWS::Glue::Table",
+      "Properties": {
+        "CatalogId": {
+          "Ref": "AWS::AccountId"
+        },
+        "DatabaseName": {
+          "Ref": "DataCatalogDatabase"
+        },
+        "TableInput": {
+          "Description": "Commit manifests for complete synthetic HYDRA market-data batches",
+          "Name": "run_manifests",
+          "Parameters": {
+            "classification": "json"
+          },
+          "StorageDescriptor": {
+            "Columns": [
+              {
+                "Name": "accepted_rows",
+                "Type": "bigint"
+              },
+              {
+                "Name": "outputs",
+                "Type": "map<string,struct<sha256:string>>"
+              },
+              {
+                "Name": "pipeline_run_id",
+                "Type": "string"
+              },
+              {
+                "Name": "quarantined_rows",
+                "Type": "bigint"
+              },
+              {
+                "Name": "schema_version",
+                "Type": "string"
+              },
+              {
+                "Name": "source_file_sha256",
+                "Type": "string"
+              },
+              {
+                "Name": "transform_version",
+                "Type": "string"
+              }
+            ],
+            "InputFormat": "org.apache.hadoop.mapred.TextInputFormat",
+            "Location": {
+              "Fn::Sub": "s3://${CuratedBucket}/curated/manifests/"
+            },
+            "OutputFormat": "org.apache.hadoop.hive.ql.io.HiveIgnoreKeyTextOutputFormat",
+            "SerdeInfo": {
+              "Parameters": {
+                "ignore.malformed.jsons": "false"
+              },
+              "SerializationLibrary": "org.openx.data.jsonserde.JsonSerDe"
+            }
+          },
+          "TableType": "EXTERNAL_TABLE"
         }
       }
     }
   },
   "Outputs": {
-    "AthenaWorkGroupName": {"Value": {"Ref": "AthenaWorkGroup"}},
-    "CuratedBucketName": {"Value": {"Ref": "CuratedBucket"}},
-    "GlueDatabaseName": {"Value": {"Ref": "DataCatalogDatabase"}},
-    "GlueTableName": {"Value": {"Ref": "NormalizedEventsTable"}},
-    "RawBucketName": {"Value": {"Ref": "RawBucket"}},
-    "TransformFunctionName": {"Value": {"Ref": "TransformFunction"}}
+    "AthenaWorkGroupName": {
+      "Value": {
+        "Ref": "AthenaWorkGroup"
+      }
+    },
+    "CuratedBucketName": {
+      "Value": {
+        "Ref": "CuratedBucket"
+      }
+    },
+    "GlueDatabaseName": {
+      "Value": {
+        "Ref": "DataCatalogDatabase"
+      }
+    },
+    "GlueTableName": {
+      "Value": {
+        "Ref": "NormalizedEventsTable"
+      }
+    },
+    "RawBucketName": {
+      "Value": {
+        "Ref": "RawBucket"
+      }
+    },
+    "TransformFunctionName": {
+      "Value": {
+        "Ref": "TransformFunction"
+      }
+    },
+    "ManifestTableName": {
+      "Value": {
+        "Ref": "ManifestTable"
+      }
+    }
   }
 }
