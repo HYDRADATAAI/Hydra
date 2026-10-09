@@ -13,7 +13,7 @@ from decimal import Decimal, InvalidOperation
 from typing import Mapping
 
 
-TRANSFORM_VERSION = "hydra-aws-market-normalizer/v1"
+TRANSFORM_VERSION = "hydra-aws-market-normalizer/v2"
 MANIFEST_SCHEMA = "hydra-aws-market-pipeline-manifest/v1"
 REQUIRED_COLUMNS = (
     "source_system",
