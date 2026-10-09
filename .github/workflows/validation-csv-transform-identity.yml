@@ -1,0 +1,100 @@
+name: Validation only - CSV transform identity across revisions
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+    paths:
+      - "tools/test_csv_transform_identity_regression.py"
+      - ".github/workflows/validation-csv-transform-identity.yml"
+      - "aws-market-data-pipeline/function/processor.py"
+      - "aws-market-data-pipeline/function/app.py"
+      - "market-data-pipeline-sample/src/hydra_market_pipeline/pipeline.py"
+
+permissions:
+  contents: read
+
+jobs:
+  csv-transform-identity:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout exact candidate source
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          path: current
+          persist-credentials: false
+          fetch-depth: 1
+
+      - name: Checkout frozen pre-header-fix source
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: 79f36544168e1d54e20bf644348d0cc82c5cf1cf
+          path: baseline
+          persist-credentials: false
+          fetch-depth: 1
+
+      - name: Set up Python
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: "3.11"
+
+      - name: Record both complete source snapshots
+        env:
+          EXPECTED_HEAD: ${{ github.event.pull_request.head.sha }}
+        run: |
+          python -B - <<'PY'
+          import hashlib, json, os, pathlib, subprocess
+          result = {}
+          for label in ['baseline', 'current']:
+              root = pathlib.Path(label).resolve()
+              def git(*args):
+                  return subprocess.check_output(['git', '-C', str(root), *args], text=True).strip()
+              head, tree = git('rev-parse', 'HEAD'), git('rev-parse', 'HEAD^{tree}')
+              expected = '79f36544168e1d54e20bf644348d0cc82c5cf1cf' if label == 'baseline' else os.environ['EXPECTED_HEAD']
+              assert head == expected, (label, head, expected)
+              if label == 'baseline':
+                  assert tree == 'b6ecaaff8519e73d2a1c08656907878dea5e97b0'
+              assert not git('status', '--porcelain'), label + ' source must be clean'
+              hashes = {}
+              for raw in subprocess.check_output(['git', '-C', str(root), 'ls-files', '-z']).split(b'\0'):
+                  if raw:
+                      name = os.fsdecode(raw)
+                      path = root / name
+                      assert path.is_file() and not path.is_symlink(), name
+                      hashes[name] = hashlib.sha256(path.read_bytes()).hexdigest()
+              result[label] = {'head': head, 'tree': tree, 'hashes': hashes}
+              print(json.dumps({'source': label, 'head': head, 'tree': tree, 'files': len(hashes), 'status': 'CLEAN'}))
+          target = pathlib.Path(os.environ['RUNNER_TEMP']) / 'r38-csv-source-before.json'
+          target.write_text(json.dumps(result, sort_keys=True), encoding='utf-8')
+          PY
+
+      - name: Compare four CSV identity cases without network
+        env:
+          EXPECTED_HEAD: ${{ github.event.pull_request.head.sha }}
+        run: python -B current/tools/test_csv_transform_identity_regression.py baseline
+
+      - name: Verify both complete source snapshots are unchanged
+        if: always()
+        run: |
+          python -B - <<'PY'
+          import hashlib, json, os, pathlib, subprocess
+          target = pathlib.Path(os.environ['RUNNER_TEMP']) / 'r38-csv-source-before.json'
+          before = json.loads(target.read_text(encoding='utf-8'))
+          for label in ['baseline', 'current']:
+              root = pathlib.Path(label).resolve()
+              def git(*args):
+                  return subprocess.check_output(['git', '-C', str(root), *args], text=True).strip()
+              hashes = {}
+              for raw in subprocess.check_output(['git', '-C', str(root), 'ls-files', '-z']).split(b'\0'):
+                  if raw:
+                      name = os.fsdecode(raw)
+                      path = root / name
+                      assert path.is_file() and not path.is_symlink(), name
+                      hashes[name] = hashlib.sha256(path.read_bytes()).hexdigest()
+              assert hashes == before[label]['hashes'], label + ' source byte inventory changed'
+              assert git('rev-parse', 'HEAD') == before[label]['head'], label + ' HEAD changed'
+              assert git('rev-parse', 'HEAD^{tree}') == before[label]['tree'], label + ' tree changed'
+              assert not git('status', '--porcelain'), label + ' source became dirty'
+              print(json.dumps({'source': label, 'source_preservation': 'PASS', 'head': before[label]['head'], 'tree': before[label]['tree']}))
+          PY
