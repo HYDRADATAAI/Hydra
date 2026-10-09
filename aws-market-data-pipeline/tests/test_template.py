@@ -86,7 +86,10 @@ class TemplateContractTests(unittest.TestCase):
         self.assertEqual(function["ReservedConcurrentExecutions"], 2)
         statements = function["Policies"][0]["Statement"]
         actions = {action for statement in statements for action in statement["Action"]}
-        self.assertEqual(actions, {"s3:GetObject", "s3:PutObject"})
+        self.assertEqual(
+            actions,
+            {"s3:GetObject", "s3:GetObjectVersion", "s3:PutObject"},
+        )
         serialized = json.dumps(statements, sort_keys=True)
         self.assertNotIn('"Resource": "*"', serialized)
 
@@ -98,6 +101,23 @@ class TemplateContractTests(unittest.TestCase):
                 {"Name": "prefix", "Value": "raw/"},
                 {"Name": "suffix", "Value": ".csv"},
             ],
+        )
+
+    def test_lambda_source_object_byte_limit_is_configurable(self):
+        parameter = TEMPLATE["Parameters"]["MaxSourceObjectBytes"]
+        self.assertEqual(parameter["Type"], "String")
+        self.assertEqual(parameter["Default"], "1048576")
+        self.assertEqual(
+            parameter["AllowedPattern"],
+            "^(?:[1-9][0-9]{0,5}|1[0-9]{6}|2000000)$",
+        )
+
+        variables = TEMPLATE["Resources"]["TransformFunction"]["Properties"][
+            "Environment"
+        ]["Variables"]
+        self.assertEqual(
+            variables["MAX_SOURCE_OBJECT_BYTES"],
+            {"Ref": "MaxSourceObjectBytes"},
         )
 
     def test_glue_reads_only_accepted_prefix_and_athena_is_bounded(self):
