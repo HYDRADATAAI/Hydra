@@ -13,6 +13,7 @@ import tempfile
 import time
 import urllib.error
 import urllib.request
+from urllib.parse import urlsplit
 
 from .adapters import ADAPTERS
 
@@ -86,11 +87,22 @@ class FixtureTransport:
         self.calls[url]=i+1
         return seq[min(i,len(seq)-1)]
 
+def _require_https_url(url):
+    parsed=urlsplit(url)
+    if parsed.scheme.lower()!="https" or not parsed.hostname or parsed.username or parsed.password:
+        raise ValueError("poll source URL must be an HTTPS URL with a hostname and no embedded credentials")
+
+class _NoRedirectHandler(urllib.request.HTTPRedirectHandler):
+    def redirect_request(self,req,fp,code,msg,headers,newurl):
+        return None
+
 class UrllibTransport:
     def fetch(self,url,headers=None,timeout=20):
+        _require_https_url(url)
         req=urllib.request.Request(url,headers=headers or {},method="GET")
+        opener=urllib.request.build_opener(_NoRedirectHandler())
         try:
-            with urllib.request.urlopen(req,timeout=timeout) as r:
+            with opener.open(req,timeout=timeout) as r:
                 return HttpResponse(url,int(r.status),{k.lower():v for k,v in r.headers.items()},r.read(),utc_now())
         except urllib.error.HTTPError as e:
             return HttpResponse(url,int(e.code),{k.lower():v for k,v in (e.headers.items() if e.headers else [])},e.read(),utc_now())
