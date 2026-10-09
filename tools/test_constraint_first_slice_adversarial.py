@@ -20,7 +20,8 @@ MANIFEST_NAMES = [
     f"HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH{n:03d}_ARTIFACT_MANIFEST_V001_20260925.json"
     for n in range(3, 10)
 ] + [
-    "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH010_ARTIFACT_MANIFEST_V002_20260925.json"
+    "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH008_ARTIFACT_MANIFEST_V002_20261009.json",
+    "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH010_ARTIFACT_MANIFEST_V002_20260925.json",
 ]
 
 
@@ -268,6 +269,42 @@ def case_beneficiary_falsely_qualified(root: Path) -> None:
     )
 
 
+def case_batch008_successor_boundary_widened(root: Path) -> None:
+    relative = (
+        "docs/constraint/validation/"
+        "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH008_ARTIFACT_MANIFEST_V002_20261009.json"
+    )
+
+    def mutate(doc: dict) -> None:
+        doc["public_repo_boundary"]["raw_source_content_published"] = True
+
+    mutate_json(root, relative, mutate)
+
+
+def case_batch008_successor_preservation_removed(root: Path) -> None:
+    relative = (
+        "docs/constraint/validation/"
+        "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH008_ARTIFACT_MANIFEST_V002_20261009.json"
+    )
+
+    def mutate(doc: dict) -> None:
+        doc["supersedes"]["predecessor_preserved"] = False
+
+    mutate_json(root, relative, mutate)
+
+
+def case_batch008_predecessor_rewritten(root: Path) -> None:
+    relative = (
+        "docs/constraint/validation/"
+        "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH008_ARTIFACT_MANIFEST_V001_20260925.json"
+    )
+
+    def mutate(doc: dict) -> None:
+        doc["expected"]["private_raw_store_implemented"] = "NO"
+
+    mutate_json(root, relative, mutate)
+
+
 def case_master_falsely_ready(root: Path) -> None:
     relative = (
         "docs/constraint/architecture/"
@@ -297,6 +334,9 @@ def main() -> int:
         ("candidate_mints_canonical", case_candidate_mints_canonical, "Batch010 minted canonical constraint ID"),
         ("beneficiary_falsely_qualified", case_beneficiary_falsely_qualified, "Batch010 fabricated qualified beneficiary"),
         ("master_falsely_ready", case_master_falsely_ready, "master falsely claims full-run readiness"),
+        ("batch008_successor_boundary_widened", case_batch008_successor_boundary_widened, "Batch008 successor public_repo_boundary changed"),
+        ("batch008_successor_preservation_removed", case_batch008_successor_preservation_removed, "Batch008 V002 supersession binding changed"),
+        ("batch008_predecessor_rewritten", case_batch008_predecessor_rewritten, "Batch008 V001 manifest was rewritten"),
     ]
     for name, mutator, expected in cases:
         expect_failure(name, mutator, expected)
