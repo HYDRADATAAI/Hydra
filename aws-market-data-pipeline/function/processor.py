@@ -113,10 +113,17 @@ def process_csv(source_bytes: bytes) -> ProcessedBatch:
             column: "" if row.get(column) is None else str(row[column])
             for column in REQUIRED_COLUMNS
         }
-        raw_record_sha256 = object_sha256(raw_record)
+        extra_values = row.get(None)
+        if extra_values is not None:
+            extra_values = [str(value) for value in extra_values]
+            raw_record_sha256 = object_sha256(
+                {"extra_values": extra_values, "raw_record": raw_record}
+            )
+        else:
+            raw_record_sha256 = object_sha256(raw_record)
         errors: list[str] = []
 
-        if None in row:
+        if extra_values is not None:
             errors.append("row_extra_values")
 
         source_system = raw_record["source_system"].strip().upper()
@@ -166,6 +173,7 @@ def process_csv(source_bytes: bytes) -> ProcessedBatch:
                     raw_record=raw_record,
                     raw_record_sha256=raw_record_sha256,
                     errors=errors,
+                    extra_values=extra_values,
                 )
             )
             continue
@@ -305,9 +313,10 @@ def _quarantine_record(
     raw_record: Mapping[str, str],
     raw_record_sha256: str,
     errors: list[str],
+    extra_values: list[str] | None = None,
 ) -> dict[str, object]:
     sorted_errors = tuple(sorted(set(errors)))
-    return {
+    record = {
         "errors": list(sorted_errors),
         "quarantine_id": object_sha256(
             {
@@ -322,6 +331,9 @@ def _quarantine_record(
         "stage": "row_validation",
         "validation_messages": [ERROR_MESSAGES[error] for error in sorted_errors],
     }
+    if extra_values is not None:
+        record["extra_values"] = extra_values
+    return record
 
 
 def _jsonl_bytes(records: tuple[dict[str, object], ...]) -> bytes:
