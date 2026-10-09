@@ -70,11 +70,6 @@ class TemplateContractTests(unittest.TestCase):
         self.assertIn(
             "table/${DataCatalogDatabaseName}/normalized_events", serialized
         )
-        self.assertEqual(
-            function["Environment"]["Variables"]["DATA_CATALOG_DATABASE"],
-            {"Ref": "DataCatalogDatabaseName"},
-        )
-
     def test_glue_database_name_is_athena_compatible_and_configurable(self):
         parameter = TEMPLATE["Parameters"]["DataCatalogDatabaseName"]
         self.assertEqual(parameter["AllowedPattern"], "^[a-z0-9_]+$")
@@ -87,6 +82,10 @@ class TemplateContractTests(unittest.TestCase):
 
     def test_lambda_is_bounded_and_least_privilege(self):
         function = TEMPLATE["Resources"]["TransformFunction"]["Properties"]
+        self.assertEqual(
+            function["Environment"]["Variables"]["DATA_CATALOG_DATABASE"],
+            {"Ref": "DataCatalogDatabaseName"},
+        )
         self.assertEqual(function["Runtime"], "python3.11")
         self.assertEqual(function["MemorySize"], 128)
         self.assertEqual(function["Timeout"], 30)
