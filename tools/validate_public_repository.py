@@ -146,7 +146,7 @@ def validate_workflow_action_pins(errors: list[str]) -> None:
         errors.append("GitHub Actions workflows directory is missing")
         return
 
-    uses_line = re.compile(r"^\\s*(?:-\\s*)?uses:\\s*(.*?)\\s*$")
+    uses_line = re.compile(r"^\s*(?:-\s*)?uses:\s*(.*?)\s*$")
     commit_sha = re.compile(r"^[0-9a-fA-F]{40}$")
     workflow_files = sorted(
         path
@@ -167,7 +167,7 @@ def validate_workflow_action_pins(errors: list[str]) -> None:
             reference = match.group(1).strip()
             if " #" in reference:
                 reference = reference.split(" #", 1)[0].rstrip()
-            reference = reference.strip().strip("\\\"'")
+            reference = reference.strip().strip("\"'")
             if not reference:
                 errors.append(f"empty workflow uses reference: {relative}:{line_number}")
                 continue
