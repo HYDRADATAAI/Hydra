@@ -1,13 +1,14 @@
 from __future__ import annotations
 
 import json
-from io import BytesIO
 import tempfile
 import unittest
-from unittest.mock import patch
-from urllib.error import HTTPError
 import urllib.request
+from email.message import Message
+from io import BytesIO
 from pathlib import Path
+from unittest.mock import patch
+from urllib.response import addinfourl
 
 from hydra_constraint.canary import (
     CanaryResponse,
@@ -114,28 +115,30 @@ class LiveCanaryTests(unittest.TestCase):
         source_url = "https://source.example.test/path"
         redirect_url = "https://unconfigured.example.test/target"
         spec = CanarySpec("source", source_url, ["marker"])
-        error = HTTPError(
-            source_url,
-            302,
-            "Found",
-            {"Location": redirect_url},
-            BytesIO(b"redirect"),
-        )
-        with patch("urllib.request.build_opener") as build_opener:
-            opener = build_opener.return_value
-            opener.open.side_effect = error
+        class RecordingHttpsHandler(urllib.request.HTTPSHandler):
+            def __init__(self):
+                super().__init__()
+                self.requests = []
+
+            def https_open(self, req):
+                self.requests.append(req.full_url)
+                headers = Message()
+                headers["Location"] = redirect_url
+                return addinfourl(BytesIO(b"redirect"), headers, req.full_url, 302)
+
+        recording_https = RecordingHttpsHandler()
+        no_redirect = _NoRedirectHandler()
+        opener = urllib.request.build_opener(no_redirect, recording_https)
+        with patch("urllib.request.build_opener", return_value=opener):
             result = CanaryRunner(CanaryTransport()).run_one(spec)
 
         self.assertEqual(result.status, "FAIL")
         self.assertEqual(result.http_status, 302)
         self.assertEqual(result.final_url, source_url)
-        opener.open.assert_called_once()
-        handler = build_opener.call_args.args[0]
-        self.assertIsInstance(handler, _NoRedirectHandler)
-        request = urllib.request.Request(source_url)
+        self.assertEqual(recording_https.requests, [source_url])
         self.assertIsNone(
-            handler.redirect_request(
-                request,
+            no_redirect.redirect_request(
+                urllib.request.Request(source_url),
                 None,
                 302,
                 "Found",
