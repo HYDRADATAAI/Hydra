@@ -246,18 +246,18 @@ class PollRunner:
                     response=self.transport.fetch(spec.url,spec.headers)
                 except Exception as exc:
                     error=str(exc); response=None
-            if response is None:
-                if attempt<spec.backoff.max_attempts:
-                    delay=spec.backoff.delay(attempt); delays.append(delay); self.sleeper.sleep(delay); continue
-                break
-            statuses.append(response.status)
-            hashes.append(self.archive.archive(spec.name,response,attempt))
-            if response.status==200:
-                break
-            if response.status not in RETRYABLE or attempt>=spec.backoff.max_attempts:
-                error=f"HTTP {response.status}"; break
-            delay=spec.backoff.delay(attempt,response.headers.get("retry-after"))
-            delays.append(delay); self.sleeper.sleep(delay)
+                if response is None:
+                    if attempt<spec.backoff.max_attempts:
+                        delay=spec.backoff.delay(attempt); delays.append(delay); self.sleeper.sleep(delay); continue
+                    break
+                statuses.append(response.status)
+                hashes.append(self.archive.archive(spec.name,response,attempt))
+                if response.status==200:
+                    break
+                if response.status not in RETRYABLE or attempt>=spec.backoff.max_attempts:
+                    error=f"HTTP {response.status}"; break
+                delay=spec.backoff.delay(attempt,response.headers.get("retry-after"))
+                delays.append(delay); self.sleeper.sleep(delay)
 
         if response is None or response.status!=200:
             self.cursors.mark_error(spec.name,polled_at=response.captured_at if response else utc_now(),error=error or "poll failed")
