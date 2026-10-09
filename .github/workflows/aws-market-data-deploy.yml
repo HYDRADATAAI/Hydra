@@ -37,7 +37,6 @@ jobs:
       STACK_NAME: ${{ inputs.stack_name }}-${{ github.run_id }}-${{ github.run_attempt }}
       SAMPLE_DIR: aws-market-data-pipeline
       DEPLOYMENT_RUN_TOKEN: ${{ github.run_id }}-${{ github.run_attempt }}
-      HYDRA_STACK_DEPLOY_ATTEMPTED: 'false'
     steps:
       - name: Checkout
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
@@ -88,6 +87,7 @@ jobs:
           sam build --template-file "$SAMPLE_DIR/template.json"
 
       - name: Deploy temporary stack
+        id: deploy_stack
         run: |
           set -euo pipefail
           account_id=$(aws sts get-caller-identity --query Account --output text)
@@ -97,7 +97,6 @@ jobs:
           curated_bucket_name="hydra-public-curated-${bucket_suffix}"
           echo "RAW_BUCKET=$raw_bucket_name" >> "$GITHUB_ENV"
           echo "CURATED_BUCKET=$curated_bucket_name" >> "$GITHUB_ENV"
-          echo "HYDRA_STACK_DEPLOY_ATTEMPTED=true" >> "$GITHUB_ENV"
           sam deploy \
             --stack-name "$STACK_NAME" \
             --region "$AWS_REGION" \
@@ -225,7 +224,7 @@ jobs:
           if-no-files-found: error
 
       - name: Empty versioned buckets and delete stack
-        if: ${{ always() && inputs.teardown && env.HYDRA_STACK_DEPLOY_ATTEMPTED == 'true' }}
+        if: ${{ always() && inputs.teardown && steps.deploy_stack.outcome != 'skipped' }}
         run: |
           set -euo pipefail
           set +e
