@@ -100,6 +100,20 @@ class TemplateContractTests(unittest.TestCase):
             ],
         )
 
+    def test_lambda_source_object_byte_limit_is_configurable(self):
+        parameter = TEMPLATE["Parameters"]["MaxSourceObjectBytes"]
+        self.assertEqual(parameter["Type"], "Number")
+        self.assertEqual(parameter["Default"], 1048576)
+        self.assertEqual(parameter["MinValue"], 1)
+
+        variables = TEMPLATE["Resources"]["TransformFunction"]["Properties"][
+            "Environment"
+        ]["Variables"]
+        self.assertEqual(
+            variables["MAX_SOURCE_OBJECT_BYTES"],
+            {"Ref": "MaxSourceObjectBytes"},
+        )
+
     def test_glue_reads_only_accepted_prefix_and_athena_is_bounded(self):
         table = TEMPLATE["Resources"]["NormalizedEventsTable"]["Properties"]
         location = table["TableInput"]["StorageDescriptor"]["Location"]["Fn::Sub"]
