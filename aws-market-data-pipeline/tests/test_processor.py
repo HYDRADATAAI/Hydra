@@ -103,11 +103,10 @@ class ProcessorTests(unittest.TestCase):
 
         self.assertEqual(version_one.source_file_sha256, current.source_file_sha256)
         self.assertNotEqual(version_one.run_id, current.run_id)
-        self.assertTrue(
-            all(
-                record["transform_version"] == "hydra-aws-market-normalizer/v2"
-                for record in current.quarantined
-            )
+        manifest = json.loads(current.artifacts["manifest.json"])
+        self.assertEqual(
+            manifest["transform_version"],
+            "hydra-aws-market-normalizer/v2",
         )
 
     def test_version_bump_preserves_ordinary_record_shape_and_hashes(self):
