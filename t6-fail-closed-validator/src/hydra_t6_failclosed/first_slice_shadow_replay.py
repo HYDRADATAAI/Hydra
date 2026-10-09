@@ -97,6 +97,16 @@ def build_shadow_snapshot(*, as_of: str, claim_registry: Mapping[str, Any],
         lineage = row.get("evidence_lineage", {})
         if not isinstance(lineage, Mapping):
             raise ValueError("beneficiary evidence lineage must be a mapping")
+        allowed_roles = {
+            "constraint_evidence",
+            "entity_connection",
+            "advantage_mechanism",
+            "capacity_or_availability",
+            "economic_or_strategic_capture",
+            "disconfirming_or_blocking",
+        }
+        if set(lineage) - allowed_roles:
+            raise ValueError("unknown beneficiary evidence lineage role")
         refs = []
         for role, values in lineage.items():
             values = references(values)
