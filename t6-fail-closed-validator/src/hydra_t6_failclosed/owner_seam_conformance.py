@@ -16,6 +16,12 @@ _REQUIRED_BENEFICIARY_LINEAGE = {
     "economic_or_strategic_capture",
     "disconfirming_or_blocking",
 }
+_BENEFICIARY_CLAIM_ROLE_ALLOWLIST = {
+    "entity_connection": {"ENTITY_CAPABILITY", "ENTITY_CAPACITY_RELIEF", "SUBSTITUTION_RELIEF"},
+    "advantage_mechanism": {"ENTITY_CAPABILITY", "ENTITY_CAPACITY_RELIEF", "SUBSTITUTION_RELIEF"},
+    "capacity_or_availability": {"ENTITY_CAPABILITY", "ENTITY_CAPACITY_RELIEF"},
+    "economic_or_strategic_capture": {"ENTITY_CAPABILITY"},
+}
 
 RAW_BLOCKER = "PIT-002B-FIRST-SLICE-NINE-SOURCE-RAW-CAPTURE-MATERIALIZATION"
 ADMISSION_BLOCKER = "CI-TEST-008-BLOCKER-001B-NATIVE-T5-T6-SIGNED-ADMISSION-RECEIPT-ABSENT"
@@ -113,6 +119,7 @@ def validate_owner_seams(
         _fail("owner-seam inputs must contain list rows")
 
     claim_ids = _unique_ids(claim_rows, "claim_id", "claims")
+    claim_roles = {row["claim_id"]: row.get("claim_role") for row in claim_rows}
     candidate_ids = _unique_ids(candidate_rows, "constraint_candidate_id", "candidates")
     relationship_ids = _unique_ids(beneficiary_rows, "beneficiary_relationship_id", "beneficiaries")
     overlay_ids = _unique_ids(overlay_rows, "constraint_candidate_id", "overlay.candidates")
@@ -131,15 +138,23 @@ def validate_owner_seams(
         _fail("typed beneficiary-confidence universe differs from T6 relationship universe")
 
     known_evidence_ids: set[str] = set()
+    constraint_support_evidence_claims: dict[str, set[str]] = {}
     claim_available_at: dict[str, datetime] = {}
     for claim in claim_rows:
         cid = claim["claim_id"]
         claim_available_at[cid] = _aware_dt(claim["available_at"], f"{cid}.available_at")
+        disconfirming_ids = set(_string_list(
+            claim.get("disconfirming_evidence_ids", []), f"{cid}.disconfirming_evidence_ids"
+        ))
         for field in ("support_evidence_ids", "disconfirming_evidence_ids"):
             for evidence_id in _string_list(claim.get(field, []), f"{cid}.{field}"):
                 if not isinstance(evidence_id, str) or not evidence_id.startswith("EV-"):
                     _fail(f"{cid}.{field}: invalid evidence reference")
                 known_evidence_ids.add(evidence_id)
+                if (field == "support_evidence_ids"
+                        and claim.get("claim_role") == "CONSTRAINT_EXISTENCE"
+                        and evidence_id not in disconfirming_ids):
+                    constraint_support_evidence_claims.setdefault(evidence_id, set()).add(cid)
 
     candidate_by_id = {row["constraint_candidate_id"]: row for row in candidate_rows}
     overlay_by_id = {row["constraint_candidate_id"]: row for row in overlay_rows}
@@ -230,7 +245,7 @@ def validate_owner_seams(
         if not relation.get("benefit_transmission_mechanism"):
             _fail(f"{rid}: missing beneficiary transmission mechanism")
         lineage = relation.get("evidence_lineage")
-        if not isinstance(lineage, dict) or not _REQUIRED_BENEFICIARY_LINEAGE <= set(lineage):
+        if not isinstance(lineage, dict) or set(lineage) != _REQUIRED_BENEFICIARY_LINEAGE:
             _fail(f"{rid}: incomplete beneficiary evidence-role lineage")
         for field in sorted(_REQUIRED_BENEFICIARY_LINEAGE):
             _string_list(lineage[field], f"{rid}.{field}")
@@ -238,15 +253,17 @@ def validate_owner_seams(
             parent.get("evidence_roles", {}).get("constraint_support", [])
         ):
             _fail(f"{rid}: beneficiary constraint evidence is not inherited from parent constraint support")
-        for field in (
-            "entity_connection",
-            "advantage_mechanism",
-            "capacity_or_availability",
-            "economic_or_strategic_capture",
-        ):
+        parent_claim_ids = set(parent.get("claim_ids", []))
+        for evidence_id in lineage["constraint_evidence"]:
+            supporting_claims = constraint_support_evidence_claims.get(evidence_id, set())
+            if not supporting_claims & parent_claim_ids:
+                _fail(f"{rid}: beneficiary constraint evidence lacks positive parent-claim support")
+        for field, allowed_roles in _BENEFICIARY_CLAIM_ROLE_ALLOWLIST.items():
             for claim_id in lineage[field]:
                 if claim_id not in claim_ids:
                     _fail(f"{rid}.{field}: unknown claim {claim_id}")
+                if claim_roles[claim_id] not in allowed_roles:
+                    _fail(f"{rid}.{field}: claim_role is incompatible with beneficiary lineage")
         # Batch010 also stores prose research limitations here. Preserve those
         # historical notes; validate reference-shaped entries without promoting
         # prose into evidence or claiming that raw-source lineage is complete.
