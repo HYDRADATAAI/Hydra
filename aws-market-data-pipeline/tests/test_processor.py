@@ -4,8 +4,14 @@ import json
 import tempfile
 import unittest
 from pathlib import Path
+from unittest.mock import patch
 
-from function.processor import ContractError, TRANSFORM_VERSION, process_csv
+from function.processor import (
+    MAX_SOURCE_ROWS,
+    ContractError,
+    TRANSFORM_VERSION,
+    process_csv,
+)
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -13,6 +19,19 @@ FIXTURE = ROOT / "fixtures" / "synthetic_market_events.csv"
 
 
 class ProcessorTests(unittest.TestCase):
+    def test_row_limit_is_enforced_before_batch_outputs_are_built(self):
+        self.assertEqual(MAX_SOURCE_ROWS, 10_000)
+        header = (
+            b"source_system,source_record_id,symbol,event_time,price,volume,currency,venue\\n"
+        )
+        row = b"SYNTH_A,a-001,AAA,2026-09-24T17:30:00Z,1.25,1,USD,XNAS\\n"
+
+        with patch("function.processor.MAX_SOURCE_ROWS", 1):
+            one_row = process_csv(header + row)
+            self.assertEqual(len(one_row.accepted), 1)
+            with self.assertRaisesRegex(ContractError, "max_rows=1"):
+                process_csv(header + row + row)
+
     def test_expected_outcomes_and_no_silent_loss(self):
         batch = process_csv(FIXTURE.read_bytes())
 
