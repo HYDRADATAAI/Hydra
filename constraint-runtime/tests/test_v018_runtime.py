@@ -218,6 +218,18 @@ class PollRateLimitTests(unittest.TestCase):
             self.delays.append(seconds)
             self.now+=seconds
 
+    class BlockingClock(FakeClock):
+        def __init__(self):
+            super().__init__()
+            self.sleep_started=threading.Event()
+            self.release_sleep=threading.Event()
+        def sleep(self,seconds):
+            self.delays.append(seconds)
+            self.sleep_started.set()
+            if not self.release_sleep.wait(timeout=5):
+                raise TimeoutError("fixture cooldown was not released")
+            self.now+=seconds
+
     class FakeCursors:
         max_seen=10
         path=Path("unused")
@@ -332,6 +344,33 @@ class PollRateLimitTests(unittest.TestCase):
         request_times=sorted(transport.request_times)
         self.assertEqual(len(request_times),4)
         self.assertTrue(all(later-earlier>=0.5 for earlier,later in zip(request_times,request_times[1:])))
+
+    def test_concurrent_poll_waits_for_shared_retry_after_cooldown(self):
+        clock=self.BlockingClock()
+        transport=self.FakeTransport(clock,retry_after=1.5)
+        runner=PollRunner(
+            durable=None,cursors=self.FakeCursors(),archive=self.FakeArchive(),transport=transport,
+            sleeper=clock,clock=clock.monotonic,
+        )
+        spec=self.make_spec(max_rps=2)
+        first=threading.Thread(target=runner.poll,args=(spec,))
+        second_started=threading.Event()
+        def run_second_poll():
+            second_started.set()
+            runner.poll(spec)
+        first.start()
+        self.assertTrue(clock.sleep_started.wait(timeout=5))
+        second=threading.Thread(target=run_second_poll)
+        second.start()
+        self.assertTrue(second_started.wait(timeout=5))
+        self.assertEqual(len(transport.request_times),1)
+        clock.release_sleep.set()
+        first.join(timeout=5)
+        second.join(timeout=5)
+
+        self.assertTrue(all(not thread.is_alive() for thread in (first,second)))
+        self.assertEqual(len(transport.request_times),4)
+        self.assertGreaterEqual(min(transport.request_times[1:]),1.5)
 
     def test_invalid_rate_fails_before_cursor_access(self):
         cursors=self.FakeCursors()
