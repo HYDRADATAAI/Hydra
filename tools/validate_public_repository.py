@@ -1098,9 +1098,9 @@ def validate_ci_contract(errors: list[str]) -> None:
     if pipeline_job is None:
         errors.append("market-pipeline CI test-and-build job is missing")
     else:
-        if re.search(r"(?m)^    if\s*:", hygiene_job):
+        if re.search(r"(?m)^    if\s*:", pipeline_job):
             errors.append("market-pipeline CI job must be unconditional")
-        if re.search(r"(?m)^    continue-on-error\s*:", hygiene_job):
+        if re.search(r"(?m)^    continue-on-error\s*:", pipeline_job):
             errors.append("market-pipeline CI job must fail closed")
 
         pipeline_steps = workflow_steps(pipeline_job)
@@ -1435,9 +1435,9 @@ def validate_ci_contract(errors: list[str]) -> None:
     else:
         if not re.search(r"(?m)^    runs-on:\s*windows-latest\s*$", windows_job):
             errors.append("governed-intelligence CI verifier must run on Windows")
-        if re.search(r"(?m)^    if\s*:", hygiene_job):
+        if re.search(r"(?m)^    if\s*:", windows_job):
             errors.append("governed-intelligence CI Windows verifier job must be unconditional")
-        if re.search(r"(?m)^    continue-on-error\s*:", hygiene_job):
+        if re.search(r"(?m)^    continue-on-error\s*:", windows_job):
             errors.append("governed-intelligence CI Windows verifier job must fail closed")
         windows_steps = workflow_steps(windows_job)
         expected_windows_steps = (
@@ -1484,9 +1484,9 @@ def validate_ci_contract(errors: list[str]) -> None:
     if evaluate_job is None:
         errors.append("governed-intelligence CI evaluate job is missing")
         return
-        if re.search(r"(?m)^    if\s*:", hygiene_job):
+    if re.search(r"(?m)^    if\s*:", evaluate_job):
         errors.append("governed-intelligence CI evaluate job must be unconditional")
-        if re.search(r"(?m)^    continue-on-error\s*:", hygiene_job):
+    if re.search(r"(?m)^    continue-on-error\s*:", evaluate_job):
         errors.append("governed-intelligence CI evaluate job must fail closed")
 
     if not re.search(
