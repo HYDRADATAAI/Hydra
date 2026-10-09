@@ -1,14 +1,20 @@
 from __future__ import annotations
 
 import json
+from io import BytesIO
 import tempfile
 import unittest
+from unittest.mock import patch
+from urllib.error import HTTPError
+import urllib.request
 from pathlib import Path
 
 from hydra_constraint.canary import (
     CanaryResponse,
     CanaryRunner,
     CanarySpec,
+    CanaryTransport,
+    _NoRedirectHandler,
     load_specs,
 )
 
@@ -79,6 +85,64 @@ class LiveCanaryTests(unittest.TestCase):
         self.assertEqual(transport.calls, [])
 
 
+
+    def test_config_rejects_non_https_and_embedded_credentials(self):
+        base = {
+            "read_only": True,
+            "ledger_mutation": False,
+            "automatic_trading_action": False,
+        }
+        source = {
+            "name": "source",
+            "required_markers": [],
+            "enabled": True,
+        }
+        for url in (
+            "http://example.test/source",
+            "https:///missing-host",
+            "https://user:secret@example.test/source",
+            "https://@example.test/source",
+        ):
+            payload = {**base, "sources": [{**source, "url": url}]}
+            with self.subTest(url=url), tempfile.TemporaryDirectory() as td:
+                p = Path(td) / "config.json"
+                p.write_text(json.dumps(payload))
+                with self.assertRaisesRegex(ValueError, "HTTPS with a hostname"):
+                    load_specs(p)
+
+    def test_redirect_is_rejected_without_following_target(self):
+        source_url = "https://source.example.test/path"
+        redirect_url = "https://unconfigured.example.test/target"
+        spec = CanarySpec("source", source_url, ["marker"])
+        error = HTTPError(
+            source_url,
+            302,
+            "Found",
+            {"Location": redirect_url},
+            BytesIO(b"redirect"),
+        )
+        with patch("urllib.request.build_opener") as build_opener:
+            opener = build_opener.return_value
+            opener.open.side_effect = error
+            result = CanaryRunner(CanaryTransport()).run_one(spec)
+
+        self.assertEqual(result.status, "FAIL")
+        self.assertEqual(result.http_status, 302)
+        self.assertEqual(result.final_url, source_url)
+        opener.open.assert_called_once()
+        handler = build_opener.call_args.args[0]
+        self.assertIsInstance(handler, _NoRedirectHandler)
+        request = urllib.request.Request(source_url)
+        self.assertIsNone(
+            handler.redirect_request(
+                request,
+                None,
+                302,
+                "Found",
+                {"Location": redirect_url},
+                redirect_url,
+            )
+        )
 
     def test_report_is_read_only(self):
         transport = FakeTransport({
