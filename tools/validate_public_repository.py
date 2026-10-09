@@ -1221,8 +1221,10 @@ def validate_ci_contract(errors: list[str]) -> None:
         "sql/create_committed_normalized_events.sql",
         "FROM committed_normalized_events",
         "COUNT(*) AS accepted_rows FROM committed_normalized_events",
+        "if accepted_rows != 3:",
         "expected 3 accepted rows from committed view",
         "ATHENA_ACCEPTED_ROWS",
+        '"athena_accepted_rows": int(os.environ["ATHENA_ACCEPTED_ROWS"]),',
         "start-query-execution",
         "--page-size 1000",
         "--max-items 1000",
@@ -1234,6 +1236,29 @@ def validate_ci_contract(errors: list[str]) -> None:
     for fragment in deploy_fragments:
         if fragment not in deploy_workflow:
             errors.append(f"aws-deploy workflow contract missing: {fragment}")
+
+    count_query_start = deploy_workflow.find(
+        'query="SELECT COUNT(*) AS accepted_rows FROM committed_normalized_events"'
+    )
+    if count_query_start >= 0:
+        success_start = deploy_workflow.find(
+            'if [[ "$state" == "SUCCEEDED" ]]; then', count_query_start
+        )
+        failed_start = deploy_workflow.find(
+            'if [[ "$state" == "FAILED" || "$state" == "CANCELLED" ]]; then',
+            success_start if success_start >= 0 else count_query_start,
+        )
+        if success_start < 0 or failed_start < 0:
+            errors.append("aws-deploy accepted-row query success branch changed")
+        else:
+            success_block = deploy_workflow[success_start:failed_start]
+            result_read = success_block.find("aws athena get-query-results")
+            count_guard = success_block.find("if accepted_rows != 3:")
+            if result_read < 0 or count_guard < 0 or result_read > count_guard:
+                errors.append(
+                    "aws-deploy accepted-row count guard must follow result retrieval in the Athena success branch"
+                )
+
     if re.search(r"(?m)^  (?:pull_request|push):", deploy_workflow):
         errors.append("aws-deploy workflow must remain manual-only")
 
