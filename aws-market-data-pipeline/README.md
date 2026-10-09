@@ -19,6 +19,8 @@ The Lambda transform performs strict file-contract validation, row normalization
 - one Athena workgroup with enforced encrypted output and a 1 GiB scan cutoff;
 - one explicit CloudWatch log group with bounded retention.
 
+The sample's 30-day S3 lifecycle expires artifact objects, while Glue partition metadata remains. This is suitable for the short-lived demonstration stack; a long-running deployment needs a partition-retention cleanup process to prevent stale catalog entries.
+
 [`template.json`](template.json) is an AWS SAM/CloudFormation template. It does not create resources by itself.
 
 ## Directory map
