@@ -34,15 +34,28 @@ class FakeS3:
         return {"ETag": '"synthetic"'}
 
 
+class AlreadyExistsError(Exception):
+    response = {"Error": {"Code": "AlreadyExistsException"}}
+
+
 class FakeGlue:
-    def __init__(self, operations=None):
+    def __init__(self, operations=None, existing_partition=None):
         self.operations = operations if operations is not None else []
         self.partition_calls: list[dict[str, object]] = []
+        self.existing_partition = existing_partition
+        self.get_partition_calls: list[dict[str, object]] = []
 
     def create_partition(self, **kwargs):
         self.partition_calls.append(kwargs)
         self.operations.append(("partition", kwargs["PartitionInput"]["Values"][0]))
+        if self.existing_partition is not None:
+            raise AlreadyExistsError()
+        self.existing_partition = kwargs["PartitionInput"]
         return {}
+
+    def get_partition(self, **kwargs):
+        self.get_partition_calls.append(kwargs)
+        return {"Partition": self.existing_partition}
 
 
 def s3_event(key: str = "raw/synthetic+market.csv") -> dict[str, object]:
@@ -134,6 +147,46 @@ class LambdaHandlerTests(unittest.TestCase):
             [(call["Key"], call["Body"]) for call in second.put_calls],
         )
         self.assertEqual(first_glue.partition_calls, second_glue.partition_calls)
+
+    def test_duplicate_partition_is_accepted_only_for_exact_run_location(self):
+        source = FIXTURE.read_bytes()
+        expected = process_csv(source)
+        expected_partition = {
+            "Values": [expected.run_id],
+            "StorageDescriptor": {
+                "Location": (
+                    f"s3://curated/curated/accepted/{expected.run_id}/"
+                )
+            },
+        }
+
+        with patch.dict(
+            os.environ,
+            {
+                "CURATED_BUCKET": "curated",
+                "DATA_CATALOG_DATABASE": "hydra_public_market_data",
+            },
+        ):
+            matching_glue = FakeGlue(existing_partition=expected_partition)
+            lambda_handler(
+                s3_event(),
+                None,
+                s3_client=FakeS3(source),
+                glue_client=matching_glue,
+            )
+            self.assertEqual(len(matching_glue.get_partition_calls), 1)
+
+            mismatch = {
+                "Values": [expected.run_id],
+                "StorageDescriptor": {"Location": "s3://curated/wrong-prefix/"},
+            }
+            with self.assertRaisesRegex(RuntimeError, "does not match"):
+                lambda_handler(
+                    s3_event(),
+                    None,
+                    s3_client=FakeS3(source),
+                    glue_client=FakeGlue(existing_partition=mismatch),
+                )
 
     def test_failed_artifact_write_never_registers_queryable_partition(self):
         source = FIXTURE.read_bytes()
