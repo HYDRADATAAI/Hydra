@@ -286,21 +286,29 @@ def validate_batch008_manifest_successor() -> None:
             f"Batch008 successor {field} changed",
         )
 
+    predecessor_rows = predecessor.get("artifacts", [])
+    successor_rows = successor.get("artifacts", [])
     old_artifacts = {
-        row["path"]: row for row in predecessor.get("artifacts", []) if isinstance(row, dict)
+        row["path"]: row for row in predecessor_rows if isinstance(row, dict) and isinstance(row.get("path"), str)
     }
     new_artifacts = {
-        row["path"]: row for row in successor.get("artifacts", []) if isinstance(row, dict)
+        row["path"]: row for row in successor_rows if isinstance(row, dict) and isinstance(row.get("path"), str)
     }
     require(
-        old_artifacts and old_artifacts.keys() == new_artifacts.keys(),
+        len(old_artifacts) == len(predecessor_rows)
+        and len(new_artifacts) == len(successor_rows)
+        and old_artifacts.keys() == new_artifacts.keys(),
         "Batch008 successor artifact set changed",
     )
     workflow_path = ".github/workflows/constraint-t1-raw-artifact-store.yml"
     for relative, old_row in old_artifacts.items():
         if relative == workflow_path:
+            expected_row = {
+                **old_row,
+                "git_blob_sha": git_blob_sha(ROOT / relative),
+            }
             require(
-                new_artifacts[relative].get("git_blob_sha") == git_blob_sha(ROOT / relative),
+                new_artifacts[relative] == expected_row,
                 "Batch008 successor workflow pin digest changed",
             )
         else:
