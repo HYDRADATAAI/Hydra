@@ -46,6 +46,10 @@ if args[:2] == ["cloudformation", "describe-stacks"]:
         print(states[min(index, len(states) - 1)])
         counter.write_text(str(index + 1))
     else:
+        error = os.environ.get("DESCRIBE_STACKS_ERROR")
+        if error:
+            print(error, file=sys.stderr)
+            raise SystemExit(int(os.environ.get("DESCRIBE_STACKS_ERROR_STATUS", "255")))
         print(os.environ["STACK_DESCRIPTION"])
 elif args[:2] == ["cloudformation", "describe-stack-resources"]:
     print(os.environ["STACK_RESOURCES"])
@@ -124,7 +128,7 @@ class DeployTeardownOwnershipTests(unittest.TestCase):
     def run_teardown(
         self,
         *,
-        owner: str = RUN_TOKEN,
+        owner: str | None = RUN_TOKEN,
         status: str = "CREATE_COMPLETE",
         status_sequence: list[str] | None = None,
         resources: list[dict[str, str]] | None = None,
@@ -141,7 +145,7 @@ class DeployTeardownOwnershipTests(unittest.TestCase):
             sleep_log = root / "sleep-calls.jsonl"
             stack_description = {
                 "Stacks": [{
-                    "Tags": [{"Key": "hydra:deployment-run", "Value": owner}],
+                    "Tags": ([{"Key": "hydra:deployment-run", "Value": owner}] if owner is not None else []),
                     "StackStatus": status,
                 }]
             }
@@ -164,6 +168,8 @@ class DeployTeardownOwnershipTests(unittest.TestCase):
                 "VERSION_PAGE_1": json.dumps(page_1 or {"Versions": [{"Key": "raw/a.csv", "VersionId": "v1"}], "NextToken": "page-2"}),
                 "VERSION_PAGE_2": json.dumps(page_2 or {"DeleteMarkers": [{"Key": "raw/a.csv", "VersionId": "v0"}]}),
                 "DELETE_ERRORS_ON_CALL": str(delete_errors_on_call),
+                "DESCRIBE_STACKS_ERROR": os.environ.get("DESCRIBE_STACKS_ERROR", ""),
+                "DESCRIBE_STACKS_ERROR_STATUS": os.environ.get("DESCRIBE_STACKS_ERROR_STATUS", "255"),
                 "AWS_REGION": "us-east-1",
                 "STACK_NAME": "hydra-public-market-pipeline-demo-123-1",
                 "DEPLOYMENT_RUN_TOKEN": RUN_TOKEN,
@@ -200,6 +206,50 @@ class DeployTeardownOwnershipTests(unittest.TestCase):
         self.assertFalse(logs["cleanup"])
         self.assertFalse(logs["sam"])
 
+    def test_missing_run_tag_stops_before_bucket_cleanup_or_stack_delete(self):
+        result, logs = self.run_teardown(owner=None)
+        self.assertNotEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertIn("ownership tag does not match", result.stderr)
+        self.assertEqual(len(logs["aws"]), 1)
+        self.assertFalse(logs["cleanup"])
+        self.assertFalse(logs["sam"])
+
+    def test_missing_stack_is_a_successful_noop(self):
+        old_error = os.environ.get("DESCRIBE_STACKS_ERROR")
+        old_status = os.environ.get("DESCRIBE_STACKS_ERROR_STATUS")
+        os.environ["DESCRIBE_STACKS_ERROR"] = "Stack with id does not exist"
+        os.environ["DESCRIBE_STACKS_ERROR_STATUS"] = "255"
+        try:
+            result, logs = self.run_teardown()
+        finally:
+            if old_error is None:
+                os.environ.pop("DESCRIBE_STACKS_ERROR", None)
+            else:
+                os.environ["DESCRIBE_STACKS_ERROR"] = old_error
+            if old_status is None:
+                os.environ.pop("DESCRIBE_STACKS_ERROR_STATUS", None)
+            else:
+                os.environ["DESCRIBE_STACKS_ERROR_STATUS"] = old_status
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertEqual(len(logs["aws"]), 1)
+        self.assertFalse(logs["cleanup"])
+        self.assertFalse(logs["sam"])
+
+    def test_other_stack_lookup_errors_propagate(self):
+        old_error = os.environ.get("DESCRIBE_STACKS_ERROR")
+        os.environ["DESCRIBE_STACKS_ERROR"] = "AccessDenied: denied"
+        try:
+            result, logs = self.run_teardown()
+        finally:
+            if old_error is None:
+                os.environ.pop("DESCRIBE_STACKS_ERROR", None)
+            else:
+                os.environ["DESCRIBE_STACKS_ERROR"] = old_error
+        self.assertNotEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertIn("AccessDenied: denied", result.stderr)
+        self.assertFalse(logs["cleanup"])
+        self.assertFalse(logs["sam"])
+
     def test_resource_bucket_mismatch_stops_before_cleanup(self):
         result, logs = self.run_teardown(resources=[{
             "LogicalResourceId": "RawBucket",
@@ -222,7 +272,9 @@ class DeployTeardownOwnershipTests(unittest.TestCase):
     def test_in_progress_stack_is_polled_until_allowed_state(self):
         result, logs = self.run_teardown(status="CREATE_IN_PROGRESS", status_sequence=["CREATE_COMPLETE"])
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
-        self.assertTrue(logs["sleep"])
+        self.assertEqual(logs["sleep"], [["10"]])
+        status_queries = [call for call in logs["aws"] if call[:2] == ["cloudformation", "describe-stacks"] and "--query" in call]
+        self.assertEqual(len(status_queries), 1)
         self.assertTrue(any(call[:2] == ["cloudformation", "describe-stack-resources"] for call in logs["aws"]))
         self.assertTrue(logs["sam"])
 
