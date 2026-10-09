@@ -1183,11 +1183,22 @@ def validate_ci_contract(errors: list[str]) -> None:
     if deploy_job is None:
         errors.append("aws-deploy job is missing")
     else:
+        deploy_steps = workflow_steps(deploy_job)
         publish_steps = [
             block
-            for name, block in workflow_steps(deploy_job)
+            for name, block in deploy_steps
             if name == "Publish sanitized deployment evidence"
         ]
+        artifact_upload_steps = [
+            block
+            for _, block in deploy_steps
+            if any(
+                reference.startswith("actions/upload-artifact@")
+                for reference in workflow_step_scalar(block, "uses")
+            )
+        ]
+        if len(artifact_upload_steps) != 1:
+            errors.append("aws-deploy must contain exactly one artifact upload")
         if len(publish_steps) != 1:
             errors.append("aws-deploy sanitized evidence upload step count changed")
         else:
