@@ -28,7 +28,7 @@ GENERATED_OUTPUT_DIRECTORIES = {
     "outputs",
     "results",
 }
-ROOT_DUPLICATE_NAME = re.compile(r" \\([0-9]+\\)\\.[^/]+$")
+ROOT_DUPLICATE_NAME = re.compile(r" \([0-9]+\)\.[^/]+$")
 
 
 def tracked_path_violation(path: str) -> str | None:
@@ -37,7 +37,7 @@ def tracked_path_violation(path: str) -> str | None:
     if not parts:
         return None
 
-    if parts[0] == "archive":
+    if parts[0].casefold() == "archive":
         return None
 
     name = parts[-1]
@@ -49,8 +49,8 @@ def tracked_path_violation(path: str) -> str | None:
 
     if (
         len(parts) >= 3
-        and parts[0] in PUBLIC_SAMPLE_ROOTS
-        and parts[1] in GENERATED_OUTPUT_DIRECTORIES
+        and parts[0].casefold() in PUBLIC_SAMPLE_ROOTS
+        and parts[1].casefold() in GENERATED_OUTPUT_DIRECTORIES
     ):
         return "generated output directory"
 
@@ -67,7 +67,7 @@ def tracked_paths() -> list[str]:
         check=True,
         capture_output=True,
     )
-    return [os.fsdecode(path) for path in result.stdout.split(b"\\0") if path]
+    return [os.fsdecode(path) for path in result.stdout.split(b"\0") if path]
 
 
 def main() -> int:
