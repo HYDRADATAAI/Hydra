@@ -59,6 +59,7 @@ REQUIRED_PATHS = (
     "aws-market-data-pipeline/tests/test_athena_query_results.py",
     "aws-market-data-pipeline/verify_athena_query_results.py",
     "aws-market-data-pipeline/sql/create_committed_normalized_events.sql",
+    "tools/test_aws_deploy_validator_contract.py",
     "sql-data-quality-sample/README.md",
     "sql-data-quality-sample/fixtures/synthetic_market_events.csv",
     "sql-data-quality-sample/sql/01_schema.sql",
@@ -961,6 +962,40 @@ def workflow_action_ref_is_pinned(action_ref: str) -> bool:
     return re.fullmatch(r"[0-9a-f]{40}", revision) is not None
 
 
+def athena_success_commands_are_valid(run_script: object) -> bool:
+    """Require active result retrieval and verifier commands in the SUCCEEDED branch."""
+    if not isinstance(run_script, str):
+        return False
+
+    success = re.search(
+        r'(?m)^[ \t]*if \[\[ "\$state" == "SUCCEEDED" \]\]; then[ \t]*$',
+        run_script,
+    )
+    failed = re.search(
+        r'(?m)^[ \t]*if \[\[ "\$state" == "FAILED" \|\| "\$state" == "CANCELLED" \]\]; then[ \t]*$',
+        run_script,
+    )
+    if success is None or failed is None or failed.start() <= success.end():
+        return False
+
+    success_block = run_script[success.end() : failed.start()]
+    normalized_block = re.sub(r"\\\r?\n[ \t]*", " ", success_block)
+    active_lines = [line.strip() for line in normalized_block.splitlines()]
+    result_read = (
+        'aws athena get-query-results --query-execution-id "$QUERY_ID" '
+        '> "$SAMPLE_DIR/build/deployed/athena_query_results.json"'
+    )
+    verifier = (
+        'python "$SAMPLE_DIR/verify_athena_query_results.py" '
+        '--results-path "$SAMPLE_DIR/build/deployed/athena_query_results.json" '
+        '--github-env "$GITHUB_ENV"'
+    )
+    try:
+        return active_lines.index(result_read) < active_lines.index(verifier)
+    except ValueError:
+        return False
+
+
 def validate_ci_contract(errors: list[str]) -> None:
     validate_manifest_v2_replay_contract(errors)
     validate_pre_upload_verifier_contract(errors)
@@ -1254,24 +1289,9 @@ def validate_ci_contract(errors: list[str]) -> None:
             errors.append("aws-deploy Athena verification step count changed")
         else:
             run_script = athena_steps[0].get("run", "")
-            result_read = 'aws athena get-query-results --query-execution-id "$QUERY_ID" > "$SAMPLE_DIR/build/deployed/athena_query_results.json"'
-            if isinstance(run_script, str):
-                normalized_run_script = re.sub(
-                    r"\s+",
-                    " ",
-                    re.sub(r"\\\s+", " ", run_script),
-                ).strip()
-            else:
-                normalized_run_script = ""
-            if (
-                not normalized_run_script
-                or result_read not in normalized_run_script
-                or expected_verifier not in normalized_run_script
-                or normalized_run_script.index(result_read)
-                > normalized_run_script.index(expected_verifier)
-            ):
+            if not athena_success_commands_are_valid(run_script):
                 errors.append(
-                    "aws-deploy Athena success step must save results before invoking the row-count verifier"
+                    "aws-deploy Athena success step must run active result retrieval before the row-count verifier"
                 )
     except (KeyError, TypeError, yaml.YAMLError, ValueError) as exc:
         errors.append(f"aws-deploy Athena verification step is invalid: {exc}")
