@@ -1151,11 +1151,14 @@ def validate_ci_contract(errors: list[str]) -> None:
         "Validate deployment target",
         "Refuse to modify an existing stack",
         "Refusing to update or delete an existing stack.",
-        "HYDRA_STACK_OWNED_BY_RUN",
-        "inputs.teardown && env.HYDRA_STACK_OWNED_BY_RUN == 'true'",
+        "HYDRA_STACK_DEPLOY_ATTEMPTED",
+        "inputs.teardown && env.HYDRA_STACK_DEPLOY_ATTEMPTED == 'true'",
         "sam deploy",
         "--query 'Stacks[0].StackStatus'",
         "CREATE_COMPLETE",
+        "hydra:deployment-run",
+        "stack_owner",
+        "ResourceStatus == \"DELETE_FAILED\"",
         "deployed_outputs_match_local_replay",
         "start-query-execution",
         "--max-items 1000",
@@ -1170,17 +1173,15 @@ def validate_ci_contract(errors: list[str]) -> None:
     if re.search(r"(?m)^  (?:pull_request|push):", deploy_workflow):
         errors.append("aws-deploy workflow must remain manual-only")
 
+    preflight_position = deploy_workflow.index(
+        "- name: Refuse to modify an existing stack"
+    )
+    attempt_marker_position = deploy_workflow.index(
+        'echo "HYDRA_STACK_DEPLOY_ATTEMPTED=true"'
+    )
     sam_deploy_position = deploy_workflow.index("sam deploy")
-    status_guard_position = deploy_workflow.index(
-        'if [[ "$stack_status" != "CREATE_COMPLETE" ]]'
-    )
-    ownership_marker_position = deploy_workflow.index(
-        'echo "HYDRA_STACK_OWNED_BY_RUN=true"'
-    )
-    if not (
-        sam_deploy_position < status_guard_position < ownership_marker_position
-    ):
-        errors.append("aws-deploy ownership must follow successful new-stack creation")
+    if not (preflight_position < attempt_marker_position < sam_deploy_position):
+        errors.append("aws-deploy attempt marker must follow preflight and precede deployment")
 
     deploy_action_pins = {
         "actions/checkout": "11d5960a326750d5838078e36cf38b85af677262",
