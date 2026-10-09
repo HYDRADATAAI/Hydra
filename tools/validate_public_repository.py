@@ -22,6 +22,8 @@ REQUIRED_PATHS = (
     "README.md",
     ".github/workflows/public-root-hygiene.yml",
     ".github/workflows/t6-validator.yml",
+    "tools/public_root_hygiene.py",
+    "tools/test_public_root_hygiene.py",
     "t6-fail-closed-validator/README.md",
     "t6-fail-closed-validator/pyproject.toml",
     "t6-fail-closed-validator/src/hydra_t6_failclosed/__init__.py",
@@ -1226,6 +1228,16 @@ def validate_ci_contract(errors: list[str]) -> None:
     ):
         if not workflow_event_is_unfiltered(workflow, "pull_request"):
             errors.append(f"{label} CI pull-request trigger must be unfiltered")
+
+    hygiene_workflow = (
+        ROOT / ".github/workflows/public-root-hygiene.yml"
+    ).read_text(encoding="utf-8-sig")
+    for fragment in (
+        'python -m unittest discover -s tools -p "test_public_root_hygiene.py" -v',
+        "python tools/public_root_hygiene.py",
+    ):
+        if fragment not in hygiene_workflow:
+            errors.append(f"public-root hygiene CI contract missing: {fragment}")
     intelligence_fragments = (
         'python-version: "3.11"',
         "actions/checkout@11d5960a326750d5838078e36cf38b85af677262",

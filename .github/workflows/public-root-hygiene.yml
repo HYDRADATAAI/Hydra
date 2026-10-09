@@ -13,27 +13,8 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Reject build-transfer artifacts at repository root
-        shell: bash
-        run: |
-          set -euo pipefail
-          failures=0
-          while IFS= read -r file; do
-            [[ "$file" == */* ]] && continue
-            bad=0
-            case "$file" in
-              *.zip|*.zip.sha256|EXTRACT_*.ps1) bad=1 ;;
-            esac
-            if [[ "$file" =~ \ \([0-9]+\)\.[^/]+$ ]]; then
-              bad=1
-            fi
-            if [[ "$bad" -eq 1 ]]; then
-              echo "::error file=$file::Build-transfer artifact is not allowed at repository root."
-              failures=$((failures + 1))
-            fi
-          done < <(git ls-files)
-          if [[ "$failures" -gt 0 ]]; then
-            echo "PUBLIC_ROOT_HYGIENE=FAIL"
-            exit 1
-          fi
-          echo "PUBLIC_ROOT_HYGIENE=PASS"
+      - name: Test tracked artifact path policy
+        run: python -m unittest discover -s tools -p "test_public_root_hygiene.py" -v
+
+      - name: Reject tracked build-transfer artifacts
+        run: python tools/public_root_hygiene.py
