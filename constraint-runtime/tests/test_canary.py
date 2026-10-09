@@ -4,11 +4,10 @@ import json
 import tempfile
 import unittest
 import urllib.request
-from email.message import Message
 from io import BytesIO
 from pathlib import Path
 from unittest.mock import patch
-from urllib.response import addinfourl
+from urllib.error import HTTPError
 
 from hydra_constraint.canary import (
     CanaryResponse,
@@ -115,41 +114,43 @@ class LiveCanaryTests(unittest.TestCase):
         source_url = "https://source.example.test/path"
         redirect_url = "https://unconfigured.example.test/target"
         spec = CanarySpec("source", source_url, ["marker"])
-        class RecordingHttpsHandler(urllib.request.HTTPSHandler):
-            def __init__(self):
-                super().__init__()
+        no_redirect = _NoRedirectHandler()
+
+        class RecordingOpener:
+            def __init__(self, handler):
+                self.handler = handler
                 self.requests = []
 
-            def https_open(self, req):
-                self.requests.append(req.full_url)
-                headers = Message()
-                headers["Location"] = redirect_url
-                response = addinfourl(BytesIO(b"redirect"), headers, req.full_url, 302)
-                response.status = 302
-                response.reason = "Found"
-                response.msg = "Found"
-                return response
+            def open(self, request, timeout):
+                self.requests.append(request.full_url)
+                redirected = self.handler.redirect_request(
+                    request,
+                    None,
+                    302,
+                    "Found",
+                    {"Location": redirect_url},
+                    redirect_url,
+                )
+                if redirected is not None:
+                    return self.open(redirected, timeout)
+                raise HTTPError(
+                    request.full_url,
+                    302,
+                    "Found",
+                    {"Location": redirect_url},
+                    BytesIO(b"redirect"),
+                )
 
-        recording_https = RecordingHttpsHandler()
-        no_redirect = _NoRedirectHandler()
-        opener = urllib.request.build_opener(no_redirect, recording_https)
-        with patch("urllib.request.build_opener", return_value=opener):
+        opener = RecordingOpener(no_redirect)
+        with patch("urllib.request.build_opener", return_value=opener) as build_opener:
             result = CanaryRunner(CanaryTransport()).run_one(spec)
 
         self.assertEqual(result.status, "FAIL")
         self.assertEqual(result.http_status, 302)
         self.assertEqual(result.final_url, source_url)
-        self.assertEqual(recording_https.requests, [source_url])
-        self.assertIsNone(
-            no_redirect.redirect_request(
-                urllib.request.Request(source_url),
-                None,
-                302,
-                "Found",
-                {"Location": redirect_url},
-                redirect_url,
-            )
-        )
+        self.assertEqual(opener.requests, [source_url])
+        build_opener.assert_called_once()
+        self.assertIsInstance(build_opener.call_args.args[0], _NoRedirectHandler)
 
     def test_report_is_read_only(self):
         transport = FakeTransport({
