@@ -1,0 +1,90 @@
+name: Validation only - workflow alias-value regression
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+    paths:
+      - "tools/test_workflow_alias_regression.py"
+      - "tools/validate_public_repository.py"
+      - ".github/workflows/validation-workflow-alias-regression.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  workflow-alias-regression:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout exact pull-request source
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          persist-credentials: false
+          fetch-depth: 1
+
+      - name: Set up Python
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: "3.11"
+
+      - name: Record exact source identity and hashes
+        env:
+          EXPECTED_HEAD: ${{ github.event.pull_request.head.sha }}
+        run: |
+          python - <<'PY'
+          import hashlib, json, os, pathlib, subprocess
+          root = pathlib.Path.cwd()
+          def git(*args):
+              return subprocess.check_output(['git', *args], text=True).strip()
+          head, tree = git('rev-parse', 'HEAD'), git('rev-parse', 'HEAD^{tree}')
+          assert head == os.environ['EXPECTED_HEAD'], (head, os.environ['EXPECTED_HEAD'])
+          assert not git('status', '--porcelain'), 'source checkout must be clean'
+          paths = subprocess.check_output(['git', 'ls-files', '-z']).split(b'\0')
+          hashes = {}
+          for raw in paths:
+              if raw:
+                  name = os.fsdecode(raw)
+                  path = root / name
+                  assert path.is_file() and not path.is_symlink(), name
+                  hashes[name] = hashlib.sha256(path.read_bytes()).hexdigest()
+          record = {'head': head, 'tree': tree, 'hashes': hashes}
+          target = pathlib.Path(os.environ['RUNNER_TEMP']) / 'r33-alias-source-before.json'
+          target.write_text(json.dumps(record, sort_keys=True), encoding='utf-8')
+          print('SOURCE_HEAD=' + head)
+          print('SOURCE_TREE=' + tree)
+          print('SOURCE_STATUS=CLEAN')
+          print('SOURCE_TRACKED_FILES=' + str(len(hashes)))
+          for name in ['tools/validate_public_repository.py', 'tools/test_workflow_alias_regression.py', '.github/workflows/validation-workflow-alias-regression.yml']:
+              print('SOURCE_SHA256=' + name + ':' + hashes[name])
+          PY
+
+      - name: Run ten isolated workflow alias-value cases
+        run: python -B tools/test_workflow_alias_regression.py
+
+      - name: Verify source preservation
+        if: always()
+        run: |
+          python - <<'PY'
+          import hashlib, json, os, pathlib, subprocess
+          root = pathlib.Path.cwd()
+          before = json.loads((pathlib.Path(os.environ['RUNNER_TEMP']) / 'r33-alias-source-before.json').read_text(encoding='utf-8'))
+          def git(*args):
+              return subprocess.check_output(['git', *args], text=True).strip()
+          paths = subprocess.check_output(['git', 'ls-files', '-z']).split(b'\0')
+          hashes = {}
+          for raw in paths:
+              if raw:
+                  name = os.fsdecode(raw)
+                  path = root / name
+                  assert path.is_file() and not path.is_symlink(), name
+                  hashes[name] = hashlib.sha256(path.read_bytes()).hexdigest()
+          assert hashes == before['hashes'], 'source byte inventory changed'
+          assert git('rev-parse', 'HEAD') == before['head'], 'source HEAD changed'
+          assert git('rev-parse', 'HEAD^{tree}') == before['tree'], 'source tree changed'
+          assert not git('status', '--porcelain'), 'source checkout became dirty'
+          print('SOURCE_PRESERVATION=PASS')
+          print('SOURCE_HEAD=' + before['head'])
+          print('SOURCE_TREE=' + before['tree'])
+          print('SOURCE_STATUS=CLEAN')
+          PY
