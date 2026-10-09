@@ -220,15 +220,13 @@ def _is_escaped(text: str, index: int) -> bool:
 def _has_matching_open_bracket(text: str, closing_index: int) -> bool:
     if _is_escaped(text, closing_index):
         return False
-    depth = 0
+    depth = 1
     for index in range(closing_index - 1, -1, -1):
         if _is_escaped(text, index):
             continue
         if text[index] == "]":
             depth += 1
         elif text[index] == "[":
-            if depth == 0:
-                return False
             depth -= 1
             if depth == 0:
                 return True
