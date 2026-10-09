@@ -131,6 +131,7 @@ def _publish_partition(
     catalog: object, database: str, bucket: str, run_id: str
 ) -> None:
     """Expose an accepted prefix only after every deterministic artifact is stored."""
+    location = f"s3://{bucket}/curated/accepted/{run_id}/"
     try:
         catalog.create_partition(
             DatabaseName=database,
@@ -140,7 +141,7 @@ def _publish_partition(
                 "StorageDescriptor": {
                     "Columns": list(GLUE_PARTITION_COLUMNS),
                     "InputFormat": "org.apache.hadoop.mapred.TextInputFormat",
-                    "Location": f"s3://{bucket}/curated/accepted/{run_id}/",
+                    "Location": location,
                     "OutputFormat": "org.apache.hadoop.hive.ql.io.HiveIgnoreKeyTextOutputFormat",
                     "SerdeInfo": {
                         "Parameters": {"ignore.malformed.jsons": "false"},
@@ -151,12 +152,20 @@ def _publish_partition(
         )
     except Exception as exc:
         # S3 events can be retried or delivered concurrently for the same content hash.
-        # A previously registered partition is safe because it was created after all
-        # three immutable artifacts were written by this same content-addressed run.
         response = getattr(exc, "response", None)
         error = response.get("Error", {}) if isinstance(response, dict) else {}
         if error.get("Code") != "AlreadyExistsException":
             raise
+        existing = catalog.get_partition(
+            DatabaseName=database,
+            TableName="normalized_events",
+            PartitionValues=[run_id],
+        ).get("Partition", {})
+        existing_location = existing.get("StorageDescriptor", {}).get("Location")
+        if existing.get("Values") != [run_id] or existing_location != location:
+            raise RuntimeError(
+                "existing Glue partition does not match this content-addressed run"
+            ) from exc
 
 
 def _body_bytes(body: object) -> bytes:
