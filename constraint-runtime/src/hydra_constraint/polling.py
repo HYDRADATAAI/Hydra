@@ -242,7 +242,7 @@ class PollRunner:
         statuses=[]; hashes=[]; delays=[]; response=None; error=None
         for attempt in range(1,spec.backoff.max_attempts+1):
             try:
-                if isinstance(self.transport,UrllibTransport):
+                if type(self.transport) is UrllibTransport:
                     response=self.transport.fetch(spec.url,spec.headers,max_bytes=self.max_response_bytes)
                 else:
                     response=self.transport.fetch(spec.url,spec.headers)
