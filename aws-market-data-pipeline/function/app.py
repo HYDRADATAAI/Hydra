@@ -235,11 +235,46 @@ def _publish_partition(
             TableName="normalized_events",
             PartitionValues=[run_id],
         ).get("Partition", {})
-        existing_location = existing.get("StorageDescriptor", {}).get("Location")
-        if existing.get("Values") != [run_id] or existing_location != location:
+        if not _partition_matches(existing, run_id, location):
             raise RuntimeError(
                 "existing Glue partition does not match this content-addressed run"
             ) from exc
+
+
+def _partition_matches(partition: object, run_id: str, location: str) -> bool:
+    if not isinstance(partition, dict) or partition.get("Values") != [run_id]:
+        return False
+    descriptor = partition.get("StorageDescriptor")
+    if not isinstance(descriptor, dict) or descriptor.get("Location") != location:
+        return False
+
+    columns = descriptor.get("Columns")
+    if not isinstance(columns, list):
+        return False
+    actual_columns = []
+    for column in columns:
+        if not isinstance(column, dict):
+            return False
+        actual_columns.append({"Name": column.get("Name"), "Type": column.get("Type")})
+    if actual_columns != list(GLUE_PARTITION_COLUMNS):
+        return False
+    if descriptor.get("InputFormat") != "org.apache.hadoop.mapred.TextInputFormat":
+        return False
+    if descriptor.get("OutputFormat") != (
+        "org.apache.hadoop.hive.ql.io.HiveIgnoreKeyTextOutputFormat"
+    ):
+        return False
+
+    serde = descriptor.get("SerdeInfo")
+    if not isinstance(serde, dict):
+        return False
+    parameters = serde.get("Parameters")
+    return (
+        serde.get("SerializationLibrary") == "org.openx.data.jsonserde.JsonSerDe"
+        and isinstance(parameters, dict)
+        and parameters.get("ignore.malformed.jsons") == "false"
+    )
+
 
 def _body_bytes(body: object, *, max_bytes: int) -> bytes:
     if isinstance(body, bytes):
