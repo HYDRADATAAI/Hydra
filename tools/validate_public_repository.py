@@ -988,12 +988,38 @@ def validate_ci_contract(errors: list[str]) -> None:
     hygiene_workflow = (
         ROOT / ".github/workflows/public-root-hygiene.yml"
     ).read_text(encoding="utf-8-sig")
-    for fragment in (
-        'python -m unittest discover -s tools -p "test_public_root_hygiene.py" -v',
-        "python tools/public_root_hygiene.py",
-    ):
-        if fragment not in hygiene_workflow:
-            errors.append(f"public-root hygiene CI contract missing: {fragment}")
+    hygiene_job = workflow_job_block(hygiene_workflow, "public-root-hygiene")
+    if hygiene_job is None:
+        errors.append("public-root hygiene CI job is missing")
+    else:
+        expected_hygiene_steps = {
+            "Test tracked artifact path policy":
+                'python -m unittest discover -s tools -p "test_public_root_hygiene.py" -v',
+            "Reject tracked build-transfer artifacts":
+                "python tools/public_root_hygiene.py",
+        }
+        hygiene_steps = workflow_steps(hygiene_job)
+        for step_name, command in expected_hygiene_steps.items():
+            matching = [
+                block for name, block in hygiene_steps if name == step_name
+            ]
+            if len(matching) != 1:
+                errors.append(
+                    f"public-root hygiene CI step must appear exactly once: {step_name}"
+                )
+                continue
+            if workflow_step_scalar(matching[0], "run") != [command]:
+                errors.append(
+                    f"public-root hygiene CI step has an unexpected command: {step_name}"
+                )
+            if workflow_step_scalar(matching[0], "if"):
+                errors.append(
+                    f"public-root hygiene CI step must be unconditional: {step_name}"
+                )
+            if workflow_step_scalar(matching[0], "continue-on-error"):
+                errors.append(
+                    f"public-root hygiene CI step must fail closed: {step_name}"
+                )
     documentation_contracts = {
         ROOT / "README.md": (
             "15-member deterministic proof package intentionally includes",
