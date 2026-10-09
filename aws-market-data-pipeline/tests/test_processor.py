@@ -4,6 +4,7 @@ import json
 import tempfile
 import unittest
 from pathlib import Path
+from unittest.mock import patch
 
 from function.processor import ContractError, TRANSFORM_VERSION, process_csv
 
@@ -85,6 +86,29 @@ class ProcessorTests(unittest.TestCase):
         )
         self.assertNotEqual(first["quarantine_id"], second["quarantine_id"])
         self.assertEqual(first, quarantine("overflow-one"))
+
+    def test_transform_version_change_changes_run_id_for_same_overflow_source(self):
+        header = (
+            "source_system,source_record_id,symbol,event_time,price,volume,currency,venue"
+        )
+        row = "SYNTH_A,record-1,AAA,2026-09-24T17:30:00Z,1.25,10,USD,X"
+        source = f"{header}\n{row},overflow\n".encode("utf-8")
+
+        with patch(
+            "function.processor.TRANSFORM_VERSION",
+            "hydra-aws-market-normalizer/v1",
+        ):
+            version_one = process_csv(source)
+        current = process_csv(source)
+
+        self.assertEqual(version_one.source_file_sha256, current.source_file_sha256)
+        self.assertNotEqual(version_one.run_id, current.run_id)
+        self.assertTrue(
+            all(
+                record["transform_version"] == "hydra-aws-market-normalizer/v2"
+                for record in current.quarantined
+            )
+        )
 
     def test_file_contract_fails_closed(self):
         malformed = b"symbol,price\nAAA,1.0\n"
