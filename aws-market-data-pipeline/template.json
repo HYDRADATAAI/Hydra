@@ -127,7 +127,8 @@
         "CodeUri": "function/",
         "Environment": {
           "Variables": {
-            "CURATED_BUCKET": {"Ref": "CuratedBucket"}
+            "CURATED_BUCKET": {"Ref": "CuratedBucket"},
+            "DATA_CATALOG_DATABASE": {"Ref": "DataCatalogDatabaseName"}
           }
         },
         "Events": {
@@ -166,6 +167,15 @@
                 "Resource": {
                   "Fn::Sub": "arn:${AWS::Partition}:s3:::${CuratedBucketName}/curated/*"
                 }
+              },
+              {
+                "Effect": "Allow",
+                "Action": ["glue:CreatePartition"],
+                "Resource": [
+                  {"Fn::Sub": "arn:${AWS::Partition}:glue:${AWS::Region}:${AWS::AccountId}:catalog"},
+                  {"Fn::Sub": "arn:${AWS::Partition}:glue:${AWS::Region}:${AWS::AccountId}:database/${DataCatalogDatabaseName}"},
+                  {"Fn::Sub": "arn:${AWS::Partition}:glue:${AWS::Region}:${AWS::AccountId}:table/${DataCatalogDatabaseName}/normalized_events"}
+                ]
               }
             ]
           }
@@ -208,12 +218,12 @@
           "Description": "Accepted synthetic HYDRA market events",
           "Name": "normalized_events",
           "Parameters": {"classification": "json"},
+          "PartitionKeys": [{"Name": "pipeline_run_id", "Type": "string"}],
           "StorageDescriptor": {
             "Columns": [
               {"Name": "currency", "Type": "string"},
               {"Name": "event_id", "Type": "string"},
               {"Name": "event_time_utc", "Type": "string"},
-              {"Name": "pipeline_run_id", "Type": "string"},
               {"Name": "price", "Type": "string"},
               {"Name": "raw_record_sha256", "Type": "string"},
               {"Name": "source_file_sha256", "Type": "string"},
