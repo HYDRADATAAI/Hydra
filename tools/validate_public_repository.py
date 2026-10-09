@@ -56,6 +56,8 @@ REQUIRED_PATHS = (
     "aws-market-data-pipeline/tests/test_processor.py",
     "aws-market-data-pipeline/tests/test_lambda_handler.py",
     "aws-market-data-pipeline/tests/test_template.py",
+    "aws-market-data-pipeline/tests/test_athena_query_results.py",
+    "aws-market-data-pipeline/verify_athena_query_results.py",
     "aws-market-data-pipeline/sql/create_committed_normalized_events.sql",
     "sql-data-quality-sample/README.md",
     "sql-data-quality-sample/fixtures/synthetic_market_events.csv",
@@ -1221,9 +1223,6 @@ def validate_ci_contract(errors: list[str]) -> None:
         "sql/create_committed_normalized_events.sql",
         "FROM committed_normalized_events",
         "COUNT(*) AS accepted_rows FROM committed_normalized_events",
-        "if accepted_rows != 3:",
-        "expected 3 accepted rows from committed view",
-        "ATHENA_ACCEPTED_ROWS",
         '"athena_accepted_rows": int(os.environ["ATHENA_ACCEPTED_ROWS"]),',
         "start-query-execution",
         "--page-size 1000",
@@ -1237,27 +1236,36 @@ def validate_ci_contract(errors: list[str]) -> None:
         if fragment not in deploy_workflow:
             errors.append(f"aws-deploy workflow contract missing: {fragment}")
 
-    count_query_start = deploy_workflow.find(
-        'query="SELECT COUNT(*) AS accepted_rows FROM committed_normalized_events"'
-    )
-    if count_query_start >= 0:
-        success_start = deploy_workflow.find(
-            'if [[ "$state" == "SUCCEEDED" ]]; then', count_query_start
+    try:
+        deploy_document = yaml.load(deploy_workflow, Loader=yaml.BaseLoader)
+        deploy_job = deploy_document["jobs"]["deploy-and-verify"]
+        athena_steps = [
+            step
+            for step in deploy_job["steps"]
+            if isinstance(step, dict)
+            and step.get("name") == "Run bounded Athena verification query"
+        ]
+        expected_verifier = (
+            'python "$SAMPLE_DIR/verify_athena_query_results.py" '
+            '--results-path "$SAMPLE_DIR/build/deployed/athena_query_results.json" '
+            '--github-env "$GITHUB_ENV"'
         )
-        failed_start = deploy_workflow.find(
-            'if [[ "$state" == "FAILED" || "$state" == "CANCELLED" ]]; then',
-            success_start if success_start >= 0 else count_query_start,
-        )
-        if success_start < 0 or failed_start < 0:
-            errors.append("aws-deploy accepted-row query success branch changed")
+        if len(athena_steps) != 1:
+            errors.append("aws-deploy Athena verification step count changed")
         else:
-            success_block = deploy_workflow[success_start:failed_start]
-            result_read = success_block.find("aws athena get-query-results")
-            count_guard = success_block.find("if accepted_rows != 3:")
-            if result_read < 0 or count_guard < 0 or result_read > count_guard:
+            run_script = athena_steps[0].get("run", "")
+            result_read = 'aws athena get-query-results --query-execution-id "$QUERY_ID" > "$SAMPLE_DIR/build/deployed/athena_query_results.json"'
+            if (
+                not isinstance(run_script, str)
+                or result_read not in run_script
+                or expected_verifier not in run_script
+                or run_script.index(result_read) > run_script.index(expected_verifier)
+            ):
                 errors.append(
-                    "aws-deploy accepted-row count guard must follow result retrieval in the Athena success branch"
+                    "aws-deploy Athena success step must save results before invoking the row-count verifier"
                 )
+    except (KeyError, TypeError, yaml.YAMLError, ValueError) as exc:
+        errors.append(f"aws-deploy Athena verification step is invalid: {exc}")
 
     if re.search(r"(?m)^  (?:pull_request|push):", deploy_workflow):
         errors.append("aws-deploy workflow must remain manual-only")
