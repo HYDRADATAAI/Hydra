@@ -49,19 +49,26 @@ def lambda_handler(
                 f"source object exceeds max_source_object_bytes={max_source_object_bytes}"
             )
         response = client.get_object(Bucket=source_bucket, Key=source_key)
-        content_length = response.get("ContentLength")
-        if content_length is not None:
-            if type(content_length) is not int or content_length < 0:
-                raise ValueError("S3 get_object ContentLength must be a non-negative integer")
-            if content_length > max_source_object_bytes:
-                raise ValueError(
-                    f"source object exceeds max_source_object_bytes={max_source_object_bytes}"
-                )
-            if event_object_size is not None and content_length != event_object_size:
-                raise ValueError("S3 event object size does not match get_object ContentLength")
-        source_bytes = _body_bytes(
-            response["Body"], max_bytes=max_source_object_bytes
-        )
+        body = response["Body"]
+        try:
+            content_length = response.get("ContentLength")
+            if content_length is not None:
+                if type(content_length) is not int or content_length < 0:
+                    raise ValueError(
+                        "S3 get_object ContentLength must be a non-negative integer"
+                    )
+                if content_length > max_source_object_bytes:
+                    raise ValueError(
+                        f"source object exceeds max_source_object_bytes={max_source_object_bytes}"
+                    )
+                if event_object_size is not None and content_length != event_object_size:
+                    raise ValueError(
+                        "S3 event object size does not match get_object ContentLength"
+                    )
+        except Exception:
+            _close_body(body)
+            raise
+        source_bytes = _body_bytes(body, max_bytes=max_source_object_bytes)
         if content_length is not None and len(source_bytes) != content_length:
             raise ValueError("S3 response body length does not match ContentLength")
         batch = process_csv(source_bytes)
@@ -171,9 +178,13 @@ def _body_bytes(body: object, *, max_bytes: int) -> bytes:
             chunks.append(chunk)
         return b"".join(chunks)
     finally:
-        close = getattr(body, "close", None)
-        if callable(close):
-            close()
+        _close_body(body)
+
+
+def _close_body(body: object) -> None:
+    close = getattr(body, "close", None)
+    if callable(close):
+        close()
 
 
 def _boto3_s3_client() -> object:
