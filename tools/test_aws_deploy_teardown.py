@@ -315,6 +315,20 @@ class DeployTeardownOwnershipTests(unittest.TestCase):
         self.assertTrue(any(call[:2] == ["cloudformation", "describe-stack-resources"] for call in logs["aws"]))
         self.assertTrue(logs["sam"])
 
+    def test_poll_limit_exhaustion_fails_before_resource_lookup_or_cleanup(self):
+        result, logs = self.run_teardown(
+            status="CREATE_IN_PROGRESS",
+            status_sequence=["CREATE_IN_PROGRESS"],
+        )
+        self.assertNotEqual(result.returncode, 0, result.stdout + result.stderr)
+        status_queries = [call for call in logs["aws"] if call[:2] == ["cloudformation", "describe-stacks"] and "--query" in call]
+        resource_lookups = [call for call in logs["aws"] if call[:2] == ["cloudformation", "describe-stack-resources"]]
+        self.assertEqual(len(status_queries), 360)
+        self.assertEqual(len(logs["sleep"]), 360)
+        self.assertFalse(resource_lookups)
+        self.assertFalse(logs["cleanup"])
+        self.assertFalse(logs["sam"])
+
     def test_version_cleanup_follows_next_token_before_stack_delete(self):
         result, logs = self.run_teardown()
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
