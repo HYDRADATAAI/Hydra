@@ -1240,6 +1240,13 @@ def validate_ci_contract(errors: list[str]) -> None:
     validation_workflow = (
         ROOT / ".github/workflows/public-repository-validation.yml"
     ).read_text(encoding="utf-8-sig")
+    validation_test_fragments = (
+        '"tools/test_aws_deploy_teardown.py"',
+        "python -m unittest tools.test_aws_deploy_teardown -v",
+    )
+    for fragment in validation_test_fragments:
+        if fragment not in validation_workflow:
+            errors.append(f"public-repository-validation CI contract missing: {fragment}")
     for label, workflow in (
         ("governed-intelligence", intelligence_workflow),
         ("public-repository-validation", validation_workflow),
