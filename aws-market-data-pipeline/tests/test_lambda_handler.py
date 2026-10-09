@@ -223,12 +223,13 @@ class LambdaHandlerTests(unittest.TestCase):
         }
 
         matching_glue = FakeGlue(existing_partition=expected_partition)
-        lambda_handler(
-            s3_event(size=len(source)),
-            None,
-            s3_client=FakeS3(source),
-            glue_client=matching_glue,
-        )
+        with patch.dict(os.environ, {"CURATED_BUCKET": "curated"}):
+            lambda_handler(
+                s3_event(size=len(source)),
+                None,
+                s3_client=FakeS3(source),
+                glue_client=matching_glue,
+            )
         self.assertEqual(len(matching_glue.get_partition_calls), 1)
 
         mismatch = {
@@ -236,12 +237,13 @@ class LambdaHandlerTests(unittest.TestCase):
             "StorageDescriptor": {"Location": "s3://curated/wrong-prefix/"},
         }
         with self.assertRaisesRegex(RuntimeError, "does not match"):
-            lambda_handler(
-                s3_event(size=len(source)),
-                None,
-                s3_client=FakeS3(source),
-                glue_client=FakeGlue(existing_partition=mismatch),
-            )
+            with patch.dict(os.environ, {"CURATED_BUCKET": "curated"}):
+                lambda_handler(
+                    s3_event(size=len(source)),
+                    None,
+                    s3_client=FakeS3(source),
+                    glue_client=FakeGlue(existing_partition=mismatch),
+                )
 
     def test_failed_artifact_write_never_registers_queryable_partition(self):
         source = FIXTURE.read_bytes()
