@@ -6,7 +6,7 @@ import unittest
 from pathlib import Path
 from unittest.mock import patch
 
-from function.app import lambda_handler
+from function.app import GLUE_PARTITION_COLUMNS, lambda_handler
 from function.processor import process_csv
 
 
@@ -369,7 +369,14 @@ class LambdaHandlerTests(unittest.TestCase):
         expected_partition = {
             "Values": [expected.run_id],
             "StorageDescriptor": {
-                "Location": f"s3://curated/curated/accepted/{expected.run_id}/"
+                "Columns": list(GLUE_PARTITION_COLUMNS),
+                "InputFormat": "org.apache.hadoop.mapred.TextInputFormat",
+                "Location": f"s3://curated/curated/accepted/{expected.run_id}/",
+                "OutputFormat": "org.apache.hadoop.hive.ql.io.HiveIgnoreKeyTextOutputFormat",
+                "SerdeInfo": {
+                    "Parameters": {"ignore.malformed.jsons": "false"},
+                    "SerializationLibrary": "org.openx.data.jsonserde.JsonSerDe",
+                },
             },
         }
 
@@ -382,6 +389,21 @@ class LambdaHandlerTests(unittest.TestCase):
                 glue_client=matching_glue,
             )
             self.assertEqual(len(matching_glue.get_partition_calls), 1)
+
+            malformed_descriptor = {
+                "Values": [expected.run_id],
+                "StorageDescriptor": {
+                    **expected_partition["StorageDescriptor"],
+                    "Columns": [{"Name": "symbol", "Type": "integer"}],
+                },
+            }
+            with self.assertRaisesRegex(RuntimeError, "does not match"):
+                lambda_handler(
+                    s3_event(),
+                    None,
+                    s3_client=FakeS3(source),
+                    glue_client=FakeGlue(existing_partition=malformed_descriptor),
+                )
 
             mismatch = {
                 "Values": [expected.run_id],
