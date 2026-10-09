@@ -22,9 +22,9 @@ class ProcessorTests(unittest.TestCase):
     def test_row_limit_is_enforced_before_batch_outputs_are_built(self):
         self.assertEqual(MAX_SOURCE_ROWS, 10_000)
         header = (
-            b"source_system,source_record_id,symbol,event_time,price,volume,currency,venue\\n"
+            b"source_system,source_record_id,symbol,event_time,price,volume,currency,venue\n"
         )
-        row = b"SYNTH_A,a-001,AAA,2026-09-24T17:30:00Z,1.25,1,USD,XNAS\\n"
+        row = b"SYNTH_A,a-001,AAA,2026-09-24T17:30:00Z,1.25,1,USD,XNAS\n"
 
         with patch("function.processor.MAX_SOURCE_ROWS", 1):
             one_row = process_csv(header + row)
