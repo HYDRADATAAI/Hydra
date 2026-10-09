@@ -142,9 +142,6 @@ STALE_PUBLIC_PHRASES = (
 MARKDOWN_REFERENCE_DEFINITION = re.compile(
     r"(?im)^[ \t]{0,3}\[[^\]]+\]:[ \t]*(?:<([^>\n]+)>|([^\s]+))"
 )
-FENCED_CODE = re.compile(
-    r"(?ms)^[ \t]{0,3}(\x60{3,}|~{3,})[^\n]*(?:\n|$).*?^[ \t]{0,3}\1[ \t]*$"
-)
 INLINE_CODE_SPAN = re.compile(r"(\x60+)(.*?)\1", re.DOTALL)
 MARKDOWN_INLINE_OPEN = re.compile(r"^[ \t]{0,3}([~\x60]{3,})")
 
@@ -330,7 +327,7 @@ def local_target(source: Path, reference: str) -> Path | None:
     else:
         target = (source.parent / path_text).resolve()
     if not target.is_relative_to(ROOT):
-        return ROOT / ".invalid-outside-repository-link"
+        raise ValueError("local document link escapes the repository")
     return target
 
 
@@ -388,7 +385,14 @@ def validate_markdown_links(errors: list[str]) -> None:
     for path in sorted(markdown_files):
         text = path.read_text(encoding="utf-8-sig")
         for reference in document_link_references(text):
-            target = local_target(path, reference)
+            try:
+                target = local_target(path, reference)
+            except ValueError:
+                errors.append(
+                    f"document link escapes repository: "
+                    f"{path.relative_to(ROOT).as_posix()} -> {reference}"
+                )
+                continue
             if target is not None and not target.exists():
                 errors.append(
                     f"broken document link: {path.relative_to(ROOT).as_posix()} -> {reference}"
