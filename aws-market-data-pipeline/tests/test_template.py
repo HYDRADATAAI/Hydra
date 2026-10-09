@@ -124,6 +124,9 @@ class TemplateContractTests(unittest.TestCase):
         workflow = (ROOT.parent / ".github" / "workflows" / "aws-market-data-deploy.yml").read_text(encoding="utf-8")
         self.assertIn("sql/create_committed_normalized_events.sql", workflow)
         self.assertIn("FROM committed_normalized_events", workflow)
+        self.assertIn(
+            "WHERE pipeline_run_id = '$RUN_ID'", workflow
+        )
 
     def test_glue_reads_only_accepted_prefix_and_athena_is_bounded(self):
         table = TEMPLATE["Resources"]["NormalizedEventsTable"]["Properties"]
