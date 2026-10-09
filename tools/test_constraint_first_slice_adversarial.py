@@ -317,6 +317,50 @@ def case_batch008_as_of_changed(root: Path) -> None:
     mutate_json(root, relative, mutate)
 
 
+def case_batch008_duplicate_artifact_row(root: Path) -> None:
+    relative = (
+        "docs/constraint/validation/"
+        "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH008_ARTIFACT_MANIFEST_V002_20261009.json"
+    )
+
+    def mutate(doc: dict) -> None:
+        doc["artifacts"].append(dict(doc["artifacts"][0]))
+
+    mutate_json(root, relative, mutate)
+
+
+def case_batch008_nonworkflow_digest_changed(root: Path) -> None:
+    relative = (
+        "docs/constraint/validation/"
+        "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH008_ARTIFACT_MANIFEST_V002_20261009.json"
+    )
+
+    def mutate(doc: dict) -> None:
+        row = next(
+            item for item in doc["artifacts"]
+            if item["path"] == "constraint-t1-raw-artifact-store/README.md"
+        )
+        row["git_blob_sha"] = "0" * 40
+
+    mutate_json(root, relative, mutate)
+
+
+def case_batch008_workflow_digest_changed(root: Path) -> None:
+    relative = (
+        "docs/constraint/validation/"
+        "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH008_ARTIFACT_MANIFEST_V002_20261009.json"
+    )
+
+    def mutate(doc: dict) -> None:
+        row = next(
+            item for item in doc["artifacts"]
+            if item["path"] == ".github/workflows/constraint-t1-raw-artifact-store.yml"
+        )
+        row["git_blob_sha"] = "0" * 40
+
+    mutate_json(root, relative, mutate)
+
+
 def case_batch008_predecessor_rewritten(root: Path) -> None:
     relative = (
         "docs/constraint/validation/"
@@ -362,6 +406,9 @@ def main() -> int:
         ("batch008_successor_preservation_removed", case_batch008_successor_preservation_removed, "Batch008 V002 supersession binding changed"),
         ("batch008_base_head_changed", case_batch008_base_head_changed, "Batch008 successor base_head changed"),
         ("batch008_as_of_changed", case_batch008_as_of_changed, "Batch008 successor as_of changed"),
+        ("batch008_duplicate_artifact_row", case_batch008_duplicate_artifact_row, "Batch008 successor artifact set changed"),
+        ("batch008_nonworkflow_digest_changed", case_batch008_nonworkflow_digest_changed, "Batch008 successor changed non-workflow artifact: constraint-t1-raw-artifact-store/README.md"),
+        ("batch008_workflow_digest_changed", case_batch008_workflow_digest_changed, "Batch008 successor workflow pin digest changed"),
         ("batch008_predecessor_rewritten", case_batch008_predecessor_rewritten, "Batch008 V001 manifest was rewritten"),
     ]
     for name, mutator, expected in cases:
