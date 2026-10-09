@@ -143,9 +143,9 @@ MARKDOWN_REFERENCE_DEFINITION = re.compile(
     r"(?im)^[ \t]{0,3}\[[^\]]+\]:[ \t]*(?:<([^>\n]+)>|([^\s]+))"
 )
 FENCED_CODE = re.compile(
-    r"(?ms)^[ \t]{0,3}(\`{3,}|~{3,})[^\n]*(?:\n|$).*?^[ \t]{0,3}\1[ \t]*$"
+    r"(?ms)^[ \t]{0,3}(\x60{3,}|~{3,})[^\n]*(?:\n|$).*?^[ \t]{0,3}\1[ \t]*$"
 )
-INLINE_CODE_SPAN = re.compile(r"(\`+)(.*?)\1", re.DOTALL)
+INLINE_CODE_SPAN = re.compile(r"(\x60+)(.*?)\1", re.DOTALL)
 
 
 class HTMLLocalReferenceParser(HTMLParser):
@@ -241,6 +241,7 @@ def document_link_references(text: str) -> list[str]:
     html_parser.close()
     references.extend(html_parser.references)
     return references
+
 
 def clean_reference(reference: str) -> str:
     value = reference.strip().strip("'\"")
