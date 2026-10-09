@@ -25,6 +25,23 @@ class AthenaDeployValidatorContractTests(unittest.TestCase):
         )
         self.assertTrue(athena_success_commands_are_valid(step.get("run")))
 
+    def test_missing_run_filter_does_not_satisfy_contract(self):
+        root = Path(__file__).resolve().parents[1]
+        workflow = yaml.load(
+            (root / ".github/workflows/aws-market-data-deploy.yml").read_text(
+                encoding="utf-8"
+            ),
+            Loader=yaml.BaseLoader,
+        )
+        steps = workflow["jobs"]["deploy-and-verify"]["steps"]
+        step = next(
+            step
+            for step in steps
+            if step.get("name") == "Run bounded Athena verification query"
+        )
+        invalid = step["run"].replace(" WHERE pipeline_run_id = '$RUN_ID'", "")
+        self.assertFalse(athena_success_commands_are_valid(invalid))
+
     def test_comment_only_commands_do_not_satisfy_contract(self):
         script = """if [[ "$state" == "SUCCEEDED" ]]; then
   # aws athena get-query-results --query-execution-id "$QUERY_ID" > "$SAMPLE_DIR/build/deployed/athena_query_results.json"
