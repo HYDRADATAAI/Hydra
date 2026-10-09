@@ -206,14 +206,18 @@ class PollRunner:
 
     @staticmethod
     def _request_interval(spec):
-        if (
-            isinstance(spec.max_rps,bool)
-            or not isinstance(spec.max_rps,(int,float))
-            or not math.isfinite(spec.max_rps)
-            or spec.max_rps<=0
-        ):
+        if isinstance(spec.max_rps,bool) or not isinstance(spec.max_rps,(int,float)):
             raise ValueError("max_rps must be finite and greater than zero")
-        return 1.0/spec.max_rps
+        try:
+            rate=float(spec.max_rps)
+        except (OverflowError,ValueError):
+            raise ValueError("max_rps must be finite and greater than zero") from None
+        if not math.isfinite(rate) or rate<=0:
+            raise ValueError("max_rps must be finite and greater than zero")
+        interval=1.0/rate
+        if not math.isfinite(interval):
+            raise ValueError("max_rps is too small to pace safely")
+        return interval
 
     def _pace_request(self,spec,interval):
         last=self._last_request_at.get(spec.name)
