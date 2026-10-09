@@ -65,14 +65,15 @@ class DocumentLinkValidationTests(unittest.TestCase):
     def test_code_spans_and_fences_are_not_links(self):
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
-            errors = self.validate_markdown(
-                root,
+            markdown = (
                 "Example `[missing](missing.md) <a href='also-missing.html'>`\n"
                 "```html\n"
                 "<a href='fenced-missing.html'>example</a>\n"
                 "[example](fenced-missing.md)\n"
-                "```\n",
+                "```\n"
             )
+            self.assertEqual(validator.document_link_references(markdown), [])
+            errors = self.validate_markdown(root, markdown)
         self.assertEqual(errors, [])
 
     def test_longer_tilde_fence_closer_hides_code_links(self):
@@ -87,6 +88,7 @@ class DocumentLinkValidationTests(unittest.TestCase):
             self.assertEqual(validator.document_link_references(markdown), [])
             errors = self.validate_markdown(root, markdown)
         self.assertEqual(errors, [])
+
     def test_outside_target_fails_when_old_sentinel_exists(self):
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
@@ -112,17 +114,27 @@ class DocumentLinkValidationTests(unittest.TestCase):
             docs = root / "docs"
             docs.mkdir()
             (docs / "guide.md").write_text("guide", encoding="utf-8")
-            errors = self.validate_markdown(
-                root,
+            markdown = (
                 "[inline](guide.md#start) [reference][guide]\n"
                 "[guide]: <guide.md?view=1> \"Guide\"\n"
                 '<a href="https://example.com/page">external</a>\n'
                 '<a href="mailto:team@example.com">email</a>\n'
                 '<a href="#section">fragment</a>\n'
-                '<img src="data:image/gif;base64,R0lGODlhAQABAAAAACw=">\n',
+                '<img src="data:image/gif;base64,R0lGODlhAQABAAAAACw=">\n'
             )
+            self.assertEqual(
+                validator.document_link_references(markdown),
+                [
+                    "guide.md#start",
+                    "guide.md?view=1",
+                    "https://example.com/page",
+                    "mailto:team@example.com",
+                    "#section",
+                    "data:image/gif;base64,R0lGODlhAQABAAAAACw=",
+                ],
+            )
+            errors = self.validate_markdown(root, markdown)
         self.assertEqual(errors, [])
-
 
 if __name__ == "__main__":
     unittest.main()
