@@ -47,7 +47,7 @@ if [[ "$state" == "FAILED" || "$state" == "CANCELLED" ]]; then
   exit 1
 fi
 """
-        invalid = script.replace(" \\\n    --results-path", " \\ \n    --results-path")
+        invalid = script.replace(chr(92) + "\n", chr(92) + " \n")
         self.assertFalse(athena_success_commands_are_valid(invalid))
 
 

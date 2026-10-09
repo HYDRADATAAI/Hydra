@@ -962,17 +962,1549 @@ def workflow_action_ref_is_pinned(action_ref: str) -> bool:
     return re.fullmatch(r"[0-9a-f]{40}", revision) is not None
 
 
+
 def athena_success_commands_are_valid(run_script: object) -> bool:
     """Require active result retrieval and verifier commands in the SUCCEEDED branch."""
     if not isinstance(run_script, str):
         return False
 
     success = re.search(
-        r'(?m)^[ \t]*if \[\[ "\$state" == "SUCCEEDED" \]\]; then[ \t]*$',
+        r'(?m)^[ \t]*if \[\[ "\$state" == "SUCCEEDED" \]\]; then[ \t]*    validate_manifest_v2_replay_contract(errors)
+    validate_pre_upload_verifier_contract(errors)
+
+    workflow_dir = ROOT / ".github" / "workflows"
+    workflow_files = sorted(
+        list(workflow_dir.glob("*.yml")) + list(workflow_dir.glob("*.yaml"))
+    )
+    for workflow_path in workflow_files:
+        try:
+            action_refs = workflow_action_refs(
+                workflow_path.read_text(encoding="utf-8-sig")
+            )
+        except (OSError, yaml.YAMLError, ValueError) as exc:
+            errors.append(
+                f"unable to parse workflow actions in "
+                f"{workflow_path.relative_to(ROOT)}: {exc}"
+            )
+            continue
+        for action_ref in action_refs:
+            if not workflow_action_ref_is_pinned(action_ref):
+                errors.append(
+                    f"workflow action must use a full commit SHA or image digest: "
+                    f"{workflow_path.relative_to(ROOT)}: {action_ref}"
+                )
+    documentation_contracts = {
+        ROOT / "README.md": (
+            "15-member deterministic proof package intentionally includes",
+            "all 7 rows are synthetic, including rows designed to quarantine",
+            "Governed context, retrieval, and receipt artifacts remain accepted-only or aggregate-only",
+            "do not expose quarantined row payloads",
+        ),
+        INTELLIGENCE_SAMPLE / "README.md": (
+            "deterministic, uncompressed 15-member ZIP",
+            "all 7 synthetic rows, including rows designed to quarantine",
+            "canonical `resolved_symbol_aliases.json`",
+            "`INPUT_SNAPSHOTS_VERIFIED=2`",
+            "`SOURCE_ROWS_REPLAYED=7`",
+            "do not expose quarantined row payloads",
+        ),
+        PIPELINE / "README.md": (
+            "15-member proof package intentionally carries the exact source snapshot",
+            "all 7 synthetic rows, including rows designed to quarantine",
+            "canonical resolved aliases",
+            "do not expose quarantined row payloads",
+        ),
+    }
+    for path, fragments in documentation_contracts.items():
+        text = path.read_text(encoding="utf-8-sig")
+        for fragment in fragments:
+            if fragment not in text:
+                errors.append(
+                    f"manifest-v2 public documentation contract missing: {path.name}: {fragment}"
+                )
+    validator_workflow = (ROOT / ".github/workflows/t6-validator.yml").read_text(
+        encoding="utf-8-sig"
+    )
+    validator_fragments = (
+        'python-version: "3.11"',
+        "python -m unittest discover -s tests -t . -v",
+        "working-directory: t6-fail-closed-validator",
+    )
+    for fragment in validator_fragments:
+        if fragment not in validator_workflow:
+            errors.append(f"validator CI contract missing: {fragment}")
+
+    pipeline_workflow = (ROOT / ".github/workflows/market-data-pipeline.yml").read_text(
+        encoding="utf-8-sig"
+    )
+    pipeline_fragments = (
+        'python-version: "3.11"',
+        "PYTHONPATH: src",
+        "python -m unittest discover -s tests -t . -v",
+        "--output-dir build/demo",
+        '"hydra-market-pipeline-manifest/v2"',
+        '"resolved_symbol_aliases.json"',
+        '"source_snapshot.csv"',
+        'print("INPUT_SNAPSHOTS_VERIFIED=2")',
+        'print("SOURCE_ROWS_SNAPSHOT_VERIFIED=7")',
+        "python run_recovery_demo.py --output-dir build/operations",
+        "OPERATIONS_RECEIPT=PASS",
+        "actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+        "actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065",
+        "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02",
+        "actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093",
+        "name: hydra-market-data-pipeline-sample",
+        "name: Download published pipeline outputs",
+        "name: Verify published pipeline artifact round-trip",
+        "PUBLISHED_PIPELINE_ARTIFACT=PASS",
+    )
+    for fragment in pipeline_fragments:
+        if fragment not in pipeline_workflow:
+            errors.append(f"market-pipeline CI contract missing: {fragment}")
+    pipeline_job = workflow_job_block(pipeline_workflow, "test-and-build")
+    if pipeline_job is None:
+        errors.append("market-pipeline CI test-and-build job is missing")
+    else:
+        if re.search(r"(?m)^    if\s*:", pipeline_job):
+            errors.append("market-pipeline CI job must be unconditional")
+        if re.search(r"(?m)^    continue-on-error\s*:", pipeline_job):
+            errors.append("market-pipeline CI job must fail closed")
+
+        pipeline_steps = workflow_steps(pipeline_job)
+        artifact_step_names = (
+            "Publish synthetic pipeline outputs",
+            "Download published pipeline outputs",
+            "Verify published pipeline artifact round-trip",
+        )
+        names = [name for name, _ in pipeline_steps]
+        if tuple(names[-3:]) != artifact_step_names or any(
+            names.count(name) != 1 for name in artifact_step_names
+        ):
+            errors.append("market-pipeline CI artifact steps must be unique and ordered last")
+
+        pipeline_action_pins = {
+            "actions/checkout": "11d5960a326750d5838078e36cf38b85af677262",
+            "actions/setup-python": "a26af69be951a213d495a4c3e4e4022e16d87065",
+            "actions/upload-artifact": "ea165f8d65b6e75b540449e92b4886f43607fa02",
+            "actions/download-artifact": "d3f86a106a0bac45b974a628896c90dbdf5c8093",
+        }
+        for action, expected_sha in pipeline_action_pins.items():
+            refs = re.findall(
+                rf"(?m)^\s*uses:\s*{re.escape(action)}@([^\s#]+)",
+                pipeline_workflow,
+            )
+            if not refs or any(ref != expected_sha for ref in refs):
+                errors.append(f"market-pipeline CI action pin changed: {action}={refs!r}")
+
+        step_blocks = {
+            name: [block for step_name, block in pipeline_steps if step_name == name]
+            for name in artifact_step_names
+        }
+        if all(len(step_blocks[name]) == 1 for name in artifact_step_names):
+            upload, download, verify = (
+                step_blocks[name][0] for name in artifact_step_names
+            )
+            expected_artifact = "hydra-market-data-pipeline-sample"
+            if workflow_step_scalar(upload, "uses") != [
+                "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02"
+            ]:
+                errors.append("market-pipeline CI upload action changed")
+            if workflow_step_with_scalar(upload, "name") != [expected_artifact]:
+                errors.append("market-pipeline CI upload artifact name changed")
+            expected_paths = [
+                "market-data-pipeline-sample/build/demo/",
+                "market-data-pipeline-sample/build/operations/",
+            ]
+            if workflow_step_literal_lines(upload, "path") != expected_paths:
+                errors.append("market-pipeline CI upload paths changed")
+            if workflow_step_with_scalar(upload, "if-no-files-found") != ["error"]:
+                errors.append("market-pipeline CI upload must fail when outputs are missing")
+            if workflow_step_scalar(upload, "if") or workflow_step_scalar(
+                upload, "continue-on-error"
+            ):
+                errors.append("market-pipeline CI upload must remain fail-closed")
+
+            if workflow_step_scalar(download, "uses") != [
+                "actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093"
+            ]:
+                errors.append("market-pipeline CI download action changed")
+            if workflow_step_with_scalar(download, "name") != [expected_artifact]:
+                errors.append("market-pipeline CI download artifact name changed")
+            if workflow_step_with_scalar(download, "path") != [
+                "${{ runner.temp }}/hydra-market-data-pipeline-published"
+            ]:
+                errors.append("market-pipeline CI download destination changed")
+            if workflow_step_scalar(download, "if") or workflow_step_scalar(
+                download, "continue-on-error"
+            ):
+                errors.append("market-pipeline CI download must remain fail-closed")
+
+            if workflow_step_scalar(verify, "if") or workflow_step_scalar(
+                verify, "continue-on-error"
+            ):
+                errors.append("market-pipeline CI artifact verification must remain fail-closed")
+            verify_lines = workflow_step_run_lines(verify) or []
+            required_verification_lines = (
+                "expected_files[f\"{label}/{relative}\"] = path",
+                "actual_files[f\"{label}/{relative}\"] = path",
+                "missing = sorted(set(expected_files) - set(actual_files))",
+                "extra = sorted(set(actual_files) - set(expected_files))",
+                "expected = hashlib.sha256(source.read_bytes()).hexdigest()",
+                "actual = hashlib.sha256(actual_files[name].read_bytes()).hexdigest()",
+                "require(actual == expected, f\"SHA-256 mismatch for {name}\")",
+                "print(f\"PUBLISHED_PIPELINE_ARTIFACT=PASS:{len(expected_files)}\")",
+                "root_names = {path.name for path in root_entries}",
+                "require(root_names == set(source_roots), f\"unexpected artifact root entries: {sorted(root_names)}\")",
+                "require(not path.is_symlink() and path.is_dir(), f\"invalid artifact root entry: {path}\")",
+            )
+            for line in required_verification_lines:
+                if line not in verify_lines:
+                    errors.append(
+                        f"market-pipeline CI artifact verification changed: {line}"
+                    )
+
+    if "SOURCE_ROWS_REPLAYED" in pipeline_workflow:
+        errors.append("market-pipeline CI must not claim independent source-row replay")
+
+    sql_workflow = (ROOT / ".github/workflows/sql-data-quality-sample.yml").read_text(
+        encoding="utf-8-sig"
+    )
+    sql_fragments = (
+        'python-version: "3.11"',
+        "python -m unittest discover -s tests -v",
+        "python run_demo.py",
+        "SQL_SAMPLE_SUMMARY=PASS",
+    )
+    for fragment in sql_fragments:
+        if fragment not in sql_workflow:
+            errors.append(f"sql-sample CI contract missing: {fragment}")
+
+    aws_workflow = (ROOT / ".github/workflows/aws-market-data-pipeline.yml").read_text(
+        encoding="utf-8-sig"
+    )
+    aws_fragments = (
+        'python-version: "3.11"',
+        "aws-actions/setup-sam@89ddb14d60e682855e3fea4be85b3c56485de310",
+        "sam validate --lint --template-file template.json",
+        "python -m unittest discover -s tests -t . -v",
+        "python local_demo.py --output-dir build/local",
+        "AWS_SAMPLE_MANIFEST=PASS",
+        "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02",
+    )
+    for fragment in aws_fragments:
+        if fragment not in aws_workflow:
+            errors.append(f"aws-sample CI contract missing: {fragment}")
+
+    deploy_workflow = (ROOT / ".github/workflows/aws-market-data-deploy.yml").read_text(
+        encoding="utf-8-sig"
+    )
+    deploy_fragments = (
+        "workflow_dispatch:",
+        "id-token: write",
+        "AWS_DEMO_ROLE_ARN",
+        "mask-aws-account-id: true",
+        "actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+        "actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065",
+        "aws-actions/configure-aws-credentials@e1253824e5c10ff9df46874f81ed3ec929e19cfd",
+        "aws-actions/setup-sam@89ddb14d60e682855e3fea4be85b3c56485de310",
+        "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02",
+        "path: aws-market-data-pipeline/build/deployed/deployment_evidence.json",
+        "STACK_NAME: ${{ inputs.stack_name }}-${{ github.run_id }}-${{ github.run_attempt }}",
+        "if: github.ref == 'refs/heads/main'",
+        "hydra-public-market-pipeline-demo-",
+        "Validate deployment target",
+        "Refuse to modify an existing stack",
+        "Refusing to update or delete an existing stack.",
+        "id: deploy_stack",
+        "inputs.teardown && steps.deploy_stack.outcome != 'skipped'",
+        "sam deploy",
+        "--query 'Stacks[0].StackStatus'",
+        "CREATE_COMPLETE",
+        "timeout-minutes: 75",
+        "seq 1 360",
+        "hydra:deployment-run",
+        "stack_owner",
+        "ResourceStatus == \"DELETE_FAILED\"",
+        "deployed_outputs_match_local_replay",
+        "Create manifest-gated Athena consumer view",
+        "sql/create_committed_normalized_events.sql",
+        "FROM committed_normalized_events",
+        "COUNT(*) AS accepted_rows FROM committed_normalized_events",
+        '"athena_accepted_rows": int(os.environ["ATHENA_ACCEPTED_ROWS"]),',
+        "start-query-execution",
+        "--page-size 1000",
+        "--max-items 1000",
+        '--starting-token "$token"',
+        "NextToken",
+        "inputs.teardown",
+        "sam delete",
+    )
+    for fragment in deploy_fragments:
+        if fragment not in deploy_workflow:
+            errors.append(f"aws-deploy workflow contract missing: {fragment}")
+
+    try:
+        deploy_document = yaml.load(deploy_workflow, Loader=yaml.BaseLoader)
+        deploy_job = deploy_document["jobs"]["deploy-and-verify"]
+        athena_steps = [
+            step
+            for step in deploy_job["steps"]
+            if isinstance(step, dict)
+            and step.get("name") == "Run bounded Athena verification query"
+        ]
+        expected_verifier = (
+            'python "$SAMPLE_DIR/verify_athena_query_results.py" '
+            '--results-path "$SAMPLE_DIR/build/deployed/athena_query_results.json" '
+            '--github-env "$GITHUB_ENV"'
+        )
+        if len(athena_steps) != 1:
+            errors.append("aws-deploy Athena verification step count changed")
+        else:
+            run_script = athena_steps[0].get("run", "")
+            if not athena_success_commands_are_valid(run_script):
+                errors.append(
+                    "aws-deploy Athena success step must run active result retrieval before the row-count verifier"
+                )
+    except (KeyError, TypeError, yaml.YAMLError, ValueError) as exc:
+        errors.append(f"aws-deploy Athena verification step is invalid: {exc}")
+
+    if re.search(r"(?m)^  (?:pull_request|push):", deploy_workflow):
+        errors.append("aws-deploy workflow must remain manual-only")
+
+    preflight_position = deploy_workflow.index(
+        "- name: Refuse to modify an existing stack"
+    )
+    deploy_step_position = deploy_workflow.index("id: deploy_stack")
+    sam_deploy_position = deploy_workflow.index("sam deploy")
+    if not (preflight_position < deploy_step_position < sam_deploy_position):
+        errors.append("aws-deploy teardown gate must identify the deploy attempt step")
+
+    deploy_action_pins = {
+        "actions/checkout": "11d5960a326750d5838078e36cf38b85af677262",
+        "actions/setup-python": "a26af69be951a213d495a4c3e4e4022e16d87065",
+        "aws-actions/configure-aws-credentials": "e1253824e5c10ff9df46874f81ed3ec929e19cfd",
+        "aws-actions/setup-sam": "89ddb14d60e682855e3fea4be85b3c56485de310",
+        "actions/upload-artifact": "ea165f8d65b6e75b540449e92b4886f43607fa02",
+    }
+    for action, expected_sha in deploy_action_pins.items():
+        refs = re.findall(
+            rf"(?m)^\s*uses:\s*{re.escape(action)}@([^\s#]+)",
+            deploy_workflow,
+        )
+        if not refs or any(ref != expected_sha for ref in refs):
+            errors.append(f"aws-deploy action pin changed: {action}={refs!r}")
+
+    deploy_job = workflow_job_block(deploy_workflow, "deploy-and-verify")
+    if deploy_job is None:
+        errors.append("aws-deploy job is missing")
+    else:
+        deploy_steps = workflow_steps(deploy_job)
+        publish_steps = [
+            block
+            for name, block in deploy_steps
+            if name == "Publish sanitized deployment evidence"
+        ]
+        artifact_upload_steps = [
+            block
+            for _, block in deploy_steps
+            if any(
+                reference.startswith("actions/upload-artifact@")
+                for reference in workflow_step_scalar(block, "uses")
+            )
+        ]
+        if len(artifact_upload_steps) != 1:
+            errors.append("aws-deploy must contain exactly one artifact upload")
+        if len(publish_steps) != 1:
+            errors.append("aws-deploy sanitized evidence upload step count changed")
+        else:
+            publish_step = publish_steps[0]
+            if workflow_step_scalar(publish_step, "uses") != [
+                "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02"
+            ]:
+                errors.append("aws-deploy evidence upload action changed")
+            if workflow_step_with_scalar(publish_step, "path") != [
+                "aws-market-data-pipeline/build/deployed/deployment_evidence.json"
+            ]:
+                errors.append("aws-deploy evidence upload must publish only the sanitized evidence JSON")
+            if workflow_step_with_scalar(publish_step, "if-no-files-found") != ["error"]:
+                errors.append("aws-deploy evidence upload must fail when evidence is missing")
+
+    intelligence_workflow = (
+        ROOT / ".github/workflows/governed-intelligence-sample.yml"
+    ).read_text(encoding="utf-8-sig")
+    validation_workflow = (
+        ROOT / ".github/workflows/public-repository-validation.yml"
+    ).read_text(encoding="utf-8-sig")
+    for label, workflow in (
+        ("governed-intelligence", intelligence_workflow),
+        ("public-repository-validation", validation_workflow),
+    ):
+        if not workflow_event_is_unfiltered(workflow, "pull_request"):
+            errors.append(f"{label} CI pull-request trigger must be unfiltered")
+    intelligence_fragments = (
+        'python-version: "3.11"',
+        "actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+        "actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065",
+        "working-directory: governed-intelligence-sample",
+        "python -m unittest discover -s tests -t . -v",
+        "python run_demo.py",
+        "GOVERNED_INTELLIGENCE_EVAL=PASS",
+        "python run_retrieval_demo.py",
+        "--qrels fixtures/retrieval_qrels.json",
+        "GOVERNED_RETRIEVAL_EVAL=PASS",
+        "python run_grounding_demo.py",
+        "GOVERNED_GROUNDING_EVAL=PASS",
+        "build/grounding/",
+        "timeout-minutes: 15",
+        "persist-credentials: false",
+        "mkdir -p governed-intelligence-sample/build/upload",
+        "python -I -B governed-intelligence-sample/src/hydra_governed_intelligence/pre_upload_verifier.py --repository-root . --bundle-path governed-intelligence-sample/build/upload/hydra-governed-intelligence-proof.zip --github-output-path \"$GITHUB_OUTPUT\"",
+        '"case_count"], 13',
+        '"micro_recall_at_k": "0.444444"',
+        '"case_count"], 8',
+        '"proof_coverage_status": "PASS"',
+        "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02",
+        "actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093",
+        "compression-level: 0",
+        "EXPECTED_BUNDLE_SHA256: ${{ steps.package_artifacts.outputs.bundle_sha256 }}",
+        "EXPECTED_INPUT_SNAPSHOTS_VERIFIED: ${{ steps.package_artifacts.outputs.input_snapshots_verified }}",
+        "EXPECTED_SOURCE_ROWS_REPLAYED: ${{ steps.package_artifacts.outputs.source_rows_replayed }}",
+        "actual = hashlib.sha256(bundle.read_bytes()).hexdigest()",
+        "require(actual == expected, f\"digest mismatch: expected {expected}, got {actual}\")",
+    )
+    for fragment in intelligence_fragments:
+        if fragment not in intelligence_workflow:
+            errors.append(f"governed-intelligence CI contract missing: {fragment}")
+    if "SOURCE_ROWS_SNAPSHOT_VERIFIED" in intelligence_workflow:
+        errors.append("governed-intelligence CI source-row replay signal was weakened")
+    action_pins = {
+        "actions/checkout": "11d5960a326750d5838078e36cf38b85af677262",
+        "actions/setup-python": "a26af69be951a213d495a4c3e4e4022e16d87065",
+        "actions/upload-artifact": "ea165f8d65b6e75b540449e92b4886f43607fa02",
+        "actions/download-artifact": "d3f86a106a0bac45b974a628896c90dbdf5c8093",
+    }
+    for action, expected_sha in action_pins.items():
+        refs = re.findall(
+            rf"(?m)^\s*uses:\s*{re.escape(action)}@([^\s#]+)",
+            intelligence_workflow,
+        )
+        if not refs or any(ref != expected_sha for ref in refs):
+            errors.append(
+                f"governed-intelligence CI action pin changed: {action}={refs!r}"
+            )
+    required_gate_lines = (
+        'require(report["case_count"], 13, "case_count")',
+        'require(report["case_count"], 8, "case_count")',
+        '"micro_recall_at_k": "0.444444",',
+        '"macro_recall_at_k": "0.583333",',
+        '"mean_reciprocal_rank": "0.666667",',
+        '"proof_coverage_status": "PASS",',
+    )
+    for line in required_gate_lines:
+        if not re.search(rf"(?m)^\s*{re.escape(line)}\s*$", intelligence_workflow):
+            errors.append(f"governed-intelligence CI gate line changed: {line}")
+    if re.search(r"\bassert\s", intelligence_workflow):
+        errors.append("governed-intelligence CI must not use removable Python asserts")
+    if re.search(r"(?m)^  pull_request_target\s*:", intelligence_workflow):
+        errors.append("governed-intelligence CI must not use pull_request_target")
+    permissions_match = re.search(
+        r"(?ms)^permissions:\s*\r?\n(?P<body>.*?)(?=^\S|\Z)",
+        intelligence_workflow,
+    )
+    permission_lines = (
+        []
+        if permissions_match is None
+        else [
+            line.strip()
+            for line in permissions_match.group("body").splitlines()
+            if line.strip()
+        ]
+    )
+    if permission_lines != ["contents: read"]:
+        errors.append(
+            "governed-intelligence CI permissions must remain contents: read only"
+        )
+
+    windows_job = workflow_job_block(
+        intelligence_workflow, "windows-pre-upload-verifier"
+    )
+    if windows_job is None:
+        errors.append("governed-intelligence CI Windows verifier job is missing")
+    else:
+        if not re.search(r"(?m)^    runs-on:\s*windows-latest\s*$", windows_job):
+            errors.append("governed-intelligence CI verifier must run on Windows")
+        if re.search(r"(?m)^    if\s*:", windows_job):
+            errors.append("governed-intelligence CI Windows verifier job must be unconditional")
+        if re.search(r"(?m)^    continue-on-error\s*:", windows_job):
+            errors.append("governed-intelligence CI Windows verifier job must fail closed")
+        windows_steps = workflow_steps(windows_job)
+        expected_windows_steps = (
+            "Checkout",
+            "Set up Python",
+            "Run pre-upload verifier tests on Windows",
+        )
+        if tuple(name for name, _ in windows_steps) != expected_windows_steps:
+            errors.append("governed-intelligence CI Windows verifier steps changed")
+        if "working-directory: governed-intelligence-sample" not in windows_job:
+            errors.append("governed-intelligence CI Windows test directory changed")
+        if 'python-version: "3.11"' not in windows_job:
+            errors.append("governed-intelligence CI Windows Python version changed")
+        if "PYTHONPATH: src" not in windows_job:
+            errors.append("governed-intelligence CI Windows PYTHONPATH changed")
+        windows_checkout = [block for name, block in windows_steps if name == "Checkout"]
+        if len(windows_checkout) != 1 or workflow_step_scalar(
+            windows_checkout[0], "uses"
+        ) != ["actions/checkout@11d5960a326750d5838078e36cf38b85af677262"]:
+            errors.append("governed-intelligence CI Windows checkout action changed")
+        windows_python = [block for name, block in windows_steps if name == "Set up Python"]
+        if len(windows_python) != 1 or workflow_step_scalar(
+            windows_python[0], "uses"
+        ) != ["actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065"]:
+            errors.append("governed-intelligence CI Windows Python action changed")
+        windows_test = [
+            block
+            for name, block in windows_steps
+            if name == "Run pre-upload verifier tests on Windows"
+        ]
+        if len(windows_test) != 1:
+            errors.append("governed-intelligence CI Windows verifier test step changed")
+        else:
+            if workflow_step_scalar(windows_test[0], "if"):
+                errors.append("governed-intelligence CI Windows verifier test must run unconditionally")
+            if workflow_step_scalar(windows_test[0], "continue-on-error"):
+                errors.append("governed-intelligence CI Windows verifier test must fail closed")
+            if workflow_step_scalar(windows_test[0], "run") != [
+                "python -m unittest tests.test_pre_upload_verifier -v"
+            ]:
+                errors.append("governed-intelligence CI Windows verifier test command changed")
+
+    evaluate_job = workflow_job_block(intelligence_workflow, "evaluate")
+    if evaluate_job is None:
+        errors.append("governed-intelligence CI evaluate job is missing")
+        return
+    if re.search(r"(?m)^    if\s*:", evaluate_job):
+        errors.append("governed-intelligence CI evaluate job must be unconditional")
+    if re.search(r"(?m)^    continue-on-error\s*:", evaluate_job):
+        errors.append("governed-intelligence CI evaluate job must fail closed")
+
+    if not re.search(
+        r"(?m)^    needs:\s*windows-pre-upload-verifier\s*$", evaluate_job
+    ):
+        errors.append(
+            "governed-intelligence CI evaluate job must depend on Windows verifier"
+        )
+
+    required_active_steps = (
+        "Checkout",
+        "Set up Python",
+        "Build governed synthetic pipeline artifacts",
+        "Run pre-model control tests",
+        "Build deterministic context and evaluation receipts",
+        "Check evaluation report contract",
+        "Build deterministic lexical retrieval receipts",
+        "Check retrieval report contract and declared input digests",
+        "Build deterministic structured grounding receipts",
+        "Check grounding report contract and declared input digests",
+        "Prepare artifact destination",
+        "Verify and package exact artifact snapshots",
+    )
+    upload_name = "Publish synthetic pre-model receipts"
+    download_name = "Download published proof artifact"
+    digest_check_name = "Verify published proof digest"
+    expected_step_sequence = required_active_steps + (
+        upload_name,
+        download_name,
+        digest_check_name,
+    )
+    actual_steps = workflow_steps(evaluate_job)
+    actual_step_names = tuple(name for name, _ in actual_steps)
+    if actual_step_names != expected_step_sequence:
+        errors.append(
+            "governed-intelligence CI complete step sequence changed: "
+            f"{actual_step_names!r}"
+        )
+
+    step_blocks: dict[str, str] = {}
+    for required_name in required_active_steps + (download_name, digest_check_name):
+        matches = [block for name, block in actual_steps if name == required_name]
+        if len(matches) != 1:
+            errors.append(
+                "governed-intelligence CI required active step count changed: "
+                f"{required_name}={len(matches)}"
+            )
+            continue
+        step_blocks[required_name] = matches[0]
+        if workflow_step_scalar(matches[0], "if"):
+            errors.append(
+                f"governed-intelligence CI required step must be unconditional: {required_name}"
+            )
+        if workflow_step_scalar(matches[0], "continue-on-error"):
+            errors.append(
+                f"governed-intelligence CI required step must fail closed: {required_name}"
+            )
+
+    upload_matches = [block for name, block in actual_steps if name == upload_name]
+    if len(upload_matches) != 1:
+        errors.append(
+            "governed-intelligence CI upload step count changed: "
+            f"{len(upload_matches)}"
+        )
+    else:
+        upload_block = upload_matches[0]
+        expected_upload_condition = (
+            "${{ success() && steps.package_artifacts.outcome == 'success' }}"
+        )
+        if workflow_step_scalar(upload_block, "if") != [expected_upload_condition]:
+            errors.append("governed-intelligence CI upload success gate changed")
+        if workflow_step_scalar(upload_block, "continue-on-error"):
+            errors.append("governed-intelligence CI upload step must fail closed")
+        if workflow_step_scalar(upload_block, "uses") != [
+            "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02"
+        ]:
+            errors.append("governed-intelligence CI upload action binding changed")
+        if workflow_step_with_scalar(upload_block, "name") != [
+            "hydra-governed-intelligence-sample"
+        ]:
+            errors.append("governed-intelligence CI upload artifact name changed")
+        expected_upload_path = (
+            "governed-intelligence-sample/build/upload/"
+            "hydra-governed-intelligence-proof.zip"
+        )
+        if workflow_step_with_scalar(upload_block, "path") != [expected_upload_path]:
+            errors.append("governed-intelligence CI upload path changed")
+        if workflow_step_with_scalar(upload_block, "compression-level") != ["0"]:
+            errors.append("governed-intelligence CI upload compression changed")
+        if workflow_step_with_scalar(upload_block, "if-no-files-found") != ["error"]:
+            errors.append(
+                "governed-intelligence CI upload missing-file behavior changed"
+            )
+
+    prepare_name = "Prepare artifact destination"
+    if prepare_name in step_blocks:
+        if workflow_step_scalar(step_blocks[prepare_name], "run") != [
+            "mkdir -p governed-intelligence-sample/build/upload"
+        ]:
+            errors.append("governed-intelligence CI artifact destination setup changed")
+
+    verifier_name = "Verify and package exact artifact snapshots"
+    if verifier_name in step_blocks:
+        verifier_block = step_blocks[verifier_name]
+        if workflow_step_scalar(verifier_block, "id") != ["package_artifacts"]:
+            errors.append("governed-intelligence CI package step ID changed")
+        expected_invocation = (
+            "python -I -B governed-intelligence-sample/src/"
+            "hydra_governed_intelligence/pre_upload_verifier.py --repository-root . "
+            "--bundle-path governed-intelligence-sample/build/upload/"
+            "hydra-governed-intelligence-proof.zip --github-output-path "
+            '"$GITHUB_OUTPUT"'
+        )
+        if workflow_step_scalar(verifier_block, "run") != [expected_invocation]:
+            errors.append(
+                "governed-intelligence CI package invocation changed"
+            )
+        if re.search(r"(?m)^        run:\s*[|>]", verifier_block):
+            errors.append(
+                "governed-intelligence CI package step must not use inline code"
+            )
+
+    if download_name in step_blocks:
+        download_block = step_blocks[download_name]
+        if workflow_step_scalar(download_block, "uses") != [
+            "actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093"
+        ]:
+            errors.append("governed-intelligence CI download action binding changed")
+        if workflow_step_with_scalar(download_block, "name") != [
+            "hydra-governed-intelligence-sample"
+        ]:
+            errors.append("governed-intelligence CI download artifact name changed")
+        if workflow_step_with_scalar(download_block, "path") != [
+            "${{ runner.temp }}/hydra-governed-intelligence-published-proof"
+        ]:
+            errors.append("governed-intelligence CI download path changed")
+
+    if digest_check_name in step_blocks:
+        digest_block = step_blocks[digest_check_name]
+        if workflow_step_scalar(digest_block, "uses"):
+            errors.append("governed-intelligence CI digest check must run Python")
+        if workflow_step_with_scalar(digest_block, "DOWNLOADED_BUNDLE_PATH") != [
+            "${{ runner.temp }}/hydra-governed-intelligence-published-proof/"
+            "hydra-governed-intelligence-proof.zip"
+        ]:
+            errors.append("governed-intelligence CI downloaded bundle path changed")
+        if workflow_step_with_scalar(digest_block, "EXPECTED_BUNDLE_SHA256") != [
+            "${{ steps.package_artifacts.outputs.bundle_sha256 }}"
+        ]:
+            errors.append("governed-intelligence CI expected bundle digest changed")
+        expected_digest_run = [
+            "python -I -B - <<'PY'",
+            "import hashlib",
+            "import os",
+            "import re",
+            "from pathlib import Path",
+            "def require(condition, detail):",
+            "if not condition:",
+            'raise SystemExit(f"PUBLISHED_ARTIFACT_DIGEST_CHECK=FAIL: {detail}")',
+            'expected = os.environ.get("EXPECTED_BUNDLE_SHA256", "")',
+            'input_snapshots = os.environ.get("EXPECTED_INPUT_SNAPSHOTS_VERIFIED", "")',
+            'source_rows = os.environ.get("EXPECTED_SOURCE_ROWS_REPLAYED", "")',
+            'bundle = Path(os.environ.get("DOWNLOADED_BUNDLE_PATH", ""))',
+            'require(re.fullmatch(r"[0-9a-f]{64}", expected) is not None, "expected digest is invalid")',
+            'require(input_snapshots == "2", "verified input snapshot count changed")',
+            'require(source_rows == "7", "replayed source row count changed")',
+            'require(bundle.is_file() and not bundle.is_symlink(), "downloaded inner ZIP is missing")',
+            "entries = sorted(entry.name for entry in bundle.parent.iterdir())",
+            'require(entries == [bundle.name], "downloaded artifact member set changed")',
+            "actual = hashlib.sha256(bundle.read_bytes()).hexdigest()",
+            'require(actual == expected, f"digest mismatch: expected {expected}, got {actual}")',
+            'print(f"PUBLISHED_ARTIFACT_DIGEST_CHECK=PASS:{actual}")',
+            "PY",
+        ]
+        if workflow_step_run_lines(digest_block) != expected_digest_run:
+            errors.append(
+                "governed-intelligence CI downloaded digest check changed"
+            )
+
+
+def validate_aws_template_contract(errors: list[str]) -> None:
+    template_path = AWS_SAMPLE / "template.json"
+    try:
+        template = json.loads(template_path.read_text(encoding="utf-8-sig"))
+    except (OSError, json.JSONDecodeError) as exc:
+        errors.append(f"unable to parse AWS template.json: {exc}")
+        return
+
+    resources = template.get("Resources", {})
+    expected = {
+        "RawBucket": "AWS::S3::Bucket",
+        "CuratedBucket": "AWS::S3::Bucket",
+        "TransformFunction": "AWS::Serverless::Function",
+        "DataCatalogDatabase": "AWS::Glue::Database",
+        "NormalizedEventsTable": "AWS::Glue::Table",
+        "ManifestTable": "AWS::Glue::Table",
+        "AthenaWorkGroup": "AWS::Athena::WorkGroup",
+    }
+    for name, resource_type in expected.items():
+        actual = resources.get(name, {}).get("Type")
+        if actual != resource_type:
+            errors.append(
+                f"AWS template resource contract changed: {name}={actual!r}; "
+                f"expected {resource_type!r}"
+            )
+
+
+def main() -> int:
+    errors: list[str] = []
+
+    validate_required_paths(errors)
+    validate_public_language(errors)
+    validate_markdown_links(errors)
+    validate_safety_contract(errors)
+    validate_ci_contract(errors)
+    validate_aws_template_contract(errors)
+
+    if errors:
+        print("PUBLIC_REPOSITORY_VALIDATION=FAIL")
+        for error in sorted(set(errors)):
+            print(f"ERROR: {error}")
+        return 1
+
+    print("PUBLIC_REPOSITORY_VALIDATION=PASS")
+    print("VALIDATION_SCOPE=REPOSITORY_CONTROLLED_SELF_CHECK")
+    print(f"REQUIRED_PATHS={len(REQUIRED_PATHS)}")
+    print(f"PUBLIC_TEXT_FILES={len(active_public_text_files())}")
+    print("FAIL_CLOSED_CONTRACT=PASS")
+    print("MARKDOWN_LINKS=PASS")
+    print("VALIDATOR_CI_CONTRACT=PASS")
+    print("MARKET_PIPELINE_CI_CONTRACT=PASS")
+    print("SQL_SAMPLE_CI_CONTRACT=PASS")
+    print("AWS_SAMPLE_CI_CONTRACT=PASS")
+    print("AWS_DEPLOY_WORKFLOW_CONTRACT=PASS")
+    print("GOVERNED_INTELLIGENCE_SAFETY_CONTRACT=PASS")
+    print("GOVERNED_INTELLIGENCE_CI_CONTRACT=PASS")
+    print("AWS_TEMPLATE_CONTRACT=PASS")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
+,
         run_script,
     )
     failed = re.search(
-        r'(?m)^[ \t]*if \[\[ "\$state" == "FAILED" \|\| "\$state" == "CANCELLED" \]\]; then[ \t]*$',
+        r'(?m)^[ \t]*if \[\[ "\$state" == "FAILED" \|\| "\$state" == "CANCELLED" \]\]; then[ \t]*    validate_manifest_v2_replay_contract(errors)
+    validate_pre_upload_verifier_contract(errors)
+
+    workflow_dir = ROOT / ".github" / "workflows"
+    workflow_files = sorted(
+        list(workflow_dir.glob("*.yml")) + list(workflow_dir.glob("*.yaml"))
+    )
+    for workflow_path in workflow_files:
+        try:
+            action_refs = workflow_action_refs(
+                workflow_path.read_text(encoding="utf-8-sig")
+            )
+        except (OSError, yaml.YAMLError, ValueError) as exc:
+            errors.append(
+                f"unable to parse workflow actions in "
+                f"{workflow_path.relative_to(ROOT)}: {exc}"
+            )
+            continue
+        for action_ref in action_refs:
+            if not workflow_action_ref_is_pinned(action_ref):
+                errors.append(
+                    f"workflow action must use a full commit SHA or image digest: "
+                    f"{workflow_path.relative_to(ROOT)}: {action_ref}"
+                )
+    documentation_contracts = {
+        ROOT / "README.md": (
+            "15-member deterministic proof package intentionally includes",
+            "all 7 rows are synthetic, including rows designed to quarantine",
+            "Governed context, retrieval, and receipt artifacts remain accepted-only or aggregate-only",
+            "do not expose quarantined row payloads",
+        ),
+        INTELLIGENCE_SAMPLE / "README.md": (
+            "deterministic, uncompressed 15-member ZIP",
+            "all 7 synthetic rows, including rows designed to quarantine",
+            "canonical `resolved_symbol_aliases.json`",
+            "`INPUT_SNAPSHOTS_VERIFIED=2`",
+            "`SOURCE_ROWS_REPLAYED=7`",
+            "do not expose quarantined row payloads",
+        ),
+        PIPELINE / "README.md": (
+            "15-member proof package intentionally carries the exact source snapshot",
+            "all 7 synthetic rows, including rows designed to quarantine",
+            "canonical resolved aliases",
+            "do not expose quarantined row payloads",
+        ),
+    }
+    for path, fragments in documentation_contracts.items():
+        text = path.read_text(encoding="utf-8-sig")
+        for fragment in fragments:
+            if fragment not in text:
+                errors.append(
+                    f"manifest-v2 public documentation contract missing: {path.name}: {fragment}"
+                )
+    validator_workflow = (ROOT / ".github/workflows/t6-validator.yml").read_text(
+        encoding="utf-8-sig"
+    )
+    validator_fragments = (
+        'python-version: "3.11"',
+        "python -m unittest discover -s tests -t . -v",
+        "working-directory: t6-fail-closed-validator",
+    )
+    for fragment in validator_fragments:
+        if fragment not in validator_workflow:
+            errors.append(f"validator CI contract missing: {fragment}")
+
+    pipeline_workflow = (ROOT / ".github/workflows/market-data-pipeline.yml").read_text(
+        encoding="utf-8-sig"
+    )
+    pipeline_fragments = (
+        'python-version: "3.11"',
+        "PYTHONPATH: src",
+        "python -m unittest discover -s tests -t . -v",
+        "--output-dir build/demo",
+        '"hydra-market-pipeline-manifest/v2"',
+        '"resolved_symbol_aliases.json"',
+        '"source_snapshot.csv"',
+        'print("INPUT_SNAPSHOTS_VERIFIED=2")',
+        'print("SOURCE_ROWS_SNAPSHOT_VERIFIED=7")',
+        "python run_recovery_demo.py --output-dir build/operations",
+        "OPERATIONS_RECEIPT=PASS",
+        "actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+        "actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065",
+        "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02",
+        "actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093",
+        "name: hydra-market-data-pipeline-sample",
+        "name: Download published pipeline outputs",
+        "name: Verify published pipeline artifact round-trip",
+        "PUBLISHED_PIPELINE_ARTIFACT=PASS",
+    )
+    for fragment in pipeline_fragments:
+        if fragment not in pipeline_workflow:
+            errors.append(f"market-pipeline CI contract missing: {fragment}")
+    pipeline_job = workflow_job_block(pipeline_workflow, "test-and-build")
+    if pipeline_job is None:
+        errors.append("market-pipeline CI test-and-build job is missing")
+    else:
+        if re.search(r"(?m)^    if\s*:", pipeline_job):
+            errors.append("market-pipeline CI job must be unconditional")
+        if re.search(r"(?m)^    continue-on-error\s*:", pipeline_job):
+            errors.append("market-pipeline CI job must fail closed")
+
+        pipeline_steps = workflow_steps(pipeline_job)
+        artifact_step_names = (
+            "Publish synthetic pipeline outputs",
+            "Download published pipeline outputs",
+            "Verify published pipeline artifact round-trip",
+        )
+        names = [name for name, _ in pipeline_steps]
+        if tuple(names[-3:]) != artifact_step_names or any(
+            names.count(name) != 1 for name in artifact_step_names
+        ):
+            errors.append("market-pipeline CI artifact steps must be unique and ordered last")
+
+        pipeline_action_pins = {
+            "actions/checkout": "11d5960a326750d5838078e36cf38b85af677262",
+            "actions/setup-python": "a26af69be951a213d495a4c3e4e4022e16d87065",
+            "actions/upload-artifact": "ea165f8d65b6e75b540449e92b4886f43607fa02",
+            "actions/download-artifact": "d3f86a106a0bac45b974a628896c90dbdf5c8093",
+        }
+        for action, expected_sha in pipeline_action_pins.items():
+            refs = re.findall(
+                rf"(?m)^\s*uses:\s*{re.escape(action)}@([^\s#]+)",
+                pipeline_workflow,
+            )
+            if not refs or any(ref != expected_sha for ref in refs):
+                errors.append(f"market-pipeline CI action pin changed: {action}={refs!r}")
+
+        step_blocks = {
+            name: [block for step_name, block in pipeline_steps if step_name == name]
+            for name in artifact_step_names
+        }
+        if all(len(step_blocks[name]) == 1 for name in artifact_step_names):
+            upload, download, verify = (
+                step_blocks[name][0] for name in artifact_step_names
+            )
+            expected_artifact = "hydra-market-data-pipeline-sample"
+            if workflow_step_scalar(upload, "uses") != [
+                "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02"
+            ]:
+                errors.append("market-pipeline CI upload action changed")
+            if workflow_step_with_scalar(upload, "name") != [expected_artifact]:
+                errors.append("market-pipeline CI upload artifact name changed")
+            expected_paths = [
+                "market-data-pipeline-sample/build/demo/",
+                "market-data-pipeline-sample/build/operations/",
+            ]
+            if workflow_step_literal_lines(upload, "path") != expected_paths:
+                errors.append("market-pipeline CI upload paths changed")
+            if workflow_step_with_scalar(upload, "if-no-files-found") != ["error"]:
+                errors.append("market-pipeline CI upload must fail when outputs are missing")
+            if workflow_step_scalar(upload, "if") or workflow_step_scalar(
+                upload, "continue-on-error"
+            ):
+                errors.append("market-pipeline CI upload must remain fail-closed")
+
+            if workflow_step_scalar(download, "uses") != [
+                "actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093"
+            ]:
+                errors.append("market-pipeline CI download action changed")
+            if workflow_step_with_scalar(download, "name") != [expected_artifact]:
+                errors.append("market-pipeline CI download artifact name changed")
+            if workflow_step_with_scalar(download, "path") != [
+                "${{ runner.temp }}/hydra-market-data-pipeline-published"
+            ]:
+                errors.append("market-pipeline CI download destination changed")
+            if workflow_step_scalar(download, "if") or workflow_step_scalar(
+                download, "continue-on-error"
+            ):
+                errors.append("market-pipeline CI download must remain fail-closed")
+
+            if workflow_step_scalar(verify, "if") or workflow_step_scalar(
+                verify, "continue-on-error"
+            ):
+                errors.append("market-pipeline CI artifact verification must remain fail-closed")
+            verify_lines = workflow_step_run_lines(verify) or []
+            required_verification_lines = (
+                "expected_files[f\"{label}/{relative}\"] = path",
+                "actual_files[f\"{label}/{relative}\"] = path",
+                "missing = sorted(set(expected_files) - set(actual_files))",
+                "extra = sorted(set(actual_files) - set(expected_files))",
+                "expected = hashlib.sha256(source.read_bytes()).hexdigest()",
+                "actual = hashlib.sha256(actual_files[name].read_bytes()).hexdigest()",
+                "require(actual == expected, f\"SHA-256 mismatch for {name}\")",
+                "print(f\"PUBLISHED_PIPELINE_ARTIFACT=PASS:{len(expected_files)}\")",
+                "root_names = {path.name for path in root_entries}",
+                "require(root_names == set(source_roots), f\"unexpected artifact root entries: {sorted(root_names)}\")",
+                "require(not path.is_symlink() and path.is_dir(), f\"invalid artifact root entry: {path}\")",
+            )
+            for line in required_verification_lines:
+                if line not in verify_lines:
+                    errors.append(
+                        f"market-pipeline CI artifact verification changed: {line}"
+                    )
+
+    if "SOURCE_ROWS_REPLAYED" in pipeline_workflow:
+        errors.append("market-pipeline CI must not claim independent source-row replay")
+
+    sql_workflow = (ROOT / ".github/workflows/sql-data-quality-sample.yml").read_text(
+        encoding="utf-8-sig"
+    )
+    sql_fragments = (
+        'python-version: "3.11"',
+        "python -m unittest discover -s tests -v",
+        "python run_demo.py",
+        "SQL_SAMPLE_SUMMARY=PASS",
+    )
+    for fragment in sql_fragments:
+        if fragment not in sql_workflow:
+            errors.append(f"sql-sample CI contract missing: {fragment}")
+
+    aws_workflow = (ROOT / ".github/workflows/aws-market-data-pipeline.yml").read_text(
+        encoding="utf-8-sig"
+    )
+    aws_fragments = (
+        'python-version: "3.11"',
+        "aws-actions/setup-sam@89ddb14d60e682855e3fea4be85b3c56485de310",
+        "sam validate --lint --template-file template.json",
+        "python -m unittest discover -s tests -t . -v",
+        "python local_demo.py --output-dir build/local",
+        "AWS_SAMPLE_MANIFEST=PASS",
+        "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02",
+    )
+    for fragment in aws_fragments:
+        if fragment not in aws_workflow:
+            errors.append(f"aws-sample CI contract missing: {fragment}")
+
+    deploy_workflow = (ROOT / ".github/workflows/aws-market-data-deploy.yml").read_text(
+        encoding="utf-8-sig"
+    )
+    deploy_fragments = (
+        "workflow_dispatch:",
+        "id-token: write",
+        "AWS_DEMO_ROLE_ARN",
+        "mask-aws-account-id: true",
+        "actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+        "actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065",
+        "aws-actions/configure-aws-credentials@e1253824e5c10ff9df46874f81ed3ec929e19cfd",
+        "aws-actions/setup-sam@89ddb14d60e682855e3fea4be85b3c56485de310",
+        "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02",
+        "path: aws-market-data-pipeline/build/deployed/deployment_evidence.json",
+        "STACK_NAME: ${{ inputs.stack_name }}-${{ github.run_id }}-${{ github.run_attempt }}",
+        "if: github.ref == 'refs/heads/main'",
+        "hydra-public-market-pipeline-demo-",
+        "Validate deployment target",
+        "Refuse to modify an existing stack",
+        "Refusing to update or delete an existing stack.",
+        "id: deploy_stack",
+        "inputs.teardown && steps.deploy_stack.outcome != 'skipped'",
+        "sam deploy",
+        "--query 'Stacks[0].StackStatus'",
+        "CREATE_COMPLETE",
+        "timeout-minutes: 75",
+        "seq 1 360",
+        "hydra:deployment-run",
+        "stack_owner",
+        "ResourceStatus == \"DELETE_FAILED\"",
+        "deployed_outputs_match_local_replay",
+        "Create manifest-gated Athena consumer view",
+        "sql/create_committed_normalized_events.sql",
+        "FROM committed_normalized_events",
+        "COUNT(*) AS accepted_rows FROM committed_normalized_events",
+        '"athena_accepted_rows": int(os.environ["ATHENA_ACCEPTED_ROWS"]),',
+        "start-query-execution",
+        "--page-size 1000",
+        "--max-items 1000",
+        '--starting-token "$token"',
+        "NextToken",
+        "inputs.teardown",
+        "sam delete",
+    )
+    for fragment in deploy_fragments:
+        if fragment not in deploy_workflow:
+            errors.append(f"aws-deploy workflow contract missing: {fragment}")
+
+    try:
+        deploy_document = yaml.load(deploy_workflow, Loader=yaml.BaseLoader)
+        deploy_job = deploy_document["jobs"]["deploy-and-verify"]
+        athena_steps = [
+            step
+            for step in deploy_job["steps"]
+            if isinstance(step, dict)
+            and step.get("name") == "Run bounded Athena verification query"
+        ]
+        expected_verifier = (
+            'python "$SAMPLE_DIR/verify_athena_query_results.py" '
+            '--results-path "$SAMPLE_DIR/build/deployed/athena_query_results.json" '
+            '--github-env "$GITHUB_ENV"'
+        )
+        if len(athena_steps) != 1:
+            errors.append("aws-deploy Athena verification step count changed")
+        else:
+            run_script = athena_steps[0].get("run", "")
+            result_read = 'aws athena get-query-results --query-execution-id "$QUERY_ID" > "$SAMPLE_DIR/build/deployed/athena_query_results.json"'
+            if isinstance(run_script, str):
+                normalized_run_script = re.sub(
+                    r"\s+",
+                    " ",
+                    re.sub(r"\\\s+", " ", run_script),
+                ).strip()
+            else:
+                normalized_run_script = ""
+            if (
+                not normalized_run_script
+                or result_read not in normalized_run_script
+                or expected_verifier not in normalized_run_script
+                or normalized_run_script.index(result_read)
+                > normalized_run_script.index(expected_verifier)
+            ):
+                errors.append(
+                    "aws-deploy Athena success step must save results before invoking the row-count verifier"
+                )
+    except (KeyError, TypeError, yaml.YAMLError, ValueError) as exc:
+        errors.append(f"aws-deploy Athena verification step is invalid: {exc}")
+
+    if re.search(r"(?m)^  (?:pull_request|push):", deploy_workflow):
+        errors.append("aws-deploy workflow must remain manual-only")
+
+    preflight_position = deploy_workflow.index(
+        "- name: Refuse to modify an existing stack"
+    )
+    deploy_step_position = deploy_workflow.index("id: deploy_stack")
+    sam_deploy_position = deploy_workflow.index("sam deploy")
+    if not (preflight_position < deploy_step_position < sam_deploy_position):
+        errors.append("aws-deploy teardown gate must identify the deploy attempt step")
+
+    deploy_action_pins = {
+        "actions/checkout": "11d5960a326750d5838078e36cf38b85af677262",
+        "actions/setup-python": "a26af69be951a213d495a4c3e4e4022e16d87065",
+        "aws-actions/configure-aws-credentials": "e1253824e5c10ff9df46874f81ed3ec929e19cfd",
+        "aws-actions/setup-sam": "89ddb14d60e682855e3fea4be85b3c56485de310",
+        "actions/upload-artifact": "ea165f8d65b6e75b540449e92b4886f43607fa02",
+    }
+    for action, expected_sha in deploy_action_pins.items():
+        refs = re.findall(
+            rf"(?m)^\s*uses:\s*{re.escape(action)}@([^\s#]+)",
+            deploy_workflow,
+        )
+        if not refs or any(ref != expected_sha for ref in refs):
+            errors.append(f"aws-deploy action pin changed: {action}={refs!r}")
+
+    deploy_job = workflow_job_block(deploy_workflow, "deploy-and-verify")
+    if deploy_job is None:
+        errors.append("aws-deploy job is missing")
+    else:
+        deploy_steps = workflow_steps(deploy_job)
+        publish_steps = [
+            block
+            for name, block in deploy_steps
+            if name == "Publish sanitized deployment evidence"
+        ]
+        artifact_upload_steps = [
+            block
+            for _, block in deploy_steps
+            if any(
+                reference.startswith("actions/upload-artifact@")
+                for reference in workflow_step_scalar(block, "uses")
+            )
+        ]
+        if len(artifact_upload_steps) != 1:
+            errors.append("aws-deploy must contain exactly one artifact upload")
+        if len(publish_steps) != 1:
+            errors.append("aws-deploy sanitized evidence upload step count changed")
+        else:
+            publish_step = publish_steps[0]
+            if workflow_step_scalar(publish_step, "uses") != [
+                "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02"
+            ]:
+                errors.append("aws-deploy evidence upload action changed")
+            if workflow_step_with_scalar(publish_step, "path") != [
+                "aws-market-data-pipeline/build/deployed/deployment_evidence.json"
+            ]:
+                errors.append("aws-deploy evidence upload must publish only the sanitized evidence JSON")
+            if workflow_step_with_scalar(publish_step, "if-no-files-found") != ["error"]:
+                errors.append("aws-deploy evidence upload must fail when evidence is missing")
+
+    intelligence_workflow = (
+        ROOT / ".github/workflows/governed-intelligence-sample.yml"
+    ).read_text(encoding="utf-8-sig")
+    validation_workflow = (
+        ROOT / ".github/workflows/public-repository-validation.yml"
+    ).read_text(encoding="utf-8-sig")
+    for label, workflow in (
+        ("governed-intelligence", intelligence_workflow),
+        ("public-repository-validation", validation_workflow),
+    ):
+        if not workflow_event_is_unfiltered(workflow, "pull_request"):
+            errors.append(f"{label} CI pull-request trigger must be unfiltered")
+    intelligence_fragments = (
+        'python-version: "3.11"',
+        "actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+        "actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065",
+        "working-directory: governed-intelligence-sample",
+        "python -m unittest discover -s tests -t . -v",
+        "python run_demo.py",
+        "GOVERNED_INTELLIGENCE_EVAL=PASS",
+        "python run_retrieval_demo.py",
+        "--qrels fixtures/retrieval_qrels.json",
+        "GOVERNED_RETRIEVAL_EVAL=PASS",
+        "python run_grounding_demo.py",
+        "GOVERNED_GROUNDING_EVAL=PASS",
+        "build/grounding/",
+        "timeout-minutes: 15",
+        "persist-credentials: false",
+        "mkdir -p governed-intelligence-sample/build/upload",
+        "python -I -B governed-intelligence-sample/src/hydra_governed_intelligence/pre_upload_verifier.py --repository-root . --bundle-path governed-intelligence-sample/build/upload/hydra-governed-intelligence-proof.zip --github-output-path \"$GITHUB_OUTPUT\"",
+        '"case_count"], 13',
+        '"micro_recall_at_k": "0.444444"',
+        '"case_count"], 8',
+        '"proof_coverage_status": "PASS"',
+        "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02",
+        "actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093",
+        "compression-level: 0",
+        "EXPECTED_BUNDLE_SHA256: ${{ steps.package_artifacts.outputs.bundle_sha256 }}",
+        "EXPECTED_INPUT_SNAPSHOTS_VERIFIED: ${{ steps.package_artifacts.outputs.input_snapshots_verified }}",
+        "EXPECTED_SOURCE_ROWS_REPLAYED: ${{ steps.package_artifacts.outputs.source_rows_replayed }}",
+        "actual = hashlib.sha256(bundle.read_bytes()).hexdigest()",
+        "require(actual == expected, f\"digest mismatch: expected {expected}, got {actual}\")",
+    )
+    for fragment in intelligence_fragments:
+        if fragment not in intelligence_workflow:
+            errors.append(f"governed-intelligence CI contract missing: {fragment}")
+    if "SOURCE_ROWS_SNAPSHOT_VERIFIED" in intelligence_workflow:
+        errors.append("governed-intelligence CI source-row replay signal was weakened")
+    action_pins = {
+        "actions/checkout": "11d5960a326750d5838078e36cf38b85af677262",
+        "actions/setup-python": "a26af69be951a213d495a4c3e4e4022e16d87065",
+        "actions/upload-artifact": "ea165f8d65b6e75b540449e92b4886f43607fa02",
+        "actions/download-artifact": "d3f86a106a0bac45b974a628896c90dbdf5c8093",
+    }
+    for action, expected_sha in action_pins.items():
+        refs = re.findall(
+            rf"(?m)^\s*uses:\s*{re.escape(action)}@([^\s#]+)",
+            intelligence_workflow,
+        )
+        if not refs or any(ref != expected_sha for ref in refs):
+            errors.append(
+                f"governed-intelligence CI action pin changed: {action}={refs!r}"
+            )
+    required_gate_lines = (
+        'require(report["case_count"], 13, "case_count")',
+        'require(report["case_count"], 8, "case_count")',
+        '"micro_recall_at_k": "0.444444",',
+        '"macro_recall_at_k": "0.583333",',
+        '"mean_reciprocal_rank": "0.666667",',
+        '"proof_coverage_status": "PASS",',
+    )
+    for line in required_gate_lines:
+        if not re.search(rf"(?m)^\s*{re.escape(line)}\s*$", intelligence_workflow):
+            errors.append(f"governed-intelligence CI gate line changed: {line}")
+    if re.search(r"\bassert\s", intelligence_workflow):
+        errors.append("governed-intelligence CI must not use removable Python asserts")
+    if re.search(r"(?m)^  pull_request_target\s*:", intelligence_workflow):
+        errors.append("governed-intelligence CI must not use pull_request_target")
+    permissions_match = re.search(
+        r"(?ms)^permissions:\s*\r?\n(?P<body>.*?)(?=^\S|\Z)",
+        intelligence_workflow,
+    )
+    permission_lines = (
+        []
+        if permissions_match is None
+        else [
+            line.strip()
+            for line in permissions_match.group("body").splitlines()
+            if line.strip()
+        ]
+    )
+    if permission_lines != ["contents: read"]:
+        errors.append(
+            "governed-intelligence CI permissions must remain contents: read only"
+        )
+
+    windows_job = workflow_job_block(
+        intelligence_workflow, "windows-pre-upload-verifier"
+    )
+    if windows_job is None:
+        errors.append("governed-intelligence CI Windows verifier job is missing")
+    else:
+        if not re.search(r"(?m)^    runs-on:\s*windows-latest\s*$", windows_job):
+            errors.append("governed-intelligence CI verifier must run on Windows")
+        if re.search(r"(?m)^    if\s*:", windows_job):
+            errors.append("governed-intelligence CI Windows verifier job must be unconditional")
+        if re.search(r"(?m)^    continue-on-error\s*:", windows_job):
+            errors.append("governed-intelligence CI Windows verifier job must fail closed")
+        windows_steps = workflow_steps(windows_job)
+        expected_windows_steps = (
+            "Checkout",
+            "Set up Python",
+            "Run pre-upload verifier tests on Windows",
+        )
+        if tuple(name for name, _ in windows_steps) != expected_windows_steps:
+            errors.append("governed-intelligence CI Windows verifier steps changed")
+        if "working-directory: governed-intelligence-sample" not in windows_job:
+            errors.append("governed-intelligence CI Windows test directory changed")
+        if 'python-version: "3.11"' not in windows_job:
+            errors.append("governed-intelligence CI Windows Python version changed")
+        if "PYTHONPATH: src" not in windows_job:
+            errors.append("governed-intelligence CI Windows PYTHONPATH changed")
+        windows_checkout = [block for name, block in windows_steps if name == "Checkout"]
+        if len(windows_checkout) != 1 or workflow_step_scalar(
+            windows_checkout[0], "uses"
+        ) != ["actions/checkout@11d5960a326750d5838078e36cf38b85af677262"]:
+            errors.append("governed-intelligence CI Windows checkout action changed")
+        windows_python = [block for name, block in windows_steps if name == "Set up Python"]
+        if len(windows_python) != 1 or workflow_step_scalar(
+            windows_python[0], "uses"
+        ) != ["actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065"]:
+            errors.append("governed-intelligence CI Windows Python action changed")
+        windows_test = [
+            block
+            for name, block in windows_steps
+            if name == "Run pre-upload verifier tests on Windows"
+        ]
+        if len(windows_test) != 1:
+            errors.append("governed-intelligence CI Windows verifier test step changed")
+        else:
+            if workflow_step_scalar(windows_test[0], "if"):
+                errors.append("governed-intelligence CI Windows verifier test must run unconditionally")
+            if workflow_step_scalar(windows_test[0], "continue-on-error"):
+                errors.append("governed-intelligence CI Windows verifier test must fail closed")
+            if workflow_step_scalar(windows_test[0], "run") != [
+                "python -m unittest tests.test_pre_upload_verifier -v"
+            ]:
+                errors.append("governed-intelligence CI Windows verifier test command changed")
+
+    evaluate_job = workflow_job_block(intelligence_workflow, "evaluate")
+    if evaluate_job is None:
+        errors.append("governed-intelligence CI evaluate job is missing")
+        return
+    if re.search(r"(?m)^    if\s*:", evaluate_job):
+        errors.append("governed-intelligence CI evaluate job must be unconditional")
+    if re.search(r"(?m)^    continue-on-error\s*:", evaluate_job):
+        errors.append("governed-intelligence CI evaluate job must fail closed")
+
+    if not re.search(
+        r"(?m)^    needs:\s*windows-pre-upload-verifier\s*$", evaluate_job
+    ):
+        errors.append(
+            "governed-intelligence CI evaluate job must depend on Windows verifier"
+        )
+
+    required_active_steps = (
+        "Checkout",
+        "Set up Python",
+        "Build governed synthetic pipeline artifacts",
+        "Run pre-model control tests",
+        "Build deterministic context and evaluation receipts",
+        "Check evaluation report contract",
+        "Build deterministic lexical retrieval receipts",
+        "Check retrieval report contract and declared input digests",
+        "Build deterministic structured grounding receipts",
+        "Check grounding report contract and declared input digests",
+        "Prepare artifact destination",
+        "Verify and package exact artifact snapshots",
+    )
+    upload_name = "Publish synthetic pre-model receipts"
+    download_name = "Download published proof artifact"
+    digest_check_name = "Verify published proof digest"
+    expected_step_sequence = required_active_steps + (
+        upload_name,
+        download_name,
+        digest_check_name,
+    )
+    actual_steps = workflow_steps(evaluate_job)
+    actual_step_names = tuple(name for name, _ in actual_steps)
+    if actual_step_names != expected_step_sequence:
+        errors.append(
+            "governed-intelligence CI complete step sequence changed: "
+            f"{actual_step_names!r}"
+        )
+
+    step_blocks: dict[str, str] = {}
+    for required_name in required_active_steps + (download_name, digest_check_name):
+        matches = [block for name, block in actual_steps if name == required_name]
+        if len(matches) != 1:
+            errors.append(
+                "governed-intelligence CI required active step count changed: "
+                f"{required_name}={len(matches)}"
+            )
+            continue
+        step_blocks[required_name] = matches[0]
+        if workflow_step_scalar(matches[0], "if"):
+            errors.append(
+                f"governed-intelligence CI required step must be unconditional: {required_name}"
+            )
+        if workflow_step_scalar(matches[0], "continue-on-error"):
+            errors.append(
+                f"governed-intelligence CI required step must fail closed: {required_name}"
+            )
+
+    upload_matches = [block for name, block in actual_steps if name == upload_name]
+    if len(upload_matches) != 1:
+        errors.append(
+            "governed-intelligence CI upload step count changed: "
+            f"{len(upload_matches)}"
+        )
+    else:
+        upload_block = upload_matches[0]
+        expected_upload_condition = (
+            "${{ success() && steps.package_artifacts.outcome == 'success' }}"
+        )
+        if workflow_step_scalar(upload_block, "if") != [expected_upload_condition]:
+            errors.append("governed-intelligence CI upload success gate changed")
+        if workflow_step_scalar(upload_block, "continue-on-error"):
+            errors.append("governed-intelligence CI upload step must fail closed")
+        if workflow_step_scalar(upload_block, "uses") != [
+            "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02"
+        ]:
+            errors.append("governed-intelligence CI upload action binding changed")
+        if workflow_step_with_scalar(upload_block, "name") != [
+            "hydra-governed-intelligence-sample"
+        ]:
+            errors.append("governed-intelligence CI upload artifact name changed")
+        expected_upload_path = (
+            "governed-intelligence-sample/build/upload/"
+            "hydra-governed-intelligence-proof.zip"
+        )
+        if workflow_step_with_scalar(upload_block, "path") != [expected_upload_path]:
+            errors.append("governed-intelligence CI upload path changed")
+        if workflow_step_with_scalar(upload_block, "compression-level") != ["0"]:
+            errors.append("governed-intelligence CI upload compression changed")
+        if workflow_step_with_scalar(upload_block, "if-no-files-found") != ["error"]:
+            errors.append(
+                "governed-intelligence CI upload missing-file behavior changed"
+            )
+
+    prepare_name = "Prepare artifact destination"
+    if prepare_name in step_blocks:
+        if workflow_step_scalar(step_blocks[prepare_name], "run") != [
+            "mkdir -p governed-intelligence-sample/build/upload"
+        ]:
+            errors.append("governed-intelligence CI artifact destination setup changed")
+
+    verifier_name = "Verify and package exact artifact snapshots"
+    if verifier_name in step_blocks:
+        verifier_block = step_blocks[verifier_name]
+        if workflow_step_scalar(verifier_block, "id") != ["package_artifacts"]:
+            errors.append("governed-intelligence CI package step ID changed")
+        expected_invocation = (
+            "python -I -B governed-intelligence-sample/src/"
+            "hydra_governed_intelligence/pre_upload_verifier.py --repository-root . "
+            "--bundle-path governed-intelligence-sample/build/upload/"
+            "hydra-governed-intelligence-proof.zip --github-output-path "
+            '"$GITHUB_OUTPUT"'
+        )
+        if workflow_step_scalar(verifier_block, "run") != [expected_invocation]:
+            errors.append(
+                "governed-intelligence CI package invocation changed"
+            )
+        if re.search(r"(?m)^        run:\s*[|>]", verifier_block):
+            errors.append(
+                "governed-intelligence CI package step must not use inline code"
+            )
+
+    if download_name in step_blocks:
+        download_block = step_blocks[download_name]
+        if workflow_step_scalar(download_block, "uses") != [
+            "actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093"
+        ]:
+            errors.append("governed-intelligence CI download action binding changed")
+        if workflow_step_with_scalar(download_block, "name") != [
+            "hydra-governed-intelligence-sample"
+        ]:
+            errors.append("governed-intelligence CI download artifact name changed")
+        if workflow_step_with_scalar(download_block, "path") != [
+            "${{ runner.temp }}/hydra-governed-intelligence-published-proof"
+        ]:
+            errors.append("governed-intelligence CI download path changed")
+
+    if digest_check_name in step_blocks:
+        digest_block = step_blocks[digest_check_name]
+        if workflow_step_scalar(digest_block, "uses"):
+            errors.append("governed-intelligence CI digest check must run Python")
+        if workflow_step_with_scalar(digest_block, "DOWNLOADED_BUNDLE_PATH") != [
+            "${{ runner.temp }}/hydra-governed-intelligence-published-proof/"
+            "hydra-governed-intelligence-proof.zip"
+        ]:
+            errors.append("governed-intelligence CI downloaded bundle path changed")
+        if workflow_step_with_scalar(digest_block, "EXPECTED_BUNDLE_SHA256") != [
+            "${{ steps.package_artifacts.outputs.bundle_sha256 }}"
+        ]:
+            errors.append("governed-intelligence CI expected bundle digest changed")
+        expected_digest_run = [
+            "python -I -B - <<'PY'",
+            "import hashlib",
+            "import os",
+            "import re",
+            "from pathlib import Path",
+            "def require(condition, detail):",
+            "if not condition:",
+            'raise SystemExit(f"PUBLISHED_ARTIFACT_DIGEST_CHECK=FAIL: {detail}")',
+            'expected = os.environ.get("EXPECTED_BUNDLE_SHA256", "")',
+            'input_snapshots = os.environ.get("EXPECTED_INPUT_SNAPSHOTS_VERIFIED", "")',
+            'source_rows = os.environ.get("EXPECTED_SOURCE_ROWS_REPLAYED", "")',
+            'bundle = Path(os.environ.get("DOWNLOADED_BUNDLE_PATH", ""))',
+            'require(re.fullmatch(r"[0-9a-f]{64}", expected) is not None, "expected digest is invalid")',
+            'require(input_snapshots == "2", "verified input snapshot count changed")',
+            'require(source_rows == "7", "replayed source row count changed")',
+            'require(bundle.is_file() and not bundle.is_symlink(), "downloaded inner ZIP is missing")',
+            "entries = sorted(entry.name for entry in bundle.parent.iterdir())",
+            'require(entries == [bundle.name], "downloaded artifact member set changed")',
+            "actual = hashlib.sha256(bundle.read_bytes()).hexdigest()",
+            'require(actual == expected, f"digest mismatch: expected {expected}, got {actual}")',
+            'print(f"PUBLISHED_ARTIFACT_DIGEST_CHECK=PASS:{actual}")',
+            "PY",
+        ]
+        if workflow_step_run_lines(digest_block) != expected_digest_run:
+            errors.append(
+                "governed-intelligence CI downloaded digest check changed"
+            )
+
+
+def validate_aws_template_contract(errors: list[str]) -> None:
+    template_path = AWS_SAMPLE / "template.json"
+    try:
+        template = json.loads(template_path.read_text(encoding="utf-8-sig"))
+    except (OSError, json.JSONDecodeError) as exc:
+        errors.append(f"unable to parse AWS template.json: {exc}")
+        return
+
+    resources = template.get("Resources", {})
+    expected = {
+        "RawBucket": "AWS::S3::Bucket",
+        "CuratedBucket": "AWS::S3::Bucket",
+        "TransformFunction": "AWS::Serverless::Function",
+        "DataCatalogDatabase": "AWS::Glue::Database",
+        "NormalizedEventsTable": "AWS::Glue::Table",
+        "ManifestTable": "AWS::Glue::Table",
+        "AthenaWorkGroup": "AWS::Athena::WorkGroup",
+    }
+    for name, resource_type in expected.items():
+        actual = resources.get(name, {}).get("Type")
+        if actual != resource_type:
+            errors.append(
+                f"AWS template resource contract changed: {name}={actual!r}; "
+                f"expected {resource_type!r}"
+            )
+
+
+def main() -> int:
+    errors: list[str] = []
+
+    validate_required_paths(errors)
+    validate_public_language(errors)
+    validate_markdown_links(errors)
+    validate_safety_contract(errors)
+    validate_ci_contract(errors)
+    validate_aws_template_contract(errors)
+
+    if errors:
+        print("PUBLIC_REPOSITORY_VALIDATION=FAIL")
+        for error in sorted(set(errors)):
+            print(f"ERROR: {error}")
+        return 1
+
+    print("PUBLIC_REPOSITORY_VALIDATION=PASS")
+    print("VALIDATION_SCOPE=REPOSITORY_CONTROLLED_SELF_CHECK")
+    print(f"REQUIRED_PATHS={len(REQUIRED_PATHS)}")
+    print(f"PUBLIC_TEXT_FILES={len(active_public_text_files())}")
+    print("FAIL_CLOSED_CONTRACT=PASS")
+    print("MARKDOWN_LINKS=PASS")
+    print("VALIDATOR_CI_CONTRACT=PASS")
+    print("MARKET_PIPELINE_CI_CONTRACT=PASS")
+    print("SQL_SAMPLE_CI_CONTRACT=PASS")
+    print("AWS_SAMPLE_CI_CONTRACT=PASS")
+    print("AWS_DEPLOY_WORKFLOW_CONTRACT=PASS")
+    print("GOVERNED_INTELLIGENCE_SAFETY_CONTRACT=PASS")
+    print("GOVERNED_INTELLIGENCE_CI_CONTRACT=PASS")
+    print("AWS_TEMPLATE_CONTRACT=PASS")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
+,
         run_script,
     )
     if success is None or failed is None or failed.start() <= success.end():
@@ -1289,9 +2821,24 @@ def validate_ci_contract(errors: list[str]) -> None:
             errors.append("aws-deploy Athena verification step count changed")
         else:
             run_script = athena_steps[0].get("run", "")
-            if not athena_success_commands_are_valid(run_script):
+            result_read = 'aws athena get-query-results --query-execution-id "$QUERY_ID" > "$SAMPLE_DIR/build/deployed/athena_query_results.json"'
+            if isinstance(run_script, str):
+                normalized_run_script = re.sub(
+                    r"\s+",
+                    " ",
+                    re.sub(r"\\\s+", " ", run_script),
+                ).strip()
+            else:
+                normalized_run_script = ""
+            if (
+                not normalized_run_script
+                or result_read not in normalized_run_script
+                or expected_verifier not in normalized_run_script
+                or normalized_run_script.index(result_read)
+                > normalized_run_script.index(expected_verifier)
+            ):
                 errors.append(
-                    "aws-deploy Athena success step must run active result retrieval before the row-count verifier"
+                    "aws-deploy Athena success step must save results before invoking the row-count verifier"
                 )
     except (KeyError, TypeError, yaml.YAMLError, ValueError) as exc:
         errors.append(f"aws-deploy Athena verification step is invalid: {exc}")
