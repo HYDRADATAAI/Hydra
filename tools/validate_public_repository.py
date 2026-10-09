@@ -241,10 +241,20 @@ def flow_mapping_contains_unsupported_uses_key(line: str) -> bool:
             depth = max(0, depth - 1)
             index += 1
             continue
+        if (
+            character == "?"
+            and depth
+            and (index + 1 == len(line) or line[index + 1].isspace())
+        ):
+            # Explicit flow keys can continue on later lines; reject the form
+            # instead of trying to infer which node becomes the key.
+            return True
         if character == "," and depth and _flow_uses_key_after(line, index + 1):
             return True
         index += 1
-    return False
+    # A flow collection split over lines can also split a key node. This
+    # line-oriented scanner cannot safely interpret that form.
+    return depth > 0
 
 
 def _skip_yaml_node_properties(line: str, start: int) -> int:
