@@ -8,6 +8,8 @@ import json
 import re
 import sys
 import tomllib
+import tomllib
+from html.parser import HTMLParser
 from pathlib import Path
 from urllib.parse import unquote, urlsplit
 
@@ -139,7 +141,44 @@ STALE_PUBLIC_PHRASES = (
 )
 
 MARKDOWN_LINK = re.compile(r"!?(?:\[[^\]]*\])\(([^)]+)\)")
+MARKDOWN_REFERENCE_DEFINITION = re.compile(
+    r"(?im)^[ \t]{0,3}\[[^\]]+\]:[ \t]*(?:<([^>\n]+)>|([^\s]+))"
+)
 
+
+class HTMLLocalReferenceParser(HTMLParser):
+    """Collect local-link candidates from HTML href and src attributes."""
+
+    def __init__(self) -> None:
+        super().__init__(convert_charrefs=True)
+        self.references: list[str] = []
+
+    def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
+        del tag
+        self._collect(attrs)
+
+    def handle_startendtag(
+        self, tag: str, attrs: list[tuple[str, str | None]]
+    ) -> None:
+        del tag
+        self._collect(attrs)
+
+    def _collect(self, attrs: list[tuple[str, str | None]]) -> None:
+        for name, value in attrs:
+            if name.casefold() in {"href", "src"} and value:
+                self.references.append(value)
+
+
+def document_link_references(text: str) -> list[str]:
+    references = [match.group(1) for match in MARKDOWN_LINK.finditer(text)]
+    for match in MARKDOWN_REFERENCE_DEFINITION.finditer(text):
+        references.append(match.group(1) or match.group(2))
+
+    html_parser = HTMLLocalReferenceParser()
+    html_parser.feed(text)
+    html_parser.close()
+    references.extend(html_parser.references)
+    return references
 
 def clean_reference(reference: str) -> str:
     value = reference.strip().strip("'\"")
@@ -225,12 +264,11 @@ def validate_markdown_links(errors: list[str]) -> None:
     ]
     for path in sorted(markdown_files):
         text = path.read_text(encoding="utf-8-sig")
-        for match in MARKDOWN_LINK.finditer(text):
-            reference = match.group(1)
+        for reference in document_link_references(text):
             target = local_target(path, reference)
             if target is not None and not target.exists():
                 errors.append(
-                    f"broken Markdown link: {path.relative_to(ROOT).as_posix()} -> {reference}"
+                    f"broken document link: {path.relative_to(ROOT).as_posix()} -> {reference}"
                 )
 
 
