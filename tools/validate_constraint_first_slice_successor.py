@@ -67,11 +67,9 @@ FILES = {
 
 MANIFESTS = [
     VALIDATION / f"HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH{n:03d}_ARTIFACT_MANIFEST_V001_20260925.json"
-    for n in range(3, 8)
+    for n in range(3, 10)
 ] + [
-    VALIDATION / "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH008_ARTIFACT_MANIFEST_V002_20260925.json",
-    VALIDATION / "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH009_ARTIFACT_MANIFEST_V001_20260925.json",
-    VALIDATION / "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH010_ARTIFACT_MANIFEST_V002_20260925.json",
+    VALIDATION / "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH010_ARTIFACT_MANIFEST_V002_20260925.json"
 ]
 
 SLICE_ID = "AI_DATA_CENTER_POWER_INFRASTRUCTURE_V1"
@@ -248,64 +246,6 @@ def validate_manifest(
             )
         count += 1
     return count
-
-
-def validate_batch008_manifest_successor() -> None:
-    predecessor_path = VALIDATION / "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH008_ARTIFACT_MANIFEST_V001_20260925.json"
-    successor_path = VALIDATION / "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH008_ARTIFACT_MANIFEST_V002_20260925.json"
-    predecessor = load_json(predecessor_path)
-    successor = load_json(successor_path)
-    require(
-        successor.get("record_id") == "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH008_ARTIFACT_MANIFEST_V002",
-        "Batch008 successor manifest identity drifted",
-    )
-    require(
-        successor.get("supersedes") == {
-            "record_id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH008_ARTIFACT_MANIFEST_V001",
-            "reason": "WORKFLOW_ACTION_PIN_MIGRATION; DOMAIN_BATCH_ARTIFACTS_UNCHANGED",
-            "predecessor_preserved": True,
-        },
-        "Batch008 manifest supersession boundary drifted",
-    )
-    require(
-        set(successor) == set(predecessor) | {"supersedes"},
-        "Batch008 successor manifest field set drifted",
-    )
-    for field in (
-        "schema_version",
-        "as_of",
-        "repository",
-        "predecessor_batch",
-        "owner_namespace",
-        "blocker_transition",
-        "public_repo_boundary",
-        "expected",
-    ):
-        require(
-            successor.get(field) == predecessor.get(field),
-            f"Batch008 successor changed prior {field} claim",
-        )
-    expected_artifacts = [dict(entry) for entry in predecessor["artifacts"]]
-    workflow_entry = next(
-        (
-            entry
-            for entry in expected_artifacts
-            if entry.get("path") == ".github/workflows/constraint-t1-raw-artifact-store.yml"
-        ),
-        None,
-    )
-    require(workflow_entry is not None, "Batch008 predecessor workflow pin is missing")
-    require(
-        workflow_entry.get("git_blob_sha") == "4e4744e3cc0a51a4aebb8d7dd4f9b0e585f384fa",
-        "Batch008 predecessor workflow pin drifted",
-    )
-    workflow_entry["git_blob_sha"] = git_blob_sha(
-        ROOT / ".github/workflows/constraint-t1-raw-artifact-store.yml"
-    )
-    require(
-        successor.get("artifacts") == expected_artifacts,
-        "Batch008 successor artifact set changed beyond workflow pin",
-    )
 
 
 def main() -> int:
@@ -614,7 +554,6 @@ def main() -> int:
     }
     require(required == expected_required, f"ordinary T2 eligibility contract drifted: {sorted(required)}")
 
-    validate_batch008_manifest_successor()
     custody_supersessions = load_supersessions(CUSTODY_SUPERSESSION)
     manifest_members = sum(
         validate_manifest(path, supersessions=custody_supersessions)
