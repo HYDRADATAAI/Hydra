@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import ast
+import codecs
 import json
 import re
 import sys
@@ -137,6 +138,268 @@ STALE_PUBLIC_PHRASES = (
 )
 
 MARKDOWN_LINK = re.compile(r"!?(?:\[[^\]]*\])\(([^)]+)\)")
+
+# Temporary exact path/reference counts for currently unpinned workflow refs. Remove
+# each entry when its action is pinned; do not grow this list for new mutable refs.
+LEGACY_MUTABLE_WORKFLOW_USES: dict[tuple[str, str], int] = {
+    (".github/workflows/aws-market-data-pipeline.yml", "actions/checkout@v4"): 1,
+    (".github/workflows/aws-market-data-pipeline.yml", "actions/setup-python@v5"): 1,
+    (".github/workflows/aws-market-data-pipeline.yml", "aws-actions/setup-sam@v3"): 1,
+    (".github/workflows/aws-market-data-pipeline.yml", "actions/upload-artifact@v4"): 1,
+    (".github/workflows/constraint-ai-power-owner-integration.yml", "actions/checkout@v4"): 1,
+    (".github/workflows/constraint-ai-power-owner-integration.yml", "actions/setup-python@v5"): 1,
+    (".github/workflows/constraint-first-slice-integration.yml", "actions/checkout@v4"): 1,
+    (".github/workflows/constraint-first-slice-integration.yml", "actions/setup-python@v5"): 1,
+    (".github/workflows/constraint-owner-seam-conformance.yml", "actions/checkout@v4"): 1,
+    (".github/workflows/constraint-owner-seam-conformance.yml", "actions/setup-python@v5"): 1,
+    (".github/workflows/constraint-policy-integration.yml", "actions/checkout@v4"): 1,
+    (".github/workflows/constraint-policy-integration.yml", "actions/setup-python@v5"): 1,
+    (".github/workflows/constraint-replay.yml", "actions/checkout@v4"): 1,
+    (".github/workflows/constraint-replay.yml", "actions/setup-python@v5"): 1,
+    (".github/workflows/constraint-runtime-v018.yml", "actions/checkout@v4"): 1,
+    (".github/workflows/constraint-runtime-v018.yml", "actions/setup-python@v5"): 1,
+    (".github/workflows/constraint-second-slice.yml", "actions/checkout@v4"): 1,
+    (".github/workflows/constraint-second-slice.yml", "actions/setup-python@v5"): 1,
+    (".github/workflows/constraint-t1-raw-artifact-store.yml", "actions/checkout@v4"): 1,
+    (".github/workflows/constraint-t1-raw-artifact-store.yml", "actions/setup-python@v5"): 1,
+    (".github/workflows/nyx-batch034-non-escalation-windows.yml", "actions/checkout@v4"): 1,
+    (".github/workflows/nyx-batch034-non-escalation-windows.yml", "actions/setup-python@v5"): 1,
+    (".github/workflows/nyx-constraint-successor-chain.yml", "actions/checkout@v4"): 1,
+    (".github/workflows/nyx-constraint-successor-chain.yml", "actions/setup-python@v5"): 1,
+    (".github/workflows/nyx-thread-g-receipt-windows.yml", "actions/checkout@v4"): 1,
+    (".github/workflows/nyx-thread-g-receipt-windows.yml", "actions/setup-python@v5"): 1,
+    (".github/workflows/nyx-thread-g-receipt-windows.yml", "actions/upload-artifact@v4"): 1,
+    (".github/workflows/nyx-thread-h-temporal-consistency-windows.yml", "actions/checkout@v4"): 1,
+    (".github/workflows/nyx-thread-h-temporal-consistency-windows.yml", "actions/setup-python@v5"): 1,
+    (".github/workflows/nyx-thread-h-temporal-input-windows.yml", "actions/checkout@v4"): 1,
+    (".github/workflows/nyx-thread-h-temporal-input-windows.yml", "actions/setup-python@v5"): 1,
+    (".github/workflows/public-repository-validation.yml", "actions/checkout@v4"): 1,
+    (".github/workflows/public-repository-validation.yml", "actions/setup-python@v5"): 1,
+    (".github/workflows/public-root-hygiene.yml", "actions/checkout@v4"): 1,
+    (".github/workflows/sql-data-quality-sample.yml", "actions/checkout@v4"): 1,
+    (".github/workflows/sql-data-quality-sample.yml", "actions/setup-python@v5"): 1,
+    (".github/workflows/t6-validator.yml", "actions/checkout@v4"): 1,
+    (".github/workflows/t6-validator.yml", "actions/setup-python@v5"): 1,
+}
+
+
+def quoted_yaml_key_is_uses(value: str) -> bool:
+    """Decode common YAML quoted-key escapes when checking for a uses key."""
+    if len(value) < 2 or value[0] != value[-1] or value[0] not in {"'", '"'}:
+        return False
+    inner = value[1:-1]
+    if value[0] == "'":
+        return inner.replace("''", "'") == "uses"
+    try:
+        return codecs.decode(inner, "unicode_escape") == "uses"
+    except UnicodeDecodeError:
+        return False
+
+
+def flow_mapping_contains_unsupported_uses_key(line: str) -> bool:
+    """Detect flow-style uses keys and quoted keys so unsupported YAML fails closed."""
+    quote: str | None = None
+    escaped = False
+    depth = 0
+    index = 0
+    while index < len(line):
+        character = line[index]
+        if quote is not None:
+            if quote == '"' and escaped:
+                escaped = False
+                index += 1
+                continue
+            if quote == '"' and character == "\\":
+                escaped = True
+                index += 1
+                continue
+            if (
+                quote == "'"
+                and character == "'"
+                and index + 1 < len(line)
+                and line[index + 1] == "'"
+            ):
+                index += 2
+                continue
+            if character == quote:
+                quote = None
+            index += 1
+            continue
+        if character == "#" and (index == 0 or line[index - 1].isspace()):
+            break
+        if character in {"'", '"'}:
+            quote = character
+            index += 1
+            continue
+        if character in "[{":
+            depth += 1
+            if _flow_uses_key_after(line, index + 1):
+                return True
+            index += 1
+            continue
+        if character in "]}":
+            depth = max(0, depth - 1)
+            index += 1
+            continue
+        if character == "," and depth and _flow_uses_key_after(line, index + 1):
+            return True
+        index += 1
+    return False
+
+
+def _flow_uses_key_after(line: str, start: int) -> bool:
+    while start < len(line) and line[start].isspace():
+        start += 1
+    if start < len(line) and line[start] == "?":
+        start += 1
+        while start < len(line) and line[start].isspace():
+            start += 1
+    if start >= len(line):
+        return False
+    if line[start] in {"'", '"'}:
+        quote = line[start]
+        cursor = start + 1
+        while cursor < len(line):
+            if quote == '"' and line[cursor] == "\\":
+                cursor += 2
+                continue
+            if quote == "'" and line[cursor] == "'" and cursor + 1 < len(line) and line[cursor + 1] == "'":
+                cursor += 2
+                continue
+            if line[cursor] == quote:
+                cursor += 1
+                break
+            cursor += 1
+        else:
+            return False
+        if not quoted_yaml_key_is_uses(line[start:cursor]):
+            return False
+        start = cursor
+    elif line.startswith("uses", start):
+        start += len("uses")
+    else:
+        return False
+    while start < len(line) and line[start].isspace():
+        start += 1
+    return start < len(line) and line[start] == ":"
+
+
+def validate_workflow_action_uses(errors: list[str]) -> None:
+    """Require immutable refs except the exact, shrinking legacy baseline."""
+    workflows_root = ROOT / ".github" / "workflows"
+    if not workflows_root.is_dir():
+        errors.append("GitHub Actions workflows directory is missing")
+        return
+
+    uses_line = re.compile(r"^\s*(?:-\s*)?uses:\s*(.*?)\s*$")
+    commit_sha = re.compile(r"^[0-9a-fA-F]{40}$")
+    observed_legacy: dict[tuple[str, str], int] = {}
+    workflow_files = sorted(
+        path
+        for path in workflows_root.rglob("*")
+        if path.is_file() and path.suffix.casefold() in {".yml", ".yaml"}
+    )
+    for path in workflow_files:
+        relative = path.relative_to(ROOT).as_posix()
+        try:
+            lines = path.read_text(encoding="utf-8-sig").splitlines()
+        except OSError as exc:
+            errors.append(f"unable to read workflow {relative}: {exc}")
+            continue
+
+        run_block_indent: int | None = None
+        quoted_uses_key = re.compile(
+            r"""^\s*(?:-\s*)?(?P<key>'(?:[^']|'')*'|"(?:\\.|[^"\\])*")\s*:"""
+        )
+        explicit_uses_key = re.compile(
+            r"""^\s*(?:-\s*)?\?\s*(?P<key>uses|'(?:[^']|'')*'|"(?:\\.|[^"\\])*")\s*$"""
+        )
+        run_block = re.compile(r"^\s*(?:-\s*)?run\s*:\s*[|>](?:[+-]?\d?|[0-9]?[+-]?)\s*(?:#.*)?$")
+        run_scalar = re.compile(r"^\s*(?:-\s*)?run\s*:")
+        for line_number, line in enumerate(lines, start=1):
+            indentation = len(line) - len(line.lstrip())
+            if run_block_indent is not None:
+                if not line.strip() or indentation > run_block_indent:
+                    continue
+                run_block_indent = None
+            if run_block.match(line):
+                run_block_indent = indentation
+                continue
+
+            match = uses_line.match(line)
+            if match is None:
+                quoted_key_match = quoted_uses_key.match(line)
+                explicit_key_match = explicit_uses_key.match(line)
+                quoted_key_is_uses = (
+                    (quoted_key_match is not None and quoted_yaml_key_is_uses(quoted_key_match.group("key")))
+                    or (
+                        explicit_key_match is not None
+                        and explicit_key_match.group("key") != "uses"
+                        and quoted_yaml_key_is_uses(explicit_key_match.group("key"))
+                    )
+                )
+                if (
+                    quoted_key_is_uses
+                    or (explicit_key_match is not None and explicit_key_match.group("key") == "uses")
+                    or (
+                        not run_scalar.match(line)
+                        and flow_mapping_contains_unsupported_uses_key(line)
+                    )
+                ):
+                    errors.append(
+                        f"unsupported non-block workflow uses syntax: "
+                        f"{relative}:{line_number}"
+                    )
+                continue
+            reference = match.group(1).strip()
+            if " #" in reference:
+                reference = reference.split(" #", 1)[0].rstrip()
+            if len(reference) >= 2 and reference[0] == reference[-1] and reference[0] in {"'", '"'}:
+                reference = reference[1:-1].strip()
+            if not reference:
+                errors.append(f"empty workflow uses reference: {relative}:{line_number}")
+                continue
+            if reference.startswith("./"):
+                continue
+            if reference.casefold().startswith("docker://"):
+                # Container images must bind content with a SHA-256 digest.
+                docker_digest = re.compile(r"^docker://[^@\s]+@sha256:[0-9a-f]{64}$")
+                if docker_digest.fullmatch(reference) is None:
+                    errors.append(
+                        f"non-digest-pinned Docker workflow uses reference: "
+                        f"{relative}:{line_number} -> {reference}"
+                    )
+                continue
+
+            target, separator, ref = reference.rpartition("@")
+            target_parts = target.split("/")
+            is_github_commit_ref = (
+                separator
+                and len(target_parts) >= 2
+                and all(target_parts[:2])
+                and commit_sha.fullmatch(ref) is not None
+            )
+            if is_github_commit_ref:
+                continue
+
+            key = (relative, reference)
+            if key not in LEGACY_MUTABLE_WORKFLOW_USES:
+                errors.append(
+                    f"unlisted non-SHA external workflow uses reference: "
+                    f"{relative}:{line_number} -> {reference}"
+                )
+                continue
+            observed_legacy[key] = observed_legacy.get(key, 0) + 1
+
+    for key, expected_count in LEGACY_MUTABLE_WORKFLOW_USES.items():
+        actual_count = observed_legacy.get(key, 0)
+        if actual_count != expected_count:
+            relative, reference = key
+            errors.append(
+                f"legacy mutable workflow uses count changed: {relative} -> {reference}; "
+                f"expected {expected_count}, got {actual_count}. Shrink the grandfather "
+                f"list as the pinning drafts land."
+            )
 
 
 def clean_reference(reference: str) -> str:
@@ -1600,6 +1863,7 @@ def main() -> int:
     errors: list[str] = []
 
     validate_required_paths(errors)
+    validate_workflow_action_uses(errors)
     validate_public_language(errors)
     validate_markdown_links(errors)
     validate_safety_contract(errors)
@@ -1619,6 +1883,7 @@ def main() -> int:
     print("FAIL_CLOSED_CONTRACT=PASS")
     print("MARKDOWN_LINKS=PASS")
     print("VALIDATOR_CI_CONTRACT=PASS")
+    print("WORKFLOW_ACTION_USES=PASS")
     print("MARKET_PIPELINE_CI_CONTRACT=PASS")
     print("SQL_SAMPLE_CI_CONTRACT=PASS")
     print("AWS_SAMPLE_CI_CONTRACT=PASS")
