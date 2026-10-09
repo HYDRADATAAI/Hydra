@@ -110,6 +110,28 @@ class ProcessorTests(unittest.TestCase):
             )
         )
 
+    def test_version_bump_preserves_ordinary_record_shape_and_hashes(self):
+        source = FIXTURE.read_bytes()
+        with patch(
+            "function.processor.TRANSFORM_VERSION",
+            "hydra-aws-market-normalizer/v1",
+        ):
+            version_one = process_csv(source)
+        current = process_csv(source)
+
+        self.assertNotEqual(version_one.run_id, current.run_id)
+        self.assertEqual(version_one.quarantined, current.quarantined)
+        for old_record, new_record in zip(
+            version_one.accepted,
+            current.accepted,
+            strict=True,
+        ):
+            self.assertEqual(set(old_record), set(new_record))
+            self.assertEqual(
+                old_record["raw_record_sha256"],
+                new_record["raw_record_sha256"],
+            )
+
     def test_file_contract_fails_closed(self):
         malformed = b"symbol,price\nAAA,1.0\n"
         with self.assertRaisesRegex(ContractError, "contract mismatch"):
