@@ -206,7 +206,6 @@ class OperationsTests(unittest.TestCase):
         self.assertEqual([policy.delay(i) for i in range(1,5)],[2,4,5,5])
 
 
-
 class PollRateLimitTests(unittest.TestCase):
     class FakeClock:
         def __init__(self):
@@ -229,6 +228,18 @@ class PollRateLimitTests(unittest.TestCase):
             if not self.release_sleep.wait(timeout=5):
                 raise TimeoutError("fixture cooldown was not released")
             self.now+=seconds
+
+    class TrackingLock:
+        def __init__(self):
+            self.lock=threading.Lock()
+            self.contended=threading.Event()
+        def __enter__(self):
+            if not self.lock.acquire(blocking=False):
+                self.contended.set()
+                self.lock.acquire()
+            return self
+        def __exit__(self,*args):
+            self.lock.release()
 
     class FakeCursors:
         max_seen=10
@@ -352,17 +363,17 @@ class PollRateLimitTests(unittest.TestCase):
             durable=None,cursors=self.FakeCursors(),archive=self.FakeArchive(),transport=transport,
             sleeper=clock,clock=clock.monotonic,
         )
+        tracked_lock=self.TrackingLock()
+        runner._source_locks["sec"]=tracked_lock
         spec=self.make_spec(max_rps=2)
         first=threading.Thread(target=runner.poll,args=(spec,))
-        second_started=threading.Event()
         def run_second_poll():
-            second_started.set()
             runner.poll(spec)
         first.start()
         self.assertTrue(clock.sleep_started.wait(timeout=5))
         second=threading.Thread(target=run_second_poll)
         second.start()
-        self.assertTrue(second_started.wait(timeout=5))
+        self.assertTrue(tracked_lock.contended.wait(timeout=5))
         self.assertEqual(len(transport.request_times),1)
         clock.release_sleep.set()
         first.join(timeout=5)
@@ -379,7 +390,7 @@ class PollRateLimitTests(unittest.TestCase):
             transport=self.FakeTransport(self.FakeClock()),
         )
 
-        for rate in (True,0,-1,float("inf"),float("nan"),"1"):
+        for rate in (True,0,-1,float("inf"),float("nan"),5e-324,10**1000,"1"):
             with self.subTest(rate=rate),self.assertRaisesRegex(ValueError,"max_rps"):
                 runner.poll(self.make_spec(max_rps=rate))
         self.assertEqual(cursors.reads,0)
