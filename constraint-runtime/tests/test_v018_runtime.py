@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import copy
+from datetime import datetime, timezone
 import json
 import tempfile
 import unittest
@@ -200,8 +201,27 @@ class OperationsTests(unittest.TestCase):
         self.assertEqual(DeploymentGuard.validate(config)["status"], "FAIL")
 
     def test_backoff_is_bounded(self):
-        policy = BackoffPolicy(max_attempts=5,base_seconds=2,cap_seconds=5)
-        self.assertEqual([policy.delay(i) for i in range(1,5)],[2,4,5,5])
+        policy = BackoffPolicy(max_attempts=5, base_seconds=2, cap_seconds=30)
+        self.assertEqual([policy.delay(i) for i in range(1, 5)], [2, 4, 8, 16])
+        self.assertEqual(policy.delay(2, "120"), 30)
+        self.assertEqual(policy.delay(2, "not-a-date"), 4)
+
+    def test_backoff_parses_http_date_retry_after(self):
+        policy = BackoffPolicy(max_attempts=5, base_seconds=2, cap_seconds=30)
+        now = datetime(2015, 10, 21, 7, 28, 0, tzinfo=timezone.utc)
+
+        self.assertEqual(
+            policy.delay(2, "Wed, 21 Oct 2015 07:28:10 GMT", now=now),
+            10,
+        )
+        self.assertEqual(
+            policy.delay(2, "Wed, 21 Oct 2015 07:29:00 GMT", now=now),
+            30,
+        )
+        self.assertEqual(
+            policy.delay(2, "Wed, 21 Oct 2015 07:27:00 GMT", now=now),
+            0,
+        )
 
 
 if __name__ == "__main__":
