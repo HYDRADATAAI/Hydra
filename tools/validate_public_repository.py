@@ -979,7 +979,7 @@ def athena_success_commands_are_valid(run_script: object) -> bool:
         return False
 
     success_block = run_script[success.end() : failed.start()]
-    normalized_block = re.sub(r"\\\r?\n[ \t]*", " ", success_block)
+    normalized_block = re.sub(r"[ \t]*\\\r?\n[ \t]*", " ", success_block)
     active_lines = [line.strip() for line in normalized_block.splitlines()]
     result_read = (
         'aws athena get-query-results --query-execution-id "$QUERY_ID" '
