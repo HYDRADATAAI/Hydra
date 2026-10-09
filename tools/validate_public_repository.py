@@ -139,6 +139,47 @@ STALE_PUBLIC_PHRASES = (
 MARKDOWN_LINK = re.compile(r"!?(?:\[[^\]]*\])\(([^)]+)\)")
 
 
+def validate_workflow_action_pins(errors: list[str]) -> None:
+    """Require immutable commit SHAs for every external workflow action/workflow."""
+    workflows_root = ROOT / ".github" / "workflows"
+    if not workflows_root.is_dir():
+        errors.append("GitHub Actions workflows directory is missing")
+        return
+
+    uses_line = re.compile(r"^\\s*(?:-\\s*)?uses:\\s*(.*?)\\s*$")
+    commit_sha = re.compile(r"^[0-9a-fA-F]{40}$")
+    workflow_files = sorted(
+        path
+        for path in workflows_root.rglob("*")
+        if path.is_file() and path.suffix.casefold() in {".yml", ".yaml"}
+    )
+    for path in workflow_files:
+        relative = path.relative_to(ROOT).as_posix()
+        try:
+            lines = path.read_text(encoding="utf-8-sig").splitlines()
+        except OSError as exc:
+            errors.append(f"unable to read workflow {relative}: {exc}")
+            continue
+        for line_number, line in enumerate(lines, start=1):
+            match = uses_line.match(line)
+            if match is None:
+                continue
+            reference = match.group(1).strip()
+            if " #" in reference:
+                reference = reference.split(" #", 1)[0].rstrip()
+            reference = reference.strip().strip("\\\"'")
+            if not reference:
+                errors.append(f"empty workflow uses reference: {relative}:{line_number}")
+                continue
+            if reference.startswith("./"):
+                continue
+            action_name, separator, ref = reference.rpartition("@")
+            if not separator or not action_name or not commit_sha.fullmatch(ref):
+                errors.append(
+                    f"external workflow uses reference must end in a full 40-character "
+                    f"commit SHA: {relative}:{line_number} -> {reference}"
+                )
+
 def clean_reference(reference: str) -> str:
     value = reference.strip().strip("'\"")
     if value.startswith("<") and ">" in value:
@@ -1580,6 +1621,7 @@ def main() -> int:
     errors: list[str] = []
 
     validate_required_paths(errors)
+    validate_workflow_action_pins(errors)
     validate_public_language(errors)
     validate_markdown_links(errors)
     validate_safety_contract(errors)
@@ -1599,6 +1641,7 @@ def main() -> int:
     print("FAIL_CLOSED_CONTRACT=PASS")
     print("MARKDOWN_LINKS=PASS")
     print("VALIDATOR_CI_CONTRACT=PASS")
+    print("WORKFLOW_ACTION_PINS=PASS")
     print("MARKET_PIPELINE_CI_CONTRACT=PASS")
     print("SQL_SAMPLE_CI_CONTRACT=PASS")
     print("AWS_SAMPLE_CI_CONTRACT=PASS")
