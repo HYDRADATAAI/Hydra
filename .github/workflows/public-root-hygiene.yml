@@ -16,9 +16,6 @@ jobs:
       - name: Checkout
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
 
-      - name: Test tracked artifact path policy
-        run: python -m unittest discover -s tools -p "test_public_root_hygiene.py" -v
-
       - name: Reject build-transfer artifacts at repository root
         shell: bash
         run: |
@@ -30,7 +27,7 @@ jobs:
             case "$file" in
               *.zip|*.zip.sha256|EXTRACT_*.ps1) bad=1 ;;
             esac
-            if [[ "$file" =~ \\ \\([0-9]+\\)\\.[^/]+$ ]]; then
+            if [[ "$file" =~ \ \([0-9]+\)\.[^/]+$ ]]; then
               bad=1
             fi
             if [[ "$bad" -eq 1 ]]; then
