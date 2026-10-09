@@ -988,10 +988,16 @@ def validate_ci_contract(errors: list[str]) -> None:
     hygiene_workflow = (
         ROOT / ".github/workflows/public-root-hygiene.yml"
     ).read_text(encoding="utf-8-sig")
+    if not workflow_event_is_unfiltered(hygiene_workflow, "pull_request"):
+        errors.append("public-root hygiene CI pull-request trigger must be unfiltered")
     hygiene_job = workflow_job_block(hygiene_workflow, "public-root-hygiene")
     if hygiene_job is None:
         errors.append("public-root hygiene CI job is missing")
     else:
+        if re.search(r"(?m)^    if\\s*:", hygiene_job):
+            errors.append("public-root hygiene CI job must be unconditional")
+        if re.search(r"(?m)^    continue-on-error\\s*:", hygiene_job):
+            errors.append("public-root hygiene CI job must fail closed")
         expected_hygiene_steps = {
             "Test tracked artifact path policy":
                 'python -m unittest discover -s tools -p "test_public_root_hygiene.py" -v',
