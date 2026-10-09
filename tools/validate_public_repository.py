@@ -1161,6 +1161,7 @@ def validate_ci_contract(errors: list[str]) -> None:
         "ResourceStatus == \"DELETE_FAILED\"",
         "deployed_outputs_match_local_replay",
         "start-query-execution",
+        "--page-size 1000",
         "--max-items 1000",
         '--starting-token "$token"',
         "NextToken",
