@@ -146,6 +146,7 @@ FENCED_CODE = re.compile(
     r"(?ms)^[ \t]{0,3}(\x60{3,}|~{3,})[^\n]*(?:\n|$).*?^[ \t]{0,3}\1[ \t]*$"
 )
 INLINE_CODE_SPAN = re.compile(r"(\x60+)(.*?)\1", re.DOTALL)
+MARKDOWN_INLINE_OPEN = re.compile(r"^[ \t]{0,3}([~\x60]{3,})")
 
 
 class HTMLLocalReferenceParser(HTMLParser):
@@ -171,13 +172,70 @@ class HTMLLocalReferenceParser(HTMLParser):
                 self.references.append(value)
 
 
+def _blank_code_text(text: str) -> str:
+    return "".join("\n" if character == "\n" else " " for character in text)
+
+
 def _blank_code(match: re.Match[str]) -> str:
-    return "".join("\n" if character == "\n" else " " for character in match.group())
+    return _blank_code_text(match.group())
 
 
 def strip_markdown_code(text: str) -> str:
-    text = FENCED_CODE.sub(_blank_code, text)
+    output: list[str] = []
+    fence_character: str | None = None
+    fence_length = 0
+    for line in text.splitlines(keepends=True):
+        if fence_character is None:
+            opening = MARKDOWN_INLINE_OPEN.match(line)
+            if opening:
+                marker = opening.group(1)
+                if len(set(marker)) == 1:
+                    fence_character = marker[0]
+                    fence_length = len(marker)
+                    output.append(_blank_code_text(line))
+                    continue
+            output.append(line)
+            continue
+
+        output.append(_blank_code_text(line))
+        closing_text = line.rstrip("\r\n")
+        closing = re.fullmatch(
+            rf"[ \t]{{0,3}}{re.escape(fence_character)}{{{fence_length},}}[ \t]*",
+            closing_text,
+        )
+        if closing:
+            fence_character = None
+            fence_length = 0
+
+    text = "".join(output)
     return INLINE_CODE_SPAN.sub(_blank_code, text)
+
+
+def _is_escaped(text: str, index: int) -> bool:
+    backslashes = 0
+    index -= 1
+    while index >= 0 and text[index] == "\\":
+        backslashes += 1
+        index -= 1
+    return backslashes % 2 == 1
+
+
+def _has_matching_open_bracket(text: str, closing_index: int) -> bool:
+    if _is_escaped(text, closing_index):
+        return False
+    depth = 0
+    for index in range(closing_index - 1, -1, -1):
+        if _is_escaped(text, index):
+            continue
+        if text[index] == "]":
+            depth += 1
+        elif text[index] == "[":
+            if depth == 0:
+                return False
+            depth -= 1
+            if depth == 0:
+                return True
+    return False
 
 
 def markdown_inline_link_references(text: str) -> list[str]:
@@ -188,6 +246,9 @@ def markdown_inline_link_references(text: str) -> list[str]:
         marker = text.find("](", cursor)
         if marker < 0:
             return references
+        if not _has_matching_open_bracket(text, marker):
+            cursor = marker + 2
+            continue
         index = marker + 2
         while index < len(text) and text[index].isspace():
             index += 1
@@ -241,7 +302,6 @@ def document_link_references(text: str) -> list[str]:
     html_parser.close()
     references.extend(html_parser.references)
     return references
-
 
 def clean_reference(reference: str) -> str:
     value = reference.strip().strip("'\"")
