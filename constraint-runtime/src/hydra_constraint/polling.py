@@ -17,6 +17,19 @@ import urllib.request
 from .adapters import ADAPTERS
 
 RETRYABLE={429,500,502,503,504}
+DEFAULT_MAX_RESPONSE_BYTES=2_000_000
+
+class ResponseTooLargeError(ValueError):
+    def __init__(self, max_bytes, status=None):
+        self.max_bytes=max_bytes
+        self.status=status
+        super().__init__(f"response exceeds max_bytes={max_bytes}")
+
+def _read_bounded(stream, max_bytes, status):
+    body=stream.read(max_bytes+1)
+    if len(body)>max_bytes:
+        raise ResponseTooLargeError(max_bytes,status)
+    return body
 
 def utc_now():
     return datetime.now(timezone.utc).isoformat().replace("+00:00","Z")
@@ -87,13 +100,22 @@ class FixtureTransport:
         return seq[min(i,len(seq)-1)]
 
 class UrllibTransport:
+    def __init__(self,max_bytes=DEFAULT_MAX_RESPONSE_BYTES):
+        if not isinstance(max_bytes,int) or isinstance(max_bytes,bool) or max_bytes<=0:
+            raise ValueError("max_bytes must be a positive integer")
+        self.max_bytes=max_bytes
+
     def fetch(self,url,headers=None,timeout=20):
         req=urllib.request.Request(url,headers=headers or {},method="GET")
         try:
             with urllib.request.urlopen(req,timeout=timeout) as r:
-                return HttpResponse(url,int(r.status),{k.lower():v for k,v in r.headers.items()},r.read(),utc_now())
+                status=int(r.status)
+                body=_read_bounded(r,self.max_bytes,status)
+                return HttpResponse(url,status,{k.lower():v for k,v in r.headers.items()},body,utc_now())
         except urllib.error.HTTPError as e:
-            return HttpResponse(url,int(e.code),{k.lower():v for k,v in (e.headers.items() if e.headers else [])},e.read(),utc_now())
+            status=int(e.code)
+            body=_read_bounded(e,self.max_bytes,status)
+            return HttpResponse(url,status,{k.lower():v for k,v in (e.headers.items() if e.headers else [])},body,utc_now())
 
 class RecordingSleeper:
     def __init__(self):
@@ -194,9 +216,14 @@ class PollReport:
         return asdict(self)
 
 class PollRunner:
-    def __init__(self,durable,cursors,archive,transport,sleeper=None):
+    def __init__(self,durable,cursors,archive,transport,sleeper=None,max_response_bytes=None):
         self.durable=durable; self.cursors=cursors; self.archive=archive
         self.transport=transport; self.sleeper=sleeper or time
+        if max_response_bytes is None:
+            max_response_bytes=getattr(transport,"max_bytes",DEFAULT_MAX_RESPONSE_BYTES)
+        if not isinstance(max_response_bytes,int) or isinstance(max_response_bytes,bool) or max_response_bytes<=0:
+            raise ValueError("max_response_bytes must be a positive integer")
+        self.max_response_bytes=max_response_bytes
 
     def validate_live_spec(self,spec):
         if spec.source_class=="sec_edgar":
@@ -212,10 +239,20 @@ class PollRunner:
         for attempt in range(1,spec.backoff.max_attempts+1):
             try:
                 response=self.transport.fetch(spec.url,spec.headers)
+            except ResponseTooLargeError as exc:
+                if exc.status is not None:
+                    statuses.append(exc.status)
+                error=str(exc); response=None
+                break
             except Exception as exc:
                 error=str(exc); response=None
                 if attempt<spec.backoff.max_attempts:
                     delay=spec.backoff.delay(attempt); delays.append(delay); self.sleeper.sleep(delay); continue
+                break
+            if len(response.body)>self.max_response_bytes:
+                statuses.append(response.status)
+                error=str(ResponseTooLargeError(self.max_response_bytes,response.status))
+                response=None
                 break
             statuses.append(response.status)
             hashes.append(self.archive.archive(spec.name,response,attempt))
