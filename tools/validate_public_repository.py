@@ -332,7 +332,7 @@ def _flow_uses_key_after(line: str, start: int) -> bool:
         return False
     if line[start] == "*":
         cursor = start + 1
-        while cursor < len(line) and not line[cursor].isspace() and line[cursor] not in ",]}":
+        while cursor < len(line) and not line[cursor].isspace() and line[cursor] not in ",:]}":
             cursor += 1
         while cursor < len(line) and line[cursor].isspace():
             cursor += 1
