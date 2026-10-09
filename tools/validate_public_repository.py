@@ -1255,11 +1255,20 @@ def validate_ci_contract(errors: list[str]) -> None:
         else:
             run_script = athena_steps[0].get("run", "")
             result_read = 'aws athena get-query-results --query-execution-id "$QUERY_ID" > "$SAMPLE_DIR/build/deployed/athena_query_results.json"'
+            if isinstance(run_script, str):
+                normalized_run_script = re.sub(
+                    r"\\s+",
+                    " ",
+                    run_script.replace("\\\\\n", " "),
+                ).strip()
+            else:
+                normalized_run_script = ""
             if (
-                not isinstance(run_script, str)
-                or result_read not in run_script
-                or expected_verifier not in run_script
-                or run_script.index(result_read) > run_script.index(expected_verifier)
+                not normalized_run_script
+                or result_read not in normalized_run_script
+                or expected_verifier not in normalized_run_script
+                or normalized_run_script.index(result_read)
+                > normalized_run_script.index(expected_verifier)
             ):
                 errors.append(
                     "aws-deploy Athena success step must save results before invoking the row-count verifier"
