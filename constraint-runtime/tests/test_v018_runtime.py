@@ -399,7 +399,7 @@ class PollRateLimitTests(unittest.TestCase):
             sleeper=clock,clock=clock.monotonic,
         )
         tracked_lock=self.TrackingLock()
-        runner._source_locks["sec"]=tracked_lock
+        runner._poll_lock=tracked_lock
         spec=self.make_spec(max_rps=2)
         first=threading.Thread(target=runner.poll,args=(spec,))
         def run_second_poll():
