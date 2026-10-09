@@ -30,6 +30,7 @@ SYMBOL_ALIASES = {"AAA.US": "AAA", "EEE.US": "EEE"}
 SYMBOL_PATTERN = re.compile(r"^[A-Z][A-Z0-9.-]{0,15}$")
 VENUE_PATTERN = re.compile(r"^[A-Z0-9][A-Z0-9.-]{0,15}$")
 SIX_PLACES = Decimal("0.000001")
+MAX_SOURCE_ROWS = 10_000
 ERROR_MESSAGES = {
     "currency_invalid": "currency must be exactly three alphabetic characters",
     "duplicate_normalized_event": "normalized symbol, UTC timestamp, and venue already appeared earlier in the file",
@@ -109,6 +110,8 @@ def process_csv(source_bytes: bytes) -> ProcessedBatch:
     seen_event_ids: set[str] = set()
 
     for source_row_number, row in enumerate(reader, start=2):
+        if source_row_number > MAX_SOURCE_ROWS + 1:
+            raise ContractError(f"input CSV exceeds max_rows={MAX_SOURCE_ROWS}")
         raw_record = {
             column: "" if row.get(column) is None else str(row[column])
             for column in REQUIRED_COLUMNS
