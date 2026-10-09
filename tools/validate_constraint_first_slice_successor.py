@@ -295,7 +295,13 @@ def validate_batch008_manifest_successor() -> None:
         None,
     )
     require(workflow_entry is not None, "Batch008 predecessor workflow pin is missing")
-    workflow_entry["git_blob_sha"] = "b1bedb8e18487294d236e7a9e2371154c00918d3"
+    require(
+        workflow_entry.get("git_blob_sha") == "4e4744e3cc0a51a4aebb8d7dd4f9b0e585f384fa",
+        "Batch008 predecessor workflow pin drifted",
+    )
+    workflow_entry["git_blob_sha"] = git_blob_sha(
+        ROOT / ".github/workflows/constraint-t1-raw-artifact-store.yml"
+    )
     require(
         successor.get("artifacts") == expected_artifacts,
         "Batch008 successor artifact set changed beyond workflow pin",
