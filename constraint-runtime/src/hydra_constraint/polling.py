@@ -8,8 +8,10 @@ import csv
 import hashlib
 import io
 import json
+import math
 import os
 import tempfile
+import threading
 import time
 import urllib.error
 import urllib.request
@@ -194,9 +196,36 @@ class PollReport:
         return asdict(self)
 
 class PollRunner:
-    def __init__(self,durable,cursors,archive,transport,sleeper=None):
+    def __init__(self,durable,cursors,archive,transport,sleeper=None,clock=None):
         self.durable=durable; self.cursors=cursors; self.archive=archive
         self.transport=transport; self.sleeper=sleeper or time
+        self.clock=clock or time.monotonic
+        self._source_locks_lock=threading.Lock()
+        self._source_locks={}
+        self._last_request_at={}
+
+    @staticmethod
+    def _request_interval(spec):
+        if (
+            isinstance(spec.max_rps,bool)
+            or not isinstance(spec.max_rps,(int,float))
+            or not math.isfinite(spec.max_rps)
+            or spec.max_rps<=0
+        ):
+            raise ValueError("max_rps must be finite and greater than zero")
+        return 1.0/spec.max_rps
+
+    def _pace_request(self,spec,interval):
+        last=self._last_request_at.get(spec.name)
+        if last is not None:
+            remaining=interval-(self.clock()-last)
+            if remaining>0:
+                self.sleeper.sleep(remaining)
+        self._last_request_at[spec.name]=self.clock()
+
+    def _source_request_lock(self,name):
+        with self._source_locks_lock:
+            return self._source_locks.setdefault(name,threading.Lock())
 
     def validate_live_spec(self,spec):
         if spec.source_class=="sec_edgar":
@@ -207,13 +236,17 @@ class PollRunner:
                 raise ValueError("SEC max_rps exceeds fair-access ceiling")
 
     def poll(self,spec,cursor_value=None):
+        interval=self._request_interval(spec)
         before=self.cursors.adapter(spec.name).get("cursor")
         statuses=[]; hashes=[]; delays=[]; response=None; error=None
         for attempt in range(1,spec.backoff.max_attempts+1):
-            try:
-                response=self.transport.fetch(spec.url,spec.headers)
-            except Exception as exc:
-                error=str(exc); response=None
+            with self._source_request_lock(spec.name):
+                self._pace_request(spec,interval)
+                try:
+                    response=self.transport.fetch(spec.url,spec.headers)
+                except Exception as exc:
+                    error=str(exc); response=None
+            if response is None:
                 if attempt<spec.backoff.max_attempts:
                     delay=spec.backoff.delay(attempt); delays.append(delay); self.sleeper.sleep(delay); continue
                 break
