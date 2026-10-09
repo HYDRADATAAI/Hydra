@@ -92,7 +92,7 @@ class PollingResponseLimitTests(unittest.TestCase):
 
         class Durable:
             def ingest_adapted(self, _record):
-                self.fail("oversized response must not be parsed or ingested")
+                raise AssertionError("oversized response must not be parsed or ingested")
 
         class Sleeper:
             def __init__(self):
