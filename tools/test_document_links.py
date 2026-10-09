@@ -29,7 +29,7 @@ class DocumentLinkValidationTests(unittest.TestCase):
     def test_inline_markdown_missing_target_fails(self):
         with tempfile.TemporaryDirectory() as temporary:
             errors = self.validate_markdown(
-                Path(temporary), "[missing](missing.md)\\n"
+                Path(temporary), "[missing](missing.md)\n"
             )
         self.assertEqual(len(errors), 1)
         self.assertIn("missing.md", errors[0])
@@ -52,37 +52,41 @@ class DocumentLinkValidationTests(unittest.TestCase):
             docs = root / "docs"
             docs.mkdir()
             (docs / "guide_(v2).md").write_text("guide", encoding="utf-8")
-            errors = self.validate_markdown(
-                root,
-                "[balanced](guide_(v2).md) [escaped](guide_\\(v2\\).md)\\n",
+            markdown = (
+                "[balanced](guide_(v2).md) "
+                "[escaped](guide_\\(v2\\).md)\n"
             )
+            self.assertEqual(
+                validator.document_link_references(markdown),
+                ["guide_(v2).md", "guide_(v2).md"],
+            )
+            errors = self.validate_markdown(root, markdown)
         self.assertEqual(errors, [])
-
     def test_code_spans_and_fences_are_not_links(self):
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
             errors = self.validate_markdown(
                 root,
-                "Example `[missing](missing.md) <a href='also-missing.html'>`\\n"
-                "```html\\n"
-                "<a href='fenced-missing.html'>example</a>\\n"
-                "[example](fenced-missing.md)\\n"
-                "```\\n",
+                "Example `[missing](missing.md) <a href='also-missing.html'>`\n"
+                "```html\n"
+                "<a href='fenced-missing.html'>example</a>\n"
+                "[example](fenced-missing.md)\n"
+                "```\n",
             )
         self.assertEqual(errors, [])
 
     def test_longer_tilde_fence_closer_hides_code_links(self):
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
-            errors = self.validate_markdown(
-                root,
-                "~~~html\\n"
-                "<a href='missing.html'>example</a>\\n"
-                "[example](missing.md)\\n"
-                "~~~~\\n",
+            markdown = (
+                "~~~html\n"
+                "<a href='missing.html'>example</a>\n"
+                "[example](missing.md)\n"
+                "~~~~\n"
             )
+            self.assertEqual(validator.document_link_references(markdown), [])
+            errors = self.validate_markdown(root, markdown)
         self.assertEqual(errors, [])
-
     def test_outside_target_fails_when_old_sentinel_exists(self):
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
@@ -90,7 +94,7 @@ class DocumentLinkValidationTests(unittest.TestCase):
                 "sentinel", encoding="utf-8"
             )
             errors = self.validate_markdown(
-                root, "[escape](../../outside.txt)\\n"
+                root, "[escape](../../outside.txt)\n"
             )
         self.assertEqual(len(errors), 1)
         self.assertIn("escapes repository", errors[0])
@@ -98,7 +102,7 @@ class DocumentLinkValidationTests(unittest.TestCase):
     def test_prose_with_closing_bracket_and_paren_is_ignored(self):
         with tempfile.TemporaryDirectory() as temporary:
             errors = self.validate_markdown(
-                Path(temporary), "The sequence ](missing.md) appears in prose.\\n"
+                Path(temporary), "The sequence ](missing.md) appears in prose.\n"
             )
         self.assertEqual(errors, [])
 
