@@ -8,7 +8,6 @@ import json
 import re
 import sys
 import tomllib
-import tomllib
 from html.parser import HTMLParser
 from pathlib import Path
 from urllib.parse import unquote, urlsplit
