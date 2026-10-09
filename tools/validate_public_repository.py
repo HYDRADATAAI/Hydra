@@ -24,6 +24,8 @@ REQUIRED_PATHS = (
     "README.md",
     ".github/workflows/public-root-hygiene.yml",
     ".github/workflows/t6-validator.yml",
+    "tools/public_root_hygiene.py",
+    "tools/test_public_root_hygiene.py",
     "t6-fail-closed-validator/README.md",
     "t6-fail-closed-validator/pyproject.toml",
     "t6-fail-closed-validator/src/hydra_t6_failclosed/__init__.py",
@@ -983,6 +985,15 @@ def validate_ci_contract(errors: list[str]) -> None:
                     f"workflow action must use a full commit SHA or image digest: "
                     f"{workflow_path.relative_to(ROOT)}: {action_ref}"
                 )
+    hygiene_workflow = (
+        ROOT / ".github/workflows/public-root-hygiene.yml"
+    ).read_text(encoding="utf-8-sig")
+    for fragment in (
+        'python -m unittest discover -s tools -p "test_public_root_hygiene.py" -v',
+        "python tools/public_root_hygiene.py",
+    ):
+        if fragment not in hygiene_workflow:
+            errors.append(f"public-root hygiene CI contract missing: {fragment}")
     documentation_contracts = {
         ROOT / "README.md": (
             "15-member deterministic proof package intentionally includes",
