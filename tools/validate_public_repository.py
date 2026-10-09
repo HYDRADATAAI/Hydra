@@ -1145,16 +1145,28 @@ def validate_ci_contract(errors: list[str]) -> None:
         "aws-actions/setup-sam@89ddb14d60e682855e3fea4be85b3c56485de310",
         "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02",
         "path: aws-market-data-pipeline/build/deployed/deployment_evidence.json",
+        "STACK_NAME: ${{ inputs.stack_name }}-${{ github.run_id }}-${{ github.run_attempt }}",
         "if: github.ref == 'refs/heads/main'",
         "hydra-public-market-pipeline-demo-",
         "Validate deployment target",
         "Refuse to modify an existing stack",
         "Refusing to update or delete an existing stack.",
-        "HYDRA_STACK_OWNED_BY_RUN",
-        "inputs.teardown && env.HYDRA_STACK_OWNED_BY_RUN == 'true'",
+        "id: deploy_stack",
+        "inputs.teardown && steps.deploy_stack.outcome != 'skipped'",
         "sam deploy",
+        "--query 'Stacks[0].StackStatus'",
+        "CREATE_COMPLETE",
+        "timeout-minutes: 75",
+        "seq 1 360",
+        "hydra:deployment-run",
+        "stack_owner",
+        "ResourceStatus == \"DELETE_FAILED\"",
         "deployed_outputs_match_local_replay",
         "start-query-execution",
+        "--page-size 1000",
+        "--max-items 1000",
+        '--starting-token "$token"',
+        "NextToken",
         "inputs.teardown",
         "sam delete",
     )
@@ -1163,6 +1175,14 @@ def validate_ci_contract(errors: list[str]) -> None:
             errors.append(f"aws-deploy workflow contract missing: {fragment}")
     if re.search(r"(?m)^  (?:pull_request|push):", deploy_workflow):
         errors.append("aws-deploy workflow must remain manual-only")
+
+    preflight_position = deploy_workflow.index(
+        "- name: Refuse to modify an existing stack"
+    )
+    deploy_step_position = deploy_workflow.index("id: deploy_stack")
+    sam_deploy_position = deploy_workflow.index("sam deploy")
+    if not (preflight_position < deploy_step_position < sam_deploy_position):
+        errors.append("aws-deploy teardown gate must identify the deploy attempt step")
 
     deploy_action_pins = {
         "actions/checkout": "11d5960a326750d5838078e36cf38b85af677262",

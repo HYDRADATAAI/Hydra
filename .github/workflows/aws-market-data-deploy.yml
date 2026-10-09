@@ -9,7 +9,7 @@ on:
         default: us-east-1
         type: string
       stack_name:
-        description: New stack name using the reserved HYDRA demo prefix
+        description: Per-run stack name based on the reserved HYDRA demo prefix
         required: true
         default: hydra-public-market-pipeline-demo-20261007
         type: string
@@ -34,9 +34,9 @@ jobs:
     environment: aws-demo
     env:
       AWS_REGION: ${{ inputs.aws_region }}
-      STACK_NAME: ${{ inputs.stack_name }}
+      STACK_NAME: ${{ inputs.stack_name }}-${{ github.run_id }}-${{ github.run_attempt }}
       SAMPLE_DIR: aws-market-data-pipeline
-      HYDRA_STACK_OWNED_BY_RUN: 'false'
+      DEPLOYMENT_RUN_TOKEN: ${{ github.run_id }}-${{ github.run_attempt }}
     steps:
       - name: Checkout
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
@@ -49,7 +49,7 @@ jobs:
       - name: Validate deployment target
         run: |
           set -euo pipefail
-          if [[ ! "$STACK_NAME" =~ ^hydra-public-market-pipeline-demo-[a-z0-9-]{1,32}$ ]]; then
+          if [[ ! "$STACK_NAME" =~ ^hydra-public-market-pipeline-demo-[a-z0-9-]{1,64}$ ]]; then
             echo "Stack name must use the reserved hydra-public-market-pipeline-demo- prefix and a lowercase suffix." >&2
             exit 1
           fi
@@ -87,6 +87,7 @@ jobs:
           sam build --template-file "$SAMPLE_DIR/template.json"
 
       - name: Deploy temporary stack
+        id: deploy_stack
         run: |
           set -euo pipefail
           account_id=$(aws sts get-caller-identity --query Account --output text)
@@ -96,7 +97,6 @@ jobs:
           curated_bucket_name="hydra-public-curated-${bucket_suffix}"
           echo "RAW_BUCKET=$raw_bucket_name" >> "$GITHUB_ENV"
           echo "CURATED_BUCKET=$curated_bucket_name" >> "$GITHUB_ENV"
-          echo "HYDRA_STACK_OWNED_BY_RUN=true" >> "$GITHUB_ENV"
           sam deploy \
             --stack-name "$STACK_NAME" \
             --region "$AWS_REGION" \
@@ -107,7 +107,7 @@ jobs:
             --parameter-overrides \
               RawBucketName="$raw_bucket_name" \
               CuratedBucketName="$curated_bucket_name" \
-            --tags hydra:sample=aws-market-data-pipeline hydra:data-boundary=synthetic-non-live
+            --tags hydra:sample=aws-market-data-pipeline hydra:data-boundary=synthetic-non-live hydra:deployment-run="$DEPLOYMENT_RUN_TOKEN"
 
       - name: Read non-sensitive stack outputs
         run: |
@@ -224,24 +224,79 @@ jobs:
           if-no-files-found: error
 
       - name: Empty versioned buckets and delete stack
-        if: ${{ always() && inputs.teardown && env.HYDRA_STACK_OWNED_BY_RUN == 'true' }}
+        timeout-minutes: 75
+        if: ${{ always() && inputs.teardown && steps.deploy_stack.outcome != 'skipped' }}
         run: |
+          set -euo pipefail
           set +e
-          output() {
-            aws cloudformation describe-stacks \
-              --stack-name "$STACK_NAME" \
-              --region "$AWS_REGION" \
-              --query "Stacks[0].Outputs[?OutputKey=='$1'].OutputValue" \
-              --output text 2>/dev/null
-          }
-          raw_bucket="${RAW_BUCKET:-$(output RawBucketName)}"
-          curated_bucket="${CURATED_BUCKET:-$(output CuratedBucketName)}"
-          for bucket in "$raw_bucket" "$curated_bucket"; do
-            [[ -z "$bucket" ]] && continue
-            aws s3 rm "s3://$bucket" --recursive --region "$AWS_REGION"
-            versions=$(aws s3api list-object-versions --bucket "$bucket" --region "$AWS_REGION" --output json | jq '{Objects: (((.Versions // []) + (.DeleteMarkers // [])) | map({Key,VersionId})), Quiet: true}')
-            if [[ $(jq '.Objects | length' <<< "$versions") -gt 0 ]]; then
-              aws s3api delete-objects --bucket "$bucket" --region "$AWS_REGION" --delete "$versions"
+          stack_description=$(aws cloudformation describe-stacks --stack-name "$STACK_NAME" --region "$AWS_REGION" --output json 2>&1)
+          describe_status=$?
+          set -e
+          if [[ "$describe_status" -ne 0 ]]; then
+            if [[ "$stack_description" == *"does not exist"* ]]; then
+              exit 0
             fi
+            printf '%s\n' "$stack_description" >&2
+            exit "$describe_status"
+          fi
+
+          stack_owner=$(jq -r '.Stacks[0].Tags[]? | select(.Key == "hydra:deployment-run") | .Value' <<< "$stack_description")
+          if [[ "$stack_owner" != "$DEPLOYMENT_RUN_TOKEN" ]]; then
+            echo "Refusing teardown because the stack ownership tag does not match this run." >&2
+            exit 1
+          fi
+
+          stack_status=$(jq -r '.Stacks[0].StackStatus' <<< "$stack_description")
+          for attempt in $(seq 1 360); do
+            case "$stack_status" in
+              CREATE_IN_PROGRESS|ROLLBACK_IN_PROGRESS)
+                sleep 10
+                stack_status=$(aws cloudformation describe-stacks --stack-name "$STACK_NAME" --region "$AWS_REGION" --query 'Stacks[0].StackStatus' --output text)
+                ;;
+              *)
+                break
+                ;;
+            esac
           done
+          case "$stack_status" in
+            CREATE_COMPLETE|CREATE_FAILED|ROLLBACK_COMPLETE|ROLLBACK_FAILED) ;;
+            *)
+              echo "Refusing teardown in unexpected CloudFormation state: $stack_status" >&2
+              exit 1
+              ;;
+          esac
+
+          resources=$(aws cloudformation describe-stack-resources --stack-name "$STACK_NAME" --region "$AWS_REGION" --output json)
+          while IFS=$'\t' read -r logical_id bucket_name; do
+            case "$logical_id" in
+              RawBucket) expected_bucket="$RAW_BUCKET" ;;
+              CuratedBucket) expected_bucket="$CURATED_BUCKET" ;;
+              *) continue ;;
+            esac
+            if [[ "$bucket_name" != "$expected_bucket" ]]; then
+              echo "Refusing to empty an S3 bucket not bound to this stack resource." >&2
+              exit 1
+            fi
+
+            aws s3 rm "s3://$bucket_name" --recursive --region "$AWS_REGION"
+            token=""
+            while :; do
+              if [[ -n "$token" ]]; then
+                versions=$(aws s3api list-object-versions --bucket "$bucket_name" --region "$AWS_REGION" --page-size 1000 --max-items 1000 --starting-token "$token" --output json)
+              else
+                versions=$(aws s3api list-object-versions --bucket "$bucket_name" --region "$AWS_REGION" --page-size 1000 --max-items 1000 --output json)
+              fi
+              deletions=$(jq '{Objects: (((.Versions // []) + (.DeleteMarkers // [])) | map({Key,VersionId})), Quiet: true}' <<< "$versions")
+              if [[ $(jq '.Objects | length' <<< "$deletions") -gt 0 ]]; then
+                delete_result=$(aws s3api delete-objects --bucket "$bucket_name" --region "$AWS_REGION" --delete "$deletions" --output json)
+                if [[ $(jq '.Errors | length' <<< "$delete_result") -gt 0 ]]; then
+                  echo "S3 version cleanup reported errors for $bucket_name." >&2
+                  exit 1
+                fi
+              fi
+              token=$(jq -r '.NextToken // empty' <<< "$versions")
+              [[ -z "$token" ]] && break
+            done
+          done < <(jq -r '.StackResources[] | select((.LogicalResourceId == "RawBucket" or .LogicalResourceId == "CuratedBucket") and (.ResourceStatus == "CREATE_COMPLETE" or .ResourceStatus == "DELETE_FAILED")) | [.LogicalResourceId, .PhysicalResourceId] | @tsv' <<< "$resources")
+
           sam delete --stack-name "$STACK_NAME" --region "$AWS_REGION" --no-prompts
