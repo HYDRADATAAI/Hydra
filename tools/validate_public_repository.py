@@ -401,6 +401,9 @@ def validate_workflow_action_uses(errors: list[str]) -> None:
         decorated_key = re.compile(
             rf"""^\s*(?:-\s*)?(?:{node_property}\s+)+(?P<key>'(?:[^']|'')*'|"(?:\\.|[^"\\])*"|[^:\s]+)\s*:"""
         )
+        decorated_explicit_key = re.compile(
+            rf"""^\s*(?:-\s*)?(?:{node_property}\s+)+\?\s+"""
+        )
         run_block = re.compile(r"^\s*(?:-\s*)?run\s*:\s*[|>](?:[+-]?\d?|[0-9]?[+-]?)\s*(?:#.*)?$")
         run_scalar = re.compile(r"^\s*(?:-\s*)?run\s*:")
         for line_number, line in enumerate(lines, start=1):
@@ -443,6 +446,7 @@ def validate_workflow_action_uses(errors: list[str]) -> None:
                     quoted_key_is_uses
                     or decorated_key_is_uses
                     or explicit_key_indicator.match(line) is not None
+                    or decorated_explicit_key.match(line) is not None
                     or alias_key.match(line) is not None
                     or (explicit_key_match is not None and explicit_key_match.group("key") == "uses")
                     or (
