@@ -42,7 +42,7 @@ jobs:
         run: python -m pip install --disable-pip-version-check PyYAML==6.0.2
 
       - name: Test workflow action reference parsing
-        run: python -m unittest tools/test_workflow_action_refs.py -v
+        run: python -m unittest tools/test_workflow_action_refs.py tools/test_document_links.py -v
 
       - name: Validate public core-repository contract
         run: python tools/validate_public_repository.py
