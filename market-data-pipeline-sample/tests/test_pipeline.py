@@ -130,11 +130,11 @@ class MarketDataPipelineTests(unittest.TestCase):
             )
             self.assertEqual(
                 manifest["outputs"]["normalized_events_jsonl"]["sha256"],
-                "ec902bc92942197ddceb737b90421f36298b660c0788c99ac4c18b2e1c570e86",
+                "baf423790bc7536199693d2c9c475f68acb9908c97732976cc0cdbf0dce61ae5",
             )
             self.assertEqual(
                 manifest["outputs"]["normalized_events_csv"]["sha256"],
-                "c6528dfef24217c710a0eabaafd67c30da9b2a4d544be36a27bc1ca6a5c17385",
+                "39233a8df1b98f0220066fa8c1e4968ffa13b29a3e58833c16688888b6bc48f3",
             )
             self.assertEqual(
                 manifest["outputs"]["quarantine_records_jsonl"]["sha256"],
@@ -152,7 +152,7 @@ class MarketDataPipelineTests(unittest.TestCase):
         self.assertEqual(first.pipeline_run_id, second.pipeline_run_id)
         self.assertEqual(
             first.pipeline_run_id,
-            "9f03988bf0bc7245e85d13211ed0af8715da2c4e7464f2f7639a8532c33f3c0d",
+            "698f03d4e5636b14e6dcd24ed6a9dc6c1582e3a20d8fbcdaca62619d1117009e",
         )
         self.assertEqual(
             [event.event_id for event in first.accepted],

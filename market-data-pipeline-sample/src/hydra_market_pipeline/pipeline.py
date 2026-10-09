@@ -16,7 +16,7 @@ from .hashing import canonical_json_bytes, object_sha256, sha256_hex
 from .models import NormalizedEvent, PipelineResult, QuarantineRecord
 
 
-TRANSFORM_VERSION = "hydra-market-normalizer/v1"
+TRANSFORM_VERSION = "hydra-market-normalizer/v2"
 RUN_SCHEMA = "hydra-market-pipeline-run/v1"
 ROW_VALIDATION_STAGE = "row_validation"
 ALLOWED_SOURCE_SYSTEMS = frozenset({"SYNTH_A", "SYNTH_B", "SYNTH_VENDOR"})
