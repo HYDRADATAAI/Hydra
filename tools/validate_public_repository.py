@@ -139,10 +139,13 @@ STALE_PUBLIC_PHRASES = (
     "cross-thread",
 )
 
-MARKDOWN_LINK = re.compile(r"!?(?:\[[^\]]*\])\(([^)]+)\)")
 MARKDOWN_REFERENCE_DEFINITION = re.compile(
     r"(?im)^[ \t]{0,3}\[[^\]]+\]:[ \t]*(?:<([^>\n]+)>|([^\s]+))"
 )
+FENCED_CODE = re.compile(
+    r"(?ms)^[ \t]{0,3}(\`{3,}|~{3,})[^\n]*(?:\n|$).*?^[ \t]{0,3}\1[ \t]*$"
+)
+INLINE_CODE_SPAN = re.compile(r"(\`+)(.*?)\1", re.DOTALL)
 
 
 class HTMLLocalReferenceParser(HTMLParser):
@@ -168,8 +171,68 @@ class HTMLLocalReferenceParser(HTMLParser):
                 self.references.append(value)
 
 
+def _blank_code(match: re.Match[str]) -> str:
+    return "".join("\n" if character == "\n" else " " for character in match.group())
+
+
+def strip_markdown_code(text: str) -> str:
+    text = FENCED_CODE.sub(_blank_code, text)
+    return INLINE_CODE_SPAN.sub(_blank_code, text)
+
+
+def markdown_inline_link_references(text: str) -> list[str]:
+    """Read inline Markdown destinations while respecting escaped and nested parens."""
+    references: list[str] = []
+    cursor = 0
+    while True:
+        marker = text.find("](", cursor)
+        if marker < 0:
+            return references
+        index = marker + 2
+        while index < len(text) and text[index].isspace():
+            index += 1
+        if index >= len(text):
+            cursor = marker + 2
+            continue
+
+        if text[index] == "<":
+            start = index + 1
+            index = start
+            while index < len(text):
+                if text[index] == "\\":
+                    index += 2
+                    continue
+                if text[index] == ">":
+                    references.append(text[start:index])
+                    index += 1
+                    break
+                index += 1
+        else:
+            start = index
+            depth = 0
+            while index < len(text):
+                character = text[index]
+                if character == "\\":
+                    index += 2
+                    continue
+                if character == "(":
+                    depth += 1
+                elif character == ")":
+                    if depth == 0:
+                        break
+                    depth -= 1
+                elif character.isspace() and depth == 0:
+                    break
+                index += 1
+            destination = text[start:index]
+            if destination:
+                references.append(re.sub(r"\\([()])", r"\1", destination))
+        cursor = max(index, marker + 2)
+
+
 def document_link_references(text: str) -> list[str]:
-    references = [match.group(1) for match in MARKDOWN_LINK.finditer(text)]
+    text = strip_markdown_code(text)
+    references = markdown_inline_link_references(text)
     for match in MARKDOWN_REFERENCE_DEFINITION.finditer(text):
         references.append(match.group(1) or match.group(2))
 
