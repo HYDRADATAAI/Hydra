@@ -936,10 +936,14 @@ def validate_ci_contract(errors: list[str]) -> None:
     )
     for workflow_path in workflow_files:
         workflow_text = workflow_path.read_text(encoding="utf-8-sig")
-        action_refs = re.findall(
-            r"(?m)^\s*(?:-\s*)?uses:\s*([^\s#]+)",
-            workflow_text,
+        action_pattern = re.compile(
+            r"""(?m)(?:^|[{,])\s*(?:-\s*)?(?:uses|"uses"|'uses')\s*:\s*"""
+            r"""(?:"([^"]*)"|'([^']*)'|([^#\s,}]+))"""
         )
+        action_refs = [
+            next(value for value in match.groups() if value is not None)
+            for match in action_pattern.finditer(workflow_text)
+        ]
         for action_ref in action_refs:
             if action_ref.startswith("./"):
                 continue
