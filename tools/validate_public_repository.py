@@ -9,6 +9,8 @@ import re
 import sys
 import tomllib
 from pathlib import Path
+
+import yaml
 from urllib.parse import unquote, urlsplit
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -926,6 +928,27 @@ def validate_manifest_v2_replay_contract(errors: list[str]) -> None:
             errors.append(f"independent pipeline replay contract missing: {fragment}")
 
 
+def workflow_action_refs(workflow_text: str) -> list[str]:
+    document = yaml.load(workflow_text, Loader=yaml.BaseLoader)
+    jobs = document.get("jobs") if isinstance(document, dict) else None
+    if not isinstance(jobs, dict):
+        raise ValueError("workflow jobs mapping is missing")
+    references = []
+    for job in jobs.values():
+        if not isinstance(job, dict):
+            continue
+        if isinstance(job.get("uses"), str):
+            references.append(job["uses"])
+        steps = job.get("steps", [])
+        if isinstance(steps, list):
+            references.extend(
+                step["uses"]
+                for step in steps
+                if isinstance(step, dict) and isinstance(step.get("uses"), str)
+            )
+    return references
+
+
 def validate_ci_contract(errors: list[str]) -> None:
     validate_manifest_v2_replay_contract(errors)
     validate_pre_upload_verifier_contract(errors)
@@ -935,22 +958,27 @@ def validate_ci_contract(errors: list[str]) -> None:
         list(workflow_dir.glob("*.yml")) + list(workflow_dir.glob("*.yaml"))
     )
     for workflow_path in workflow_files:
-        workflow_text = workflow_path.read_text(encoding="utf-8-sig")
-        action_pattern = re.compile(
-            r"""(?m)(?:^|[{,])\s*(?:-\s*)?(?:uses|"uses"|'uses')\s*:\s*"""
-            r"""(?:"([^"]*)"|'([^']*)'|([^#\s,}]+))"""
-        )
-        action_refs = [
-            next(value for value in match.groups() if value is not None)
-            for match in action_pattern.finditer(workflow_text)
-        ]
+        try:
+            action_refs = workflow_action_refs(
+                workflow_path.read_text(encoding="utf-8-sig")
+            )
+        except (OSError, yaml.YAMLError, ValueError) as exc:
+            errors.append(
+                f"unable to parse workflow actions in "
+                f"{workflow_path.relative_to(ROOT)}: {exc}"
+            )
+            continue
         for action_ref in action_refs:
             if action_ref.startswith("./"):
                 continue
-            revision = action_ref.rpartition("@")[2]
-            if re.fullmatch(r"[0-9a-f]{40}", revision) is None:
+            if action_ref.startswith("docker://"):
+                pinned = re.search(r"@sha256:[0-9a-f]{64}$", action_ref)
+            else:
+                revision = action_ref.rpartition("@")[2]
+                pinned = re.fullmatch(r"[0-9a-f]{40}", revision)
+            if pinned is None:
                 errors.append(
-                    f"workflow action must use a full commit SHA: "
+                    f"workflow action must use a full commit SHA or image digest: "
                     f"{workflow_path.relative_to(ROOT)}: {action_ref}"
                 )
     documentation_contracts = {
