@@ -929,6 +929,26 @@ def validate_manifest_v2_replay_contract(errors: list[str]) -> None:
 def validate_ci_contract(errors: list[str]) -> None:
     validate_manifest_v2_replay_contract(errors)
     validate_pre_upload_verifier_contract(errors)
+
+    workflow_dir = ROOT / ".github" / "workflows"
+    workflow_files = sorted(
+        list(workflow_dir.glob("*.yml")) + list(workflow_dir.glob("*.yaml"))
+    )
+    for workflow_path in workflow_files:
+        workflow_text = workflow_path.read_text(encoding="utf-8-sig")
+        action_refs = re.findall(
+            r"(?m)^\\s*(?:-\\s*)?uses:\\s*([^\\s#]+)",
+            workflow_text,
+        )
+        for action_ref in action_refs:
+            if action_ref.startswith("./"):
+                continue
+            revision = action_ref.rpartition("@")[2]
+            if re.fullmatch(r"[0-9a-f]{40}", revision) is None:
+                errors.append(
+                    f"workflow action must use a full commit SHA: "
+                    f"{workflow_path.relative_to(ROOT)}: {action_ref}"
+                )
     documentation_contracts = {
         ROOT / "README.md": (
             "15-member deterministic proof package intentionally includes",
