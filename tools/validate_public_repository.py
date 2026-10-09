@@ -985,11 +985,11 @@ def validate_ci_contract(errors: list[str]) -> None:
                     f"workflow action must use a full commit SHA or image digest: "
                     f"{workflow_path.relative_to(ROOT)}: {action_ref}"
                 )
+    if not workflow_event_is_unfiltered(hygiene_workflow, "pull_request"):
+        errors.append("public-root hygiene CI pull-request trigger must be unfiltered")
     hygiene_workflow = (
         ROOT / ".github/workflows/public-root-hygiene.yml"
     ).read_text(encoding="utf-8-sig")
-    if not workflow_event_is_unfiltered(hygiene_workflow, "pull_request"):
-        errors.append("public-root hygiene CI pull-request trigger must be unfiltered")
     hygiene_job = workflow_job_block(hygiene_workflow, "public-root-hygiene")
     if hygiene_job is None:
         errors.append("public-root hygiene CI job is missing")
