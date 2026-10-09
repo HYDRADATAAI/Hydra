@@ -1151,8 +1151,8 @@ def validate_ci_contract(errors: list[str]) -> None:
         "Validate deployment target",
         "Refuse to modify an existing stack",
         "Refusing to update or delete an existing stack.",
-        "HYDRA_STACK_DEPLOY_ATTEMPTED",
-        "inputs.teardown && env.HYDRA_STACK_DEPLOY_ATTEMPTED == 'true'",
+        "id: deploy_stack",
+        "inputs.teardown && steps.deploy_stack.outcome != 'skipped'",
         "sam deploy",
         "--query 'Stacks[0].StackStatus'",
         "CREATE_COMPLETE",
@@ -1177,12 +1177,10 @@ def validate_ci_contract(errors: list[str]) -> None:
     preflight_position = deploy_workflow.index(
         "- name: Refuse to modify an existing stack"
     )
-    attempt_marker_position = deploy_workflow.index(
-        'echo "HYDRA_STACK_DEPLOY_ATTEMPTED=true"'
-    )
+    deploy_step_position = deploy_workflow.index("id: deploy_stack")
     sam_deploy_position = deploy_workflow.index("sam deploy")
-    if not (preflight_position < attempt_marker_position < sam_deploy_position):
-        errors.append("aws-deploy attempt marker must follow preflight and precede deployment")
+    if not (preflight_position < deploy_step_position < sam_deploy_position):
+        errors.append("aws-deploy teardown gate must identify the deploy attempt step")
 
     deploy_action_pins = {
         "actions/checkout": "11d5960a326750d5838078e36cf38b85af677262",
