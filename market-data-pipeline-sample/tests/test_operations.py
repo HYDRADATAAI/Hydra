@@ -13,6 +13,7 @@ from hydra_market_pipeline.operations import (
     OperationsError,
     _verify_pipeline_artifacts,
     execute_backfill,
+    load_backfill_plan,
 )
 from hydra_market_pipeline.pipeline import load_aliases, run_pipeline as producer_run_pipeline
 
@@ -196,6 +197,59 @@ class OperationsTests(unittest.TestCase):
                     output_dir=output_dir,
                 )
             self.assertEqual(list(external_dir.iterdir()), [])
+
+    def test_symlinked_new_run_directory_fails_before_writes(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            output_dir = Path(tmp) / "state"
+            runs_root = output_dir / "runs"
+            runs_root.mkdir(parents=True)
+            plan = load_backfill_plan(plan_path=PLAN, aliases_path=ALIASES)
+            result = producer_run_pipeline(
+                input_csv=plan.inputs[0].path,
+                aliases_path=ALIASES,
+            )
+            external_run_dir = Path(tmp) / "outside"
+            external_run_dir.mkdir()
+            run_dir = runs_root / result.pipeline_run_id
+            try:
+                run_dir.symlink_to(external_run_dir, target_is_directory=True)
+            except (OSError, NotImplementedError) as exc:
+                self.skipTest(f"symlink creation is unavailable: {exc}")
+
+            with self.assertRaisesRegex(OperationsError, "must not be a symlink"):
+                execute_backfill(
+                    plan_path=PLAN,
+                    aliases_path=ALIASES,
+                    output_dir=output_dir,
+                )
+            self.assertEqual(list(external_run_dir.iterdir()), [])
+
+    def test_symlinked_new_artifact_fails_before_writes(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            output_dir = Path(tmp) / "state"
+            runs_root = output_dir / "runs"
+            runs_root.mkdir(parents=True)
+            plan = load_backfill_plan(plan_path=PLAN, aliases_path=ALIASES)
+            result = producer_run_pipeline(
+                input_csv=plan.inputs[0].path,
+                aliases_path=ALIASES,
+            )
+            run_dir = runs_root / result.pipeline_run_id
+            run_dir.mkdir()
+            external_file = Path(tmp) / "outside.csv"
+            external_file.write_bytes(b"external sentinel")
+            try:
+                (run_dir / "normalized_events.csv").symlink_to(external_file)
+            except (OSError, NotImplementedError) as exc:
+                self.skipTest(f"symlink creation is unavailable: {exc}")
+
+            with self.assertRaisesRegex(OperationsError, "artifact must not be a symlink"):
+                execute_backfill(
+                    plan_path=PLAN,
+                    aliases_path=ALIASES,
+                    output_dir=output_dir,
+                )
+            self.assertEqual(external_file.read_bytes(), b"external sentinel")
 
     def test_symlinked_output_parent_fails_closed(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
