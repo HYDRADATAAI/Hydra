@@ -362,6 +362,23 @@ class OperationsTests(unittest.TestCase):
             artifact = next((Path(tmp) / "state" / "runs").glob("*/normalized_events.csv"))
             self.assertEqual(stat.S_IMODE(artifact.stat().st_mode), 0o640)
 
+    @unittest.skipUnless(os.name == "posix", "POSIX file modes are required")
+    def test_atomic_pipeline_write_preserves_existing_file_mode(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            plan = load_backfill_plan(plan_path=PLAN, aliases_path=ALIASES)
+            result = producer_run_pipeline(
+                input_csv=plan.inputs[0].path,
+                aliases_path=ALIASES,
+            )
+            output_dir = Path(tmp) / "run"
+            write_outputs(result, output_dir=output_dir)
+            artifact = output_dir / "normalized_events.csv"
+            artifact.chmod(0o604)
+
+            write_outputs(result, output_dir=output_dir)
+
+            self.assertEqual(stat.S_IMODE(artifact.stat().st_mode), 0o604)
+
     def test_symlinked_checkpoint_fails_closed(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             output_dir = Path(tmp) / "state"
