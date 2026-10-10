@@ -237,7 +237,6 @@ class PollRunner:
             return PollReport(spec.name,"PARSE_FAILED",len(statuses),statuses,hashes,0,0,0,0,before,before,response.captured_at,str(exc),delays)
 
         appended=skipped=quarantined=0
-        new_ids=[]
         record_errors=[]
         for index,payload in enumerate(records):
             try:
@@ -248,26 +247,18 @@ class PollRunner:
                 entry=self.durable.ingest_adapted(raw)
                 appended+=1
                 quarantined+=entry.action=="QUARANTINE"
-                if ext:
-                    new_ids.append(ext)
+                # Persist successful record progress independently of page
+                # cursor/freshness so later record failures remain retryable.
+                self.cursors.mark_record_seen(spec.name,ext)
             except Exception as exc:
                 record_errors.append(f"record[{index}]: {exc}")
 
         state=self.cursors.adapter(spec.name)
-        ids=state.get("seen_external_ids",[])
-        for ext in new_ids:
-            ids=[x for x in ids if x!=ext]+[ext]
-        state["seen_external_ids"]=ids[-self.cursors.max_seen:]
-        if new_ids:
-            state["last_seen_external_record_id"]=new_ids[-1]
-
         if record_errors:
             error="; ".join(record_errors)
-            # Keep successful records idempotent while leaving the source cursor
-            # unchanged so failed records remain visible and retryable.
-            state["last_polled_at"]=response.captured_at
-            state["last_error"]=f"append:{error}"
-            _atomic_json(self.cursors.path,self.cursors.state)
+            # Keep the page cursor unchanged so failed records remain visible
+            # and retryable; successful records are already marked seen.
+            self.cursors.mark_error(spec.name,polled_at=response.captured_at,error=f"append:{error}")
             return PollReport(spec.name,"APPEND_FAILED",len(statuses),statuses,hashes,len(records),appended,skipped,quarantined,before,before,response.captured_at,error,delays)
 
         state["cursor"]=cursor_value or response.headers.get("etag") or response.captured_at
