@@ -138,5 +138,79 @@ class DocumentLinkValidationTests(unittest.TestCase):
         self.assertEqual(errors, [])
 
 
+    def test_four_space_indented_code_is_not_checked_as_links(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            markdown = (
+                "    [missing](missing.md)\n"
+                "    <img src='missing.png'>\n"
+                "    [reference]: missing-reference.md\n"
+            )
+            self.assertEqual(validator.document_link_references(markdown), [])
+            errors = self.validate_markdown(root, markdown)
+        self.assertEqual(errors, [])
+
+    def test_fences_nested_in_blockquotes_are_not_checked(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            docs = root / "docs"
+            docs.mkdir()
+            (docs / "real.md").write_text("ok", encoding="utf-8")
+            fence = chr(96) * 3
+            markdown = (
+                "> > " + fence + "markdown\n"
+                "> > [missing](missing.md)\n"
+                "> > <img src='missing.png'>\n"
+                "> > [reference]: missing-reference.md\n"
+                "> > " + fence + "\n"
+                "[real](real.md)\n"
+            )
+            self.assertEqual(
+                validator.document_link_references(markdown), ["real.md"]
+            )
+            errors = self.validate_markdown(root, markdown)
+        self.assertEqual(errors, [])
+
+    def test_fences_nested_in_lists_are_not_checked(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            docs = root / "docs"
+            docs.mkdir()
+            (docs / "real.md").write_text("ok", encoding="utf-8")
+            fence = chr(96) * 3
+            markdown = (
+                "- outer item\n"
+                "  - " + fence + "markdown\n"
+                "    [missing](missing.md)\n"
+                "    <img src='missing.png'>\n"
+                "    [reference]: missing-reference.md\n"
+                "    " + fence + "\n"
+                "[real](real.md)\n"
+            )
+            self.assertEqual(
+                validator.document_link_references(markdown), ["real.md"]
+            )
+            errors = self.validate_markdown(root, markdown)
+        self.assertEqual(errors, [])
+
+    def test_html_comments_do_not_produce_markdown_or_html_links(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            docs = root / "docs"
+            docs.mkdir()
+            (docs / "real.md").write_text("ok", encoding="utf-8")
+            markdown = (
+                "<!-- [missing](missing.md) <a href='missing.html'>\n"
+                "[reference]: missing-reference.md\n"
+                "-->\n"
+                "[real](real.md)\n"
+            )
+            self.assertEqual(
+                validator.document_link_references(markdown), ["real.md"]
+            )
+            errors = self.validate_markdown(root, markdown)
+        self.assertEqual(errors, [])
+
+
 if __name__ == "__main__":
     unittest.main()

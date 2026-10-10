@@ -177,36 +177,119 @@ def _blank_code(match: re.Match[str]) -> str:
     return _blank_code_text(match.group())
 
 
+def _blank_preserving_newlines(text: str) -> str:
+    return "".join(character if character in "\r\n" else " " for character in text)
+
+
+def _without_html_comments(line: str, inside_comment: bool) -> tuple[str, bool]:
+    output: list[str] = []
+    cursor = 0
+    while cursor < len(line):
+        if inside_comment:
+            closing = line.find("-->", cursor)
+            if closing < 0:
+                output.append(_blank_preserving_newlines(line[cursor:]))
+                return "".join(output), True
+            closing += 3
+            output.append(_blank_preserving_newlines(line[cursor:closing]))
+            cursor = closing
+            inside_comment = False
+            continue
+
+        opening = line.find("<!--", cursor)
+        if opening < 0:
+            output.append(line[cursor:])
+            break
+        output.append(line[cursor:opening])
+        cursor = opening
+        inside_comment = True
+
+    return "".join(output), inside_comment
+
+
+def _container_content(line: str, list_content_indent: int | None) -> tuple[str, int | None]:
+    content = line.rstrip("\r\n")
+    while True:
+        quote = re.match(r"^ {0,3}>[ \t]?", content)
+        if quote is None:
+            break
+        content = content[quote.end():]
+
+    item = re.match(r"^( {0,3})([-+*]|[0-9]{1,9}[.)])([ \t]+)(.*)$", content)
+    if item is not None:
+        list_content_indent = (
+            len(item.group(1)) + len(item.group(2)) + len(item.group(3))
+        )
+        content = item.group(4)
+    elif list_content_indent is not None:
+        leading_spaces = len(content) - len(content.lstrip(" "))
+        if not content.strip():
+            pass
+        elif leading_spaces >= list_content_indent:
+            content = content[list_content_indent:]
+        else:
+            list_content_indent = None
+
+    return content, list_content_indent
+
+
+def _is_indented_code(logical_line: str) -> bool:
+    indentation = len(logical_line) - len(logical_line.lstrip(" "))
+    return indentation >= 4 or logical_line.startswith("\t")
+
+
 def strip_markdown_code(text: str) -> str:
     output: list[str] = []
     fence_character: str | None = None
     fence_length = 0
+    list_content_indent: int | None = None
+    inside_html_comment = False
+
     for line in text.splitlines(keepends=True):
-        if fence_character is None:
-            opening = MARKDOWN_INLINE_OPEN.match(line)
-            if opening:
-                marker = opening.group(1)
-                if len(set(marker)) == 1:
-                    fence_character = marker[0]
-                    fence_length = len(marker)
-                    output.append(_blank_code_text(line))
-                    continue
-            output.append(line)
+        if fence_character is not None:
+            visible_line = line
+            logical_line, list_content_indent = _container_content(
+                visible_line, list_content_indent
+            )
+            output.append(_blank_code_text(line))
+            closing = re.fullmatch(
+                rf" {{0,3}}{re.escape(fence_character)}{{{fence_length},}}[ \t]*",
+                logical_line,
+            )
+            if closing:
+                fence_character = None
+                fence_length = 0
             continue
 
-        output.append(_blank_code_text(line))
-        closing_text = line.rstrip("\r\n")
-        closing = re.fullmatch(
-            rf"[ \t]{{0,3}}{re.escape(fence_character)}{{{fence_length},}}[ \t]*",
-            closing_text,
+        if not inside_html_comment:
+            code_line, code_list_indent = _container_content(
+                line, list_content_indent
+            )
+            if _is_indented_code(code_line):
+                list_content_indent = code_list_indent
+                output.append(_blank_code_text(line))
+                continue
+
+        visible_line, inside_html_comment = _without_html_comments(
+            line, inside_html_comment
         )
-        if closing:
-            fence_character = None
-            fence_length = 0
+        logical_line, list_content_indent = _container_content(
+            visible_line, list_content_indent
+        )
+
+        opening = MARKDOWN_INLINE_OPEN.match(logical_line)
+        if opening:
+            marker = opening.group(1)
+            if len(set(marker)) == 1:
+                fence_character = marker[0]
+                fence_length = len(marker)
+                output.append(_blank_code_text(visible_line))
+                continue
+
+        output.append(visible_line)
 
     text = "".join(output)
     return INLINE_CODE_SPAN.sub(_blank_code, text)
-
 
 def _is_escaped(text: str, index: int) -> bool:
     backslashes = 0
