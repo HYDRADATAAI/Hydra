@@ -149,7 +149,8 @@ def _validate_oracle(oracle: Mapping[str, Any] | None) -> list[Issue]:
             invalid_ids = True
         else:
             ids.append(fixture_id)
-        if fixture.get("expected_outcome") not in {"ABSTAIN", "QUARANTINE"}:
+        expected_outcome = fixture.get("expected_outcome")
+        if not isinstance(expected_outcome, str) or expected_outcome not in {"ABSTAIN", "QUARANTINE"}:
             issues.append(Issue("oracle_outcome_invalid", "oracle fixture outcome is unsafe", f"{path}.expected_outcome"))
         for field in (
             "expected_canonical_store_mutation_authorized", "expected_canonical_truth_selected",
