@@ -186,8 +186,9 @@ def execute_backfill(
 
     plan = load_backfill_plan(plan_path=plan_path, aliases_path=aliases_path)
     output_root = Path(output_dir)
-    if output_root.is_symlink():
-        raise OperationsError("output directory must not be a symlink")
+    absolute_output_root = Path(os.path.abspath(output_root))
+    if absolute_output_root.resolve(strict=False) != absolute_output_root:
+        raise OperationsError("output directory path must not contain symlinks")
     runs_root = output_root / "runs"
     checkpoint_path = output_root / "checkpoint.json"
     manifest_path = output_root / "operations_manifest.json"
