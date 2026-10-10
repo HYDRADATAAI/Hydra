@@ -137,14 +137,20 @@ def _validate_oracle(oracle: Mapping[str, Any] | None) -> list[Issue]:
     if not isinstance(fixtures, list) or len(fixtures) != 8:
         return [Issue("oracle_fixture_count_invalid", "oracle must contain exactly eight fixtures", "$.oracle.fixtures")]
     issues: list[Issue] = []
-    ids = []
+    ids: list[str] = []
+    invalid_ids = False
     for index, fixture in enumerate(fixtures):
         path = f"$.oracle.fixtures[{index}]"
         if not isinstance(fixture, Mapping):
             issues.append(Issue("oracle_fixture_invalid", "oracle fixture must be an object", path))
             continue
-        ids.append(fixture.get("id"))
-        if fixture.get("expected_outcome") not in {"ABSTAIN", "QUARANTINE"}:
+        fixture_id = fixture.get("id")
+        if not isinstance(fixture_id, str) or not fixture_id:
+            invalid_ids = True
+        else:
+            ids.append(fixture_id)
+        expected_outcome = fixture.get("expected_outcome")
+        if not isinstance(expected_outcome, str) or expected_outcome not in {"ABSTAIN", "QUARANTINE"}:
             issues.append(Issue("oracle_outcome_invalid", "oracle fixture outcome is unsafe", f"{path}.expected_outcome"))
         for field in (
             "expected_canonical_store_mutation_authorized", "expected_canonical_truth_selected",
@@ -154,6 +160,6 @@ def _validate_oracle(oracle: Mapping[str, Any] | None) -> list[Issue]:
                 issues.append(Issue("oracle_effect_invariant_failed", f"oracle field {field} must be false", f"{path}.{field}"))
         if fixture.get("expected_external_actions") != [] or fixture.get("expected_ranked_candidate_ids") != []:
             issues.append(Issue("oracle_action_invariant_failed", "oracle actions and rankings must be empty", path))
-    if len(set(ids)) != 8 or any(not isinstance(item, str) or not item for item in ids):
-        issues.append(Issue("oracle_fixture_ids_invalid", "oracle fixture identifiers must be unique", "$.oracle.fixtures"))
+    if invalid_ids or len(set(ids)) != 8:
+        issues.append(Issue("oracle_fixture_ids_invalid", "oracle fixture identifiers must be non-empty strings and unique", "$.oracle.fixtures"))
     return issues
