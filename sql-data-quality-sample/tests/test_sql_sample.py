@@ -30,6 +30,7 @@ class SqlDataQualitySampleTests(unittest.TestCase):
             [
                 ("SYNTH", "bad-month", "AAA", "2026-99-99T99:99:99Z", 10.0, 1, "USD", "XNAS"),
                 ("SYNTH", "bad-calendar-day", "BBB", "2026-02-30T12:00:00Z", 10.0, 1, "USD", "XNYS"),
+                ("SYNTH", "bad-clock", "HHH", "2026-09-24T25:30:00Z", 10.0, 1, "USD", "XNYS"),
                 ("SYNTH", "valid-leap-day", "CCC", "2024-02-29T12:00:00Z", 10.0, 1, "USD", "XNAS"),
                 ("SYNTH", "text-price", "FFF", "2026-09-24T17:30:00Z", "not-a-price", 1, "USD", "XNAS"),
                 ("SYNTH", "blob-price", "GGG", "2026-09-24T17:30:00Z", b"not-a-price", 1, "USD", "XNYS"),
@@ -54,6 +55,7 @@ class SqlDataQualitySampleTests(unittest.TestCase):
             con.close()
         self.assertEqual(issues["bad-month"], "invalid_timestamp")
         self.assertEqual(issues["bad-calendar-day"], "invalid_timestamp")
+        self.assertEqual(issues["bad-clock"], "invalid_timestamp")
         self.assertIsNone(issues["valid-leap-day"])
 
     def test_invalid_price_types_and_infinities_are_quarantined(self):
