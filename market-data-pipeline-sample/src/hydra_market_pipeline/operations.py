@@ -183,6 +183,21 @@ def load_backfill_plan(
     )
 
 
+
+def _contains_unsafe_symlink_component(path: Path) -> bool:
+    current = path
+    while current != current.parent:
+        if current.is_symlink():
+            resolved = current.resolve(strict=False)
+            macos_aliases = {
+                Path("/var"): Path("/private/var"),
+                Path("/tmp"): Path("/private/tmp"),
+            }
+            if macos_aliases.get(current) != resolved:
+                return True
+        current = current.parent
+    return False
+
 def execute_backfill(
     *,
     plan_path: str | Path,
@@ -196,7 +211,7 @@ def execute_backfill(
     plan = load_backfill_plan(plan_path=plan_path, aliases_path=aliases_path)
     output_root = Path(output_dir)
     absolute_output_root = Path(os.path.abspath(output_root))
-    if absolute_output_root.resolve(strict=False) != absolute_output_root:
+    if _contains_unsafe_symlink_component(absolute_output_root):
         raise OperationsError("output directory path must not contain symlinks")
     runs_root = output_root / "runs"
     checkpoint_path = output_root / "checkpoint.json"
