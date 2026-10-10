@@ -1,0 +1,62 @@
+{
+  "schema_version": "hydra-constraint-thread6-successor-manifest/v1",
+  "record_id": "HYDRA_CONSTRAINT_FIRST_SLICE_THREAD6_SUCCESSOR_BATCH020_ARTIFACT_MANIFEST_V001",
+  "as_of": "2026-09-28",
+  "repository": "HYDRADATAAI/Hydra",
+  "slice_id": "AI_DATA_CENTER_POWER_INFRASTRUCTURE_V1",
+  "predecessor_batch": {
+    "id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH019",
+    "base_commit": "c8edb1980302190d3e434b86833452fc27d3c024",
+    "preservation": "IMMUTABLE_NOT_REWRITTEN"
+  },
+  "result": "IMPLEMENTATION_PRESENTED_FOR_AUTHORITY_REVIEW_RECEIPT_NOT_ISSUED",
+  "artifacts": [
+    {
+      "path": "t6-fail-closed-validator/src/hydra_t6_failclosed/native_t5_t6_bridge.py",
+      "git_blob_sha": "d36cba115670c942891b6a6c02fe36fe9baa7ed3"
+    },
+    {
+      "path": "t6-fail-closed-validator/tests/test_native_t5_t6_bridge.py",
+      "git_blob_sha": "1f63a11c6cd655910161685a65f91d974607367c"
+    },
+    {
+      "path": "docs/constraint/implementation/HYDRA_CONSTRAINT_FIRST_SLICE_NATIVE_T5_T6_IMPLEMENTATION_MANIFEST_V001_20260928.json",
+      "git_blob_sha": "fff4ec06a3a793e5d36e4e7fe4ad17d497179d7e"
+    },
+    {
+      "path": "docs/constraint/first_slice/ai_data_center_power_infrastructure_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH020_AI_DATA_CENTER_POWER_INFRASTRUCTURE_NATIVE_T5_T6_IMPLEMENTATION_STATUS_V001_20260928.json",
+      "git_blob_sha": "6b9cefc8c62a97424d7b30bb7dda065f9db97540"
+    },
+    {
+      "path": "docs/constraint/validation/HYDRA_CONSTRAINT_FIRST_SLICE_THREAD6_SUCCESSOR_BATCH020_NATIVE_T5_T6_IMPLEMENTATION_PRESENTATION_REPORT_V001_20260928.md",
+      "git_blob_sha": "4616300bff1e064185806611df1d99e146798550"
+    },
+    {
+      "path": "docs/constraint/first_slice/ai_data_center_power_infrastructure_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH020_AI_DATA_CENTER_POWER_INFRASTRUCTURE_BLOCKER_REGISTER_V001_20260928.json",
+      "git_blob_sha": "ed61111113b1d155178dd83874f850ec24d80926"
+    },
+    {
+      "path": "docs/constraint/architecture/HYDRA_CONSTRAINT_FIRST_SLICE_THREAD6_SUCCESSOR_BATCH020_MASTER_STATUS_V001_20260928.json",
+      "git_blob_sha": "2d155df0f972f7c0732df967d3d9069175d578d7"
+    }
+  ],
+  "implementation_bindings": {
+    "implementation_id": "HYDRA_CONSTRAINT_FIRST_SLICE_NATIVE_T5_T6_BRIDGE_V001_20260928",
+    "artifact_sha256": "e090e1326ee4ff03fca378925b1316dd3c870ccf70a9fe313c9c8fb1e00e476f",
+    "test_evidence_sha256": "d614733a65943334ab9a2f5c41b7b94b2d8a111d23953b79622a975d5a636294",
+    "producer_stage": "PIPELINE_T5_CONSTRAINT_FORMATION",
+    "consumer_stage": "PIPELINE_T6_CANONICAL_CANDIDATE_GOVERNANCE",
+    "handoff_schema": "t6-candidate-handoff.v1",
+    "candidate_schema": "constraint-candidate.v2"
+  },
+  "expected": {
+    "implementation_presented_for_admission": true,
+    "signed_admission_receipt_present": false,
+    "implementation_admitted": false,
+    "runtime_activation_authorized": false,
+    "canonical_promotion_authorized": false,
+    "historical_availability_before_acquisition_proven": false,
+    "strict_historical_replay_allowed": false,
+    "first_serious_constraint_run": "BLOCKED"
+  }
+}

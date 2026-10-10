@@ -21,6 +21,19 @@ VALIDATION = ROOT / "docs/constraint/validation"
 ARCH = ROOT / "docs/constraint/architecture"
 IMPL = ROOT / "docs/constraint/implementation"
 CUSTODY_SUPERSESSION = IMPL / "HYDRA_CONSTRAINT_T1_T2_PERSISTED_CUSTODY_SUPERSESSION_V001_20260926.json"
+TIMESTAMP_SUPERSESSION = VALIDATION / "HYDRA_CONSTRAINT_T1_TIMESTAMP_GATE_SUCCESSOR_V001_20260927.json"
+# This is a bounded continuation of two existing custody edges, not a general
+# permission to replace historical pins with whatever bytes are present.
+TIMESTAMP_TRANSITIONS = {
+    "constraint-t1-raw-artifact-store/src/hydra_constraint_t1_raw/store.py": {
+        "predecessor_git_blob_sha": "e6b8757b7dc24039d93caf33a26c8d0e3373ee63",
+        "successor_git_blob_sha": "5973067fdbe8b52b89fd22da53a6c7f67c5fa91a",
+    },
+    "constraint-t1-raw-artifact-store/tests/test_store.py": {
+        "predecessor_git_blob_sha": "32a4116e6872ef5a844c6c5f7411423817b45de6",
+        "successor_git_blob_sha": "d94d1e7cdfd55e820fe531ddb2ede5ff54a89e5e",
+    },
+}
 
 FILES = {
     "source_registry": SLICE / "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH003_AI_DATA_CENTER_POWER_INFRASTRUCTURE_SOURCE_REGISTRY_V001_20260925.json",
@@ -55,8 +68,10 @@ FILES = {
 MANIFESTS = [
     VALIDATION / f"HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH{n:03d}_ARTIFACT_MANIFEST_V001_20260925.json"
     for n in range(3, 10)
+    if n != 8
 ] + [
-    VALIDATION / "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH010_ARTIFACT_MANIFEST_V002_20260925.json"
+    VALIDATION / "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH008_ARTIFACT_MANIFEST_V002_20261009.json",
+    VALIDATION / "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH010_ARTIFACT_MANIFEST_V002_20260925.json",
 ]
 
 SLICE_ID = "AI_DATA_CENTER_POWER_INFRASTRUCTURE_V1"
@@ -107,6 +122,30 @@ def git_blob_sha(path: Path) -> str:
     return result.stdout.strip()
 
 
+def load_timestamp_successors() -> dict[str, dict[str, str]]:
+    doc = load_json(TIMESTAMP_SUPERSESSION)
+    expected = {
+        "schema": "HYDRA_CONSTRAINT_T1_TIMESTAMP_GATE_SUCCESSOR_V1",
+        "scope": "EXACT_TWO_FILE_TIMESTAMP_GATE_CUSTODY_CONTINUATION",
+        "base_commit": "684f59ceea89114f6ac8b356e9b4dfb2b9cafa89",
+        "predecessor_artifacts_rewritten": False,
+        "acceptance_effect": "NONE",
+        "trusted_timestamp_verifier": "NOT_IMPLEMENTED",
+        "ordinary_replay_promoted": False,
+        "historical_availability_promoted": False,
+        "canonical_admission_promoted": False,
+        "network_acquisition_authorized": False,
+        "transitions": [{"path": relative, **edge} for relative, edge in TIMESTAMP_TRANSITIONS.items()],
+    }
+    # JSON types are part of the contract: 0 must not substitute for false.
+    require(json.dumps(doc, sort_keys=True) == json.dumps(expected, sort_keys=True),
+            "timestamp supersession record drifted")
+    for relative, edge in TIMESTAMP_TRANSITIONS.items():
+        require(git_blob_sha(ROOT / relative) == edge["successor_git_blob_sha"],
+                f"timestamp supersession successor mismatch: {relative}")
+    return TIMESTAMP_TRANSITIONS
+
+
 def load_supersessions(path: Path) -> dict[str, dict[str, str]]:
     doc = load_json(path)
     require(doc.get("acceptance_effect") == "NONE", "custody supersession must not change acceptance state")
@@ -133,6 +172,45 @@ def load_supersessions(path: Path) -> dict[str, dict[str, str]]:
             "predecessor_git_blob_sha": predecessor,
             "successor_git_blob_sha": successor,
         }
+    timestamp_edges = load_timestamp_successors()
+    # Preserve the capture-era record. The new timestamp record continues its
+    # store/test tips without replacing either historical document's pins.
+    private_map = VALIDATION / "HYDRA_CONSTRAINT_BATCH017_T1_PRIVATE_RECORD_SUPERSESSION_MAP_V001_20260926.json"
+    require(private_map.is_file(), "timestamp continuation requires the historical private supersession map")
+    if private_map.is_file():
+        private = load_json(private_map)
+        require(private.get("scope") == "T1_PERSISTED_PRIVATE_RECORD_CUSTODY_ONLY", "private supersession scope drifted")
+        require(private.get("predecessor_artifacts_rewritten") is False, "private supersession rewrites predecessor")
+        require(set(private.get("guardrails", [])) == {
+            "NO_RAW_SOURCE_BODY_PUBLISHED", "NO_LIVE_NETWORK_ACQUISITION_AUTHORIZED",
+            "NO_ORDINARY_REPLAY_PROMOTION", "NO_NATIVE_T5_T6_ADMISSION_CLAIM",
+        }, "private supersession guardrails drifted")
+        rows = private.get("transitions", [])
+        t1_paths = {relative for relative in result if relative.startswith("constraint-t1-raw-artifact-store/")}
+        require(len(rows) == len(t1_paths), "private supersession transition count drifted")
+        seen = set()
+        for row in rows:
+            relative = row.get("path")
+            require(relative in t1_paths and relative not in seen, "private supersession path drifted")
+            seen.add(relative)
+            previous = result[relative]
+            require(row.get("predecessor_git_blob_sha") == previous["predecessor_git_blob_sha"], "private supersession predecessor mismatch")
+            successor = row.get("successor_git_blob_sha")
+            expected_tip = (timestamp_edges[relative]["predecessor_git_blob_sha"]
+                            if relative in timestamp_edges else git_blob_sha(ROOT / relative))
+            require(successor == expected_tip, f"private supersession successor mismatch: {relative}")
+            if successor != previous["successor_git_blob_sha"]:
+                require(relative == "constraint-t1-raw-artifact-store/README.md", "undeclared custody implementation change")
+                previous["intermediate_git_blob_sha"] = previous["successor_git_blob_sha"]
+                previous["successor_git_blob_sha"] = successor
+    for relative, edge in timestamp_edges.items():
+        previous = result.get(relative)
+        require(previous is not None and previous["successor_git_blob_sha"] == edge["predecessor_git_blob_sha"],
+                f"timestamp supersession predecessor mismatch: {relative}")
+        require("intermediate_git_blob_sha" not in previous,
+                f"unexpected timestamp predecessor chain: {relative}")
+        previous["intermediate_git_blob_sha"] = previous["successor_git_blob_sha"]
+        previous["successor_git_blob_sha"] = edge["successor_git_blob_sha"]
     return result
 
 
@@ -161,7 +239,7 @@ def validate_manifest(
                 f"manifest blob mismatch without declared supersession: {relative}: expected={expected} actual={actual}",
             )
             require(
-                transition["predecessor_git_blob_sha"] == expected,
+                expected in {transition["predecessor_git_blob_sha"], transition.get("intermediate_git_blob_sha")},
                 f"custody supersession predecessor mismatch: {relative}",
             )
             require(
@@ -170,6 +248,82 @@ def validate_manifest(
             )
         count += 1
     return count
+
+
+def validate_batch008_manifest_successor() -> None:
+    predecessor_path = VALIDATION / "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH008_ARTIFACT_MANIFEST_V001_20260925.json"
+    successor_path = VALIDATION / "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH008_ARTIFACT_MANIFEST_V002_20261009.json"
+    predecessor = load_json(predecessor_path)
+    successor = load_json(successor_path)
+
+    require(
+        git_blob_sha(predecessor_path) == "e7d267985a008a1ae07c17430ad95775707bbb2a",
+        "Batch008 V001 manifest was rewritten",
+    )
+    require(
+        successor.get("record_id") == "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH008_ARTIFACT_MANIFEST_V002",
+        "Batch008 V002 record identity changed",
+    )
+    require(
+        successor.get("base_head") == "cf1002ad63c0bab185d8d02c71049107b7880545",
+        "Batch008 successor base_head changed",
+    )
+    require(
+        successor.get("as_of") == "2026-10-09",
+        "Batch008 successor as_of changed",
+    )
+    require(
+        successor.get("supersedes") == {
+            "record_id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH008_ARTIFACT_MANIFEST_V001",
+            "reason": "IMMUTABLE_ACTION_PIN_REFRESH; WORKFLOW CONTENT ONLY; NO DOMAIN ARTIFACT OR AUTHORITY CHANGE",
+            "predecessor_preserved": True,
+        },
+        "Batch008 V002 supersession binding changed",
+    )
+    for field in (
+        "schema_version",
+        "repository",
+        "predecessor_batch",
+        "owner_namespace",
+        "blocker_transition",
+        "public_repo_boundary",
+        "expected",
+    ):
+        require(
+            successor.get(field) == predecessor.get(field),
+            f"Batch008 successor {field} changed",
+        )
+
+    predecessor_rows = predecessor.get("artifacts", [])
+    successor_rows = successor.get("artifacts", [])
+    old_artifacts = {
+        row["path"]: row for row in predecessor_rows if isinstance(row, dict) and isinstance(row.get("path"), str)
+    }
+    new_artifacts = {
+        row["path"]: row for row in successor_rows if isinstance(row, dict) and isinstance(row.get("path"), str)
+    }
+    require(
+        len(old_artifacts) == len(predecessor_rows)
+        and len(new_artifacts) == len(successor_rows)
+        and old_artifacts.keys() == new_artifacts.keys(),
+        "Batch008 successor artifact set changed",
+    )
+    workflow_path = ".github/workflows/constraint-t1-raw-artifact-store.yml"
+    for relative, old_row in old_artifacts.items():
+        if relative == workflow_path:
+            expected_row = {
+                **old_row,
+                "git_blob_sha": git_blob_sha(ROOT / relative),
+            }
+            require(
+                new_artifacts[relative] == expected_row,
+                "Batch008 successor workflow pin digest changed",
+            )
+        else:
+            require(
+                new_artifacts[relative] == old_row,
+                f"Batch008 successor changed non-workflow artifact: {relative}",
+            )
 
 
 def main() -> int:
@@ -479,6 +633,7 @@ def main() -> int:
     require(required == expected_required, f"ordinary T2 eligibility contract drifted: {sorted(required)}")
 
     custody_supersessions = load_supersessions(CUSTODY_SUPERSESSION)
+    validate_batch008_manifest_successor()
     manifest_members = sum(
         validate_manifest(path, supersessions=custody_supersessions)
         for path in MANIFESTS

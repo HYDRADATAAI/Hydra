@@ -1,0 +1,20 @@
+{
+  "schema_version": "hydra-constraint-first-slice-admission-request-status/v1",
+  "record_id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH021_AI_DATA_CENTER_POWER_INFRASTRUCTURE_ADMISSION_REQUEST_STATUS_V001",
+  "as_of": "2026-09-28",
+  "slice_id": "AI_DATA_CENTER_POWER_INFRASTRUCTURE_V1",
+  "predecessor_batch": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH020",
+  "request_record": "HYDRA_CONSTRAINT_FIRST_SLICE_NATIVE_T5_T6_ADMISSION_REQUEST_V001_20260928",
+  "request_status": "READY_FOR_EXTERNAL_IMPLEMENTATION_CONTRACT_REVIEW",
+  "exact_manifest_sha256": "a7d6b72d94630dba06a612c966db22c733205ecc926117cd68e2979ad1ca9879",
+  "exact_artifact_sha256": "e090e1326ee4ff03fca378925b1316dd3c870ccf70a9fe313c9c8fb1e00e476f",
+  "exact_test_evidence_sha256": "d614733a65943334ab9a2f5c41b7b94b2d8a111d23953b79622a975d5a636294",
+  "signed_admission_receipt_present": false,
+  "implementation_admitted": false,
+  "runtime_activation_authorized": false,
+  "canonical_promotion_authorized": false,
+  "strict_historical_replay_ready": false,
+  "first_serious_constraint_run": "BLOCKED",
+  "repo_executable_blockers": [],
+  "next_action": "EXTERNAL_IMPLEMENTATION_CONTRACT_AUTHORITY_MAY_ISSUE_OR_REJECT_AN_EXACT_BOUND_RECEIPT; HISTORICAL_AVAILABILITY_REMAINS_SEPARATE"
+}

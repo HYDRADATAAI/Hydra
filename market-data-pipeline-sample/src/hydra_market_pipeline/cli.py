@@ -46,6 +46,8 @@ def main(argv: list[str] | None = None) -> int:
     print(f"QUARANTINED_ROWS={len(result.quarantined)}")
     print(f"MANIFEST={outputs['manifest']}")
     print(f"NORMALIZED_CSV={outputs['normalized_csv']}")
+    print(f"SOURCE_SNAPSHOT={outputs['source_snapshot']}")
+    print(f"RESOLVED_ALIASES={outputs['resolved_aliases_json']}")
     return 0
 
 

@@ -8,7 +8,7 @@ import os
 import shutil
 import subprocess
 import sys
-import tempfile
+import uuid
 from pathlib import Path
 from typing import Callable
 
@@ -20,7 +20,8 @@ MANIFEST_NAMES = [
     f"HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH{n:03d}_ARTIFACT_MANIFEST_V001_20260925.json"
     for n in range(3, 10)
 ] + [
-    "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH010_ARTIFACT_MANIFEST_V002_20260925.json"
+    "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH008_ARTIFACT_MANIFEST_V002_20261009.json",
+    "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH010_ARTIFACT_MANIFEST_V002_20260925.json",
 ]
 
 
@@ -32,7 +33,8 @@ def copy_file(relative: str, destination_root: Path) -> None:
 
 
 def make_sandbox() -> Path:
-    temp = Path(tempfile.mkdtemp(prefix="hydra-constraint-hostile-"))
+    temp = ROOT / f".tmp-hydra-constraint-integration-{uuid.uuid4().hex}"
+    temp.mkdir()
     shutil.copytree(ROOT / "docs/constraint", temp / "docs/constraint", dirs_exist_ok=True)
 
     for name in MANIFEST_NAMES:
@@ -189,7 +191,7 @@ def case_raw_materialization_falsely_claimed(root: Path) -> None:
         root,
         relative,
         mutate,
-        manifest_name="HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH008_ARTIFACT_MANIFEST_V001_20260925.json",
+        manifest_name="HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH008_ARTIFACT_MANIFEST_V002_20261009.json",
     )
 
 
@@ -267,6 +269,110 @@ def case_beneficiary_falsely_qualified(root: Path) -> None:
     )
 
 
+def case_batch008_successor_boundary_widened(root: Path) -> None:
+    relative = (
+        "docs/constraint/validation/"
+        "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH008_ARTIFACT_MANIFEST_V002_20261009.json"
+    )
+
+    def mutate(doc: dict) -> None:
+        doc["public_repo_boundary"]["raw_source_content_published"] = True
+
+    mutate_json(root, relative, mutate)
+
+
+def case_batch008_successor_preservation_removed(root: Path) -> None:
+    relative = (
+        "docs/constraint/validation/"
+        "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH008_ARTIFACT_MANIFEST_V002_20261009.json"
+    )
+
+    def mutate(doc: dict) -> None:
+        doc["supersedes"]["predecessor_preserved"] = False
+
+    mutate_json(root, relative, mutate)
+
+
+def case_batch008_base_head_changed(root: Path) -> None:
+    relative = (
+        "docs/constraint/validation/"
+        "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH008_ARTIFACT_MANIFEST_V002_20261009.json"
+    )
+
+    def mutate(doc: dict) -> None:
+        doc["base_head"] = "da2025729cf253053c54dd157bb04eaf0a8e4963"
+
+    mutate_json(root, relative, mutate)
+
+
+def case_batch008_as_of_changed(root: Path) -> None:
+    relative = (
+        "docs/constraint/validation/"
+        "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH008_ARTIFACT_MANIFEST_V002_20261009.json"
+    )
+
+    def mutate(doc: dict) -> None:
+        doc["as_of"] = "2026-10-08"
+
+    mutate_json(root, relative, mutate)
+
+
+def case_batch008_duplicate_artifact_row(root: Path) -> None:
+    relative = (
+        "docs/constraint/validation/"
+        "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH008_ARTIFACT_MANIFEST_V002_20261009.json"
+    )
+
+    def mutate(doc: dict) -> None:
+        doc["artifacts"].append(dict(doc["artifacts"][0]))
+
+    mutate_json(root, relative, mutate)
+
+
+def case_batch008_nonworkflow_digest_changed(root: Path) -> None:
+    relative = (
+        "docs/constraint/validation/"
+        "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH008_ARTIFACT_MANIFEST_V002_20261009.json"
+    )
+
+    def mutate(doc: dict) -> None:
+        row = next(
+            item for item in doc["artifacts"]
+            if item["path"] == "constraint-t1-raw-artifact-store/README.md"
+        )
+        row["git_blob_sha"] = "0" * 40
+
+    mutate_json(root, relative, mutate)
+
+
+def case_batch008_workflow_digest_changed(root: Path) -> None:
+    relative = (
+        "docs/constraint/validation/"
+        "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH008_ARTIFACT_MANIFEST_V002_20261009.json"
+    )
+
+    def mutate(doc: dict) -> None:
+        row = next(
+            item for item in doc["artifacts"]
+            if item["path"] == ".github/workflows/constraint-t1-raw-artifact-store.yml"
+        )
+        row["git_blob_sha"] = "0" * 40
+
+    mutate_json(root, relative, mutate)
+
+
+def case_batch008_predecessor_rewritten(root: Path) -> None:
+    relative = (
+        "docs/constraint/validation/"
+        "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH008_ARTIFACT_MANIFEST_V001_20260925.json"
+    )
+
+    def mutate(doc: dict) -> None:
+        doc["expected"]["private_raw_store_implemented"] = "NO"
+
+    mutate_json(root, relative, mutate)
+
+
 def case_master_falsely_ready(root: Path) -> None:
     relative = (
         "docs/constraint/architecture/"
@@ -281,7 +387,7 @@ def case_master_falsely_ready(root: Path) -> None:
         root,
         relative,
         mutate,
-        manifest_name="HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH008_ARTIFACT_MANIFEST_V001_20260925.json",
+        manifest_name="HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH008_ARTIFACT_MANIFEST_V002_20261009.json",
     )
 
 
@@ -296,6 +402,14 @@ def main() -> int:
         ("candidate_mints_canonical", case_candidate_mints_canonical, "Batch010 minted canonical constraint ID"),
         ("beneficiary_falsely_qualified", case_beneficiary_falsely_qualified, "Batch010 fabricated qualified beneficiary"),
         ("master_falsely_ready", case_master_falsely_ready, "master falsely claims full-run readiness"),
+        ("batch008_successor_boundary_widened", case_batch008_successor_boundary_widened, "Batch008 successor public_repo_boundary changed"),
+        ("batch008_successor_preservation_removed", case_batch008_successor_preservation_removed, "Batch008 V002 supersession binding changed"),
+        ("batch008_base_head_changed", case_batch008_base_head_changed, "Batch008 successor base_head changed"),
+        ("batch008_as_of_changed", case_batch008_as_of_changed, "Batch008 successor as_of changed"),
+        ("batch008_duplicate_artifact_row", case_batch008_duplicate_artifact_row, "Batch008 successor artifact set changed"),
+        ("batch008_nonworkflow_digest_changed", case_batch008_nonworkflow_digest_changed, "Batch008 successor changed non-workflow artifact: constraint-t1-raw-artifact-store/README.md"),
+        ("batch008_workflow_digest_changed", case_batch008_workflow_digest_changed, "Batch008 successor workflow pin digest changed"),
+        ("batch008_predecessor_rewritten", case_batch008_predecessor_rewritten, "Batch008 V001 manifest was rewritten"),
     ]
     for name, mutator, expected in cases:
         expect_failure(name, mutator, expected)

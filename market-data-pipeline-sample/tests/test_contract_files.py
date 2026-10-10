@@ -1,10 +1,12 @@
 from __future__ import annotations
 
 import json
+import tempfile
 import unittest
 from pathlib import Path
 
 from hydra_market_pipeline.pipeline import REQUIRED_COLUMNS, run_pipeline
+from hydra_market_pipeline.writers import write_outputs
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -69,6 +71,38 @@ class ContractFileSyncTests(unittest.TestCase):
             plan["schema_version"],
         )
         self.assertLessEqual(len(plan["inputs"]), plan["max_partitions"])
+
+    def test_pipeline_manifest_schema_matches_emitted_manifest(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            outputs = write_outputs(self.result, output_dir=tmp)
+            manifest = json.loads(outputs["manifest"].read_text(encoding="utf-8"))
+        schema = json.loads(
+            (CONTRACTS / "pipeline_manifest.schema.json").read_text(encoding="utf-8")
+        )
+
+        self.assertEqual(set(schema["required"]), set(manifest))
+        self.assertEqual(set(schema["properties"]), set(manifest))
+        self.assertFalse(schema["additionalProperties"])
+        self.assertEqual(
+            schema["properties"]["schema_version"]["const"],
+            manifest["schema_version"],
+        )
+        for group in ("inputs", "outputs"):
+            group_schema = schema["properties"][group]
+            self.assertEqual(set(group_schema["required"]), set(manifest[group]))
+            self.assertEqual(set(group_schema["properties"]), set(manifest[group]))
+            self.assertFalse(group_schema["additionalProperties"])
+            for name, descriptor in manifest[group].items():
+                descriptor_schema = group_schema["properties"][name]
+                self.assertEqual(
+                    set(descriptor_schema["required"]),
+                    set(descriptor),
+                )
+                self.assertFalse(descriptor_schema["additionalProperties"])
+                self.assertEqual(
+                    descriptor_schema["properties"]["file"]["const"],
+                    descriptor["file"],
+                )
 
 
 if __name__ == "__main__":

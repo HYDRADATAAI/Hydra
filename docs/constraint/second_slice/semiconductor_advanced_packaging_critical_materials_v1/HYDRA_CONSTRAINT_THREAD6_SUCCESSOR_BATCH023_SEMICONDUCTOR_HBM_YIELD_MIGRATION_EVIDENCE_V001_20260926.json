@@ -1,0 +1,34 @@
+{
+  "schema_version": "hydra-constraint-second-slice-evidence-supplement/v1",
+  "record_id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH023_SEMICONDUCTOR_HBM_YIELD_MIGRATION_EVIDENCE_V001",
+  "as_of": "2026-09-26",
+  "slice_id": "SEMICONDUCTOR_ADVANCED_PACKAGING_CRITICAL_MATERIALS_V1",
+  "evidence": [
+    {
+      "evidence_id": "EV-SEMI-B023-MICRON-HBM-PACKAGING-YIELD-OUTPUT-PENALTY-2023",
+      "source_id": "SRC-SEMI-B023-MICRON-Q1FY24-REMARKS-2023-12-20",
+      "proposition": "Micron stated that HBM3E die are roughly twice the size of equivalent-capacity DDR5, include a logic interface die, and use a substantially more complex packaging stack that impacts yields, causing HBM to consume more than twice the wafer supply to produce an equivalent number of bits.",
+      "evidence_role": "BINDING_YIELD_AND_PACKAGING_EFFECTIVE_OUTPUT_PENALTY",
+      "semantic_limit": "DOES NOT PROVIDE A NUMERIC HBM YIELD PERCENTAGE OR NAMEPLATE CAPACITY FIGURE"
+    },
+    {
+      "evidence_id": "EV-SEMI-B023-MICRON-HBM-RAMP-RELIEF-2025",
+      "source_id": "SRC-SEMI-B021-MICRON-Q3FY25-REMARKS-2025-06-25",
+      "proposition": "Micron reported that HBM3E 12H yield and volume ramp were progressing extremely well and that it was shipping HBM at high volume to four customers.",
+      "evidence_role": "OBSERVED_RELIEF_OF_PRIOR_YIELD_AND_QUALIFICATION_RAMP",
+      "semantic_limit": "DOES NOT PROVE UNCONSTRAINED HBM SUPPLY"
+    },
+    {
+      "evidence_id": "EV-SEMI-B023-MICRON-CLEANROOM-HBM-TRADE-RATIO-CONSTRAINT-2025",
+      "source_id": "SRC-SEMI-B021-MICRON-Q1FY26-REMARKS-2025-12-17",
+      "proposition": "Micron stated aggregate industry supply would remain substantially short of memory demand, HBM's 3-to-1 trade ratio further challenged supply, and additional cleanroom space was necessary while cleanroom build-out lead times were lengthening.",
+      "evidence_role": "SUCCESSOR_LIMITING_MECHANISM"
+    },
+    {
+      "evidence_id": "EV-SEMI-B023-MICRON-CLEANROOM-BIT-SUPPLY-CONSTRAINT-2026",
+      "source_id": "SRC-SEMI-B023-MICRON-Q2FY26-MARKET-OUTLOOK-2026-03-18",
+      "proposition": "Micron stated DRAM bit-supply growth was constrained by cleanroom constraints and long construction lead times, higher HBM trade ratio, higher HBM growth rates, and declining bits-per-wafer growth from node migrations.",
+      "evidence_role": "SUCCESSOR_LIMITING_MECHANISM_CONFIRMATION"
+    }
+  ]
+}

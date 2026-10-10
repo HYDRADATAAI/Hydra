@@ -1,0 +1,42 @@
+{
+  "schema_version": "hydra-constraint-second-slice-constraint-migration-evaluation/v1",
+  "record_id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH023_SEMICONDUCTOR_CONSTRAINT_MIGRATION_EVALUATION_V001",
+  "as_of": "2026-09-26",
+  "slice_id": "SEMICONDUCTOR_ADVANCED_PACKAGING_CRITICAL_MATERIALS_V1",
+  "predecessor_evaluation": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH021_SEMICONDUCTOR_CONSTRAINT_MIGRATION_EVALUATION_V001",
+  "evaluations": [
+    {
+      "migration_id": "MIG-SEMI-MICRON-HBM-RAMP-TO-CLEANROOM-001",
+      "chain_scope": "MICRON_HBM_SUPPLY_CHAIN",
+      "old_limiting_mechanism": "HBM3E_12H_YIELD_VOLUME_RAMP_AND_CUSTOMER_QUALIFICATION",
+      "old_constraint_support": [
+        "EV-SEMI-MICRON-HBM3E12H-RAMP-YIELD-2025",
+        "EV-SEMI-MICRON-NVIDIA-DESIGNIN-2025"
+      ],
+      "relief_event": {
+        "state": "OBSERVED_PARTIAL_RELIEF",
+        "evidence_ids": [
+          "EV-SEMI-B023-MICRON-HBM-RAMP-RELIEF-2025"
+        ],
+        "observed_change": "YIELD_AND_VOLUME_RAMP_PROGRESSING_EXTREMELY_WELL_AND_HIGH_VOLUME_SHIPMENTS_TO_FOUR_CUSTOMERS"
+      },
+      "new_limiting_mechanism": "CLEANROOM_CAPACITY_AND_HBM_SILICON_TRADE_RATIO_LIMIT_DRAM_BIT_SUPPLY_GROWTH",
+      "new_constraint_evidence": [
+        "EV-SEMI-B023-MICRON-CLEANROOM-HBM-TRADE-RATIO-CONSTRAINT-2025",
+        "EV-SEMI-B023-MICRON-CLEANROOM-BIT-SUPPLY-CONSTRAINT-2026"
+      ],
+      "migration_state": "COVERED_REVIEWED_SHADOW_REAL_PRIMARY_BOUNDED",
+      "case_11_coverage": true,
+      "systemwide_resolution_asserted": false,
+      "semantic_rule": "RELIEF_OF_ONE_SUPPLIER_CHAIN_LIMITER_DOES_NOT_MEAN_SYSTEM_UNCONSTRAINED; NEW_LIMITER_IS_RECORDED_SEPARATELY"
+    },
+    {
+      "migration_id": "MIG-SEMI-COWOS-TO-MEMORY-CLEANROOM-001",
+      "chain_scope": "TSMC_COWOS_TO_BROADER_MEMORY_CONTEXT",
+      "migration_state": "REMAINS_CANDIDATE_NOT_COVERED",
+      "case_11_coverage": false,
+      "reason": "TSMC CoWoS actual relief remains unproven; predecessor candidate preserved."
+    }
+  ],
+  "covered_migration_count": 1
+}

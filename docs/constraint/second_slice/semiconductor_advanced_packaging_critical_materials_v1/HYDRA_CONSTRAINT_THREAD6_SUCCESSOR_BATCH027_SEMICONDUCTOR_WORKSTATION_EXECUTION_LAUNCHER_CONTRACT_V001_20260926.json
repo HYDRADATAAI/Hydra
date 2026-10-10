@@ -1,0 +1,55 @@
+{
+  "schema_version": "hydra-constraint-second-slice-workstation-execution-launcher/v1",
+  "record_id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH027_SEMICONDUCTOR_WORKSTATION_EXECUTION_LAUNCHER_CONTRACT_V001",
+  "as_of": "2026-09-26",
+  "slice_id": "SEMICONDUCTOR_ADVANCED_PACKAGING_CRITICAL_MATERIALS_V1",
+  "predecessor_batch": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH026",
+  "launcher": "tools/Invoke-HydraConstraintSemiconductorBatch026PrivateT1.ps1",
+  "handback_builder": "tools/build_constraint_second_slice_batch026_private_t1_handback.py",
+  "reused_tools": [
+    "tools/materialize_constraint_second_slice_batch026_private_t1.py",
+    "tools/verify_constraint_second_slice_batch026_private_t1.py"
+  ],
+  "default_paths": {
+    "repo_root": "D:\\HYDRA_GITHUB\\Hydra",
+    "private_raw_root": "D:\\HYDRA_PRIVATE\\constraint\\raw",
+    "private_inbox_root": "D:\\HYDRA_PRIVATE\\constraint\\capture_inbox\\semiconductor_batch026",
+    "private_handback_root": "D:\\HYDRA_PRIVATE\\constraint\\handback"
+  },
+  "modes": [
+    {
+      "mode": "ContractCheck",
+      "effect": "Validate public queue/tool wiring only; no private writes."
+    },
+    {
+      "mode": "Prep",
+      "effect": "Create private inbox/handback directories, checklist, expected-sidecar templates, and instructions; no network acquisition."
+    },
+    {
+      "mode": "Status",
+      "effect": "Run Batch026 materializer dry-run to report missing/invalid capture files and sidecars."
+    },
+    {
+      "mode": "Materialize",
+      "effect": "Persist the complete 41-item private capture set into T1 and create exact release REL-SEMI-B026-V001."
+    },
+    {
+      "mode": "Verify",
+      "effect": "Verify all receipts/release/ordinary-T2 eligibility and emit a private machine-readable handback packet."
+    },
+    {
+      "mode": "All",
+      "effect": "Materialize then verify/handback; fails closed if capture inbox is incomplete."
+    }
+  ],
+  "guarantees": [
+    "NO_NETWORK_ACQUISITION",
+    "NO_PUBLIC_RAW_SOURCE_BYTES",
+    "NO_CAPTURE_TIMESTAMP_INFERENCE_FROM_FILE_MTIME",
+    "NO_COPYING_PUBLIC_REVIEW_AVAILABLE_AT_INTO_T1_RECEIPTS",
+    "NO_RELEASE_CREATION_UNLESS_ALL_41_RECEIPTS_VALIDATE",
+    "NO_HANDBACK_EMISSION_UNLESS_ALL_41_SOURCES_ARE_ORDINARY_T2_ELIGIBLE"
+  ],
+  "handback_schema": "hydra-constraint-second-slice-private-t1-handback/v1",
+  "expected_handback_filename": "HYDRA_CONSTRAINT_SEMI_B026_PRIVATE_T1_HANDBACK_V001.json"
+}

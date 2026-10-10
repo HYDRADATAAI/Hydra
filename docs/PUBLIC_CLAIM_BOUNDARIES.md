@@ -60,6 +60,19 @@ The checkpoint, backfill, recovery, SLI, and budget artifacts in the public mark
 
 They may demonstrate implementation behavior such as atomic checkpointing, idempotent replay, tamper detection, complete row accounting, and bounded input execution. They are not production SLO measurements, uptime evidence, incident-response history, production cost observations, or proof of a deployed orchestration service.
 
+## Pre-model intelligence boundary
+
+The governed-intelligence sample is deterministic local evidence over synthetic pipeline artifacts. It may demonstrate:
+
+- manifest and artifact integrity checks;
+- policy-bound context assembly from accepted records;
+- exact record and artifact citations;
+- aggregate quality context that does not expose quarantined raw rows;
+- explicit `ADMIT`, `ABSTAIN`, and `REFUSE` decisions;
+- deterministic control-evaluation receipts.
+
+The sample keeps model execution disabled. It is not evidence of model quality, semantic retrieval quality, natural-language intent classification, production inference, autonomous analysis, investment advice, or trading authorization.
+
 ## Trading boundary
 
 HYDRA public materials should not imply autonomous live trading unless that state is separately and explicitly proven.

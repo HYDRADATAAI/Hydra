@@ -7,8 +7,9 @@ import io
 import json
 import re
 from datetime import UTC, datetime
-from decimal import Decimal, InvalidOperation
+from decimal import Context, Decimal, InvalidOperation, ROUND_HALF_EVEN, localcontext
 from pathlib import Path
+from types import MappingProxyType
 from typing import Mapping
 
 from .hashing import canonical_json_bytes, object_sha256, sha256_hex
@@ -32,6 +33,7 @@ REQUIRED_COLUMNS = (
 SYMBOL_PATTERN = re.compile(r"^[A-Z][A-Z0-9.-]{0,15}$")
 VENUE_PATTERN = re.compile(r"^[A-Z0-9][A-Z0-9.-]{0,15}$")
 SIX_PLACES = Decimal("0.000001")
+PRICE_DECIMAL_PRECISION = 28
 ERROR_MESSAGES = {
     "currency_invalid": "currency must be exactly three alphabetic characters",
     "duplicate_normalized_event": "normalized symbol, UTC timestamp, and venue already appeared earlier in the file",
@@ -61,9 +63,23 @@ class ContractError(ValueError):
 
 
 def load_aliases(path: str | Path) -> tuple[dict[str, str], str]:
-    raw = Path(path).read_bytes()
+    return parse_aliases_bytes(Path(path).read_bytes())
+
+
+def parse_aliases_bytes(raw: bytes) -> tuple[dict[str, str], str]:
+    def reject_duplicate_keys(pairs: list[tuple[str, object]]) -> dict[str, object]:
+        result: dict[str, object] = {}
+        for key, value in pairs:
+            if key in result:
+                raise ContractError(f"symbol alias config contains duplicate key: {key!r}")
+            result[key] = value
+        return result
+
     try:
-        value = json.loads(raw.decode("utf-8-sig"))
+        value = json.loads(
+            raw.decode("utf-8-sig"),
+            object_pairs_hook=reject_duplicate_keys,
+        )
     except (UnicodeDecodeError, json.JSONDecodeError) as exc:
         raise ContractError(f"symbol alias config is invalid JSON: {exc}") from exc
     if not isinstance(value, dict):
@@ -77,6 +93,10 @@ def load_aliases(path: str | Path) -> tuple[dict[str, str], str]:
         target = raw_value.strip().upper()
         if not key or not SYMBOL_PATTERN.fullmatch(target):
             raise ContractError(f"invalid symbol alias: {raw_key!r} -> {raw_value!r}")
+        if key in aliases:
+            raise ContractError(
+                f"symbol alias config contains normalized-key collision: {key!r}"
+            )
         aliases[key] = target
 
     return aliases, object_sha256(aliases)
@@ -202,6 +222,8 @@ def run_pipeline(
         source_file_sha256=source_file_sha256,
         aliases_sha256=aliases_sha256,
         transform_version=TRANSFORM_VERSION,
+        source_csv_bytes=source_bytes,
+        resolved_aliases=MappingProxyType(dict(aliases)),
         accepted=tuple(sorted(accepted, key=lambda item: item.event_id)),
         quarantined=tuple(sorted(quarantined, key=lambda item: item.source_row_number)),
     )
@@ -254,7 +276,13 @@ def _parse_price(value: str, errors: list[str]) -> Decimal | None:
         errors.append("price_non_positive")
         return None
     try:
-        normalized = price.quantize(SIX_PLACES)
+        price_context = Context(
+            prec=PRICE_DECIMAL_PRECISION,
+            rounding=ROUND_HALF_EVEN,
+            traps=[InvalidOperation],
+        )
+        with localcontext(price_context):
+            normalized = price.quantize(SIX_PLACES)
     except InvalidOperation:
         errors.append("price_invalid")
         return None

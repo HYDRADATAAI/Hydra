@@ -1,0 +1,64 @@
+{
+  "schema_version": "hydra-constraint-cross-slice-continuous-graph-overlay/v1",
+  "record_id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH025_CONTINUOUS_AI_SEMICONDUCTOR_POWER_GRAPH_OVERLAY_V001",
+  "as_of": "2026-09-26",
+  "slice_id": "SEMICONDUCTOR_ADVANCED_PACKAGING_CRITICAL_MATERIALS_V1",
+  "predecessor_graphs": [
+    "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH018_SEMICONDUCTOR_ADVANCED_PACKAGING_CRITICAL_MATERIALS_GRAPH_SEED_V001",
+    "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH019_SEMICONDUCTOR_FACILITY_MATERIAL_EQUIPMENT_GRAPH_OVERLAY_V001",
+    "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH021_SEMICONDUCTOR_TO_POWER_INFRASTRUCTURE_GRAPH_OVERLAY_V001"
+  ],
+  "reused_nodes": [
+    "N-AI-COMPUTE-DEMAND",
+    "N-SEMI-AI-ACCELERATOR-DEMAND",
+    "FAC-SEMI-TSMC-ARIZONA-FIRST-FAB",
+    "N-ELECTRICITY-DEMAND",
+    "N-TRANSMISSION"
+  ],
+  "nodes_added": [
+    {
+      "node_id": "PRODUCT-NVIDIA-BLACKWELL-AI-CHIP",
+      "node_type": "PRODUCT_FAMILY",
+      "label": "NVIDIA Blackwell AI chip"
+    }
+  ],
+  "edges_added": [
+    {
+      "edge_id": "SEMI-B025-XSLICE-E001",
+      "from": "N-SEMI-AI-ACCELERATOR-DEMAND",
+      "relation": "IS_SERVED_BY",
+      "to": "PRODUCT-NVIDIA-BLACKWELL-AI-CHIP",
+      "evidence_ids": [
+        "EV-SEMI-B025-NVIDIA-BLACKWELL-AI-DEMAND-US-MANUFACTURING-2025"
+      ],
+      "status": "SUPPORTED_CROSS_SLICE"
+    },
+    {
+      "edge_id": "SEMI-B025-XSLICE-E002",
+      "from": "PRODUCT-NVIDIA-BLACKWELL-AI-CHIP",
+      "relation": "FABRICATED_AT",
+      "to": "FAC-SEMI-TSMC-ARIZONA-FIRST-FAB",
+      "evidence_ids": [
+        "EV-SEMI-B025-NVIDIA-BLACKWELL-TSMC-PHOENIX-PRODUCTION-2025",
+        "EV-SEMI-B025-TSMC-ARIZONA-FIRST-FAB-OPERATIONAL-CORROBORATION"
+      ],
+      "status": "SUPPORTED_CROSS_SLICE_BOUNDED_FACILITY_RESOLUTION",
+      "semantic_limit": "BLACKWELL FABRICATION AT OPERATIONAL TSMC PHOENIX FIRST FAB; PACKAGING LOCATION NOT ASSERTED"
+    }
+  ],
+  "required_continuous_path": [
+    "N-AI-COMPUTE-DEMAND",
+    "N-SEMI-AI-ACCELERATOR-DEMAND",
+    "PRODUCT-NVIDIA-BLACKWELL-AI-CHIP",
+    "FAC-SEMI-TSMC-ARIZONA-FIRST-FAB",
+    "N-ELECTRICITY-DEMAND"
+  ],
+  "optional_extension_to_power_infrastructure": [
+    "FAC-SEMI-TSMC-ARIZONA-FIRST-FAB",
+    "N-TRANSMISSION"
+  ],
+  "continuous_ai_semiconductor_power_chain_proven": true,
+  "active_power_shortage_asserted": false,
+  "advanced_packaging_in_arizona_asserted": false,
+  "semantic_limit": "CLOSES CONTINUOUS CAUSAL CONNECTIVITY ONLY; DOES NOT CLAIM BLACKWELL ADVANCED PACKAGING OCCURS IN ARIZONA OR THAT POWER IS AN ACTIVE BOTTLENECK"
+}

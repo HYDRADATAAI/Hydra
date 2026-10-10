@@ -1,0 +1,65 @@
+{
+  "schema_version": "hydra-constraint-second-slice-evidence-supplement/v1",
+  "record_id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH022_SEMICONDUCTOR_YIELD_TOOL_MATERIAL_DUPLICATE_EVIDENCE_V001",
+  "as_of": "2026-09-26",
+  "slice_id": "SEMICONDUCTOR_ADVANCED_PACKAGING_CRITICAL_MATERIALS_V1",
+  "evidence": [
+    {
+      "evidence_id": "EV-SEMI-B022-TSMC-TESTER-SHORTAGE-2026",
+      "source_id": "SRC-SEMI-B022-TSMC-Q2-2026-TRANSCRIPT-2026-07-16",
+      "proposition": "TSMC's CEO stated that some customer products required more testers, that testers were in shortage, and that TSMC had to allocate additional capital expenditure to tester/packaging bottlenecks.",
+      "evidence_role": "OBSERVED_BACKEND_TOOL_BOTTLENECK",
+      "semantic_limit": "DOES_NOT_IDENTIFY A SPECIFIC FAB COMPLETION DELAY"
+    },
+    {
+      "evidence_id": "EV-SEMI-B022-TSMC-EQUIPMENT-LONG-CYCLES",
+      "source_id": "SRC-SEMI-B022-TSMC-2025-ANNUAL-EQUIPMENT-RISK",
+      "proposition": "TSMC states that expansion depends on necessary equipment from limited suppliers and may face limited supply or long delivery cycles; failure to acquire equipment in time may prevent successful capacity expansion.",
+      "evidence_role": "EQUIPMENT_LEAD_TIME_DEPENDENCY",
+      "semantic_limit": "RISK/DEPENDENCY STATEMENT; NOT A SPECIFIC REALIZED DELAY EVENT"
+    },
+    {
+      "evidence_id": "EV-SEMI-B022-USGS-HPQ-SEMICONDUCTOR-CHAIN",
+      "source_id": "SRC-SEMI-B022-USGS-MCS2025-HPQ",
+      "proposition": "USGS defines high-purity quartz by impurity limits, links HPQ to fused quartz crucibles used in silicon-ingot manufacturing for semiconductor wafers, and states that two companies produced U.S. HPQ around Spruce Pine in 2024.",
+      "evidence_role": "MATERIAL_GRADE_AND_PROCESSING_CONCENTRATION"
+    },
+    {
+      "evidence_id": "EV-SEMI-B022-TQC-QUARTZ-ABUNDANCE-PURITY",
+      "source_id": "SRC-SEMI-B022-TQC-HPQ-PROCESS",
+      "proposition": "The Quartz Corp states quartz is the second most abundant mineral in Earth's crust, while Spruce Pine ore is unusually suited for high-purity processing and undergoes multiple purification and quality-control steps.",
+      "evidence_role": "RESOURCE_VS_HIGH_PURITY_PROCESSING_FIREWALL"
+    },
+    {
+      "evidence_id": "EV-SEMI-B022-SIBELCO-HPQ-HALT-2024",
+      "source_id": "SRC-SEMI-B022-SIBELCO-SPRUCE-PINE-HALT-2024-09",
+      "proposition": "Sibelco temporarily halted Spruce Pine high-purity quartz operations following Hurricane Helene.",
+      "evidence_role": "REAL_MATERIAL_PROCESSING_DISRUPTION"
+    },
+    {
+      "evidence_id": "EV-SEMI-B022-TQC-HPQ-HALT-2024",
+      "source_id": "SRC-SEMI-B022-TQC-SPRUCE-PINE-HALT-2024-10-01",
+      "proposition": "The Quartz Corp stopped Spruce Pine operations on September 26, 2024 because of Hurricane Helene and initially had no visibility on restart timing.",
+      "evidence_role": "REAL_MATERIAL_PROCESSING_DISRUPTION"
+    },
+    {
+      "evidence_id": "EV-SEMI-B022-MICRON-HBM3E-PRIMARY-ANNOUNCEMENT",
+      "source_id": "SRC-SEMI-B022-MICRON-HBM3E-VOLUME-2024-02-26",
+      "proposition": "Micron announced HBM3E volume production on February 26, 2024.",
+      "evidence_role": "PRIMARY_ORIGIN_EVENT"
+    },
+    {
+      "evidence_id": "EV-SEMI-B022-GNW-MICRON-HBM3E-DISTRIBUTION-COPY",
+      "source_id": "SRC-SEMI-B022-GLOBENEWSWIRE-MICRON-HBM3E-2024-02-26",
+      "proposition": "GlobeNewswire distributed Micron's February 26, 2024 HBM3E volume-production announcement and attributes the release to Micron Technology, Inc.",
+      "evidence_role": "DISTRIBUTION_COPY_NOT_INDEPENDENT_CONFIRMATION"
+    },
+    {
+      "evidence_id": "EV-SEMI-B022-SKHYNIX-HBM-YIELD-COMPLEXITY",
+      "source_id": "SRC-SEMI-B022-SKHYNIX-HBM-YIELD-MASS-PRODUCTION-2025-03-10",
+      "proposition": "SK hynix identifies yield optimization, quality and packaging as critical to HBM mass-production capability and states 12-layer HBM3E has higher process complexity than 8-layer HBM3E.",
+      "evidence_role": "YIELD_CONSTRAINT_PREREQUISITE_CONTEXT",
+      "semantic_limit": "DOES_NOT BY ITSELF PROVE EFFECTIVE OUTPUT WAS BINDINGLY LIMITED BY YIELD"
+    }
+  ]
+}

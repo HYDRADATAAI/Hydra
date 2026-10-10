@@ -1,0 +1,35 @@
+{
+  "schema_version": "hydra-constraint-capability-ledger-delta/v1",
+  "record_id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH028_SEMICONDUCTOR_CAPABILITY_LEDGER_DELTA_V001",
+  "as_of": "2026-09-27",
+  "slice_id": "SEMICONDUCTOR_ADVANCED_PACKAGING_CRITICAL_MATERIALS_V1",
+  "predecessor_batch": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH027",
+  "changes": [
+    {
+      "capability": "browser_acquisition",
+      "prior": "FIRST_SLICE_LOCAL_ONLY",
+      "current": "SECOND_SLICE_41_SOURCE_ADAPTER_READY",
+      "basis": "Batch028 queue-bound Playwright runner"
+    },
+    {
+      "capability": "capture_resume",
+      "prior": "WORKSTATION_PREP_ONLY",
+      "current": "VALID_PAIR_RESUME_AND_PRIVATE_JOURNAL_READY",
+      "basis": "Batch028 existing-pair revalidation + journal"
+    },
+    {
+      "capability": "redirect_governance",
+      "prior": "UNSPECIFIED_FOR_SECOND_SLICE",
+      "current": "EXACT_DEFAULT_SAME_ORIGIN_OPTIONAL",
+      "basis": "Batch028 redirect firewall"
+    },
+    {
+      "capability": "raw_materialization",
+      "prior": "NOT_EXECUTED",
+      "current": "NOT_EXECUTED",
+      "basis": "Browser adapter writes inbox only; T1 materialization remains Batch026/027"
+    }
+  ],
+  "upgrade_count": 3,
+  "rule": "ACQUISITION_ADAPTER_READINESS_DOES_NOT_EQUAL_CAPTURE_OR_T1_MATERIALIZATION"
+}

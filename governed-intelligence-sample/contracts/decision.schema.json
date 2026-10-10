@@ -1,0 +1,60 @@
+{
+  "$id": "hydra-governed-intelligence-decision/v1",
+  "additionalProperties": false,
+  "properties": {
+    "citations": {
+      "items": {
+        "additionalProperties": false,
+        "properties": {
+          "artifact": {"type": "string"},
+          "artifact_sha256": {"pattern": "^[0-9a-f]{64}$", "type": "string"},
+          "record_id": {"type": "string"},
+          "record_sha256": {"pattern": "^[0-9a-f]{64}$", "type": "string"}
+        },
+        "required": ["artifact", "artifact_sha256", "record_id"],
+        "type": "object"
+      },
+      "type": "array"
+    },
+    "context": {"type": ["object", "null"]},
+    "disposition": {"enum": ["ADMIT", "ABSTAIN", "REFUSE"]},
+    "input_binding": {
+      "additionalProperties": false,
+      "properties": {
+        "pipeline_manifest_sha256": {"pattern": "^[0-9a-f]{64}$", "type": "string"},
+        "pipeline_run_id": {"type": "string"}
+      },
+      "required": ["pipeline_manifest_sha256", "pipeline_run_id"],
+      "type": "object"
+    },
+    "model_execution": {
+      "additionalProperties": false,
+      "properties": {
+        "authorized": {"const": false},
+        "status": {"const": "NOT_EXECUTED"}
+      },
+      "required": ["authorized", "status"],
+      "type": "object"
+    },
+    "policy_sha256": {"pattern": "^[0-9a-f]{64}$", "type": "string"},
+    "reason_codes": {"items": {"type": "string"}, "minItems": 1, "type": "array"},
+    "request_id": {"type": "string"},
+    "schema_version": {"const": "hydra-governed-intelligence-decision/v1"},
+    "subject": {"type": ["string", "null"]},
+    "task_type": {"type": "string"}
+  },
+  "required": [
+    "schema_version",
+    "request_id",
+    "task_type",
+    "subject",
+    "disposition",
+    "reason_codes",
+    "policy_sha256",
+    "input_binding",
+    "model_execution",
+    "context",
+    "citations"
+  ],
+  "type": "object"
+}

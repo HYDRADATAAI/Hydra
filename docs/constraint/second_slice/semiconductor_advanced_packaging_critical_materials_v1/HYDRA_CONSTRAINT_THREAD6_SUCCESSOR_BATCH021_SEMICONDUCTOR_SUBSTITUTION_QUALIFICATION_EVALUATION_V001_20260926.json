@@ -1,0 +1,30 @@
+{
+  "schema_version": "hydra-constraint-second-slice-substitution-evaluation/v1",
+  "record_id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH021_SEMICONDUCTOR_SUBSTITUTION_QUALIFICATION_EVALUATION_V001",
+  "as_of": "2026-09-26",
+  "slice_id": "SEMICONDUCTOR_ADVANCED_PACKAGING_CRITICAL_MATERIALS_V1",
+  "predecessor_evaluation": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH020_SEMICONDUCTOR_SUBSTITUTION_EVALUATION_V001",
+  "evaluations": [
+    {
+      "substitution_id": "SUB-SEMI-SAMSUNG-HBM3E-2024-001",
+      "substitution_version": "BATCH021_QUALIFICATION_UPDATE",
+      "parent_constraint_candidate_id": "T5C-SEMI-HBM-BOOKED-SUPPLY-2024-2025-001",
+      "substitute_entity_id": "ENTITY-SAMSUNG",
+      "substitute_product_class": "HBM3E",
+      "technical_capability_state": "PROVEN",
+      "production_state": "MASS_PRODUCTION_PREDECESSOR_PROVEN",
+      "predecessor_specific_target_qualification_state": "UNKNOWN_NOT_PROVEN",
+      "specific_target_qualification_state": "PROVEN_AMD_MI350X_MI355X",
+      "qualification_evidence_id": "EV-SEMI-B021-SAMSUNG-AMD-HBM3E-QUALIFIED-2026",
+      "unbooked_addressable_capacity_state": "UNKNOWN_NOT_PROVEN",
+      "switching_time_state": "TARGET_PLATFORM_DEPLOYMENT_PROVEN_GENERAL_SWITCHING_TIME_UNKNOWN",
+      "commercial_capture_state": "PLATFORM_SUPPLY_PROVEN_REVENUE_CAPTURE_NOT_QUANTIFIED",
+      "substitution_state": "QUALIFIED_TECHNICAL_SUBSTITUTE_CAPACITY_RELIEF_UNPROVEN",
+      "parent_constraint_effect": "TECHNICAL_OPTION_SET_WEAKENED_NOT_RESOLVED",
+      "ordinary_t6_eligible": false,
+      "semantic_limit": "QUALIFIED_PLATFORM_DEPLOYMENT_DOES_NOT_PROVE SPARE CAPACITY OR UNIVERSAL SUBSTITUTE AVAILABILITY"
+    }
+  ],
+  "qualified_technical_substitution_count": 1,
+  "proven_capacity_relief_count": 0
+}

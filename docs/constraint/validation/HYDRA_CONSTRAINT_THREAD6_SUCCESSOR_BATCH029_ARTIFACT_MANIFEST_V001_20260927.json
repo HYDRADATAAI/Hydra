@@ -1,0 +1,75 @@
+{
+  "schema_version": "hydra-constraint-thread6-successor-manifest/v1",
+  "record_id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH029_ARTIFACT_MANIFEST_V001",
+  "as_of": "2026-09-27",
+  "repository": "HYDRADATAAI/Hydra",
+  "base_head": "f4a44ee302cb84f609becf91838a6f0f4ad6c3c2",
+  "predecessor_batch": {
+    "id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH028",
+    "preservation": "IMMUTABLE_NOT_REWRITTEN"
+  },
+  "slice_id": "SEMICONDUCTOR_ADVANCED_PACKAGING_CRITICAL_MATERIALS_V1",
+  "result": "PASS_MICRON_CAPTURE_LOCATOR_REMEDIATION_READY_NOT_EXECUTED",
+  "artifacts": [
+    {
+      "path": "docs/constraint/second_slice/semiconductor_advanced_packaging_critical_materials_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH029_SEMICONDUCTOR_MICRON_CAPTURE_LOCATOR_REMEDIATION_V001_20260927.json",
+      "git_blob_sha": "a1ec576688e2c7a128aec900c7f0261fe9767b4c"
+    },
+    {
+      "path": "docs/constraint/second_slice/semiconductor_advanced_packaging_critical_materials_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH029_SEMICONDUCTOR_MICRON_CAPTURE_LOCATOR_REMEDIATION_STATUS_V001_20260927.json",
+      "git_blob_sha": "5f583e9555fab4c9b1f6250f5f3795231ff28676"
+    },
+    {
+      "path": "docs/constraint/architecture/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH029_MASTER_STATUS_V001_20260927.json",
+      "git_blob_sha": "052abfa3d51664355826001cf58dfafca6163c71"
+    },
+    {
+      "path": "docs/constraint/architecture/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH029_SEMICONDUCTOR_CAPABILITY_LEDGER_DELTA_V001_20260927.json",
+      "git_blob_sha": "99a2253bf23a9be465108d1c20353deb46291b8c"
+    },
+    {
+      "path": "docs/constraint/validation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH029_SEMICONDUCTOR_MICRON_CAPTURE_LOCATOR_REMEDIATION_REPORT_V001_20260927.md",
+      "git_blob_sha": "1983e76267879c265a80efc1d42be71e8dbbeebd"
+    }
+  ],
+  "excluded_operational_tools": [
+    {
+      "path": "tools/private/HYDRA_CONSTRAINT_T1_SEMICONDUCTOR_BATCH026_BROWSER_CAPTURE_V001_20260927.py",
+      "reason": "private-browser acquisition runner"
+    },
+    {
+      "path": "tools/materialize_constraint_second_slice_batch026_private_t1.py",
+      "reason": "private T1 materializer"
+    },
+    {
+      "path": "tools/verify_constraint_second_slice_batch026_private_t1.py",
+      "reason": "private T1 verifier"
+    },
+    {
+      "path": "tools/build_constraint_second_slice_batch026_private_t1_handback.py",
+      "reason": "private handback builder"
+    },
+    {
+      "path": "tools/validate_constraint_second_slice_batch029_locator_remediation.py",
+      "reason": "public validator"
+    },
+    {
+      "path": "tools/test_constraint_second_slice_batch029_locator_remediation_adversarial.py",
+      "reason": "hostile test harness"
+    },
+    {
+      "path": ".github/workflows/constraint-second-slice.yml",
+      "reason": "CI orchestration"
+    }
+  ],
+  "expected": {
+    "micron_locators_remediated": 7,
+    "original_source_identities_preserved": "YES",
+    "actual_capture_locator_recorded_in_sidecar": "YES",
+    "original_registered_locator_preserved_in_queue": "YES",
+    "raw_source_versions_materialized": 0,
+    "ordinary_t2_eligible_sources": 0,
+    "first_semiconductor_run": "BLOCKED",
+    "next_required_action": "RERUN_BATCH028_BROWSER_CAPTURE_WITH_BATCH029_LOCATOR_REMEDIATION"
+  }
+}

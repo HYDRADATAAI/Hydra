@@ -1,5 +1,6 @@
 from __future__ import annotations
 import json
+import copy
 import unittest
 from datetime import datetime
 from pathlib import Path
@@ -35,6 +36,49 @@ class ConservativeAvailabilityTests(unittest.TestCase):
         row=self.overlay["records"][0]
         self.assertFalse(temporally_eligible(row,datetime.fromisoformat("2026-09-25T23:52:01.573250+00:00")))
         self.assertTrue(temporally_eligible(row,datetime.fromisoformat("2026-09-25T23:52:01.573251+00:00")))
+
+    def test_direct_eligibility_rejects_unverified_or_missing_acquisition(self):
+        for value in ("TIMESTAMP_UNVERIFIED", None, "", "2026-09-25"):
+            with self.subTest(acquired_at=value):
+                row=copy.deepcopy(self.overlay["records"][0])
+                row["inherited_acquired_at"]=value
+                before=copy.deepcopy(row)
+                self.assertFalse(temporally_eligible(row,datetime.fromisoformat("2026-09-27T00:00:00+00:00")))
+                self.assertEqual(before,row)
+
+    def test_direct_eligibility_cannot_bypass_overlay_guards(self):
+        mutations = {
+            "conservative_available_at": "2000-01-01T00:00:00Z",
+            "availability_basis": "SOURCE_PUBLICATION_DATE",
+            "historical_backdating_authorized": True,
+            "source_content_persisted": True,
+            "ordinary_replay_lineage_eligible": True,
+            "source_id": None,
+        }
+        for field,value in mutations.items():
+            with self.subTest(field=field):
+                row=copy.deepcopy(self.overlay["records"][0])
+                row[field]=value
+                self.assertFalse(temporally_eligible(row,datetime.fromisoformat("2026-09-27T00:00:00+00:00")))
+
+    def test_direct_eligibility_rejects_missing_required_fields(self):
+        for field in ("inherited_acquired_at", "conservative_available_at", "availability_basis",
+                      "historical_backdating_authorized", "source_content_persisted",
+                      "ordinary_replay_lineage_eligible", "source_id"):
+            with self.subTest(field=field):
+                row=copy.deepcopy(self.overlay["records"][0])
+                del row[field]
+                self.assertFalse(temporally_eligible(row,datetime.fromisoformat("2026-09-27T00:00:00+00:00")))
+
+    def test_status_metadata_cannot_silently_be_ignored(self):
+        for field,value in (("acquisition_verification_status", "TIMESTAMP_UNVERIFIED"),
+                            ("timestamp_verified", True), ("canonical_admission", True),
+                            ("production_active", True)):
+            with self.subTest(field=field):
+                row=copy.deepcopy(self.overlay["records"][0]);row[field]=value
+                before=copy.deepcopy(row)
+                self.assertFalse(temporally_eligible(row,datetime.fromisoformat("2026-09-27T00:00:00+00:00")))
+                self.assertEqual(before,row)
 
     def test_batch004_history_is_preserved(self):
         self.assertTrue(all(row["available_at"] is None for row in self.batch004["records"]))

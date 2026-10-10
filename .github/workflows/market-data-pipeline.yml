@@ -20,10 +20,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
 
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
         with:
           python-version: "3.11"
 
@@ -47,14 +47,36 @@ jobs:
         working-directory: market-data-pipeline-sample
         run: |
           python - <<'PY'
+          import hashlib
           import json
           from pathlib import Path
 
+          def require(condition, detail):
+              if not condition:
+                  raise SystemExit(f"SAMPLE_MANIFEST=FAIL: {detail}")
+
           manifest = json.loads(Path("build/demo/manifest.json").read_text(encoding="utf-8"))
-          assert manifest["accepted_rows"] == 3, manifest
-          assert manifest["quarantined_rows"] == 4, manifest
-          assert manifest["schema_version"] == "hydra-market-pipeline-manifest/v1", manifest
+          inputs = manifest.get("inputs")
+          require(manifest.get("accepted_rows") == 3, "accepted row count changed")
+          require(manifest.get("quarantined_rows") == 4, "quarantined row count changed")
+          require(manifest.get("source_rows") == 7, "source row count changed")
+          require(manifest.get("schema_version") == "hydra-market-pipeline-manifest/v2", "schema changed")
+          require(isinstance(inputs, dict) and set(inputs) == {"resolved_aliases_json", "source_csv"}, "input snapshot set changed")
+          expected = {
+              "resolved_aliases_json": ("resolved_symbol_aliases.json", "hydra-market-resolved-aliases/v1"),
+              "source_csv": ("source_snapshot.csv", "hydra-market-source-csv/v1"),
+          }
+          for key, (filename, schema_version) in expected.items():
+              descriptor = inputs.get(key, {})
+              require(descriptor.get("file") == filename, f"{key} filename changed")
+              require(descriptor.get("schema_version") == schema_version, f"{key} schema changed")
+              actual = hashlib.sha256(Path("build/demo", filename).read_bytes()).hexdigest()
+              require(descriptor.get("sha256") == actual, f"{key} digest mismatch")
+          require(manifest.get("source_file_sha256") == inputs["source_csv"]["sha256"], "source digest binding changed")
+          require(manifest.get("aliases_sha256") == inputs["resolved_aliases_json"]["sha256"], "alias digest binding changed")
           print("SAMPLE_MANIFEST=PASS")
+          print("INPUT_SNAPSHOTS_VERIFIED=2")
+          print("SOURCE_ROWS_SNAPSHOT_VERIFIED=7")
           PY
 
       - name: Prove checkpoint recovery and idempotent replay
@@ -83,10 +105,72 @@ jobs:
           PY
 
       - name: Publish synthetic pipeline outputs
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: hydra-market-data-pipeline-sample
           path: |
             market-data-pipeline-sample/build/demo/
             market-data-pipeline-sample/build/operations/
           if-no-files-found: error
+      - name: Download published pipeline outputs
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          name: hydra-market-data-pipeline-sample
+          path: ${{ runner.temp }}/hydra-market-data-pipeline-published
+
+      - name: Verify published pipeline artifact round-trip
+        env:
+          PUBLISHED_PIPELINE_ARTIFACT_DIR: ${{ runner.temp }}/hydra-market-data-pipeline-published
+        run: |
+          python -I -B - <<'PY'
+          import hashlib
+          import os
+          from pathlib import Path
+
+          def require(condition, detail):
+              if not condition:
+                  raise SystemExit(f"PUBLISHED_PIPELINE_ARTIFACT=FAIL: {detail}")
+
+          def regular_files(root):
+              require(not root.is_symlink() and root.is_dir(), f"missing directory: {root}")
+              files = {}
+              for path in root.rglob("*"):
+                  require(not path.is_symlink(), f"symlink is not allowed: {path}")
+                  if path.is_file():
+                      files[path.relative_to(root).as_posix()] = path
+                  else:
+                      require(path.is_dir(), f"non-regular entry is not allowed: {path}")
+              require(bool(files), f"directory contains no files: {root}")
+              return files
+
+          source_roots = {
+              "demo": Path("market-data-pipeline-sample/build/demo"),
+              "operations": Path("market-data-pipeline-sample/build/operations"),
+          }
+          published_root = Path(os.environ["PUBLISHED_PIPELINE_ARTIFACT_DIR"])
+          require(not published_root.is_symlink() and published_root.is_dir(), "download directory is missing")
+          root_entries = list(published_root.iterdir())
+          root_names = {path.name for path in root_entries}
+          require(root_names == set(source_roots), f"unexpected artifact root entries: {sorted(root_names)}")
+          for path in root_entries:
+              require(not path.is_symlink() and path.is_dir(), f"invalid artifact root entry: {path}")
+
+          expected_files = {}
+          actual_files = {}
+          for label, source_root in source_roots.items():
+              for relative, path in regular_files(source_root).items():
+                  expected_files[f"{label}/{relative}"] = path
+              downloaded_root = published_root / label
+              for relative, path in regular_files(downloaded_root).items():
+                  actual_files[f"{label}/{relative}"] = path
+
+          missing = sorted(set(expected_files) - set(actual_files))
+          extra = sorted(set(actual_files) - set(expected_files))
+          require(not missing and not extra, f"file set changed; missing={missing}, extra={extra}")
+
+          for name, source in expected_files.items():
+              expected = hashlib.sha256(source.read_bytes()).hexdigest()
+              actual = hashlib.sha256(actual_files[name].read_bytes()).hexdigest()
+              require(actual == expected, f"SHA-256 mismatch for {name}")
+
+          print(f"PUBLISHED_PIPELINE_ARTIFACT=PASS:{len(expected_files)}")

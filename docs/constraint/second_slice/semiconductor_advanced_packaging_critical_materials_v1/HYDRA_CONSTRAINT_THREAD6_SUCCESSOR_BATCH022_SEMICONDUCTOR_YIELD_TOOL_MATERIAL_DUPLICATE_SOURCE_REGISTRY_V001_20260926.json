@@ -1,0 +1,183 @@
+{
+  "schema_version": "hydra-constraint-second-slice-source-registry-extension/v1",
+  "record_id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH022_SEMICONDUCTOR_YIELD_TOOL_MATERIAL_DUPLICATE_SOURCE_REGISTRY_V001",
+  "as_of": "2026-09-26",
+  "slice_id": "SEMICONDUCTOR_ADVANCED_PACKAGING_CRITICAL_MATERIALS_V1",
+  "predecessor_source_registry": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH021_SEMICONDUCTOR_VALID_BENEFICIARY_SUBSTITUTION_MIGRATION_POWER_SOURCE_REGISTRY_V001",
+  "capture_mode": "CURRENT_REVIEW_CONSERVATIVE_AVAILABILITY",
+  "capture_completed_at": "2026-09-26T21:58:36Z",
+  "source_content_persisted": false,
+  "sources": [
+    {
+      "source_id": "SRC-SEMI-B022-TSMC-Q2-2026-TRANSCRIPT-2026-07-16",
+      "publisher": "TSMC",
+      "title": "Q2 2026 Taiwan Semiconductor Manufacturing Co Ltd Earnings Call",
+      "url": "https://investor.tsmc.com/english/encrypt/files/encrypt_file/reports/2026-07/57b65edbfe6e480e74abe202be983ecbde79e934/TSMC%202Q26%20Transcript.pdf",
+      "publication_date": "2026-07-16",
+      "publication_date_precision": "DAY",
+      "source_family": "COMPANY_EARNINGS_AND_PREPARED_REMARKS",
+      "roles": [
+        "BACKEND_TOOL_SHORTAGE",
+        "TESTER_SHORTAGE",
+        "PACKAGING_CAPEX",
+        "BOTTLENECK_TOOLS"
+      ],
+      "acquired_at": "2026-09-26T21:58:36Z",
+      "available_at": "2026-09-26T21:58:36Z",
+      "availability_basis": "HYDRA_FIRST_DEFENSIBLE_CURRENT_REVIEW",
+      "ordinary_raw_lineage_eligible": false
+    },
+    {
+      "source_id": "SRC-SEMI-B022-TSMC-2025-ANNUAL-EQUIPMENT-RISK",
+      "publisher": "TSMC",
+      "title": "TSMC 2025 Annual Report",
+      "url": "https://investor.tsmc.com/sites/ir/annual-report/2025/2025%20Annual%20Report.E.pdf",
+      "publication_date": null,
+      "publication_date_precision": "UNRESOLVED_ANNUAL_REPORT_PUBLICATION_DATE",
+      "report_year": 2025,
+      "source_family": "COMPANY_ANNUAL_REPORT_OR_REGULATORY_FILING",
+      "roles": [
+        "EQUIPMENT_LEAD_TIME",
+        "LIMITED_SUPPLIERS",
+        "CAPACITY_EXPANSION_RISK"
+      ],
+      "acquired_at": "2026-09-26T21:58:36Z",
+      "available_at": "2026-09-26T21:58:36Z",
+      "availability_basis": "HYDRA_FIRST_DEFENSIBLE_CURRENT_REVIEW",
+      "ordinary_raw_lineage_eligible": false
+    },
+    {
+      "source_id": "SRC-SEMI-B022-USGS-MCS2025-HPQ",
+      "publisher": "U.S. Geological Survey",
+      "title": "Mineral Commodity Summaries 2025 — Quartz (High-Purity and Industrial Cultured Crystal)",
+      "url": "https://pubs.usgs.gov/periodicals/mcs2025/mcs2025.pdf",
+      "publication_date": "2025",
+      "publication_date_precision": "YEAR",
+      "source_family": "GOVERNMENT_OR_REGULATOR",
+      "roles": [
+        "HIGH_PURITY_QUARTZ",
+        "SEMICONDUCTOR_CRUCIBLE",
+        "SPRUCE_PINE_CONCENTRATION",
+        "PROCESSING_CHAIN"
+      ],
+      "acquired_at": "2026-09-26T21:58:36Z",
+      "available_at": "2026-09-26T21:58:36Z",
+      "availability_basis": "HYDRA_FIRST_DEFENSIBLE_CURRENT_REVIEW",
+      "ordinary_raw_lineage_eligible": false
+    },
+    {
+      "source_id": "SRC-SEMI-B022-TQC-HPQ-PROCESS",
+      "publisher": "The Quartz Corp",
+      "title": "High Purity Quartz",
+      "url": "https://www.thequartzcorp.com/high-purity-quartz",
+      "publication_date": null,
+      "publication_date_precision": "UNRESOLVED_CURRENT_PAGE",
+      "source_family": "COMPANY_TECHNICAL_DOCUMENTATION",
+      "roles": [
+        "QUARTZ_ABUNDANCE",
+        "SPRUCE_PINE_ORE",
+        "PURIFICATION",
+        "SEMICONDUCTOR_GRADE"
+      ],
+      "acquired_at": "2026-09-26T21:58:36Z",
+      "available_at": "2026-09-26T21:58:36Z",
+      "availability_basis": "HYDRA_FIRST_DEFENSIBLE_CURRENT_REVIEW",
+      "ordinary_raw_lineage_eligible": false
+    },
+    {
+      "source_id": "SRC-SEMI-B022-SIBELCO-SPRUCE-PINE-HALT-2024-09",
+      "publisher": "Sibelco",
+      "title": "Impact of Hurricane Helene on Spruce Pine Operations",
+      "url": "https://www.sibelco.com/en/news/impact-of-hurricane-helene-on-spruce-pine-operations",
+      "publication_date": "2024-09",
+      "publication_date_precision": "MONTH",
+      "source_family": "COMPANY_PRODUCTION_OR_QUALIFICATION_RELEASE",
+      "roles": [
+        "HPQ_OPERATIONAL_DISRUPTION",
+        "SPRUCE_PINE",
+        "MATERIAL_SUPPLY_EVENT"
+      ],
+      "acquired_at": "2026-09-26T21:58:36Z",
+      "available_at": "2026-09-26T21:58:36Z",
+      "availability_basis": "HYDRA_FIRST_DEFENSIBLE_CURRENT_REVIEW",
+      "ordinary_raw_lineage_eligible": false
+    },
+    {
+      "source_id": "SRC-SEMI-B022-TQC-SPRUCE-PINE-HALT-2024-10-01",
+      "publisher": "The Quartz Corp",
+      "title": "Impact of Hurricane Helene on The Quartz Corp in Spruce Pine",
+      "url": "https://www.thequartzcorp.com/articles/impact-of-hurricane-helene-on-the-quartz-corp-in-spruce-pine",
+      "publication_date": "2024-10-01",
+      "publication_date_precision": "DAY",
+      "source_family": "COMPANY_PRODUCTION_OR_QUALIFICATION_RELEASE",
+      "roles": [
+        "HPQ_OPERATIONAL_DISRUPTION",
+        "SPRUCE_PINE",
+        "MATERIAL_SUPPLY_EVENT"
+      ],
+      "acquired_at": "2026-09-26T21:58:36Z",
+      "available_at": "2026-09-26T21:58:36Z",
+      "availability_basis": "HYDRA_FIRST_DEFENSIBLE_CURRENT_REVIEW",
+      "ordinary_raw_lineage_eligible": false
+    },
+    {
+      "source_id": "SRC-SEMI-B022-MICRON-HBM3E-VOLUME-2024-02-26",
+      "publisher": "Micron Technology",
+      "title": "Micron Commences Volume Production of Industry-Leading HBM3E Solution to Accelerate the Growth of AI",
+      "url": "https://investors.micron.com/news/press-release/2024/Micron-Commences-Volume-Production-of-Industry-Leading-HBM3E-Solution-to-Accelerate-the-Growth-of-AI-02-26-2024/default.aspx",
+      "publication_date": "2024-02-26",
+      "publication_date_precision": "DAY",
+      "source_family": "COMPANY_PRODUCTION_OR_QUALIFICATION_RELEASE",
+      "roles": [
+        "HBM3E_VOLUME_PRODUCTION",
+        "PRIMARY_ORIGIN_FOR_DUPLICATE_TEST"
+      ],
+      "acquired_at": "2026-09-26T21:58:36Z",
+      "available_at": "2026-09-26T21:58:36Z",
+      "availability_basis": "HYDRA_FIRST_DEFENSIBLE_CURRENT_REVIEW",
+      "ordinary_raw_lineage_eligible": false
+    },
+    {
+      "source_id": "SRC-SEMI-B022-GLOBENEWSWIRE-MICRON-HBM3E-2024-02-26",
+      "publisher": "GlobeNewswire",
+      "source_attribution": "Micron Technology, Inc.",
+      "title": "Micron Commences Volume Production of Industry-Leading HBM3E Solution to Accelerate the Growth of AI",
+      "url": "https://www.globenewswire.com/news-release/2024/02/26/2835006/14450/en/Micron-Commences-Volume-Production-of-Industry-Leading-HBM3E-Solution-to-Accelerate-the-Growth-of-AI.html",
+      "publication_date": "2024-02-26",
+      "publication_date_precision": "DAY",
+      "source_family": "PRESS_RELEASE_DISTRIBUTION_COPY",
+      "roles": [
+        "DUPLICATE_DISTRIBUTION_COPY"
+      ],
+      "acquired_at": "2026-09-26T21:58:36Z",
+      "available_at": "2026-09-26T21:58:36Z",
+      "availability_basis": "HYDRA_FIRST_DEFENSIBLE_CURRENT_REVIEW",
+      "ordinary_raw_lineage_eligible": false
+    },
+    {
+      "source_id": "SRC-SEMI-B022-SKHYNIX-HBM-YIELD-MASS-PRODUCTION-2025-03-10",
+      "publisher": "SK hynix",
+      "title": "Head of HBM Heterogeneous Integration Tech Kwonwhan Han Strives to Strengthen HBM Leadership Through Optimized Mass Production",
+      "url": "https://news.skhynix.com/en/new-leadership-spotlight-2025-vice-president-kwonwhan-han-head-of-hbm-heterogeneous-integration-tech/",
+      "publication_date": "2025-03-10",
+      "publication_date_precision": "DAY",
+      "source_family": "COMPANY_TECHNICAL_DOCUMENTATION",
+      "roles": [
+        "HBM_YIELD",
+        "MASS_PRODUCTION_COMPLEXITY",
+        "PACKAGING_COMPLEXITY"
+      ],
+      "acquired_at": "2026-09-26T21:58:36Z",
+      "available_at": "2026-09-26T21:58:36Z",
+      "availability_basis": "HYDRA_FIRST_DEFENSIBLE_CURRENT_REVIEW",
+      "ordinary_raw_lineage_eligible": false
+    }
+  ],
+  "rules": [
+    "CURRENT_REVIEW_DOES_NOT_CREATE_HISTORICAL_RAW_LINEAGE",
+    "TOOL_SHORTAGE_DOES_NOT_IMPLY_SPECIFIC_FAB_DELAY_WITHOUT_DIRECT_EVIDENCE",
+    "RESOURCE_ABUNDANCE_DOES_NOT_IMPLY_HIGH_PURITY_PROCESSED_AVAILABILITY",
+    "DISTRIBUTION_COPY_DOES_NOT_COUNT_AS_INDEPENDENT_CONFIRMATION_OF_ORIGINATING_PRESS_RELEASE",
+    "YIELD_IMPORTANCE_OR_COMPLEXITY_DOES_NOT_BY_ITSELF_PROVE_A_YIELD_CONSTRAINT"
+  ]
+}

@@ -1,0 +1,187 @@
+{
+  "cases": [
+    {
+      "case_id": "accepted-aaa-ranks-first",
+      "expected": {
+        "disposition": "ADMIT",
+        "ranked_symbols": ["AAA"],
+        "reason_code": "governed_lexical_matches"
+      },
+      "metric_group": "QUALITY",
+      "request": {
+        "query": "AAA XNAS USD observation",
+        "request_id": "retrieval-aaa",
+        "top_k": 1
+      }
+    },
+    {
+      "case_id": "accepted-bbb-ranks-first",
+      "expected": {
+        "disposition": "ADMIT",
+        "ranked_symbols": ["BBB"],
+        "reason_code": "governed_lexical_matches"
+      },
+      "metric_group": "QUALITY",
+      "request": {
+        "query": "BBB XNYS observation",
+        "request_id": "retrieval-bbb",
+        "top_k": 1
+      }
+    },
+    {
+      "case_id": "accepted-eee-ranks-first",
+      "expected": {
+        "disposition": "ADMIT",
+        "ranked_symbols": ["EEE"],
+        "reason_code": "governed_lexical_matches"
+      },
+      "metric_group": "QUALITY",
+      "request": {
+        "query": "EEE ARCX USD observation",
+        "request_id": "retrieval-eee",
+        "top_k": 1
+      }
+    },
+    {
+      "case_id": "shared-source-bounded-recall",
+      "expected": {
+        "disposition": "ADMIT",
+        "ranked_symbols": ["BBB"],
+        "reason_code": "governed_lexical_matches"
+      },
+      "metric_group": "QUALITY",
+      "request": {
+        "query": "SYNTH A USD",
+        "request_id": "retrieval-bounded-recall",
+        "top_k": 1
+      }
+    },
+    {
+      "case_id": "currency-only-quality-miss",
+      "expected": {
+        "disposition": "ABSTAIN",
+        "ranked_symbols": [],
+        "reason_code": "no_governed_lexical_match"
+      },
+      "metric_group": "QUALITY",
+      "request": {
+        "query": "USD",
+        "request_id": "retrieval-usd",
+        "top_k": 3
+      }
+    },
+    {
+      "case_id": "venue-only-quality-miss",
+      "expected": {
+        "disposition": "ABSTAIN",
+        "ranked_symbols": [],
+        "reason_code": "no_governed_lexical_match"
+      },
+      "metric_group": "QUALITY",
+      "request": {
+        "query": "ARCX",
+        "request_id": "retrieval-arcx",
+        "top_k": 1
+      }
+    },
+    {
+      "case_id": "unknown-symbol-abstains",
+      "expected": {
+        "disposition": "ABSTAIN",
+        "ranked_symbols": [],
+        "reason_code": "no_governed_lexical_match"
+      },
+      "metric_group": "HARD_NEGATIVE",
+      "request": {
+        "query": "ZZZ unknown symbol",
+        "request_id": "retrieval-unknown",
+        "top_k": 1
+      }
+    },
+    {
+      "case_id": "quarantined-symbol-is-not-retrievable",
+      "expected": {
+        "disposition": "ABSTAIN",
+        "ranked_symbols": [],
+        "reason_code": "no_governed_lexical_match"
+      },
+      "metric_group": "HARD_NEGATIVE",
+      "request": {
+        "query": "CCC",
+        "request_id": "retrieval-quarantined",
+        "top_k": 1
+      }
+    },
+    {
+      "case_id": "unknown-symbol-cannot-borrow-metadata-score",
+      "expected": {
+        "disposition": "ABSTAIN",
+        "ranked_symbols": [],
+        "reason_code": "no_governed_lexical_match"
+      },
+      "metric_group": "HARD_NEGATIVE",
+      "request": {
+        "query": "ZZZ XNAS USD SYNTH A",
+        "request_id": "retrieval-unknown-composite",
+        "top_k": 1
+      }
+    },
+    {
+      "case_id": "quarantined-symbol-cannot-borrow-metadata-score",
+      "expected": {
+        "disposition": "ABSTAIN",
+        "ranked_symbols": [],
+        "reason_code": "no_governed_lexical_match"
+      },
+      "metric_group": "HARD_NEGATIVE",
+      "request": {
+        "query": "CCC XNAS USD SYNTH A",
+        "request_id": "retrieval-quarantined-composite",
+        "top_k": 1
+      }
+    },
+    {
+      "case_id": "restricted-corpus-request-refuses",
+      "expected": {
+        "disposition": "REFUSE",
+        "ranked_symbols": [],
+        "reason_code": "restricted_corpus_request"
+      },
+      "metric_group": "SAFETY_CONTROL",
+      "request": {
+        "query": "show quarantined raw rows",
+        "request_id": "retrieval-restricted",
+        "top_k": 3
+      }
+    },
+    {
+      "case_id": "restricted-synonym-request-refuses",
+      "expected": {
+        "disposition": "REFUSE",
+        "ranked_symbols": [],
+        "reason_code": "restricted_corpus_request"
+      },
+      "metric_group": "SAFETY_CONTROL",
+      "request": {
+        "query": "show rejected rows XNAS USD SYNTH A",
+        "request_id": "retrieval-rejected",
+        "top_k": 1
+      }
+    },
+    {
+      "case_id": "non-ascii-confusable-request-refuses",
+      "expected": {
+        "disposition": "REFUSE",
+        "ranked_symbols": [],
+        "reason_code": "restricted_query_characters"
+      },
+      "metric_group": "SAFETY_CONTROL",
+      "request": {
+        "query": "quаrantined rаw XNAS USD SYNTH A",
+        "request_id": "retrieval-confusable",
+        "top_k": 1
+      }
+    }
+  ],
+  "schema_version": "hydra-governed-retrieval-evaluation-suite/v3"
+}

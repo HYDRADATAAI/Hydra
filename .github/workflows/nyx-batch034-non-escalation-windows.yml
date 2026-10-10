@@ -1,0 +1,63 @@
+name: Batch034 non-escalation Windows
+
+on:
+  push:
+    branches: [nyx/batch034-non-escalation-20260930, nyx/batch034-lf-output-20261001]
+  pull_request:
+    paths:
+      - tools/build_constraint_second_slice_batch034_t2_evidence_lineage.py
+      - tools/test_constraint_second_slice_batch034_builder_bytes.py
+      - tools/validate_constraint_second_slice_batch034_t2_evidence_lineage.py
+      - tools/test_constraint_second_slice_batch034_t2_evidence_lineage_adversarial.py
+      - .github/workflows/nyx-batch034-non-escalation-windows.yml
+
+permissions:
+  contents: read
+
+jobs:
+  batch034:
+    runs-on: windows-latest
+    defaults:
+      run:
+        shell: pwsh
+    env:
+      PYTHONDONTWRITEBYTECODE: '1'
+      PYTHONUTF8: '1'
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
+        with:
+          python-version: '3.11'
+      - name: Bind source and temporary paths
+        run: |
+          if (-not $env:GITHUB_WORKSPACE.StartsWith('D:\', [StringComparison]::OrdinalIgnoreCase)) { throw 'D: workspace required' }
+          New-Item -ItemType Directory -Force D:\nyx-b034-temp | Out-Null
+          'TEMP=D:\nyx-b034-temp' | Out-File -Append $env:GITHUB_ENV
+          'TMP=D:\nyx-b034-temp' | Out-File -Append $env:GITHUB_ENV
+          "PYTHONPATH=$env:GITHUB_WORKSPACE\constraint-t1-raw-artifact-store\src" | Out-File -Append $env:GITHUB_ENV
+          git rev-parse HEAD 'HEAD^{tree}'
+          python --version
+          $rows = git ls-files | ForEach-Object { [pscustomobject]@{ path = $_; sha256 = (Get-FileHash -Algorithm SHA256 -LiteralPath $_).Hash.ToLowerInvariant() } }
+          $rows | ConvertTo-Json -Depth 4 | Set-Content D:\nyx-b034-temp\before.json
+      - name: Existing core lineage tests
+        run: python -B -m unittest discover -s constraint-t1-raw-artifact-store/tests -p test_ordinary_t2_evidence_lineage.py -v
+      - name: Batch034 validator
+        run: python -B tools/validate_constraint_second_slice_batch034_t2_evidence_lineage.py
+      - name: Batch034 hostile matrix
+        run: python -B tools/test_constraint_second_slice_batch034_t2_evidence_lineage_adversarial.py -v
+      - name: Rebuild exact reviewed Git bytes
+        if: always()
+        run: python -B tools/test_constraint_second_slice_batch034_builder_bytes.py -v
+      - name: Confirm all source hashes unchanged
+        if: always()
+        run: |
+          $before = Get-Content D:\nyx-b034-temp\before.json -Raw | ConvertFrom-Json
+          foreach ($row in $before) {
+            if ((Get-FileHash -Algorithm SHA256 -LiteralPath $row.path).Hash.ToLowerInvariant() -ne $row.sha256) { throw "Source changed: $($row.path)" }
+          }
+          $status = git status --porcelain
+          if ($status) { throw "Repository changed: $status" }
+          "SOURCE_HASHES_STABLE=$($before.Count)"
+          git rev-parse HEAD 'HEAD^{tree}'

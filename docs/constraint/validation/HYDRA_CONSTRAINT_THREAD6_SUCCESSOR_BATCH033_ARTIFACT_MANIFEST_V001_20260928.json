@@ -1,0 +1,69 @@
+{
+  "schema_version": "hydra-constraint-thread6-successor-manifest/v1",
+  "record_id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH033_ARTIFACT_MANIFEST_V001",
+  "as_of": "2026-09-28",
+  "repository": "HYDRADATAAI/Hydra",
+  "predecessor_batch": {
+    "id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH032",
+    "preservation": "IMMUTABLE_NOT_REWRITTEN"
+  },
+  "slice_id": "SEMICONDUCTOR_ADVANCED_PACKAGING_CRITICAL_MATERIALS_V1",
+  "result": "PASS_ORDINARY_T2_SOURCE_VERSION_NORMALIZATION_CURRENT_ONLY",
+  "artifacts": [
+    {
+      "path": "docs/constraint/second_slice/semiconductor_advanced_packaging_critical_materials_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH033_SEMICONDUCTOR_ORDINARY_T2_SOURCE_VERSION_LINEAGE_V001_20260928.json",
+      "git_blob_sha": "103bc591529d3e87ffcafee93cf17c28d42a666c"
+    },
+    {
+      "path": "docs/constraint/second_slice/semiconductor_advanced_packaging_critical_materials_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH033_SEMICONDUCTOR_ORDINARY_T2_NORMALIZATION_STATUS_V001_20260928.json",
+      "git_blob_sha": "73061f89390699eb24b504df6311cbaad2c30c7b"
+    },
+    {
+      "path": "docs/constraint/architecture/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH033_MASTER_STATUS_V001_20260928.json",
+      "git_blob_sha": "d2723440f52edbea64e2ca45a656454332e62ae5"
+    },
+    {
+      "path": "docs/constraint/validation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH033_SEMICONDUCTOR_ORDINARY_T2_NORMALIZATION_REPORT_V001_20260928.md",
+      "git_blob_sha": "3d282cf4b2534674bd02952ced89537b2327d423"
+    }
+  ],
+  "excluded_operational_tools": [
+    {
+      "path": "constraint-t1-raw-artifact-store/src/hydra_constraint_t1_raw/ordinary_t2_lineage.py",
+      "reason": "shared authoritative T1/T2 normalization implementation may evolve"
+    },
+    {
+      "path": "constraint-t1-raw-artifact-store/tests/test_ordinary_t2_lineage.py",
+      "reason": "shared regression harness"
+    },
+    {
+      "path": "tools/build_constraint_second_slice_batch033_ordinary_t2_lineage.py",
+      "reason": "deterministic builder"
+    },
+    {
+      "path": "tools/validate_constraint_second_slice_batch033_ordinary_t2_normalization.py",
+      "reason": "operational validator"
+    },
+    {
+      "path": "tools/test_constraint_second_slice_batch033_ordinary_t2_normalization_adversarial.py",
+      "reason": "hostile harness"
+    },
+    {
+      "path": ".github/workflows/constraint-second-slice.yml",
+      "reason": "CI orchestration"
+    }
+  ],
+  "expected": {
+    "source_count": 30,
+    "normalized_source_version_count": 30,
+    "ordinary_current_source_set_ready": true,
+    "ordinary_source_version_hash_lineage_complete": true,
+    "strict_historical_replay_ready": false,
+    "historical_availability_backdated": false,
+    "canonical_evidence_admission_promoted": false,
+    "required_cases_covered": "13/14",
+    "remaining_required_case": 12,
+    "first_serious_constraint_run": "BLOCKED",
+    "next_repo_executable_lane": "SEMICONDUCTOR_T2_EVIDENCE_LINEAGE_BINDING_FROM_BATCH033_SOURCE_VERSIONS"
+  }
+}

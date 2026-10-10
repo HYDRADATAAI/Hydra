@@ -1,0 +1,60 @@
+{
+  "schema_version": "hydra-constraint-second-slice-required-case-overlay/v1",
+  "record_id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH021_SEMICONDUCTOR_REQUIRED_CASE_OVERLAY_V001",
+  "as_of": "2026-09-26",
+  "slice_id": "SEMICONDUCTOR_ADVANCED_PACKAGING_CRITICAL_MATERIALS_V1",
+  "predecessor_overlay": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH020_SEMICONDUCTOR_REQUIRED_CASE_OVERLAY_V001",
+  "covered_case_count_before": 5,
+  "updates": [
+    {
+      "case_id": 6,
+      "name": "QUALIFICATION_BOTTLENECK",
+      "successor_status": "COVERED_REVIEWED_SHADOW_REAL_PRIMARY_BOUNDED",
+      "basis": [
+        "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH021_SEMICONDUCTOR_SAMSUNG_HBM3E_QUALIFICATION_TIMELINE_V001"
+      ],
+      "note": "Samsung product/mass-production capability existed before target-specific AMD deployment was proven; nominal capacity was not treated as qualified relief."
+    },
+    {
+      "case_id": 8,
+      "name": "VALID_BENEFICIARY",
+      "successor_status": "COVERED_SHADOW_PREQUALIFICATION_INPUT_PATTERN_REAL_PRIMARY",
+      "basis": [
+        "BEN-SEMI-MICRON-HBM-001"
+      ],
+      "note": "Micron has constraint connection, platform qualification, high-volume shipments, expanding effective output and realized HBM revenue/margin capture; canonical qualification remains blocked."
+    },
+    {
+      "case_id": 10,
+      "name": "SUBSTITUTION",
+      "successor_status": "COVERED_REVIEWED_SHADOW_QUALIFIED_TECHNICAL_SUBSTITUTE",
+      "basis": [
+        "SUB-SEMI-SAMSUNG-HBM3E-2024-001"
+      ],
+      "note": "Samsung HBM3E later achieved target-specific AMD MI350X/MI355X deployment; technical option set expands, but spare-capacity relief is not claimed."
+    }
+  ],
+  "progress_only": [
+    {
+      "case_id": 11,
+      "name": "CONSTRAINT_MIGRATION",
+      "progress_state": "MIGRATION_CANDIDATE_STRUCTURED_NOT_COVERED",
+      "reason": "Memory/cleanroom bottleneck evidence exists, but actual relief of the prior CoWoS constraint is not proven."
+    },
+    {
+      "case_id": 12,
+      "name": "HISTORICAL_NO_LOOKAHEAD",
+      "progress_state": "UNCHANGED_EXTERNAL_RAW_LINEAGE_GATE",
+      "reason": "Current known_at discipline remains testable, but historical raw source-version availability is not materialized."
+    }
+  ],
+  "covered_case_count_after": 8,
+  "remaining_gap_case_ids": [
+    3,
+    4,
+    5,
+    11,
+    12,
+    14
+  ]
+}

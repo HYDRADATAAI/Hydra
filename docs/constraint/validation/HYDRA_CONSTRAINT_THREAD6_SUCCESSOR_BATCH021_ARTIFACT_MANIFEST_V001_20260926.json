@@ -1,0 +1,88 @@
+{
+  "schema_version": "hydra-constraint-thread6-successor-manifest/v1",
+  "record_id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH021_ARTIFACT_MANIFEST_V001",
+  "as_of": "2026-09-26",
+  "repository": "HYDRADATAAI/Hydra",
+  "base_head": "af9a9fc2e2fdd25555be50dc5df71631bd6c89f6",
+  "predecessor_batch": {
+    "id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH020",
+    "preservation": "IMMUTABLE_NOT_REWRITTEN"
+  },
+  "slice_id": "SEMICONDUCTOR_ADVANCED_PACKAGING_CRITICAL_MATERIALS_V1",
+  "result": "PASS_VALID_BENEFICIARY_QUALIFIED_SUBSTITUTION_POWER_DEPTH_PARTIAL_MIGRATION",
+  "artifacts": [
+    {
+      "path": "docs/constraint/second_slice/semiconductor_advanced_packaging_critical_materials_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH021_SEMICONDUCTOR_VALID_BENEFICIARY_SUBSTITUTION_MIGRATION_POWER_SOURCE_REGISTRY_V001_20260926.json",
+      "git_blob_sha": "dfb66e3f8cf29a1425bf9ebccf9f5ba990567003"
+    },
+    {
+      "path": "docs/constraint/second_slice/semiconductor_advanced_packaging_critical_materials_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH021_SEMICONDUCTOR_VALID_BENEFICIARY_SUBSTITUTION_MIGRATION_POWER_EVIDENCE_V001_20260926.json",
+      "git_blob_sha": "18ae08928c04c9365614d201eb7d44809ada9977"
+    },
+    {
+      "path": "docs/constraint/second_slice/semiconductor_advanced_packaging_critical_materials_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH021_SEMICONDUCTOR_VALID_BENEFICIARY_EVALUATION_V001_20260926.json",
+      "git_blob_sha": "0eddfe1016dd7e5604e676fe597bd870f88963fb"
+    },
+    {
+      "path": "docs/constraint/second_slice/semiconductor_advanced_packaging_critical_materials_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH021_SEMICONDUCTOR_SUBSTITUTION_QUALIFICATION_EVALUATION_V001_20260926.json",
+      "git_blob_sha": "3ef8ff4ed16ac3961fe773230380899655c0a6b8"
+    },
+    {
+      "path": "docs/constraint/second_slice/semiconductor_advanced_packaging_critical_materials_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH021_SEMICONDUCTOR_SAMSUNG_HBM3E_QUALIFICATION_TIMELINE_V001_20260926.json",
+      "git_blob_sha": "576e026897460e98b35296007677df987e94a678"
+    },
+    {
+      "path": "docs/constraint/second_slice/semiconductor_advanced_packaging_critical_materials_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH021_SEMICONDUCTOR_CONSTRAINT_MIGRATION_EVALUATION_V001_20260926.json",
+      "git_blob_sha": "f243e23dc948e03f4bbf13a3dc542737a9ffe80e"
+    },
+    {
+      "path": "docs/constraint/second_slice/semiconductor_advanced_packaging_critical_materials_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH021_SEMICONDUCTOR_TO_POWER_INFRASTRUCTURE_GRAPH_OVERLAY_V001_20260926.json",
+      "git_blob_sha": "f541e80d33ec7e4b53a6779aea48d37beed18be0"
+    },
+    {
+      "path": "docs/constraint/second_slice/semiconductor_advanced_packaging_critical_materials_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH021_SEMICONDUCTOR_REQUIRED_CASE_OVERLAY_V001_20260926.json",
+      "git_blob_sha": "4eeba33dc40bfdd07a2b2805f31120e1c7f59a66"
+    },
+    {
+      "path": "docs/constraint/second_slice/semiconductor_advanced_packaging_critical_materials_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH021_SEMICONDUCTOR_VALID_BENEFICIARY_SUBSTITUTION_MIGRATION_POWER_STATUS_V001_20260926.json",
+      "git_blob_sha": "d377a7d041e52e03014fa496bb3004713f5d8f4f"
+    },
+    {
+      "path": "docs/constraint/architecture/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH021_MASTER_STATUS_V001_20260926.json",
+      "git_blob_sha": "462a2bb9966752811b6021168d8fa4b451d41aaa"
+    },
+    {
+      "path": "docs/constraint/architecture/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH021_SEMICONDUCTOR_CAPABILITY_LEDGER_DELTA_V001_20260926.json",
+      "git_blob_sha": "1a6f222e1dd3a527028659c3153999f74de642fa"
+    },
+    {
+      "path": "docs/constraint/validation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH021_SEMICONDUCTOR_VALID_BENEFICIARY_SUBSTITUTION_MIGRATION_POWER_REPORT_V001_20260926.md",
+      "git_blob_sha": "b62e3ceb4dd80186b3e1b08efa3581f21691bbf6"
+    }
+  ],
+  "excluded_operational_tools": [
+    {
+      "path": "tools/validate_constraint_second_slice_batch021_beneficiary_substitution_power.py",
+      "reason": "operational validator may evolve"
+    },
+    {
+      "path": "tools/test_constraint_second_slice_batch021_beneficiary_substitution_power_adversarial.py",
+      "reason": "hostile validation harness may evolve"
+    },
+    {
+      "path": ".github/workflows/constraint-second-slice.yml",
+      "reason": "CI orchestration is not domain authority content"
+    }
+  ],
+  "expected": {
+    "required_cases_covered": "8/14",
+    "valid_beneficiary_shadow_patterns": 1,
+    "qualified_canonical_beneficiaries": 0,
+    "technically_qualified_substitutions": 1,
+    "proven_capacity_relief_substitutions": 0,
+    "constraint_migrations_covered": 0,
+    "cross_slice_power_edges": 3,
+    "first_semiconductor_run": "BLOCKED",
+    "next_repo_executable_lane": "SECOND-SLICE-YIELD-TOOL-MATERIAL-MIGRATION-AND-DUPLICATE-EVIDENCE-DEPTH"
+  }
+}

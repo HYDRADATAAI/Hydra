@@ -1,0 +1,231 @@
+from __future__ import annotations
+
+import json
+import tempfile
+import unittest
+import urllib.request
+from io import BytesIO
+from pathlib import Path
+from unittest.mock import patch
+from urllib.error import HTTPError
+
+from hydra_constraint.canary import (
+    CanaryResponse,
+    CanaryRunner,
+    CanarySpec,
+    CanaryTransport,
+    _NoRedirectHandler,
+    load_specs,
+)
+
+
+class FakeTransport:
+    def __init__(self, responses):
+        self.responses = responses
+        self.calls = []
+
+    def fetch(self, spec, user_agent):
+        self.calls.append((spec.name, user_agent))
+        value = self.responses[spec.name]
+        if isinstance(value, Exception):
+            raise value
+        return value
+
+
+class LiveCanaryTests(unittest.TestCase):
+    def test_marker_success(self):
+        transport = FakeTransport({
+            "bis": CanaryResponse(
+                200,
+                "https://example.test/bis",
+                {"content-type": "text/html"},
+                b"Federal Register Notices ... Export as CSV",
+            )
+        })
+        result = CanaryRunner(transport).run_one(
+            CanarySpec("bis", "https://example.test/bis", ["Federal Register Notices", "Export as CSV"])
+        )
+        self.assertEqual(result.status, "PASS")
+        self.assertTrue(result.sha256)
+
+    def test_missing_marker_fails(self):
+        transport = FakeTransport({
+            "ofac": CanaryResponse(200, "https://example.test/ofac", {}, b"Recent Actions")
+        })
+        result = CanaryRunner(transport).run_one(
+            CanarySpec("ofac", "https://example.test/ofac", ["Recent Actions", "Sanctions List Updates"])
+        )
+        self.assertEqual(result.status, "FAIL")
+        self.assertEqual(result.missing_markers, ["Sanctions List Updates"])
+
+    def test_http_failure_fails(self):
+        transport = FakeTransport({
+            "port": CanaryResponse(503, "https://example.test/port", {}, b"maintenance")
+        })
+        result = CanaryRunner(transport).run_one(
+            CanarySpec("port", "https://example.test/port", ["Port of Los Angeles"])
+        )
+        self.assertEqual(result.status, "FAIL")
+        self.assertEqual(result.http_status, 503)
+
+    def test_disabled_source_is_never_fetched(self):
+        transport = FakeTransport({})
+        result = CanaryRunner(transport).run_one(
+            CanarySpec("sec", "https://data.sec.gov/test", [], enabled=False)
+        )
+        self.assertEqual(result.status, "DISABLED")
+        self.assertEqual(transport.calls, [])
+
+    def test_empty_enabled_set_fails_closed(self):
+        transport = FakeTransport({})
+        report = CanaryRunner(transport).run([])
+        self.assertEqual(report["status"], "FAIL")
+        self.assertEqual(report["enabled_sources"], 0)
+        self.assertEqual(report["passed_sources"], 0)
+        self.assertEqual(transport.calls, [])
+
+
+
+    def test_config_rejects_non_https_and_embedded_credentials(self):
+        base = {
+            "read_only": True,
+            "ledger_mutation": False,
+            "automatic_trading_action": False,
+        }
+        source = {
+            "name": "source",
+            "required_markers": [],
+            "enabled": True,
+        }
+        for url in (
+            "http://example.test/source",
+            "https:///missing-host",
+            "https://user:secret@example.test/source",
+            "https://@example.test/source",
+        ):
+            payload = {**base, "sources": [{**source, "url": url}]}
+            with self.subTest(url=url), tempfile.TemporaryDirectory() as td:
+                p = Path(td) / "config.json"
+                p.write_text(json.dumps(payload))
+                with self.assertRaisesRegex(ValueError, "HTTPS with a hostname"):
+                    load_specs(p)
+
+    def test_redirect_is_rejected_without_following_target(self):
+        source_url = "https://source.example.test/path"
+        redirect_url = "https://unconfigured.example.test/target"
+        spec = CanarySpec("source", source_url, ["marker"])
+        no_redirect = _NoRedirectHandler()
+
+        class RecordingOpener:
+            def __init__(self, handler):
+                self.handler = handler
+                self.requests = []
+
+            def open(self, request, timeout):
+                self.requests.append(request.full_url)
+                redirected = self.handler.redirect_request(
+                    request,
+                    None,
+                    302,
+                    "Found",
+                    {"Location": redirect_url},
+                    redirect_url,
+                )
+                if redirected is not None:
+                    return self.open(redirected, timeout)
+                raise HTTPError(
+                    request.full_url,
+                    302,
+                    "Found",
+                    {"Location": redirect_url},
+                    BytesIO(b"redirect"),
+                )
+
+        opener = RecordingOpener(no_redirect)
+        with patch("urllib.request.build_opener", return_value=opener) as build_opener:
+            result = CanaryRunner(CanaryTransport()).run_one(spec)
+
+        self.assertEqual(result.status, "FAIL")
+        self.assertEqual(result.http_status, 302)
+        self.assertEqual(result.final_url, source_url)
+        self.assertEqual(opener.requests, [source_url])
+        build_opener.assert_called_once()
+        self.assertIsInstance(build_opener.call_args.args[0], _NoRedirectHandler)
+
+    def test_report_is_read_only(self):
+        transport = FakeTransport({
+            "a": CanaryResponse(200, "https://example.test/a", {}, b"marker")
+        })
+        report = CanaryRunner(transport).run([
+            CanarySpec("a", "https://example.test/a", ["marker"])
+        ])
+        self.assertEqual(report["status"], "PASS")
+        self.assertTrue(report["read_only"])
+        self.assertFalse(report["ledger_mutation"])
+        self.assertFalse(report["automatic_trading_action"])
+
+    def test_config_must_be_read_only(self):
+        with tempfile.TemporaryDirectory() as td:
+            p = Path(td) / "config.json"
+            p.write_text(json.dumps({
+                "read_only": False,
+                "ledger_mutation": False,
+                "sources": [],
+            }))
+            with self.assertRaises(ValueError):
+                load_specs(p)
+
+
+    def test_config_requires_automatic_trading_disabled(self):
+        base = {"read_only": True, "ledger_mutation": False, "sources": []}
+        for payload in (
+            base,
+            {**base, "automatic_trading_action": True},
+        ):
+            with self.subTest(payload=payload), tempfile.TemporaryDirectory() as td:
+                p = Path(td) / "config.json"
+                p.write_text(json.dumps(payload))
+                with self.assertRaisesRegex(
+                    ValueError, "automatic_trading_action=false"
+                ):
+                    load_specs(p)
+
+        with tempfile.TemporaryDirectory() as td:
+            p = Path(td) / "config.json"
+            p.write_text(json.dumps({**base, "automatic_trading_action": False}))
+            self.assertEqual(load_specs(p), [])
+
+    def test_config_requires_explicit_boolean_source_enabled(self):
+        source = {
+            "name": "sec_edgar",
+            "url": "https://data.sec.gov/submissions/test.json",
+            "required_markers": [],
+        }
+        base = {
+            "read_only": True,
+            "ledger_mutation": False,
+            "automatic_trading_action": False,
+        }
+        for enabled_config in (
+            source,
+            {**source, "enabled": 0},
+            {**source, "enabled": "false"},
+        ):
+            payload = {**base, "sources": [enabled_config]}
+            with self.subTest(enabled=enabled_config.get("enabled", "<missing>")), tempfile.TemporaryDirectory() as td:
+                p = Path(td) / "config.json"
+                p.write_text(json.dumps(payload))
+                with self.assertRaisesRegex(ValueError, "enabled as a boolean"):
+                    load_specs(p)
+
+        payload = {**base, "sources": [{**source, "enabled": False}]}
+        with tempfile.TemporaryDirectory() as td:
+            p = Path(td) / "config.json"
+            p.write_text(json.dumps(payload))
+            specs = load_specs(p)
+            self.assertEqual(len(specs), 1)
+            self.assertFalse(specs[0].enabled)
+
+
+if __name__ == "__main__":
+    unittest.main()

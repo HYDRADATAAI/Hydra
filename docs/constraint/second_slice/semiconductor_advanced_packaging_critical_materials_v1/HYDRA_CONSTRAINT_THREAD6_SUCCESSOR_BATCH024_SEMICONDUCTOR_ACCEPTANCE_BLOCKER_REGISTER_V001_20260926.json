@@ -1,0 +1,95 @@
+{
+  "schema_version": "hydra-constraint-second-slice-acceptance-blocker-register/v1",
+  "record_id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH024_SEMICONDUCTOR_ACCEPTANCE_BLOCKER_REGISTER_V001",
+  "as_of": "2026-09-26",
+  "slice_id": "SEMICONDUCTOR_ADVANCED_PACKAGING_CRITICAL_MATERIALS_V1",
+  "overall_status": "BLOCKED",
+  "repo_executable_blockers": [
+    {
+      "blocker_id": "SEMI-ACCEPT-024-XSLICE-001-CONTINUOUS-AI-SEMICONDUCTOR-POWER-CHAIN-NOT-PROVEN",
+      "dimension": "CROSS_SLICE_GRAPH",
+      "owner": "LILY_THREAD_6_ARCHITECTURE_REGISTER",
+      "closure_kind": "EVIDENCE_BACKED_GRAPH_STITCHING",
+      "repo_executable": true,
+      "reason": "Existing AI→semiconductor and semiconductor-facility→power bridges are not yet one continuous evidence-backed causal path."
+    }
+  ],
+  "external_or_private_blockers": [
+    {
+      "blocker_id": "SEMICONDUCTOR-SLICE-006-RAW-SOURCE-VERSIONS-NOT-MATERIALIZED",
+      "dimensions": [
+        "PROVENANCE",
+        "ORIGINAL_AS_OF",
+        "LINEAGE",
+        "NO_LOOKAHEAD",
+        "DETERMINISTIC_REPLAY"
+      ],
+      "owner": "PIPELINE_T1_SOURCE_ACQUISITION",
+      "closure_kind": "PRIVATE_RAW_ARTIFACT_MATERIALIZATION",
+      "repo_executable": false
+    },
+    {
+      "blocker_id": "SEMI-ACCEPT-024-LINEAGE-001-SOURCE_VERSION_HASHES_T1_RELEASE_MEMBERSHIP_INCOMPLETE",
+      "dimensions": [
+        "PROVENANCE",
+        "LINEAGE"
+      ],
+      "owner": "PIPELINE_T1_SOURCE_ACQUISITION",
+      "closure_kind": "DERIVED_FROM_RAW_MATERIALIZATION_AND_T1_RELEASE",
+      "repo_executable": false,
+      "depends_on": [
+        "SEMICONDUCTOR-SLICE-006-RAW-SOURCE-VERSIONS-NOT-MATERIALIZED"
+      ]
+    },
+    {
+      "blocker_id": "SEMI-ACCEPT-024-REPLAY-001-ORDINARY_HISTORICAL_REPLAY_NOT_READY",
+      "dimensions": [
+        "ORIGINAL_AS_OF",
+        "DETERMINISTIC_REPLAY"
+      ],
+      "owner": "LILY_THREAD_6_ARCHITECTURE_REGISTER",
+      "closure_kind": "DERIVED_FROM_ORDINARY_LINEAGE",
+      "repo_executable": false,
+      "depends_on": [
+        "SEMICONDUCTOR-SLICE-006-RAW-SOURCE-VERSIONS-NOT-MATERIALIZED"
+      ]
+    },
+    {
+      "blocker_id": "SEMI-ACCEPT-024-CASE12-001-HISTORICAL_NO_LOOKAHEAD_NOT_ORDINARY_PROVEN",
+      "dimensions": [
+        "NO_LOOKAHEAD"
+      ],
+      "owner": "LILY_THREAD_6_ARCHITECTURE_REGISTER",
+      "closure_kind": "DERIVED_FROM_ORDINARY_REPLAY",
+      "repo_executable": false,
+      "depends_on": [
+        "SEMI-ACCEPT-024-REPLAY-001-ORDINARY_HISTORICAL_REPLAY_NOT_READY"
+      ]
+    },
+    {
+      "blocker_id": "CI-TEST-008-BLOCKER-001B-NATIVE-T5-T6-SIGNED-ADMISSION-RECEIPT-ABSENT",
+      "dimensions": [
+        "IMPLEMENTATION_ADMITTED"
+      ],
+      "owner": "IMPLEMENTATION_CONTRACT",
+      "closure_kind": "EXTERNAL_SIGNED_ADMISSION_RECEIPT",
+      "repo_executable": false
+    },
+    {
+      "blocker_id": "CANONICAL-T5-T6-CONSTRAINT-AND-BENEFICIARY-ADMISSION-NOT-AUTHORIZED",
+      "dimensions": [
+        "CONSTRAINT_FORMATION",
+        "BENEFICIARY_QUALIFICATION",
+        "IMPLEMENTATION_ADMITTED"
+      ],
+      "owner": "IMPLEMENTATION_CONTRACT",
+      "closure_kind": "DERIVED_FROM_NATIVE_ADMISSION",
+      "repo_executable": false,
+      "depends_on": [
+        "CI-TEST-008-BLOCKER-001B-NATIVE-T5-T6-SIGNED-ADMISSION-RECEIPT-ABSENT"
+      ]
+    }
+  ],
+  "next_repo_executable_lane": "SECOND-SLICE-CONTINUOUS-CROSS-SLICE-GRAPH-CLOSURE",
+  "post_repo_closure_expected_state": "EXTERNAL_ONLY_BLOCKERS_REMAIN"
+}

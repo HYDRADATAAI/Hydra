@@ -1,0 +1,13 @@
+{
+  "enabled_by_default": false,
+  "requirements": [
+    "source explicitly enabled",
+    "read_only=true",
+    "credentials/contact externalized",
+    "parser drift PASS",
+    "failure budget not FROZEN",
+    "ledger chain PASS"
+  ],
+  "promotion_rule": "Production cadence remains blocked while authority and temporal admission are unresolved. Seven healthy read-only canary days, fixture PASS and golden-replay PASS are operational checks only; none establishes historical proof, signature authority, canonical admission or readiness.",
+  "automatic_trading_action": false
+}

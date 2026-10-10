@@ -1,0 +1,15 @@
+{
+  "abstained_tasks": [
+    "production_metric"
+  ],
+  "allowed_tasks": [
+    "accepted_observation_summary",
+    "quality_status"
+  ],
+  "max_context_records": 2,
+  "model_execution_enabled": false,
+  "refused_tasks": [
+    "trading_instruction"
+  ],
+  "schema_version": "hydra-governed-intelligence-policy/v1"
+}

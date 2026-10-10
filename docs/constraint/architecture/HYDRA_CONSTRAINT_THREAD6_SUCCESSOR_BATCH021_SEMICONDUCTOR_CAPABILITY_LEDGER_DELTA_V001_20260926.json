@@ -1,0 +1,59 @@
+{
+  "schema_version": "hydra-constraint-capability-ledger-delta/v1",
+  "record_id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH021_SEMICONDUCTOR_CAPABILITY_LEDGER_DELTA_V001",
+  "as_of": "2026-09-26",
+  "slice_id": "SEMICONDUCTOR_ADVANCED_PACKAGING_CRITICAL_MATERIALS_V1",
+  "predecessor_batch": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH020",
+  "changes": [
+    {
+      "capability": "beneficiary_qualification",
+      "prior": "FALSE_BENEFICIARY_ONLY",
+      "current": "VALID_SHADOW_INPUT_PATTERN_PLUS_FALSE_REJECTION",
+      "basis": "Micron valid beneficiary input pattern + preserved Samsung false-beneficiary history"
+    },
+    {
+      "capability": "qualification_modeling",
+      "prior": "PASS_DEEPENED",
+      "current": "PASS_TARGET_SPECIFIC_TIMELINE",
+      "basis": "Samsung 2024 capability vs 2026 AMD platform deployment"
+    },
+    {
+      "capability": "substitution",
+      "prior": "PARTIAL_NOT_QUALIFIED",
+      "current": "PASS_TECHNICAL_QUALIFICATION_CAPACITY_RELIEF_UNPROVEN",
+      "basis": "Samsung HBM3E primary partner on AMD MI350X/MI355X"
+    },
+    {
+      "capability": "constraint_migration",
+      "prior": "THIN",
+      "current": "PARTIAL_STRUCTURED_CANDIDATE",
+      "basis": "CoWoS pressure to memory/cleanroom constraint context without false relief"
+    },
+    {
+      "capability": "cross_slice_ai_semiconductor_power",
+      "prior": "PARTIAL_AI_TO_SEMICONDUCTOR",
+      "current": "PARTIAL_DEEPENED_POWER_TRANSMISSION",
+      "basis": "TSMC Arizona facility linked to electricity demand, transmission and substations"
+    },
+    {
+      "capability": "required_case_matrix",
+      "prior": "5_OF_14",
+      "current": "8_OF_14",
+      "basis": "Cases 6, 8, 10 newly covered"
+    },
+    {
+      "capability": "historical_replay",
+      "prior": "BLOCKED",
+      "current": "BLOCKED",
+      "basis": "Raw source-version lineage remains unavailable"
+    },
+    {
+      "capability": "canonical_constraints",
+      "prior": "NONE",
+      "current": "NONE",
+      "basis": "Native T5/T6 admission remains blocked"
+    }
+  ],
+  "upgrade_count": 6,
+  "rule": "QUALIFICATION_OR_COMMERCIAL_CAPTURE_CAN_ADVANCE_SHADOW_CAPABILITY_WITHOUT_GRANTING_CANONICAL_OR_REPLAY_AUTHORITY"
+}

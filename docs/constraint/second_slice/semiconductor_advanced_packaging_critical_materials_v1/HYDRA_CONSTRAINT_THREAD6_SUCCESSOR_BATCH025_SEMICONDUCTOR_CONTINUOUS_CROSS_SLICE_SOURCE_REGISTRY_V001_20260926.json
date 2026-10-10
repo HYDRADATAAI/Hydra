@@ -1,0 +1,42 @@
+{
+  "schema_version": "hydra-constraint-second-slice-source-registry-extension/v1",
+  "record_id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH025_SEMICONDUCTOR_CONTINUOUS_CROSS_SLICE_SOURCE_REGISTRY_V001",
+  "as_of": "2026-09-26",
+  "slice_id": "SEMICONDUCTOR_ADVANCED_PACKAGING_CRITICAL_MATERIALS_V1",
+  "predecessor_batch": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH024",
+  "capture_mode": "CURRENT_REVIEW_CONSERVATIVE_AVAILABILITY",
+  "capture_completed_at": "2026-09-26T22:05:00Z",
+  "source_content_persisted": false,
+  "reused_source_ids": [
+    "SRC-SEMI-B021-APS-BISCUIT-FLATS-TSMC-2021-06",
+    "SRC-SEMI-B021-AZCC-TSMC-POWER-ORDER-2021-09-09",
+    "SRC-SEMI-TSMC-ANNUAL-REPORT-2024"
+  ],
+  "sources": [
+    {
+      "source_id": "SRC-SEMI-B025-NVIDIA-US-BLACKWELL-PRODUCTION-2025-04-14",
+      "publisher": "NVIDIA",
+      "title": "NVIDIA to Manufacture American-Made AI Supercomputers in US for First Time",
+      "url": "https://blogs.nvidia.com/blog/nvidia-manufacture-american-made-ai-supercomputers-us/",
+      "publication_date": "2025-04-14",
+      "publication_date_precision": "DAY",
+      "source_family": "COMPANY_PRODUCTION_OR_QUALIFICATION_RELEASE",
+      "roles": [
+        "AI_CHIP_DEMAND",
+        "NVIDIA_BLACKWELL",
+        "TSMC_PHOENIX_PRODUCTION",
+        "AI_SUPERCOMPUTER_SUPPLY_CHAIN"
+      ],
+      "acquired_at": "2026-09-26T22:05:00Z",
+      "available_at": "2026-09-26T22:05:00Z",
+      "availability_basis": "HYDRA_FIRST_DEFENSIBLE_CURRENT_REVIEW",
+      "ordinary_raw_lineage_eligible": false
+    }
+  ],
+  "rules": [
+    "CURRENT_REVIEW_DOES_NOT_CREATE_HISTORICAL_RAW_LINEAGE",
+    "BLACKWELL_PRODUCTION_LOCATION_DOES_NOT_IMPLY_ALL_BLACKWELL_PACKAGING_IS_IN_ARIZONA",
+    "FACILITY_POWER_DEPENDENCY_DOES_NOT_IMPLY_ACTIVE_POWER_SHORTAGE",
+    "CONTINUOUS_GRAPH_PATH_REQUIRES_EVIDENCE_ON_EVERY_EDGE"
+  ]
+}

@@ -46,6 +46,40 @@ class RawArtifactStoreTests(unittest.TestCase):
         with self.assertRaises(PublicRepositoryRootError):
             RawArtifactStore(self.repo / "raw", public_repo_root=self.repo)
 
+    def test_unproven_backdating_cannot_create_eligible_persisted_custody(self):
+        with self.assertRaises(ValueError):
+            self.store.persist(
+                raw_bytes=b"synthetic timestamp boundary test",
+                source_id="SRC-TEST-001", source_version_id="SV-BACKDATED",
+                content_type="text/plain", acquired_at=self.when,
+                available_at="2000-01-01T00:00:00Z",
+                source_locator="synthetic://temporal-test",
+            )
+        self.assertFalse((self.private_root / "receipts").exists())
+
+    def test_persisted_receipt_rejects_backdating_even_with_recomputed_digest(self):
+        from hydra_constraint_t1_raw.store import _record_digest, _canonical_json
+        receipt=self.persist()
+        receipt["available_at"]="2000-01-01T00:00:00Z"
+        receipt["receipt_sha256"]=_record_digest(receipt)
+        path=self.private_root / "receipts" / receipt["source_id"] / f"{receipt['source_version_id']}.json"
+        path.write_bytes(_canonical_json(receipt))
+        self.assertIn("availability_precedes_acquisition_without_evidence", self.store.validate_receipt(receipt))
+        with self.assertRaises(ArtifactIntegrityError):
+            self.store.write_release_manifest(release_id="REL-BACKDATED", created_at=self.when, receipts=[receipt])
+
+    def test_temporal_guard_compares_instants_and_preserves_later_availability(self):
+        for version,available in (("SV-OFFSET", "2026-09-25T19:52:01.573251-04:00"),
+                                  ("SV-LATER", "2026-09-26T00:00:00Z")):
+            with self.subTest(version=version):
+                receipt=self.store.persist(
+                    raw_bytes=b"synthetic timestamp boundary test", source_id="SRC-TEST-001",
+                    source_version_id=version, content_type="text/plain", acquired_at=self.when,
+                    available_at=available, source_locator="synthetic://temporal-test",
+                )
+                self.assertEqual((),self.store.validate_receipt(receipt))
+                self.assertEqual(available,receipt["available_at"])
+
     def test_persist_writes_content_addressed_immutable_bytes_and_receipt(self):
         receipt = self.persist()
         self.assertEqual((), self.store.validate_receipt(receipt))
@@ -90,8 +124,8 @@ class RawArtifactStoreTests(unittest.TestCase):
             receipts=[r2, r1],
         )
         self.assertEqual(left, persisted)
-        self.assertTrue(is_ordinary_t2_eligible(receipt=r1, release_manifest=persisted, store=self.store))
-        self.assertTrue(is_ordinary_t2_eligible(receipt=r2, release_manifest=persisted, store=self.store))
+        self.assertFalse(is_ordinary_t2_eligible(receipt=r1, release_manifest=persisted, store=self.store))
+        self.assertFalse(is_ordinary_t2_eligible(receipt=r2, release_manifest=persisted, store=self.store))
 
     def test_missing_manifest_membership_blocks_ordinary_t2_eligibility(self):
         receipt = self.persist()
@@ -220,7 +254,7 @@ class RawArtifactStoreTests(unittest.TestCase):
             "release_record_mismatch",
             self.store.validate_stored_release_manifest(forged),
         )
-        self.assertTrue(
+        self.assertFalse(
             is_ordinary_t2_eligible(
                 receipt=first,
                 release_manifest=persisted,

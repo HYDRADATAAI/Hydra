@@ -1,0 +1,59 @@
+{
+  "schema_version": "hydra-constraint-second-slice-browser-acquisition-adapter/v1",
+  "record_id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH028_SEMICONDUCTOR_BROWSER_ACQUISITION_ADAPTER_CONTRACT_V001",
+  "as_of": "2026-09-27",
+  "slice_id": "SEMICONDUCTOR_ADVANCED_PACKAGING_CRITICAL_MATERIALS_V1",
+  "predecessor_batch": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH027",
+  "purpose": "AUTOMATED_BROWSER_ACQUISITION_INTO_BATCH026_PRIVATE_INBOX",
+  "queue_record_id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH026_SEMICONDUCTOR_PRIVATE_T1_CAPTURE_QUEUE_V001",
+  "expected_source_count": 41,
+  "runner": "tools/private/HYDRA_CONSTRAINT_T1_SEMICONDUCTOR_BATCH026_BROWSER_CAPTURE_V001_20260927.py",
+  "launcher": "tools/private/Invoke-HYDRAConstraintSemiconductorBatch026BrowserCapture_V001_20260927.ps1",
+  "requirements": "tools/private/HYDRA_CONSTRAINT_T1_SEMICONDUCTOR_BATCH026_BROWSER_CAPTURE_REQUIREMENTS_V001_20260927.txt",
+  "default_private_root": "D:\\HYDRA_PRIVATE\\constraint",
+  "default_inbox_root": "D:\\HYDRA_PRIVATE\\constraint\\capture_inbox\\semiconductor_batch026",
+  "authorization": {
+    "explicit_flag_required": true,
+    "flag": "--authorized-public-acquisition / -AuthorizedPublicAcquisition",
+    "network_acquisition_performed_by_runner": true,
+    "t1_persistence_performed_by_runner": false
+  },
+  "browser_model": {
+    "python_client": "playwright>=1.55,<2",
+    "installed_browser_channels": [
+      "chrome",
+      "msedge"
+    ],
+    "bundled_browser_install_required": false,
+    "persistent_profile_private": true,
+    "browser_restart_retries_default": 2
+  },
+  "redirect_policy": {
+    "default": "exact",
+    "optional": "same-origin",
+    "cross_origin_allowed": false,
+    "downgrade_to_http_allowed": false
+  },
+  "capture_contract": {
+    "input": "BATCH026_QUEUE",
+    "output_capture_filename": "EXACT_QUEUE_INBOX_FILENAME",
+    "output_sidecar_suffix": ".capture.json",
+    "sidecar_schema": "hydra-semiconductor-private-capture-sidecar/v1",
+    "timestamp": "ACTUAL_OFFSET_AWARE_CAPTURE_TIME",
+    "historical_backdating_authorized": false,
+    "processing_disposition": "ELIGIBLE",
+    "journal_authoritative": false
+  },
+  "validation_firewalls": [
+    "HTTP_200_REQUIRED",
+    "PDF_SIGNATURE_AND_MINIMUM_SIZE_REQUIRED",
+    "HTML_DOCUMENT_MARKER_REQUIRED",
+    "CHALLENGE_INTERSTITIAL_MARKERS_REJECTED",
+    "PARTIAL_EXISTING_CAPTURE_PAIR_REJECTED",
+    "EXISTING_PAIR_REVALIDATED_BEFORE_RESUME",
+    "SOURCE_VERSION_IDS_REUSED_FROM_BATCH026_QUEUE",
+    "NO_PUBLIC_RAW_BYTES",
+    "NO_T1_RELEASE_WRITTEN_BY_BROWSER_RUNNER"
+  ],
+  "next_after_capture": "RUN_BATCH027_STATUS_THEN_ALL"
+}

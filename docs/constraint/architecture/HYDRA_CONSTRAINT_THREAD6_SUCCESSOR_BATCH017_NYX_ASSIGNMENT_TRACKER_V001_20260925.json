@@ -1,0 +1,39 @@
+{
+  "schema_version": "hydra-constraint-nyx-assignment-tracker/v1",
+  "record_id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH017_NYX_ASSIGNMENT_TRACKER_V001",
+  "as_of": "2026-09-26",
+  "repository": "HYDRADATAAI/Hydra",
+  "predecessor_batch": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH016",
+  "assignment_id": "NYX-FIRST-SLICE-REAL-OUTCOME-COVERAGE-EXPANSION-017",
+  "owner": "NYX",
+  "lane": "FIRST-SLICE-REAL-OUTCOME-COVERAGE-EXPANSION",
+  "status": "COMPLETED_IN_BATCH017",
+  "scope": [
+    "Expand reviewed outcome evidence using authorized public primary material.",
+    "Report evaluation coverage gaps and strengthen repo-side validation.",
+    "Preserve the Batch016 closure of ACCEPT-014-EVAL-001 without re-opening it."
+  ],
+  "source_and_ownership_boundaries": {
+    "used_authorized_material_only": true,
+    "new_source_discovery_needed": false,
+    "private_records_requested": false,
+    "future_source_discovery_or_private_record_requests_owner": "LILY",
+    "t5_t6_temporal_and_identity_owner": "LILY"
+  },
+  "prohibitions_preserved": [
+    "NO_INVENTED_OUTCOMES",
+    "NO_INVENTED_SCORES",
+    "NO_INVENTED_ACCEPTANCE_THRESHOLDS",
+    "NO_SHADOW_TO_CANONICAL_ADMISSION_PROMOTION",
+    "NO_ORDINARY_REPLAY_PROMOTION",
+    "NO_CLAIM_TO_CLEAR_PRIVATE_RAW_MATERIALIZATION_OR_NATIVE_ADMISSION_GATES"
+  ],
+  "result": {
+    "outcome_id": "OUT-AIDC-SCHNEIDER-EL-PASO-DC-CUSTOMER-SHIPMENT-001",
+    "outcomes_before_batch": 5,
+    "outcomes_after_batch": 6,
+    "core_dimensions_covered": "3/3_RETAINED_FROM_BATCH016",
+    "accept_014_eval_001": "CLOSED_BY_BATCH016_RETAINED",
+    "acceptance_gate": "BLOCKED_EXTERNAL_GATES_REMAIN"
+  }
+}
