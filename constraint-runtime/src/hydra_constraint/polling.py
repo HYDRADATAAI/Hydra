@@ -22,6 +22,11 @@ import urllib.request
 from .adapters import ADAPTERS
 
 RETRYABLE={429,500,502,503,504}
+_RFC850_DATE = re.compile(
+    r"(?:Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday), [0-9]{2}-(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)-(?P<year>[0-9]{2}) "
+    r"[0-9]{2}:[0-9]{2}:[0-9]{2} GMT",
+    re.ASCII,
+)
 _HTTP_DATE = re.compile(
     r"(?:"
     r"(?:Mon|Tue|Wed|Thu|Fri|Sat|Sun), [0-9]{2} (?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec) [0-9]{4} "
@@ -78,17 +83,23 @@ class BackoffPolicy:
                 date_value = retry_after.strip()
                 if not _HTTP_DATE.fullmatch(date_value):
                     raise ValueError("invalid HTTP-date")
+                current = now or datetime.now(timezone.utc)
+                if current.tzinfo is None:
+                    current = current.replace(tzinfo=timezone.utc)
+                rfc850_match = _RFC850_DATE.fullmatch(date_value)
                 leap_second = ":60 " in date_value
                 if leap_second:
                     date_value = date_value.replace(":60 ", ":59 ", 1)
                 retry_at = parsedate_to_datetime(date_value)
                 if leap_second:
                     retry_at += timedelta(seconds=1)
+                if rfc850_match:
+                    year = current.year // 100 * 100 + int(rfc850_match.group("year"))
+                    if year > current.year + 50:
+                        year -= 100
+                    retry_at = retry_at.replace(year=year)
                 if retry_at.tzinfo is None:
                     retry_at = retry_at.replace(tzinfo=timezone.utc)
-                current = now or datetime.now(timezone.utc)
-                if current.tzinfo is None:
-                    current = current.replace(tzinfo=timezone.utc)
                 return min(
                     self.cap_seconds,
                     max(0.0, (retry_at - current).total_seconds()),
