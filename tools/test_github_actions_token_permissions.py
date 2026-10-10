@@ -18,7 +18,8 @@ class GitHubActionsTokenPermissionsTests(unittest.TestCase):
             path = root / relative_path
             path.parent.mkdir(parents=True, exist_ok=True)
             path.write_text(text, encoding="utf-8")
-            return validate_workflow(path, yaml.safe_load(text), root)
+            document = yaml.load(text, Loader=yaml.BaseLoader)
+            return validate_workflow(path, document, root)
 
     def test_accepts_baseline_permissions(self):
         errors = self.validate_yaml(
@@ -38,16 +39,86 @@ class GitHubActionsTokenPermissionsTests(unittest.TestCase):
                 errors = self.validate_yaml(".github/workflows/example.yml", workflow)
                 self.assertTrue(any("top-level permissions" in error for error in errors))
 
-    def test_requires_exact_deploy_exception(self):
-        workflow = (
+    def _valid_deploy_workflow(self, *, trigger_text="workflow_dispatch: {}\n", job_text=""):
+        if not job_text:
+            job_text = (
+                "  deploy-and-verify:\n"
+                "    if: github.ref == 'refs/heads/main'\n"
+                "    environment: aws-demo\n"
+                "    runs-on: ubuntu-latest\n"
+            )
+        return (
+            "on:\n"
+            f"  {trigger_text}"
             "permissions:\n  contents: read\n  id-token: write\n"
-            "jobs:\n  deploy:\n    runs-on: ubuntu-latest\n"
+            "jobs:\n"
+            f"{job_text}"
         )
+
+    def test_requires_exact_deploy_exception(self):
+        workflow = self._valid_deploy_workflow()
         path = Path(".github/workflows/aws-market-data-deploy.yml")
-        self.assertEqual(validate_workflow(path, yaml.safe_load(workflow), Path(".")), [])
+        document = yaml.load(workflow, Loader=yaml.BaseLoader)
+        self.assertEqual(validate_workflow(path, document, Path(".")), [])
         self.assertEqual(
             DEPLOY_PERMISSIONS, {"contents": "read", "id-token": "write"}
         )
+
+    def test_rejects_additional_deploy_triggers(self):
+        workflow = self._valid_deploy_workflow(
+            trigger_text="workflow_dispatch: {}\n  pull_request: {}\n"
+        )
+        errors = self.validate_yaml(
+            ".github/workflows/aws-market-data-deploy.yml",
+            workflow,
+        )
+        self.assertTrue(any("must use only" in error for error in errors))
+
+    def test_rejects_extra_oidc_deploy_job(self):
+        workflow = self._valid_deploy_workflow(
+            job_text=(
+                "  deploy-and-verify:\n"
+                "    if: github.ref == 'refs/heads/main'\n"
+                "    environment: aws-demo\n"
+                "    runs-on: ubuntu-latest\n"
+                "  extra:\n"
+                "    runs-on: ubuntu-latest\n"
+            )
+        )
+        errors = self.validate_yaml(
+            ".github/workflows/aws-market-data-deploy.yml",
+            workflow,
+        )
+        self.assertTrue(any("must contain only job" in error for error in errors))
+
+    def test_rejects_oidc_deploy_job_without_main_ref_gate(self):
+        workflow = self._valid_deploy_workflow(
+            job_text=(
+                "  deploy-and-verify:\n"
+                "    if: github.event_name == 'workflow_dispatch'\n"
+                "    environment: aws-demo\n"
+                "    runs-on: ubuntu-latest\n"
+            )
+        )
+        errors = self.validate_yaml(
+            ".github/workflows/aws-market-data-deploy.yml",
+            workflow,
+        )
+        self.assertTrue(any("gated to refs/heads/main" in error for error in errors))
+
+    def test_rejects_oidc_deploy_job_without_protected_environment(self):
+        workflow = self._valid_deploy_workflow(
+            job_text=(
+                "  deploy-and-verify:\n"
+                "    if: github.ref == 'refs/heads/main'\n"
+                "    runs-on: ubuntu-latest\n"
+            )
+        )
+        errors = self.validate_yaml(
+            ".github/workflows/aws-market-data-deploy.yml",
+            workflow,
+        )
+        self.assertTrue(any("must use the 'aws-demo' environment" in error for error in errors))
 
     def test_rejects_deploy_exception_in_other_workflows(self):
         errors = self.validate_yaml(
