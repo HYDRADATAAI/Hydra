@@ -165,13 +165,16 @@ def _write_atomically(
 
     try:
         try:
-            existing_mode = stat.S_IMODE(path.lstat().st_mode)
+            existing_stat = path.lstat()
         except FileNotFoundError:
-            existing_mode = None
-        if existing_mode is not None and stat.S_ISREG(path.lstat().st_mode):
-            os.chmod(temporary_path, existing_mode)
+            existing_stat = None
+        if existing_stat is not None and stat.S_ISREG(existing_stat.st_mode):
+            os.chmod(temporary_path, stat.S_IMODE(existing_stat.st_mode))
         with os.fdopen(descriptor, mode, **open_kwargs) as handle:
+            descriptor = None
             write(handle)
         os.replace(temporary_path, path)
     finally:
+        if descriptor is not None:
+            os.close(descriptor)
         temporary_path.unlink(missing_ok=True)
