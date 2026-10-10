@@ -160,6 +160,67 @@ class PollingResponseLimitTests(unittest.TestCase):
         self.assertEqual(response.body, b"abcde")
         self.assertEqual(stream.read_sizes, [6, 4, 2, 1])
 
+    def test_legacy_urllib_subclass_keeps_fetch_signature_and_post_fetch_cap(self):
+        class LegacyTransport(UrllibTransport):
+            def __init__(self):
+                super().__init__(max_bytes=100)
+                self.calls = 0
+
+            def fetch(self, url, headers=None, timeout=20):
+                self.calls += 1
+                return HttpResponse(
+                    url, 200, {}, b"abcd", "2026-10-09T00:00:00Z",
+                )
+
+        class Cursors:
+            def __init__(self):
+                self.state = {"cursor": "old"}
+                self.errors = []
+
+            def adapter(self, _source):
+                return self.state
+
+            def mark_error(self, source, polled_at, error):
+                self.errors.append((source, polled_at, error))
+
+        class Archive:
+            def __init__(self):
+                self.calls = []
+
+            def archive(self, *args):
+                self.calls.append(args)
+                return "unused"
+
+        class Durable:
+            def ingest_adapted(self, _record):
+                raise AssertionError("oversized response must not be ingested")
+
+        class Sleeper:
+            def sleep(self, _delay):
+                raise AssertionError("oversized response must be terminal")
+
+        transport, cursors, archive = LegacyTransport(), Cursors(), Archive()
+        runner = PollRunner(
+            Durable(), cursors, archive, transport, sleeper=Sleeper(),
+            max_response_bytes=3,
+        )
+        spec = PollSpec(
+            name="fixture", adapter="json_records", source_class="fixture",
+            url="https://example.test/feed", parser="json_records",
+            cadence_minutes=60, stale_after_minutes=60,
+            backoff=BackoffPolicy(max_attempts=3),
+        )
+
+        report = runner.poll(spec, cursor_value="new")
+
+        self.assertEqual(report.status, "FAILED")
+        self.assertEqual(report.http_statuses, [200])
+        self.assertEqual(report.cursor_before, "old")
+        self.assertEqual(report.cursor_after, "old")
+        self.assertEqual(transport.calls, 1)
+        self.assertEqual(archive.calls, [])
+        self.assertEqual(len(cursors.errors), 1)
+
     def test_invalid_builtin_transport_url_fails_before_cursor_access(self):
         class UnexpectedCall:
             def __getattr__(self, name):
