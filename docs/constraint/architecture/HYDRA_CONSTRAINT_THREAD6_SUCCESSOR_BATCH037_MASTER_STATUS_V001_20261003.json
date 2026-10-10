@@ -1,0 +1,100 @@
+{
+  "schema_version": "hydra-constraint-thread6-master-status/v1",
+  "record_id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH037_MASTER_STATUS_V001",
+  "as_of": "2026-10-03",
+  "predecessor": {
+    "record_id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH036_MASTER_STATUS_V001",
+    "mutation": "NONE"
+  },
+  "active_verticals": {
+    "AI_DATA_CENTER_POWER_INFRASTRUCTURE_V1": {
+      "status": "PUBLIC_REPO_SIDE_EXHAUSTED_EXTERNAL_GATES_REMAIN",
+      "first_serious_constraint_run": "BLOCKED"
+    },
+    "SEMICONDUCTOR_ADVANCED_PACKAGING_CRITICAL_MATERIALS_V1": {
+      "status": "CURRENT_CUSTODY_T2_NORMALIZATION_AND_EVIDENCE_LINEAGE_COMPLETE_EXTERNAL_GATES_REMAIN",
+      "first_serious_constraint_run": "BLOCKED"
+    }
+  },
+  "readiness": {
+    "SEMANTIC_ARCHITECTURE_READY": {
+      "status": "YES"
+    },
+    "NATIVE_T5_T6_V2_SEMANTIC_DELTA": {
+      "status": "STRICT_BOOLEAN_ELIGIBILITY_VALIDATION_SPECIFIED"
+    },
+    "AI_DATA_CENTER_POWER_INFRASTRUCTURE_IMPLEMENTATION_ADMITTED": {
+      "status": "NO"
+    },
+    "AI_DATA_CENTER_POWER_INFRASTRUCTURE_HISTORICAL_AVAILABILITY": {
+      "status": "NO_PIT_002B_EVIDENCE_INCOMPLETE"
+    },
+    "SECOND_SLICE_PROVIDER_EXCLUSION_POLICY": {
+      "status": "ACTIVE_MICRON_AND_DIRECT_TSMC_QUARANTINED",
+      "direct_tsmc_quarantined_count": 8
+    },
+    "SECOND_SLICE_REQUIRED_CASES": {
+      "status": "PARTIAL_EXTERNAL_ONLY",
+      "covered": 13,
+      "total": 14,
+      "remaining_case": 12
+    },
+    "SECOND_SLICE_PRIVATE_CAPTURE_QUEUE": {
+      "status": "COMPLETE",
+      "source_count": 30
+    },
+    "SECOND_SLICE_T1_RELEASE": {
+      "status": "YES_VALID_IMMUTABLE",
+      "release_id": "REL-SEMI-B031-V001",
+      "release_sha256": "c735db9e8a5daed8cff08dc7d9c2b4cc11f5910aba61669536c3961b21ac8b77"
+    },
+    "SECOND_SLICE_ORDINARY_T2_NORMALIZATION": {
+      "status": "COMPLETE_30_OF_30_SOURCE_VERSIONS"
+    },
+    "SECOND_SLICE_ORDINARY_SOURCE_VERSION_LINEAGE": {
+      "status": "COMPLETE_CURRENT_CAPTURED_VERSIONS",
+      "count": 30
+    },
+    "SECOND_SLICE_T2_EVIDENCE_LINEAGE": {
+      "status": "COMPLETE_ACTIVE_REVIEWED_EVIDENCE_CURRENT_ONLY",
+      "bound_evidence_count": 34,
+      "excluded_quarantined_evidence_count": 27
+    },
+    "SECOND_SLICE_ACTIVE_SOURCE_EVIDENCE_COVERAGE": {
+      "status": "YES_30_OF_30_ACTIVE_SOURCES"
+    },
+    "SECOND_SLICE_CURRENT_EVIDENCE_NO_LOOKAHEAD": {
+      "status": "ENFORCED_AT_CONSERVATIVE_SOURCE_VERSION_AVAILABLE_AT"
+    },
+    "SECOND_SLICE_CANONICAL_EVIDENCE_ADMISSION": {
+      "status": "NO"
+    },
+    "SECOND_SLICE_HISTORICAL_AVAILABILITY": {
+      "status": "NO_PRE_ACQUISITION_VERSION_AVAILABILITY_UNPROVEN"
+    },
+    "SECOND_SLICE_REPLAY_READY": {
+      "status": "NO_STRICT_HISTORICAL"
+    },
+    "SECOND_SLICE_IMPLEMENTATION_ADMITTED": {
+      "status": "NO"
+    },
+    "FULL_CONSTRAINT_RUN_READY": {
+      "status": "NO"
+    },
+    "AI_DATA_CENTER_POWER_INFRASTRUCTURE_V2_IMPLEMENTATION": {
+      "status": "PRESENT_TESTS_PASS_4_OF_4"
+    }
+  },
+  "first_serious_constraint_run": "BLOCKED",
+  "remaining_blockers": [
+    "PIT-002B-FIRST-SLICE-NINE-SOURCE-RAW-CAPTURE-MATERIALIZATION",
+    "NATIVE_T5_T6_IMPLEMENTATION_CONTRACT_RECEIPT_ABSENT",
+    "PRE_ACQUISITION_HISTORICAL_VERSION_AVAILABILITY_UNPROVEN",
+    "REQUIRED_CASE_12_HISTORICAL_NO_LOOKAHEAD_OPEN",
+    "CANONICAL_EVIDENCE_ADMISSION_NOT_AUTHORIZED",
+    "SECOND_SLICE_IMPLEMENTATION_ADMISSION_NOT_GRANTED"
+  ],
+  "repo_executable_blockers": [],
+  "next_required_action": "OBTAIN_EXTERNAL_IMPLEMENTATION_CONTRACT_RECEIPT_AND_SEPARATE_HISTORICAL_AVAILABILITY_EVIDENCE",
+  "next_repo_executable_lane": "NONE_PENDING_EXTERNAL_IMPLEMENTATION_CONTRACT_RECEIPT_OR_HISTORICAL_AVAILABILITY_EVIDENCE"
+}
