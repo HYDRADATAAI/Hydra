@@ -4,8 +4,10 @@ from __future__ import annotations
 
 import csv
 import json
+import os
+import tempfile
 from pathlib import Path
-from typing import Iterable, Mapping
+from typing import Any, Callable, Iterable, Mapping
 
 from .hashing import canonical_json_bytes, sha256_hex
 from .models import PipelineResult
@@ -45,8 +47,8 @@ def write_outputs(result: PipelineResult, *, output_dir: str | Path) -> dict[str
     _write_jsonl(normalized_jsonl, (event.json_record() for event in result.accepted))
     _write_csv(normalized_csv, (event.json_record() for event in result.accepted))
     _write_jsonl(quarantine_jsonl, (record.json_record() for record in result.quarantined))
-    source_snapshot.write_bytes(result.source_csv_bytes)
-    resolved_aliases_json.write_bytes(canonical_json_bytes(dict(result.resolved_aliases)))
+    _write_bytes(source_snapshot, result.source_csv_bytes)
+    _write_bytes(resolved_aliases_json, canonical_json_bytes(dict(result.resolved_aliases)))
 
     source_snapshot_sha256 = sha256_hex(source_snapshot.read_bytes())
     resolved_aliases_sha256 = sha256_hex(resolved_aliases_json.read_bytes())
@@ -92,14 +94,15 @@ def write_outputs(result: PipelineResult, *, output_dir: str | Path) -> dict[str
         "source_rows": len(result.accepted) + len(result.quarantined),
         "transform_version": result.transform_version,
     }
-    manifest_path.write_bytes(
+    _write_bytes(
+        manifest_path,
         json.dumps(
             manifest,
             ensure_ascii=False,
             indent=2,
             sort_keys=True,
         ).encode("utf-8")
-        + b"\n"
+        + b"\n",
     )
 
     return {
@@ -112,15 +115,21 @@ def write_outputs(result: PipelineResult, *, output_dir: str | Path) -> dict[str
     }
 
 
+def _write_bytes(path: Path, content: bytes) -> None:
+    _write_atomically(path, "wb", lambda handle: handle.write(content))
+
+
 def _write_jsonl(path: Path, records: Iterable[Mapping[str, object]]) -> None:
-    with path.open("wb") as handle:
+    def write_records(handle: Any) -> None:
         for record in records:
             handle.write(canonical_json_bytes(record))
             handle.write(b"\n")
 
+    _write_atomically(path, "wb", write_records)
+
 
 def _write_csv(path: Path, records: Iterable[Mapping[str, object]]) -> None:
-    with path.open("w", newline="", encoding="utf-8") as handle:
+    def write_records(handle: Any) -> None:
         writer = csv.DictWriter(
             handle,
             fieldnames=NORMALIZED_CSV_COLUMNS,
@@ -129,3 +138,25 @@ def _write_csv(path: Path, records: Iterable[Mapping[str, object]]) -> None:
         writer.writeheader()
         for record in records:
             writer.writerow({column: record[column] for column in NORMALIZED_CSV_COLUMNS})
+
+    _write_atomically(path, "w", write_records, newline="", encoding="utf-8")
+
+
+def _write_atomically(
+    path: Path,
+    mode: str,
+    write: Callable[[Any], None],
+    **open_kwargs: Any,
+) -> None:
+    descriptor, temporary_name = tempfile.mkstemp(
+        prefix=f".{path.name}.",
+        suffix=".tmp",
+        dir=path.parent,
+    )
+    temporary_path = Path(temporary_name)
+    try:
+        with os.fdopen(descriptor, mode, **open_kwargs) as handle:
+            write(handle)
+        os.replace(temporary_path, path)
+    finally:
+        temporary_path.unlink(missing_ok=True)
