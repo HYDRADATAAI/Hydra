@@ -40,6 +40,14 @@ ROOT_PLAN_KEYS = {
     "schema_version",
 }
 INPUT_PLAN_KEYS = {"path", "source_id"}
+PIPELINE_ARTIFACT_FILES = (
+    "manifest.json",
+    "resolved_symbol_aliases.json",
+    "source_snapshot.csv",
+    "normalized_events.csv",
+    "normalized_events.jsonl",
+    "quarantine_records.jsonl",
+)
 
 
 class OperationsError(ValueError):
@@ -214,6 +222,7 @@ def execute_backfill(
         if result.aliases_sha256 != plan.aliases_sha256:
             raise OperationsError(f"aliases changed while processing: {item.source_id}")
         run_dir = runs_root / result.pipeline_run_id
+        _verify_run_paths_before_write(run_dir)
         outputs = write_outputs(result, output_dir=run_dir)
         manifest_sha256 = sha256_hex(outputs["manifest"].read_bytes())
         completed[item.source_id] = {
@@ -277,6 +286,16 @@ def _load_or_create_checkpoint(path: Path, plan: BackfillPlan) -> dict[str, obje
     if not isinstance(checkpoint["completed"], dict):
         raise OperationsError("checkpoint completed field must be an object")
     return checkpoint
+
+
+def _verify_run_paths_before_write(run_dir: Path) -> None:
+    if run_dir.is_symlink():
+        raise OperationsError(f"persisted run directory must not be a symlink: {run_dir.name}")
+    if run_dir.exists() and not run_dir.is_dir():
+        raise OperationsError(f"persisted run directory is not a directory: {run_dir.name}")
+    for file_name in PIPELINE_ARTIFACT_FILES:
+        if (run_dir / file_name).is_symlink():
+            raise OperationsError(f"persisted run artifact must not be a symlink: {file_name}")
 
 
 def _verify_completed_sources(
