@@ -95,9 +95,16 @@ class BackoffPolicy:
                     retry_at += timedelta(seconds=1)
                 if rfc850_match:
                     year = current.year // 100 * 100 + int(rfc850_match.group("year"))
-                    if year > current.year + 50:
-                        year -= 100
                     retry_at = retry_at.replace(year=year)
+                    try:
+                        fifty_years_ahead = current.replace(year=current.year + 50)
+                    except ValueError:
+                        fifty_years_ahead = current.replace(
+                            year=current.year + 50,
+                            day=28,
+                        )
+                    if retry_at > fifty_years_ahead:
+                        retry_at = retry_at.replace(year=year - 100)
                 if retry_at.tzinfo is None:
                     retry_at = retry_at.replace(tzinfo=timezone.utc)
                 return min(
