@@ -1,7 +1,9 @@
 from __future__ import annotations
 
 import json
+import os
 import shutil
+import stat
 import tempfile
 import unittest
 from pathlib import Path
@@ -323,6 +325,21 @@ class OperationsTests(unittest.TestCase):
             self.assertFalse(artifact.is_symlink())
             self.assertTrue(artifact.is_file())
             self.assertTrue(outcome.manifest_path.is_file())
+
+    def test_pipeline_artifact_permissions_honor_process_umask(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            previous_umask = os.umask(0o027)
+            try:
+                execute_backfill(
+                    plan_path=PLAN,
+                    aliases_path=ALIASES,
+                    output_dir=Path(tmp) / "state",
+                )
+            finally:
+                os.umask(previous_umask)
+
+            artifact = next((Path(tmp) / "state" / "runs").glob("*/normalized_events.csv"))
+            self.assertEqual(stat.S_IMODE(artifact.stat().st_mode), 0o640)
 
     def test_symlinked_checkpoint_fails_closed(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
