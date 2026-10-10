@@ -1,3 +1,4 @@
+import shutil
 import tempfile
 import unittest
 from pathlib import Path
@@ -97,7 +98,11 @@ jobs:
         with tempfile.TemporaryDirectory() as temporary_directory:
             root = Path(temporary_directory)
             workflow_directory = root / ".github" / "workflows"
-            workflow_directory.mkdir(parents=True)
+            shutil.copytree(
+                Path(validator.ROOT) / ".github" / "workflows",
+                workflow_directory,
+            )
+            shutil.copy2(Path(validator.ROOT) / "README.md", root / "README.md")
             workflow_path = workflow_directory / "invalid.yml"
 
             for case, (workflow, message) in invalid_workflows.items():
