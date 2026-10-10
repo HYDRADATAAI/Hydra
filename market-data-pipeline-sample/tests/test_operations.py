@@ -359,8 +359,35 @@ class OperationsTests(unittest.TestCase):
             finally:
                 os.umask(previous_umask)
 
-            artifact = next((Path(tmp) / "state" / "runs").glob("*/normalized_events.csv"))
+            state_dir = Path(tmp) / "state"
+            artifact = next((state_dir / "runs").glob("*/normalized_events.csv"))
             self.assertEqual(stat.S_IMODE(artifact.stat().st_mode), 0o640)
+            self.assertEqual(
+                stat.S_IMODE((state_dir / "checkpoint.json").stat().st_mode),
+                0o640,
+            )
+
+    @unittest.skipUnless(os.name == "posix", "POSIX file modes are required")
+    def test_atomic_checkpoint_write_preserves_existing_file_mode(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            output_dir = Path(tmp) / "state"
+            with self.assertRaises(InjectedInterruption):
+                execute_backfill(
+                    plan_path=PLAN,
+                    aliases_path=ALIASES,
+                    output_dir=output_dir,
+                    interrupt_after_new_sources=1,
+                )
+            checkpoint = output_dir / "checkpoint.json"
+            checkpoint.chmod(0o604)
+
+            execute_backfill(
+                plan_path=PLAN,
+                aliases_path=ALIASES,
+                output_dir=output_dir,
+            )
+
+            self.assertEqual(stat.S_IMODE(checkpoint.stat().st_mode), 0o604)
 
     @unittest.skipUnless(os.name == "posix", "POSIX file modes are required")
     def test_atomic_pipeline_write_preserves_existing_file_mode(self) -> None:
