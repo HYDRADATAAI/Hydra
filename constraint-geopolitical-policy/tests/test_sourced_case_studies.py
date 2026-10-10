@@ -27,6 +27,77 @@ class SourcedCaseStudyTests(unittest.TestCase):
         self.assertEqual(4,len(bundle["cases"]))
         self.assertEqual(7,len(bundle["sources"]))
 
+    def test_naive_temporal_clocks_are_rejected(self):
+        cases = [
+            ("source published_at", ("sources", 0, "published_at")),
+            ("source available_at", ("sources", 0, "available_at")),
+            ("event known_at", ("cases", 0, "events", 0, "known_at")),
+            ("event effective_at", ("cases", 0, "events", 0, "effective_at")),
+            ("event observed_at", ("cases", 0, "events", 0, "observed_at")),
+            ("event resolved_at", ("cases", 0, "events", 0, "resolved_at")),
+            ("observation known_at", ("cases", 2, "observations", 0, "known_at")),
+            ("observation observed_at", ("cases", 2, "observations", 0, "observed_at")),
+        ]
+        for label, path in cases:
+            with self.subTest(clock=label):
+                bundle = self.load_raw()
+                target = bundle
+                for part in path[:-1]:
+                    target = target[part]
+                target[path[-1]] = "2022-01-01T00:00:00"
+                with self.assertRaisesRegex(
+                    CaseStudyValidationError, "timezone-aware timestamp required"
+                ):
+                    validate_sourced_case_bundle(bundle)
+
+    def test_absent_and_null_optional_event_clocks_materialize_as_none(self):
+        clocks = ("effective_at", "observed_at", "resolved_at")
+        for mode in ("absent", "null"):
+            with self.subTest(mode=mode):
+                bundle = self.load_raw()
+                raw_event = bundle["cases"][0]["events"][0]
+                event_id = raw_event["event_id"]
+                for clock in clocks:
+                    if mode == "absent":
+                        raw_event.pop(clock, None)
+                    else:
+                        raw_event[clock] = None
+
+                validate_sourced_case_bundle(bundle)
+                events = events_from_sourced_case_bundle(bundle)
+                event = next(item for item in events if item.event_id == event_id)
+                for clock in clocks:
+                    self.assertIsNone(getattr(event.temporal, clock))
+
+    def test_malformed_event_clock_raises_validation_error(self):
+        bundle = self.load_raw()
+        bundle["cases"][0]["events"][0]["known_at"] = None
+        with self.assertRaisesRegex(CaseStudyValidationError, "invalid timestamp"):
+            validate_sourced_case_bundle(bundle)
+
+    def test_empty_effective_at_is_rejected(self):
+        bundle = self.load_raw()
+        bundle["cases"][0]["events"][0]["effective_at"] = ""
+        with self.assertRaisesRegex(CaseStudyValidationError, "invalid timestamp"):
+            validate_sourced_case_bundle(bundle)
+
+    def test_empty_event_observed_at_is_rejected(self):
+        bundle = self.load_raw()
+        bundle["cases"][0]["events"][0]["observed_at"] = ""
+        with self.assertRaisesRegex(CaseStudyValidationError, "invalid timestamp"):
+            validate_sourced_case_bundle(bundle)
+
+    def test_empty_resolved_at_is_rejected(self):
+        bundle = self.load_raw()
+        bundle["cases"][0]["events"][0]["resolved_at"] = ""
+        with self.assertRaisesRegex(CaseStudyValidationError, "invalid timestamp"):
+            validate_sourced_case_bundle(bundle)
+
+    def test_offset_source_timestamp_is_accepted(self):
+        bundle = self.load_raw()
+        bundle["sources"][0]["published_at"] = "2022-01-01T03:00:00+03:00"
+        validate_sourced_case_bundle(bundle)
+
     def test_case_families_are_present(self):
         bundle=load_sourced_case_bundle(DATA_PATH)
         self.assertEqual(
