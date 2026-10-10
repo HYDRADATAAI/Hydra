@@ -34,7 +34,10 @@ ALLOWED_PHYSICAL_RELATIONS={
 
 
 def _dt(value: str) -> datetime:
-    return datetime.fromisoformat(value.replace("Z", "+00:00"))
+    ts=datetime.fromisoformat(value.replace("Z", "+00:00"))
+    if ts.tzinfo is None or ts.utcoffset() is None:
+        raise CaseStudyValidationError("timezone-aware timestamp required")
+    return ts
 
 
 def load_sourced_case_bundle(path: str | Path) -> dict[str, Any]:

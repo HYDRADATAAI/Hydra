@@ -27,6 +27,29 @@ class SourcedCaseStudyTests(unittest.TestCase):
         self.assertEqual(4,len(bundle["cases"]))
         self.assertEqual(7,len(bundle["sources"]))
 
+    def test_naive_source_clock_is_rejected(self):
+        bundle=self.load_raw()
+        bundle["sources"][0]["available_at"]="2022-01-01T00:00:00"
+        with self.assertRaisesRegex(CaseStudyValidationError,"timezone-aware timestamp required"):
+            validate_sourced_case_bundle(bundle)
+
+    def test_naive_event_clock_is_rejected(self):
+        bundle=self.load_raw()
+        bundle["cases"][0]["events"][0]["known_at"]="2022-01-01T00:00:00"
+        with self.assertRaisesRegex(CaseStudyValidationError,"timezone-aware timestamp required"):
+            validate_sourced_case_bundle(bundle)
+
+    def test_naive_observation_clock_is_rejected(self):
+        bundle=self.load_raw()
+        bundle["cases"][2]["observations"][0]["observed_at"]="2021-03-23T00:00:00"
+        with self.assertRaisesRegex(CaseStudyValidationError,"timezone-aware timestamp required"):
+            validate_sourced_case_bundle(bundle)
+
+    def test_offset_source_timestamp_is_accepted(self):
+        bundle=self.load_raw()
+        bundle["sources"][0]["published_at"]="2022-01-01T03:00:00+03:00"
+        validate_sourced_case_bundle(bundle)
+
     def test_case_families_are_present(self):
         bundle=load_sourced_case_bundle(DATA_PATH)
         self.assertEqual(
