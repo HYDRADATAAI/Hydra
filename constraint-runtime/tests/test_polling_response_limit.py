@@ -230,7 +230,10 @@ class PollingResponseLimitTests(unittest.TestCase):
                     backoff=BackoffPolicy(max_attempts=3),
                 )
                 with patch("hydra_constraint.polling.urllib.request.build_opener") as build_opener:
-                    build_opener.return_value.open.side_effect = response
+                    if isinstance(response, Exception):
+                        build_opener.return_value.open.side_effect = response
+                    else:
+                        build_opener.return_value.open.return_value = response
                     report = runner.poll(spec, cursor_value="new")
 
                 self.assertEqual(report.status, "FAILED")
