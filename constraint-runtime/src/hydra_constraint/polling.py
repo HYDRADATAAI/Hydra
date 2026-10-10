@@ -34,7 +34,7 @@ _HTTP_DATE = re.compile(
     r"(?:Mon|Tue|Wed|Thu|Fri|Sat|Sun), [0-9]{2} (?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec) [0-9]{4} "
     r"(?:[01][0-9]|2[0-3]):[0-5][0-9]:(?:[0-5][0-9]|60) GMT|"
     r"(?:Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday), [0-9]{2}-(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)-[0-9]{2} "
-    r"[0-9]{2}:[0-9]{2}:[0-9]{2} GMT|"
+    r"(?:[01][0-9]|2[0-3]):[0-5][0-9]:(?:[0-5][0-9]|60) GMT|"
     r"(?:Mon|Tue|Wed|Thu|Fri|Sat|Sun) (?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec) (?: [1-9]|0[1-9]|[12][0-9]|3[01]) "
     r"(?:[01][0-9]|2[0-3]):[0-5][0-9]:(?:[0-5][0-9]|60) [0-9]{4}"
     r")",
