@@ -186,12 +186,7 @@ def _validate_candidate(candidate: Mapping[str, Any], *, path: str, candidate_id
                 issues.append(Issue("candidate_evidence_id_invalid", "evidence record requires a non-empty id", evidence_path, candidate_id))
                 continue
             active = record.get("active_context")
-            if isinstance(active, Mapping) and any(
-                flag in active and not isinstance(active[flag], bool)
-                for flag in INACTIVE_EVIDENCE_FLAGS
-            ):
-                issues.append(Issue("candidate_evidence_context_invalid", "evidence activity flags must be boolean", f"{evidence_path}.active_context", candidate_id))
-            elif isinstance(active, Mapping) and any(active.get(flag) is True for flag in INACTIVE_EVIDENCE_FLAGS):
+            if isinstance(active, Mapping) and any(active.get(flag) is True for flag in INACTIVE_EVIDENCE_FLAGS):
                 issues.append(Issue("candidate_evidence_inactive", "candidate evidence contains an inactive state", f"{evidence_path}.active_context", candidate_id))
 
     for field in ("provenance", "trust", "uncertainty"):
