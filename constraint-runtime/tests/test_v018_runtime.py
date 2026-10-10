@@ -10,6 +10,7 @@ from hydra_constraint import (
     AppendOnlyEventLedger,
     BackoffPolicy,
     ConstraintRuntime,
+    CursorStore,
     DeploymentGuard,
     DriftGuard,
     DurableLedgerRuntime,
@@ -195,7 +196,7 @@ class PollRunnerTests(unittest.TestCase):
             td = Path(td)
             durable = DurableLedgerRuntime(normalizer,td/"ledger.jsonl",td/"checkpoint.json")
             durable.recover()
-            cursors = __import__("hydra_constraint").CursorStore(td/"cursor.json")
+            cursors = CursorStore(td/"cursor.json")
             runner = PollRunner(
                 durable,cursors,RawArchive(td/"raw"),FixtureTransport({url:[response]})
             )
