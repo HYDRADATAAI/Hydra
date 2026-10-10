@@ -1,5 +1,7 @@
 import unittest
 
+import yaml
+
 from tools.validate_public_repository import (
     workflow_action_ref_is_pinned,
     workflow_action_refs,
@@ -17,6 +19,37 @@ class WorkflowActionRefsTests(unittest.TestCase):
             workflow_action_ref_is_pinned("docker://alpine@sha256:" + "0" * 64)
         )
         self.assertFalse(workflow_action_ref_is_pinned("docker://alpine:3.20"))
+
+    def test_rejects_duplicate_step_uses_in_both_orders(self):
+        digest = "0123456789abcdef0123456789abcdef01234567"
+        for refs in (
+            (f"actions/checkout@{digest}", "actions/checkout@v4"),
+            ("actions/checkout@v4", f"actions/checkout@{digest}"),
+        ):
+            workflow = (
+                "jobs:\n"
+                "  build:\n"
+                "    steps:\n"
+                "      - uses: " + "\n        uses: ".join(refs) + "\n"
+            )
+            with self.subTest(refs=refs):
+                with self.assertRaisesRegex(yaml.YAMLError, "duplicate key"):
+                    workflow_action_refs(workflow)
+
+    def test_rejects_duplicate_reusable_workflow_uses_in_both_orders(self):
+        digest = "0123456789abcdef0123456789abcdef01234567"
+        for refs in (
+            (f"example/repo/ci.yml@{digest}", "example/repo/ci.yml@main"),
+            ("example/repo/ci.yml@main", f"example/repo/ci.yml@{digest}"),
+        ):
+            workflow = (
+                "jobs:\n"
+                "  reusable:\n"
+                "    uses: " + "\n    uses: ".join(refs) + "\n"
+            )
+            with self.subTest(refs=refs):
+                with self.assertRaisesRegex(yaml.YAMLError, "duplicate key"):
+                    workflow_action_refs(workflow)
 
     def test_reads_yaml_uses_fields_and_resolves_aliases(self):
         workflow = """jobs:
