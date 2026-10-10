@@ -244,6 +244,11 @@ class OperationsTests(unittest.TestCase):
             policy.delay(2, "Tue Nov 01 08:49:37 1994", now=asctime_now),
             10,
         )
+        leap_second_now = datetime(2016, 12, 31, 23, 59, 50, tzinfo=timezone.utc)
+        self.assertEqual(
+            policy.delay(2, "Sun, 31 Dec 2016 23:59:60 GMT", now=leap_second_now),
+            10,
+        )
 
 
 class PollRateLimitTests(unittest.TestCase):
