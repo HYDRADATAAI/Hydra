@@ -1,8 +1,10 @@
 from __future__ import annotations
 
 import copy
+from datetime import datetime, timezone
 import json
 import tempfile
+import threading
 import unittest
 from pathlib import Path
 
@@ -22,6 +24,7 @@ from hydra_constraint import (
     ReplayHarness,
 )
 from hydra_constraint.runtime import Node, Edge
+from hydra_constraint.polling import HttpResponse, PollRunner, PollSpec
 
 
 GRAPH = {
@@ -200,8 +203,250 @@ class OperationsTests(unittest.TestCase):
         self.assertEqual(DeploymentGuard.validate(config)["status"], "FAIL")
 
     def test_backoff_is_bounded(self):
-        policy = BackoffPolicy(max_attempts=5,base_seconds=2,cap_seconds=5)
-        self.assertEqual([policy.delay(i) for i in range(1,5)],[2,4,5,5])
+        policy = BackoffPolicy(max_attempts=5, base_seconds=2, cap_seconds=5)
+        self.assertEqual([policy.delay(i) for i in range(1, 5)], [2, 4, 5, 5])
+        self.assertEqual(policy.delay(1, "120"), 5)
+        self.assertEqual(policy.delay(2, "malformed"), 4)
+
+    def test_backoff_parses_http_date_retry_after(self):
+        policy = BackoffPolicy(max_attempts=5, base_seconds=2, cap_seconds=30)
+        now = datetime(2015, 10, 21, 7, 28, 0, tzinfo=timezone.utc)
+
+        self.assertEqual(
+            policy.delay(2, "Wed, 21 Oct 2015 07:28:10 GMT", now=now),
+            10,
+        )
+        self.assertEqual(
+            policy.delay(2, "Wed, 21 Oct 2015 07:29:00 GMT", now=now),
+            30,
+        )
+        self.assertEqual(
+            policy.delay(2, "Wed, 21 Oct 2015 07:27:00 GMT", now=now),
+            0,
+        )
+
+
+class PollRateLimitTests(unittest.TestCase):
+    class FakeClock:
+        def __init__(self):
+            self.now=0.0
+            self.delays=[]
+        def monotonic(self):
+            return self.now
+        def sleep(self,seconds):
+            self.delays.append(seconds)
+            self.now+=seconds
+
+    class BlockingClock(FakeClock):
+        def __init__(self):
+            super().__init__()
+            self.sleep_started=threading.Event()
+            self.release_sleep=threading.Event()
+        def sleep(self,seconds):
+            self.delays.append(seconds)
+            self.sleep_started.set()
+            if not self.release_sleep.wait(timeout=5):
+                raise TimeoutError("fixture cooldown was not released")
+            self.now+=seconds
+
+    class TrackingLock:
+        def __init__(self):
+            self.lock=threading.Lock()
+            self.contended=threading.Event()
+        def __enter__(self):
+            if not self.lock.acquire(blocking=False):
+                self.contended.set()
+                self.lock.acquire()
+            return self
+        def __exit__(self,*args):
+            self.lock.release()
+
+    class FakeCursors:
+        max_seen=10
+        path=Path("unused")
+        state={}
+        def __init__(self):
+            self.reads=0
+        def adapter(self,name):
+            self.reads+=1
+            return {"cursor":None}
+        def mark_error(self,*args,**kwargs):
+            pass
+
+    class FakeArchive:
+        def archive(self,source,response,attempt):
+            return "fixture-hash"
+
+    class FakeTransport:
+        def __init__(self,clock,retry_after=None,latency=0.0,fail_first=False):
+            self.clock=clock
+            self.retry_after=retry_after
+            self.latency=latency
+            self.fail_first=fail_first
+            self.request_times=[]
+        def fetch(self,url,headers=None,timeout=20):
+            self.request_times.append(self.clock.monotonic())
+            self.clock.now+=self.latency
+            if self.fail_first and len(self.request_times)==1:
+                raise OSError("fixture transport failure")
+            headers={"retry-after":str(self.retry_after)} if self.retry_after is not None else {}
+            return HttpResponse(url,503,headers,b"retry","2026-10-09T12:00:00Z")
+
+    def make_spec(self,**kwargs):
+        backoff=kwargs.pop("backoff",BackoffPolicy(max_attempts=2,base_seconds=0.1,cap_seconds=2))
+        return PollSpec(
+            name="sec",adapter="sec_edgar",source_class="sec_edgar",url="https://www.sec.gov/data",
+            parser="sec_json",cadence_minutes=1,stale_after_minutes=5,
+            backoff=backoff,**kwargs
+        )
+
+    def test_retry_attempts_respect_rate_interval(self):
+        clock=self.FakeClock()
+        transport=self.FakeTransport(clock)
+        runner=PollRunner(
+            durable=None,cursors=self.FakeCursors(),archive=self.FakeArchive(),transport=transport,
+            sleeper=clock,clock=clock.monotonic,
+        )
+
+        report=runner.poll(self.make_spec(max_rps=2))
+
+        self.assertEqual(report.status,"FAILED")
+        self.assertEqual(transport.request_times,[0.0,0.5])
+        self.assertEqual(clock.delays,[0.1,0.4])
+
+    def test_long_retry_after_is_not_added_to_rate_wait(self):
+        clock=self.FakeClock()
+        transport=self.FakeTransport(clock,retry_after=0.75)
+        runner=PollRunner(
+            durable=None,cursors=self.FakeCursors(),archive=self.FakeArchive(),transport=transport,
+            sleeper=clock,clock=clock.monotonic,
+        )
+
+        runner.poll(self.make_spec(max_rps=2))
+
+        self.assertEqual(transport.request_times,[0.0,0.75])
+        self.assertEqual(clock.delays,[0.75])
+
+    def test_final_retry_after_cooldown_applies_to_later_poll(self):
+        clock=self.FakeClock()
+        transport=self.FakeTransport(clock,retry_after=1.5)
+        runner=PollRunner(
+            durable=None,cursors=self.FakeCursors(),archive=self.FakeArchive(),transport=transport,
+            sleeper=clock,clock=clock.monotonic,
+        )
+        spec=self.make_spec(max_rps=2,backoff=BackoffPolicy(max_attempts=1))
+
+        self.assertEqual(runner.poll(spec).status,"FAILED")
+        runner.poll(spec)
+
+        self.assertEqual(transport.request_times,[0.0,1.5])
+        self.assertEqual(clock.delays,[1.5])
+
+    def test_final_transport_failure_backoff_applies_to_later_poll(self):
+        clock=self.FakeClock()
+        transport=self.FakeTransport(clock,fail_first=True)
+        runner=PollRunner(
+            durable=None,cursors=self.FakeCursors(),archive=self.FakeArchive(),transport=transport,
+            sleeper=clock,clock=clock.monotonic,
+        )
+        spec=self.make_spec(
+            max_rps=10,backoff=BackoffPolicy(max_attempts=1,base_seconds=0.75,cap_seconds=2)
+        )
+
+        self.assertEqual(runner.poll(spec).status,"FAILED")
+        runner.poll(spec)
+
+        self.assertEqual(transport.request_times,[0.0,0.75])
+        self.assertEqual(clock.delays,[0.75])
+
+    def test_slow_request_does_not_get_an_extra_rate_wait(self):
+        clock=self.FakeClock()
+        transport=self.FakeTransport(clock,latency=0.8)
+        runner=PollRunner(
+            durable=None,cursors=self.FakeCursors(),archive=self.FakeArchive(),transport=transport,
+            sleeper=clock,clock=clock.monotonic,
+        )
+
+        runner.poll(self.make_spec(max_rps=2))
+
+        self.assertEqual(transport.request_times,[0.0,0.9])
+        self.assertEqual(clock.delays,[0.1])
+
+    def test_transport_exception_retry_respects_rate_interval(self):
+        clock=self.FakeClock()
+        transport=self.FakeTransport(clock,fail_first=True)
+        runner=PollRunner(
+            durable=None,cursors=self.FakeCursors(),archive=self.FakeArchive(),transport=transport,
+            sleeper=clock,clock=clock.monotonic,
+        )
+
+        runner.poll(self.make_spec(max_rps=2))
+
+        self.assertEqual(transport.request_times,[0.0,0.5])
+        self.assertEqual(clock.delays,[0.1,0.4])
+
+    def test_concurrent_polls_for_same_source_share_the_limit(self):
+        clock=self.FakeClock()
+        transport=self.FakeTransport(clock)
+        runner=PollRunner(
+            durable=None,cursors=self.FakeCursors(),archive=self.FakeArchive(),transport=transport,
+            sleeper=clock,clock=clock.monotonic,
+        )
+        start=threading.Barrier(3)
+        spec=self.make_spec(max_rps=2)
+        def run_poll():
+            start.wait()
+            runner.poll(spec)
+        threads=[threading.Thread(target=run_poll) for _ in range(2)]
+        for thread in threads:
+            thread.start()
+        start.wait()
+        for thread in threads:
+            thread.join(timeout=5)
+
+        self.assertTrue(all(not thread.is_alive() for thread in threads))
+        request_times=sorted(transport.request_times)
+        self.assertEqual(len(request_times),4)
+        self.assertTrue(all(later-earlier>=0.5 for earlier,later in zip(request_times,request_times[1:])))
+
+    def test_concurrent_poll_waits_for_shared_retry_after_cooldown(self):
+        clock=self.BlockingClock()
+        transport=self.FakeTransport(clock,retry_after=1.5)
+        runner=PollRunner(
+            durable=None,cursors=self.FakeCursors(),archive=self.FakeArchive(),transport=transport,
+            sleeper=clock,clock=clock.monotonic,
+        )
+        tracked_lock=self.TrackingLock()
+        runner._poll_lock=tracked_lock
+        spec=self.make_spec(max_rps=2)
+        first=threading.Thread(target=runner.poll,args=(spec,))
+        def run_second_poll():
+            runner.poll(spec)
+        first.start()
+        self.assertTrue(clock.sleep_started.wait(timeout=5))
+        second=threading.Thread(target=run_second_poll)
+        second.start()
+        self.assertTrue(tracked_lock.contended.wait(timeout=5))
+        self.assertEqual(len(transport.request_times),1)
+        clock.release_sleep.set()
+        first.join(timeout=5)
+        second.join(timeout=5)
+
+        self.assertTrue(all(not thread.is_alive() for thread in (first,second)))
+        self.assertEqual(len(transport.request_times),4)
+        self.assertGreaterEqual(min(transport.request_times[1:]),1.5)
+
+    def test_invalid_rate_fails_before_cursor_access(self):
+        cursors=self.FakeCursors()
+        runner=PollRunner(
+            durable=None,cursors=cursors,archive=self.FakeArchive(),
+            transport=self.FakeTransport(self.FakeClock()),
+        )
+
+        for rate in (True,0,-1,float("inf"),float("nan"),5e-324,10**1000,"1"):
+            with self.subTest(rate=rate),self.assertRaisesRegex(ValueError,"max_rps"):
+                runner.poll(self.make_spec(max_rps=rate))
+        self.assertEqual(cursors.reads,0)
 
 
 if __name__ == "__main__":
