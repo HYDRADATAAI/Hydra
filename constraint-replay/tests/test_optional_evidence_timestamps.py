@@ -55,4 +55,8 @@ def test_optional_evidence_timestamps_are_frozen_into_prediction_hash(field):
 
 
 def test_optional_evidence_timestamps_allow_none():
-    assert replay_case(_case())["provenance_complete"] is True
+    frozen = replay_case(_case())
+
+    assert frozen["evidence"][0]["effective_at"] is None
+    assert frozen["evidence"][0]["resolved_at"] is None
+    assert frozen["provenance_complete"] is True
