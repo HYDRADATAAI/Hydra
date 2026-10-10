@@ -4,6 +4,7 @@ from pathlib import Path
 
 from hydra_constraint_policy.case_studies import (
     CaseStudyValidationError,
+    events_from_sourced_case_bundle,
     validate_sourced_case_bundle,
 )
 
@@ -64,6 +65,18 @@ class SourcedCaseBundleShapeTests(unittest.TestCase):
                 "source_ids is null",
                 lambda b: b["cases"][0]["events"][0].update(source_ids=None),
             ),
+            (
+                "entity_id is an object",
+                lambda b: b["cases"][1]["events"][0]["relations"][0].update(entity_id={}),
+            ),
+            (
+                "statement is an array",
+                lambda b: b["cases"][0]["events"][0].update(statement=[]),
+            ),
+            (
+                "confidence is true",
+                lambda b: b["cases"][1]["events"][0]["relations"][0].update(confidence=True),
+            ),
         )
         for label, mutate in mutations:
             with self.subTest(shape=label):
@@ -100,6 +113,7 @@ class SourcedCaseBundleShapeTests(unittest.TestCase):
         for bundle in accepted_bundles:
             with self.subTest(bundle=bundle):
                 self.assertIsNone(validate_sourced_case_bundle(bundle))
+                self.assertEqual(events_from_sourced_case_bundle(bundle), [])
 
 
 if __name__ == "__main__":
