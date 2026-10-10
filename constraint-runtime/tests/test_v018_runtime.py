@@ -207,7 +207,7 @@ class OperationsTests(unittest.TestCase):
         self.assertEqual([policy.delay(i) for i in range(1, 5)], [2, 4, 5, 5])
         self.assertEqual(policy.delay(1, "120"), 5)
         self.assertEqual(policy.delay(1, "9" * 1000), 5)
-        for malformed in ("malformed", "NaN", "inf", "-inf"):
+        for malformed in ("malformed", "NaN", "inf", "-inf", "-1", "1.5", "1e3"):
             with self.subTest(retry_after=malformed):
                 self.assertEqual(policy.delay(2, malformed), 4)
 
@@ -319,7 +319,7 @@ class PollRateLimitTests(unittest.TestCase):
 
     def test_long_retry_after_is_not_added_to_rate_wait(self):
         clock=self.FakeClock()
-        transport=self.FakeTransport(clock,retry_after=0.75)
+        transport=self.FakeTransport(clock,retry_after=1)
         runner=PollRunner(
             durable=None,cursors=self.FakeCursors(),archive=self.FakeArchive(),transport=transport,
             sleeper=clock,clock=clock.monotonic,
@@ -327,12 +327,12 @@ class PollRateLimitTests(unittest.TestCase):
 
         runner.poll(self.make_spec(max_rps=2))
 
-        self.assertEqual(transport.request_times,[0.0,0.75])
-        self.assertEqual(clock.delays,[0.75])
+        self.assertEqual(transport.request_times,[0.0,1.0])
+        self.assertEqual(clock.delays,[1.0])
 
     def test_final_retry_after_cooldown_applies_to_later_poll(self):
         clock=self.FakeClock()
-        transport=self.FakeTransport(clock,retry_after=1.5)
+        transport=self.FakeTransport(clock,retry_after=2)
         runner=PollRunner(
             durable=None,cursors=self.FakeCursors(),archive=self.FakeArchive(),transport=transport,
             sleeper=clock,clock=clock.monotonic,
@@ -342,8 +342,8 @@ class PollRateLimitTests(unittest.TestCase):
         self.assertEqual(runner.poll(spec).status,"FAILED")
         runner.poll(spec)
 
-        self.assertEqual(transport.request_times,[0.0,1.5])
-        self.assertEqual(clock.delays,[1.5])
+        self.assertEqual(transport.request_times,[0.0,2.0])
+        self.assertEqual(clock.delays,[2.0])
 
     def test_final_transport_failure_backoff_applies_to_later_poll(self):
         clock=self.FakeClock()
@@ -414,7 +414,7 @@ class PollRateLimitTests(unittest.TestCase):
 
     def test_concurrent_poll_waits_for_shared_retry_after_cooldown(self):
         clock=self.BlockingClock()
-        transport=self.FakeTransport(clock,retry_after=1.5)
+        transport=self.FakeTransport(clock,retry_after=2)
         runner=PollRunner(
             durable=None,cursors=self.FakeCursors(),archive=self.FakeArchive(),transport=transport,
             sleeper=clock,clock=clock.monotonic,
@@ -437,7 +437,7 @@ class PollRateLimitTests(unittest.TestCase):
 
         self.assertTrue(all(not thread.is_alive() for thread in (first,second)))
         self.assertEqual(len(transport.request_times),4)
-        self.assertGreaterEqual(min(transport.request_times[1:]),1.5)
+        self.assertGreaterEqual(min(transport.request_times[1:]),2.0)
 
     def test_http_date_retry_cooldown_applies_to_later_poll(self):
         clock = self.FakeClock()
