@@ -5,7 +5,8 @@ from __future__ import annotations
 import csv
 import json
 import os
-import tempfile
+import secrets
+import stat
 from pathlib import Path
 from typing import Any, Callable, Iterable, Mapping
 
@@ -148,13 +149,27 @@ def _write_atomically(
     write: Callable[[Any], None],
     **open_kwargs: Any,
 ) -> None:
-    descriptor, temporary_name = tempfile.mkstemp(
-        prefix=f".{path.name}.",
-        suffix=".tmp",
-        dir=path.parent,
-    )
-    temporary_path = Path(temporary_name)
+    for _ in range(100):
+        temporary_path = path.parent / f".{path.name}.{secrets.token_hex(8)}.tmp"
+        try:
+            descriptor = os.open(
+                temporary_path,
+                os.O_CREAT | os.O_EXCL | os.O_WRONLY | getattr(os, "O_BINARY", 0),
+                0o666,
+            )
+        except FileExistsError:
+            continue
+        break
+    else:
+        raise FileExistsError(f"could not allocate a temporary file for {path.name}")
+
     try:
+        try:
+            existing_mode = stat.S_IMODE(path.lstat().st_mode)
+        except FileNotFoundError:
+            existing_mode = None
+        if existing_mode is not None and stat.S_ISREG(path.lstat().st_mode):
+            os.chmod(temporary_path, existing_mode)
         with os.fdopen(descriptor, mode, **open_kwargs) as handle:
             write(handle)
         os.replace(temporary_path, path)
