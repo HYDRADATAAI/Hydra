@@ -29,6 +29,26 @@ class PolicyHistoryTests(unittest.TestCase):
     def test_future_information_rejected_from_replay(self):
         self.assertEqual([], eligible_as_of([event()], dt("2021-12-31T23:59:59")))
 
+    def test_eligible_as_of_rejects_naive_cutoff(self):
+        naive_cutoff = datetime(2022, 1, 2, 12, 0, 0)
+        for events in ([event()], []):
+            with self.subTest(event_count=len(events)):
+                with self.assertRaisesRegex(
+                    ValidationError, "as_of must be timezone-aware"
+                ):
+                    eligible_as_of(events, naive_cutoff)
+
+    def test_warning_signs_as_of_rejects_naive_cutoff(self):
+        naive_cutoff = datetime(2022, 1, 2, 12, 0, 0)
+        for events in ([event()], []):
+            with self.subTest(event_count=len(events)):
+                with self.assertRaisesRegex(
+                    ValidationError, "as_of must be timezone-aware"
+                ):
+                    warning_signs_as_of(
+                        events, "constraint:semiconductor-capacity", naive_cutoff
+                    )
+
     def test_known_effective_are_distinct(self):
         e=event()
         self.assertLess(e.temporal.known_at, e.temporal.effective_at)
