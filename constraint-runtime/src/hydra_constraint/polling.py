@@ -238,8 +238,9 @@ class PollRunner:
 
         appended=skipped=quarantined=0
         new_ids=[]
-        try:
-            for payload in records:
+        record_errors=[]
+        for index,payload in enumerate(records):
+            try:
                 raw=ADAPTERS[spec.adapter].adapt(payload)
                 ext=raw.get("external_record_id")
                 if self.cursors.has_seen(spec.name,ext):
@@ -249,9 +250,8 @@ class PollRunner:
                 quarantined+=entry.action=="QUARANTINE"
                 if ext:
                     new_ids.append(ext)
-        except Exception as exc:
-            self.cursors.mark_error(spec.name,polled_at=response.captured_at,error=f"append:{exc}")
-            return PollReport(spec.name,"APPEND_FAILED",len(statuses),statuses,hashes,len(records),appended,skipped,quarantined,before,before,response.captured_at,str(exc),delays)
+            except Exception as exc:
+                record_errors.append(f"record[{index}]: {exc}")
 
         state=self.cursors.adapter(spec.name)
         ids=state.get("seen_external_ids",[])
@@ -260,6 +260,16 @@ class PollRunner:
         state["seen_external_ids"]=ids[-self.cursors.max_seen:]
         if new_ids:
             state["last_seen_external_record_id"]=new_ids[-1]
+
+        if record_errors:
+            error="; ".join(record_errors)
+            # Keep successful records idempotent while leaving the source cursor
+            # unchanged so failed records remain visible and retryable.
+            state["last_polled_at"]=response.captured_at
+            state["last_error"]=f"append:{error}"
+            _atomic_json(self.cursors.path,self.cursors.state)
+            return PollReport(spec.name,"APPEND_FAILED",len(statuses),statuses,hashes,len(records),appended,skipped,quarantined,before,before,response.captured_at,error,delays)
+
         state["cursor"]=cursor_value or response.headers.get("etag") or response.captured_at
         state["last_polled_at"]=response.captured_at
         state["last_success_at"]=response.captured_at
