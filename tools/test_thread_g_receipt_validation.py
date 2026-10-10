@@ -62,35 +62,39 @@ class ThreadGReceiptValidationTests(unittest.TestCase):
                 validate_receipt_outputs(root)
 
     def test_invalid_hashes_fail_closed_even_if_repair_files_exist(self):
-        invalid_values = (None, 42, True, "", "A" * 64, "g" * 64, "a" * 63, "a" * 65)
+        invalid_values = (
+            None,
+            42,
+            True,
+            "",
+            "A" * 64,
+            "g" * 64,
+            "a" * 63,
+            "a" * 65,
+        )
         for field in ("baseline_source_sha256", "candidate_source_sha256"):
             for value in invalid_values:
                 with self.subTest(field=field, value=value), tempfile.TemporaryDirectory() as directory:
                     root = Path(directory)
-                    report = {
-                        "baseline_source_sha256": BASELINE,
-                        "candidate_source_sha256": CANDIDATE,
-                    }
-                    report[field] = value
-                    self.write_fixture(root, report[field] if field == "baseline_source_sha256" else BASELINE,
-                                        report[field] if field == "candidate_source_sha256" else BASELINE)
+                    baseline = value if field == "baseline_source_sha256" else BASELINE
+                    candidate = value if field == "candidate_source_sha256" else BASELINE
+                    self.write_fixture(root, baseline=baseline, candidate=candidate)
                     for name in REPAIR_OUTPUTS:
                         (root / name).touch()
                     with self.assertRaises(ValueError):
                         validate_receipt_outputs(root)
 
     def test_missing_malformed_non_object_and_ambiguous_reports_fail(self):
+        duplicate_report = (
+            '{"baseline_source_sha256":"' + BASELINE
+            + '","candidate_source_sha256":"' + BASELINE
+            + '","candidate_source_sha256":"' + CANDIDATE + '"}'
+        )
         cases = (
             ("missing", None),
             ("malformed", "{"),
             ("non-object", "[]"),
-            (
-                "duplicate",
-                json.dumps({
-                    "baseline_source_sha256": BASELINE,
-                    "candidate_source_sha256": BASELINE,
-                })[:-1] + ', "candidate_source_sha256": "' + CANDIDATE + '"}',
-            ),
+            ("duplicate", duplicate_report),
         )
         for name, contents in cases:
             with self.subTest(report=name), tempfile.TemporaryDirectory() as directory:
