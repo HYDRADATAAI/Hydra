@@ -179,6 +179,48 @@ class OperationsTests(unittest.TestCase):
                         output_dir=output_dir,
                     )
 
+    def test_symlinked_output_directory_fails_closed(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            output_dir = Path(tmp) / "state"
+            external_dir = Path(tmp) / "outside"
+            external_dir.mkdir()
+            try:
+                output_dir.symlink_to(external_dir, target_is_directory=True)
+            except (OSError, NotImplementedError) as exc:
+                self.skipTest(f"symlink creation is unavailable: {exc}")
+
+            with self.assertRaisesRegex(OperationsError, "must not be a symlink"):
+                execute_backfill(
+                    plan_path=PLAN,
+                    aliases_path=ALIASES,
+                    output_dir=output_dir,
+                )
+            self.assertEqual(list(external_dir.iterdir()), [])
+
+    def test_symlinked_checkpoint_fails_closed(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            output_dir = Path(tmp) / "state"
+            execute_backfill(
+                plan_path=PLAN,
+                aliases_path=ALIASES,
+                output_dir=output_dir,
+            )
+            checkpoint_path = output_dir / "checkpoint.json"
+            external_checkpoint = Path(tmp) / "outside-checkpoint.json"
+            external_checkpoint.write_bytes(checkpoint_path.read_bytes())
+            checkpoint_path.unlink()
+            try:
+                checkpoint_path.symlink_to(external_checkpoint)
+            except (OSError, NotImplementedError) as exc:
+                self.skipTest(f"symlink creation is unavailable: {exc}")
+
+            with self.assertRaisesRegex(OperationsError, "checkpoint must not be a symlink"):
+                execute_backfill(
+                    plan_path=PLAN,
+                    aliases_path=ALIASES,
+                    output_dir=output_dir,
+                )
+
     def test_symlinked_run_directory_fails_closed(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             output_dir = Path(tmp) / "state"
