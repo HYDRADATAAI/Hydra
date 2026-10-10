@@ -1,0 +1,32 @@
+name: validation-polling-response-cleanup
+
+on:
+  pull_request:
+    paths:
+      - constraint-runtime/src/hydra_constraint/polling.py
+      - constraint-runtime/tests/test_polling_response_limit.py
+      - tools/test_polling_response_cleanup_regression.py
+      - .github/workflows/validation-polling-response-cleanup.yml
+
+permissions:
+  contents: read
+
+jobs:
+  response-cleanup:
+    runs-on: windows-latest
+    timeout-minutes: 10
+    steps:
+      - name: Preserve repository blob bytes
+        shell: pwsh
+        run: git config --global core.autocrlf false
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: '3.11'
+      - name: Four offline response cleanup cases
+        shell: pwsh
+        run: python -I -B tools/test_polling_response_cleanup_regression.py --expected-head "${{ github.event.pull_request.head.sha }}"
