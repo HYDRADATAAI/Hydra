@@ -186,6 +186,8 @@ def execute_backfill(
 
     plan = load_backfill_plan(plan_path=plan_path, aliases_path=aliases_path)
     output_root = Path(output_dir)
+    if output_root.is_symlink():
+        raise OperationsError("output directory must not be a symlink")
     runs_root = output_root / "runs"
     checkpoint_path = output_root / "checkpoint.json"
     manifest_path = output_root / "operations_manifest.json"
@@ -248,6 +250,8 @@ def execute_backfill(
 
 
 def _load_or_create_checkpoint(path: Path, plan: BackfillPlan) -> dict[str, object]:
+    if path.is_symlink():
+        raise OperationsError("checkpoint must not be a symlink")
     if not path.exists():
         checkpoint: dict[str, object] = {
             "backfill_id": plan.backfill_id,
