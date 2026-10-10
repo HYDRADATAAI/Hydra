@@ -227,6 +227,7 @@ class PollRunnerTests(unittest.TestCase):
                 ["CREATE","CREATE"],
             )
             self.assertIsNone(cursors.adapter("sec_fixture")["cursor"])
+            self.assertIsNone(cursors.adapter("sec_fixture")["last_success_at"])
             self.assertIn("record[1]",cursors.adapter("sec_fixture")["last_error"])
             self.assertEqual(
                 [entry.external_record_id for entry in durable.ledger.entries],
