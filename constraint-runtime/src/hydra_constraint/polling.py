@@ -56,21 +56,24 @@ class BackoffPolicy:
     ) -> float:
         if retry_after:
             try:
-                return min(self.cap_seconds, max(0.0, float(retry_after)))
+                numeric_retry_after = float(retry_after)
             except (TypeError, ValueError):
-                try:
-                    retry_at = parsedate_to_datetime(retry_after)
-                    if retry_at.tzinfo is None:
-                        retry_at = retry_at.replace(tzinfo=timezone.utc)
-                    current = now or datetime.now(timezone.utc)
-                    if current.tzinfo is None:
-                        current = current.replace(tzinfo=timezone.utc)
-                    return min(
-                        self.cap_seconds,
-                        max(0.0, (retry_at - current).total_seconds()),
-                    )
-                except (TypeError, ValueError, OverflowError):
-                    pass
+                numeric_retry_after = None
+            if numeric_retry_after is not None and math.isfinite(numeric_retry_after):
+                return min(self.cap_seconds, max(0.0, numeric_retry_after))
+            try:
+                retry_at = parsedate_to_datetime(retry_after)
+                if retry_at.tzinfo is None:
+                    retry_at = retry_at.replace(tzinfo=timezone.utc)
+                current = now or datetime.now(timezone.utc)
+                if current.tzinfo is None:
+                    current = current.replace(tzinfo=timezone.utc)
+                return min(
+                    self.cap_seconds,
+                    max(0.0, (retry_at - current).total_seconds()),
+                )
+            except (TypeError, ValueError, OverflowError):
+                pass
         return min(self.cap_seconds, self.base_seconds * (2 ** max(0, attempt - 1)))
 
 @dataclass
