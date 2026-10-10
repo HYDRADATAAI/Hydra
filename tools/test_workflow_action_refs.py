@@ -19,7 +19,7 @@ class WorkflowActionRefsTests(unittest.TestCase):
         )
         self.assertFalse(workflow_action_ref_is_pinned("docker://alpine:3.20"))
 
-    def test_receipt_workflow_validates_hashes_before_comparison(self):
+    def test_receipt_workflow_calls_behaviorally_tested_validator(self):
         root = Path(__file__).resolve().parents[1]
         workflow = (
             root / ".github/workflows/nyx-thread-g-receipt-windows.yml"
@@ -28,45 +28,12 @@ class WorkflowActionRefsTests(unittest.TestCase):
             "- name: Verify expected receipt outputs", 1
         )[1].split("- name: Preserve exact results", 1)[0]
 
-        self.assertIn(
-            "$baselineHash = $report.baseline_source_sha256", step
+        validator_call = (
+            "python -B tools/thread_g_receipt_validation.py $root"
         )
-        self.assertIn(
-            "$candidateHash = $report.candidate_source_sha256", step
-        )
-        self.assertIn("$baselineHash -isnot [string]", step)
-        self.assertIn("$candidateHash -isnot [string]", step)
-        baseline_format_check = (
-            r"[regex]::IsMatch($baselineHash, '\A[0-9a-f]{64}\z')"
-        )
-        candidate_format_check = (
-            r"[regex]::IsMatch($candidateHash, '\A[0-9a-f]{64}\z')"
-        )
-        comparison = "if ($baselineHash -cne $candidateHash)"
-        precomparison_checks = (
-            "$baselineHash -isnot [string]",
-            "$candidateHash -isnot [string]",
-            baseline_format_check,
-            candidate_format_check,
-        )
-        for check in precomparison_checks:
-            self.assertIn(check, step)
-            self.assertLess(step.index(check), step.index(comparison))
-
-        mismatch_outputs = step[
-            step.index(comparison) : step.index(
-                "foreach ($name in $required)", step.index(comparison)
-            )
-        ]
-        for output in (
-            "repaired_types.json",
-            "repaired_types.log",
-            "existing_admission.json",
-            "existing_admission.log",
-            "existing_bridge.json",
-            "existing_bridge.log",
-        ):
-            self.assertIn(f"'{output}'", mismatch_outputs)
+        failure_check = "if ($LASTEXITCODE -ne 0)"
+        self.assertIn(validator_call, step)
+        self.assertLess(step.index(validator_call), step.index(failure_check))
 
     def test_reads_yaml_uses_fields_and_resolves_aliases(self):
         workflow = """jobs:
