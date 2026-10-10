@@ -238,15 +238,24 @@ class PollRunner:
 
         appended=skipped=quarantined=0
         record_errors=[]
-        persistence_error=None
+        stop_error=None
         for index,payload in enumerate(records):
             try:
                 raw=ADAPTERS[spec.adapter].adapt(payload)
-                ext=raw.get("external_record_id")
-                if not isinstance(ext,str) or not ext.strip():
-                    raise ValueError("missing stable external_record_id")
-            except Exception as exc:
+            except (KeyError,TypeError,ValueError,OverflowError) as exc:
                 record_errors.append(f"record[{index}]: {exc}")
+                continue
+            except Exception as exc:
+                stop_error=f"record[{index}] adapter failure: {exc}"
+                break
+
+            try:
+                ext=raw.get("external_record_id")
+            except Exception as exc:
+                stop_error=f"record[{index}] adapter output failure: {exc}"
+                break
+            if not isinstance(ext,str) or not ext.strip():
+                record_errors.append(f"record[{index}]: missing stable external_record_id")
                 continue
 
             try:
@@ -259,15 +268,16 @@ class PollRunner:
                 # cursor/freshness so later record failures remain retryable.
                 self.cursors.mark_record_seen(spec.name,ext)
             except Exception as exc:
-                persistence_error=f"record[{index}] persistence: {exc}"
+                stop_error=f"record[{index}] persistence: {exc}"
                 break
 
         state=self.cursors.adapter(spec.name)
-        if persistence_error:
-            errors=record_errors+[persistence_error]
+        if stop_error:
+            errors=record_errors+[stop_error]
             error="; ".join(errors)
-            # Stop on storage failure; the page cursor and last success remain
-            # unchanged. Best-effort error reporting uses the cursor store.
+            # Stop on unexpected adapter or storage failure; the page cursor
+            # and last success remain unchanged. Best-effort error reporting
+            # uses the cursor store.
             try:
                 self.cursors.mark_error(spec.name,polled_at=response.captured_at,error=f"append:{error}")
             except Exception as exc:
