@@ -137,39 +137,91 @@ def _parse_dt(value: str, label: str) -> datetime:
     return ts
 
 
+def _require_object(value: object, label: str) -> dict[str, object]:
+    if not isinstance(value, dict):
+        raise ClaimEvidenceError(f"{label}: object required")
+    return value
+
+
+def _require_array(value: object, label: str) -> list[object]:
+    if not isinstance(value, list):
+        raise ClaimEvidenceError(f"{label}: array required")
+    return value
+
+
+def _required_value(item: dict[str, object], field: str, label: str) -> object:
+    if field not in item:
+        raise ClaimEvidenceError(f"{label}.{field}: value required")
+    return item[field]
+
+
+def _required_text(item: dict[str, object], field: str, label: str) -> str:
+    value = _required_value(item, field, label)
+    if not isinstance(value, str) or not value:
+        raise ClaimEvidenceError(f"{label}.{field}: non-empty string required")
+    return value
+
+
 def load_claim_revision_bundle(
     path: str | Path,
 ) -> tuple[tuple[ContestedClaim,...],tuple[HistoricalRevision,...]]:
-    raw=json.loads(Path(path).read_text(encoding="utf-8"))
-    claims=[]
-    for item in raw.get("claims",[]):
-        evidence=[]
-        for e in item.get("evidence",[]):
+    raw = _require_object(
+        json.loads(Path(path).read_text(encoding="utf-8")),
+        "$",
+    )
+    claims = []
+    for claim_index, value in enumerate(_require_array(raw.get("claims", []), "$.claims")):
+        label = f"$.claims[{claim_index}]"
+        item = _require_object(value, label)
+        evidence = []
+        for evidence_index, evidence_value in enumerate(
+            _require_array(item.get("evidence", []), f"{label}.evidence")
+        ):
+            evidence_label = f"{label}.evidence[{evidence_index}]"
+            evidence_item = _require_object(evidence_value, evidence_label)
+            try:
+                stance = ClaimStance(_required_value(evidence_item, "stance", evidence_label))
+            except (TypeError, ValueError) as exc:
+                raise ClaimEvidenceError(f"{evidence_label}.stance: invalid value") from exc
             evidence.append(ClaimEvidence(
-                evidence_id=e["evidence_id"],
-                document_id=e["document_id"],
-                known_at=_parse_dt(e["known_at"],f"{e['evidence_id']}.known_at"),
-                stance=ClaimStance(e["stance"]),
-                attributed_to=e["attributed_to"],
-                statement=e["statement"],
+                evidence_id=_required_text(evidence_item, "evidence_id", evidence_label),
+                document_id=_required_text(evidence_item, "document_id", evidence_label),
+                known_at=_parse_dt(
+                    _required_text(evidence_item, "known_at", evidence_label),
+                    f"{evidence_label}.known_at",
+                ),
+                stance=stance,
+                attributed_to=_required_text(evidence_item, "attributed_to", evidence_label),
+                statement=_required_text(evidence_item, "statement", evidence_label),
             ))
-        claim=ContestedClaim(
-            claim_id=item["claim_id"],
-            proposition=item["proposition"],
+        claim = ContestedClaim(
+            claim_id=_required_text(item, "claim_id", label),
+            proposition=_required_text(item, "proposition", label),
             evidence=tuple(evidence),
         )
         claim.validate()
         claims.append(claim)
 
-    revisions=[]
-    for item in raw.get("revisions",[]):
-        revision=HistoricalRevision(
-            revision_id=item["revision_id"],
-            prior_document_id=item["prior_document_id"],
-            revision_document_id=item["revision_document_id"],
-            known_at=_parse_dt(item["known_at"],f"{item['revision_id']}.known_at"),
-            relation=RevisionRelation(item["relation"]),
-            scope=item["scope"],
+    revisions = []
+    for revision_index, value in enumerate(
+        _require_array(raw.get("revisions", []), "$.revisions")
+    ):
+        label = f"$.revisions[{revision_index}]"
+        item = _require_object(value, label)
+        try:
+            relation = RevisionRelation(_required_value(item, "relation", label))
+        except (TypeError, ValueError) as exc:
+            raise ClaimEvidenceError(f"{label}.relation: invalid value") from exc
+        revision = HistoricalRevision(
+            revision_id=_required_text(item, "revision_id", label),
+            prior_document_id=_required_text(item, "prior_document_id", label),
+            revision_document_id=_required_text(item, "revision_document_id", label),
+            known_at=_parse_dt(
+                _required_text(item, "known_at", label),
+                f"{label}.known_at",
+            ),
+            relation=relation,
+            scope=_required_text(item, "scope", label),
         )
         revision.validate()
         revisions.append(revision)
