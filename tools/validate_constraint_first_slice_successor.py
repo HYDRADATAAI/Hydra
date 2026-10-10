@@ -265,6 +265,14 @@ def validate_batch008_manifest_successor() -> None:
         "Batch008 V002 record identity changed",
     )
     require(
+        successor.get("base_head") == "cf1002ad63c0bab185d8d02c71049107b7880545",
+        "Batch008 successor base_head changed",
+    )
+    require(
+        successor.get("as_of") == "2026-10-09",
+        "Batch008 successor as_of changed",
+    )
+    require(
         successor.get("supersedes") == {
             "record_id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH008_ARTIFACT_MANIFEST_V001",
             "reason": "IMMUTABLE_ACTION_PIN_REFRESH; WORKFLOW CONTENT ONLY; NO DOMAIN ARTIFACT OR AUTHORITY CHANGE",
