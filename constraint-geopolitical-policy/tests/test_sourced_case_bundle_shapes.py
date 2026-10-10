@@ -89,9 +89,17 @@ class SourcedCaseBundleShapeTests(unittest.TestCase):
                 mutate(bundle)
                 self.assert_invalid_bundle(bundle)
 
-    def test_omitted_top_level_collections_keep_empty_defaults(self):
-        bundle = {"evidence_digest_scope": "sha256(normalized_evidence UTF-8)"}
-        self.assertIsNone(validate_sourced_case_bundle(bundle))
+    def test_omitted_and_empty_top_level_collections_keep_empty_defaults(self):
+        expected_scope = "sha256(normalized_evidence UTF-8)"
+        accepted_bundles = (
+            {"evidence_digest_scope": expected_scope},
+            {"evidence_digest_scope": expected_scope, "sources": [], "cases": []},
+            {"evidence_digest_scope": expected_scope, "sources": []},
+            {"evidence_digest_scope": expected_scope, "cases": []},
+        )
+        for bundle in accepted_bundles:
+            with self.subTest(bundle=bundle):
+                self.assertIsNone(validate_sourced_case_bundle(bundle))
 
 
 if __name__ == "__main__":
