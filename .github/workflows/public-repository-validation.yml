@@ -15,6 +15,10 @@ on:
       - "sql-data-quality-sample/**"
       - "t6-fail-closed-validator/**"
       - "tools/validate_public_repository.py"
+      - "tools/test_workflow_action_refs.py"
+      - "tools/thread_g_receipt_validation.py"
+      - "tools/test_thread_g_receipt_validation.py"
+      - ".github/workflows/nyx-thread-g-receipt-windows.yml"
       - ".github/workflows/aws-market-data-deploy.yml"
       - ".github/workflows/aws-market-data-pipeline.yml"
       - ".github/workflows/governed-intelligence-sample.yml"
@@ -41,8 +45,8 @@ jobs:
       - name: Install YAML parser
         run: python -m pip install --disable-pip-version-check PyYAML==6.0.2
 
-      - name: Test workflow action reference parsing
-        run: python -m unittest tools/test_workflow_action_refs.py -v
+      - name: Test workflow and receipt validation
+        run: python -m unittest tools/test_workflow_action_refs.py tools/test_thread_g_receipt_validation.py -v
 
       - name: Validate public core-repository contract
         run: python tools/validate_public_repository.py

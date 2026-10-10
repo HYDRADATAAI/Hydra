@@ -43,25 +43,8 @@ jobs:
         if: always()
         run: |
           $root = 'D:\NYX_PORTABLE\THREAD_G_RECEIPT_REPAIR'
-          $required = @('baseline.json', 'baseline.log', 'RESULT.json', 'SOURCE_HASHES.json')
-          $reportPath = Join-Path $root 'RESULT.json'
-          if (Test-Path -LiteralPath $reportPath -PathType Leaf) {
-            $report = Get-Content -Raw -LiteralPath $reportPath | ConvertFrom-Json
-            if ($report.baseline_source_sha256 -ne $report.candidate_source_sha256) {
-              $required += @(
-                'repaired_types.json',
-                'repaired_types.log',
-                'existing_admission.json',
-                'existing_admission.log',
-                'existing_bridge.json',
-                'existing_bridge.log'
-              )
-            }
-          }
-          foreach ($name in $required) {
-            $path = Join-Path $root $name
-            if (-not (Test-Path -LiteralPath $path -PathType Leaf)) { throw "Expected receipt output missing: $name" }
-          }
+          python -B tools/thread_g_receipt_validation.py $root
+          if ($LASTEXITCODE -ne 0) { throw 'Thread G receipt validation failed' }
       - name: Preserve exact results
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
