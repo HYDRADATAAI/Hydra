@@ -932,6 +932,17 @@ class UniqueKeyBaseLoader(yaml.BaseLoader):
     def construct_mapping(self, node, deep=False):
         mapping = {}
         for key_node, value_node in node.value:
+            if (
+                isinstance(key_node, yaml.ScalarNode)
+                and key_node.value == "<<"
+                and (key_node.style is None or key_node.tag == "tag:yaml.org,2002:merge")
+            ):
+                raise yaml.constructor.ConstructorError(
+                    "while constructing a mapping",
+                    node.start_mark,
+                    "found unsupported YAML merge key '<<'",
+                    key_node.start_mark,
+                )
             key = self.construct_object(key_node, deep=deep)
             try:
                 hash(key)
