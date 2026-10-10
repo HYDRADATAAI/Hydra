@@ -8,7 +8,6 @@ from urllib.request import Request
 
 from hydra_constraint.polling import (
     BackoffPolicy,
-    HttpResponse,
     PollRunner,
     PollSpec,
     UrllibTransport,
