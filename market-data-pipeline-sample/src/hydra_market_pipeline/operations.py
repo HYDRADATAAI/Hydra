@@ -8,12 +8,12 @@ import json
 import os
 import re
 import sys
-import tempfile
 from dataclasses import dataclass
 from decimal import Decimal
 from pathlib import Path
 from typing import Mapping
 
+from .atomic import write_atomically
 from .hashing import canonical_json_bytes, object_sha256, sha256_hex
 from .pipeline import (
     RUN_SCHEMA,
@@ -715,15 +715,4 @@ def _write_json_atomic(path: Path, value: object) -> None:
 
 def _write_bytes_atomic(path: Path, payload: bytes) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
-    file_descriptor, temporary_name = tempfile.mkstemp(
-        prefix=f".{path.name}.",
-        suffix=".tmp",
-        dir=path.parent,
-    )
-    try:
-        with os.fdopen(file_descriptor, "wb") as handle:
-            handle.write(payload)
-        os.replace(temporary_name, path)
-    finally:
-        if os.path.exists(temporary_name):
-            os.unlink(temporary_name)
+    write_atomically(path, "wb", lambda handle: handle.write(payload))
