@@ -8,6 +8,7 @@ import hashlib
 import json
 import urllib.error
 import urllib.request
+from urllib.parse import urlsplit
 
 from .runtime import unresolved_admission
 
@@ -49,8 +50,25 @@ class CanaryResult:
         return asdict(self)
 
 
+def _require_https_url(url: str) -> None:
+    parsed = urlsplit(url)
+    if (
+        parsed.scheme.lower() != "https"
+        or not parsed.hostname
+        or parsed.username is not None
+        or parsed.password is not None
+    ):
+        raise ValueError("live canary URL must be HTTPS with a hostname and no embedded credentials")
+
+
+class _NoRedirectHandler(urllib.request.HTTPRedirectHandler):
+    def redirect_request(self, req, fp, code, msg, headers, newurl):
+        return None
+
+
 class CanaryTransport:
     def fetch(self, spec: CanarySpec, user_agent: str) -> CanaryResponse:
+        _require_https_url(spec.url)
         req = urllib.request.Request(
             spec.url,
             headers={
@@ -59,8 +77,9 @@ class CanaryTransport:
             },
             method="GET",
         )
+        opener = urllib.request.build_opener(_NoRedirectHandler())
         try:
-            with urllib.request.urlopen(req, timeout=spec.timeout_seconds) as response:
+            with opener.open(req, timeout=spec.timeout_seconds) as response:
                 body = response.read(spec.max_bytes + 1)
                 if len(body) > spec.max_bytes:
                     raise ValueError(f"response exceeds max_bytes={spec.max_bytes}")
@@ -164,7 +183,15 @@ def load_specs(path: str | Path) -> List[CanarySpec]:
         raise ValueError("live canary config must declare read_only=true")
     if payload.get("ledger_mutation") is not False:
         raise ValueError("live canary config must declare ledger_mutation=false")
-    return [CanarySpec(**item) for item in payload["sources"]]
+    if payload.get("automatic_trading_action") is not False:
+        raise ValueError("live canary config must declare automatic_trading_action=false")
+    for item in payload["sources"]:
+        if type(item.get("enabled")) is not bool:
+            raise ValueError("each live canary source must declare enabled as a boolean")
+    specs = [CanarySpec(**item) for item in payload["sources"]]
+    for spec in specs:
+        _require_https_url(spec.url)
+    return specs
 
 
 def main() -> int:
