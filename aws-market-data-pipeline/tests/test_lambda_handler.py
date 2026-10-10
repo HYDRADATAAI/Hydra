@@ -519,6 +519,37 @@ class LambdaHandlerTests(unittest.TestCase):
                     self.assertEqual(client.put_calls, [])
                     self.assertEqual(glue.partition_calls, [])
 
+    def test_malformed_s3_event_name_rejects_valid_sibling_before_processing(self):
+        source = FIXTURE.read_bytes()
+        valid_record = s3_event(size=len(source))["Records"][0]
+        malformed_records = [
+            {"eventSource": "aws:s3"},
+            {"eventSource": "aws:s3", "eventName": None},
+            {"eventSource": "aws:s3", "eventName": 42},
+            {"eventSource": "aws:s3", "eventName": ""},
+        ]
+
+        with patch.dict(os.environ, {"CURATED_BUCKET": "curated"}):
+            for malformed_record in malformed_records:
+                with self.subTest(event_name=malformed_record.get("eventName")):
+                    event = {"Records": [valid_record, malformed_record]}
+                    client = FakeS3(source)
+                    glue = FakeGlue()
+
+                    with self.assertRaisesRegex(
+                        ValueError, "S3 source record eventName"
+                    ):
+                        lambda_handler(
+                            event,
+                            None,
+                            s3_client=client,
+                            glue_client=glue,
+                        )
+
+                    self.assertEqual(client.get_calls, [])
+                    self.assertEqual(client.put_calls, [])
+                    self.assertEqual(glue.partition_calls, [])
+
     def test_unrelated_and_non_object_created_records_remain_ignored(self):
         source = FIXTURE.read_bytes()
         event = s3_event(size=len(source))
