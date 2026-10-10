@@ -146,6 +146,9 @@ def validate_sourced_case_bundle(bundle: dict[str, Any]) -> None:
             except (TypeError, ValueError) as exc:
                 raise CaseStudyValidationError(f"{eid}: unsupported claim_kind") from exc
 
+            if not isinstance(event.get("statement"), str):
+                raise CaseStudyValidationError(f"{eid}: statement must be text")
+
             known=_dt(event["known_at"])
             for clock in ("effective_at", "observed_at", "resolved_at"):
                 if event.get(clock) is not None:
@@ -175,9 +178,8 @@ def validate_sourced_case_bundle(bundle: dict[str, Any]) -> None:
                 confidence=relation.get("confidence")
                 if not isinstance(kind, str) or kind not in ALLOWED_PHYSICAL_RELATIONS:
                     raise CaseStudyValidationError(f"{eid}: unsupported physical relation kind {kind!r}")
-                if not entity_id:
-                    raise CaseStudyValidationError(f"{eid}: empty physical entity_id")
-                if not isinstance(confidence,(int,float)) or not 0 <= confidence <= 1:
+                _require_identifier(entity_id, f"{eid}.relations[{relation_index}].entity_id")
+                if not isinstance(confidence, (int, float)) or isinstance(confidence, bool) or not 0 <= confidence <= 1:
                     raise CaseStudyValidationError(f"{eid}: physical relation confidence outside [0,1]")
 
         observations = _require_array(case.get("observations", []), f"{cid}.observations")
@@ -209,10 +211,10 @@ def validate_sourced_case_bundle(bundle: dict[str, Any]) -> None:
 def events_from_sourced_case_bundle(bundle: dict[str, Any]) -> list[HistoricalEvent]:
     """Materialize validated case JSON as executable HistoricalEvent objects."""
     validate_sourced_case_bundle(bundle)
-    sources={s["source_id"]:s for s in bundle["sources"]}
+    sources={s["source_id"]:s for s in bundle.get("sources", [])}
     out: list[HistoricalEvent]=[]
 
-    for case in bundle["cases"]:
+    for case in bundle.get("cases", []):
         for raw in case.get("events", []):
             source_ids=tuple(raw["source_ids"])
             provenance=tuple(
