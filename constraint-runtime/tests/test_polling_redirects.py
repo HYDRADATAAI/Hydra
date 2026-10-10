@@ -1,7 +1,9 @@
 from __future__ import annotations
 
 import unittest
+from io import BytesIO
 from unittest.mock import patch
+from urllib.error import HTTPError
 from urllib.request import Request
 
 from hydra_constraint.polling import (
@@ -75,17 +77,6 @@ class PollingRedirectTests(unittest.TestCase):
             def mark_error(self, source, polled_at, error):
                 self.errors.append((source, polled_at, error))
 
-        class Transport:
-            def __init__(self):
-                self.calls = 0
-
-            def fetch(self, url, _headers):
-                self.calls += 1
-                return HttpResponse(
-                    url, 302, {"location": "https://other.example/feed"},
-                    b"not-json", "2026-10-09T00:00:00Z",
-                )
-
         class Archive:
             def __init__(self):
                 self.calls = []
@@ -102,24 +93,33 @@ class PollingRedirectTests(unittest.TestCase):
             def sleep(self, _delay):
                 raise AssertionError("terminal redirect must not retry")
 
-        cursors, transport, archive = Cursors(), Transport(), Archive()
-        runner = PollRunner(Durable(), cursors, archive, transport, sleeper=Sleeper())
+        cursors, archive = Cursors(), Archive()
+        runner = PollRunner(
+            Durable(), cursors, archive, UrllibTransport(), sleeper=Sleeper()
+        )
         spec = PollSpec(
             name="fixture", adapter="json_records", source_class="fixture",
             url="https://example.test/feed", parser="json_records",
             cadence_minutes=60, stale_after_minutes=60,
             backoff=BackoffPolicy(max_attempts=3),
         )
+        redirect = HTTPError(
+            spec.url, 302, "Found",
+            {"Location": "https://other.example/feed"},
+            BytesIO(b"redirect body"),
+        )
 
-        report = runner.poll(spec, cursor_value="new")
+        with patch("hydra_constraint.polling.urllib.request.build_opener") as build_opener:
+            build_opener.return_value.open.side_effect = redirect
+            report = runner.poll(spec, cursor_value="new")
 
         self.assertEqual(report.status, "FAILED")
         self.assertEqual(report.http_statuses, [302])
         self.assertEqual(report.cursor_before, "old")
         self.assertEqual(report.cursor_after, "old")
-        self.assertEqual(transport.calls, 1)
         self.assertEqual(archive.calls, [("fixture", 302, 1)])
         self.assertEqual(len(cursors.errors), 1)
+        self.assertIsInstance(build_opener.call_args.args[0], _NoRedirectHandler)
 
 
 if __name__ == "__main__":
