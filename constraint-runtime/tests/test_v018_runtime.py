@@ -21,6 +21,7 @@ from hydra_constraint import (
     IngestError,
     ReplayHarness,
 )
+from hydra_constraint.polling import FixtureTransport, HttpResponse, PollRunner, PollSpec, RawArchive
 from hydra_constraint.runtime import Node, Edge
 
 
@@ -176,6 +177,60 @@ class LedgerPersistenceTests(unittest.TestCase):
             report = two.recover()
             self.assertEqual(report["ledger_tip_hash"], entry.entry_hash)
             self.assertEqual(report["chain_status"], "PASS")
+
+
+class PollRunnerTests(unittest.TestCase):
+    def test_partial_batch_keeps_successes_idempotent_and_retries_bad_record(self):
+        normalizer = EventNormalizer(GRAPH, aliases=ALIASES)
+        url = "https://fixture.invalid/sec"
+        rows = [
+            {"accession_number":"0000000001-26-000001","filing_date":"2026-09-29","company":"Example A","form":"8-K","cik":"1","url":url},
+            {"filing_date":"2026-09-29","company":"Malformed","form":"8-K","cik":"2","url":url},
+            {"accession_number":"0000000002-26-000002","filing_date":"2026-09-29","company":"Example B","form":"8-K","cik":"3","url":url},
+        ]
+        body = json.dumps({"records":rows}).encode("utf-8")
+        response = HttpResponse(url,200,{"etag":"fixture-v1"},body,"2026-09-29T12:02:00Z")
+
+        with tempfile.TemporaryDirectory() as td:
+            td = Path(td)
+            durable = DurableLedgerRuntime(normalizer,td/"ledger.jsonl",td/"checkpoint.json")
+            durable.recover()
+            cursors = __import__("hydra_constraint").CursorStore(td/"cursor.json")
+            runner = PollRunner(
+                durable,cursors,RawArchive(td/"raw"),FixtureTransport({url:[response]})
+            )
+            spec = PollSpec(
+                name="sec_fixture",adapter="sec_edgar",source_class="sec_edgar",
+                url=url,parser="json_records",cadence_minutes=60,stale_after_minutes=180,
+                target="Gallium",jurisdiction="Global",
+            )
+
+            first = runner.poll(spec)
+            first_entry_count = len(durable.ledger.entries)
+            self.assertEqual(first.status,"APPEND_FAILED")
+            self.assertEqual(first.appended,2)
+            self.assertEqual(first.cursor_after,None)
+            self.assertIn("record[1]",first.error)
+            self.assertIn("accession_number",first.error)
+            self.assertTrue(cursors.has_seen("sec_fixture","000000000126000001"))
+            self.assertTrue(cursors.has_seen("sec_fixture","000000000226000002"))
+            self.assertEqual(len(durable.ledger.entries),2)
+
+            second = runner.poll(spec)
+            self.assertEqual(second.status,"APPEND_FAILED")
+            self.assertEqual(second.appended,0)
+            self.assertEqual(second.skipped_seen,2)
+            self.assertEqual(len(durable.ledger.entries),first_entry_count)
+            self.assertEqual(
+                [entry.action for entry in durable.ledger.entries],
+                ["CREATE","CREATE"],
+            )
+            self.assertIsNone(cursors.adapter("sec_fixture")["cursor"])
+            self.assertIn("record[1]",cursors.adapter("sec_fixture")["last_error"])
+            self.assertEqual(
+                [entry.external_record_id for entry in durable.ledger.entries],
+                ["000000000126000001","000000000226000002"],
+            )
 
 
 class OperationsTests(unittest.TestCase):
