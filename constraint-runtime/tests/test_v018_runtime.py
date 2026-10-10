@@ -227,6 +227,18 @@ class OperationsTests(unittest.TestCase):
             policy.delay(2, "Wed, 21 Oct 2015 07:27:00 GMT", now=now),
             0,
         )
+        self.assertEqual(
+            policy.delay(2, "Wed, 21 Oct 2015 07:28:10 +0200", now=now),
+            4,
+        )
+        self.assertEqual(
+            policy.delay(2, "Wednesday, 21-Oct-15 07:28:10 GMT", now=now),
+            10,
+        )
+        self.assertEqual(
+            policy.delay(2, "Wed Oct 21 07:28:10 2015", now=now),
+            10,
+        )
 
 
 class PollRateLimitTests(unittest.TestCase):
