@@ -61,7 +61,9 @@ def _policy() -> dict[str, object]:
     }
 
 
-def _oracle(*, first_id: object = "public-test-0") -> dict[str, object]:
+def _oracle(
+    *, first_id: object = "public-test-0", first_outcome: object = "ABSTAIN"
+) -> dict[str, object]:
     fixture: dict[str, object] = {
         "expected_outcome": "ABSTAIN",
         "expected_canonical_store_mutation_authorized": False,
@@ -74,6 +76,7 @@ def _oracle(*, first_id: object = "public-test-0") -> dict[str, object]:
     }
     fixtures = [{"id": f"public-test-{i}", **fixture} for i in range(8)]
     fixtures[0]["id"] = first_id
+    fixtures[0]["expected_outcome"] = first_outcome
     return {"fixtures": fixtures}
 
 
@@ -140,6 +143,20 @@ class AuditedValidationGapTests(unittest.TestCase):
         self.assertTrue(any(
             item["code"] == "oracle_fixture_ids_invalid"
             and item["path"] == "$.oracle.fixtures"
+            for item in result["violations"]
+        ))
+
+
+    def test_unhashable_oracle_outcome_quarantines_without_type_error(self) -> None:
+        result = _service_result(
+            _handoff(),
+            _oracle(first_outcome=["ABSTAIN"]),
+        )
+        self.assertEqual(result["outcome"], "QUARANTINE")
+        self.assertEqual(result["reason"], "AUTHORITY_INVALID")
+        self.assertTrue(any(
+            item["code"] == "oracle_outcome_invalid"
+            and item["path"] == "$.oracle.fixtures[0].expected_outcome"
             for item in result["violations"]
         ))
 
