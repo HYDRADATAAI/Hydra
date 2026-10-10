@@ -458,6 +458,14 @@ class LambdaHandlerTests(unittest.TestCase):
                 {"s3": {"bucket": {"name": 42}, "object": {}}},
             ),
             (
+                "empty bucket name",
+                {"s3": {"bucket": {"name": ""}, "object": {}}},
+            ),
+            (
+                "whitespace bucket name",
+                {"s3": {"bucket": {"name": "  "}, "object": {}}},
+            ),
+            (
                 "missing object",
                 {"s3": {"bucket": {"name": "raw-bucket"}}},
             ),

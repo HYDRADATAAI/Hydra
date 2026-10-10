@@ -135,8 +135,8 @@ def _source_objects(
         if not isinstance(object_data, dict):
             raise ValueError("S3 ObjectCreated record object field must be an object")
         bucket = bucket_data.get("name")
-        if not isinstance(bucket, str) or not bucket:
-            raise ValueError("S3 ObjectCreated record bucket name must be a non-empty string")
+        if not isinstance(bucket, str) or not bucket.strip():
+            raise ValueError("S3 ObjectCreated record bucket name must be a non-blank string")
         key = object_data.get("key")
         if not isinstance(key, str) or not key:
             raise ValueError("S3 ObjectCreated record object key must be a non-empty string")
