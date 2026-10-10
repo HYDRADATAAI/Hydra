@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field, asdict
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from decimal import Decimal
 from email.utils import parsedate_to_datetime
 from pathlib import Path
@@ -78,7 +78,12 @@ class BackoffPolicy:
                 date_value = retry_after.strip()
                 if not _HTTP_DATE.fullmatch(date_value):
                     raise ValueError("invalid HTTP-date")
+                leap_second = ":60 " in date_value
+                if leap_second:
+                    date_value = date_value.replace(":60 ", ":59 ", 1)
                 retry_at = parsedate_to_datetime(date_value)
+                if leap_second:
+                    retry_at += timedelta(seconds=1)
                 if retry_at.tzinfo is None:
                     retry_at = retry_at.replace(tzinfo=timezone.utc)
                 current = now or datetime.now(timezone.utc)
