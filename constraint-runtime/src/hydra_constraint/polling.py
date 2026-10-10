@@ -12,6 +12,7 @@ import io
 import json
 import math
 import os
+import re
 import tempfile
 import threading
 import time
@@ -21,6 +22,17 @@ import urllib.request
 from .adapters import ADAPTERS
 
 RETRYABLE={429,500,502,503,504}
+_HTTP_DATE = re.compile(
+    r"(?:"
+    r"(?:Mon|Tue|Wed|Thu|Fri|Sat|Sun), [0-9]{2} (?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec) [0-9]{4} "
+    r"[0-9]{2}:[0-9]{2}:[0-9]{2} GMT|"
+    r"(?:Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday), [0-9]{2}-(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)-[0-9]{2} "
+    r"[0-9]{2}:[0-9]{2}:[0-9]{2} GMT|"
+    r"(?:Mon|Tue|Wed|Thu|Fri|Sat|Sun) (?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec) (?: [1-9]|[12][0-9]|3[01]) "
+    r"[0-9]{2}:[0-9]{2}:[0-9]{2} [0-9]{4}"
+    r")",
+    re.ASCII,
+)
 
 def utc_now():
     return datetime.now(timezone.utc).isoformat().replace("+00:00","Z")
@@ -63,7 +75,10 @@ class BackoffPolicy:
                     return self.cap_seconds
                 return float(numeric_retry_after)
             try:
-                retry_at = parsedate_to_datetime(retry_after)
+                date_value = retry_after.strip()
+                if not _HTTP_DATE.fullmatch(date_value):
+                    raise ValueError("invalid HTTP-date")
+                retry_at = parsedate_to_datetime(date_value)
                 if retry_at.tzinfo is None:
                     retry_at = retry_at.replace(tzinfo=timezone.utc)
                 current = now or datetime.now(timezone.utc)
