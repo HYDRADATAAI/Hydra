@@ -276,6 +276,26 @@ class OperationsTests(unittest.TestCase):
             self.assertTrue(temporary_path.is_symlink())
             self.assertTrue((output_dir / "checkpoint.json").is_file())
 
+    def test_symlink_before_parent_traversal_fails_closed(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            outside_child = Path(tmp) / "outside" / "child"
+            outside_child.mkdir(parents=True)
+            linked_parent = Path(tmp) / "linked"
+            try:
+                linked_parent.symlink_to(outside_child, target_is_directory=True)
+            except (OSError, NotImplementedError) as exc:
+                self.skipTest(f"symlink creation is unavailable: {exc}")
+
+            output_dir = linked_parent / ".." / "state"
+            with self.assertRaisesRegex(OperationsError, "must not contain symlinks"):
+                execute_backfill(
+                    plan_path=PLAN,
+                    aliases_path=ALIASES,
+                    output_dir=output_dir,
+                )
+            self.assertFalse((Path(tmp) / "outside" / "state").exists())
+            self.assertFalse((Path(tmp) / "state").exists())
+
     def test_symlinked_output_parent_fails_closed(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             external_dir = Path(tmp) / "outside"
