@@ -10,7 +10,6 @@ import hashlib
 import io
 import json
 import os
-import platform
 from pathlib import Path
 import subprocess
 import sys
@@ -210,7 +209,7 @@ def main():
     args = parser.parse_args()
     if (os.environ.get("GITHUB_ACTIONS") != "true"
             or os.environ.get("RUNNER_OS") != "Windows"
-            or platform.system() != "Windows"
+            or sys.platform != "win32"
             or sys.version_info[:2] != (3, 11)
             or not sys.flags.isolated or not sys.dont_write_bytecode):
         raise RuntimeError("this proof requires the authorized Windows/Python 3.11 lane")
@@ -263,7 +262,7 @@ def main():
     report = {
         "schema": "polling-response-cleanup-proof/v1",
         "claim": "response body closed before fetch returns or raises; no live leak measurement",
-        "platform": platform.system(), "python": platform.python_version(),
+        "platform": sys.platform, "python": sys.version.split()[0],
         "head": head, "tree": tree, "frozen_head": FROZEN_HEAD,
         "frozen_tree": FROZEN_TREE, "frozen_source_leaves": len(frozen),
         "validation_leaves": len(current), "source_changes": [
