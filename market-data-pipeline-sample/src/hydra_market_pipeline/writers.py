@@ -4,8 +4,10 @@ from __future__ import annotations
 
 import csv
 import json
+import os
+import sys
 from pathlib import Path
-from typing import Iterable, Mapping
+from typing import Any, Iterable, Mapping
 
 from .atomic import write_atomically as _write_atomically
 
@@ -33,8 +35,54 @@ SOURCE_SNAPSHOT_SCHEMA = "hydra-market-source-csv/v1"
 RESOLVED_ALIASES_SCHEMA = "hydra-market-resolved-aliases/v1"
 
 
+class OutputPathError(ValueError):
+    """Raised when the requested output directory traverses a symlink or junction."""
+
+
+def _contains_unsafe_symlink_component(path: Path) -> bool:
+    """Detect pre-existing symlinked path components without following them silently."""
+    if not path.is_absolute():
+        path = Path.cwd() / path
+
+    parts = path.parts
+    current = Path(parts[0])
+    for part in parts[1:]:
+        current /= part
+        if part == "..":
+            continue
+        resolved = current.resolve(strict=False)
+        normalized = Path(os.path.normpath(os.fspath(current)))
+        if os.path.normcase(os.fspath(resolved)) == os.path.normcase(
+            os.fspath(normalized)
+        ):
+            continue
+
+        macos_aliases = {
+            Path("/var"): Path("/private/var"),
+            Path("/tmp"): Path("/private/tmp"),
+        }
+        is_macos_alias = False
+        if sys.platform == "darwin":
+            for alias, target in macos_aliases.items():
+                try:
+                    relative_path = current.relative_to(alias)
+                except ValueError:
+                    continue
+                expected = Path(os.path.normpath(os.fspath(target / relative_path)))
+                is_macos_alias = os.path.normcase(
+                    os.fspath(resolved)
+                ) == os.path.normcase(os.fspath(expected))
+                break
+        if not is_macos_alias:
+            return True
+    return False
+
+
 def write_outputs(result: PipelineResult, *, output_dir: str | Path) -> dict[str, Path]:
     directory = Path(output_dir)
+    if _contains_unsafe_symlink_component(directory):
+        raise OutputPathError("output directory path must not contain symlinks")
+    directory = directory.resolve(strict=False)
     directory.mkdir(parents=True, exist_ok=True)
 
     normalized_jsonl = directory / "normalized_events.jsonl"
@@ -102,7 +150,7 @@ def write_outputs(result: PipelineResult, *, output_dir: str | Path) -> dict[str
             indent=2,
             sort_keys=True,
         ).encode("utf-8")
-        + b"\n",
+        + b"\\n",
     )
 
     return {
@@ -123,7 +171,7 @@ def _write_jsonl(path: Path, records: Iterable[Mapping[str, object]]) -> None:
     def write_records(handle: Any) -> None:
         for record in records:
             handle.write(canonical_json_bytes(record))
-            handle.write(b"\n")
+            handle.write(b"\\n")
 
     _write_atomically(path, "wb", write_records)
 
@@ -133,12 +181,10 @@ def _write_csv(path: Path, records: Iterable[Mapping[str, object]]) -> None:
         writer = csv.DictWriter(
             handle,
             fieldnames=NORMALIZED_CSV_COLUMNS,
-            lineterminator="\n",
+            lineterminator="\\n",
         )
         writer.writeheader()
         for record in records:
             writer.writerow({column: record[column] for column in NORMALIZED_CSV_COLUMNS})
 
     _write_atomically(path, "w", write_records, newline="", encoding="utf-8")
-
-
