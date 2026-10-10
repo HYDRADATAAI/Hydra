@@ -1,0 +1,81 @@
+import copy
+import json
+import unittest
+from pathlib import Path
+
+from hydra_constraint_policy.case_studies import (
+    CaseStudyValidationError,
+    validate_sourced_case_bundle,
+)
+
+
+DATA_PATH = (
+    Path(__file__).resolve().parents[1]
+    / "data"
+    / "sourced_historical_cases.json"
+)
+
+
+class SourcedCaseBundleShapeTests(unittest.TestCase):
+    def load_bundle(self):
+        return json.loads(DATA_PATH.read_text(encoding="utf-8"))
+
+    def assert_invalid_bundle(self, bundle):
+        with self.assertRaises(CaseStudyValidationError):
+            validate_sourced_case_bundle(bundle)
+
+    def test_non_object_bundle_is_rejected(self):
+        for bundle in (None, [], "bundle"):
+            with self.subTest(bundle=bundle):
+                self.assert_invalid_bundle(bundle)
+
+    def test_top_level_collections_and_members_are_checked(self):
+        mutations = (
+            lambda bundle: bundle.update(sources=None),
+            lambda bundle: bundle.update(sources={}),
+            lambda bundle: bundle["sources"].__setitem__(0, None),
+            lambda bundle: bundle.update(cases=None),
+            lambda bundle: bundle.update(cases={}),
+            lambda bundle: bundle["cases"].__setitem__(0, None),
+        )
+        for mutate in mutations:
+            with self.subTest(mutation=mutate):
+                bundle = self.load_bundle()
+                mutate(bundle)
+                self.assert_invalid_bundle(bundle)
+
+    def test_nested_collections_and_members_are_checked(self):
+        mutations = (
+            lambda bundle: bundle["cases"][0].update(events=None),
+            lambda bundle: bundle["cases"][0]["events"].__setitem__(0, None),
+            lambda bundle: bundle["cases"][2].update(observations=None),
+            lambda bundle: bundle["cases"][2]["observations"].__setitem__(0, None),
+            lambda bundle: bundle["cases"][0]["events"][0].update(relations=None),
+            lambda bundle: bundle["cases"][0]["events"][0]["relations"].__setitem__(0, None),
+            lambda bundle: bundle["cases"][0]["events"][0].update(source_ids=None),
+        )
+        for mutate in mutations:
+            with self.subTest(mutation=mutate):
+                bundle = self.load_bundle()
+                mutate(bundle)
+                self.assert_invalid_bundle(bundle)
+
+    def test_missing_required_object_fields_are_rejected_as_domain_errors(self):
+        mutations = (
+            lambda bundle: bundle["sources"][0].pop("published_at"),
+            lambda bundle: bundle["cases"][0]["events"][0].pop("statement"),
+            lambda bundle: bundle["cases"][0]["events"][0]["relations"][0].pop("confidence"),
+        )
+        for mutate in mutations:
+            with self.subTest(mutation=mutate):
+                bundle = self.load_bundle()
+                mutate(bundle)
+                self.assert_invalid_bundle(bundle)
+
+    def test_omitted_top_level_collections_keep_empty_defaults(self):
+        bundle = {"evidence_digest_scope": "sha256(normalized_evidence UTF-8)"}
+        self.assertIsNone(validate_sourced_case_bundle(bundle))
+
+
+if __name__ == "__main__":
+    unittest.main()
