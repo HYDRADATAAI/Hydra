@@ -266,6 +266,12 @@ class PollRunner:
             raise ValueError("max_response_bytes must be a positive integer")
         self.max_response_bytes=max_response_bytes
 
+    def _uses_builtin_urllib_transport(self):
+        return (
+            isinstance(self.transport,UrllibTransport)
+            and type(self.transport).fetch is UrllibTransport.fetch
+        )
+
     def validate_live_spec(self,spec):
         sec_selector=(
             str(spec.adapter).casefold()=="sec_edgar"
@@ -313,13 +319,13 @@ class PollRunner:
 
     def poll(self,spec,cursor_value=None):
         self.validate_live_spec(spec)
-        if isinstance(self.transport,UrllibTransport):
+        if self._uses_builtin_urllib_transport():
             _require_https_url(spec.url)
         before=self.cursors.adapter(spec.name).get("cursor")
         statuses=[]; hashes=[]; delays=[]; response=None; error=None
         for attempt in range(1,spec.backoff.max_attempts+1):
             try:
-                if isinstance(self.transport,UrllibTransport):
+                if self._uses_builtin_urllib_transport():
                     response=self.transport.fetch(
                         spec.url,spec.headers,max_bytes=self.max_response_bytes,
                     )
