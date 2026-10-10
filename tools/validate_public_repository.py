@@ -928,8 +928,44 @@ def validate_manifest_v2_replay_contract(errors: list[str]) -> None:
             errors.append(f"independent pipeline replay contract missing: {fragment}")
 
 
+class UniqueKeyBaseLoader(yaml.BaseLoader):
+    def construct_mapping(self, node, deep=False):
+        mapping = {}
+        for key_node, value_node in node.value:
+            if (
+                isinstance(key_node, yaml.ScalarNode)
+                and key_node.value == "<<"
+                and (key_node.style is None or key_node.tag == "tag:yaml.org,2002:merge")
+            ):
+                raise yaml.constructor.ConstructorError(
+                    "while constructing a mapping",
+                    node.start_mark,
+                    "found unsupported YAML merge key '<<'",
+                    key_node.start_mark,
+                )
+            key = self.construct_object(key_node, deep=deep)
+            try:
+                hash(key)
+            except TypeError as exc:
+                raise yaml.constructor.ConstructorError(
+                    "while constructing a mapping",
+                    node.start_mark,
+                    f"found unhashable key {key!r}",
+                    key_node.start_mark,
+                ) from exc
+            if key in mapping:
+                raise yaml.constructor.ConstructorError(
+                    "while constructing a mapping",
+                    node.start_mark,
+                    f"found duplicate key {key!r}",
+                    key_node.start_mark,
+                )
+            mapping[key] = self.construct_object(value_node, deep=deep)
+        return mapping
+
+
 def workflow_action_refs(workflow_text: str) -> list[str]:
-    document = yaml.load(workflow_text, Loader=yaml.BaseLoader)
+    document = yaml.load(workflow_text, Loader=UniqueKeyBaseLoader)
     jobs = document.get("jobs") if isinstance(document, dict) else None
     if not isinstance(jobs, dict):
         raise ValueError("workflow jobs mapping is missing")
