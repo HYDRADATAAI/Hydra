@@ -78,6 +78,33 @@ jobs:
         ):
             workflow_action_refs(workflow)
 
+    def test_quoted_merge_spelling_is_an_ordinary_string_key(self):
+        workflow = """jobs:
+  build:
+    "<<": an ordinary string key
+    steps:
+      - uses: actions/checkout@0123456789abcdef0123456789abcdef01234567
+"""
+
+        self.assertEqual(
+            workflow_action_refs(workflow),
+            ["actions/checkout@0123456789abcdef0123456789abcdef01234567"],
+        )
+
+    def test_rejects_explicitly_tagged_yaml_merge_keys(self):
+        workflow = """defaults: &defaults
+  runs-on: ubuntu-latest
+jobs:
+  build:
+    !!merge <<: *defaults
+    steps: []
+"""
+
+        with self.assertRaisesRegex(
+            yaml.constructor.ConstructorError, "unsupported YAML merge key"
+        ):
+            workflow_action_refs(workflow)
+
     def test_invalid_yaml_key_errors_include_workflow_path(self):
         invalid_workflows = {
             "unhashable collection key": (
