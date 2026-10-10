@@ -251,6 +251,28 @@ class OperationsTests(unittest.TestCase):
                 )
             self.assertEqual(external_file.read_bytes(), b"external sentinel")
 
+    def test_atomic_checkpoint_write_does_not_follow_temp_symlink(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            output_dir = Path(tmp) / "state"
+            output_dir.mkdir()
+            external_file = Path(tmp) / "outside-checkpoint"
+            external_file.write_bytes(b"external sentinel")
+            temporary_path = output_dir / ".checkpoint.json.tmp"
+            try:
+                temporary_path.symlink_to(external_file)
+            except (OSError, NotImplementedError) as exc:
+                self.skipTest(f"symlink creation is unavailable: {exc}")
+
+            execute_backfill(
+                plan_path=PLAN,
+                aliases_path=ALIASES,
+                output_dir=output_dir,
+            )
+
+            self.assertEqual(external_file.read_bytes(), b"external sentinel")
+            self.assertTrue(temporary_path.is_symlink())
+            self.assertTrue((output_dir / "checkpoint.json").is_file())
+
     def test_symlinked_output_parent_fails_closed(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             external_dir = Path(tmp) / "outside"
