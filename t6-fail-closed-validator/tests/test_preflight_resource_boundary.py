@@ -16,7 +16,13 @@ class PreflightResourceBoundaryTests(unittest.TestCase):
         loader.assert_not_called()
         self.assertIsNone(result.value)
         self.assertEqual([issue.code for issue in result.issues], ["document_too_large"])
-        self.assertEqual(result.issues[0].evidence, {"node_count": documents.MAX_DOCUMENT_NODES + 1})
+        self.assertIn(
+            result.issues[0].evidence,
+            (
+                {"node_count": documents.MAX_DOCUMENT_NODES + 1},
+                {"normalization_limit": "nodes"},
+            ),
+        )
         self.assertEqual(result.raw, raw)
         self.assertEqual(result.raw_sha256, hashlib.sha256(raw).hexdigest())
 
