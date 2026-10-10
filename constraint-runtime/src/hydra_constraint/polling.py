@@ -22,19 +22,21 @@ import urllib.request
 from .adapters import ADAPTERS
 
 RETRYABLE={429,500,502,503,504}
+_WEEKDAYS = ("Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun")
+_WEEKDAYS_FULL = ("Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday")
 _RFC850_DATE = re.compile(
     r"(?:Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday), [0-9]{2}-(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)-(?P<year>[0-9]{2}) "
-    r"[0-9]{2}:[0-9]{2}:[0-9]{2} GMT",
+    r"(?:[01][0-9]|2[0-3]):[0-5][0-9]:(?:[0-5][0-9]|60) GMT",
     re.ASCII,
 )
 _HTTP_DATE = re.compile(
     r"(?:"
     r"(?:Mon|Tue|Wed|Thu|Fri|Sat|Sun), [0-9]{2} (?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec) [0-9]{4} "
-    r"[0-9]{2}:[0-9]{2}:[0-9]{2} GMT|"
+    r"(?:[01][0-9]|2[0-3]):[0-5][0-9]:(?:[0-5][0-9]|60) GMT|"
     r"(?:Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday), [0-9]{2}-(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)-[0-9]{2} "
     r"[0-9]{2}:[0-9]{2}:[0-9]{2} GMT|"
     r"(?:Mon|Tue|Wed|Thu|Fri|Sat|Sun) (?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec) (?: [1-9]|0[1-9]|[12][0-9]|3[01]) "
-    r"[0-9]{2}:[0-9]{2}:[0-9]{2} [0-9]{4}"
+    r"(?:[01][0-9]|2[0-3]):[0-5][0-9]:(?:[0-5][0-9]|60) [0-9]{4}"
     r")",
     re.ASCII,
 )
@@ -91,8 +93,6 @@ class BackoffPolicy:
                 if leap_second:
                     date_value = date_value.replace(":60 ", ":59 ", 1)
                 retry_at = parsedate_to_datetime(date_value)
-                if leap_second:
-                    retry_at += timedelta(seconds=1)
                 if rfc850_match:
                     year = current.year // 100 * 100 + int(rfc850_match.group("year"))
                     retry_at = retry_at.replace(year=year)
@@ -107,6 +107,14 @@ class BackoffPolicy:
                         retry_at = retry_at.replace(year=year - 100)
                 if retry_at.tzinfo is None:
                     retry_at = retry_at.replace(tzinfo=timezone.utc)
+                weekday = date_value.split(",", 1)[0] if "," in date_value else date_value[:3]
+                expected_weekday = _WEEKDAYS[retry_at.weekday()]
+                if weekday not in (expected_weekday, _WEEKDAYS_FULL[retry_at.weekday()]):
+                    raise ValueError("weekday does not match HTTP-date")
+                if leap_second:
+                    if retry_at.hour != 23 or retry_at.minute != 59:
+                        raise ValueError("invalid leap second")
+                    retry_at += timedelta(seconds=1)
                 return min(
                     self.cap_seconds,
                     max(0.0, (retry_at - current).total_seconds()),
