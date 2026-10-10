@@ -97,12 +97,9 @@ def validate_sourced_case_bundle(bundle: dict[str, Any]) -> None:
                 raise CaseStudyValidationError(f"{eid}: unsupported claim_kind") from exc
 
             known=_dt(event["known_at"])
-            if event.get("effective_at"):
-                _dt(event["effective_at"])
-            if event.get("observed_at") is not None:
-                _dt(event["observed_at"])
-            if event.get("resolved_at"):
-                _dt(event["resolved_at"])
+            for clock in ("effective_at", "observed_at", "resolved_at"):
+                if event.get(clock) is not None:
+                    _dt(event[clock])
 
             refs=event.get("source_ids", [])
             if not refs:
@@ -182,9 +179,21 @@ def events_from_sourced_case_bundle(bundle: dict[str, Any]) -> list[HistoricalEv
                 title=raw["event_id"].replace("-", " "),
                 temporal=TemporalFacts(
                     known_at=_dt(raw["known_at"]),
-                    effective_at=_dt(raw["effective_at"]) if raw.get("effective_at") else None,
-                    observed_at=_dt(raw["observed_at"]) if raw.get("observed_at") else None,
-                    resolved_at=_dt(raw["resolved_at"]) if raw.get("resolved_at") else None,
+                    effective_at=(
+                        _dt(raw["effective_at"])
+                        if raw.get("effective_at") is not None
+                        else None
+                    ),
+                    observed_at=(
+                        _dt(raw["observed_at"])
+                        if raw.get("observed_at") is not None
+                        else None
+                    ),
+                    resolved_at=(
+                        _dt(raw["resolved_at"])
+                        if raw.get("resolved_at") is not None
+                        else None
+                    ),
                 ),
                 provenance=provenance,
                 relations=relations,

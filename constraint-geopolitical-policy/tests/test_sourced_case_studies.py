@@ -65,6 +65,24 @@ class SourcedCaseStudyTests(unittest.TestCase):
         with self.assertRaisesRegex(CaseStudyValidationError, "invalid timestamp"):
             validate_sourced_case_bundle(bundle)
 
+    def test_empty_effective_at_is_rejected(self):
+        bundle = self.load_raw()
+        bundle["cases"][0]["events"][0]["effective_at"] = ""
+        with self.assertRaisesRegex(CaseStudyValidationError, "invalid timestamp"):
+            validate_sourced_case_bundle(bundle)
+
+    def test_empty_event_observed_at_is_rejected(self):
+        bundle = self.load_raw()
+        bundle["cases"][0]["events"][0]["observed_at"] = ""
+        with self.assertRaisesRegex(CaseStudyValidationError, "invalid timestamp"):
+            validate_sourced_case_bundle(bundle)
+
+    def test_empty_resolved_at_is_rejected(self):
+        bundle = self.load_raw()
+        bundle["cases"][0]["events"][0]["resolved_at"] = ""
+        with self.assertRaisesRegex(CaseStudyValidationError, "invalid timestamp"):
+            validate_sourced_case_bundle(bundle)
+
     def test_offset_source_timestamp_is_accepted(self):
         bundle = self.load_raw()
         bundle["sources"][0]["published_at"] = "2022-01-01T03:00:00+03:00"
