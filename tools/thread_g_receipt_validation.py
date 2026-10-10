@@ -1,4 +1,4 @@
-"""Validate Thread G receipt hashes and report conditional output names."""
+"""Validate the Thread G receipt report and the files it promises."""
 from __future__ import annotations
 
 import json
@@ -8,6 +8,12 @@ import sys
 from typing import Any
 
 _HASH = re.compile(r"[0-9a-f]{64}", re.ASCII)
+_BASE_OUTPUTS = (
+    "baseline.json",
+    "baseline.log",
+    "RESULT.json",
+    "SOURCE_HASHES.json",
+)
 _REPAIR_OUTPUTS = (
     "repaired_types.json",
     "repaired_types.log",
@@ -16,6 +22,15 @@ _REPAIR_OUTPUTS = (
     "existing_bridge.json",
     "existing_bridge.log",
 )
+
+
+def _unique_object(pairs: list[tuple[str, Any]]) -> dict[str, Any]:
+    result: dict[str, Any] = {}
+    for key, value in pairs:
+        if key in result:
+            raise ValueError(f"RESULT.json contains duplicate field: {key}")
+        result[key] = value
+    return result
 
 
 def conditional_receipt_outputs(report: Any) -> list[str]:
@@ -33,19 +48,29 @@ def conditional_receipt_outputs(report: Any) -> list[str]:
     return list(_REPAIR_OUTPUTS) if baseline != candidate else []
 
 
+def validate_receipt_outputs(root: Path) -> None:
+    """Raise ValueError unless the root contains every report-required receipt."""
+    report_path = root / "RESULT.json"
+    report = json.loads(
+        report_path.read_text(encoding="utf-8"),
+        object_pairs_hook=_unique_object,
+    )
+    required = _BASE_OUTPUTS + tuple(conditional_receipt_outputs(report))
+    missing = [name for name in required if not (root / name).is_file()]
+    if missing:
+        raise ValueError("Expected receipt output missing: " + ", ".join(missing))
+
+
 def main(argv: list[str] | None = None) -> int:
     args = sys.argv[1:] if argv is None else argv
     if len(args) != 1:
-        print("usage: thread_g_receipt_validation.py RESULT.json", file=sys.stderr)
+        print("usage: thread_g_receipt_validation.py RECEIPT_ROOT", file=sys.stderr)
         return 2
     try:
-        report = json.loads(Path(args[0]).read_text(encoding="utf-8"))
-        outputs = conditional_receipt_outputs(report)
+        validate_receipt_outputs(Path(args[0]))
     except (OSError, UnicodeError, json.JSONDecodeError, ValueError) as exc:
         print(str(exc), file=sys.stderr)
         return 1
-
-    print(json.dumps(outputs))
     return 0
 
 
