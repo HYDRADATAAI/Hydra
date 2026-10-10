@@ -34,7 +34,10 @@ ALLOWED_PHYSICAL_RELATIONS={
 
 
 def _dt(value: str) -> datetime:
-    ts=datetime.fromisoformat(value.replace("Z", "+00:00"))
+    try:
+        ts = datetime.fromisoformat(value.replace("Z", "+00:00"))
+    except (AttributeError, TypeError, ValueError) as exc:
+        raise CaseStudyValidationError("invalid timestamp") from exc
     if ts.tzinfo is None or ts.utcoffset() is None:
         raise CaseStudyValidationError("timezone-aware timestamp required")
     return ts
