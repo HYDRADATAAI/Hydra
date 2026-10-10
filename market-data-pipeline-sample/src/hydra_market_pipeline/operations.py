@@ -235,6 +235,8 @@ def execute_backfill(
         raise OperationsError("output directory path must not contain symlinks")
     output_root = output_root.resolve(strict=False)
     runs_root = output_root / "runs"
+    if _contains_unsafe_symlink_component(runs_root):
+        raise OperationsError("persisted runs directory must not contain symlinks")
     checkpoint_path = output_root / "checkpoint.json"
     manifest_path = output_root / "operations_manifest.json"
     metrics_path = output_root / "metrics.jsonl"
@@ -326,8 +328,8 @@ def _load_or_create_checkpoint(path: Path, plan: BackfillPlan) -> dict[str, obje
 
 
 def _verify_run_paths_before_write(run_dir: Path) -> None:
-    if run_dir.is_symlink():
-        raise OperationsError(f"persisted run directory must not be a symlink: {run_dir.name}")
+    if _contains_unsafe_symlink_component(run_dir):
+        raise OperationsError(f"persisted run directory must not contain symlinks: {run_dir.name}")
     if run_dir.exists() and not run_dir.is_dir():
         raise OperationsError(f"persisted run directory is not a directory: {run_dir.name}")
     for file_name in PIPELINE_ARTIFACT_FILES:
@@ -345,7 +347,7 @@ def _verify_completed_sources(
     if unexpected:
         raise OperationsError(f"checkpoint contains unplanned sources: {unexpected}")
 
-    if runs_root.is_symlink() or not runs_root.is_dir():
+    if _contains_unsafe_symlink_component(runs_root) or not runs_root.is_dir():
         raise OperationsError("persisted runs directory is missing or invalid")
 
     for source_id, raw_entry in completed.items():
@@ -396,7 +398,7 @@ def _verify_completed_sources(
 
 
 def _verify_pipeline_artifacts(run_dir: Path, checkpoint_entry: Mapping[str, object]) -> None:
-    if run_dir.is_symlink() or not run_dir.is_dir():
+    if _contains_unsafe_symlink_component(run_dir) or not run_dir.is_dir():
         raise OperationsError(f"persisted run directory is missing or invalid: {run_dir.name}")
     manifest_path = run_dir / "manifest.json"
     if manifest_path.is_symlink() or not manifest_path.is_file():
