@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from datetime import datetime
 from typing import Any, Dict
 import re
 
@@ -25,7 +26,13 @@ SOURCE_EVIDENCE = {
 def _iso_date(value: str) -> str:
     value=(value or "").strip()
     if "T" in value:
-        return value if value.endswith("Z") or "+" in value else value+"Z"
+        if value.endswith("Z"):
+            return value
+        try:
+            parsed = datetime.fromisoformat(value)
+        except ValueError:
+            return value + "Z"
+        return value if parsed.utcoffset() is not None else value + "Z"
     return f"{value}T00:00:00Z"
 
 def _slug(value: str) -> str:
