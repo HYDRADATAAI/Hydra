@@ -30,42 +30,25 @@ jobs:
           python-version: '3.14'
       - name: Use portable D drive workspace
         run: |
-          if (-not $env:GITHUB_WORKSPACE.StartsWith('D:\', [StringComparison]::OrdinalIgnoreCase)) { throw 'D drive checkout required' }
-          New-Item -ItemType Directory -Force D:\NYX_PORTABLE\THREAD_G_RECEIPT_REPAIR | Out-Null
-          'TEMP=D:\NYX_PORTABLE\THREAD_G_RECEIPT_REPAIR' | Out-File -Append $env:GITHUB_ENV
-          'TMP=D:\NYX_PORTABLE\THREAD_G_RECEIPT_REPAIR' | Out-File -Append $env:GITHUB_ENV
-          git worktree add --detach D:\NYX_PORTABLE\THREAD_G_REPO $env:GITHUB_SHA
+          if (-not $env:GITHUB_WORKSPACE.StartsWith('D:\\', [StringComparison]::OrdinalIgnoreCase)) { throw 'D drive checkout required' }
+          New-Item -ItemType Directory -Force D:\\NYX_PORTABLE\\THREAD_G_RECEIPT_REPAIR | Out-Null
+          'TEMP=D:\\NYX_PORTABLE\\THREAD_G_RECEIPT_REPAIR' | Out-File -Append $env:GITHUB_ENV
+          'TMP=D:\\NYX_PORTABLE\\THREAD_G_RECEIPT_REPAIR' | Out-File -Append $env:GITHUB_ENV
+          git worktree add --detach D:\\NYX_PORTABLE\\THREAD_G_REPO $env:GITHUB_SHA
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
       - name: Reproduce pinned baseline and check candidate
-        working-directory: D:\NYX_PORTABLE\THREAD_G_REPO
+        working-directory: D:\\NYX_PORTABLE\\THREAD_G_REPO
         run: python -B validation/thread_g/run_windows.py
       - name: Verify expected receipt outputs
         if: always()
         run: |
-          $root = 'D:\NYX_PORTABLE\THREAD_G_RECEIPT_REPAIR'
+          $root = 'D:\\NYX_PORTABLE\\THREAD_G_RECEIPT_REPAIR'
           $required = @('baseline.json', 'baseline.log', 'RESULT.json', 'SOURCE_HASHES.json')
           $reportPath = Join-Path $root 'RESULT.json'
           if (Test-Path -LiteralPath $reportPath -PathType Leaf) {
-            $report = Get-Content -Raw -LiteralPath $reportPath | ConvertFrom-Json
-            $baselineHash = $report.baseline_source_sha256
-            $candidateHash = $report.candidate_source_sha256
-            if ($baselineHash -isnot [string] -or $candidateHash -isnot [string]) {
-              throw 'RESULT.json must contain baseline and candidate source hashes'
-            }
-            if (-not [regex]::IsMatch($baselineHash, '\A[0-9a-f]{64}\z') -or
-                -not [regex]::IsMatch($candidateHash, '\A[0-9a-f]{64}\z')) {
-              throw 'RESULT.json source hashes must be lowercase SHA-256 values'
-            }
-            if ($baselineHash -cne $candidateHash) {
-              $required += @(
-                'repaired_types.json',
-                'repaired_types.log',
-                'existing_admission.json',
-                'existing_admission.log',
-                'existing_bridge.json',
-                'existing_bridge.log'
-              )
-            }
+            $conditionalRequiredJson = python -B tools/thread_g_receipt_validation.py $reportPath
+            if ($LASTEXITCODE -ne 0) { throw 'RESULT.json hash validation failed' }
+            $required += @(ConvertFrom-Json -InputObject $conditionalRequiredJson)
           }
           foreach ($name in $required) {
             $path = Join-Path $root $name
@@ -77,14 +60,14 @@ jobs:
         with:
           name: thread-g-receipt-windows-${{ github.sha }}
           path: |
-            D:\NYX_PORTABLE\THREAD_G_RECEIPT_REPAIR\baseline.json
-            D:\NYX_PORTABLE\THREAD_G_RECEIPT_REPAIR\baseline.log
-            D:\NYX_PORTABLE\THREAD_G_RECEIPT_REPAIR\repaired_types.json
-            D:\NYX_PORTABLE\THREAD_G_RECEIPT_REPAIR\repaired_types.log
-            D:\NYX_PORTABLE\THREAD_G_RECEIPT_REPAIR\existing_admission.json
-            D:\NYX_PORTABLE\THREAD_G_RECEIPT_REPAIR\existing_admission.log
-            D:\NYX_PORTABLE\THREAD_G_RECEIPT_REPAIR\existing_bridge.json
-            D:\NYX_PORTABLE\THREAD_G_RECEIPT_REPAIR\existing_bridge.log
-            D:\NYX_PORTABLE\THREAD_G_RECEIPT_REPAIR\RESULT.json
-            D:\NYX_PORTABLE\THREAD_G_RECEIPT_REPAIR\SOURCE_HASHES.json
+            D:\\NYX_PORTABLE\\THREAD_G_RECEIPT_REPAIR\\baseline.json
+            D:\\NYX_PORTABLE\\THREAD_G_RECEIPT_REPAIR\\baseline.log
+            D:\\NYX_PORTABLE\\THREAD_G_RECEIPT_REPAIR\\repaired_types.json
+            D:\\NYX_PORTABLE\\THREAD_G_RECEIPT_REPAIR\\repaired_types.log
+            D:\\NYX_PORTABLE\\THREAD_G_RECEIPT_REPAIR\\existing_admission.json
+            D:\\NYX_PORTABLE\\THREAD_G_RECEIPT_REPAIR\\existing_admission.log
+            D:\\NYX_PORTABLE\\THREAD_G_RECEIPT_REPAIR\\existing_bridge.json
+            D:\\NYX_PORTABLE\\THREAD_G_RECEIPT_REPAIR\\existing_bridge.log
+            D:\\NYX_PORTABLE\\THREAD_G_RECEIPT_REPAIR\\RESULT.json
+            D:\\NYX_PORTABLE\\THREAD_G_RECEIPT_REPAIR\\SOURCE_HASHES.json
           if-no-files-found: error
