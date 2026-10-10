@@ -23,6 +23,11 @@ class ClaimBundleShapeValidationTests(unittest.TestCase):
             with self.subTest(payload=payload), self.assertRaises(ClaimEvidenceError):
                 self.load_payload(payload)
 
+    def test_omitted_and_empty_top_level_collections_remain_valid(self) -> None:
+        for payload in ({}, {"claims": [], "revisions": []}, {"claims": []}, {"revisions": []}):
+            with self.subTest(payload=payload):
+                self.assertEqual(((), ()), self.load_payload(payload))
+
     def test_claim_and_revision_containers_require_arrays_of_objects(self) -> None:
         malformed = (
             {"claims": None},
