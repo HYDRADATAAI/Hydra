@@ -124,9 +124,9 @@ def _source_objects(
         if record.get("eventSource") != "aws:s3":
             continue
         event_name = record.get("eventName")
-        if not isinstance(event_name, str) or not event_name:
+        if not isinstance(event_name, str) or not event_name.strip():
             raise ValueError(
-                "S3 source record eventName must be a non-empty string"
+                "S3 source record eventName must be a non-blank string"
             )
         if not event_name.startswith("ObjectCreated:"):
             continue

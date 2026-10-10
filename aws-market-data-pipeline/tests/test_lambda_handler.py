@@ -527,6 +527,7 @@ class LambdaHandlerTests(unittest.TestCase):
             {"eventSource": "aws:s3", "eventName": None},
             {"eventSource": "aws:s3", "eventName": 42},
             {"eventSource": "aws:s3", "eventName": ""},
+            {"eventSource": "aws:s3", "eventName": "  "},
         ]
 
         with patch.dict(os.environ, {"CURATED_BUCKET": "curated"}):
