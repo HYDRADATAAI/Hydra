@@ -150,7 +150,7 @@ def write_outputs(result: PipelineResult, *, output_dir: str | Path) -> dict[str
             indent=2,
             sort_keys=True,
         ).encode("utf-8")
-        + b"\\n",
+        + b"\n",
     )
 
     return {
@@ -171,7 +171,7 @@ def _write_jsonl(path: Path, records: Iterable[Mapping[str, object]]) -> None:
     def write_records(handle: Any) -> None:
         for record in records:
             handle.write(canonical_json_bytes(record))
-            handle.write(b"\\n")
+            handle.write(b"\n")
 
     _write_atomically(path, "wb", write_records)
 
@@ -181,7 +181,7 @@ def _write_csv(path: Path, records: Iterable[Mapping[str, object]]) -> None:
         writer = csv.DictWriter(
             handle,
             fieldnames=NORMALIZED_CSV_COLUMNS,
-            lineterminator="\\n",
+            lineterminator="\n",
         )
         writer.writeheader()
         for record in records:
