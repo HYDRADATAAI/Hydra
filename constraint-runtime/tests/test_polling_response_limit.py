@@ -175,5 +175,71 @@ class PollingResponseLimitTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "HTTPS"):
             runner.poll(spec)
 
+    def test_oversized_builtin_success_and_error_fail_before_archive(self):
+        class Cursors:
+            def __init__(self):
+                self.state = {"cursor": "old"}
+                self.errors = []
+
+            def adapter(self, _source):
+                return self.state
+
+            def mark_error(self, source, polled_at, error):
+                self.errors.append((source, polled_at, error))
+
+        class Archive:
+            def __init__(self):
+                self.calls = []
+
+            def archive(self, *args):
+                self.calls.append(args)
+                return "unused"
+
+        class Durable:
+            def ingest_adapted(self, _record):
+                raise AssertionError("oversized response must not be ingested")
+
+        class Sleeper:
+            def __init__(self):
+                self.delays = []
+
+            def sleep(self, delay):
+                self.delays.append(delay)
+
+        cases = (
+            (200, ReadStream(b"abcd", status=200)),
+            (
+                503,
+                urllib.error.HTTPError(
+                    "https://example.test/feed", 503, "unavailable", {},
+                    io.BytesIO(b"abcd"),
+                ),
+            ),
+        )
+        for status, response in cases:
+            with self.subTest(status=status):
+                cursors, archive, sleeper = Cursors(), Archive(), Sleeper()
+                runner = PollRunner(
+                    Durable(), cursors, archive, UrllibTransport(max_bytes=3),
+                    sleeper=sleeper,
+                )
+                spec = PollSpec(
+                    name="fixture", adapter="json_records", source_class="fixture",
+                    url="https://example.test/feed", parser="json_records",
+                    cadence_minutes=60, stale_after_minutes=60,
+                    backoff=BackoffPolicy(max_attempts=3),
+                )
+                with patch("hydra_constraint.polling.urllib.request.build_opener") as build_opener:
+                    build_opener.return_value.open.side_effect = response
+                    report = runner.poll(spec, cursor_value="new")
+
+                self.assertEqual(report.status, "FAILED")
+                self.assertEqual(report.http_statuses, [status])
+                self.assertEqual(report.cursor_before, "old")
+                self.assertEqual(report.cursor_after, "old")
+                self.assertEqual(archive.calls, [])
+                self.assertEqual(sleeper.delays, [])
+                self.assertEqual(len(cursors.errors), 1)
+
 if __name__ == "__main__":
     unittest.main()
