@@ -72,8 +72,9 @@ class ReplayReadyCorpusTests(unittest.TestCase):
                     p=Path(td)/"wrong-cut-shape.jsonl"
                     p.write_text(json.dumps(bad)+"\n",encoding="utf-8")
                     expected=f"{bad['case_id']}.replay_cuts[1]: cut must be an object"
-                    with self.assertRaisesRegex(CorpusValidationError,expected):
+                    with self.assertRaises(CorpusValidationError) as error:
                         load_replay_ready_corpus(p)
+                    self.assertEqual(expected,str(error.exception))
 
     def test_duplicate_case_ids_fail(self):
         with tempfile.TemporaryDirectory() as td:
