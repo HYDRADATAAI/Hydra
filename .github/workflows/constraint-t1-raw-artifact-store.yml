@@ -5,12 +5,20 @@ on:
     paths:
       - "constraint-t1-raw-artifact-store/**"
       - ".github/workflows/constraint-t1-raw-artifact-store.yml"
+      - ".gitignore"
+      - "data/**"
+      - "raw/**"
+      - "market-data-pipeline-sample/data/**"
   push:
     branches:
       - main
     paths:
       - "constraint-t1-raw-artifact-store/**"
       - ".github/workflows/constraint-t1-raw-artifact-store.yml"
+      - ".gitignore"
+      - "data/**"
+      - "raw/**"
+      - "market-data-pipeline-sample/data/**"
 
 permissions:
   contents: read
@@ -21,6 +29,34 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - name: Reject private T1 records in the public tree
+        shell: bash
+        run: |
+          set -euo pipefail
+          failures=0
+          while IFS= read -r -d '' file; do
+            private_record=0
+            case "$file" in
+              data/*|raw/*|constraint-t1-raw-artifact-store/raw/*|constraint-t1-raw-artifact-store/data/*|constraint-t1-raw-artifact-store/objects/*|constraint-t1-raw-artifact-store/receipts/*|constraint-t1-raw-artifact-store/releases/*)
+                private_record=1
+                ;;
+            esac
+            if [[ "$file" == constraint-t1-raw-artifact-store/* && "$file" == *.raw ]]; then
+              private_record=1
+            fi
+            if [[ "$file" == "market-data-pipeline-sample/data/raw/synthetic_market_events.csv" ]]; then
+              private_record=0
+            fi
+            if [[ "$private_record" -eq 1 ]]; then
+              echo "::error file=$file::Private T1 raw-store records must stay outside public Git."
+              failures=$((failures + 1))
+            fi
+          done < <(git ls-files -z)
+          if [[ "$failures" -gt 0 ]]; then
+            echo "T1_PUBLIC_RAW_BOUNDARY=FAIL"
+            exit 1
+          fi
+          echo "T1_PUBLIC_RAW_BOUNDARY=PASS"
       - name: Set up Python
         uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
         with:
