@@ -53,6 +53,29 @@ class ReplayReadyCorpusTests(unittest.TestCase):
         with self.assertRaisesRegex(CorpusValidationError,"event universe changed"):
             validate_replay_ready_record(bad)
 
+
+    def test_jsonl_rejects_non_object_records_with_line_context(self):
+        for raw in ("null", "false", "7", json.dumps("scalar"), "[]"):
+            with self.subTest(raw=raw):
+                with tempfile.TemporaryDirectory() as td:
+                    p=Path(td)/"wrong-shape.jsonl"
+                    p.write_text(raw+"\n",encoding="utf-8")
+                    with self.assertRaisesRegex(CorpusValidationError,"line 1: record must be an object"):
+                        load_replay_ready_corpus(p)
+
+    def test_jsonl_rejects_non_object_replay_cuts_with_case_context(self):
+        for malformed in ("not-an-object", ["not", "an", "object"]):
+            with self.subTest(malformed=malformed):
+                bad=copy.deepcopy(self.records[0])
+                bad["replay_cuts"][1]=malformed
+                with tempfile.TemporaryDirectory() as td:
+                    p=Path(td)/"wrong-cut-shape.jsonl"
+                    p.write_text(json.dumps(bad)+"\n",encoding="utf-8")
+                    expected=f"{bad['case_id']}.replay_cuts[1]: cut must be an object"
+                    with self.assertRaises(CorpusValidationError) as error:
+                        load_replay_ready_corpus(p)
+                    self.assertEqual(expected,str(error.exception))
+
     def test_duplicate_case_ids_fail(self):
         with tempfile.TemporaryDirectory() as td:
             p=Path(td)/"dup.jsonl"
