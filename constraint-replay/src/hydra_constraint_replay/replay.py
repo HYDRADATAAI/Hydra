@@ -26,6 +26,10 @@ def replay_case(case: ReplayCase) -> dict:
     for e in case.evidence:
         _require_aware(e.known_at, f"{e.evidence_id}.KNOWN_AT")
         _require_aware(e.observed_at, f"{e.evidence_id}.OBSERVED_AT")
+        if e.effective_at is not None:
+            _require_aware(e.effective_at, f"{e.evidence_id}.EFFECTIVE_AT")
+        if e.resolved_at is not None:
+            _require_aware(e.resolved_at, f"{e.evidence_id}.RESOLVED_AT")
         if e.evidence_id in ids:
             raise ValueError(f"duplicate evidence_id: {e.evidence_id}")
         ids.add(e.evidence_id)
@@ -38,6 +42,7 @@ def replay_case(case: ReplayCase) -> dict:
             "known_at":e.known_at.isoformat(),
             "observed_at":e.observed_at.isoformat(),
             "effective_at":None if e.effective_at is None else e.effective_at.isoformat(),
+            "resolved_at":None if e.resolved_at is None else e.resolved_at.isoformat(),
             "source_uri":e.source_uri,
             "source_hash":e.source_hash,
             "payload_hash":_stable_hash(e.payload),
