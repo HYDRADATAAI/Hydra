@@ -15,8 +15,13 @@ class SourcedGraphValidationError(ValueError):
     pass
 
 
-def _date(value: str | None) -> date | None:
-    return None if value is None else date.fromisoformat(value)
+def _date(value: str | None, label: str = "date") -> date | None:
+    if value is None:
+        return None
+    try:
+        return date.fromisoformat(value)
+    except (TypeError, ValueError) as exc:
+        raise SourcedGraphValidationError(f"{label}: invalid ISO date") from exc
 
 
 def _number(raw: dict[str, Any], field: str) -> float | None:
@@ -66,9 +71,12 @@ def _validate_bundle(bundle: dict[str, Any]) -> dict[str, dict[str, Any]]:
             raise SourcedGraphValidationError(f"{sid}: evidence digest mismatch")
         if not str(source.get("source_url", "")).startswith("https://"):
             raise SourcedGraphValidationError(f"{sid}: non-HTTPS source")
-        for field in ("retrieved_at","known_at","published_at"):
-            if source.get(field):
-                _date(source[field])
+        for field in ("retrieved_at", "known_at"):
+            if source.get(field) is None:
+                raise SourcedGraphValidationError(f"{sid}: {field} is required")
+            _date(source[field], f"{sid}: {field}")
+        if source.get("published_at") is not None:
+            _date(source["published_at"], f"{sid}: published_at")
         sources[sid]=source
 
     ids=set()
