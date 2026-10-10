@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field, asdict
 from datetime import datetime, timezone
-from decimal import Decimal, InvalidOperation
+from decimal import Decimal
 from email.utils import parsedate_to_datetime
 from pathlib import Path
 from typing import Any, Dict, List, Optional
@@ -56,15 +56,10 @@ class BackoffPolicy:
         now: Optional[datetime] = None,
     ) -> float:
         if retry_after:
-            try:
-                numeric_retry_after = Decimal(retry_after)
-            except (InvalidOperation, TypeError, ValueError):
-                numeric_retry_after = None
-            if numeric_retry_after is not None and numeric_retry_after.is_finite():
-                if numeric_retry_after <= 0:
-                    return 0.0
-                cap = Decimal(str(self.cap_seconds))
-                if numeric_retry_after >= cap:
+            delay_seconds = retry_after.strip()
+            if delay_seconds.isascii() and delay_seconds.isdigit():
+                numeric_retry_after = Decimal(delay_seconds)
+                if numeric_retry_after >= Decimal(str(self.cap_seconds)):
                     return self.cap_seconds
                 return float(numeric_retry_after)
             try:
