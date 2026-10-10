@@ -21,10 +21,13 @@ class ReadStream:
         self.status = status
         self.headers = {}
         self.read_sizes = []
+        self.offset = 0
 
     def read(self, size):
         self.read_sizes.append(size)
-        return self.body[:size]
+        chunk = self.body[self.offset:self.offset + size]
+        self.offset += len(chunk)
+        return chunk
 
     def __enter__(self):
         return self
