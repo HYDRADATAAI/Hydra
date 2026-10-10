@@ -11,8 +11,14 @@ WITH ranked AS (
 SELECT
     row_id,
     CASE
-        WHEN event_time_utc NOT GLOB '????-??-??T??:??:??Z' THEN 'invalid_timestamp'
+        WHEN event_time_utc NOT GLOB '????-??-??T??:??:??Z'
+            OR strftime(
+                '%Y-%m-%dT%H:%M:%SZ',
+                julianday(event_time_utc)
+            ) IS NOT event_time_utc THEN 'invalid_timestamp'
         WHEN price <= 0 THEN 'non_positive_price'
+        -- SQLite REAL uses IEEE-754 binary64; this is its finite maximum, not a sample price cap.
+        WHEN price > 1.7976931348623157e308 THEN 'non_finite_price'
         WHEN volume < 0 THEN 'negative_volume'
         WHEN currency NOT GLOB '[A-Z][A-Z][A-Z]' THEN 'invalid_currency'
         WHEN duplicate_rank > 1 THEN 'duplicate_normalized_event'
