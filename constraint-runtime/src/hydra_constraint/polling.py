@@ -149,10 +149,11 @@ class UrllibTransport:
                     body,utc_now(),
                 )
         except urllib.error.HTTPError as error:
-            status=int(error.code)
-            body=_read_bounded(error,max_bytes,status)
-            headers={key.lower():value for key,value in (error.headers.items() if error.headers else [])}
-            return HttpResponse(url,status,headers,body,utc_now())
+            with error:
+                status=int(error.code)
+                body=_read_bounded(error,max_bytes,status)
+                headers={key.lower():value for key,value in (error.headers.items() if error.headers else [])}
+                return HttpResponse(url,status,headers,body,utc_now())
 
 class RecordingSleeper:
     def __init__(self):

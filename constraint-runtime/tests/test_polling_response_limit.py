@@ -64,15 +64,25 @@ class PollingResponseLimitTests(unittest.TestCase):
         self.assertEqual(stream.read_sizes, [4])
 
     def test_oversized_http_error_response_is_also_bounded(self):
+        class TrackedErrorBody(io.BytesIO):
+            bytes_read = 0
+
+            def read(self, size=-1):
+                chunk = super().read(size)
+                self.bytes_read += len(chunk)
+                return chunk
+
+        body = TrackedErrorBody(b"abcd")
         error = urllib.error.HTTPError(
-            "https://example.test/feed", 503, "unavailable", {}, io.BytesIO(b"abcd")
+            "https://example.test/feed", 503, "unavailable", {}, body
         )
         with patch("hydra_constraint.polling.urllib.request.build_opener") as build_opener:
             build_opener.return_value.open.side_effect = error
             with self.assertRaises(ResponseTooLargeError):
                 UrllibTransport(max_bytes=3).fetch("https://example.test/feed")
 
-        self.assertEqual(error.fp.tell(), 4)
+        self.assertEqual(body.bytes_read, 4)
+        self.assertTrue(body.closed)
 
     def test_oversized_injected_response_fails_before_archive_and_parse(self):
         class Cursors:
