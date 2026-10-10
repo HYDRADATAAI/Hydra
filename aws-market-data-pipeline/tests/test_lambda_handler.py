@@ -328,15 +328,17 @@ class LambdaHandlerTests(unittest.TestCase):
                 "MAX_SOURCE_OBJECT_BYTES": str(len(source)),
             },
         ):
-            with self.assertRaisesRegex(
-                ValueError, "event object size does not match response body length"
-            ):
-                lambda_handler(
-                    s3_event(size=len(source) - 1),
-                    None,
-                    s3_client=client,
-                    glue_client=glue,
-                )
+            with patch("function.app.process_csv") as csv_processor:
+                with self.assertRaisesRegex(
+                    ValueError, "event object size does not match response body length"
+                ):
+                    lambda_handler(
+                        s3_event(size=len(source) - 1),
+                        None,
+                        s3_client=client,
+                        glue_client=glue,
+                    )
+                csv_processor.assert_not_called()
 
         self.assertEqual(body.bytes_read, len(source))
         self.assertTrue(body.closed)
