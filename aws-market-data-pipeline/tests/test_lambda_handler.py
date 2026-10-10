@@ -165,6 +165,10 @@ class LambdaHandlerTests(unittest.TestCase):
             self.assertEqual(call["Bucket"], "hydra-curated-example")
             self.assertEqual(call["ServerSideEncryption"], "AES256")
             self.assertEqual(call["Metadata"]["pipeline-run-id"], expected.run_id)
+            self.assertEqual(
+                call["Metadata"]["transform-version"],
+                "hydra-aws-market-normalizer-v2",
+            )
 
     def test_replay_targets_the_same_keys_and_bytes(self):
         source = FIXTURE.read_bytes()

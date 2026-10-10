@@ -82,6 +82,73 @@ class ProcessorTests(unittest.TestCase):
         self.assertEqual(manifest["quarantined_rows"], 4)
         self.assertEqual(manifest["pipeline_run_id"], first.run_id)
 
+    def test_extra_csv_cells_are_preserved_and_bound_into_raw_record_hash(self):
+        header = (
+            "source_system,source_record_id,symbol,event_time,price,volume,currency,venue"
+        )
+        row = "SYNTH_A,record-1,AAA,2026-09-24T17:30:00Z,1.25,10,USD,X"
+
+        def quarantine(extra_value: str) -> dict[str, object]:
+            source = f"{header}\n{row},{extra_value}\n".encode("utf-8")
+            return process_csv(source).quarantined[0]
+
+        first = quarantine("overflow-one")
+        second = quarantine("overflow-two")
+
+        self.assertIn("row_extra_values", first["errors"])
+        self.assertEqual(first["extra_values"], ["overflow-one"])
+        self.assertNotIn("extra_values", first["raw_record"])
+        self.assertNotEqual(
+            first["raw_record_sha256"],
+            second["raw_record_sha256"],
+        )
+        self.assertNotEqual(first["quarantine_id"], second["quarantine_id"])
+        self.assertEqual(first, quarantine("overflow-one"))
+
+    def test_transform_version_change_changes_run_id_for_same_overflow_source(self):
+        header = (
+            "source_system,source_record_id,symbol,event_time,price,volume,currency,venue"
+        )
+        row = "SYNTH_A,record-1,AAA,2026-09-24T17:30:00Z,1.25,10,USD,X"
+        source = f"{header}\n{row},overflow\n".encode("utf-8")
+
+        with patch(
+            "function.processor.TRANSFORM_VERSION",
+            "hydra-aws-market-normalizer/v1",
+        ):
+            version_one = process_csv(source)
+        current = process_csv(source)
+
+        self.assertEqual(version_one.source_file_sha256, current.source_file_sha256)
+        self.assertNotEqual(version_one.run_id, current.run_id)
+        manifest = json.loads(current.artifacts["manifest.json"])
+        self.assertEqual(
+            manifest["transform_version"],
+            "hydra-aws-market-normalizer/v2",
+        )
+
+    def test_version_bump_preserves_ordinary_record_shape_and_hashes(self):
+        source = FIXTURE.read_bytes()
+        with patch(
+            "function.processor.TRANSFORM_VERSION",
+            "hydra-aws-market-normalizer/v1",
+        ):
+            version_one = process_csv(source)
+        current = process_csv(source)
+
+        self.assertNotEqual(version_one.run_id, current.run_id)
+        self.assertEqual(version_one.quarantined, current.quarantined)
+        for old_record, new_record in zip(
+            version_one.accepted,
+            current.accepted,
+            strict=True,
+        ):
+            self.assertEqual(set(old_record), set(new_record))
+            self.assertEqual(
+                old_record["raw_record_sha256"],
+                new_record["raw_record_sha256"],
+            )
+
     def test_file_contract_fails_closed(self):
         malformed = b"symbol,price\nAAA,1.0\n"
         with self.assertRaisesRegex(ContractError, "contract mismatch"):

@@ -154,7 +154,7 @@ def _write_batch(client: object, bucket: str, batch: ProcessedBatch) -> list[str
     metadata = {
         "pipeline-run-id": batch.run_id,
         "source-sha256": batch.source_file_sha256,
-        "transform-version": "hydra-aws-market-normalizer-v1",
+        "transform-version": "hydra-aws-market-normalizer-v2",
     }
     for artifact_name in ARTIFACT_WRITE_ORDER:
         client.put_object(
