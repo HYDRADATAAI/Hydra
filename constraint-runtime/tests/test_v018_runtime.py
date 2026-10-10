@@ -193,6 +193,7 @@ class OperationsTests(unittest.TestCase):
             with self.subTest(body=body):
                 result = guard.inspect("sec", "sec_json", body)
                 self.assertEqual(result.status, "FROZEN")
+                self.assertEqual(result.parser_version, "1.0.1")
                 self.assertIn("invalid_root_type", result.issues)
 
     def test_sec_json_non_object_filings_freeze_with_stable_issue(self):
