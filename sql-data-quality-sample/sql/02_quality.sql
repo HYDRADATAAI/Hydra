@@ -16,9 +16,11 @@ SELECT
                 '%Y-%m-%dT%H:%M:%SZ',
                 julianday(event_time_utc)
             ) IS NOT event_time_utc THEN 'invalid_timestamp'
-        WHEN price <= 0 THEN 'non_positive_price'
+        WHEN typeof(price) NOT IN ('integer', 'real') THEN 'invalid_price_type'
         -- SQLite REAL uses IEEE-754 binary64; this is its finite maximum, not a sample price cap.
-        WHEN price > 1.7976931348623157e308 THEN 'non_finite_price'
+        WHEN price > 1.7976931348623157e308
+            OR price < -1.7976931348623157e308 THEN 'non_finite_price'
+        WHEN price <= 0 THEN 'non_positive_price'
         WHEN volume < 0 THEN 'negative_volume'
         WHEN currency NOT GLOB '[A-Z][A-Z][A-Z]' THEN 'invalid_currency'
         WHEN duplicate_rank > 1 THEN 'duplicate_normalized_event'
