@@ -214,10 +214,11 @@ class PollReport:
         return asdict(self)
 
 class PollRunner:
-    def __init__(self,durable,cursors,archive,transport,sleeper=None,clock=None):
+    def __init__(self,durable,cursors,archive,transport,sleeper=None,clock=None,wall_clock=None):
         self.durable=durable; self.cursors=cursors; self.archive=archive
         self.transport=transport; self.sleeper=sleeper or time
         self.clock=clock or time.monotonic
+        self.wall_clock=wall_clock or (lambda: datetime.now(timezone.utc))
         self._poll_lock=threading.Lock()
         self._last_request_at={}
         self._next_request_at={}
@@ -287,7 +288,11 @@ class PollRunner:
                 break
             if response.status not in RETRYABLE:
                 error=f"HTTP {response.status}"; break
-            delay=spec.backoff.delay(attempt,response.headers.get("retry-after"))
+            delay=spec.backoff.delay(
+                attempt,
+                response.headers.get("retry-after"),
+                now=self.wall_clock(),
+            )
             self._defer_source(spec,delay)
             if attempt>=spec.backoff.max_attempts:
                 error=f"HTTP {response.status}"; break
