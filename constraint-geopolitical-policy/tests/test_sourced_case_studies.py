@@ -43,6 +43,14 @@ class SourcedCaseStudyTests(unittest.TestCase):
         ):
             validate_sourced_case_bundle(bundle)
 
+    def test_naive_event_observed_at_is_rejected(self):
+        bundle = self.load_raw()
+        bundle["cases"][0]["events"][0]["observed_at"] = "2022-01-01T00:00:00"
+        with self.assertRaisesRegex(
+            CaseStudyValidationError, "timezone-aware timestamp required"
+        ):
+            validate_sourced_case_bundle(bundle)
+
     def test_naive_observation_clock_is_rejected(self):
         bundle = self.load_raw()
         bundle["cases"][2]["observations"][0]["observed_at"] = "2021-03-23T00:00:00"

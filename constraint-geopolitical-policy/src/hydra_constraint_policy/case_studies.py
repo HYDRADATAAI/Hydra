@@ -99,6 +99,8 @@ def validate_sourced_case_bundle(bundle: dict[str, Any]) -> None:
             known=_dt(event["known_at"])
             if event.get("effective_at"):
                 _dt(event["effective_at"])
+            if event.get("observed_at") is not None:
+                _dt(event["observed_at"])
             if event.get("resolved_at"):
                 _dt(event["resolved_at"])
 
