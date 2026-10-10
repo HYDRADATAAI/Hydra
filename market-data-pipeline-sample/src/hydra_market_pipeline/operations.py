@@ -284,6 +284,9 @@ def _verify_completed_sources(
     if unexpected:
         raise OperationsError(f"checkpoint contains unplanned sources: {unexpected}")
 
+    if runs_root.is_symlink() or not runs_root.is_dir():
+        raise OperationsError("persisted runs directory is missing or invalid")
+
     for source_id, raw_entry in completed.items():
         if not isinstance(raw_entry, dict):
             raise OperationsError(f"checkpoint entry is invalid: {source_id}")
@@ -332,9 +335,11 @@ def _verify_completed_sources(
 
 
 def _verify_pipeline_artifacts(run_dir: Path, checkpoint_entry: Mapping[str, object]) -> None:
+    if run_dir.is_symlink() or not run_dir.is_dir():
+        raise OperationsError(f"persisted run directory is missing or invalid: {run_dir.name}")
     manifest_path = run_dir / "manifest.json"
-    if not manifest_path.is_file():
-        raise OperationsError(f"persisted run manifest is missing: {run_dir.name}")
+    if manifest_path.is_symlink() or not manifest_path.is_file():
+        raise OperationsError(f"persisted run manifest is missing or invalid: {run_dir.name}")
     manifest_bytes = manifest_path.read_bytes()
     if sha256_hex(manifest_bytes) != checkpoint_entry["manifest_sha256"]:
         raise OperationsError(f"persisted run manifest digest mismatch: {run_dir.name}")
@@ -408,8 +413,8 @@ def _verify_pipeline_artifacts(run_dir: Path, checkpoint_entry: Mapping[str, obj
         if not isinstance(descriptor, dict) or descriptor != expected_descriptor:
             raise OperationsError(f"persisted input descriptor mismatch: {name}")
         artifact_path = run_dir / expected_descriptor["file"]
-        if not artifact_path.is_file():
-            raise OperationsError(f"persisted input is missing: {artifact_path.name}")
+        if artifact_path.is_symlink() or not artifact_path.is_file():
+            raise OperationsError(f"persisted input is missing or invalid: {artifact_path.name}")
         artifact_bytes = artifact_path.read_bytes()
         if sha256_hex(artifact_bytes) != expected_descriptor["sha256"]:
             raise OperationsError(f"persisted input digest mismatch: {artifact_path.name}")
@@ -474,8 +479,8 @@ def _verify_pipeline_artifacts(run_dir: Path, checkpoint_entry: Mapping[str, obj
         ):
             raise OperationsError(f"persisted output descriptor is unsafe: {run_dir.name}")
         artifact_path = run_dir / file_name
-        if not artifact_path.is_file():
-            raise OperationsError(f"persisted output is missing: {file_name}")
+        if artifact_path.is_symlink() or not artifact_path.is_file():
+            raise OperationsError(f"persisted output is missing or invalid: {file_name}")
         if sha256_hex(artifact_path.read_bytes()) != expected_sha256:
             raise OperationsError(f"persisted output digest mismatch: {file_name}")
 
