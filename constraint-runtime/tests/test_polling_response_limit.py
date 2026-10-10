@@ -52,7 +52,7 @@ class PollingResponseLimitTests(unittest.TestCase):
             response = UrllibTransport(max_bytes=3).fetch("https://example.test/feed")
 
         self.assertEqual(response.body, b"abc")
-        self.assertEqual(stream.read_sizes, [4])
+        self.assertEqual(stream.read_sizes, [4, 1])
 
     def test_oversized_success_response_raises_after_one_byte_probe(self):
         stream = ReadStream(b"abcd")
