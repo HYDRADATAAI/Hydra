@@ -14,6 +14,7 @@ from hydra_market_pipeline.operations import (
     _verify_pipeline_artifacts,
     execute_backfill,
     load_backfill_plan,
+    write_outputs,
 )
 from hydra_market_pipeline.pipeline import load_aliases, run_pipeline as producer_run_pipeline
 
@@ -291,6 +292,37 @@ class OperationsTests(unittest.TestCase):
                     output_dir=output_dir,
                 )
             self.assertEqual(list(external_dir.iterdir()), [])
+
+    def test_artifact_symlink_replaced_without_following_external_target(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            output_dir = Path(tmp) / "state"
+            external_file = Path(tmp) / "outside.csv"
+            external_file.write_bytes(b"external sentinel")
+
+            def inject_symlink_then_write(result, *, output_dir):
+                output_dir = Path(output_dir)
+                output_dir.mkdir(parents=True, exist_ok=True)
+                try:
+                    (output_dir / "normalized_events.csv").symlink_to(external_file)
+                except (OSError, NotImplementedError) as exc:
+                    self.skipTest(f"symlink creation is unavailable: {exc}")
+                return write_outputs(result, output_dir=output_dir)
+
+            with patch(
+                "hydra_market_pipeline.operations.write_outputs",
+                side_effect=inject_symlink_then_write,
+            ):
+                outcome = execute_backfill(
+                    plan_path=PLAN,
+                    aliases_path=ALIASES,
+                    output_dir=output_dir,
+                )
+
+            artifact = next((output_dir / "runs").glob("*/normalized_events.csv"))
+            self.assertEqual(external_file.read_bytes(), b"external sentinel")
+            self.assertFalse(artifact.is_symlink())
+            self.assertTrue(artifact.is_file())
+            self.assertTrue(outcome.manifest_path.is_file())
 
     def test_symlinked_checkpoint_fails_closed(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
