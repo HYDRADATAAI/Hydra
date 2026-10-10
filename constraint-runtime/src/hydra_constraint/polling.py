@@ -274,7 +274,7 @@ class PollRunner:
         )
         try:
             parsed_url=urlsplit(spec.url)
-            host=(parsed_url.hostname or "").casefold().rstrip(".")
+            host=(parsed_url.hostname or "").encode("idna").decode("ascii").casefold().rstrip(".")
         except (AttributeError,TypeError,ValueError) as exc:
             if sec_selector:
                 raise ValueError("SEC polling requires a valid HTTPS SEC URL") from exc
@@ -319,7 +319,7 @@ class PollRunner:
         statuses=[]; hashes=[]; delays=[]; response=None; error=None
         for attempt in range(1,spec.backoff.max_attempts+1):
             try:
-                if type(self.transport) is UrllibTransport:
+                if isinstance(self.transport,UrllibTransport):
                     response=self.transport.fetch(
                         spec.url,spec.headers,max_bytes=self.max_response_bytes,
                     )
