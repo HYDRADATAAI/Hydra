@@ -209,7 +209,10 @@ def _contains_unsafe_symlink_component(path: Path) -> bool:
                     relative_path = current.relative_to(alias)
                 except ValueError:
                     continue
-                is_macos_alias = resolved == target / relative_path
+                expected = Path(os.path.normpath(os.fspath(target / relative_path)))
+                is_macos_alias = os.path.normcase(os.fspath(resolved)) == os.path.normcase(
+                    os.fspath(expected)
+                )
                 break
         if not is_macos_alias:
             return True
