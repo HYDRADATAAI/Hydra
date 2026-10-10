@@ -140,6 +140,96 @@ class OperationsTests(unittest.TestCase):
                     output_dir=tmp,
                 )
 
+    def test_symlinked_persisted_artifacts_fail_closed(self) -> None:
+        artifact_names = (
+            "manifest.json",
+            "resolved_symbol_aliases.json",
+            "source_snapshot.csv",
+            "normalized_events.csv",
+            "normalized_events.jsonl",
+            "quarantine_records.jsonl",
+        )
+        for file_name in artifact_names:
+            with self.subTest(file_name=file_name), tempfile.TemporaryDirectory() as tmp:
+                output_dir = Path(tmp) / "state"
+                execute_backfill(
+                    plan_path=PLAN,
+                    aliases_path=ALIASES,
+                    output_dir=output_dir,
+                )
+                checkpoint = json.loads(
+                    (output_dir / "checkpoint.json").read_text(encoding="utf-8")
+                )
+                first = checkpoint["completed"][sorted(checkpoint["completed"])[0]]
+                run_dir = output_dir / "runs" / first["pipeline_run_id"]
+                artifact_path = run_dir / file_name
+                external_copy = Path(tmp) / "outside" / file_name
+                external_copy.parent.mkdir()
+                external_copy.write_bytes(artifact_path.read_bytes())
+                artifact_path.unlink()
+                try:
+                    artifact_path.symlink_to(external_copy)
+                except (OSError, NotImplementedError) as exc:
+                    self.skipTest(f"symlink creation is unavailable: {exc}")
+
+                with self.assertRaisesRegex(OperationsError, "invalid"):
+                    execute_backfill(
+                        plan_path=PLAN,
+                        aliases_path=ALIASES,
+                        output_dir=output_dir,
+                    )
+
+    def test_symlinked_run_directory_fails_closed(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            output_dir = Path(tmp) / "state"
+            execute_backfill(
+                plan_path=PLAN,
+                aliases_path=ALIASES,
+                output_dir=output_dir,
+            )
+            checkpoint = json.loads(
+                (output_dir / "checkpoint.json").read_text(encoding="utf-8")
+            )
+            first = checkpoint["completed"][sorted(checkpoint["completed"])[0]]
+            run_dir = output_dir / "runs" / first["pipeline_run_id"]
+            external_run_dir = Path(tmp) / "outside" / run_dir.name
+            external_run_dir.parent.mkdir()
+            run_dir.rename(external_run_dir)
+            try:
+                run_dir.symlink_to(external_run_dir, target_is_directory=True)
+            except (OSError, NotImplementedError) as exc:
+                self.skipTest(f"symlink creation is unavailable: {exc}")
+
+            with self.assertRaisesRegex(OperationsError, "invalid"):
+                execute_backfill(
+                    plan_path=PLAN,
+                    aliases_path=ALIASES,
+                    output_dir=output_dir,
+                )
+
+    def test_symlinked_runs_root_fails_closed(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            output_dir = Path(tmp) / "state"
+            execute_backfill(
+                plan_path=PLAN,
+                aliases_path=ALIASES,
+                output_dir=output_dir,
+            )
+            runs_root = output_dir / "runs"
+            external_runs_root = Path(tmp) / "outside"
+            runs_root.rename(external_runs_root)
+            try:
+                runs_root.symlink_to(external_runs_root, target_is_directory=True)
+            except (OSError, NotImplementedError) as exc:
+                self.skipTest(f"symlink creation is unavailable: {exc}")
+
+            with self.assertRaisesRegex(OperationsError, "invalid"):
+                execute_backfill(
+                    plan_path=PLAN,
+                    aliases_path=ALIASES,
+                    output_dir=output_dir,
+                )
+
     def test_tampered_checkpoint_row_accounting_fails_closed(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             execute_backfill(
