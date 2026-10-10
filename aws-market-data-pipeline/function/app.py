@@ -93,6 +93,8 @@ def lambda_handler(
         source_bytes = _body_bytes(body, max_bytes=max_source_object_bytes)
         if content_length is not None and len(source_bytes) != content_length:
             raise ValueError("S3 response body length does not match ContentLength")
+        if event_object_size is not None and len(source_bytes) != event_object_size:
+            raise ValueError("S3 event object size does not match response body length")
         batch = process_csv(source_bytes)
         output_keys = _write_batch(client, output_bucket, batch)
         _publish_partition(catalog, catalog_database, output_bucket, batch.run_id)

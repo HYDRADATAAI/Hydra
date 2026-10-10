@@ -315,6 +315,36 @@ class LambdaHandlerTests(unittest.TestCase):
                 self.assertTrue(body.closed)
                 self.assertEqual(client.put_calls, [])
 
+    def test_missing_content_length_event_size_mismatch_fails_before_writes(self):
+        source = FIXTURE.read_bytes()
+        body = TrackingBody(source, max_chunk_size=13)
+        client = FakeS3(source, content_length=None, body=body)
+        glue = FakeGlue()
+
+        with patch.dict(
+            os.environ,
+            {
+                "CURATED_BUCKET": "curated",
+                "MAX_SOURCE_OBJECT_BYTES": str(len(source)),
+            },
+        ):
+            with patch("function.app.process_csv") as csv_processor:
+                with self.assertRaisesRegex(
+                    ValueError, "event object size does not match response body length"
+                ):
+                    lambda_handler(
+                        s3_event(size=len(source) - 1),
+                        None,
+                        s3_client=client,
+                        glue_client=glue,
+                    )
+                csv_processor.assert_not_called()
+
+        self.assertEqual(body.bytes_read, len(source))
+        self.assertTrue(body.closed)
+        self.assertEqual(client.put_calls, [])
+        self.assertEqual(glue.partition_calls, [])
+
     def test_content_length_mismatch_fails_before_output_writes(self):
         source = FIXTURE.read_bytes()
         client = FakeS3(source, body=TrackingBody(source[:-1]))
