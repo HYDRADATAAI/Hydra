@@ -5,6 +5,7 @@ import json
 import tempfile
 import unittest
 from pathlib import Path
+from unittest.mock import patch
 
 from hydra_constraint import (
     AppendOnlyEventLedger,
@@ -22,6 +23,7 @@ from hydra_constraint import (
     IngestError,
     ReplayHarness,
 )
+from hydra_constraint.adapters import ADAPTERS
 from hydra_constraint.polling import FixtureTransport, HttpResponse, PollRunner, PollSpec, RawArchive
 from hydra_constraint.runtime import Node, Edge
 
@@ -233,6 +235,139 @@ class PollRunnerTests(unittest.TestCase):
                 [entry.external_record_id for entry in durable.ledger.entries],
                 ["000000000126000001","000000000226000002"],
             )
+
+
+    def test_persistence_failure_stops_batch_and_preserves_cursor_freshness(self):
+        normalizer = EventNormalizer(GRAPH, aliases=ALIASES)
+        url = "https://fixture.invalid/sec"
+        rows = [
+            {"accession_number":"0000000001-26-000001","filing_date":"2026-09-29","company":"Example A","form":"8-K","cik":"1","url":url},
+            {"accession_number":"0000000002-26-000002","filing_date":"2026-09-29","company":"Example B","form":"8-K","cik":"2","url":url},
+            {"accession_number":"0000000003-26-000003","filing_date":"2026-09-29","company":"Example C","form":"8-K","cik":"3","url":url},
+        ]
+        body = json.dumps({"records":rows}).encode("utf-8")
+        response = HttpResponse(url,200,{"etag":"fixture-v2"},body,"2026-09-29T12:02:00Z")
+
+        with tempfile.TemporaryDirectory() as td:
+            td = Path(td)
+            durable = DurableLedgerRuntime(normalizer,td/"ledger.jsonl",td/"checkpoint.json")
+            durable.recover()
+            cursors = CursorStore(td/"cursor.json")
+            cursors.mark_success(
+                "sec_fixture",external_id=None,cursor="prior-page",
+                polled_at="2026-09-29T11:00:00Z",success_at="2026-09-29T11:00:00Z",
+            )
+            original_ingest = durable.ingest_adapted
+            calls = 0
+
+            def fail_second_append(raw):
+                nonlocal calls
+                calls += 1
+                if calls == 2:
+                    raise OSError("fixture ledger write failure")
+                return original_ingest(raw)
+
+            durable.ingest_adapted = fail_second_append
+            runner = PollRunner(
+                durable,cursors,RawArchive(td/"raw"),FixtureTransport({url:[response]})
+            )
+            spec = PollSpec(
+                name="sec_fixture",adapter="sec_edgar",source_class="sec_edgar",
+                url=url,parser="json_records",cadence_minutes=60,stale_after_minutes=180,
+                target="Gallium",jurisdiction="Global",
+            )
+
+            report = runner.poll(spec)
+            state = cursors.adapter("sec_fixture")
+            self.assertEqual(report.status,"APPEND_FAILED")
+            self.assertEqual(report.appended,1)
+            self.assertIn("persistence",report.error)
+            self.assertEqual(len(durable.ledger.entries),1)
+            self.assertEqual(state["cursor"],"prior-page")
+            self.assertEqual(state["last_success_at"],"2026-09-29T11:00:00Z")
+            self.assertEqual(state["last_error"] and "persistence" in state["last_error"],True)
+            self.assertFalse(cursors.has_seen("sec_fixture","000000000326000003"))
+
+    def test_cursor_progress_failure_stops_suffix_and_preserves_page_state(self):
+        normalizer = EventNormalizer(GRAPH, aliases=ALIASES)
+        url = "https://fixture.invalid/sec"
+        rows = [
+            {"accession_number":"0000000001-26-000001","filing_date":"2026-09-29","company":"Example A","form":"8-K","cik":"1","url":url},
+            {"accession_number":"0000000002-26-000002","filing_date":"2026-09-29","company":"Example B","form":"8-K","cik":"2","url":url},
+        ]
+        body = json.dumps({"records":rows}).encode("utf-8")
+        response = HttpResponse(url,200,{"etag":"fixture-v3"},body,"2026-09-29T12:02:00Z")
+
+        with tempfile.TemporaryDirectory() as td:
+            td = Path(td)
+            durable = DurableLedgerRuntime(normalizer,td/"ledger.jsonl",td/"checkpoint.json")
+            durable.recover()
+            cursors = CursorStore(td/"cursor.json")
+            cursors.mark_success(
+                "sec_fixture",external_id=None,cursor="prior-page",
+                polled_at="2026-09-29T11:00:00Z",success_at="2026-09-29T11:00:00Z",
+            )
+
+            def fail_cursor_write(adapter,external_id):
+                raise OSError("fixture cursor write failure")
+
+            cursors.mark_record_seen = fail_cursor_write
+            runner = PollRunner(
+                durable,cursors,RawArchive(td/"raw"),FixtureTransport({url:[response]})
+            )
+            spec = PollSpec(
+                name="sec_fixture",adapter="sec_edgar",source_class="sec_edgar",
+                url=url,parser="json_records",cadence_minutes=60,stale_after_minutes=180,
+                target="Gallium",jurisdiction="Global",
+            )
+
+            report = runner.poll(spec)
+            state = cursors.adapter("sec_fixture")
+            self.assertEqual(report.status,"APPEND_FAILED")
+            self.assertEqual(report.appended,1)
+            self.assertIn("persistence",report.error)
+            self.assertEqual(len(durable.ledger.entries),1)
+            self.assertEqual(state["cursor"],"prior-page")
+            self.assertEqual(state["last_success_at"],"2026-09-29T11:00:00Z")
+            self.assertIn("cursor write failure",state["last_error"])
+            self.assertEqual(
+                [entry.external_record_id for entry in durable.ledger.entries],
+                ["000000000126000001"],
+            )
+
+    def test_missing_external_record_id_is_visible_and_not_ingested(self):
+        normalizer = EventNormalizer(GRAPH, aliases=ALIASES)
+        url = "https://fixture.invalid/sec"
+        response = HttpResponse(
+            url,200,{"etag":"fixture-v4"},b'{"records":[{}]}',"2026-09-29T12:02:00Z"
+        )
+
+        class EmptyIdAdapter:
+            def adapt(self,payload):
+                return {"external_record_id":" "}
+
+        with tempfile.TemporaryDirectory() as td:
+            td = Path(td)
+            durable = DurableLedgerRuntime(normalizer,td/"ledger.jsonl",td/"checkpoint.json")
+            durable.recover()
+            cursors = CursorStore(td/"cursor.json")
+            runner = PollRunner(
+                durable,cursors,RawArchive(td/"raw"),FixtureTransport({url:[response]})
+            )
+            spec = PollSpec(
+                name="sec_fixture",adapter="sec_edgar",source_class="sec_edgar",
+                url=url,parser="json_records",cadence_minutes=60,stale_after_minutes=180,
+                target="Gallium",jurisdiction="Global",
+            )
+
+            with patch.dict(ADAPTERS,{"sec_edgar":EmptyIdAdapter()}):
+                report = runner.poll(spec)
+
+            self.assertEqual(report.status,"APPEND_FAILED")
+            self.assertIn("missing stable external_record_id",report.error)
+            self.assertEqual(durable.ledger.entries,[])
+            self.assertIsNone(cursors.adapter("sec_fixture")["cursor"])
+            self.assertIn("missing stable external_record_id",cursors.adapter("sec_fixture")["last_error"])
 
 
 class OperationsTests(unittest.TestCase):
