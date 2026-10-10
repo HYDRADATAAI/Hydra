@@ -1,7 +1,9 @@
 from __future__ import annotations
 
 import unittest
+from unittest.mock import patch
 
+import hydra_t6_failclosed.documents as documents
 from hydra_t6_failclosed.documents import canonical_json_bytes, parse_json_document
 
 
@@ -54,9 +56,27 @@ class DocumentContractTests(unittest.TestCase):
 
     def test_excessive_structural_depth_is_rejected_before_downstream_recursion(self) -> None:
         payload = '{"a":' * 140 + '0' + '}' * 140
+        raw = payload.encode("utf-8")
         document = parse_json_document(payload, label="$.document")
         self.assertIsNone(document.value)
         self.assertIn("document_too_deep", {issue.code for issue in document.issues})
+        self.assertEqual(document.raw, raw)
+        self.assertEqual(document.raw_sha256, documents.sha256_hex(raw))
+
+    def test_excessive_mapping_depth_is_rejected_during_bounded_snapshot(self) -> None:
+        value = {}
+        current = value
+        for _ in range(documents.MAX_DOCUMENT_DEPTH + 2):
+            nested = {}
+            current["nested"] = nested
+            current = nested
+        current["leaf"] = 0
+
+        document = parse_json_document(value, label="$.document")
+        self.assertIsNone(document.value)
+        self.assertEqual([issue.code for issue in document.issues], ["document_too_large"])
+        self.assertEqual(document.raw, b"")
+
 
     def test_extreme_json_nesting_fails_closed_instead_of_raising_recursion_error(self) -> None:
         payload = '{"a":' * 2000 + '0' + '}' * 2000
@@ -66,6 +86,320 @@ class DocumentContractTests(unittest.TestCase):
             {"document_json_invalid", "document_too_deep"} &
             {issue.code for issue in document.issues}
         )
+
+
+    def test_mapping_input_matches_canonical_json_bytes(self) -> None:
+        value = {"z": ["λ", True, None, 3.5], "a": {"b": 2}}
+        document = parse_json_document(value, label="$.document")
+        self.assertEqual(document.raw, canonical_json_bytes(value))
+        self.assertEqual(document.value, value)
+
+    def test_oversized_mapping_is_rejected_before_copy_or_json_serialization(self) -> None:
+        value = {"outer": {"inner": "x" * 4096}}
+        with (
+            patch("copy.deepcopy") as copier,
+            patch.object(documents, "canonical_json_bytes") as encoder,
+        ):
+            document = parse_json_document(value, label="$.document", max_bytes=32)
+        self.assertIsNone(document.value)
+        self.assertIn("document_too_large", {issue.code for issue in document.issues})
+        copier.assert_not_called()
+        encoder.assert_not_called()
+
+    def test_escaped_mapping_string_is_bounded_by_encoded_bytes(self) -> None:
+        value = {"text": "\\\\" * 128}
+        with patch.object(documents, "canonical_json_bytes") as encoder:
+            document = parse_json_document(value, label="$.document", max_bytes=64)
+        self.assertIsNone(document.value)
+        self.assertIn("document_too_large", {issue.code for issue in document.issues})
+        encoder.assert_not_called()
+
+    def test_string_subclass_values_and_keys_fail_closed(self) -> None:
+        class HostileString(str):
+            def __iter__(self):
+                return iter(())
+
+        cases = (
+            {"value": HostileString("x" * 128)},
+            {HostileString("k" * 128): "value"},
+        )
+        for value in cases:
+            with self.subTest(value="hostile string subclass"), patch.object(
+                documents, "canonical_json_bytes"
+            ) as encoder:
+                document = parse_json_document(value, label="$.document", max_bytes=32)
+            self.assertIsNone(document.value)
+            self.assertIn("document_too_large", {issue.code for issue in document.issues})
+            encoder.assert_not_called()
+
+    def test_int_subclass_cannot_override_size_preflight(self) -> None:
+        class HostileInt(int):
+            def bit_length(self) -> int:
+                return 0
+
+        value = {"value": HostileInt(10**1000)}
+        with patch.object(documents, "canonical_json_bytes") as encoder:
+            document = parse_json_document(value, label="$.document", max_bytes=32)
+        self.assertIsNone(document.value)
+        self.assertIn("document_too_large", {issue.code for issue in document.issues})
+        encoder.assert_not_called()
+
+
+    def test_scalar_mapping_keys_match_canonical_json(self) -> None:
+        for value in ({1: "integer"}, {True: "boolean"}, {None: "null"}):
+            with self.subTest(key=next(iter(value))):
+                document = parse_json_document(value, label="$.document")
+            self.assertEqual(document.raw, canonical_json_bytes(value))
+
+
+    def test_oversized_raw_text_and_bytearray_fail_before_copy(self) -> None:
+        for value in (bytearray(b"x" * 128), "x" * 128):
+            with self.subTest(value_type=type(value).__name__):
+                document = parse_json_document(value, label="$.document", max_bytes=16)
+            self.assertIsNone(document.value)
+            self.assertIn("document_too_large", {issue.code for issue in document.issues})
+            self.assertEqual(document.raw, b"")
+
+    def test_empty_mapping_respects_smaller_configured_limit_before_encoding(self) -> None:
+        with patch.object(documents, "canonical_json_bytes") as encoder:
+            document = parse_json_document({}, label="$.document", max_bytes=1)
+        self.assertIsNone(document.value)
+        self.assertIn("document_too_large", {issue.code for issue in document.issues})
+        encoder.assert_not_called()
+
+
+    def test_distinct_hostile_string_keys_with_same_text_fail_closed(self) -> None:
+        class DistinctHostileString(str):
+            def __iter__(self):
+                return iter(())
+
+            def __hash__(self) -> int:
+                return object.__hash__(self)
+
+            def __eq__(self, other: object) -> bool:
+                return self is other
+
+        first = DistinctHostileString("same")
+        second = DistinctHostileString("same")
+        value = {first: 1, second: 2}
+        self.assertEqual(len(value), 2)
+        with patch.object(documents, "canonical_json_bytes") as encoder:
+            document = parse_json_document(value, label="$.document", max_bytes=64)
+        self.assertIsNone(document.value)
+        self.assertIn("document_type_invalid", {issue.code for issue in document.issues})
+        encoder.assert_not_called()
+
+
+    def test_distinct_numeric_keys_that_compare_equal_fail_closed(self) -> None:
+        from collections.abc import Mapping
+
+        class HostileFloat(float):
+            def __float__(self) -> float:
+                return 999.0
+
+        class PairMapping(Mapping):
+            def __iter__(self):
+                return iter((1, HostileFloat(1.0)))
+
+            def __getitem__(self, key):
+                return "first" if type(key) is int else "second"
+
+            def __len__(self) -> int:
+                return 2
+
+        with patch.object(documents, "canonical_json_bytes") as encoder:
+            document = parse_json_document(PairMapping(), label="$.document", max_bytes=64)
+        self.assertIsNone(document.value)
+        self.assertIn("document_type_invalid", {issue.code for issue in document.issues})
+        encoder.assert_not_called()
+
+
+    def test_string_subclass_key_and_value_normalize_to_plain_text(self) -> None:
+        class HostileString(str):
+            def __iter__(self):
+                return iter(())
+
+        value = {HostileString("field"): HostileString("value")}
+        document = parse_json_document(value, label="$.document")
+        self.assertEqual(document.raw, b'{"field":"value"}')
+        self.assertEqual(document.value, {"field": "value"})
+        self.assertIs(type(next(iter(document.value))), str)
+        self.assertIs(type(document.value["field"]), str)
+
+
+    def test_oversized_bytes_are_rejected_before_hashing_or_parsing(self) -> None:
+        payload = b'{"value":"' + b"x" * 4096 + b'"}'
+        document = parse_json_document(payload, label="$.document", max_bytes=32)
+        self.assertIsNone(document.value)
+        self.assertIn("document_too_large", {issue.code for issue in document.issues})
+        self.assertEqual(document.raw, b"")
+
+    def test_multibyte_raw_text_uses_utf8_byte_count(self) -> None:
+        payload = '{"é":"é"}'
+        encoded = payload.encode("utf-8")
+        too_small = parse_json_document(payload, label="$.document", max_bytes=len(encoded) - 1)
+        self.assertIsNone(too_small.value)
+        self.assertIn("document_too_large", {issue.code for issue in too_small.issues})
+
+        exact = parse_json_document(payload, label="$.document", max_bytes=len(encoded))
+        self.assertEqual(exact.raw, encoded)
+        self.assertEqual(exact.value, {"é": "é"})
+
+
+    def test_bytes_subclass_cannot_spoof_length_or_decode(self) -> None:
+        class HostileBytes(bytes):
+            def __len__(self) -> int:
+                return 1
+
+            def decode(self, *args, **kwargs) -> str:
+                return '{"decoy":true}'
+
+        too_large = HostileBytes(b'{"value":"' + b"x" * 128 + b'"}')
+        rejected = parse_json_document(too_large, label="$.document", max_bytes=32)
+        self.assertIsNone(rejected.value)
+        self.assertIn("document_too_large", {issue.code for issue in rejected.issues})
+
+        small = HostileBytes(b'{"actual":true}')
+        accepted = parse_json_document(small, label="$.document", max_bytes=64)
+        self.assertEqual(accepted.value, {"actual": True})
+
+    def test_bytearray_subclass_cannot_spoof_length_or_bytes(self) -> None:
+        class HostileBytearray(bytearray):
+            def __len__(self) -> int:
+                return 1
+
+            def __bytes__(self) -> bytes:
+                return b"{}"
+
+        payload = HostileBytearray(b'{"value":"' + b"x" * 128 + b'"}')
+        document = parse_json_document(payload, label="$.document", max_bytes=32)
+        self.assertIsNone(document.value)
+        self.assertIn("document_too_large", {issue.code for issue in document.issues})
+
+        small = HostileBytearray(b'{"actual":1}')
+        accepted = parse_json_document(small, label="$.document", max_bytes=64)
+        self.assertEqual(accepted.value, {"actual": 1})
+
+
+    def test_raw_json_node_count_limit_preserves_boundary_and_raw_evidence(self) -> None:
+        at_limit_payload = (
+            '{"items":['
+            + ",".join("0" for _ in range(documents.MAX_DOCUMENT_NODES - 1))
+            + "]}"
+        )
+        at_limit = parse_json_document(at_limit_payload, label="$.document")
+        self.assertEqual(at_limit.issues, ())
+        self.assertIsNotNone(at_limit.value)
+        self.assertEqual(at_limit.value, {"items": [0] * (documents.MAX_DOCUMENT_NODES - 1)})
+
+        oversized_payload = (
+            '{"items":['
+            + ",".join("0" for _ in range(documents.MAX_DOCUMENT_NODES))
+            + "]}"
+        )
+        oversized_raw = oversized_payload.encode("utf-8")
+        self.assertLess(len(oversized_raw), documents.MAX_DOCUMENT_BYTES)
+        oversized = parse_json_document(oversized_raw, label="$.document")
+        self.assertIsNone(oversized.value)
+        self.assertEqual([issue.code for issue in oversized.issues], ["document_too_large"])
+        self.assertEqual(
+            oversized.issues[0].message,
+            f"$.document exceeds maximum node count {documents.MAX_DOCUMENT_NODES}",
+        )
+        self.assertEqual(
+            oversized.issues[0].evidence,
+            {"node_count": documents.MAX_DOCUMENT_NODES + 1},
+        )
+        self.assertEqual(oversized.raw, oversized_raw)
+        self.assertEqual(oversized.raw_sha256, documents.sha256_hex(oversized_raw))
+
+
+
+    def test_compact_raw_json_node_overflow_is_rejected_before_json_loads(self) -> None:
+        payload = (
+            '{"items":['
+            + ",".join("0" for _ in range(documents.MAX_DOCUMENT_NODES))
+            + "]}"
+        )
+        raw = payload.encode("utf-8")
+        with patch.object(documents.json, "loads", side_effect=AssertionError("json.loads called")) as loader:
+            document = parse_json_document(raw, label="$.document")
+        loader.assert_not_called()
+        self.assertIsNone(document.value)
+        self.assertEqual([issue.code for issue in document.issues], ["document_too_large"])
+        self.assertEqual(
+            document.issues[0].evidence,
+            {"node_count": documents.MAX_DOCUMENT_NODES + 1},
+        )
+        self.assertEqual(document.raw, raw)
+        self.assertEqual(document.raw_sha256, documents.sha256_hex(raw))
+
+
+    def test_raw_json_depth_overflow_preserves_bytes_before_json_loads(self) -> None:
+        payload = '{"a":' * (documents.MAX_DOCUMENT_DEPTH + 1) + "0" + "}" * (documents.MAX_DOCUMENT_DEPTH + 1)
+        raw = payload.encode("utf-8")
+        with patch.object(documents.json, "loads", side_effect=AssertionError("json.loads called")) as loader:
+            document = parse_json_document(raw, label="$.document")
+        loader.assert_not_called()
+        self.assertIsNone(document.value)
+        self.assertEqual([issue.code for issue in document.issues], ["document_too_deep"])
+        self.assertEqual(document.raw, raw)
+        self.assertEqual(document.raw_sha256, documents.sha256_hex(raw))
+
+
+    def test_raw_json_scanner_preserves_string_and_exponent_semantics(self) -> None:
+        payload = r'{"text":"braces { [ ] }, comma , colon : escaped quote \" and slash \\\\","numbers":[-0,1e+2,1E-2,1e999]}'
+        document = parse_json_document(payload, label="$.document")
+        self.assertEqual(document.issues, ())
+        self.assertIsNotNone(document.value)
+        self.assertEqual(document.value["text"], 'braces { [ ] }, comma , colon : escaped quote " and slash \\\\')
+        self.assertEqual(document.value["numbers"][:3], [0, 100.0, 0.01])
+        self.assertEqual(document.value["numbers"][3], float("inf"))
+
+
+    def test_large_raw_json_array_keeps_root_type_precedence(self) -> None:
+        payload = "[" + ",".join("0" for _ in range(documents.MAX_DOCUMENT_NODES + 1)) + "]"
+        raw = payload.encode("utf-8")
+        with patch.object(documents.json, "loads", side_effect=AssertionError("json.loads called")) as loader:
+            document = parse_json_document(raw, label="$.document")
+        loader.assert_not_called()
+        self.assertIsNone(document.value)
+        self.assertEqual([issue.code for issue in document.issues], ["document_root_invalid"])
+        self.assertEqual(document.raw, raw)
+        self.assertEqual(document.raw_sha256, documents.sha256_hex(raw))
+
+
+    def test_raw_json_node_overflow_is_rejected_before_json_loads(self) -> None:
+        payload = (
+            '{\n\t"items" : [\r\n'
+            + ",\n\t".join("0" for _ in range(documents.MAX_DOCUMENT_NODES))
+            + '\n]\r\n}'
+        )
+        raw = payload.encode("utf-8")
+        with patch.object(documents.json, "loads", side_effect=AssertionError("json.loads called")) as loader:
+            document = parse_json_document(raw, label="$.document")
+        loader.assert_not_called()
+        self.assertIsNone(document.value)
+        self.assertEqual([issue.code for issue in document.issues], ["document_too_large"])
+        self.assertEqual(
+            document.issues[0].evidence,
+            {"node_count": documents.MAX_DOCUMENT_NODES + 1},
+        )
+        self.assertEqual(document.raw, raw)
+        self.assertEqual(document.raw_sha256, documents.sha256_hex(raw))
+
+
+    def test_raw_json_depth_overflow_is_rejected_before_json_loads(self) -> None:
+        payload = '{"a":' * (documents.MAX_DOCUMENT_DEPTH + 1) + "0" + "}" * (documents.MAX_DOCUMENT_DEPTH + 1)
+        raw = payload.encode("utf-8")
+        with patch.object(documents.json, "loads", side_effect=AssertionError("json.loads called")) as loader:
+            document = parse_json_document(raw, label="$.document")
+        loader.assert_not_called()
+        self.assertIsNone(document.value)
+        self.assertEqual([issue.code for issue in document.issues], ["document_too_deep"])
+        self.assertEqual(document.issues[0].to_dict()["evidence"], {})
+        self.assertEqual(document.raw, raw)
+        self.assertEqual(document.raw_sha256, documents.sha256_hex(raw))
 
 
 if __name__ == "__main__":

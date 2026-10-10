@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import unittest
+from collections.abc import Mapping
 from datetime import UTC, datetime, timedelta
 
 from hydra_t6_failclosed.authority import (
@@ -9,9 +10,20 @@ from hydra_t6_failclosed.authority import (
     OPERATION,
     REQUIRED_SCOPE,
     HMACSHA256Verifier,
+    authority_signing_bytes,
     sign_hmac_sha256,
     validate_authority,
 )
+
+
+class _SpoofedAuthoritySchema(str):
+    def __eq__(self, other):
+        return other == AUTHORITY_SCHEMA
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
+
+    __hash__ = str.__hash__
 
 
 class AuthorityEnvelopeTests(unittest.TestCase):
@@ -19,7 +31,10 @@ class AuthorityEnvelopeTests(unittest.TestCase):
         self.now = datetime(2026, 9, 24, 18, 0, tzinfo=UTC)
         self.key = b"public-test-key"
         self.key_id = "test-key"
-        self.verifier = HMACSHA256Verifier({self.key_id: self.key})
+        self.verifier = HMACSHA256Verifier(
+            {self.key_id: self.key},
+            trusted_key_roles={self.key_id: {"validator_authority"}},
+        )
         self.input_sha256 = "1" * 64
         self.policy_sha256 = "2" * 64
         self.output_schema_sha256 = "3" * 64
@@ -63,10 +78,10 @@ class AuthorityEnvelopeTests(unittest.TestCase):
         envelope["signature"] = sign_hmac_sha256(envelope, key=self.key)
         return envelope
 
-    def _validate(self, envelope: dict[str, object]):
+    def _validate(self, envelope: dict[str, object], *, verifier=None):
         return validate_authority(
             envelope,
-            verifier=self.verifier,
+            verifier=self.verifier if verifier is None else verifier,
             now=self.now,
             input_sha256=self.input_sha256,
             policy_sha256=self.policy_sha256,
@@ -82,6 +97,316 @@ class AuthorityEnvelopeTests(unittest.TestCase):
         self.assertTrue(result.valid)
         self.assertEqual(result.reason, "VALID")
         self.assertEqual(result.issues, ())
+
+    def test_hostile_authority_mapping_fails_closed(self) -> None:
+        class RaisingMapping(Mapping):
+            def __getitem__(self, key):
+                raise RuntimeError("untrusted mapping access")
+
+            def __iter__(self):
+                raise RuntimeError("untrusted mapping iteration")
+
+            def __len__(self):
+                return 1
+
+        result = self._validate(RaisingMapping())
+        self.assertFalse(result.valid)
+        self.assertEqual(result.reason, "AUTHORITY_INVALID")
+        self.assertIn("authority_document_invalid", {issue.code for issue in result.issues})
+
+    def test_signed_schema_subclass_with_spoofed_equality_is_rejected(self) -> None:
+        envelope = self._envelope()
+        envelope["schema_version"] = _SpoofedAuthoritySchema("wrong-schema")
+        self._resign(envelope)
+        self.assertTrue(
+            self.verifier.verify(
+                key_id=self.key_id,
+                message=authority_signing_bytes(envelope),
+                signature=envelope["signature"],
+                method="HMAC-SHA256",
+            )
+        )
+        result = self._validate(envelope)
+        self.assertFalse(result.valid)
+        self.assertIn("authority_schema_unsupported", {issue.code for issue in result.issues})
+
+    def test_missing_role_grants_deny_correctly_signed_authority(self) -> None:
+        envelope = self._envelope()
+        verifier = HMACSHA256Verifier({self.key_id: self.key})
+        self.assertTrue(
+            verifier.verify(
+                key_id=self.key_id,
+                message=authority_signing_bytes(envelope),
+                signature=envelope["signature"],
+                method="HMAC-SHA256",
+            )
+        )
+        result = self._validate(envelope, verifier=verifier)
+        self.assertFalse(result.valid)
+        self.assertEqual(result.reason, "AUTHORITY_INVALID")
+        self.assertIn("authority_key_role_untrusted", {issue.code for issue in result.issues})
+
+    def test_signed_unmapped_role_is_rejected(self) -> None:
+        envelope = self._envelope()
+        envelope["authority_role"] = "unmapped_role"
+        self._resign(envelope)
+        result = self._validate(envelope)
+        self.assertFalse(result.valid)
+        self.assertIn("authority_key_role_untrusted", {issue.code for issue in result.issues})
+
+    def test_role_mapped_to_another_role_is_rejected(self) -> None:
+        verifier = HMACSHA256Verifier(
+            {self.key_id: self.key}, trusted_key_roles={self.key_id: {"other_role"}}
+        )
+        result = self._validate(self._envelope(), verifier=verifier)
+        self.assertFalse(result.valid)
+        self.assertIn("authority_key_role_untrusted", {issue.code for issue in result.issues})
+
+    def test_missing_role_check_fails_closed(self) -> None:
+        class VerifyOnly:
+            def verify(self, **kwargs):
+                return True
+
+        result = self._validate(self._envelope(), verifier=VerifyOnly())
+        self.assertFalse(result.valid)
+        self.assertIn("authority_key_role_untrusted", {issue.code for issue in result.issues})
+
+    def test_nonliteral_true_role_check_fails_closed(self) -> None:
+        class MalformedRoleVerifier:
+            def allows_role(self, key_id, role):
+                return 1
+
+            def verify(self, **kwargs):
+                return True
+
+        result = self._validate(self._envelope(), verifier=MalformedRoleVerifier())
+        self.assertFalse(result.valid)
+        self.assertIn("authority_key_role_untrusted", {issue.code for issue in result.issues})
+
+    def test_role_check_exception_fails_closed(self) -> None:
+        class RaisingRoleVerifier:
+            def allows_role(self, key_id, role):
+                raise RuntimeError("role lookup failed")
+
+        result = self._validate(self._envelope(), verifier=RaisingRoleVerifier())
+        self.assertFalse(result.valid)
+        self.assertIn("authority_key_role_untrusted", {issue.code for issue in result.issues})
+
+    def test_truthy_nonboolean_signature_result_fails_closed(self) -> None:
+        class MalformedSignatureVerifier:
+            def allows_role(self, key_id, role):
+                return True
+
+            def verify(self, **kwargs):
+                return 1
+
+        result = self._validate(self._envelope(), verifier=MalformedSignatureVerifier())
+        self.assertFalse(result.valid)
+        self.assertIn("authority_signature_invalid", {issue.code for issue in result.issues})
+
+    def test_signature_exception_fails_closed(self) -> None:
+        class RaisingSignatureVerifier:
+            def allows_role(self, key_id, role):
+                return True
+
+            def verify(self, **kwargs):
+                raise RuntimeError("signature verifier unavailable")
+
+        result = self._validate(self._envelope(), verifier=RaisingSignatureVerifier())
+        self.assertFalse(result.valid)
+        self.assertIn("authority_verifier_error", {issue.code for issue in result.issues})
+
+    def test_missing_signature_method_fails_closed(self) -> None:
+        class MissingSignatureMethod:
+            def allows_role(self, key_id, role):
+                return True
+
+        result = self._validate(self._envelope(), verifier=MissingSignatureMethod())
+        self.assertFalse(result.valid)
+        self.assertIn("authority_signature_invalid", {issue.code for issue in result.issues})
+
+    def test_noncallable_signature_method_fails_closed(self) -> None:
+        class NonCallableSignatureMethod:
+            allows_role = staticmethod(lambda key_id, role: True)
+            verify = 1
+
+        result = self._validate(self._envelope(), verifier=NonCallableSignatureMethod())
+        self.assertFalse(result.valid)
+        self.assertIn("authority_signature_invalid", {issue.code for issue in result.issues})
+
+    def test_invalid_role_configuration_fails(self) -> None:
+        invalid = (
+            ({" ": self.key}, {" ": {"validator_authority"}}),
+            ({1: self.key}, None),
+            ({self.key_id: self.key}, {self.key_id: "validator_authority"}),
+            ({self.key_id: self.key}, {self.key_id: {""}}),
+            ({self.key_id: self.key}, {self.key_id: {1}}),
+            ({self.key_id: self.key}, {self.key_id: {"validator_authority": True}}),
+            ({self.key_id: self.key}, {"unknown": {"validator_authority"}}),
+        )
+        for keys, roles in invalid:
+            with self.subTest(keys=keys, roles=roles):
+                with self.assertRaises(ValueError):
+                    HMACSHA256Verifier(keys, trusted_key_roles=roles)
+
+    def test_string_subclass_key_id_cannot_alias_trusted_key(self) -> None:
+        class AliasKeyId(str):
+            def __str__(self):
+                return "test-key"
+
+        envelope = self._envelope()
+        envelope["key_id"] = AliasKeyId("untrusted-key")
+        self._resign(envelope)
+        result = self._validate(envelope)
+        self.assertFalse(result.valid)
+        self.assertIn("authority_key_role_untrusted", {issue.code for issue in result.issues})
+
+    def test_string_subclass_signature_method_is_rejected(self) -> None:
+        class AliasMethod(str):
+            def __str__(self):
+                return "HMAC-SHA256"
+
+        envelope = self._envelope()
+        envelope["signature_method"] = AliasMethod("OTHER")
+        self._resign(envelope)
+        result = self._validate(envelope)
+        self.assertFalse(result.valid)
+        codes = {issue.code for issue in result.issues}
+        self.assertIn("authority_signature_invalid", codes)
+
+    def test_signed_alias_string_keys_are_normalized_before_authority_checks(self) -> None:
+        class AliasKey(str):
+            aliases = {
+                "wrong-schema": "schema_version",
+                "wrong-operation": "operation",
+                "wrong-binding": "input_sha256",
+                "wrong-revocation-status": "status",
+                "wrong-supersession-status": "status",
+            }
+
+            @property
+            def expected(self):
+                return self.aliases[str(self)]
+
+            def __eq__(self, other):
+                return other == self.expected
+
+            def __ne__(self, other):
+                return not self.__eq__(other)
+
+            def __hash__(self):
+                return hash(self.expected)
+
+        cases = (
+            ("envelope", "schema_version", "wrong-schema"),
+            ("envelope", "operation", "wrong-operation"),
+            ("bindings", "input_sha256", "wrong-binding"),
+            ("revocation", "status", "wrong-revocation-status"),
+            ("supersession", "status", "wrong-supersession-status"),
+        )
+        for location, expected_key, underlying_key in cases:
+            with self.subTest(location=location, expected_key=expected_key):
+                envelope = self._envelope()
+                target = envelope if location == "envelope" else envelope[location]
+                value = target.pop(expected_key)
+                target[AliasKey(underlying_key)] = value
+                self._resign(envelope)
+                self.assertTrue(
+                    self.verifier.verify(
+                        key_id=self.key_id,
+                        message=authority_signing_bytes(envelope),
+                        signature=envelope["signature"],
+                        method="HMAC-SHA256",
+                    )
+                )
+                result = self._validate(envelope)
+                self.assertFalse(result.valid)
+
+    def test_split_view_mapping_cannot_validate_one_view_and_sign_another(self) -> None:
+        class SplitViewMapping(Mapping):
+            def __init__(self, values):
+                self.values = values
+
+            def __getitem__(self, key):
+                return self.values[key]
+
+            def __iter__(self):
+                return iter(self.values)
+
+            def __len__(self):
+                return len(self.values)
+
+            def get(self, key, default=None):
+                if key == "operation":
+                    return OPERATION
+                return self.values.get(key, default)
+
+            def items(self):
+                return self.values.items()
+
+        values = self._envelope()
+        values["operation"] = "TRADE"
+        split_view = SplitViewMapping(values)
+        signature = sign_hmac_sha256(split_view, key=self.key)
+        values["signature"] = signature
+        self.assertTrue(
+            self.verifier.verify(
+                key_id=self.key_id,
+                message=authority_signing_bytes(split_view),
+                signature=signature,
+                method="HMAC-SHA256",
+            )
+        )
+        result = self._validate(split_view)
+        self.assertFalse(result.valid)
+        self.assertIn("authority_operation_mismatch", {issue.code for issue in result.issues})
+
+    def test_negative_int_subclass_revocation_sequence_is_rejected(self) -> None:
+        class NegativeSequence(int):
+            def __lt__(self, other):
+                return False
+
+        envelope = self._envelope()
+        revocation = envelope["revocation"]
+        self.assertIsInstance(revocation, dict)
+        revocation["sequence"] = NegativeSequence(-1)
+        self._resign(envelope)
+        self.assertTrue(
+            self.verifier.verify(
+                key_id=self.key_id,
+                message=authority_signing_bytes(envelope),
+                signature=envelope["signature"],
+                method="HMAC-SHA256",
+            )
+        )
+        result = self._validate(envelope)
+        self.assertFalse(result.valid)
+        self.assertIn("authority_revocation_sequence_invalid", {issue.code for issue in result.issues})
+
+    def test_timestamp_outside_utc_range_fails_closed(self) -> None:
+        envelope = self._envelope()
+        envelope["issued_at"] = "0001-01-01T00:00:00+23:59"
+        self._resign(envelope)
+        self.assertTrue(
+            self.verifier.verify(
+                key_id=self.key_id,
+                message=authority_signing_bytes(envelope),
+                signature=envelope["signature"],
+                method="HMAC-SHA256",
+            )
+        )
+        result = self._validate(envelope)
+        self.assertFalse(result.valid)
+        self.assertIn("authority_time_invalid", {issue.code for issue in result.issues})
+
+    def test_signed_wrong_authority_role_is_rejected(self) -> None:
+        envelope = self._envelope()
+        envelope["authority_role"] = "trading_authority"
+        self._resign(envelope)
+        result = self._validate(envelope)
+        self.assertFalse(result.valid)
+        self.assertEqual(result.reason, "AUTHORITY_INVALID")
+        self.assertIn("authority_role_invalid", {issue.code for issue in result.issues})
 
     def test_expired_authority_is_rejected_fail_closed(self) -> None:
         result = self._validate(

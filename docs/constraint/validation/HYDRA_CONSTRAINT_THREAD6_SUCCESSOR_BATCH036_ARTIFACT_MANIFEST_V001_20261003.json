@@ -1,0 +1,56 @@
+{
+  "schema_version": "hydra-constraint-thread6-successor-manifest/v1",
+  "record_id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH036_ARTIFACT_MANIFEST_V001",
+  "as_of": "2026-10-03",
+  "repository": "HYDRADATAAI/Hydra",
+  "predecessor_batch": {
+    "id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH035",
+    "preservation": "IMMUTABLE_NOT_REWRITTEN"
+  },
+  "slice_id": "AI_DATA_CENTER_POWER_INFRASTRUCTURE_V1",
+  "result": "V2_IMPLEMENTATION_AND_TEST_SOURCE_PRESENT_TEST_EXECUTION_AND_EXTERNAL_GATES_REMAIN",
+  "artifacts": [
+    {
+      "path": "t6-fail-closed-validator/src/hydra_t6_failclosed/native_t5_t6_bridge_v2.py",
+      "git_blob_sha": "47425e2c4693954a28cf9b31d38a70c6418b8430"
+    },
+    {
+      "path": "t6-fail-closed-validator/tests/test_native_t5_t6_bridge_v2.py",
+      "git_blob_sha": "239d715da79eca69b080853888d6dcb66d2eee68"
+    },
+    {
+      "path": "docs/constraint/implementation/HYDRA_CONSTRAINT_FIRST_SLICE_NATIVE_T5_T6_IMPLEMENTATION_MANIFEST_V002_20261003.json",
+      "git_blob_sha": "b9deeb292a7603ab7a96f566273e4184d857bb43"
+    },
+    {
+      "path": "docs/constraint/implementation/HYDRA_CONSTRAINT_FIRST_SLICE_NATIVE_T5_T6_ADMISSION_REQUEST_V002_20261003.json",
+      "git_blob_sha": "5ea792fbedd2f856a692d55244452523280926da"
+    },
+    {
+      "path": "docs/constraint/first_slice/ai_data_center_power_infrastructure_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH036_AI_DATA_CENTER_POWER_INFRASTRUCTURE_BLOCKER_REGISTER_V001_20261003.json",
+      "git_blob_sha": "6dda5de7da4bc673706f8fef31b9fd345dc5892a"
+    },
+    {
+      "path": "docs/constraint/architecture/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH036_MASTER_STATUS_V001_20261003.json",
+      "git_blob_sha": "96615c4739efcec9a59b04a61144575e49cc7a43"
+    },
+    {
+      "path": "docs/constraint/validation/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH036_NATIVE_T5_T6_V2_IMPLEMENTATION_STATUS_V001_20261003.md",
+      "git_blob_sha": "d6fae70e7d99c25986011823fc71429e3a01c656"
+    }
+  ],
+  "expected": {
+    "v2_semantic_delta": "REJECT_NON_BOOLEAN_ORDINARY_T6_ELIGIBILITY_VALUES",
+    "v1_unchanged": true,
+    "v2_test_source_present": true,
+    "v2_test_execution_recorded": false,
+    "implementation_admission_request_status": "REQUESTED_NOT_GRANTED",
+    "signed_implementation_admission_receipt_present": false,
+    "runtime_activation_authorized": false,
+    "canonical_promotion_authorized": false,
+    "live_source_authorized": false,
+    "pit_002b_historical_availability_evidence_complete": false,
+    "first_serious_constraint_run": "BLOCKED",
+    "next_repo_executable_lane": "EXECUTE_V2_NATIVE_T5_T6_BRIDGE_TESTS_AND_RECORD_RESULT"
+  }
+}
