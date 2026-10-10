@@ -13,6 +13,15 @@ ALLOWED_RELATIONS={
  "benefits","controlled_by","supplies"
 }
 
+
+def _is_fraction(value: object) -> bool:
+    return (
+        not isinstance(value, bool)
+        and isinstance(value, (int, float))
+        and 0 <= value <= 1
+    )
+
+
 def validate_graph(graph: DependencyGraph) -> list[str]:
     errors=[]
     for e in graph.edges.values():
@@ -41,6 +50,14 @@ def validate_graph(graph: DependencyGraph) -> list[str]:
                 errors.append(f"{n.node_id}: invalid snapshot interval")
             if s.known_at is None:
                 errors.append(f"{n.node_id}: snapshot missing known_at")
+            if s.utilization is not None and not _is_fraction(s.utilization):
+                errors.append(
+                    f"{n.node_id}: snapshot utilization must be a numeric fraction in [0,1]"
+                )
+            if s.market_share is not None and not _is_fraction(s.market_share):
+                errors.append(
+                    f"{n.node_id}: snapshot market_share must be a numeric fraction in [0,1]"
+                )
             if s.capacity_nameplate is not None and s.capacity_nameplate < 0:
                 errors.append(f"{n.node_id}: negative nameplate capacity")
             if s.capacity_usable is not None and s.capacity_usable < 0:
