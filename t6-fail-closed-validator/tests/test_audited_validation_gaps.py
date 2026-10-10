@@ -8,8 +8,42 @@ from unittest.mock import patch
 
 from hydra_t6_failclosed.documents import canonical_json_bytes
 from hydra_t6_failclosed.handoff import CANDIDATE_SCHEMA, HANDOFF_CONTRACT, HANDOFF_SCHEMA, INACTIVE_EVIDENCE_FLAGS
+from hydra_t6_failclosed.receipt import (
+    ALLOWED_OUTCOMES,
+    ALLOWED_REASONS,
+    RECEIPT_SCHEMA_ID,
+    RECEIPT_VERSION,
+)
 from hydra_t6_failclosed.service import FailClosedValidator
-from .test_receipt import public_test_schema
+
+
+def _public_test_schema() -> dict[str, object]:
+    properties: dict[str, object] = {
+        "authority_envelope_sha256": {"type": "string"},
+        "candidate_ids": {"type": "array", "uniqueItems": True},
+        "canonical_store_mutation_authorized": {"type": "boolean", "const": False},
+        "canonical_truth_selected": {"type": "boolean", "const": False},
+        "external_actions": {"type": "array", "maxItems": 0},
+        "gamma_unfrozen": {"type": "boolean", "const": False},
+        "implementation_status": {"type": "string"},
+        "input_sha256": {"type": "string"},
+        "ml_training_authorized": {"type": "boolean", "const": False},
+        "outcome": {"type": "string", "enum": sorted(ALLOWED_OUTCOMES)},
+        "policy_sha256": {"type": "string"},
+        "ranked_candidate_ids": {"type": "array", "maxItems": 0},
+        "reason": {"type": "string", "enum": sorted(ALLOWED_REASONS)},
+        "receipt_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "schema_version": {"type": "string", "const": RECEIPT_VERSION},
+        "trading_authorized": {"type": "boolean", "const": False},
+        "violations": {"type": "array"},
+    }
+    return {
+        "$id": RECEIPT_SCHEMA_ID,
+        "type": "object",
+        "additionalProperties": False,
+        "required": list(properties),
+        "properties": properties,
+    }
 
 
 def _policy() -> dict[str, object]:
@@ -71,7 +105,7 @@ def _handoff(active_context: dict[str, object]) -> dict[str, object]:
 
 def _service_result(handoff: dict[str, object], oracle_value: dict[str, object]) -> dict[str, object]:
     policy = canonical_json_bytes(_policy())
-    schema = canonical_json_bytes(public_test_schema())
+    schema = canonical_json_bytes(_public_test_schema())
     oracle = canonical_json_bytes(oracle_value)
     policy_digest = hashlib.sha256(policy).hexdigest()
     schema_digest = hashlib.sha256(schema).hexdigest()
