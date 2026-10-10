@@ -47,6 +47,12 @@ class PollingPreflightTests(unittest.TestCase):
             {"url": "https://data.sec.gov:444/feed"},
             {"url": "https://data.sec.gov:not-a-port/feed"},
             {"url": "https://["},
+            {
+                "adapter": "json_records",
+                "source_class": "fixture",
+                "parser": "json_records",
+                "url": "https://data。sec.gov/feed",
+            },
             {"headers": None},
             {"headers": {}},
             {"headers": {"User-Agent": "Hydra one", "user-agent": "Hydra two"}},
