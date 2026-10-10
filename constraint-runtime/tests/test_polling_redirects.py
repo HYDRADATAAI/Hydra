@@ -21,6 +21,7 @@ class PollingRedirectTests(unittest.TestCase):
             "http://data.sec.gov/feed",
             "https://",
             "https://user:secret@data.sec.gov/feed",
+            "https://@data.sec.gov/feed",
         )
         for url in invalid_urls:
             with self.subTest(url=url), patch(
