@@ -257,7 +257,11 @@ class PollRunner:
         self.durable=durable; self.cursors=cursors; self.archive=archive
         self.transport=transport; self.sleeper=sleeper or time
         if max_response_bytes is None:
-            max_response_bytes=getattr(transport,"max_bytes",DEFAULT_MAX_RESPONSE_BYTES)
+            max_response_bytes=(
+                transport.max_bytes
+                if isinstance(transport,UrllibTransport)
+                else DEFAULT_MAX_RESPONSE_BYTES
+            )
         if not isinstance(max_response_bytes,int) or isinstance(max_response_bytes,bool) or max_response_bytes<=0:
             raise ValueError("max_response_bytes must be a positive integer")
         self.max_response_bytes=max_response_bytes
@@ -309,7 +313,7 @@ class PollRunner:
 
     def poll(self,spec,cursor_value=None):
         self.validate_live_spec(spec)
-        if type(self.transport) is UrllibTransport:
+        if isinstance(self.transport,UrllibTransport):
             _require_https_url(spec.url)
         before=self.cursors.adapter(spec.name).get("cursor")
         statuses=[]; hashes=[]; delays=[]; response=None; error=None
