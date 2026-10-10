@@ -436,6 +436,33 @@ class PollRateLimitTests(unittest.TestCase):
         self.assertEqual(len(transport.request_times),4)
         self.assertGreaterEqual(min(transport.request_times[1:]),1.5)
 
+    def test_http_date_retry_cooldown_applies_to_later_poll(self):
+        clock = self.FakeClock()
+        transport = self.FakeTransport(
+            clock,
+            retry_after="Wed, 21 Oct 2015 07:28:10 GMT",
+        )
+        now = datetime(2015, 10, 21, 7, 28, 0, tzinfo=timezone.utc)
+        runner = PollRunner(
+            durable=None,
+            cursors=self.FakeCursors(),
+            archive=self.FakeArchive(),
+            transport=transport,
+            sleeper=clock,
+            clock=clock.monotonic,
+            wall_clock=lambda: now,
+        )
+        spec = self.make_spec(
+            max_rps=100,
+            backoff=BackoffPolicy(max_attempts=1, base_seconds=0.1, cap_seconds=30),
+        )
+
+        self.assertEqual(runner.poll(spec).status, "FAILED")
+        runner.poll(spec)
+
+        self.assertEqual(transport.request_times, [0.0, 10.0])
+        self.assertEqual(clock.delays, [10.0])
+
     def test_invalid_rate_fails_before_cursor_access(self):
         cursors=self.FakeCursors()
         runner=PollRunner(
