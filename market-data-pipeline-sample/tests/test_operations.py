@@ -346,6 +346,7 @@ class OperationsTests(unittest.TestCase):
             self.assertTrue(artifact.is_file())
             self.assertTrue(outcome.manifest_path.is_file())
 
+    @unittest.skipUnless(os.name == "posix", "POSIX file modes are required")
     def test_pipeline_artifact_permissions_honor_process_umask(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             previous_umask = os.umask(0o027)
