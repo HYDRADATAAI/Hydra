@@ -187,14 +187,22 @@ def load_backfill_plan(
 def _contains_unsafe_symlink_component(path: Path) -> bool:
     current = path
     while current != current.parent:
-        is_junction = getattr(current, "is_junction", None)
-        if current.is_symlink() or (is_junction is not None and is_junction()):
-            resolved = current.resolve(strict=False)
+        resolved = current.resolve(strict=False)
+        if os.path.normcase(os.fspath(resolved)) != os.path.normcase(os.fspath(current)):
             macos_aliases = {
                 Path("/var"): Path("/private/var"),
                 Path("/tmp"): Path("/private/tmp"),
             }
-            if sys.platform != "darwin" or macos_aliases.get(current) != resolved:
+            is_macos_alias = False
+            if sys.platform == "darwin":
+                for alias, target in macos_aliases.items():
+                    try:
+                        relative_path = current.relative_to(alias)
+                    except ValueError:
+                        continue
+                    is_macos_alias = resolved == target / relative_path
+                    break
+            if not is_macos_alias:
                 return True
         current = current.parent
     return False
