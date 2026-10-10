@@ -27,20 +27,19 @@ jobs:
           set -euo pipefail
           failures=0
           while IFS= read -r file; do
+            private_record=0
             case "$file" in
-              constraint-t1-raw-artifact-store/raw/*|\
-              constraint-t1-raw-artifact-store/data/*|\
-              constraint-t1-raw-artifact-store/objects/*|\
-              constraint-t1-raw-artifact-store/receipts/*|\
-              constraint-t1-raw-artifact-store/releases/*|\
-              constraint-t1-raw-artifact-store/*.raw|\
-              constraint-t1-raw-artifact-store/*/*.raw|\
-              constraint-t1-raw-artifact-store/*/*/*.raw|\
-              constraint-t1-raw-artifact-store/*/*/*/*.raw)
-                echo "::error file=$file::Private T1 raw-store records must stay outside public Git."
-                failures=$((failures + 1))
+              constraint-t1-raw-artifact-store/raw/*|constraint-t1-raw-artifact-store/data/*|constraint-t1-raw-artifact-store/objects/*|constraint-t1-raw-artifact-store/receipts/*|constraint-t1-raw-artifact-store/releases/*)
+                private_record=1
                 ;;
             esac
+            if [[ "$file" == constraint-t1-raw-artifact-store/* && "$file" == *.raw ]]; then
+              private_record=1
+            fi
+            if [[ "$private_record" -eq 1 ]]; then
+              echo "::error file=$file::Private T1 raw-store records must stay outside public Git."
+              failures=$((failures + 1))
+            fi
           done < <(git ls-files)
           if [[ "$failures" -gt 0 ]]; then
             echo "T1_PUBLIC_RAW_BOUNDARY=FAIL"
