@@ -370,6 +370,45 @@ class PollRunnerTests(unittest.TestCase):
             self.assertIn("missing stable external_record_id",cursors.adapter("sec_fixture")["last_error"])
 
 
+    def test_unexpected_adapter_failure_stops_later_records(self):
+        normalizer = EventNormalizer(GRAPH, aliases=ALIASES)
+        url = "https://fixture.invalid/sec"
+        response = HttpResponse(
+            url,200,{"etag":"fixture-v5"},
+            b'{"records":[{"order":1},{"order":2}]}',"2026-09-29T12:02:00Z"
+        )
+        attempts = []
+
+        class DefectiveAdapter:
+            def adapt(self,payload):
+                attempts.append(payload["order"])
+                raise RuntimeError("unexpected adapter defect")
+
+        with tempfile.TemporaryDirectory() as td:
+            td = Path(td)
+            durable = DurableLedgerRuntime(normalizer,td/"ledger.jsonl",td/"checkpoint.json")
+            durable.recover()
+            cursors = CursorStore(td/"cursor.json")
+            runner = PollRunner(
+                durable,cursors,RawArchive(td/"raw"),FixtureTransport({url:[response]})
+            )
+            spec = PollSpec(
+                name="sec_fixture",adapter="sec_edgar",source_class="sec_edgar",
+                url=url,parser="json_records",cadence_minutes=60,stale_after_minutes=180,
+                target="Gallium",jurisdiction="Global",
+            )
+
+            with patch.dict(ADAPTERS,{"sec_edgar":DefectiveAdapter()}):
+                report = runner.poll(spec)
+
+            self.assertEqual(report.status,"APPEND_FAILED")
+            self.assertIn("adapter failure",report.error)
+            self.assertEqual(attempts,[1])
+            self.assertEqual(durable.ledger.entries,[])
+            self.assertIsNone(cursors.adapter("sec_fixture")["cursor"])
+            self.assertIn("adapter failure",cursors.adapter("sec_fixture")["last_error"])
+
+
 class OperationsTests(unittest.TestCase):
     def test_schema_drift_freezes(self):
         contracts = {"sec":{"required_root_keys":["cik","name","filings"],"required_recent_keys":["form"]}}
