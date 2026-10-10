@@ -16,21 +16,25 @@ P = Provenance("fixture", "https://example.invalid/source", "fixture", date(2026
         ("utilization", float("nan")),
         ("utilization", float("inf")),
         ("utilization", float("-inf")),
+        ("utilization", True),
+        ("utilization", "0.5"),
         ("market_share", -0.01),
         ("market_share", 1.01),
         ("market_share", float("nan")),
         ("market_share", float("inf")),
         ("market_share", float("-inf")),
+        ("market_share", True),
+        ("market_share", "0.5"),
     ],
 )
-def test_snapshot_fractions_reject_values_outside_unit_interval(field, value):
+def test_snapshot_fractions_reject_invalid_values(field, value):
     snapshot = Snapshot(date(2020, 1, 1), known_at=date(2020, 1, 1), **{field: value})
     graph = DependencyGraph(
         [Node("n", "resource", "Resource", snapshots=(snapshot,), provenance=(P,))],
         [],
     )
 
-    assert f"n: snapshot {field} outside [0,1]" in validate_graph(graph)
+    assert f"n: snapshot {field} must be a numeric fraction in [0,1]" in validate_graph(graph)
 
 
 @pytest.mark.parametrize("field", ["utilization", "market_share"])
