@@ -42,8 +42,13 @@ class PollingRedirectTests(unittest.TestCase):
             def __exit__(self, *_args):
                 return False
 
-            def read(self):
-                return b"ok"
+            def __init__(self):
+                self.body = b"ok"
+
+            def read(self, size=-1):
+                chunk = self.body[:size]
+                self.body = self.body[len(chunk):]
+                return chunk
 
         with patch("hydra_constraint.polling.urllib.request.build_opener") as build_opener:
             build_opener.return_value.open.return_value = Response()
