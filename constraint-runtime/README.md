@@ -42,7 +42,7 @@ Core guarantees:
 - observed routes are non-exclusive;
 - raw responses are archived before parsing;
 - polling honors each source's `max_rps` across request attempts; complete poll transactions are serialized within one `PollRunner` to protect shared ledger/cursor state, and limits are not shared across runner instances or processes;
-- retry delays honor numeric and HTTP-date `Retry-After` values up to `cap_seconds`; malformed values use exponential backoff;
+- retry delays honor numeric and HTTP-date `Retry-After` values up to `cap_seconds`; past dates yield zero delay, while malformed values use exponential backoff;
 - cursors advance only after durable ledger append;
 - ledger history is append-only and hash-chained;
 - stale sources are surfaced as uncertainty, not treated as no-event evidence;
