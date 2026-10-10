@@ -169,21 +169,21 @@ class LedgerPersistenceTests(unittest.TestCase):
             "source_id":"OFFICIAL","source_class":"federal_register","source_priority":100,
             "external_record_id":"X-RANK","evidence_class":"A1","severity":0.8,"jurisdiction":"Global",
         }
-        for claimed_priority in (40, 101):
-            with self.subTest(claimed_priority=claimed_priority):
+        for source_class, claimed_priority in (("secondary_report", 101), ("federal_register", 40)):
+            with self.subTest(source_class=source_class, claimed_priority=claimed_priority):
                 ledger = AppendOnlyEventLedger(normalizer)
                 ledger.ingest_adapted(official)
-                low = dict(
+                forged = dict(
                     official,
                     effective_at="2026-10-01T00:00:00Z",
                     captured_at="2026-09-29T13:00:00Z",
-                    source_id="LOW",
-                    source_class="secondary_report",
+                    source_id="FORGED",
+                    source_class=source_class,
                     source_priority=claimed_priority,
-                    external_record_id="LOW",
+                    external_record_id="FORGED",
                 )
                 with self.assertRaisesRegex(ValueError, "source_priority mismatch"):
-                    ledger.ingest_adapted(low)
+                    ledger.ingest_adapted(forged)
                 self.assertEqual(len(ledger.entries), 1)
                 self.assertEqual(ledger.active_events()[0]["effective_at"], "2026-10-15T00:00:00Z")
                 self.assertEqual(ledger.verify_chain()["status"], "PASS")
