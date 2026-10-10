@@ -7,6 +7,7 @@ import io
 import json
 import os
 import re
+import sys
 import tempfile
 from dataclasses import dataclass
 from decimal import Decimal
@@ -183,20 +184,21 @@ def load_backfill_plan(
     )
 
 
-
 def _contains_unsafe_symlink_component(path: Path) -> bool:
     current = path
     while current != current.parent:
-        if current.is_symlink():
+        is_junction = getattr(current, "is_junction", None)
+        if current.is_symlink() or (is_junction is not None and is_junction()):
             resolved = current.resolve(strict=False)
             macos_aliases = {
                 Path("/var"): Path("/private/var"),
                 Path("/tmp"): Path("/private/tmp"),
             }
-            if macos_aliases.get(current) != resolved:
+            if sys.platform != "darwin" or macos_aliases.get(current) != resolved:
                 return True
         current = current.parent
     return False
+
 
 def execute_backfill(
     *,
