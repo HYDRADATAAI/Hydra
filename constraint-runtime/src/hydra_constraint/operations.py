@@ -10,7 +10,7 @@ import json
 
 from .runtime import unresolved_admission
 
-PARSER_VERSIONS={"bis_csv":"1.0.0","json_records":"1.0.0","sec_json":"1.0.0"}
+PARSER_VERSIONS={"bis_csv":"1.0.0","json_records":"1.0.0","sec_json":"1.0.1"}
 
 def _sha(value:Any)->str:
     return hashlib.sha256(json.dumps(value,sort_keys=True,separators=(",",":"),default=str).encode()).hexdigest()
@@ -44,9 +44,20 @@ class DriftGuard:
                 x=json.loads(body.decode("utf-8"))
             except Exception:
                 x={}; issues.append("invalid_json")
-            recent=x.get("filings",{}).get("recent",{}) if isinstance(x,dict) else {}
-            observed["root_keys"]=sorted(x.keys()) if isinstance(x,dict) else []
-            observed["recent_keys"]=sorted(recent.keys()) if isinstance(recent,dict) else []
+            if not isinstance(x,dict):
+                issues.append("invalid_root_type")
+                x={}
+            filings=x.get("filings",{})
+            if not isinstance(filings,dict):
+                issues.append("invalid_filings_type")
+                recent={}
+            else:
+                recent=filings.get("recent",{})
+                if not isinstance(recent,dict):
+                    issues.append("invalid_recent_type")
+                    recent={}
+            observed["root_keys"]=sorted(x.keys())
+            observed["recent_keys"]=sorted(recent.keys())
             for key in c["required_root_keys"]:
                 if key not in x:
                     issues.append("missing_root:"+key)
