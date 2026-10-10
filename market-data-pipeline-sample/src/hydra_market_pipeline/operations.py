@@ -185,26 +185,34 @@ def load_backfill_plan(
 
 
 def _contains_unsafe_symlink_component(path: Path) -> bool:
-    current = path
-    while current != current.parent:
+    parts = path.parts
+    current = Path(parts[0])
+    for part in parts[1:]:
+        current /= part
+        if part == "..":
+            continue
         resolved = current.resolve(strict=False)
-        if os.path.normcase(os.fspath(resolved)) != os.path.normcase(os.fspath(current)):
-            macos_aliases = {
-                Path("/var"): Path("/private/var"),
-                Path("/tmp"): Path("/private/tmp"),
-            }
-            is_macos_alias = False
-            if sys.platform == "darwin":
-                for alias, target in macos_aliases.items():
-                    try:
-                        relative_path = current.relative_to(alias)
-                    except ValueError:
-                        continue
-                    is_macos_alias = resolved == target / relative_path
-                    break
-            if not is_macos_alias:
-                return True
-        current = current.parent
+        normalized = Path(os.path.normpath(os.fspath(current)))
+        if os.path.normcase(os.fspath(resolved)) == os.path.normcase(
+            os.fspath(normalized)
+        ):
+            continue
+
+        macos_aliases = {
+            Path("/var"): Path("/private/var"),
+            Path("/tmp"): Path("/private/tmp"),
+        }
+        is_macos_alias = False
+        if sys.platform == "darwin":
+            for alias, target in macos_aliases.items():
+                try:
+                    relative_path = current.relative_to(alias)
+                except ValueError:
+                    continue
+                is_macos_alias = resolved == target / relative_path
+                break
+        if not is_macos_alias:
+            return True
     return False
 
 
@@ -219,10 +227,10 @@ def execute_backfill(
         raise OperationsError("interrupt_after_new_sources must be at least one")
 
     plan = load_backfill_plan(plan_path=plan_path, aliases_path=aliases_path)
-    output_root = Path(output_dir)
-    absolute_output_root = Path(os.path.abspath(output_root))
-    if _contains_unsafe_symlink_component(absolute_output_root):
+    output_root = Path(output_dir).absolute()
+    if _contains_unsafe_symlink_component(output_root):
         raise OperationsError("output directory path must not contain symlinks")
+    output_root = output_root.resolve(strict=False)
     runs_root = output_root / "runs"
     checkpoint_path = output_root / "checkpoint.json"
     manifest_path = output_root / "operations_manifest.json"
