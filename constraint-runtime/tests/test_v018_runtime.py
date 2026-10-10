@@ -235,6 +235,11 @@ class OperationsTests(unittest.TestCase):
             policy.delay(2, "Wednesday, 21-Oct-15 07:28:10 GMT", now=now),
             10,
         )
+        future_now = datetime(2026, 10, 21, 7, 28, 0, tzinfo=timezone.utc)
+        self.assertEqual(
+            policy.delay(2, "Tuesday, 21-Oct-70 07:28:10 GMT", now=future_now),
+            30,
+        )
         self.assertEqual(
             policy.delay(2, "Wed Oct 21 07:28:10 2015", now=now),
             10,
