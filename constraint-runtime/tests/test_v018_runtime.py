@@ -206,7 +206,9 @@ class OperationsTests(unittest.TestCase):
         policy = BackoffPolicy(max_attempts=5, base_seconds=2, cap_seconds=5)
         self.assertEqual([policy.delay(i) for i in range(1, 5)], [2, 4, 5, 5])
         self.assertEqual(policy.delay(1, "120"), 5)
-        self.assertEqual(policy.delay(2, "malformed"), 4)
+        for malformed in ("malformed", "NaN", "inf", "-inf"):
+            with self.subTest(retry_after=malformed):
+                self.assertEqual(policy.delay(2, malformed), 4)
 
     def test_backoff_parses_http_date_retry_after(self):
         policy = BackoffPolicy(max_attempts=5, base_seconds=2, cap_seconds=30)
