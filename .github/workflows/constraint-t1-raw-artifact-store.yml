@@ -5,12 +5,20 @@ on:
     paths:
       - "constraint-t1-raw-artifact-store/**"
       - ".github/workflows/constraint-t1-raw-artifact-store.yml"
+      - ".gitignore"
+      - "data/**"
+      - "raw/**"
+      - "market-data-pipeline-sample/data/**"
   push:
     branches:
       - main
     paths:
       - "constraint-t1-raw-artifact-store/**"
       - ".github/workflows/constraint-t1-raw-artifact-store.yml"
+      - ".gitignore"
+      - "data/**"
+      - "raw/**"
+      - "market-data-pipeline-sample/data/**"
 
 permissions:
   contents: read
@@ -29,12 +37,15 @@ jobs:
           while IFS= read -r -d '' file; do
             private_record=0
             case "$file" in
-              constraint-t1-raw-artifact-store/raw/*|constraint-t1-raw-artifact-store/data/*|constraint-t1-raw-artifact-store/objects/*|constraint-t1-raw-artifact-store/receipts/*|constraint-t1-raw-artifact-store/releases/*)
+              data/*|raw/*|constraint-t1-raw-artifact-store/raw/*|constraint-t1-raw-artifact-store/data/*|constraint-t1-raw-artifact-store/objects/*|constraint-t1-raw-artifact-store/receipts/*|constraint-t1-raw-artifact-store/releases/*)
                 private_record=1
                 ;;
             esac
             if [[ "$file" == constraint-t1-raw-artifact-store/* && "$file" == *.raw ]]; then
               private_record=1
+            fi
+            if [[ "$file" == "market-data-pipeline-sample/data/raw/synthetic_market_events.csv" ]]; then
+              private_record=0
             fi
             if [[ "$private_record" -eq 1 ]]; then
               echo "::error file=$file::Private T1 raw-store records must stay outside public Git."
