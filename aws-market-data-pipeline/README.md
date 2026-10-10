@@ -1,23 +1,25 @@
 # HYDRA AWS Market-Data Vertical Slice
 
-Status: **DEPLOYMENT-READY / NOT YET DEPLOYED / SYNTHETIC / NON-LIVE**
+Status: **DEPLOYMENT ON HOLD / NOT DEPLOYED / SYNTHETIC / NON-LIVE**
 
 This sample maps the public deterministic market-data pipeline onto a small AWS serverless path without claiming that the stack has already run in an AWS account.
 
 ## Flow
 
-`synthetic CSV -> private raw S3 -> Python 3.11 Lambda -> accepted/quarantine S3 prefixes -> Glue table -> bounded Athena query`
+`synthetic CSV -> private raw S3 -> Python 3.11 Lambda -> accepted/quarantine/manifests S3 objects -> Glue partition commit -> bounded Athena query`
 
-The Lambda transform performs strict file-contract validation, row normalization, deterministic event identity, provenance hashing, explicit quarantine, and deterministic manifest generation. Replaying identical source bytes targets the same content-addressed object keys and emits the same bytes.
+The Lambda transform performs strict file-contract validation, row normalization, deterministic event identity, provenance hashing, explicit quarantine, and deterministic manifest generation. It writes accepted JSONL, quarantine JSONL, and the manifest before registering a Glue partition for the accepted run. The partition is the Glue/Athena visibility commit on initial publication: if any artifact write fails before partition creation, Athena cannot query that run through `normalized_events`. A later failed retry does not withdraw a partition from an earlier successful publication. Replaying identical source bytes targets the same content-addressed object keys and emits the same bytes; an already registered partition is safe for that deterministic replay. The Lambda rejects source objects above the configurable 1 MiB default (2,000,000-byte hard maximum) and CSVs above 10,000 data rows before writing that object's artifacts. Direct S3 readers can still see an accepted object left by a failed later write, so they should require a manifest or Glue partition before consuming a run.
 
 ## AWS resources
 
 - two private, encrypted, versioned S3 buckets with bounded retention;
 - one S3-triggered Python 3.11 Lambda function;
 - least-privilege object-level read/write permissions;
-- one Glue database and external table over accepted JSONL only;
+- one Glue database and partitioned external table over accepted JSONL only; Lambda registers each run partition only after all three artifacts are stored;
 - one Athena workgroup with enforced encrypted output and a 1 GiB scan cutoff;
 - one explicit CloudWatch log group with bounded retention.
+
+The sample's 30-day S3 lifecycle expires artifact objects, while Glue partition metadata remains. This is suitable for the short-lived demonstration stack; a long-running deployment needs a partition-retention cleanup process to prevent stale catalog entries.
 
 [`template.json`](template.json) is an AWS SAM/CloudFormation template. It does not create resources by itself.
 
@@ -51,11 +53,11 @@ The committed fixture is expected to produce **3 accepted / 4 quarantined** rows
 
 [AWS market data pipeline CI](https://github.com/HYDRADATAAI/Hydra/actions/workflows/aws-market-data-pipeline.yml) runs unit tests and local deterministic replay without AWS credentials or network access.
 
-[AWS market data deploy and verify](https://github.com/HYDRADATAAI/Hydra/actions/workflows/aws-market-data-deploy.yml) is retained as a manual workflow but its deployment job is **temporarily disabled**. It does not configure AWS credentials, deploy a stack, publish deployment evidence, or run teardown.
+[AWS market data deploy and verify](https://github.com/HYDRADATAAI/Hydra/actions/workflows/aws-market-data-deploy.yml) remains a manual workflow, but its deployment job is disabled (`if: false`). It cannot configure AWS credentials, deploy a stack, publish deployment evidence, or run teardown.
 
-The job is disabled because its existing-stack preflight check and `HYDRA_STACK_OWNED_BY_RUN` flag do not prove that this run created the stack or its buckets. Keep it disabled until deployment uses atomic create-only stack creation, teardown positively verifies ownership of the stack and each bucket, and no-AWS failure-path tests cover collisions, partial failure, and ownership mismatch. The public repository validator checks that this safety gate remains disabled.
+The hold closes a check-then-deploy race: checking that a stack is absent does not reserve its name, so concurrent runs could both pass preflight. The deploy command uses `sam deploy --resolve-s3`; its SAM-managed artifact bucket may sit outside the CloudFormation stack, and the current teardown does not inventory or clean that external bucket. No AWS deployment is verified, and the disabled workflow produces no deployment artifact.
 
-No AWS deployment has been verified. No deployment artifact is produced by this disabled workflow. The external role trust policy, permissions, and environment approval rules still require review in GitHub/AWS; repository contents cannot verify them.
+Keep the job disabled until create-only ownership is atomic; teardown proves ownership of the stack and each bucket before deletion, including after partial failure; the SAM artifact bucket has explicit safe ownership and cleanup; and no-AWS tests cover name collisions, partial failures, and ownership mismatches. External role trust, permissions, and environment approvals still require review in GitHub and AWS.
 
 ## Claim boundary
 
@@ -67,4 +69,4 @@ This sample is infrastructure and deterministic test evidence for a small synthe
 - live market-data ingestion;
 - customer traffic, trading, or ML execution.
 
-Only consider re-enabling the manual workflow or promoting this sample after safe deployment and teardown are verified and a successful run produces inspectable, sanitized evidence.
+Website promotion should occur only after a successful manual deployment produces inspectable, sanitized evidence.

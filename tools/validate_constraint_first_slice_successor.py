@@ -68,8 +68,10 @@ FILES = {
 MANIFESTS = [
     VALIDATION / f"HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH{n:03d}_ARTIFACT_MANIFEST_V001_20260925.json"
     for n in range(3, 10)
+    if n != 8
 ] + [
-    VALIDATION / "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH010_ARTIFACT_MANIFEST_V002_20260925.json"
+    VALIDATION / "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH008_ARTIFACT_MANIFEST_V002_20261009.json",
+    VALIDATION / "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH010_ARTIFACT_MANIFEST_V002_20260925.json",
 ]
 
 SLICE_ID = "AI_DATA_CENTER_POWER_INFRASTRUCTURE_V1"
@@ -246,6 +248,82 @@ def validate_manifest(
             )
         count += 1
     return count
+
+
+def validate_batch008_manifest_successor() -> None:
+    predecessor_path = VALIDATION / "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH008_ARTIFACT_MANIFEST_V001_20260925.json"
+    successor_path = VALIDATION / "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH008_ARTIFACT_MANIFEST_V002_20261009.json"
+    predecessor = load_json(predecessor_path)
+    successor = load_json(successor_path)
+
+    require(
+        git_blob_sha(predecessor_path) == "e7d267985a008a1ae07c17430ad95775707bbb2a",
+        "Batch008 V001 manifest was rewritten",
+    )
+    require(
+        successor.get("record_id") == "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH008_ARTIFACT_MANIFEST_V002",
+        "Batch008 V002 record identity changed",
+    )
+    require(
+        successor.get("base_head") == "cf1002ad63c0bab185d8d02c71049107b7880545",
+        "Batch008 successor base_head changed",
+    )
+    require(
+        successor.get("as_of") == "2026-10-09",
+        "Batch008 successor as_of changed",
+    )
+    require(
+        successor.get("supersedes") == {
+            "record_id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH008_ARTIFACT_MANIFEST_V001",
+            "reason": "IMMUTABLE_ACTION_PIN_REFRESH; WORKFLOW CONTENT ONLY; NO DOMAIN ARTIFACT OR AUTHORITY CHANGE",
+            "predecessor_preserved": True,
+        },
+        "Batch008 V002 supersession binding changed",
+    )
+    for field in (
+        "schema_version",
+        "repository",
+        "predecessor_batch",
+        "owner_namespace",
+        "blocker_transition",
+        "public_repo_boundary",
+        "expected",
+    ):
+        require(
+            successor.get(field) == predecessor.get(field),
+            f"Batch008 successor {field} changed",
+        )
+
+    predecessor_rows = predecessor.get("artifacts", [])
+    successor_rows = successor.get("artifacts", [])
+    old_artifacts = {
+        row["path"]: row for row in predecessor_rows if isinstance(row, dict) and isinstance(row.get("path"), str)
+    }
+    new_artifacts = {
+        row["path"]: row for row in successor_rows if isinstance(row, dict) and isinstance(row.get("path"), str)
+    }
+    require(
+        len(old_artifacts) == len(predecessor_rows)
+        and len(new_artifacts) == len(successor_rows)
+        and old_artifacts.keys() == new_artifacts.keys(),
+        "Batch008 successor artifact set changed",
+    )
+    workflow_path = ".github/workflows/constraint-t1-raw-artifact-store.yml"
+    for relative, old_row in old_artifacts.items():
+        if relative == workflow_path:
+            expected_row = {
+                **old_row,
+                "git_blob_sha": git_blob_sha(ROOT / relative),
+            }
+            require(
+                new_artifacts[relative] == expected_row,
+                "Batch008 successor workflow pin digest changed",
+            )
+        else:
+            require(
+                new_artifacts[relative] == old_row,
+                f"Batch008 successor changed non-workflow artifact: {relative}",
+            )
 
 
 def main() -> int:
@@ -555,6 +633,7 @@ def main() -> int:
     require(required == expected_required, f"ordinary T2 eligibility contract drifted: {sorted(required)}")
 
     custody_supersessions = load_supersessions(CUSTODY_SUPERSESSION)
+    validate_batch008_manifest_successor()
     manifest_members = sum(
         validate_manifest(path, supersessions=custody_supersessions)
         for path in MANIFESTS

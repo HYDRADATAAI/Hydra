@@ -25,6 +25,8 @@ PATH_AUTHORITY = ROOT / "docs" / "constraint" / "implementation" / "HYDRA_CONSTR
 RUNBOOK = ROOT / "docs" / "constraint" / "implementation" / "HYDRA_CONSTRAINT_AI_DATA_CENTER_POWER_INFRASTRUCTURE_PRIVATE_T1_MATERIALIZATION_RUNBOOK_V001_20260926.md"
 README = ROOT / "constraint-t1-raw-artifact-store" / "README.md"
 TIMESTAMP_VALIDATOR_SUCCESSOR = ROOT / "docs/constraint/validation/HYDRA_CONSTRAINT_T1_TIMESTAMP_VALIDATOR_SUCCESSOR_V001_20260927.json"
+TIMESTAMP_VALIDATOR_SUCCESSOR_V2 = ROOT / "docs/constraint/validation/HYDRA_CONSTRAINT_T1_TIMESTAMP_VALIDATOR_SUCCESSOR_V002_20261009.json"
+TIMESTAMP_VALIDATOR_SUCCESSOR_V3 = ROOT / "docs/constraint/validation/HYDRA_CONSTRAINT_T1_TIMESTAMP_VALIDATOR_SUCCESSOR_V003_20261009.json"
 
 PUBLIC_HASH_SUCCESSOR = ROOT / "docs/constraint/validation/HYDRA_CONSTRAINT_T1_BATCH018_PUBLIC_HASH_SUCCESSOR_V001_20260928.json"
 
@@ -264,7 +266,7 @@ class Batch018NineSourceCaptureEvidenceTests(unittest.TestCase):
         return historical
 
     def _timestamp_validator_continuation(self):
-        expected = {
+        expected_v1 = {
             "schema": "HYDRA_CONSTRAINT_T1_TIMESTAMP_VALIDATOR_SUCCESSOR_V1",
             "scope": "EXACT_TIMESTAMP_VALIDATOR_CONTINUATION",
             "base_commit": "684f59ceea89114f6ac8b356e9b4dfb2b9cafa89",
@@ -283,20 +285,81 @@ class Batch018NineSourceCaptureEvidenceTests(unittest.TestCase):
                 "successor_git_blob_sha": "44bfe9c51cb5a3013d7a1a0bec9f79b1adcb9a73",
             },
         }
-        # Exact JSON types and fields matter; neither observed bytes nor a
-        # self-edited record can nominate a different successor.
-        self.assertEqual(json.dumps(expected, sort_keys=True),
+        # Preserve the V1 record and bind V2 as its exact continuation.
+        self.assertEqual(json.dumps(expected_v1, sort_keys=True),
                          json.dumps(load(TIMESTAMP_VALIDATOR_SUCCESSOR), sort_keys=True))
-        self.assertEqual(expected["historical_manifest_sha256"],
+        self.assertEqual(expected_v1["historical_manifest_sha256"],
                          hashlib.sha256(self._public_hash_predecessor_bytes()[ARTIFACT_MANIFEST]).hexdigest())
-        return expected["transition"]
+        expected_v2 = {
+            "schema": "HYDRA_CONSTRAINT_T1_TIMESTAMP_VALIDATOR_SUCCESSOR_V2",
+            "scope": "EXACT_TIMESTAMP_VALIDATOR_CONTINUATION",
+            "base_commit": "21c472a0ece62e312d2133a57ef20adcea25cc1b",
+            "predecessor_record": "docs/constraint/validation/HYDRA_CONSTRAINT_T1_TIMESTAMP_VALIDATOR_SUCCESSOR_V001_20260927.json",
+            "predecessor_record_sha256": "a2e7fcbb185ac7fbb89da3f8b919519322286487e0070a309b02aac186fb5d9f",
+            "predecessor_record_preserved": True,
+            "predecessor_artifacts_rewritten": False,
+            "acceptance_effect": "NONE",
+            "trusted_timestamp_verifier": "NOT_IMPLEMENTED",
+            "ordinary_replay_promoted": False,
+            "historical_availability_promoted": False,
+            "canonical_admission_promoted": False,
+            "network_acquisition_authorized": False,
+            "reason": "PINNED_WORKFLOW_ACTIONS_AND_BATCH008_MANIFEST_SUCCESSOR_ONLY",
+            "transition": {
+                "path": "tools/validate_constraint_first_slice_successor.py",
+                "predecessor_git_blob_sha": "44bfe9c51cb5a3013d7a1a0bec9f79b1adcb9a73",
+                "successor_git_blob_sha": "f6c4dfc0a98d846f403d2f87cd33316ff1aaa525",
+            },
+        }
+        self.assertEqual(json.dumps(expected_v2, sort_keys=True),
+                         json.dumps(load(TIMESTAMP_VALIDATOR_SUCCESSOR_V2), sort_keys=True))
+        self.assertEqual(
+            expected_v2["predecessor_record_sha256"],
+            hashlib.sha256(TIMESTAMP_VALIDATOR_SUCCESSOR.read_bytes()).hexdigest(),
+        )
+        expected_v3 = {
+            "schema": "HYDRA_CONSTRAINT_T1_TIMESTAMP_VALIDATOR_SUCCESSOR_V3",
+            "scope": "EXACT_TIMESTAMP_VALIDATOR_CONTINUATION",
+            "base_commit": "2b6a08416d96f8a3bc49ac24ebf915eeaa89caa9",
+            "predecessor_record": "docs/constraint/validation/HYDRA_CONSTRAINT_T1_TIMESTAMP_VALIDATOR_SUCCESSOR_V002_20261009.json",
+            "predecessor_record_sha256": "945f3f168d5478d2a17b2c7cee5dd223505161d5c05b5efb7bb21b10ce10ee37",
+            "predecessor_record_preserved": True,
+            "predecessor_artifacts_rewritten": False,
+            "acceptance_effect": "NONE",
+            "trusted_timestamp_verifier": "NOT_IMPLEMENTED",
+            "ordinary_replay_promoted": False,
+            "historical_availability_promoted": False,
+            "canonical_admission_promoted": False,
+            "network_acquisition_authorized": False,
+            "reason": "BATCH008 SUCCESSOR SNAPSHOT METADATA GUARD ONLY",
+            "transition": {
+                "path": "tools/validate_constraint_first_slice_successor.py",
+                "predecessor_git_blob_sha": "f6c4dfc0a98d846f403d2f87cd33316ff1aaa525",
+                "successor_git_blob_sha": "20af67159e85a0b9a1a9b188c988c271597331f7",
+            },
+        }
+        self.assertEqual(json.dumps(expected_v3, sort_keys=True),
+                         json.dumps(load(TIMESTAMP_VALIDATOR_SUCCESSOR_V3), sort_keys=True))
+        self.assertEqual(
+            expected_v3["predecessor_record_sha256"],
+            hashlib.sha256(TIMESTAMP_VALIDATOR_SUCCESSOR_V2.read_bytes()).hexdigest(),
+        )
+        self.assertEqual(
+            expected_v2["transition"]["successor_git_blob_sha"],
+            expected_v3["transition"]["predecessor_git_blob_sha"],
+        )
+        self.assertEqual(
+            expected_v1["transition"]["successor_git_blob_sha"],
+            expected_v2["transition"]["predecessor_git_blob_sha"],
+        )
+        return expected_v1["transition"], expected_v3["transition"]
 
     def test_successor_artifact_manifest_binds_committed_blob_contents(self):
-        continuation = self._timestamp_validator_continuation()
+        predecessor, continuation = self._timestamp_validator_continuation()
         for artifact in self.artifact_manifest.get("superseded_artifacts", []):
             actual = subprocess.check_output(["git", "hash-object", str(ROOT / artifact["path"])], cwd=ROOT, text=True).strip()
             if artifact["path"] == continuation["path"]:
-                self.assertEqual(artifact["successor_git_blob_sha"], continuation["predecessor_git_blob_sha"])
+                self.assertEqual(artifact["successor_git_blob_sha"], predecessor["predecessor_git_blob_sha"])
                 self.assertEqual(actual, continuation["successor_git_blob_sha"], artifact["path"])
             else:
                 self.assertEqual(actual, artifact["successor_git_blob_sha"], artifact["path"])
@@ -390,6 +453,29 @@ class Batch018NineSourceCaptureEvidenceTests(unittest.TestCase):
             with self.subTest(mutation=index):
                 doc = original(TIMESTAMP_VALIDATOR_SUCCESSOR); change(doc)
                 with patch(__name__ + ".load", side_effect=lambda p: doc if p == TIMESTAMP_VALIDATOR_SUCCESSOR else original(p)):
+                    with self.assertRaises(AssertionError):
+                        self.test_successor_artifact_manifest_binds_committed_blob_contents()
+
+    def test_timestamp_validator_v2_continuation_rejects_record_drift(self):
+        original = load
+        changes = [
+            lambda d: d.update(predecessor_record="docs/another-record.json"),
+            lambda d: d.update(predecessor_record_sha256="0" * 64),
+            lambda d: d.update(predecessor_record_preserved=False),
+            lambda d: d.update(predecessor_artifacts_rewritten=True),
+            lambda d: d.update(acceptance_effect="PASS"),
+            lambda d: d.update(trusted_timestamp_verifier="IMPLEMENTED"),
+            lambda d: d.update(ordinary_replay_promoted=True),
+            lambda d: d.update(historical_availability_promoted=True),
+            lambda d: d.update(canonical_admission_promoted=True),
+            lambda d: d.update(network_acquisition_authorized=True),
+            lambda d: d["transition"].update(predecessor_git_blob_sha="0" * 40),
+            lambda d: d["transition"].update(successor_git_blob_sha="0" * 40),
+        ]
+        for index, change in enumerate(changes):
+            with self.subTest(mutation=index):
+                doc = original(TIMESTAMP_VALIDATOR_SUCCESSOR_V2); change(doc)
+                with patch(__name__ + ".load", side_effect=lambda p: doc if p == TIMESTAMP_VALIDATOR_SUCCESSOR_V2 else original(p)):
                     with self.assertRaises(AssertionError):
                         self.test_successor_artifact_manifest_binds_committed_blob_contents()
 
