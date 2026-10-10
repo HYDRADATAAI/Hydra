@@ -285,7 +285,7 @@ class PollRunnerTests(unittest.TestCase):
             self.assertEqual(len(durable.ledger.entries),1)
             self.assertEqual(state["cursor"],"prior-page")
             self.assertEqual(state["last_success_at"],"2026-09-29T11:00:00Z")
-            self.assertEqual(state["last_error"] and "persistence" in state["last_error"],True)
+            self.assertIn("persistence",state["last_error"])
             self.assertFalse(cursors.has_seen("sec_fixture","000000000326000003"))
 
     def test_cursor_progress_failure_stops_suffix_and_preserves_page_state(self):
