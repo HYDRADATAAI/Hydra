@@ -8,6 +8,7 @@ import json
 import re
 import sys
 import tomllib
+from html.parser import HTMLParser
 from pathlib import Path
 from urllib.parse import unquote, urlsplit
 
@@ -138,8 +139,247 @@ STALE_PUBLIC_PHRASES = (
     "cross-thread",
 )
 
-MARKDOWN_LINK = re.compile(r"!?(?:\[[^\]]*\])\(([^)]+)\)")
+MARKDOWN_REFERENCE_DEFINITION = re.compile(
+    r"(?im)^[ \t]{0,3}\[[^\]]+\]:[ \t]*(?:<([^>\n]+)>|([^\s]+))"
+)
+INLINE_CODE_SPAN = re.compile(r"(\x60+)(.*?)\1", re.DOTALL)
+MARKDOWN_INLINE_OPEN = re.compile(r"^[ \t]{0,3}([~\x60]{3,})")
 
+
+class HTMLLocalReferenceParser(HTMLParser):
+    """Collect local-link candidates from HTML href and src attributes."""
+
+    def __init__(self) -> None:
+        super().__init__(convert_charrefs=True)
+        self.references: list[str] = []
+
+    def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
+        del tag
+        self._collect(attrs)
+
+    def handle_startendtag(
+        self, tag: str, attrs: list[tuple[str, str | None]]
+    ) -> None:
+        del tag
+        self._collect(attrs)
+
+    def _collect(self, attrs: list[tuple[str, str | None]]) -> None:
+        for name, value in attrs:
+            if name.casefold() in {"href", "src"} and value:
+                self.references.append(value)
+
+
+def _blank_code_text(text: str) -> str:
+    return "".join("\n" if character == "\n" else " " for character in text)
+
+
+def _blank_code(match: re.Match[str]) -> str:
+    return _blank_code_text(match.group())
+
+
+def _blank_preserving_newlines(text: str) -> str:
+    return "".join(character if character in "\r\n" else " " for character in text)
+
+
+def _without_html_comments(line: str, inside_comment: bool) -> tuple[str, bool]:
+    output: list[str] = []
+    cursor = 0
+    while cursor < len(line):
+        if inside_comment:
+            closing = line.find("-->", cursor)
+            if closing < 0:
+                output.append(_blank_preserving_newlines(line[cursor:]))
+                return "".join(output), True
+            closing += 3
+            output.append(_blank_preserving_newlines(line[cursor:closing]))
+            cursor = closing
+            inside_comment = False
+            continue
+
+        opening = line.find("<!--", cursor)
+        if opening < 0:
+            output.append(line[cursor:])
+            break
+        output.append(line[cursor:opening])
+        cursor = opening
+        inside_comment = True
+
+    return "".join(output), inside_comment
+
+
+def _container_content(line: str, list_content_indent: int | None) -> tuple[str, int | None]:
+    content = line.rstrip("\r\n")
+    while True:
+        quote = re.match(r"^ {0,3}>[ \t]?", content)
+        if quote is None:
+            break
+        content = content[quote.end():]
+
+    item = re.match(r"^( {0,3})([-+*]|[0-9]{1,9}[.)])([ \t]+)(.*)$", content)
+    if item is not None:
+        list_content_indent = (
+            len(item.group(1)) + len(item.group(2)) + len(item.group(3))
+        )
+        content = item.group(4)
+    elif list_content_indent is not None:
+        leading_spaces = len(content) - len(content.lstrip(" "))
+        if not content.strip():
+            pass
+        elif leading_spaces >= list_content_indent:
+            content = content[list_content_indent:]
+        else:
+            list_content_indent = None
+
+    return content, list_content_indent
+
+
+def _is_indented_code(logical_line: str) -> bool:
+    indentation = len(logical_line) - len(logical_line.lstrip(" "))
+    return indentation >= 4 or logical_line.startswith("\t")
+
+
+def strip_markdown_code(text: str) -> str:
+    output: list[str] = []
+    fence_character: str | None = None
+    fence_length = 0
+    list_content_indent: int | None = None
+    inside_html_comment = False
+
+    for line in text.splitlines(keepends=True):
+        if fence_character is not None:
+            visible_line = line
+            logical_line, list_content_indent = _container_content(
+                visible_line, list_content_indent
+            )
+            output.append(_blank_code_text(line))
+            closing = re.fullmatch(
+                rf" {{0,3}}{re.escape(fence_character)}{{{fence_length},}}[ \t]*",
+                logical_line,
+            )
+            if closing:
+                fence_character = None
+                fence_length = 0
+            continue
+
+        if not inside_html_comment:
+            code_line, code_list_indent = _container_content(
+                line, list_content_indent
+            )
+            if _is_indented_code(code_line):
+                list_content_indent = code_list_indent
+                output.append(_blank_code_text(line))
+                continue
+
+        visible_line, inside_html_comment = _without_html_comments(
+            line, inside_html_comment
+        )
+        logical_line, list_content_indent = _container_content(
+            visible_line, list_content_indent
+        )
+
+        opening = MARKDOWN_INLINE_OPEN.match(logical_line)
+        if opening:
+            marker = opening.group(1)
+            if len(set(marker)) == 1:
+                fence_character = marker[0]
+                fence_length = len(marker)
+                output.append(_blank_code_text(visible_line))
+                continue
+
+        output.append(visible_line)
+
+    text = "".join(output)
+    return INLINE_CODE_SPAN.sub(_blank_code, text)
+
+def _is_escaped(text: str, index: int) -> bool:
+    backslashes = 0
+    index -= 1
+    while index >= 0 and text[index] == "\\":
+        backslashes += 1
+        index -= 1
+    return backslashes % 2 == 1
+
+
+def _has_matching_open_bracket(text: str, closing_index: int) -> bool:
+    if _is_escaped(text, closing_index):
+        return False
+    depth = 1
+    for index in range(closing_index - 1, -1, -1):
+        if _is_escaped(text, index):
+            continue
+        if text[index] == "]":
+            depth += 1
+        elif text[index] == "[":
+            depth -= 1
+            if depth == 0:
+                return True
+    return False
+
+
+def markdown_inline_link_references(text: str) -> list[str]:
+    """Read inline Markdown destinations while respecting escaped and nested parens."""
+    references: list[str] = []
+    cursor = 0
+    while True:
+        marker = text.find("](", cursor)
+        if marker < 0:
+            return references
+        if not _has_matching_open_bracket(text, marker):
+            cursor = marker + 2
+            continue
+        index = marker + 2
+        while index < len(text) and text[index].isspace():
+            index += 1
+        if index >= len(text):
+            cursor = marker + 2
+            continue
+
+        if text[index] == "<":
+            start = index + 1
+            index = start
+            while index < len(text):
+                if text[index] == "\\":
+                    index += 2
+                    continue
+                if text[index] == ">":
+                    references.append(text[start:index])
+                    index += 1
+                    break
+                index += 1
+        else:
+            start = index
+            depth = 0
+            while index < len(text):
+                character = text[index]
+                if character == "\\":
+                    index += 2
+                    continue
+                if character == "(":
+                    depth += 1
+                elif character == ")":
+                    if depth == 0:
+                        break
+                    depth -= 1
+                elif character.isspace() and depth == 0:
+                    break
+                index += 1
+            destination = text[start:index]
+            if destination:
+                references.append(re.sub(r"\\([()])", r"\1", destination))
+        cursor = max(index, marker + 2)
+
+
+def document_link_references(text: str) -> list[str]:
+    text = strip_markdown_code(text)
+    references = markdown_inline_link_references(text)
+    for match in MARKDOWN_REFERENCE_DEFINITION.finditer(text):
+        references.append(match.group(1) or match.group(2))
+
+    html_parser = HTMLLocalReferenceParser()
+    html_parser.feed(text)
+    html_parser.close()
+    references.extend(html_parser.references)
+    return references
 
 def clean_reference(reference: str) -> str:
     value = reference.strip().strip("'\"")
@@ -168,7 +408,7 @@ def local_target(source: Path, reference: str) -> Path | None:
     else:
         target = (source.parent / path_text).resolve()
     if not target.is_relative_to(ROOT):
-        return ROOT / ".invalid-outside-repository-link"
+        raise ValueError("local document link escapes the repository")
     return target
 
 
@@ -225,12 +465,18 @@ def validate_markdown_links(errors: list[str]) -> None:
     ]
     for path in sorted(markdown_files):
         text = path.read_text(encoding="utf-8-sig")
-        for match in MARKDOWN_LINK.finditer(text):
-            reference = match.group(1)
-            target = local_target(path, reference)
+        for reference in document_link_references(text):
+            try:
+                target = local_target(path, reference)
+            except ValueError:
+                errors.append(
+                    f"document link escapes repository: "
+                    f"{path.relative_to(ROOT).as_posix()} -> {reference}"
+                )
+                continue
             if target is not None and not target.exists():
                 errors.append(
-                    f"broken Markdown link: {path.relative_to(ROOT).as_posix()} -> {reference}"
+                    f"broken document link: {path.relative_to(ROOT).as_posix()} -> {reference}"
                 )
 
 
@@ -1012,6 +1258,16 @@ def validate_ci_contract(errors: list[str]) -> None:
                 errors.append(
                     f"manifest-v2 public documentation contract missing: {path.name}: {fragment}"
                 )
+    public_validation_workflow = (
+        ROOT / ".github/workflows/public-repository-validation.yml"
+    ).read_text(encoding="utf-8-sig")
+    link_test_command = (
+        "python -m unittest tools/test_workflow_action_refs.py "
+        "tools/test_document_links.py -v"
+    )
+    if link_test_command not in public_validation_workflow:
+        errors.append("public repository validation must run its link regression tests")
+
     validator_workflow = (ROOT / ".github/workflows/t6-validator.yml").read_text(
         encoding="utf-8-sig"
     )
