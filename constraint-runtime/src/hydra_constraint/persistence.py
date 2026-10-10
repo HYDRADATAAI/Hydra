@@ -80,8 +80,11 @@ def hydrate_ledger(normalizer:EventNormalizer,raw_entries):
         ledger._last_sequence[entry.fingerprint]=entry.sequence
         if entry.action!="QUARANTINE":
             event=CanonicalEvent(**copy.deepcopy(entry.payload))
+            priority=entry.source_priority
+            if entry.action=="MERGE_SOURCE" and entry.fingerprint in ledger._active:
+                priority=max(priority,int(ledger._active[entry.fingerprint]["priority"]))
             ledger._active[entry.fingerprint]={
-                "event":event,"priority":entry.source_priority,"sequence":entry.sequence,
+                "event":event,"priority":priority,"sequence":entry.sequence,
                 "retracted":entry.action=="RETRACT" or event.record_status=="retracted",
             }
     return ledger
