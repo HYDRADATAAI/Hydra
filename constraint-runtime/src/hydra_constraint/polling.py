@@ -1,15 +1,20 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field, asdict
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
+from decimal import Decimal
+from email.utils import parsedate_to_datetime
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 import csv
 import hashlib
 import io
 import json
+import math
 import os
+import re
 import tempfile
+import threading
 import time
 import urllib.error
 import urllib.request
@@ -17,6 +22,24 @@ import urllib.request
 from .adapters import ADAPTERS
 
 RETRYABLE={429,500,502,503,504}
+_WEEKDAYS = ("Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun")
+_WEEKDAYS_FULL = ("Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday")
+_RFC850_DATE = re.compile(
+    r"(?:Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday), [0-9]{2}-(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)-(?P<year>[0-9]{2}) "
+    r"(?:[01][0-9]|2[0-3]):[0-5][0-9]:(?:[0-5][0-9]|60) GMT",
+    re.ASCII,
+)
+_HTTP_DATE = re.compile(
+    r"(?:"
+    r"(?:Mon|Tue|Wed|Thu|Fri|Sat|Sun), [0-9]{2} (?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec) [0-9]{4} "
+    r"(?:[01][0-9]|2[0-3]):[0-5][0-9]:(?:[0-5][0-9]|60) GMT|"
+    r"(?:Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday), [0-9]{2}-(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)-[0-9]{2} "
+    r"(?:[01][0-9]|2[0-3]):[0-5][0-9]:(?:[0-5][0-9]|60) GMT|"
+    r"(?:Mon|Tue|Wed|Thu|Fri|Sat|Sun) (?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec) (?: [1-9]|0[1-9]|[12][0-9]|3[01]) "
+    r"(?:[01][0-9]|2[0-3]):[0-5][0-9]:(?:[0-5][0-9]|60) [0-9]{4}"
+    r")",
+    re.ASCII,
+)
 
 def utc_now():
     return datetime.now(timezone.utc).isoformat().replace("+00:00","Z")
@@ -45,13 +68,60 @@ class BackoffPolicy:
     max_attempts:int=4
     base_seconds:float=1.0
     cap_seconds:float=30.0
-    def delay(self,attempt:int,retry_after:Optional[str]=None)->float:
+    def delay(
+        self,
+        attempt: int,
+        retry_after: Optional[str] = None,
+        now: Optional[datetime] = None,
+    ) -> float:
         if retry_after:
+            delay_seconds = retry_after.strip()
+            if delay_seconds.isascii() and delay_seconds.isdigit():
+                numeric_retry_after = Decimal(delay_seconds)
+                if numeric_retry_after >= Decimal(str(self.cap_seconds)):
+                    return self.cap_seconds
+                return float(numeric_retry_after)
             try:
-                return min(self.cap_seconds,max(0.0,float(retry_after)))
-            except Exception:
+                date_value = retry_after.strip()
+                if not _HTTP_DATE.fullmatch(date_value):
+                    raise ValueError("invalid HTTP-date")
+                current = now or datetime.now(timezone.utc)
+                if current.tzinfo is None:
+                    current = current.replace(tzinfo=timezone.utc)
+                rfc850_match = _RFC850_DATE.fullmatch(date_value)
+                leap_second = ":60 " in date_value
+                if leap_second:
+                    date_value = date_value.replace(":60 ", ":59 ", 1)
+                retry_at = parsedate_to_datetime(date_value)
+                if rfc850_match:
+                    year = current.year // 100 * 100 + int(rfc850_match.group("year"))
+                    retry_at = retry_at.replace(year=year)
+                    try:
+                        fifty_years_ahead = current.replace(year=current.year + 50)
+                    except ValueError:
+                        fifty_years_ahead = current.replace(
+                            year=current.year + 50,
+                            day=28,
+                        )
+                    if retry_at > fifty_years_ahead:
+                        retry_at = retry_at.replace(year=year - 100)
+                if retry_at.tzinfo is None:
+                    retry_at = retry_at.replace(tzinfo=timezone.utc)
+                weekday = date_value.split(",", 1)[0] if "," in date_value else date_value[:3]
+                expected_weekday = _WEEKDAYS[retry_at.weekday()]
+                if weekday not in (expected_weekday, _WEEKDAYS_FULL[retry_at.weekday()]):
+                    raise ValueError("weekday does not match HTTP-date")
+                if leap_second:
+                    if retry_at.hour != 23 or retry_at.minute != 59:
+                        raise ValueError("invalid leap second")
+                    retry_at += timedelta(seconds=1)
+                return min(
+                    self.cap_seconds,
+                    max(0.0, (retry_at - current).total_seconds()),
+                )
+            except (TypeError, ValueError, OverflowError):
                 pass
-        return min(self.cap_seconds,self.base_seconds*(2**max(0,attempt-1)))
+        return min(self.cap_seconds, self.base_seconds * (2 ** max(0, attempt - 1)))
 
 @dataclass
 class PollSpec:
@@ -194,9 +264,45 @@ class PollReport:
         return asdict(self)
 
 class PollRunner:
-    def __init__(self,durable,cursors,archive,transport,sleeper=None):
+    def __init__(self,durable,cursors,archive,transport,sleeper=None,clock=None,wall_clock=None):
         self.durable=durable; self.cursors=cursors; self.archive=archive
         self.transport=transport; self.sleeper=sleeper or time
+        self.clock=clock or time.monotonic
+        self.wall_clock=wall_clock or (lambda: datetime.now(timezone.utc))
+        self._poll_lock=threading.Lock()
+        self._last_request_at={}
+        self._next_request_at={}
+
+    @staticmethod
+    def _request_interval(spec):
+        if isinstance(spec.max_rps,bool) or not isinstance(spec.max_rps,(int,float)):
+            raise ValueError("max_rps must be finite and greater than zero")
+        try:
+            rate=float(spec.max_rps)
+        except (OverflowError,ValueError):
+            raise ValueError("max_rps must be finite and greater than zero") from None
+        if not math.isfinite(rate) or rate<=0:
+            raise ValueError("max_rps must be finite and greater than zero")
+        interval=1.0/rate
+        if not math.isfinite(interval):
+            raise ValueError("max_rps is too small to pace safely")
+        return interval
+
+    def _pace_request(self,spec,interval):
+        last=self._last_request_at.get(spec.name)
+        now=self.clock()
+        rate_deadline=last+interval if last is not None else now
+        deadline=max(rate_deadline,self._next_request_at.get(spec.name,now))
+        remaining=deadline-now
+        if remaining>0:
+            self.sleeper.sleep(remaining)
+        self._last_request_at[spec.name]=self.clock()
+
+    def _defer_source(self,spec,delay):
+        deadline=self.clock()+delay
+        self._next_request_at[spec.name]=max(
+            deadline,self._next_request_at.get(spec.name,deadline)
+        )
 
     def validate_live_spec(self,spec):
         if spec.source_class=="sec_edgar":
@@ -207,23 +313,39 @@ class PollRunner:
                 raise ValueError("SEC max_rps exceeds fair-access ceiling")
 
     def poll(self,spec,cursor_value=None):
+        interval=self._request_interval(spec)
+        with self._poll_lock:
+            return self._poll_locked(spec,cursor_value,interval)
+
+    def _poll_locked(self,spec,cursor_value,interval):
         before=self.cursors.adapter(spec.name).get("cursor")
         statuses=[]; hashes=[]; delays=[]; response=None; error=None
         for attempt in range(1,spec.backoff.max_attempts+1):
+            self._pace_request(spec,interval)
             try:
                 response=self.transport.fetch(spec.url,spec.headers)
             except Exception as exc:
                 error=str(exc); response=None
+            if response is None:
+                delay=spec.backoff.delay(attempt)
+                self._defer_source(spec,delay)
                 if attempt<spec.backoff.max_attempts:
-                    delay=spec.backoff.delay(attempt); delays.append(delay); self.sleeper.sleep(delay); continue
+                    delays.append(delay); self.sleeper.sleep(delay); continue
                 break
             statuses.append(response.status)
             hashes.append(self.archive.archive(spec.name,response,attempt))
             if response.status==200:
                 break
-            if response.status not in RETRYABLE or attempt>=spec.backoff.max_attempts:
+            if response.status not in RETRYABLE:
                 error=f"HTTP {response.status}"; break
-            delay=spec.backoff.delay(attempt,response.headers.get("retry-after"))
+            delay=spec.backoff.delay(
+                attempt,
+                response.headers.get("retry-after"),
+                now=self.wall_clock(),
+            )
+            self._defer_source(spec,delay)
+            if attempt>=spec.backoff.max_attempts:
+                error=f"HTTP {response.status}"; break
             delays.append(delay); self.sleeper.sleep(delay)
 
         if response is None or response.status!=200:
