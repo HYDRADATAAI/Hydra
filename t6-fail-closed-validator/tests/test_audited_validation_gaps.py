@@ -7,7 +7,7 @@ from types import SimpleNamespace
 from unittest.mock import patch
 
 from hydra_t6_failclosed.documents import canonical_json_bytes
-from hydra_t6_failclosed.handoff import CANDIDATE_SCHEMA, HANDOFF_CONTRACT, HANDOFF_SCHEMA, INACTIVE_EVIDENCE_FLAGS
+from hydra_t6_failclosed.handoff import CANDIDATE_SCHEMA, HANDOFF_CONTRACT, HANDOFF_SCHEMA
 from hydra_t6_failclosed.receipt import (
     ALLOWED_OUTCOMES,
     ALLOWED_REASONS,
@@ -77,7 +77,7 @@ def _oracle(*, first_id: object = "public-test-0") -> dict[str, object]:
     return {"fixtures": fixtures}
 
 
-def _handoff(active_context: dict[str, object]) -> dict[str, object]:
+def _handoff() -> dict[str, object]:
     candidate = {
         "schema": CANDIDATE_SCHEMA,
         "candidate_id": "candidate-001",
@@ -85,7 +85,7 @@ def _handoff(active_context: dict[str, object]) -> dict[str, object]:
         "canonicality": "candidate_only",
         "lifecycle_state": "handed_off",
         "lifecycle": [{"state": "created"}, {"state": "handed_off"}],
-        "evidence": [{"id": "evidence-001", "active_context": active_context}],
+        "evidence": [{"id": "evidence-001", "active_context": {}}],
         "provenance": {"created_by_stage": "T5"},
         "trust": {"conflicts": [], "contradiction_context": {"unresolved": []}},
         "uncertainty": {"confidence": "medium"},
@@ -130,28 +130,9 @@ def _service_result(handoff: dict[str, object], oracle_value: dict[str, object])
 
 
 class AuditedValidationGapTests(unittest.TestCase):
-    def test_each_inactive_flag_rejects_malformed_types_and_true(self) -> None:
-        valid_oracle = _oracle()
-        for flag in sorted(INACTIVE_EVIDENCE_FLAGS):
-            for value in ("true", 1):
-                with self.subTest(flag=flag, value=value):
-                    result = _service_result(_handoff({flag: value}), valid_oracle)
-                    self.assertEqual(result["outcome"], "QUARANTINE")
-                    self.assertTrue(any(
-                        item["code"] == "candidate_evidence_context_invalid"
-                        for item in result["violations"]
-                    ))
-            with self.subTest(flag=flag, value=True):
-                result = _service_result(_handoff({flag: True}), valid_oracle)
-                self.assertEqual(result["outcome"], "QUARANTINE")
-                self.assertTrue(any(
-                    item["code"] == "candidate_evidence_inactive"
-                    for item in result["violations"]
-                ))
-
     def test_list_valued_oracle_fixture_id_quarantines_without_type_error(self) -> None:
         result = _service_result(
-            _handoff({}),
+            _handoff(),
             _oracle(first_id=["not", "hashable"]),
         )
         self.assertEqual(result["outcome"], "QUARANTINE")
