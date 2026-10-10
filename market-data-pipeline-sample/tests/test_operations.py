@@ -197,6 +197,25 @@ class OperationsTests(unittest.TestCase):
                 )
             self.assertEqual(list(external_dir.iterdir()), [])
 
+    def test_symlinked_output_parent_fails_closed(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            external_dir = Path(tmp) / "outside"
+            symlink_parent = Path(tmp) / "linked"
+            external_dir.mkdir()
+            try:
+                symlink_parent.symlink_to(external_dir, target_is_directory=True)
+            except (OSError, NotImplementedError) as exc:
+                self.skipTest(f"symlink creation is unavailable: {exc}")
+
+            output_dir = symlink_parent / "state"
+            with self.assertRaisesRegex(OperationsError, "must not contain symlinks"):
+                execute_backfill(
+                    plan_path=PLAN,
+                    aliases_path=ALIASES,
+                    output_dir=output_dir,
+                )
+            self.assertEqual(list(external_dir.iterdir()), [])
+
     def test_symlinked_checkpoint_fails_closed(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             output_dir = Path(tmp) / "state"
