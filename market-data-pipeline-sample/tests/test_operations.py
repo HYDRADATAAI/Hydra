@@ -474,7 +474,7 @@ class OperationsTests(unittest.TestCase):
             except (OSError, NotImplementedError) as exc:
                 self.skipTest(f"symlink creation is unavailable: {exc}")
 
-            with self.assertRaisesRegex(OperationsError, "invalid"):
+            with self.assertRaisesRegex(OperationsError, "must not contain symlinks"):
                 execute_backfill(
                     plan_path=PLAN,
                     aliases_path=ALIASES,
