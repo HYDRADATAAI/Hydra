@@ -133,7 +133,11 @@ def _source_objects(
                     "S3 ObjectCreated record eventSource must be a non-blank string"
                 )
             continue
-        if not str(event_name or "").startswith("ObjectCreated:"):
+        if not isinstance(event_name, str) or not event_name.strip():
+            raise ValueError(
+                "S3 source record eventName must be a non-blank string"
+            )
+        if not event_name.startswith("ObjectCreated:"):
             continue
         s3 = record.get("s3", {})
         if not isinstance(s3, dict):
