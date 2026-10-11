@@ -1,7 +1,9 @@
 from __future__ import annotations
 
 import json
+import os
 import shutil
+import stat
 import tempfile
 import unittest
 from pathlib import Path
@@ -13,6 +15,8 @@ from hydra_market_pipeline.operations import (
     OperationsError,
     _verify_pipeline_artifacts,
     execute_backfill,
+    load_backfill_plan,
+    write_outputs,
 )
 from hydra_market_pipeline.pipeline import load_aliases, run_pipeline as producer_run_pipeline
 
@@ -138,6 +142,343 @@ class OperationsTests(unittest.TestCase):
                     plan_path=PLAN,
                     aliases_path=ALIASES,
                     output_dir=tmp,
+                )
+
+    def test_symlinked_persisted_artifacts_fail_closed(self) -> None:
+        artifact_names = (
+            "manifest.json",
+            "resolved_symbol_aliases.json",
+            "source_snapshot.csv",
+            "normalized_events.csv",
+            "normalized_events.jsonl",
+            "quarantine_records.jsonl",
+        )
+        for file_name in artifact_names:
+            with self.subTest(file_name=file_name), tempfile.TemporaryDirectory() as tmp:
+                output_dir = Path(tmp) / "state"
+                execute_backfill(
+                    plan_path=PLAN,
+                    aliases_path=ALIASES,
+                    output_dir=output_dir,
+                )
+                checkpoint = json.loads(
+                    (output_dir / "checkpoint.json").read_text(encoding="utf-8")
+                )
+                first = checkpoint["completed"][sorted(checkpoint["completed"])[0]]
+                run_dir = output_dir / "runs" / first["pipeline_run_id"]
+                artifact_path = run_dir / file_name
+                external_copy = Path(tmp) / "outside" / file_name
+                external_copy.parent.mkdir()
+                external_copy.write_bytes(artifact_path.read_bytes())
+                artifact_path.unlink()
+                try:
+                    artifact_path.symlink_to(external_copy)
+                except (OSError, NotImplementedError) as exc:
+                    self.skipTest(f"symlink creation is unavailable: {exc}")
+
+                with self.assertRaisesRegex(OperationsError, "invalid"):
+                    execute_backfill(
+                        plan_path=PLAN,
+                        aliases_path=ALIASES,
+                        output_dir=output_dir,
+                    )
+
+    def test_symlinked_output_directory_fails_closed(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            output_dir = Path(tmp) / "state"
+            external_dir = Path(tmp) / "outside"
+            external_dir.mkdir()
+            try:
+                output_dir.symlink_to(external_dir, target_is_directory=True)
+            except (OSError, NotImplementedError) as exc:
+                self.skipTest(f"symlink creation is unavailable: {exc}")
+
+            with self.assertRaisesRegex(OperationsError, "must not contain symlinks"):
+                execute_backfill(
+                    plan_path=PLAN,
+                    aliases_path=ALIASES,
+                    output_dir=output_dir,
+                )
+            self.assertEqual(list(external_dir.iterdir()), [])
+
+    def test_symlinked_new_run_directory_fails_before_writes(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            output_dir = Path(tmp) / "state"
+            runs_root = output_dir / "runs"
+            runs_root.mkdir(parents=True)
+            plan = load_backfill_plan(plan_path=PLAN, aliases_path=ALIASES)
+            result = producer_run_pipeline(
+                input_csv=plan.inputs[0].path,
+                aliases_path=ALIASES,
+            )
+            external_run_dir = Path(tmp) / "outside"
+            external_run_dir.mkdir()
+            run_dir = runs_root / result.pipeline_run_id
+            try:
+                run_dir.symlink_to(external_run_dir, target_is_directory=True)
+            except (OSError, NotImplementedError) as exc:
+                self.skipTest(f"symlink creation is unavailable: {exc}")
+
+            with self.assertRaisesRegex(OperationsError, "must not contain symlinks"):
+                execute_backfill(
+                    plan_path=PLAN,
+                    aliases_path=ALIASES,
+                    output_dir=output_dir,
+                )
+            self.assertEqual(list(external_run_dir.iterdir()), [])
+
+    def test_symlinked_new_artifact_fails_before_writes(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            output_dir = Path(tmp) / "state"
+            runs_root = output_dir / "runs"
+            runs_root.mkdir(parents=True)
+            plan = load_backfill_plan(plan_path=PLAN, aliases_path=ALIASES)
+            result = producer_run_pipeline(
+                input_csv=plan.inputs[0].path,
+                aliases_path=ALIASES,
+            )
+            run_dir = runs_root / result.pipeline_run_id
+            run_dir.mkdir()
+            external_file = Path(tmp) / "outside.csv"
+            external_file.write_bytes(b"external sentinel")
+            try:
+                (run_dir / "normalized_events.csv").symlink_to(external_file)
+            except (OSError, NotImplementedError) as exc:
+                self.skipTest(f"symlink creation is unavailable: {exc}")
+
+            with self.assertRaisesRegex(OperationsError, "artifact must not be a symlink"):
+                execute_backfill(
+                    plan_path=PLAN,
+                    aliases_path=ALIASES,
+                    output_dir=output_dir,
+                )
+            self.assertEqual(external_file.read_bytes(), b"external sentinel")
+
+    def test_atomic_checkpoint_write_does_not_follow_temp_symlink(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            output_dir = Path(tmp) / "state"
+            output_dir.mkdir()
+            external_file = Path(tmp) / "outside-checkpoint"
+            external_file.write_bytes(b"external sentinel")
+            temporary_path = output_dir / ".checkpoint.json.tmp"
+            try:
+                temporary_path.symlink_to(external_file)
+            except (OSError, NotImplementedError) as exc:
+                self.skipTest(f"symlink creation is unavailable: {exc}")
+
+            execute_backfill(
+                plan_path=PLAN,
+                aliases_path=ALIASES,
+                output_dir=output_dir,
+            )
+
+            self.assertEqual(external_file.read_bytes(), b"external sentinel")
+            self.assertTrue(temporary_path.is_symlink())
+            self.assertTrue((output_dir / "checkpoint.json").is_file())
+
+    def test_symlink_before_parent_traversal_fails_closed(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            outside_child = Path(tmp) / "outside" / "child"
+            outside_child.mkdir(parents=True)
+            linked_parent = Path(tmp) / "linked"
+            try:
+                linked_parent.symlink_to(outside_child, target_is_directory=True)
+            except (OSError, NotImplementedError) as exc:
+                self.skipTest(f"symlink creation is unavailable: {exc}")
+
+            output_dir = linked_parent / ".." / "state"
+            with self.assertRaisesRegex(OperationsError, "must not contain symlinks"):
+                execute_backfill(
+                    plan_path=PLAN,
+                    aliases_path=ALIASES,
+                    output_dir=output_dir,
+                )
+            self.assertFalse((Path(tmp) / "outside" / "state").exists())
+            self.assertFalse((Path(tmp) / "state").exists())
+
+    def test_symlinked_output_parent_fails_closed(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            external_dir = Path(tmp) / "outside"
+            symlink_parent = Path(tmp) / "linked"
+            external_dir.mkdir()
+            try:
+                symlink_parent.symlink_to(external_dir, target_is_directory=True)
+            except (OSError, NotImplementedError) as exc:
+                self.skipTest(f"symlink creation is unavailable: {exc}")
+
+            output_dir = symlink_parent / "state"
+            with self.assertRaisesRegex(OperationsError, "must not contain symlinks"):
+                execute_backfill(
+                    plan_path=PLAN,
+                    aliases_path=ALIASES,
+                    output_dir=output_dir,
+                )
+            self.assertEqual(list(external_dir.iterdir()), [])
+
+    def test_artifact_symlink_replaced_without_following_external_target(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            output_dir = Path(tmp) / "state"
+            external_file = Path(tmp) / "outside.csv"
+            external_file.write_bytes(b"external sentinel")
+
+            def inject_symlink_then_write(result, *, output_dir):
+                output_dir = Path(output_dir)
+                output_dir.mkdir(parents=True, exist_ok=True)
+                try:
+                    (output_dir / "normalized_events.csv").symlink_to(external_file)
+                except (OSError, NotImplementedError) as exc:
+                    self.skipTest(f"symlink creation is unavailable: {exc}")
+                return write_outputs(result, output_dir=output_dir)
+
+            with patch(
+                "hydra_market_pipeline.operations.write_outputs",
+                side_effect=inject_symlink_then_write,
+            ):
+                outcome = execute_backfill(
+                    plan_path=PLAN,
+                    aliases_path=ALIASES,
+                    output_dir=output_dir,
+                )
+
+            artifact = next((output_dir / "runs").glob("*/normalized_events.csv"))
+            self.assertEqual(external_file.read_bytes(), b"external sentinel")
+            self.assertFalse(artifact.is_symlink())
+            self.assertTrue(artifact.is_file())
+            self.assertTrue(outcome.manifest_path.is_file())
+
+    @unittest.skipUnless(os.name == "posix", "POSIX file modes are required")
+    def test_pipeline_artifact_permissions_honor_process_umask(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            previous_umask = os.umask(0o027)
+            try:
+                execute_backfill(
+                    plan_path=PLAN,
+                    aliases_path=ALIASES,
+                    output_dir=Path(tmp) / "state",
+                )
+            finally:
+                os.umask(previous_umask)
+
+            state_dir = Path(tmp) / "state"
+            artifact = next((state_dir / "runs").glob("*/normalized_events.csv"))
+            self.assertEqual(stat.S_IMODE(artifact.stat().st_mode), 0o640)
+            self.assertEqual(
+                stat.S_IMODE((state_dir / "checkpoint.json").stat().st_mode),
+                0o640,
+            )
+
+    @unittest.skipUnless(os.name == "posix", "POSIX file modes are required")
+    def test_atomic_checkpoint_write_preserves_existing_file_mode(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            output_dir = Path(tmp) / "state"
+            with self.assertRaises(InjectedInterruption):
+                execute_backfill(
+                    plan_path=PLAN,
+                    aliases_path=ALIASES,
+                    output_dir=output_dir,
+                    interrupt_after_new_sources=1,
+                )
+            checkpoint = output_dir / "checkpoint.json"
+            checkpoint.chmod(0o604)
+
+            execute_backfill(
+                plan_path=PLAN,
+                aliases_path=ALIASES,
+                output_dir=output_dir,
+            )
+
+            self.assertEqual(stat.S_IMODE(checkpoint.stat().st_mode), 0o604)
+
+    @unittest.skipUnless(os.name == "posix", "POSIX file modes are required")
+    def test_atomic_pipeline_write_preserves_existing_file_mode(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            plan = load_backfill_plan(plan_path=PLAN, aliases_path=ALIASES)
+            result = producer_run_pipeline(
+                input_csv=plan.inputs[0].path,
+                aliases_path=ALIASES,
+            )
+            output_dir = Path(tmp) / "run"
+            write_outputs(result, output_dir=output_dir)
+            artifact = output_dir / "normalized_events.csv"
+            artifact.chmod(0o604)
+
+            write_outputs(result, output_dir=output_dir)
+
+            self.assertEqual(stat.S_IMODE(artifact.stat().st_mode), 0o604)
+
+    def test_symlinked_checkpoint_fails_closed(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            output_dir = Path(tmp) / "state"
+            execute_backfill(
+                plan_path=PLAN,
+                aliases_path=ALIASES,
+                output_dir=output_dir,
+            )
+            checkpoint_path = output_dir / "checkpoint.json"
+            external_checkpoint = Path(tmp) / "outside-checkpoint.json"
+            external_checkpoint.write_bytes(checkpoint_path.read_bytes())
+            checkpoint_path.unlink()
+            try:
+                checkpoint_path.symlink_to(external_checkpoint)
+            except (OSError, NotImplementedError) as exc:
+                self.skipTest(f"symlink creation is unavailable: {exc}")
+
+            with self.assertRaisesRegex(OperationsError, "checkpoint must not be a symlink"):
+                execute_backfill(
+                    plan_path=PLAN,
+                    aliases_path=ALIASES,
+                    output_dir=output_dir,
+                )
+
+    def test_symlinked_run_directory_fails_closed(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            output_dir = Path(tmp) / "state"
+            execute_backfill(
+                plan_path=PLAN,
+                aliases_path=ALIASES,
+                output_dir=output_dir,
+            )
+            checkpoint = json.loads(
+                (output_dir / "checkpoint.json").read_text(encoding="utf-8")
+            )
+            first = checkpoint["completed"][sorted(checkpoint["completed"])[0]]
+            run_dir = output_dir / "runs" / first["pipeline_run_id"]
+            external_run_dir = Path(tmp) / "outside" / run_dir.name
+            external_run_dir.parent.mkdir()
+            run_dir.rename(external_run_dir)
+            try:
+                run_dir.symlink_to(external_run_dir, target_is_directory=True)
+            except (OSError, NotImplementedError) as exc:
+                self.skipTest(f"symlink creation is unavailable: {exc}")
+
+            with self.assertRaisesRegex(OperationsError, "invalid"):
+                execute_backfill(
+                    plan_path=PLAN,
+                    aliases_path=ALIASES,
+                    output_dir=output_dir,
+                )
+
+    def test_symlinked_runs_root_fails_closed(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            output_dir = Path(tmp) / "state"
+            execute_backfill(
+                plan_path=PLAN,
+                aliases_path=ALIASES,
+                output_dir=output_dir,
+            )
+            runs_root = output_dir / "runs"
+            external_runs_root = Path(tmp) / "outside"
+            runs_root.rename(external_runs_root)
+            try:
+                runs_root.symlink_to(external_runs_root, target_is_directory=True)
+            except (OSError, NotImplementedError) as exc:
+                self.skipTest(f"symlink creation is unavailable: {exc}")
+
+            with self.assertRaisesRegex(OperationsError, "must not contain symlinks"):
+                execute_backfill(
+                    plan_path=PLAN,
+                    aliases_path=ALIASES,
+                    output_dir=output_dir,
                 )
 
     def test_tampered_checkpoint_row_accounting_fails_closed(self) -> None:
