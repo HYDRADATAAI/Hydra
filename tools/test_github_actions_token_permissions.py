@@ -19,7 +19,8 @@ class GitHubActionsTokenPermissionsTests(unittest.TestCase):
             path.parent.mkdir(parents=True, exist_ok=True)
             path.write_text(text, encoding="utf-8")
             document = yaml.load(text, Loader=yaml.BaseLoader)
-            return validate_workflow(path, document, root)
+            document_node = yaml.compose(text)
+            return validate_workflow(path, document, root, document_node)
 
     def test_accepts_baseline_permissions(self):
         errors = self.validate_yaml(
@@ -79,6 +80,38 @@ class GitHubActionsTokenPermissionsTests(unittest.TestCase):
         )
         self.assertEqual(errors, [])
 
+    def test_accepts_disabled_deploy_hold(self):
+        workflow = self._valid_deploy_workflow(
+            job_text=(
+                "  deploy-and-verify:\n"
+                "    if: false\n"
+                "    environment: aws-demo\n"
+                "    runs-on: ubuntu-latest\n"
+            )
+        )
+        errors = self.validate_yaml(
+            ".github/workflows/aws-market-data-deploy.yml",
+            workflow,
+        )
+        self.assertEqual(errors, [])
+
+    def test_rejects_quoted_false_deploy_condition(self):
+        workflow = self._valid_deploy_workflow(
+            job_text=(
+                "  deploy-and-verify:\n"
+                "    if: 'false'\n"
+                "    environment: aws-demo\n"
+                "    runs-on: ubuntu-latest\n"
+            )
+        )
+        errors = self.validate_yaml(
+            ".github/workflows/aws-market-data-deploy.yml",
+            workflow,
+        )
+        self.assertTrue(
+            any("literal unquoted false" in error for error in errors)
+        )
+
     def test_rejects_additional_deploy_triggers(self):
         workflow = self._valid_deploy_workflow(
             trigger_text="workflow_dispatch: {}\n  pull_request: {}\n"
@@ -119,7 +152,7 @@ class GitHubActionsTokenPermissionsTests(unittest.TestCase):
             ".github/workflows/aws-market-data-deploy.yml",
             workflow,
         )
-        self.assertTrue(any("literal false or gated to refs/heads/main" in error for error in errors))
+        self.assertTrue(any("literal unquoted false or gated to refs/heads/main" in error for error in errors))
 
     def test_rejects_oidc_deploy_job_without_protected_environment(self):
         workflow = self._valid_deploy_workflow(

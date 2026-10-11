@@ -20,8 +20,32 @@ DEPLOY_ENVIRONMENT = "aws-demo"
 DEPLOY_PERMISSIONS = {"contents": "read", "id-token": "write"}
 
 
+def _mapping_node_value(node: yaml.Node | None, key: str) -> yaml.Node | None:
+    if not isinstance(node, yaml.MappingNode):
+        return None
+    for node_key, value in node.value:
+        if isinstance(node_key, yaml.ScalarNode) and node_key.value == key:
+            return value
+    return None
+
+
+def _has_unquoted_disabled_deploy_condition(document_node: yaml.Node | None) -> bool:
+    jobs_node = _mapping_node_value(document_node, "jobs")
+    deploy_job_node = _mapping_node_value(jobs_node, DEPLOY_JOB)
+    condition_node = _mapping_node_value(deploy_job_node, "if")
+    return (
+        isinstance(condition_node, yaml.ScalarNode)
+        and condition_node.tag == "tag:yaml.org,2002:bool"
+        and condition_node.value.lower() == "false"
+        and condition_node.style is None
+    )
+
+
 def validate_workflow(
-    workflow_path: Path, document: object, root: Path = ROOT
+    workflow_path: Path,
+    document: object,
+    root: Path = ROOT,
+    document_node: yaml.Node | None = None,
 ) -> list[str]:
     relative_path = workflow_path.relative_to(root).as_posix()
     is_deploy_workflow = relative_path == DEPLOY_WORKFLOW
@@ -68,10 +92,14 @@ def validate_workflow(
                     f"{relative_path}: OIDC deploy job must be a mapping"
                 )
             else:
-                if deploy_job.get("if") not in {DEPLOY_REF_CONDITION, DEPLOY_DISABLED_CONDITION}:
+                condition = deploy_job.get("if")
+                disabled_hold = condition == DEPLOY_DISABLED_CONDITION and (
+                    _has_unquoted_disabled_deploy_condition(document_node)
+                )
+                if condition != DEPLOY_REF_CONDITION and not disabled_hold:
                     errors.append(
                         f"{relative_path}: OIDC deploy job must be gated to "
-                        "literal false or gated to refs/heads/main"
+                        "literal unquoted false or gated to refs/heads/main"
                     )
                 if deploy_job.get("environment") != DEPLOY_ENVIRONMENT:
                     errors.append(
@@ -91,14 +119,13 @@ def validate_repository(root: Path = ROOT) -> list[str]:
     errors: list[str] = []
     for path in paths:
         try:
-            document = yaml.load(
-                path.read_text(encoding="utf-8"),
-                Loader=yaml.BaseLoader,
-            )
+            source = path.read_text(encoding="utf-8")
+            document_node = yaml.compose(source)
+            document = yaml.load(source, Loader=yaml.BaseLoader)
         except (OSError, yaml.YAMLError) as exc:
             errors.append(f"{path.relative_to(root).as_posix()}: unable to parse YAML: {exc}")
             continue
-        errors.extend(validate_workflow(path, document, root))
+        errors.extend(validate_workflow(path, document, root, document_node))
     return errors
 
 
