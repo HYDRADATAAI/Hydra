@@ -82,6 +82,26 @@ class ProcessorTests(unittest.TestCase):
         self.assertEqual(manifest["quarantined_rows"], 4)
         self.assertEqual(manifest["pipeline_run_id"], first.run_id)
 
+    def test_trimmed_headers_are_used_for_row_lookup(self):
+        source = FIXTURE.read_bytes()
+        header, body = source.split(b"\n", 1)
+        padded = b",".join(b" " + field + b" " for field in header.split(b","))
+        expected = process_csv(source)
+        actual = process_csv(padded + b"\n" + body)
+
+        self.assertEqual(
+            [record["symbol"] for record in actual.accepted],
+            [record["symbol"] for record in expected.accepted],
+        )
+        self.assertEqual(
+            [record["errors"] for record in actual.quarantined],
+            [record["errors"] for record in expected.quarantined],
+        )
+        self.assertEqual(
+            [record["raw_record"] for record in actual.quarantined],
+            [record["raw_record"] for record in expected.quarantined],
+        )
+
     def test_file_contract_fails_closed(self):
         malformed = b"symbol,price\nAAA,1.0\n"
         with self.assertRaisesRegex(ContractError, "contract mismatch"):

@@ -138,7 +138,7 @@ def replay_pipeline(*, source_bytes: bytes, aliases_bytes: bytes) -> ReplayResul
     except UnicodeDecodeError as exc:
         raise ReplayContractError("source snapshot must be valid UTF-8") from exc
     reader = csv.DictReader(io.StringIO(text, newline=""))
-    _validate_header(reader.fieldnames)
+    reader.fieldnames = _validate_header(reader.fieldnames)
 
     accepted: list[dict[str, Any]] = []
     quarantined: list[dict[str, Any]] = []
@@ -288,7 +288,7 @@ def _reject_nonfinite(value: str) -> None:
     raise ReplayContractError(f"non-finite JSON number: {value}")
 
 
-def _validate_header(fieldnames: list[str] | None) -> None:
+def _validate_header(fieldnames: list[str] | None) -> list[str]:
     if fieldnames is None:
         raise ReplayContractError("source snapshot has no CSV header")
     normalized = [field.strip() for field in fieldnames]
@@ -300,6 +300,7 @@ def _validate_header(fieldnames: list[str] | None) -> None:
             "source CSV contract mismatch: "
             f"missing={missing}, extra={extra}, duplicates={duplicates}"
         )
+    return normalized
 
 
 def _parse_event_time(value: str, errors: list[str]) -> datetime | None:
