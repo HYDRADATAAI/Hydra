@@ -108,6 +108,30 @@ class PollPreflightTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "matching sec_edgar"):
             runner.poll(sec_spec(source_class="other"))
 
+    def test_poll_rejects_unicode_dot_sec_alias_before_cursor_or_transport(self):
+        for separator in ("\\u3002", "\\uff0e", "\\uff61"):
+            with self.subTest(separator=separator):
+                cursors = self.Cursors()
+                transport = self.Transport()
+                runner = PollRunner(None, cursors, None, transport)
+                spec = PollSpec(
+                    name="fixture",
+                    adapter="fixture",
+                    source_class="fixture",
+                    url=f"https://data{separator}sec{separator}gov/feed",
+                    parser="json_records",
+                    cadence_minutes=60,
+                    stale_after_minutes=180,
+                    headers={},
+                    max_rps=1,
+                )
+
+                with self.assertRaisesRegex(ValueError, "matching sec_edgar"):
+                    runner.poll(spec)
+
+                self.assertEqual(cursors.reads, 0)
+                self.assertEqual(transport.calls, 0)
+
     def test_poll_rejects_over_limit_sec_rate_before_cursor_or_transport(self):
         cursors = self.Cursors()
         transport = self.Transport()
