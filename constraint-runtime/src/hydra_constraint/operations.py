@@ -10,7 +10,7 @@ import json
 
 from .runtime import unresolved_admission
 
-PARSER_VERSIONS={"bis_csv":"1.0.0","json_records":"1.0.0","sec_json":"1.0.0"}
+PARSER_VERSIONS={"bis_csv":"1.0.0","json_records":"1.0.0","sec_json":"1.0.1"}
 
 def _sha(value:Any)->str:
     return hashlib.sha256(json.dumps(value,sort_keys=True,separators=(",",":"),default=str).encode()).hexdigest()
@@ -44,15 +44,45 @@ class DriftGuard:
                 x=json.loads(body.decode("utf-8"))
             except Exception:
                 x={}; issues.append("invalid_json")
-            recent=x.get("filings",{}).get("recent",{}) if isinstance(x,dict) else {}
-            observed["root_keys"]=sorted(x.keys()) if isinstance(x,dict) else []
-            observed["recent_keys"]=sorted(recent.keys()) if isinstance(recent,dict) else []
+            if not isinstance(x,dict):
+                issues.append("invalid_root_type")
+                x={}
+            filings=x.get("filings")
+            if not isinstance(filings,dict):
+                issues.append("invalid_filings_type")
+                filings={}
+            recent=filings.get("recent")
+            if not isinstance(recent,dict):
+                issues.append("invalid_recent_type")
+                recent={}
+            observed["root_keys"]=sorted(x.keys())
+            observed["recent_keys"]=sorted(recent.keys())
+            observed["recent_array_lengths"]={}
             for key in c["required_root_keys"]:
                 if key not in x:
                     issues.append("missing_root:"+key)
+            if "cik" in x and (
+                isinstance(x["cik"],bool) or not isinstance(x["cik"],(str,int))
+                or not str(x["cik"]).strip()
+            ):
+                issues.append("invalid_root_type:cik")
+            if "name" in x and (
+                not isinstance(x["name"],str) or not x["name"].strip()
+            ):
+                issues.append("invalid_root_type:name")
+            lengths={}
             for key in c["required_recent_keys"]:
                 if key not in recent:
                     issues.append("missing_recent:"+key)
+                elif not isinstance(recent[key],list):
+                    issues.append("invalid_recent_array:"+key)
+                else:
+                    lengths[key]=len(recent[key])
+                    if any(not isinstance(value,str) for value in recent[key]):
+                        issues.append("invalid_recent_value_type:"+key)
+            observed["recent_array_lengths"]=lengths
+            if len(set(lengths.values()))>1:
+                issues.append("inconsistent_recent_array_lengths")
         else:
             try:
                 x=json.loads(body.decode("utf-8"))
