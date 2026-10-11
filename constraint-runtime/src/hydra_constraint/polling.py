@@ -93,7 +93,16 @@ class UrllibTransport:
             with urllib.request.urlopen(req,timeout=timeout) as r:
                 return HttpResponse(url,int(r.status),{k.lower():v for k,v in r.headers.items()},r.read(),utc_now())
         except urllib.error.HTTPError as e:
-            return HttpResponse(url,int(e.code),{k.lower():v for k,v in (e.headers.items() if e.headers else [])},e.read(),utc_now())
+            try:
+                return HttpResponse(
+                    url,
+                    int(e.code),
+                    {k.lower(): v for k, v in (e.headers.items() if e.headers else [])},
+                    e.read(),
+                    utc_now(),
+                )
+            finally:
+                e.close()
 
 class RecordingSleeper:
     def __init__(self):
