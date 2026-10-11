@@ -1,5 +1,5 @@
 from dataclasses import asdict
-from datetime import datetime
+from datetime import datetime, timezone
 from hashlib import sha256
 import json
 from .models import ReplayCase, OUTCOME_CLASSES
@@ -37,12 +37,19 @@ def replay_case(case: ReplayCase) -> dict:
             raise LeakageError(f"{e.evidence_id}: KNOWN_AT after REPLAY_T")
         if not e.source_uri or not e.source_hash:
             raise LeakageError(f"{e.evidence_id}: provenance incomplete")
+        resolved_at=e.resolved_at
+        if (
+            resolved_at is not None
+            and resolved_at.astimezone(timezone.utc)
+            > case.replay_t.astimezone(timezone.utc)
+        ):
+            resolved_at=None
         evidence_fingerprints.append({
             "evidence_id":e.evidence_id,
             "known_at":e.known_at.isoformat(),
             "observed_at":e.observed_at.isoformat(),
             "effective_at":None if e.effective_at is None else e.effective_at.isoformat(),
-            "resolved_at":None if e.resolved_at is None else e.resolved_at.isoformat(),
+            "resolved_at":None if resolved_at is None else resolved_at.isoformat(),
             "source_uri":e.source_uri,
             "source_hash":e.source_hash,
             "payload_hash":_stable_hash(e.payload),
