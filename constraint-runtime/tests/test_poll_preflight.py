@@ -181,7 +181,8 @@ class PollPreflightTests(unittest.TestCase):
             runner.poll(spec)
 
         self.assertEqual(transport.calls, 2)
-        self.assertEqual(sleeper.delays, [0.05])
+        self.assertEqual(len(sleeper.delays), 1)
+        self.assertAlmostEqual(sleeper.delays[0], 0.05)
 
     def test_poll_rejects_placeholder_user_agent_before_cursor_or_transport(self):
         cursors = self.Cursors()
