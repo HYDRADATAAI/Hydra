@@ -145,6 +145,30 @@ class MarketDataPipelineTests(unittest.TestCase):
                 list(csv_events[0].keys()),
             )
 
+    def test_trimmed_headers_are_used_for_row_lookup(self) -> None:
+        source = INPUT.read_bytes()
+        header, body = source.split(b"\n", 1)
+        padded = b",".join(b" " + field + b" " for field in header.split(b","))
+        expected = run_pipeline(input_csv=INPUT, aliases_path=ALIASES)
+
+        with tempfile.TemporaryDirectory() as tmp:
+            padded_input = Path(tmp) / "padded.csv"
+            padded_input.write_bytes(padded + b"\n" + body)
+            actual = run_pipeline(input_csv=padded_input, aliases_path=ALIASES)
+
+        self.assertEqual(
+            [event.symbol for event in actual.accepted],
+            [event.symbol for event in expected.accepted],
+        )
+        self.assertEqual(
+            [record.errors for record in actual.quarantined],
+            [record.errors for record in expected.quarantined],
+        )
+        self.assertEqual(
+            [dict(record.raw_record) for record in actual.quarantined],
+            [dict(record.raw_record) for record in expected.quarantined],
+        )
+
     def test_normalized_identity_and_provenance_are_stable(self) -> None:
         first = run_pipeline(input_csv=INPUT, aliases_path=ALIASES)
         second = run_pipeline(input_csv=INPUT, aliases_path=ALIASES)
@@ -173,6 +197,18 @@ class MarketDataPipelineTests(unittest.TestCase):
             self.assertEqual(len(event.raw_record_sha256), 64)
             self.assertGreaterEqual(event.source_row_number, 2)
             self.assertEqual(event.transform_version, first.transform_version)
+
+    def test_unterminated_quoted_row_rejects_the_entire_file(self) -> None:
+        malformed = (
+            b"source_system,source_record_id,symbol,event_time,price,volume,currency,venue\n"
+            b'SYNTH_A,bad-001,AAA,"unterminated\n'
+            b"SYNTH_A,good-002,BBB,2026-09-24T17:30:00Z,1.25,1,USD,XNAS\n"
+        )
+        with tempfile.TemporaryDirectory() as tmp:
+            source = Path(tmp) / "malformed.csv"
+            source.write_bytes(malformed)
+            with self.assertRaisesRegex(ContractError, "input CSV is malformed"):
+                run_pipeline(input_csv=source, aliases_path=ALIASES)
 
     def test_file_level_contract_drift_fails_the_run(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
