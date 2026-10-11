@@ -2,21 +2,36 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field, asdict
 from datetime import datetime, timezone
+from email.utils import parsedate_to_datetime
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 import csv
 import hashlib
 import io
 import json
+import math
+from collections.abc import Mapping
 import os
+import re
 import tempfile
+import threading
 import time
 import urllib.error
 import urllib.request
+from urllib.parse import urlsplit
 
 from .adapters import ADAPTERS
 
 RETRYABLE={429,500,502,503,504}
+DEFAULT_MAX_RESPONSE_BYTES=2_000_000
+_SEC_REQUEST_LOCK=threading.Lock()
+_SEC_LAST_REQUEST_AT: Optional[float]=None
+
+class ResponseTooLargeError(ValueError):
+    def __init__(self, max_bytes, status=None):
+        self.max_bytes=max_bytes
+        self.status=status
+        super().__init__(f"response exceeds max_bytes={max_bytes}")
 
 def utc_now():
     return datetime.now(timezone.utc).isoformat().replace("+00:00","Z")
@@ -46,10 +61,25 @@ class BackoffPolicy:
     base_seconds:float=1.0
     cap_seconds:float=30.0
     def delay(self,attempt:int,retry_after:Optional[str]=None)->float:
-        if retry_after:
+        if isinstance(retry_after,str):
+            if retry_after.isascii() and retry_after.isdigit():
+                try:
+                    delay_seconds=int(retry_after)
+                except (ValueError,OverflowError):
+                    return self.cap_seconds
+                if delay_seconds>=self.cap_seconds:
+                    return self.cap_seconds
+                try:
+                    return min(self.cap_seconds,float(delay_seconds))
+                except OverflowError:
+                    return self.cap_seconds
             try:
-                return min(self.cap_seconds,max(0.0,float(retry_after)))
-            except Exception:
+                retry_at=parsedate_to_datetime(retry_after)
+                if retry_at.tzinfo is None:
+                    retry_at=retry_at.replace(tzinfo=timezone.utc)
+                seconds=(retry_at.astimezone(timezone.utc)-datetime.now(timezone.utc)).total_seconds()
+                return min(self.cap_seconds,max(0.0,seconds))
+            except (TypeError,ValueError,OverflowError):
                 pass
         return min(self.cap_seconds,self.base_seconds*(2**max(0,attempt-1)))
 
@@ -86,14 +116,69 @@ class FixtureTransport:
         self.calls[url]=i+1
         return seq[min(i,len(seq)-1)]
 
+def _require_https_url(url):
+    try:
+        parsed=urlsplit(url)
+        hostname=parsed.hostname
+        parsed.port
+    except (AttributeError,TypeError,ValueError) as exc:
+        raise ValueError("poll source URL must be a valid HTTPS URL") from exc
+    if (
+        parsed.scheme.casefold()!="https"
+        or not hostname
+        or parsed.username is not None
+        or parsed.password is not None
+    ):
+        raise ValueError("poll source URL must be an HTTPS URL with a hostname and no credentials")
+
+
+class _NoRedirectHandler(urllib.request.HTTPRedirectHandler):
+    def redirect_request(self, req, fp, code, msg, headers, newurl):
+        return None
+
+
+def _read_bounded(stream,max_bytes,status):
+    body=bytearray()
+    while len(body)<=max_bytes:
+        chunk=stream.read(max_bytes+1-len(body))
+        if not chunk:
+            break
+        body.extend(chunk)
+    if len(body)>max_bytes:
+        raise ResponseTooLargeError(max_bytes,status)
+    return bytes(body)
+
+
 class UrllibTransport:
-    def fetch(self,url,headers=None,timeout=20):
+    def __init__(self,max_bytes=DEFAULT_MAX_RESPONSE_BYTES):
+        if not isinstance(max_bytes,int) or isinstance(max_bytes,bool) or max_bytes<=0:
+            raise ValueError("max_bytes must be a positive integer")
+        self.max_bytes=max_bytes
+
+    def fetch(self,url,headers=None,timeout=20,max_bytes=None):
+        if max_bytes is None:
+            max_bytes=self.max_bytes
+        if not isinstance(max_bytes,int) or isinstance(max_bytes,bool) or max_bytes<=0:
+            raise ValueError("max_bytes must be a positive integer")
+        _require_https_url(url)
         req=urllib.request.Request(url,headers=headers or {},method="GET")
+        opener=urllib.request.build_opener(_NoRedirectHandler())
         try:
-            with urllib.request.urlopen(req,timeout=timeout) as r:
-                return HttpResponse(url,int(r.status),{k.lower():v for k,v in r.headers.items()},r.read(),utc_now())
-        except urllib.error.HTTPError as e:
-            return HttpResponse(url,int(e.code),{k.lower():v for k,v in (e.headers.items() if e.headers else [])},e.read(),utc_now())
+            with opener.open(req,timeout=timeout) as response:
+                status=int(response.status)
+                body=_read_bounded(response,max_bytes,status)
+                return HttpResponse(
+                    url,status,{key.lower():value for key,value in response.headers.items()},
+                    body,utc_now(),
+                )
+        except urllib.error.HTTPError as error:
+            try:
+                status=int(error.code)
+                body=_read_bounded(error,max_bytes,status)
+                headers={key.lower():value for key,value in (error.headers.items() if error.headers else [])}
+                return HttpResponse(url,status,headers,body,utc_now())
+            finally:
+                error.close()
 
 class RecordingSleeper:
     def __init__(self):
@@ -194,28 +279,125 @@ class PollReport:
         return asdict(self)
 
 class PollRunner:
-    def __init__(self,durable,cursors,archive,transport,sleeper=None):
+    def __init__(self,durable,cursors,archive,transport,sleeper=None,max_response_bytes=None):
         self.durable=durable; self.cursors=cursors; self.archive=archive
         self.transport=transport; self.sleeper=sleeper or time
+        if max_response_bytes is None:
+            max_response_bytes=(
+                transport.max_bytes
+                if isinstance(transport,UrllibTransport)
+                else DEFAULT_MAX_RESPONSE_BYTES
+            )
+        if not isinstance(max_response_bytes,int) or isinstance(max_response_bytes,bool) or max_response_bytes<=0:
+            raise ValueError("max_response_bytes must be a positive integer")
+        self.max_response_bytes=max_response_bytes
+
+    def _uses_builtin_urllib_transport(self):
+        return (
+            isinstance(self.transport,UrllibTransport)
+            and type(self.transport).fetch is UrllibTransport.fetch
+        )
+
+    def _fetch_sec(self,spec):
+        global _SEC_LAST_REQUEST_AT
+        interval=1.0/float(spec.max_rps)
+        with _SEC_REQUEST_LOCK:
+            now=time.monotonic()
+            delay=0.0 if _SEC_LAST_REQUEST_AT is None else max(
+                0.0,_SEC_LAST_REQUEST_AT+interval-now
+            )
+            if delay:
+                self.sleeper.sleep(delay)
+            _SEC_LAST_REQUEST_AT=time.monotonic()
+            if self._uses_builtin_urllib_transport():
+                return self.transport.fetch(
+                    spec.url,spec.headers,max_bytes=self.max_response_bytes,
+                )
+            return self.transport.fetch(spec.url,spec.headers)
 
     def validate_live_spec(self,spec):
-        if spec.source_class=="sec_edgar":
-            ua=spec.headers.get("User-Agent","")
-            if not ua or "REPLACE_" in ua:
-                raise ValueError("SEC live polling requires real User-Agent/contact")
-            if spec.max_rps>10:
-                raise ValueError("SEC max_rps exceeds fair-access ceiling")
+        sec_selector=(
+            str(spec.adapter).casefold()=="sec_edgar"
+            or str(spec.source_class).casefold()=="sec_edgar"
+            or str(spec.parser).casefold()=="sec_json"
+        )
+        try:
+            parsed_url=urlsplit(spec.url)
+            raw_host=parsed_url.hostname or ""
+        except (AttributeError,TypeError,ValueError) as exc:
+            if sec_selector:
+                raise ValueError("SEC polling requires a valid HTTPS SEC URL") from exc
+            return
+        try:
+            host=raw_host.encode("idna").decode("ascii").casefold().rstrip(".")
+        except UnicodeError as exc:
+            raise ValueError("polling URL hostname is not valid IDNA") from exc
+        is_sec_host=host=="sec.gov" or host.endswith(".sec.gov")
+        if not sec_selector and not is_sec_host:
+            return
+        if (spec.adapter,spec.source_class,spec.parser)!=("sec_edgar","sec_edgar","sec_json"):
+            raise ValueError("SEC polling requires matching sec_edgar adapter/source_class and sec_json parser")
+        try:
+            port=parsed_url.port
+        except ValueError as exc:
+            raise ValueError("SEC polling requires a valid HTTPS SEC URL") from exc
+        if (parsed_url.scheme.casefold()!="https" or not is_sec_host or port not in (None,443)
+                or parsed_url.username is not None or parsed_url.password is not None):
+            raise ValueError("SEC polling requires an HTTPS URL on sec.gov or a subdomain")
+        if not isinstance(spec.headers,Mapping):
+            raise ValueError("SEC polling headers must be a mapping with one User-Agent")
+        user_agent_values=[
+            value for key,value in spec.headers.items()
+            if str(key).casefold()=="user-agent"
+        ]
+        if len(user_agent_values)!=1 or not isinstance(user_agent_values[0],str):
+            raise ValueError("SEC live polling requires exactly one User-Agent header")
+        user_agent=user_agent_values[0].strip()
+        if not user_agent or "REPLACE_" in user_agent.upper() or "\r" in user_agent or "\n" in user_agent:
+            raise ValueError("SEC live polling requires a non-empty, non-placeholder User-Agent")
+        if not re.search(r"[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}", user_agent, re.IGNORECASE):
+            raise ValueError("SEC live polling User-Agent must include a contact email")
+        if isinstance(spec.max_rps,bool):
+            raise ValueError("SEC max_rps must be a finite number above zero and at or below 10")
+        try:
+            max_rps=float(spec.max_rps)
+        except (TypeError,ValueError,OverflowError) as exc:
+            raise ValueError("SEC max_rps must be a finite number above zero and at or below 10") from exc
+        if not math.isfinite(max_rps) or max_rps<=0 or max_rps>10:
+            raise ValueError("SEC max_rps must be a finite number above zero and at or below 10")
 
     def poll(self,spec,cursor_value=None):
+        self.validate_live_spec(spec)
+        if self._uses_builtin_urllib_transport():
+            _require_https_url(spec.url)
         before=self.cursors.adapter(spec.name).get("cursor")
         statuses=[]; hashes=[]; delays=[]; response=None; error=None
         for attempt in range(1,spec.backoff.max_attempts+1):
             try:
-                response=self.transport.fetch(spec.url,spec.headers)
+                if (spec.adapter,spec.source_class,spec.parser)==(
+                    "sec_edgar","sec_edgar","sec_json"
+                ):
+                    response=self._fetch_sec(spec)
+                elif self._uses_builtin_urllib_transport():
+                    response=self.transport.fetch(
+                        spec.url,spec.headers,max_bytes=self.max_response_bytes,
+                    )
+                else:
+                    response=self.transport.fetch(spec.url,spec.headers)
+            except ResponseTooLargeError as exc:
+                if exc.status is not None:
+                    statuses.append(exc.status)
+                error=str(exc); response=None
+                break
             except Exception as exc:
                 error=str(exc); response=None
                 if attempt<spec.backoff.max_attempts:
                     delay=spec.backoff.delay(attempt); delays.append(delay); self.sleeper.sleep(delay); continue
+                break
+            if len(response.body)>self.max_response_bytes:
+                statuses.append(response.status)
+                error=str(ResponseTooLargeError(self.max_response_bytes,response.status))
+                response=None
                 break
             statuses.append(response.status)
             hashes.append(self.archive.archive(spec.name,response,attempt))
