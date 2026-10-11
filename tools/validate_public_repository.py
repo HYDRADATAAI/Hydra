@@ -962,6 +962,17 @@ def validate_ci_contract(errors: list[str]) -> None:
     validate_manifest_v2_replay_contract(errors)
     validate_pre_upload_verifier_contract(errors)
 
+    validation_workflow = (
+        ROOT / ".github/workflows/public-repository-validation.yml"
+    ).read_text(encoding="utf-8-sig")
+    validation_test_fragments = (
+        '"tools/test_aws_deploy_teardown.py"',
+        "python -m unittest tools.test_aws_deploy_teardown -v",
+    )
+    for fragment in validation_test_fragments:
+        if fragment not in validation_workflow:
+            errors.append(f"public-repository-validation CI contract missing: {fragment}")
+
     workflow_dir = ROOT / ".github" / "workflows"
     workflow_files = sorted(
         list(workflow_dir.glob("*.yml")) + list(workflow_dir.glob("*.yaml"))
