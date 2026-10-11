@@ -32,6 +32,14 @@ def sec_spec(**changes):
 
 
 class PollPreflightTests(unittest.TestCase):
+    def test_retry_after_accepts_only_ascii_delay_seconds(self):
+        policy = BackoffPolicy(max_attempts=5, base_seconds=2, cap_seconds=5)
+        self.assertEqual(policy.delay(2, "2"), 2)
+        self.assertEqual(policy.delay(2, "99"), 5)
+        for malformed in ("-1", "1.5", "nan", "inf", "٢"):
+            with self.subTest(retry_after=malformed):
+                self.assertEqual(policy.delay(2, malformed), 4)
+
     class Cursors:
         def __init__(self):
             self.reads = 0
