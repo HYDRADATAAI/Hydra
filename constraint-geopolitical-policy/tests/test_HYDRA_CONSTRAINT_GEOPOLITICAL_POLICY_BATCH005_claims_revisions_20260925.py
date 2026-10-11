@@ -1,9 +1,13 @@
 import unittest
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone, tzinfo
 from pathlib import Path
 
 from hydra_constraint_policy.claims import (
+    ClaimEvidence,
+    ClaimStance,
     ClaimState,
+    ContestedClaim,
+    HistoricalRevision,
     RevisionRelation,
     available_claim_evidence,
     claim_state_as_of,
@@ -17,6 +21,19 @@ ROOT=Path(__file__).resolve().parents[2]
 FIXTURE=ROOT/"constraint-geopolitical-policy"/"data"/"HYDRA_CONSTRAINT_GEOPOLITICAL_POLICY_BATCH005_CONTESTED_REVISION_FIXTURES_20260925.json"
 BATCH3=ROOT/"constraint-geopolitical-policy"/"data"/"HYDRA_CONSTRAINT_GEOPOLITICAL_POLICY_BATCH003_SOURCED_HISTORICAL_CASES_20260925.json"
 UTC=timezone.utc
+
+
+class RepeatedHour(tzinfo):
+    """A self-contained fallback timezone for repeated-hour ordering tests."""
+
+    def utcoffset(self, dt):
+        return timedelta(hours=-4 if dt is None or dt.fold == 0 else -5)
+
+    def dst(self, dt):
+        return timedelta(0)
+
+    def tzname(self, dt):
+        return "TEST-FOLD"
 
 
 class Batch005ClaimsRevisionsTests(unittest.TestCase):
@@ -55,6 +72,69 @@ class Batch005ClaimsRevisionsTests(unittest.TestCase):
         for revision in self.revisions:
             self.assertIn(revision.prior_document_id,source_ids)
             self.assertIn(revision.revision_document_id,source_ids)
+
+    def test_claim_evidence_fold_cutoff_uses_utc_instant(self):
+        eastern = RepeatedHour()
+        early = ClaimEvidence(
+            "early", "doc-early",
+            datetime(2024, 11, 3, 1, 30, tzinfo=eastern, fold=0),
+            ClaimStance.SUPPORTING, "source", "support",
+        )
+        late = ClaimEvidence(
+            "late", "doc-late",
+            datetime(2024, 11, 3, 1, 15, tzinfo=eastern, fold=1),
+            ClaimStance.OPPOSING, "source", "oppose",
+        )
+        claim = ContestedClaim("fold-claim", "proposition", (early, late))
+        cutoff = datetime(2024, 11, 3, 1, 30, tzinfo=eastern, fold=0)
+
+        self.assertEqual(ClaimState.SUPPORT_ONLY, claim_state_as_of(claim, cutoff))
+        self.assertEqual((early,), available_claim_evidence(claim, cutoff))
+
+    def test_claim_evidence_sorting_uses_utc_instant_across_fold(self):
+        eastern = RepeatedHour()
+        later_utc = ClaimEvidence(
+            "later", "doc-later",
+            datetime(2024, 11, 3, 1, 15, tzinfo=eastern, fold=1),
+            ClaimStance.OPPOSING, "source", "later",
+        )
+        earlier_utc = ClaimEvidence(
+            "earlier", "doc-earlier",
+            datetime(2024, 11, 3, 1, 45, tzinfo=eastern, fold=0),
+            ClaimStance.SUPPORTING, "source", "earlier",
+        )
+        claim = ContestedClaim("fold-claim", "proposition", (later_utc, earlier_utc))
+        cutoff = datetime(2024, 11, 3, 1, 30, tzinfo=eastern, fold=1)
+
+        self.assertEqual(
+            ("earlier", "later"),
+            tuple(e.evidence_id for e in available_claim_evidence(claim, cutoff)),
+        )
+
+    def test_revision_fold_cutoff_and_order_use_utc_instants(self):
+        eastern = RepeatedHour()
+        later_utc = HistoricalRevision(
+            "later", "prior-later", "revision-later",
+            datetime(2024, 11, 3, 1, 0, tzinfo=eastern, fold=1),
+            RevisionRelation.MODIFIES, "later",
+        )
+        earlier_utc = HistoricalRevision(
+            "earlier", "prior-earlier", "revision-earlier",
+            datetime(2024, 11, 3, 1, 15, tzinfo=eastern, fold=0),
+            RevisionRelation.CLARIFIES, "earlier",
+        )
+        before_second_fold = datetime(2024, 11, 3, 1, 30, tzinfo=eastern, fold=0)
+        after_second_fold = datetime(2024, 11, 3, 1, 30, tzinfo=eastern, fold=1)
+
+        self.assertEqual((earlier_utc,), revisions_as_of(
+            (later_utc, earlier_utc), before_second_fold
+        ))
+        self.assertEqual(
+            ("earlier", "later"),
+            tuple(r.revision_id for r in revisions_as_of(
+                (later_utc, earlier_utc), after_second_fold
+            )),
+        )
 
 
 if __name__=="__main__":

@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import datetime, timezone
 from enum import Enum
 import json
 from pathlib import Path
@@ -9,6 +9,10 @@ from pathlib import Path
 
 class ClaimEvidenceError(ValueError):
     pass
+
+
+def _utc_instant(value: datetime) -> datetime:
+    return value.astimezone(timezone.utc)
 
 
 class ClaimStance(str,Enum):
@@ -89,7 +93,8 @@ def claim_state_as_of(claim: ContestedClaim, as_of: datetime) -> ClaimState:
     claim.validate()
     if as_of.tzinfo is None or as_of.utcoffset() is None:
         raise ClaimEvidenceError("as_of must be timezone-aware")
-    available=[e for e in claim.evidence if e.known_at<=as_of]
+    as_of_instant = _utc_instant(as_of)
+    available=[e for e in claim.evidence if _utc_instant(e.known_at)<=as_of_instant]
     if not available:
         return ClaimState.NO_AVAILABLE_EVIDENCE
     stances={e.stance for e in available}
@@ -106,15 +111,17 @@ def available_claim_evidence(claim: ContestedClaim, as_of: datetime) -> tuple[Cl
     claim.validate()
     if as_of.tzinfo is None or as_of.utcoffset() is None:
         raise ClaimEvidenceError("as_of must be timezone-aware")
+    as_of_instant = _utc_instant(as_of)
     return tuple(sorted(
-        (e for e in claim.evidence if e.known_at<=as_of),
-        key=lambda e:(e.known_at,e.evidence_id),
+        (e for e in claim.evidence if _utc_instant(e.known_at)<=as_of_instant),
+        key=lambda e:(_utc_instant(e.known_at),e.evidence_id),
     ))
 
 
 def revisions_as_of(revisions: tuple[HistoricalRevision,...], as_of: datetime) -> tuple[HistoricalRevision,...]:
     if as_of.tzinfo is None or as_of.utcoffset() is None:
         raise ClaimEvidenceError("as_of must be timezone-aware")
+    as_of_instant = _utc_instant(as_of)
     ids=set()
     out=[]
     for revision in revisions:
@@ -122,9 +129,9 @@ def revisions_as_of(revisions: tuple[HistoricalRevision,...], as_of: datetime) -
         if revision.revision_id in ids:
             raise ClaimEvidenceError(f"duplicate revision_id {revision.revision_id}")
         ids.add(revision.revision_id)
-        if revision.known_at<=as_of:
+        if _utc_instant(revision.known_at)<=as_of_instant:
             out.append(revision)
-    return tuple(sorted(out,key=lambda r:(r.known_at,r.revision_id)))
+    return tuple(sorted(out,key=lambda r:(_utc_instant(r.known_at),r.revision_id)))
 
 
 def _parse_dt(value: str, label: str) -> datetime:
