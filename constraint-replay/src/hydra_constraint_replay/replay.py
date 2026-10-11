@@ -14,6 +14,9 @@ def _require_aware(ts: datetime, label: str) -> None:
     if ts.tzinfo is None or ts.utcoffset() is None:
         raise LeakageError(f"{label}: timezone-aware timestamp required")
 
+def _utc_instant(ts: datetime) -> datetime:
+    return ts.astimezone(timezone.utc)
+
 def replay_case(case: ReplayCase) -> dict:
     _require_aware(case.replay_t, "REPLAY_T")
     if not 0 <= case.hypothesis.confidence_at_t <= 1:
@@ -21,6 +24,7 @@ def replay_case(case: ReplayCase) -> dict:
     if case.outcome.outcome_class not in OUTCOME_CLASSES:
         raise ValueError("unknown outcome class")
 
+    replay_instant=_utc_instant(case.replay_t)
     ids=set()
     evidence_fingerprints=[]
     for e in case.evidence:
@@ -33,15 +37,14 @@ def replay_case(case: ReplayCase) -> dict:
         if e.evidence_id in ids:
             raise ValueError(f"duplicate evidence_id: {e.evidence_id}")
         ids.add(e.evidence_id)
-        if e.known_at > case.replay_t:
+        if _utc_instant(e.known_at) > replay_instant:
             raise LeakageError(f"{e.evidence_id}: KNOWN_AT after REPLAY_T")
         if not e.source_uri or not e.source_hash:
             raise LeakageError(f"{e.evidence_id}: provenance incomplete")
         resolved_at=e.resolved_at
         if (
             resolved_at is not None
-            and resolved_at.astimezone(timezone.utc)
-            > case.replay_t.astimezone(timezone.utc)
+            and _utc_instant(resolved_at) > replay_instant
         ):
             resolved_at=None
         evidence_fingerprints.append({
@@ -57,7 +60,7 @@ def replay_case(case: ReplayCase) -> dict:
 
     for e in case.subsequent_events:
         _require_aware(e.known_at, f"{e.evidence_id}.KNOWN_AT")
-        if e.known_at <= case.replay_t:
+        if _utc_instant(e.known_at) <= replay_instant:
             raise LeakageError(f"{e.evidence_id}: subsequent event was already known at replay time")
 
     frozen = {
@@ -69,9 +72,10 @@ def replay_case(case: ReplayCase) -> dict:
     impact=case.outcome.impact_first_observed_at
     if impact is not None:
         _require_aware(impact, "IMPACT_FIRST_OBSERVED_AT")
-        if impact <= case.replay_t:
+        impact_instant=_utc_instant(impact)
+        if impact_instant <= replay_instant:
             raise LeakageError("outcome impact is not subsequent to REPLAY_T")
-    lead_days=None if impact is None else (impact-case.replay_t).total_seconds()/86400
+    lead_days=None if impact is None else (impact_instant-replay_instant).total_seconds()/86400
     return {
         **frozen,
         "prediction_hash":_stable_hash(frozen),
