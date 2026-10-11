@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field, asdict
 from datetime import datetime, timezone
+from email.utils import parsedate_to_datetime
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 import csv
@@ -60,8 +61,17 @@ class BackoffPolicy:
     base_seconds:float=1.0
     cap_seconds:float=30.0
     def delay(self,attempt:int,retry_after:Optional[str]=None)->float:
-        if isinstance(retry_after,str) and retry_after.isascii() and retry_after.isdigit():
-            return min(self.cap_seconds,float(int(retry_after)))
+        if isinstance(retry_after,str):
+            if retry_after.isascii() and retry_after.isdigit():
+                return min(self.cap_seconds,float(int(retry_after)))
+            try:
+                retry_at=parsedate_to_datetime(retry_after)
+                if retry_at.tzinfo is None:
+                    retry_at=retry_at.replace(tzinfo=timezone.utc)
+                seconds=(retry_at.astimezone(timezone.utc)-datetime.now(timezone.utc)).total_seconds()
+                return min(self.cap_seconds,max(0.0,seconds))
+            except (TypeError,ValueError,OverflowError):
+                pass
         return min(self.cap_seconds,self.base_seconds*(2**max(0,attempt-1)))
 
 @dataclass
