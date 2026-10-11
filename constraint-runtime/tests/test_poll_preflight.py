@@ -110,7 +110,7 @@ class PollPreflightTests(unittest.TestCase):
             runner.poll(sec_spec(source_class="other"))
 
     def test_poll_rejects_unicode_dot_sec_alias_before_cursor_or_transport(self):
-        for separator in ("\\u3002", "\\uff0e", "\\uff61"):
+        for separator in (chr(0x3002), chr(0xFF0E), chr(0xFF61)):
             with self.subTest(separator=separator):
                 cursors = self.Cursors()
                 transport = self.Transport()
