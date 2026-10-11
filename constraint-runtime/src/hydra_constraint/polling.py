@@ -207,6 +207,7 @@ class PollRunner:
                 raise ValueError("SEC max_rps exceeds fair-access ceiling")
 
     def poll(self,spec,cursor_value=None):
+        self.validate_live_spec(spec)
         before=self.cursors.adapter(spec.name).get("cursor")
         statuses=[]; hashes=[]; delays=[]; response=None; error=None
         for attempt in range(1,spec.backoff.max_attempts+1):
