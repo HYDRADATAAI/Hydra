@@ -1,6 +1,5 @@
 from dataclasses import replace
-from datetime import datetime, timedelta, timezone
-from zoneinfo import ZoneInfo
+from datetime import datetime, timedelta, timezone, tzinfo
 
 import pytest
 
@@ -10,6 +9,19 @@ from hydra_constraint_replay.replay import LeakageError, replay_case
 
 UTC = timezone.utc
 REPLAY_T = datetime(2020, 1, 1, tzinfo=UTC)
+
+
+class RepeatedHour(tzinfo):
+    """A self-contained fallback timezone for repeated-hour ordering tests."""
+
+    def utcoffset(self, dt):
+        return timedelta(hours=-4 if dt is None or dt.fold == 0 else -5)
+
+    def dst(self, dt):
+        return timedelta(0)
+
+    def tzname(self, dt):
+        return "TEST-FOLD"
 
 
 def _case():
@@ -78,7 +90,7 @@ def test_future_resolution_does_not_change_as_of_prediction_hash():
 
 
 def test_ambiguous_fold_known_at_after_replay_is_rejected_by_utc_instant():
-    eastern = ZoneInfo("America/New_York")
+    eastern = RepeatedHour()
     replay = _case()
     replay.replay_t = datetime(2024, 11, 3, 1, 30, tzinfo=eastern, fold=0)
     replay.evidence[0] = replace(
@@ -92,7 +104,7 @@ def test_ambiguous_fold_known_at_after_replay_is_rejected_by_utc_instant():
 
 
 def test_ambiguous_fold_subsequent_event_is_later_by_utc_instant():
-    eastern = ZoneInfo("America/New_York")
+    eastern = RepeatedHour()
     replay = _case()
     replay.replay_t = datetime(2024, 11, 3, 1, 30, tzinfo=eastern, fold=0)
     replay.outcome = replace(replay.outcome, impact_first_observed_at=None)
@@ -107,7 +119,7 @@ def test_ambiguous_fold_subsequent_event_is_later_by_utc_instant():
 
 
 def test_ambiguous_fold_impact_lead_time_uses_utc_instant():
-    eastern = ZoneInfo("America/New_York")
+    eastern = RepeatedHour()
     replay = _case()
     replay.replay_t = datetime(2024, 11, 3, 1, 30, tzinfo=eastern, fold=0)
     replay.outcome = replace(
@@ -121,7 +133,7 @@ def test_ambiguous_fold_impact_lead_time_uses_utc_instant():
 
 
 def test_ambiguous_fold_earlier_known_at_uses_utc_instant():
-    eastern = ZoneInfo("America/New_York")
+    eastern = RepeatedHour()
     replay = _case()
     replay.replay_t = datetime(2024, 11, 3, 1, 15, tzinfo=eastern, fold=1)
     replay.outcome = replace(replay.outcome, impact_first_observed_at=None)
