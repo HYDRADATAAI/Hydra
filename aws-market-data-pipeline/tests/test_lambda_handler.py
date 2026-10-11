@@ -474,5 +474,36 @@ class LambdaHandlerTests(unittest.TestCase):
                     self.assertEqual(client.put_calls, [])
                     self.assertEqual(glue.partition_calls, [])
 
+    def test_incomplete_object_created_envelope_rejects_valid_sibling(self):
+        source = FIXTURE.read_bytes()
+        valid_record = s3_event(size=len(source))["Records"][0]
+        malformed_records = [
+            {"eventName": "ObjectCreated:Put"},
+            {"eventSource": "", "eventName": "ObjectCreated:Put"},
+            {"eventSource": None, "eventName": "ObjectCreated:Put"},
+            {"eventSource": 42, "eventName": "ObjectCreated:Put"},
+        ]
+
+        with patch.dict(os.environ, {"CURATED_BUCKET": "curated"}):
+            for malformed_record in malformed_records:
+                with self.subTest(record=malformed_record):
+                    client = FakeS3(source)
+                    glue = FakeGlue()
+                    event = {"Records": [valid_record, malformed_record]}
+
+                    with self.assertRaisesRegex(
+                        ValueError, "S3 ObjectCreated record eventSource"
+                    ):
+                        lambda_handler(
+                            event,
+                            None,
+                            s3_client=client,
+                            glue_client=glue,
+                        )
+
+                    self.assertEqual(client.get_calls, [])
+                    self.assertEqual(client.put_calls, [])
+                    self.assertEqual(glue.partition_calls, [])
+
 if __name__ == "__main__":
     unittest.main()
