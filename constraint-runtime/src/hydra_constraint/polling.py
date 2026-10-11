@@ -1,22 +1,55 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field, asdict
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
+from decimal import Decimal
+from email.utils import parsedate_to_datetime
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 import csv
 import hashlib
 import io
 import json
+import math
+from collections.abc import Mapping
 import os
+import re
+import threading
 import tempfile
 import time
 import urllib.error
 import urllib.request
+from urllib.parse import urlsplit
 
 from .adapters import ADAPTERS
 
 RETRYABLE={429,500,502,503,504}
+_WEEKDAYS = ("Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun")
+_WEEKDAYS_FULL = ("Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday")
+_RFC850_DATE = re.compile(
+    r"(?:Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday), [0-9]{2}-(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)-(?P<year>[0-9]{2}) "
+    r"(?:[01][0-9]|2[0-3]):[0-5][0-9]:(?:[0-5][0-9]|60) GMT",
+    re.ASCII,
+)
+_HTTP_DATE = re.compile(
+    r"(?:"
+    r"(?:Mon|Tue|Wed|Thu|Fri|Sat|Sun), [0-9]{2} (?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec) [0-9]{4} "
+    r"(?:[01][0-9]|2[0-3]):[0-5][0-9]:(?:[0-5][0-9]|60) GMT|"
+    r"(?:Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday), [0-9]{2}-(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)-[0-9]{2} "
+    r"(?:[01][0-9]|2[0-3]):[0-5][0-9]:(?:[0-5][0-9]|60) GMT|"
+    r"(?:Mon|Tue|Wed|Thu|Fri|Sat|Sun) (?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec) (?: [1-9]|0[1-9]|[12][0-9]|3[01]) "
+    r"(?:[01][0-9]|2[0-3]):[0-5][0-9]:(?:[0-5][0-9]|60) [0-9]{4}"
+    r")",
+    re.ASCII,
+)
+
+DEFAULT_MAX_RESPONSE_BYTES=2_000_000
+
+class ResponseTooLargeError(ValueError):
+    def __init__(self, max_bytes, status=None):
+        self.max_bytes=max_bytes
+        self.status=status
+        super().__init__(f"response exceeds max_bytes={max_bytes}")
 
 def utc_now():
     return datetime.now(timezone.utc).isoformat().replace("+00:00","Z")
@@ -45,13 +78,60 @@ class BackoffPolicy:
     max_attempts:int=4
     base_seconds:float=1.0
     cap_seconds:float=30.0
-    def delay(self,attempt:int,retry_after:Optional[str]=None)->float:
+    def delay(
+        self,
+        attempt: int,
+        retry_after: Optional[str] = None,
+        now: Optional[datetime] = None,
+    ) -> float:
         if retry_after:
+            delay_seconds = retry_after.strip()
+            if delay_seconds.isascii() and delay_seconds.isdigit():
+                numeric_retry_after = Decimal(delay_seconds)
+                if numeric_retry_after >= Decimal(str(self.cap_seconds)):
+                    return self.cap_seconds
+                return float(numeric_retry_after)
             try:
-                return min(self.cap_seconds,max(0.0,float(retry_after)))
-            except Exception:
+                date_value = retry_after.strip()
+                if not _HTTP_DATE.fullmatch(date_value):
+                    raise ValueError("invalid HTTP-date")
+                current = now or datetime.now(timezone.utc)
+                if current.tzinfo is None:
+                    current = current.replace(tzinfo=timezone.utc)
+                rfc850_match = _RFC850_DATE.fullmatch(date_value)
+                leap_second = ":60 " in date_value
+                if leap_second:
+                    date_value = date_value.replace(":60 ", ":59 ", 1)
+                retry_at = parsedate_to_datetime(date_value)
+                if rfc850_match:
+                    year = current.year // 100 * 100 + int(rfc850_match.group("year"))
+                    retry_at = retry_at.replace(year=year)
+                    try:
+                        fifty_years_ahead = current.replace(year=current.year + 50)
+                    except ValueError:
+                        fifty_years_ahead = current.replace(
+                            year=current.year + 50,
+                            day=28,
+                        )
+                    if retry_at > fifty_years_ahead:
+                        retry_at = retry_at.replace(year=year - 100)
+                if retry_at.tzinfo is None:
+                    retry_at = retry_at.replace(tzinfo=timezone.utc)
+                weekday = date_value.split(",", 1)[0] if "," in date_value else date_value[:3]
+                expected_weekday = _WEEKDAYS[retry_at.weekday()]
+                if weekday not in (expected_weekday, _WEEKDAYS_FULL[retry_at.weekday()]):
+                    raise ValueError("weekday does not match HTTP-date")
+                if leap_second:
+                    if retry_at.hour != 23 or retry_at.minute != 59:
+                        raise ValueError("invalid leap second")
+                    retry_at += timedelta(seconds=1)
+                return min(
+                    self.cap_seconds,
+                    max(0.0, (retry_at - current).total_seconds()),
+                )
+            except (TypeError, ValueError, OverflowError):
                 pass
-        return min(self.cap_seconds,self.base_seconds*(2**max(0,attempt-1)))
+        return min(self.cap_seconds, self.base_seconds * (2 ** max(0, attempt - 1)))
 
 @dataclass
 class PollSpec:
@@ -86,14 +166,66 @@ class FixtureTransport:
         self.calls[url]=i+1
         return seq[min(i,len(seq)-1)]
 
+def _require_https_url(url):
+    try:
+        parsed=urlsplit(url)
+        hostname=parsed.hostname
+        parsed.port
+    except (AttributeError,TypeError,ValueError) as exc:
+        raise ValueError("poll source URL must be a valid HTTPS URL") from exc
+    if (
+        parsed.scheme.casefold()!="https"
+        or not hostname
+        or parsed.username is not None
+        or parsed.password is not None
+    ):
+        raise ValueError("poll source URL must be an HTTPS URL with a hostname and no credentials")
+
+class _NoRedirectHandler(urllib.request.HTTPRedirectHandler):
+    def redirect_request(self,req,fp,code,msg,headers,newurl):
+        return None
+
+def _read_bounded(stream,max_bytes,status):
+    body=bytearray()
+    while len(body)<=max_bytes:
+        chunk=stream.read(max_bytes+1-len(body))
+        if not chunk:
+            break
+        body.extend(chunk)
+    if len(body)>max_bytes:
+        raise ResponseTooLargeError(max_bytes,status)
+    return bytes(body)
+
 class UrllibTransport:
-    def fetch(self,url,headers=None,timeout=20):
+    def __init__(self,max_bytes=DEFAULT_MAX_RESPONSE_BYTES):
+        if not isinstance(max_bytes,int) or isinstance(max_bytes,bool) or max_bytes<=0:
+            raise ValueError("max_bytes must be a positive integer")
+        self.max_bytes=max_bytes
+
+    def fetch(self,url,headers=None,timeout=20,max_bytes=None):
+        if max_bytes is None:
+            max_bytes=self.max_bytes
+        if not isinstance(max_bytes,int) or isinstance(max_bytes,bool) or max_bytes<=0:
+            raise ValueError("max_bytes must be a positive integer")
+        _require_https_url(url)
         req=urllib.request.Request(url,headers=headers or {},method="GET")
+        opener=urllib.request.build_opener(_NoRedirectHandler())
         try:
-            with urllib.request.urlopen(req,timeout=timeout) as r:
-                return HttpResponse(url,int(r.status),{k.lower():v for k,v in r.headers.items()},r.read(),utc_now())
-        except urllib.error.HTTPError as e:
-            return HttpResponse(url,int(e.code),{k.lower():v for k,v in (e.headers.items() if e.headers else [])},e.read(),utc_now())
+            with opener.open(req,timeout=timeout) as response:
+                status=int(response.status)
+                body=_read_bounded(response,max_bytes,status)
+                return HttpResponse(
+                    url,status,{key.lower():value for key,value in response.headers.items()},
+                    body,utc_now(),
+                )
+        except urllib.error.HTTPError as error:
+            try:
+                status=int(error.code)
+                body=_read_bounded(error,max_bytes,status)
+                headers={key.lower():value for key,value in (error.headers.items() if error.headers else [])}
+                return HttpResponse(url,status,headers,body,utc_now())
+            finally:
+                error.close()
 
 class RecordingSleeper:
     def __init__(self):
@@ -194,36 +326,158 @@ class PollReport:
         return asdict(self)
 
 class PollRunner:
-    def __init__(self,durable,cursors,archive,transport,sleeper=None):
+    def __init__(self,durable,cursors,archive,transport,sleeper=None,clock=None,wall_clock=None,max_response_bytes=None):
         self.durable=durable; self.cursors=cursors; self.archive=archive
         self.transport=transport; self.sleeper=sleeper or time
+        self.clock=clock or time.monotonic
+        self.wall_clock=wall_clock or (lambda: datetime.now(timezone.utc))
+        self._poll_lock=threading.Lock()
+        self._last_request_at={}
+        self._next_request_at={}
+        if max_response_bytes is None:
+            max_response_bytes=(
+                transport.max_bytes
+                if isinstance(transport,UrllibTransport)
+                else DEFAULT_MAX_RESPONSE_BYTES
+            )
+        if not isinstance(max_response_bytes,int) or isinstance(max_response_bytes,bool) or max_response_bytes<=0:
+            raise ValueError("max_response_bytes must be a positive integer")
+        self.max_response_bytes=max_response_bytes
+
+    def _uses_builtin_urllib_transport(self):
+        return (
+            isinstance(self.transport,UrllibTransport)
+            and type(self.transport).fetch is UrllibTransport.fetch
+        )
+
+    @staticmethod
+    def _request_interval(spec):
+        if isinstance(spec.max_rps,bool) or not isinstance(spec.max_rps,(int,float)):
+            raise ValueError("max_rps must be finite and greater than zero")
+        try:
+            rate=float(spec.max_rps)
+        except (OverflowError,ValueError):
+            raise ValueError("max_rps must be finite and greater than zero") from None
+        if not math.isfinite(rate) or rate<=0:
+            raise ValueError("max_rps must be finite and greater than zero")
+        interval=1.0/rate
+        if not math.isfinite(interval):
+            raise ValueError("max_rps is too small to pace safely")
+        return interval
+
+    def _pace_request(self,spec,interval):
+        last=self._last_request_at.get(spec.name)
+        now=self.clock()
+        rate_deadline=last+interval if last is not None else now
+        deadline=max(rate_deadline,self._next_request_at.get(spec.name,now))
+        remaining=deadline-now
+        if remaining>0:
+            self.sleeper.sleep(remaining)
+        self._last_request_at[spec.name]=self.clock()
+
+    def _defer_source(self,spec,delay):
+        deadline=self.clock()+delay
+        self._next_request_at[spec.name]=max(
+            deadline,self._next_request_at.get(spec.name,deadline)
+        )
 
     def validate_live_spec(self,spec):
-        if spec.source_class=="sec_edgar":
-            ua=spec.headers.get("User-Agent","")
-            if not ua or "REPLACE_" in ua:
-                raise ValueError("SEC live polling requires real User-Agent/contact")
-            if spec.max_rps>10:
-                raise ValueError("SEC max_rps exceeds fair-access ceiling")
+        sec_selector=(
+            str(spec.adapter).casefold()=="sec_edgar"
+            or str(spec.source_class).casefold()=="sec_edgar"
+            or str(spec.parser).casefold()=="sec_json"
+        )
+        try:
+            parsed_url=urlsplit(spec.url)
+            host=(parsed_url.hostname or "").encode("idna").decode("ascii").casefold().rstrip(".")
+        except (AttributeError,TypeError,ValueError) as exc:
+            if sec_selector:
+                raise ValueError("SEC polling requires a valid HTTPS SEC URL") from exc
+            return
+        is_sec_host=host=="sec.gov" or host.endswith(".sec.gov")
+        if not sec_selector and not is_sec_host:
+            return
+        if (spec.adapter,spec.source_class,spec.parser)!=("sec_edgar","sec_edgar","sec_json"):
+            raise ValueError("SEC polling requires matching sec_edgar adapter/source_class and sec_json parser")
+        try:
+            port=parsed_url.port
+        except ValueError as exc:
+            raise ValueError("SEC polling requires a valid HTTPS SEC URL") from exc
+        if (parsed_url.scheme.casefold()!="https" or not is_sec_host or port not in (None,443)
+                or parsed_url.username is not None or parsed_url.password is not None):
+            raise ValueError("SEC polling requires an HTTPS URL on sec.gov or a subdomain")
+        if not isinstance(spec.headers,Mapping):
+            raise ValueError("SEC polling headers must be a mapping with one User-Agent")
+        user_agent_values=[
+            value for key,value in spec.headers.items()
+            if str(key).casefold()=="user-agent"
+        ]
+        if len(user_agent_values)!=1 or not isinstance(user_agent_values[0],str):
+            raise ValueError("SEC live polling requires exactly one User-Agent header")
+        user_agent=user_agent_values[0].strip()
+        if not user_agent or "REPLACE_" in user_agent.upper() or "\r" in user_agent or "\n" in user_agent:
+            raise ValueError("SEC live polling requires a non-empty, non-placeholder User-Agent")
+        if isinstance(spec.max_rps,bool):
+            raise ValueError("SEC max_rps must be a finite number above zero and at or below 10")
+        try:
+            max_rps=float(spec.max_rps)
+        except (TypeError,ValueError,OverflowError) as exc:
+            raise ValueError("SEC max_rps must be a finite number above zero and at or below 10") from exc
+        if not math.isfinite(max_rps) or max_rps<=0 or max_rps>10:
+            raise ValueError("SEC max_rps must be a finite number above zero and at or below 10")
 
     def poll(self,spec,cursor_value=None):
+        self.validate_live_spec(spec)
+        interval=self._request_interval(spec)
+        if self._uses_builtin_urllib_transport():
+            _require_https_url(spec.url)
+        with self._poll_lock:
+            return self._poll_locked(spec,cursor_value,interval)
+
+    def _poll_locked(self,spec,cursor_value,interval):
         before=self.cursors.adapter(spec.name).get("cursor")
         statuses=[]; hashes=[]; delays=[]; response=None; error=None
         for attempt in range(1,spec.backoff.max_attempts+1):
+            self._pace_request(spec,interval)
             try:
-                response=self.transport.fetch(spec.url,spec.headers)
+                if self._uses_builtin_urllib_transport():
+                    response=self.transport.fetch(
+                        spec.url,spec.headers,max_bytes=self.max_response_bytes,
+                    )
+                else:
+                    response=self.transport.fetch(spec.url,spec.headers)
+            except ResponseTooLargeError as exc:
+                if exc.status is not None:
+                    statuses.append(exc.status)
+                error=str(exc); response=None
+                break
             except Exception as exc:
                 error=str(exc); response=None
+            if response is None:
+                delay=spec.backoff.delay(attempt)
+                self._defer_source(spec,delay)
                 if attempt<spec.backoff.max_attempts:
-                    delay=spec.backoff.delay(attempt); delays.append(delay); self.sleeper.sleep(delay); continue
+                    delays.append(delay); self.sleeper.sleep(delay); continue
+                break
+            if len(response.body)>self.max_response_bytes:
+                statuses.append(response.status)
+                error=str(ResponseTooLargeError(self.max_response_bytes,response.status))
+                response=None
                 break
             statuses.append(response.status)
             hashes.append(self.archive.archive(spec.name,response,attempt))
             if response.status==200:
                 break
-            if response.status not in RETRYABLE or attempt>=spec.backoff.max_attempts:
+            if response.status not in RETRYABLE:
                 error=f"HTTP {response.status}"; break
-            delay=spec.backoff.delay(attempt,response.headers.get("retry-after"))
+            delay=spec.backoff.delay(
+                attempt,
+                response.headers.get("retry-after"),
+                now=self.wall_clock(),
+            )
+            self._defer_source(spec,delay)
+            if attempt>=spec.backoff.max_attempts:
+                error=f"HTTP {response.status}"; break
             delays.append(delay); self.sleeper.sleep(delay)
 
         if response is None or response.status!=200:
