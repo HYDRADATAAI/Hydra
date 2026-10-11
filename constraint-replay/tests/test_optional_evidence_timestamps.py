@@ -60,3 +60,18 @@ def test_optional_evidence_timestamps_allow_none():
     assert frozen["evidence"][0]["effective_at"] is None
     assert frozen["evidence"][0]["resolved_at"] is None
     assert frozen["provenance_complete"] is True
+
+def test_future_resolution_does_not_change_as_of_prediction_hash():
+    original = _case()
+    with_future_resolution = _case()
+    with_future_resolution.evidence[0] = replace(
+        with_future_resolution.evidence[0],
+        resolved_at=REPLAY_T + timedelta(days=5),
+    )
+
+    original_frozen = replay_case(original)
+    future_frozen = replay_case(with_future_resolution)
+
+    assert future_frozen["evidence"][0]["resolved_at"] is None
+    assert future_frozen["prediction_hash"] == original_frozen["prediction_hash"]
+
