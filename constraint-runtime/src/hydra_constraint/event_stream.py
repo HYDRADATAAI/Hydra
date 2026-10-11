@@ -23,6 +23,17 @@ COUNTRY_ALIASES = {
 class IngestError(ValueError):
     pass
 
+
+def _unique_node_index(nodes: Iterable[Dict[str, Any]]) -> Dict[str, Dict[str, Any]]:
+    indexed: Dict[str, Dict[str, Any]] = {}
+    for node in nodes:
+        node_id = node["node_id"]
+        if node_id in indexed:
+            raise IngestError(f"duplicate node_id: {node_id}")
+        indexed[node_id] = node
+    return indexed
+
+
 def _dt(value: Optional[str], field_name: str, *, required: bool=False) -> Optional[datetime]:
     if value in (None,""):
         if required:
@@ -100,7 +111,7 @@ class IngestDecision:
 
 class TargetResolver:
     def __init__(self,graph: Dict[str,Any],aliases: Optional[Dict[str,str]]=None):
-        self.nodes={n["node_id"]:n for n in graph["nodes"]}
+        self.nodes = _unique_node_index(graph["nodes"])
         self.name_index: Dict[str,List[str]]={}
         for node in graph["nodes"]:
             candidates=[node["name"],node["node_id"]]
@@ -134,7 +145,7 @@ class TargetResolver:
 
 class EventNormalizer:
     def __init__(self,graph: Dict[str,Any],aliases: Optional[Dict[str,str]]=None):
-        self.nodes={n["node_id"]:n for n in graph["nodes"]}
+        self.nodes = _unique_node_index(graph["nodes"])
         self.resolver=TargetResolver(graph,aliases=aliases)
 
     def normalize(self,raw: Dict[str,Any]) -> CanonicalEvent:

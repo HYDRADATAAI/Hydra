@@ -105,3 +105,12 @@ def test_reference_state_preserves_unknown_absent_present_distinction():
 def test_unsupported_node_kind_is_not_silently_admitted():
     g=DependencyGraph([Node("geo","geography","Unowned geography identity",provenance=(P,))],[])
     assert "geo: unknown node kind geography" in validate_graph(g)
+def test_duplicate_node_ids_are_rejected():
+    nodes = [
+        Node("duplicate", "resource", "Original", provenance=(P,)),
+        Node("duplicate", "company", "Replacement", provenance=(P,)),
+    ]
+    import pytest
+    with pytest.raises(ValueError, match="duplicate node_id: duplicate"):
+        DependencyGraph(nodes, [])
+
