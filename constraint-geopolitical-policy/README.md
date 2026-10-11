@@ -52,6 +52,8 @@ The sourced bundle currently covers four different mechanisms:
 
 Every source record carries a publication/availability timestamp plus a SHA-256 digest over the committed normalized evidence capsule. Event records may not cite evidence whose `available_at` is after the event's `known_at`.
 
+Sourced observations may omit `statement`. When present, `statement` must be a string; empty and whitespace-only strings are accepted.
+
 These four cases are now `BOUND_MINIMAL_CANONICAL_SUBGRAPH`. Their event relations point only to physical IDs present in the sourced physical subgraph owned by the physical-dependency package. The bindings are deliberately minimal: descriptive hints are not promoted into additional supply-chain links unless the evidence supports them.
 
 ## Tests

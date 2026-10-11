@@ -191,6 +191,8 @@ def validate_sourced_case_bundle(bundle: dict[str, Any]) -> None:
                 ("observation_id", "known_at", "observed_at", "source_ids"),
                 observation_label,
             )
+            if "statement" in obs and not isinstance(obs["statement"], str):
+                raise CaseStudyValidationError(f"{observation_label}.statement must be text")
             oid=_require_identifier(obs.get("observation_id"), f"{observation_label}.observation_id")
             if oid in seen_observation_ids:
                 raise CaseStudyValidationError(f"duplicate or missing observation_id: {oid!r}")
