@@ -125,7 +125,7 @@ def _source_objects(
         event_name = record.get("eventName")
         event_created = (
             isinstance(event_name, str)
-            and event_name.strip().startswith("ObjectCreated:")
+            and event_name.strip().startswith("ObjectCreated")
         )
         if event_source != "aws:s3":
             if event_created:
@@ -139,7 +139,13 @@ def _source_objects(
             )
         if event_name != event_name.strip():
             raise ValueError("S3 source record eventName must not contain surrounding whitespace")
-        if not event_name.startswith("ObjectCreated:"):
+        if event_name.startswith("ObjectCreated"):
+            subtype = event_name.removeprefix("ObjectCreated:")
+            if not event_name.startswith("ObjectCreated:") or not subtype or ":" in subtype:
+                raise ValueError(
+                    "S3 ObjectCreated record eventName must include one non-empty subtype"
+                )
+        else:
             continue
         s3 = record.get("s3")
         if not isinstance(s3, dict):
