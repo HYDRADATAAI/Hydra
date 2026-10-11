@@ -1,4 +1,5 @@
 import unittest
+from pathlib import Path
 
 from tools.validate_public_repository import (
     workflow_action_ref_is_pinned,
@@ -17,6 +18,22 @@ class WorkflowActionRefsTests(unittest.TestCase):
             workflow_action_ref_is_pinned("docker://alpine@sha256:" + "0" * 64)
         )
         self.assertFalse(workflow_action_ref_is_pinned("docker://alpine:3.20"))
+
+    def test_receipt_workflow_calls_behaviorally_tested_validator(self):
+        root = Path(__file__).resolve().parents[1]
+        workflow = (
+            root / ".github/workflows/nyx-thread-g-receipt-windows.yml"
+        ).read_text(encoding="utf-8")
+        step = workflow.split(
+            "- name: Verify expected receipt outputs", 1
+        )[1].split("- name: Preserve exact results", 1)[0]
+
+        validator_call = (
+            "python -B tools/thread_g_receipt_validation.py $root"
+        )
+        failure_check = "if ($LASTEXITCODE -ne 0)"
+        self.assertIn(validator_call, step)
+        self.assertLess(step.index(validator_call), step.index(failure_check))
 
     def test_reads_yaml_uses_fields_and_resolves_aliases(self):
         workflow = """jobs:
