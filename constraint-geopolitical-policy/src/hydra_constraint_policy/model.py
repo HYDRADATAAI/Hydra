@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from datetime import datetime
+from datetime import datetime, timezone
 from enum import Enum
 from hashlib import sha256
 import json
@@ -10,6 +10,12 @@ from typing import Iterable
 
 class ValidationError(ValueError):
     pass
+
+
+def _utc_instant(value: datetime) -> datetime:
+    if value.tzinfo is None or value.utcoffset() is None:
+        raise ValidationError("timestamp must be timezone-aware")
+    return value.astimezone(timezone.utc)
 
 
 class EventType(str, Enum):
@@ -61,7 +67,11 @@ class TemporalFacts:
                 raise ValidationError(f"{label} must be timezone-aware")
         # Clocks are intentionally independent. Only resolution has a hard
         # semantic lower bound against an effective action when both exist.
-        if self.effective_at and self.resolved_at and self.resolved_at < self.effective_at:
+        if (
+            self.effective_at is not None
+            and self.resolved_at is not None
+            and _utc_instant(self.resolved_at) < _utc_instant(self.effective_at)
+        ):
             raise ValidationError("resolved_at precedes effective_at")
 
 
@@ -125,7 +135,7 @@ class HistoricalEvent:
             p.validate()
         docs = {p.document_id for p in self.provenance}
         # Information cannot be known before the evidence carrying it was available.
-        if min(p.available_at for p in self.provenance) > self.temporal.known_at:
+        if min(_utc_instant(p.available_at) for p in self.provenance) > _utc_instant(self.temporal.known_at):
             raise ValidationError("known_at precedes all available evidence")
         for r in self.relations:
             r.validate()
@@ -156,19 +166,20 @@ class HistoricalEvent:
 
 def eligible_as_of(events: Iterable[HistoricalEvent], as_of: datetime) -> list[HistoricalEvent]:
     """Return only evidence genuinely available by as_of; deterministic ordering."""
+    as_of_utc = _utc_instant(as_of)
     eligible: list[HistoricalEvent] = []
     for event in events:
         event.validate()
-        if event.temporal.known_at > as_of:
+        if _utc_instant(event.temporal.known_at) > as_of_utc:
             continue
-        available = [p for p in event.provenance if p.available_at <= as_of]
+        available = [p for p in event.provenance if _utc_instant(p.available_at) <= as_of_utc]
         if not available:
             continue
         # Do not expose later source versions through an earlier event shell.
         if len(available) != len(event.provenance):
             continue
         eligible.append(event)
-    return sorted(eligible, key=lambda e: (e.temporal.known_at, e.event_id))
+    return sorted(eligible, key=lambda e: (_utc_instant(e.temporal.known_at), e.event_id))
 
 
 def active_events_as_of(
@@ -179,15 +190,14 @@ def active_events_as_of(
     This is deliberately distinct from eligible_as_of(), which answers what
     evidence was knowable and therefore retains resolved historical events.
     """
-    if as_of.tzinfo is None or as_of.utcoffset() is None:
-        raise ValidationError("as_of must be timezone-aware")
+    as_of_utc = _utc_instant(as_of)
     active: list[HistoricalEvent] = []
     for event in eligible_as_of(events, as_of):
         effective=event.temporal.effective_at
         resolved=event.temporal.resolved_at
-        if effective is not None and effective > as_of:
+        if effective is not None and _utc_instant(effective) > as_of_utc:
             continue
-        if resolved is not None and resolved <= as_of:
+        if resolved is not None and _utc_instant(resolved) <= as_of_utc:
             continue
         active.append(event)
     return active
