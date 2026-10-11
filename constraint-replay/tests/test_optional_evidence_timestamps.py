@@ -95,6 +95,7 @@ def test_ambiguous_fold_subsequent_event_is_later_by_utc_instant():
     eastern = ZoneInfo("America/New_York")
     replay = _case()
     replay.replay_t = datetime(2024, 11, 3, 1, 30, tzinfo=eastern, fold=0)
+    replay.outcome = replace(replay.outcome, impact_first_observed_at=None)
     replay.subsequent_events = [
         replace(
             replay.evidence[0],
@@ -123,6 +124,7 @@ def test_ambiguous_fold_earlier_known_at_uses_utc_instant():
     eastern = ZoneInfo("America/New_York")
     replay = _case()
     replay.replay_t = datetime(2024, 11, 3, 1, 15, tzinfo=eastern, fold=1)
+    replay.outcome = replace(replay.outcome, impact_first_observed_at=None)
     replay.evidence[0] = replace(
         replay.evidence[0],
         known_at=datetime(2024, 11, 3, 1, 45, tzinfo=eastern, fold=0),
