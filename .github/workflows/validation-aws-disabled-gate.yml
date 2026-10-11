@@ -1,0 +1,34 @@
+name: validation-aws-disabled-gate
+
+on:
+  pull_request:
+    paths:
+      - tools/validate_public_repository.py
+      - tools/test_aws_disabled_gate_regression.py
+      - .github/workflows/validation-aws-disabled-gate.yml
+
+permissions:
+  contents: read
+
+jobs:
+  disabled-gate:
+    runs-on: windows-latest
+    timeout-minutes: 10
+    steps:
+      - name: Preserve repository blob bytes
+        shell: pwsh
+        run: git config --global core.autocrlf false
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: '3.11'
+      - name: Install pinned YAML parser
+        shell: pwsh
+        run: python -m pip install --disable-pip-version-check PyYAML==6.0.2
+      - name: Four offline deployment hold cases
+        shell: pwsh
+        run: python -I -B tools/test_aws_disabled_gate_regression.py --expected-head "${{ github.event.pull_request.head.sha }}"
