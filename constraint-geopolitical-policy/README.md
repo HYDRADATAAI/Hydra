@@ -52,7 +52,7 @@ The sourced bundle currently covers four different mechanisms:
 
 Every source record carries a publication/availability timestamp plus a SHA-256 digest over the committed normalized evidence capsule. Event records may not cite evidence whose `available_at` is after the event's `known_at`.
 
-**Proposed behavior in this draft, pending the contract owner's decision:** sourced observations may omit `statement`; when present, `statement` must be a string. Empty and whitespace-only strings are accepted. This is not an adopted contract. PR #383 records the required-versus-optional decision gate; update this section if the owner selects required string.
+The owner confirmed the optional-string observation rule on 2026-10-11: sourced observations may omit `statement`; when present, `statement` must be a string. Empty and whitespace-only strings are accepted. This implementation contract choice does not authorize this PR's merge or runtime admission.
 
 These four cases are now `BOUND_MINIMAL_CANONICAL_SUBGRAPH`. Their event relations point only to physical IDs present in the sourced physical subgraph owned by the physical-dependency package. The bindings are deliberately minimal: descriptive hints are not promoted into additional supply-chain links unless the evidence supports them.
 
