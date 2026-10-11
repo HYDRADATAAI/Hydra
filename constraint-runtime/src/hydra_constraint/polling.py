@@ -60,11 +60,8 @@ class BackoffPolicy:
     base_seconds:float=1.0
     cap_seconds:float=30.0
     def delay(self,attempt:int,retry_after:Optional[str]=None)->float:
-        if retry_after:
-            try:
-                return min(self.cap_seconds,max(0.0,float(retry_after)))
-            except Exception:
-                pass
+        if isinstance(retry_after,str) and retry_after.isascii() and retry_after.isdigit():
+            return min(self.cap_seconds,float(int(retry_after)))
         return min(self.cap_seconds,self.base_seconds*(2**max(0,attempt-1)))
 
 @dataclass
