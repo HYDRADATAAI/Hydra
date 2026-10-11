@@ -7,7 +7,7 @@ import sys
 from pathlib import Path
 
 from .pipeline import ContractError, run_pipeline
-from .writers import write_outputs
+from .writers import OutputPathError, write_outputs
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -35,7 +35,7 @@ def main(argv: list[str] | None = None) -> int:
     try:
         result = run_pipeline(input_csv=args.input, aliases_path=args.aliases)
         outputs = write_outputs(result, output_dir=args.output_dir)
-    except ContractError as exc:
+    except (ContractError, OutputPathError) as exc:
         print("PIPELINE_STATUS=CONTRACT_ERROR", file=sys.stderr)
         print(f"ERROR={exc}", file=sys.stderr)
         return 2
