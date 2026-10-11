@@ -116,5 +116,35 @@ class SourcedCaseBundleShapeTests(unittest.TestCase):
                 self.assertEqual(events_from_sourced_case_bundle(bundle), [])
 
 
+    def test_observation_statement_may_be_omitted(self):
+        bundle = self.load_bundle()
+        bundle["cases"][2]["observations"][0].pop("statement", None)
+        self.assertIsNone(validate_sourced_case_bundle(bundle))
+
+    def test_present_observation_statement_accepts_strings_including_empty(self):
+        for statement in ("A sourced observation", "", "   "):
+            with self.subTest(statement=statement):
+                bundle = self.load_bundle()
+                bundle["cases"][2]["observations"][0]["statement"] = statement
+                self.assertIsNone(validate_sourced_case_bundle(bundle))
+
+    def test_present_observation_statement_rejects_non_strings(self):
+        malformed_values = (
+            ("null", None),
+            ("boolean true", True),
+            ("boolean false", False),
+            ("integer", 1),
+            ("float", 1.5),
+            ("array", []),
+            ("object", {}),
+        )
+        for label, statement in malformed_values:
+            with self.subTest(shape=label):
+                bundle = self.load_bundle()
+                bundle["cases"][2]["observations"][0]["statement"] = statement
+                with self.assertRaises(CaseStudyValidationError):
+                    validate_sourced_case_bundle(bundle)
+
+
 if __name__ == "__main__":
     unittest.main()
