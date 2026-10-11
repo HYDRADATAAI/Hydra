@@ -7,7 +7,11 @@ from .models import Edge, Node
 
 class DependencyGraph:
     def __init__(self, nodes: list[Node] | None = None, edges: list[Edge] | None = None):
-        self.nodes = {n.node_id: n for n in (nodes or [])}
+        self.nodes = {}
+        for node in nodes or []:
+            if node.node_id in self.nodes:
+                raise ValueError(f"duplicate node_id: {node.node_id}")
+            self.nodes[node.node_id] = node
         self.edges = {e.edge_id: e for e in (edges or [])}
 
     def as_of(self, when: date, knowledge_cutoff: date | None = None) -> "DependencyGraph":

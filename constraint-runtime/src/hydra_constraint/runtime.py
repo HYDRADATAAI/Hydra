@@ -239,7 +239,11 @@ def combine_states(*states: ExposureState) -> ExposureState:
 
 class ConstraintRuntime:
     def __init__(self, nodes: Iterable[Node], edges: Iterable[Edge]):
-        self.nodes = {n.node_id: n for n in nodes}
+        self.nodes: Dict[str, Node] = {}
+        for node in nodes:
+            if node.node_id in self.nodes:
+                raise ValueError(f"duplicate node_id: {node.node_id}")
+            self.nodes[node.node_id] = node
         self.edges = list(edges)
         self.outgoing: Dict[str, List[Edge]] = defaultdict(list)
         for edge in self.edges:
