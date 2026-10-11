@@ -11,7 +11,9 @@ import json
 import math
 from collections.abc import Mapping
 import os
+import re
 import tempfile
+import threading
 import time
 import urllib.error
 import urllib.request
@@ -21,6 +23,8 @@ from .adapters import ADAPTERS
 
 RETRYABLE={429,500,502,503,504}
 DEFAULT_MAX_RESPONSE_BYTES=2_000_000
+_SEC_REQUEST_LOCK=threading.Lock()
+_SEC_LAST_REQUEST_AT: Optional[float]=None
 
 class ResponseTooLargeError(ValueError):
     def __init__(self, max_bytes, status=None):
@@ -278,6 +282,23 @@ class PollRunner:
             and type(self.transport).fetch is UrllibTransport.fetch
         )
 
+    def _fetch_sec(self,spec):
+        global _SEC_LAST_REQUEST_AT
+        interval=1.0/float(spec.max_rps)
+        with _SEC_REQUEST_LOCK:
+            now=time.monotonic()
+            delay=0.0 if _SEC_LAST_REQUEST_AT is None else max(
+                0.0,_SEC_LAST_REQUEST_AT+interval-now
+            )
+            if delay:
+                self.sleeper.sleep(delay)
+            _SEC_LAST_REQUEST_AT=time.monotonic()
+            if self._uses_builtin_urllib_transport():
+                return self.transport.fetch(
+                    spec.url,spec.headers,max_bytes=self.max_response_bytes,
+                )
+            return self.transport.fetch(spec.url,spec.headers)
+
     def validate_live_spec(self,spec):
         sec_selector=(
             str(spec.adapter).casefold()=="sec_edgar"
@@ -318,6 +339,8 @@ class PollRunner:
         user_agent=user_agent_values[0].strip()
         if not user_agent or "REPLACE_" in user_agent.upper() or "\r" in user_agent or "\n" in user_agent:
             raise ValueError("SEC live polling requires a non-empty, non-placeholder User-Agent")
+        if not re.search(r"[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,}", user_agent, re.IGNORECASE):
+            raise ValueError("SEC live polling User-Agent must include a contact email")
         if isinstance(spec.max_rps,bool):
             raise ValueError("SEC max_rps must be a finite number above zero and at or below 10")
         try:
@@ -335,7 +358,11 @@ class PollRunner:
         statuses=[]; hashes=[]; delays=[]; response=None; error=None
         for attempt in range(1,spec.backoff.max_attempts+1):
             try:
-                if self._uses_builtin_urllib_transport():
+                if (spec.adapter,spec.source_class,spec.parser)==(
+                    "sec_edgar","sec_edgar","sec_json"
+                ):
+                    response=self._fetch_sec(spec)
+                elif self._uses_builtin_urllib_transport():
                     response=self.transport.fetch(
                         spec.url,spec.headers,max_bytes=self.max_response_bytes,
                     )
