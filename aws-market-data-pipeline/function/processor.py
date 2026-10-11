@@ -102,14 +102,18 @@ def process_csv(source_bytes: bytes) -> ProcessedBatch:
     except UnicodeDecodeError as exc:
         raise ContractError("input CSV must be valid UTF-8") from exc
 
-    reader = csv.DictReader(io.StringIO(text, newline=""))
-    _validate_header(reader.fieldnames)
+    reader = csv.DictReader(io.StringIO(text, newline=""), strict=True)
+    try:
+        fieldnames = reader.fieldnames
+    except csv.Error as exc:
+        raise ContractError(f"input CSV is malformed: {exc}") from exc
+    _validate_header(fieldnames)
 
     accepted: list[dict[str, object]] = []
     quarantined: list[dict[str, object]] = []
     seen_event_ids: set[str] = set()
 
-    for source_row_number, row in enumerate(reader, start=2):
+    for source_row_number, row in enumerate(_iter_csv_rows(reader), start=2):
         if source_row_number > MAX_SOURCE_ROWS + 1:
             raise ContractError(f"input CSV exceeds max_rows={MAX_SOURCE_ROWS}")
         raw_record = {
@@ -227,6 +231,13 @@ def process_csv(source_bytes: bytes) -> ProcessedBatch:
         quarantined=quarantine_records,
         artifacts=artifacts,
     )
+
+
+def _iter_csv_rows(reader):
+    try:
+        yield from reader
+    except csv.Error as exc:
+        raise ContractError(f"input CSV is malformed: {exc}") from exc
 
 
 def _validate_header(fieldnames: list[str] | None) -> None:
