@@ -63,7 +63,16 @@ class BackoffPolicy:
     def delay(self,attempt:int,retry_after:Optional[str]=None)->float:
         if isinstance(retry_after,str):
             if retry_after.isascii() and retry_after.isdigit():
-                return min(self.cap_seconds,float(int(retry_after)))
+                try:
+                    delay_seconds=int(retry_after)
+                except (ValueError,OverflowError):
+                    return self.cap_seconds
+                if delay_seconds>=self.cap_seconds:
+                    return self.cap_seconds
+                try:
+                    return min(self.cap_seconds,float(delay_seconds))
+                except OverflowError:
+                    return self.cap_seconds
             try:
                 retry_at=parsedate_to_datetime(retry_after)
                 if retry_at.tzinfo is None:
