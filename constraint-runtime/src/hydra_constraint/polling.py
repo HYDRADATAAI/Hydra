@@ -339,7 +339,7 @@ class PollRunner:
         user_agent=user_agent_values[0].strip()
         if not user_agent or "REPLACE_" in user_agent.upper() or "\r" in user_agent or "\n" in user_agent:
             raise ValueError("SEC live polling requires a non-empty, non-placeholder User-Agent")
-        if not re.search(r"[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,}", user_agent, re.IGNORECASE):
+        if not re.search(r"[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}", user_agent, re.IGNORECASE):
             raise ValueError("SEC live polling User-Agent must include a contact email")
         if isinstance(spec.max_rps,bool):
             raise ValueError("SEC max_rps must be a finite number above zero and at or below 10")
