@@ -1,5 +1,6 @@
 from dataclasses import replace
 from datetime import datetime, timedelta, timezone
+from zoneinfo import ZoneInfo
 
 import pytest
 
@@ -75,3 +76,57 @@ def test_future_resolution_does_not_change_as_of_prediction_hash():
     assert future_frozen["evidence"][0]["resolved_at"] is None
     assert future_frozen["prediction_hash"] == original_frozen["prediction_hash"]
 
+
+def test_ambiguous_fold_known_at_after_replay_is_rejected_by_utc_instant():
+    eastern = ZoneInfo("America/New_York")
+    replay = _case()
+    replay.replay_t = datetime(2024, 11, 3, 1, 30, tzinfo=eastern, fold=0)
+    replay.evidence[0] = replace(
+        replay.evidence[0],
+        known_at=datetime(2024, 11, 3, 1, 15, tzinfo=eastern, fold=1),
+        observed_at=datetime(2024, 11, 3, 1, 15, tzinfo=eastern, fold=1),
+    )
+
+    with pytest.raises(LeakageError, match="KNOWN_AT after REPLAY_T"):
+        replay_case(replay)
+
+
+def test_ambiguous_fold_subsequent_event_is_later_by_utc_instant():
+    eastern = ZoneInfo("America/New_York")
+    replay = _case()
+    replay.replay_t = datetime(2024, 11, 3, 1, 30, tzinfo=eastern, fold=0)
+    replay.subsequent_events = [
+        replace(
+            replay.evidence[0],
+            known_at=datetime(2024, 11, 3, 1, 15, tzinfo=eastern, fold=1),
+        )
+    ]
+
+    assert replay_case(replay)["case_id"] == "c1"
+
+
+def test_ambiguous_fold_impact_lead_time_uses_utc_instant():
+    eastern = ZoneInfo("America/New_York")
+    replay = _case()
+    replay.replay_t = datetime(2024, 11, 3, 1, 30, tzinfo=eastern, fold=0)
+    replay.outcome = replace(
+        replay.outcome,
+        impact_first_observed_at=datetime(2024, 11, 3, 1, 15, tzinfo=eastern, fold=1),
+    )
+
+    frozen = replay_case(replay)
+
+    assert frozen["lead_time_days"] == pytest.approx(45 / 1440)
+
+
+def test_ambiguous_fold_earlier_known_at_uses_utc_instant():
+    eastern = ZoneInfo("America/New_York")
+    replay = _case()
+    replay.replay_t = datetime(2024, 11, 3, 1, 15, tzinfo=eastern, fold=1)
+    replay.evidence[0] = replace(
+        replay.evidence[0],
+        known_at=datetime(2024, 11, 3, 1, 45, tzinfo=eastern, fold=0),
+        observed_at=datetime(2024, 11, 3, 1, 45, tzinfo=eastern, fold=0),
+    )
+
+    assert replay_case(replay)["case_id"] == "c1"
