@@ -1,4 +1,4 @@
-"""Receipt shape tests; the stub performs no signing or cryptographic verification."""
+"""Receipt shape tests with an explicit synthetic key-to-role grant."""
 
 from __future__ import annotations
 
@@ -16,7 +16,13 @@ from hydra_t6_failclosed.native_binding_admission import (
 
 
 class ShapeOnlyVerifier:
-    """Test double, deliberately not an authority or a signature verifier."""
+    """Shape-test double with explicit role grants and no cryptography."""
+
+    def __init__(self, role_grants=None):
+        self.role_grants = {} if role_grants is None else role_grants
+
+    def allows_role(self, key_id, role):
+        return role in self.role_grants.get(key_id, set())
 
     def verify(self, **kwargs):
         return True
@@ -65,12 +71,13 @@ class NativeAdmissionInputTypesTests(unittest.TestCase):
             "signature": "not-a-signature",
         }
 
-    def validate(self):
+    def validate(self, verifier=None):
         # Exercise JSON parsing too; all hostile inputs are representable in JSON.
         return validate_native_binding_admission(
             implementation_manifest=canonical_json_bytes(self.manifest),
             admission_receipt=canonical_json_bytes(self.receipt),
-            verifier=ShapeOnlyVerifier(), now=self.now,
+            verifier=ShapeOnlyVerifier({self.receipt["key_id"]: {ADMISSION_AUTHORITY_ROLE}}) if verifier is None else verifier,
+            now=self.now,
         )
 
     def assert_rejected(self, code):
@@ -83,7 +90,45 @@ class NativeAdmissionInputTypesTests(unittest.TestCase):
         self.assertFalse(result.live_source_authorized)
 
     def test_literal_false_and_valid_empty_chain_control(self):
-        self.assertTrue(self.validate().admitted)  # Only the test double accepts this.
+        self.assertTrue(self.validate().admitted)  # Explicit role grant; signature remains synthetic.
+
+    def test_missing_role_grant_is_rejected(self):
+        result = self.validate(ShapeOnlyVerifier())
+        self.assertFalse(result.admitted)
+        self.assertIn("admission_key_role_untrusted", {issue.code for issue in result.issues})
+
+    def test_verify_only_stub_cannot_bypass_role_authorization(self):
+        class VerifyOnlyStub:
+            def verify(self, **kwargs):
+                return True
+
+        result = self.validate(VerifyOnlyStub())
+        self.assertFalse(result.admitted)
+        self.assertIn("admission_key_role_untrusted", {issue.code for issue in result.issues})
+
+    def test_wrong_role_grant_is_rejected(self):
+        verifier = ShapeOnlyVerifier({self.receipt["key_id"]: {"UNRELATED_ROLE"}})
+        result = self.validate(verifier)
+        self.assertFalse(result.admitted)
+        self.assertIn("admission_key_role_untrusted", {issue.code for issue in result.issues})
+
+    def test_nonliteral_true_role_grant_is_rejected(self):
+        class NonLiteralGrantVerifier(ShapeOnlyVerifier):
+            def allows_role(self, key_id, role):
+                return 1
+
+        result = self.validate(NonLiteralGrantVerifier())
+        self.assertFalse(result.admitted)
+        self.assertIn("admission_key_role_untrusted", {issue.code for issue in result.issues})
+
+    def test_role_authorization_exception_is_rejected(self):
+        class RaisingRoleVerifier(ShapeOnlyVerifier):
+            def allows_role(self, key_id, role):
+                raise RuntimeError("role lookup failed")
+
+        result = self.validate(RaisingRoleVerifier())
+        self.assertFalse(result.admitted)
+        self.assertIn("admission_key_role_untrusted", {issue.code for issue in result.issues})
 
     def test_valid_nonempty_chain_control(self):
         self.receipt["supersession"].update(predecessor_id="prior", chain=["prior"])

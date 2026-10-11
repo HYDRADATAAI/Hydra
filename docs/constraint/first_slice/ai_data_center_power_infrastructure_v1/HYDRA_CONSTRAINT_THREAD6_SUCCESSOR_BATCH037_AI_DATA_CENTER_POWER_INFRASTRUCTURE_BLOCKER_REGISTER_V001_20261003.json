@@ -1,0 +1,60 @@
+{
+  "schema_version": "hydra-constraint-first-slice-strict-blocker-register/v1",
+  "record_id": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH037_AI_DATA_CENTER_POWER_INFRASTRUCTURE_BLOCKER_REGISTER_V001",
+  "as_of": "2026-10-03",
+  "slice_id": "AI_DATA_CENTER_POWER_INFRASTRUCTURE_V1",
+  "predecessor_register": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH036_AI_DATA_CENTER_POWER_INFRASTRUCTURE_BLOCKER_REGISTER_V001",
+  "blocking_items": [
+    {
+      "blocker_id": "PIT-002B-FIRST-SLICE-NINE-SOURCE-RAW-CAPTURE-MATERIALIZATION",
+      "dimension": "PROVENANCE_READY_AND_HISTORICAL_AS_OF_READY",
+      "repo_executable": false,
+      "state": "RAW_T1_MATERIALIZATION_COMPLETE_HISTORICAL_AVAILABILITY_EVIDENCE_INCOMPLETE"
+    },
+    {
+      "blocker_id": "CI-TEST-008-BLOCKER-001B-NATIVE-T5-T6-SIGNED-ADMISSION-RECEIPT-ABSENT",
+      "dimension": "IMPLEMENTATION_ADMITTED",
+      "repo_executable": false,
+      "state": "V2_REQUEST_PRESENT_RECEIPT_NOT_GRANTED",
+      "implementation_manifest": "HYDRA_CONSTRAINT_FIRST_SLICE_NATIVE_T5_T6_IMPLEMENTATION_MANIFEST_V002_20261003",
+      "required_authority_role": "IMPLEMENTATION_CONTRACT"
+    },
+    {
+      "blocker_id": "CANONICAL-T5-T6-CONSTRAINT-AND-BENEFICIARY-ADMISSION-NOT-AUTHORIZED",
+      "dimension": "IMPLEMENTATION_ADMITTED",
+      "repo_executable": false,
+      "depends_on": [
+        "CI-TEST-008-BLOCKER-001B-NATIVE-T5-T6-SIGNED-ADMISSION-RECEIPT-ABSENT"
+      ]
+    },
+    {
+      "blocker_id": "ACCEPT-014-EVAL-002-NO-ORDINARY-CANONICAL-OUTPUTS-TO-EVALUATE",
+      "dimension": "EVALUATION_READY",
+      "repo_executable": false,
+      "depends_on": [
+        "CANONICAL-T5-T6-CONSTRAINT-AND-BENEFICIARY-ADMISSION-NOT-AUTHORIZED"
+      ]
+    },
+    {
+      "blocker_id": "ACCEPT-014-EVAL-003-ORDINARY-REPLAY-NOT-READY",
+      "dimension": "EVALUATION_READY",
+      "repo_executable": false,
+      "depends_on": [
+        "PIT-002B-FIRST-SLICE-NINE-SOURCE-RAW-CAPTURE-MATERIALIZATION"
+      ]
+    }
+  ],
+  "closed_or_advanced_items": [
+    {
+      "item_id": "NATIVE-T5-T6-V2-SEMANTIC-DELTA-UNSPECIFIED",
+      "state": "ADVANCED_BY_V2_STRICT_BOOLEAN_ELIGIBILITY_VALIDATION_AND_TARGETED_TEST_SOURCE"
+    },
+    {
+      "item_id": "NATIVE-T5-T6-V2-TEST-EXECUTION-NOT-RECORDED",
+      "state": "CLOSED_BY_BATCH037_FOUR_FOCUSED_V2_TESTS_PASSED"
+    }
+  ],
+  "repo_executable_blockers": [],
+  "first_serious_constraint_run": "BLOCKED",
+  "next_repo_executable_lane": "NONE_PENDING_EXTERNAL_IMPLEMENTATION_CONTRACT_RECEIPT_OR_HISTORICAL_AVAILABILITY_EVIDENCE"
+}
