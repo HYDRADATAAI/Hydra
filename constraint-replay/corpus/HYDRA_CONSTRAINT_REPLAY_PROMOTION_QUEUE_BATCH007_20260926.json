@@ -1,0 +1,52 @@
+{
+  "schema_version": "1.0",
+  "batch_id": "HYDRA_CONSTRAINT_REPLAY_PROMOTION_QUEUE_BATCH007_20260926",
+  "policy": "All three queued cases now have independent historical hypothesis provenance and quantitative outcome evidence. Queue membership still does not imply scored-gold eligibility; confidence provenance and supported outcome-class mapping remain mandatory.",
+  "candidates": [
+    {
+      "case_id": "suez-ever-given-2021",
+      "resolved_blockers": [
+        "NO_INDEPENDENT_HISTORICAL_HYPOTHESIS_SOURCE",
+        "NO_QUANTITATIVE_OUTCOME_SERIES"
+      ],
+      "remaining_blockers": [
+        "NO_PRECOMMITTED_CONFIDENCE_SOURCE",
+        "NO_SOURCE_GROUNDED_CONFIDENCE_VALUE",
+        "OUTCOME_NOT_MAPPED_TO_SCORABLE_CLASS",
+        "NO_SUPPORTED_OUTCOME_CLASS"
+      ],
+      "evidence_summary": "S&P Global supplied a pre-outcome shipping-market hypothesis during the blockage; SCA supplied 81-vessel/4.8-million-net-ton clearing-day metrics; UNCTAD later documented a renewed container spot-rate surge.",
+      "next_gate": "Find a contemporaneous source that expressed a bounded probability/confidence for the predicted congestion/freight outcome, or leave the case unscored. Separately define and validate an outcome-class mapping rule without hindsight."
+    },
+    {
+      "case_id": "black-sea-grain-corridor-2022",
+      "resolved_blockers": [
+        "NO_INDEPENDENT_HISTORICAL_HYPOTHESIS_SOURCE",
+        "NO_MULTI_DATE_QUANTITATIVE_OUTCOME_SERIES"
+      ],
+      "remaining_blockers": [
+        "NO_PRECOMMITTED_CONFIDENCE_SOURCE",
+        "NO_SOURCE_GROUNDED_CONFIDENCE_VALUE",
+        "OUTCOME_NOT_MAPPED_TO_SCORABLE_CLASS",
+        "NO_SUPPORTED_OUTCOME_CLASS"
+      ],
+      "evidence_summary": "IMF supplied an independent pre-outcome mechanism hypothesis about easing Black Sea logistics constraints; FAO supplied July price changes; UN JCC supplied cumulative tonnage and a multi-month export series.",
+      "next_gate": "Find historically grounded confidence/probability evidence for the mechanism and define a causal-safe outcome mapping that does not attribute all observed price movement to the Initiative."
+    },
+    {
+      "case_id": "germany-wilhelmshaven-lng-commissioning-2022-2023",
+      "resolved_blockers": [
+        "NO_INDEPENDENT_HISTORICAL_HYPOTHESIS_SOURCE",
+        "NO_QUANTITATIVE_THROUGHPUT_OUTCOME"
+      ],
+      "remaining_blockers": [
+        "NO_PRECOMMITTED_CONFIDENCE_SOURCE",
+        "NO_SOURCE_GROUNDED_CONFIDENCE_VALUE",
+        "OUTCOME_NOT_MAPPED_TO_SCORABLE_CLASS",
+        "NO_SUPPORTED_OUTCOME_CLASS"
+      ],
+      "evidence_summary": "Bundesnetzagentur supplied a pre-operation high-utilization/security-of-supply hypothesis; Uniper supplied first-cargo volumes and first-year results of 42 carriers, about 4 bcm gas fed to the grid and about 6% of 2023 German gas consumption.",
+      "next_gate": "Find historical confidence/probability evidence for expected utilization or supply contribution and define a thresholded outcome mapping against the sourced nameplate/throughput evidence."
+    }
+  ]
+}
