@@ -19,10 +19,14 @@ def _utc_instant(ts: datetime) -> datetime:
 
 def replay_case(case: ReplayCase) -> dict:
     _require_aware(case.replay_t, "REPLAY_T")
+    if isinstance(case.hypothesis.confidence_at_t,bool):
+        raise ValueError("confidence_at_t must not be boolean")
     if not 0 <= case.hypothesis.confidence_at_t <= 1:
         raise ValueError("confidence_at_t must be within [0,1]")
     if case.outcome.outcome_class not in OUTCOME_CLASSES:
         raise ValueError("unknown outcome class")
+    if case.outcome.realized_constraint is not None and type(case.outcome.realized_constraint) is not bool:
+        raise ValueError("realized_constraint must be boolean or None")
 
     replay_instant=_utc_instant(case.replay_t)
     ids=set()

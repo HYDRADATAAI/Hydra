@@ -31,6 +31,7 @@ def to_replay_evidence(event: HistoricalEvent) -> list[Evidence]:
             source_uri=uri,
             source_hash=p.content_digest,
             effective_at=event.temporal.effective_at,
+            resolved_at=event.temporal.resolved_at,
             payload={
                 "event_id":event.event_id,
                 "event_type":event.event_type.value,
@@ -45,10 +46,6 @@ def to_replay_evidence(event: HistoricalEvent) -> list[Evidence]:
                     }
                     for r in event.relations
                 ],
-                "resolved_at":(
-                    event.temporal.resolved_at.isoformat()
-                    if event.temporal.resolved_at else None
-                ),
             },
         ))
     return records
