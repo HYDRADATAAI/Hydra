@@ -68,21 +68,6 @@ class GitHubActionsTokenPermissionsTests(unittest.TestCase):
     def test_accepts_disabled_deploy_hold(self):
         workflow = self._valid_deploy_workflow(
             job_text=(
-                "  deploy-and-verify:\\n"
-                "    if: false\\n"
-                "    environment: aws-demo\\n"
-                "    runs-on: ubuntu-latest\\n"
-            )
-        )
-        errors = self.validate_yaml(
-            ".github/workflows/aws-market-data-deploy.yml",
-            workflow,
-        )
-        self.assertEqual(errors, [])
-
-    def test_accepts_disabled_deploy_hold(self):
-        workflow = self._valid_deploy_workflow(
-            job_text=(
                 "  deploy-and-verify:\n"
                 "    if: false\n"
                 "    environment: aws-demo\n"
