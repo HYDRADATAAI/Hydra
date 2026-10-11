@@ -7,6 +7,7 @@ import urllib.request
 from unittest.mock import patch
 
 from hydra_constraint.polling import (
+    BackoffPolicy,
     PollRunner,
     PollSpec,
     UrllibTransport,
@@ -142,6 +143,45 @@ class PollPreflightTests(unittest.TestCase):
 
         self.assertEqual(cursors.reads, 0)
         self.assertEqual(transport.calls, 0)
+
+    def test_sec_user_agent_requires_a_contact_email(self):
+        runner = PollRunner(None, None, None, None)
+        with self.assertRaisesRegex(ValueError, "include a contact email"):
+            runner.validate_live_spec(sec_spec(headers={"User-Agent": "Hydra Bot"}))
+
+    def test_sec_polling_spaces_requests_at_configured_rate(self):
+        class Cursors(self.Cursors):
+            def mark_error(self, *_args, **_kwargs):
+                pass
+
+        class FailingTransport:
+            def __init__(self):
+                self.calls = 0
+
+            def fetch(self, *_args, **_kwargs):
+                self.calls += 1
+                raise OSError("synthetic offline failure")
+
+        class Sleeper:
+            def __init__(self):
+                self.delays = []
+
+            def sleep(self, delay):
+                self.delays.append(delay)
+
+        cursors, transport, sleeper = Cursors(), FailingTransport(), Sleeper()
+        runner = PollRunner(None, cursors, None, transport, sleeper=sleeper)
+        spec = sec_spec(backoff=BackoffPolicy(max_attempts=1), max_rps=10)
+
+        with patch("hydra_constraint.polling._SEC_LAST_REQUEST_AT", None), patch(
+            "hydra_constraint.polling.time.monotonic",
+            side_effect=[100.0, 100.0, 100.05, 100.1],
+        ):
+            runner.poll(spec)
+            runner.poll(spec)
+
+        self.assertEqual(transport.calls, 2)
+        self.assertEqual(sleeper.delays, [0.05])
 
     def test_poll_rejects_placeholder_user_agent_before_cursor_or_transport(self):
         cursors = self.Cursors()
