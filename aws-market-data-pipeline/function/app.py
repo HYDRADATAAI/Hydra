@@ -120,7 +120,7 @@ def _source_objects(
         raise ValueError("event Records must be a list")
     for record in records:
         if not isinstance(record, dict):
-            continue
+            raise ValueError("event Records items must be objects")
         if record.get("eventSource") != "aws:s3":
             continue
         if not str(record.get("eventName", "")).startswith("ObjectCreated:"):
