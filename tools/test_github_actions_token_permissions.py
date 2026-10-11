@@ -64,6 +64,21 @@ class GitHubActionsTokenPermissionsTests(unittest.TestCase):
             DEPLOY_PERMISSIONS, {"contents": "read", "id-token": "write"}
         )
 
+    def test_accepts_disabled_deploy_hold(self):
+        workflow = self._valid_deploy_workflow(
+            job_text=(
+                "  deploy-and-verify:\\n"
+                "    if: false\\n"
+                "    environment: aws-demo\\n"
+                "    runs-on: ubuntu-latest\\n"
+            )
+        )
+        errors = self.validate_yaml(
+            ".github/workflows/aws-market-data-deploy.yml",
+            workflow,
+        )
+        self.assertEqual(errors, [])
+
     def test_rejects_additional_deploy_triggers(self):
         workflow = self._valid_deploy_workflow(
             trigger_text="workflow_dispatch: {}\n  pull_request: {}\n"
@@ -104,7 +119,7 @@ class GitHubActionsTokenPermissionsTests(unittest.TestCase):
             ".github/workflows/aws-market-data-deploy.yml",
             workflow,
         )
-        self.assertTrue(any("gated to refs/heads/main" in error for error in errors))
+        self.assertTrue(any("literal false or gated to refs/heads/main" in error for error in errors))
 
     def test_rejects_oidc_deploy_job_without_protected_environment(self):
         workflow = self._valid_deploy_workflow(

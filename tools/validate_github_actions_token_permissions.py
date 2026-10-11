@@ -14,6 +14,7 @@ DEPLOY_WORKFLOW = ".github/workflows/aws-market-data-deploy.yml"
 DEPLOY_TRIGGERS = {"workflow_dispatch"}
 DEPLOY_JOB = "deploy-and-verify"
 DEPLOY_REF_CONDITION = "github.ref == 'refs/heads/main'"
+DEPLOY_DISABLED_CONDITION = "false"
 DEPLOY_ENVIRONMENT = "aws-demo"
 # This is the sole workflow allowed to request OIDC credentials for its AWS deploy.
 DEPLOY_PERMISSIONS = {"contents": "read", "id-token": "write"}
@@ -67,10 +68,10 @@ def validate_workflow(
                     f"{relative_path}: OIDC deploy job must be a mapping"
                 )
             else:
-                if deploy_job.get("if") != DEPLOY_REF_CONDITION:
+                if deploy_job.get("if") not in {DEPLOY_REF_CONDITION, DEPLOY_DISABLED_CONDITION}:
                     errors.append(
                         f"{relative_path}: OIDC deploy job must be gated to "
-                        "refs/heads/main"
+                        "literal false or gated to refs/heads/main"
                     )
                 if deploy_job.get("environment") != DEPLOY_ENVIRONMENT:
                     errors.append(
