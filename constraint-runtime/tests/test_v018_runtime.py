@@ -185,6 +185,53 @@ class OperationsTests(unittest.TestCase):
         result = guard.inspect("sec","sec_json",b'{"cik":"1","filings":{"recent":{}}}')
         self.assertEqual(result.status, "FROZEN")
 
+    def test_sec_json_non_object_roots_freeze_with_stable_issue(self):
+        guard = DriftGuard({
+            "sec":{"required_root_keys":["cik","name","filings"],"required_recent_keys":["form"]}
+        })
+        for body in (b"null", b"false", b"42", b'"text"', b"[]"):
+            with self.subTest(body=body):
+                result = guard.inspect("sec", "sec_json", body)
+                self.assertEqual(result.status, "FROZEN")
+                self.assertEqual(result.parser_version, "1.0.1")
+                self.assertIn("invalid_root_type", result.issues)
+
+    def test_sec_json_non_object_filings_freeze_with_stable_issue(self):
+        guard = DriftGuard({
+            "sec":{"required_root_keys":["cik","name","filings"],"required_recent_keys":["form"]}
+        })
+        for filings in (None, False, 42, "text", []):
+            with self.subTest(filings=filings):
+                body = json.dumps({"cik":"1", "name":"Hydra", "filings":filings}).encode()
+                result = guard.inspect("sec", "sec_json", body)
+                self.assertEqual(result.status, "FROZEN")
+                self.assertIn("invalid_filings_type", result.issues)
+
+    def test_sec_json_non_object_recent_freezes_with_stable_issue(self):
+        guard = DriftGuard({
+            "sec":{"required_root_keys":["cik","name","filings"],"required_recent_keys":["form"]}
+        })
+        for recent in (None, False, 42, "text", []):
+            with self.subTest(recent=recent):
+                body = json.dumps({
+                    "cik":"1", "name":"Hydra", "filings":{"recent":recent}
+                }).encode()
+                result = guard.inspect("sec", "sec_json", body)
+                self.assertEqual(result.status, "FROZEN")
+                self.assertIn("invalid_recent_type", result.issues)
+
+    def test_sec_json_valid_object_contract_still_passes(self):
+        guard = DriftGuard({
+            "sec":{"required_root_keys":["cik","name","filings"],"required_recent_keys":["form"]}
+        })
+        result = guard.inspect(
+            "sec",
+            "sec_json",
+            b'{"cik":"1","name":"Hydra","filings":{"recent":{"form":"8-K"}}}',
+        )
+        self.assertEqual(result.status, "PASS")
+        self.assertEqual(result.issues, [])
+
     def test_failure_budget_freezes_and_recovers(self):
         budget = __import__("hydra_constraint").FailureBudget()
         self.assertEqual(budget.update("x",False)["state"], "HEALTHY")
