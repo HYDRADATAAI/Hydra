@@ -1,0 +1,58 @@
+{
+  "schema_version": "hydra-constraint-native-t5-t6-admission-request/v1",
+  "request_id": "HYDRA_CONSTRAINT_FIRST_SLICE_NATIVE_T5_T6_ADMISSION_REQUEST_V003_20261004",
+  "as_of": "2026-10-04",
+  "slice_id": "AI_DATA_CENTER_POWER_INFRASTRUCTURE_V1",
+  "status": "REQUESTED_NOT_GRANTED",
+  "authority_role_requested": "IMPLEMENTATION_CONTRACT",
+  "decision_requested": "ADMIT_NATIVE_T5_T6_BINDING",
+  "operation": "hydra.t5_t6.native_binding_admission",
+  "scopes": ["pipeline.t5_to_t6.native_binding"],
+  "implementation_id": "HYDRA_CONSTRAINT_FIRST_SLICE_NATIVE_T5_T6_BRIDGE_V002_20261003",
+  "bindings": {
+    "manifest_sha256": "7761373b0ad68719f9288c26978466823a4c6cc72f0714ce193a822f3c66501a",
+    "artifact_sha256": "5e4c27fa6b2f96c05adf888f152775b9c61038c6c96f22a1a405f9c604bd66a6",
+    "test_evidence_sha256": "0346a9eda90f39967efe294e375ea0f3d92f9074ac2411e404ef1c45f888f108"
+  },
+  "producer_stage": "PIPELINE_T5_CONSTRAINT_FORMATION",
+  "consumer_stage": "PIPELINE_T6_CANONICAL_CANDIDATE_GOVERNANCE",
+  "implementation_manifest_path": "docs/constraint/implementation/HYDRA_CONSTRAINT_FIRST_SLICE_NATIVE_T5_T6_IMPLEMENTATION_MANIFEST_V003_20261004.json",
+  "implementation_artifact_path": "t6-fail-closed-validator/src/hydra_t6_failclosed/native_t5_t6_bridge_v2.py",
+  "test_evidence_path": "t6-fail-closed-validator/tests/test_native_t5_t6_bridge_v2.py",
+  "requested_limitations": {
+    "runtime_activation_authorized": false,
+    "canonical_promotion_authorized": false,
+    "live_source_authorized": false,
+    "model_training_authorized": false,
+    "trading_authorized": false
+  },
+  "authority_response_requirements": [
+    "CURRENT_NON_REVOKED_SIGNED_RECEIPT",
+    "EXACT_IMPLEMENTATION_ID_MATCH",
+    "EXACT_MANIFEST_ARTIFACT_AND_TEST_DIGEST_BINDINGS",
+    "FROZEN_PRODUCER_CONSUMER_STAGE_PAIR",
+    "SCOPES_EXACTLY_PIPELINE_T5_TO_T6_NATIVE_BINDING",
+    "LIMITATIONS_ALL_FALSE",
+    "TIMEZONE_AWARE_ISSUED_AT_AND_EXPIRES_AT",
+    "REVOCATION_EVIDENCE_NOT_OLDER_THAN_24_HOURS",
+    "CURRENT_ACYCLIC_SUPERSESSION_STATE",
+    "TRUSTED_KEY_ID_AND_SIGNATURE_METHOD"
+  ],
+  "historical_availability_boundary": {
+    "independent_gate": true,
+    "blocker": "PIT-002B-FIRST-SLICE-NINE-SOURCE-RAW-CAPTURE-MATERIALIZATION",
+    "pre_acquisition_historical_availability_proven": false,
+    "strict_original_as_of_replay_ready": false,
+    "must_not_be_closed_by_implementation_admission": true
+  },
+  "prohibited_inferences": [
+    "REQUEST_IS_NOT_ADMISSION",
+    "PASSING_TESTS_DO_NOT_IMPLY_ADMISSION",
+    "MERGED_IMPLEMENTATION_DOES_NOT_IMPLY_ADMISSION",
+    "IMPLEMENTATION_ADMISSION_DOES_NOT_AUTHORIZE_RUNTIME_ACTIVATION",
+    "IMPLEMENTATION_ADMISSION_DOES_NOT_AUTHORIZE_CANONICAL_PROMOTION",
+    "IMPLEMENTATION_ADMISSION_DOES_NOT_PROVE_HISTORICAL_AVAILABILITY"
+  ],
+  "receipt_minted": false,
+  "self_signature_performed": false
+}

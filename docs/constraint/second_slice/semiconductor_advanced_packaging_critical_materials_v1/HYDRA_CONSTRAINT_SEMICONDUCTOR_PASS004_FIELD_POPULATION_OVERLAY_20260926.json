@@ -1,0 +1,221 @@
+{
+  "schema_version": "hydra-constraint-first-slice-field-population-overlay/v1",
+  "record_id": "HYDRA_CONSTRAINT_SEMICONDUCTOR_PASS004_FIELD_POPULATION_OVERLAY_20260926",
+  "as_of": "2026-09-26",
+  "slice_id": "SEMICONDUCTOR_ADVANCED_PACKAGING_CRITICAL_MATERIALS_V1",
+  "reused_transport_from": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH006_AI_DATA_CENTER_POWER_INFRASTRUCTURE_FIELD_POPULATION_OVERLAY_V001",
+  "field_authority": "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH017_SEMICONDUCTOR_ADVANCED_PACKAGING_CRITICAL_MATERIALS_FIELD_REQUIREMENTS_V001",
+  "field_updates": [
+    {
+      "field_name": "capacity_state",
+      "predecessor_status": "SOURCE_GAP",
+      "successor_status": "POPULATED_REVIEWED_SEED_NOT_ADMITTED",
+      "value": "Announced; future production target, not operational capacity",
+      "evidence_ids": [
+        "EV-SEMI-SKHYNIX-INDIANA-PLAN-2024"
+      ],
+      "scope": "SK hynix West Lafayette project; announcement-era plan, not current operating status",
+      "available_at": "2026-09-26T21:10:37Z",
+      "uncertainty": "SOURCE_REPORT_ONLY_NO_CANONICAL_IDENTITY_OR_RAW_CAPTURE"
+    },
+    {
+      "field_name": "facility_type",
+      "predecessor_status": "SOURCE_GAP",
+      "successor_status": "POPULATED_REVIEWED_SEED_NOT_ADMITTED",
+      "value": "Advanced HBM packaging and R&D",
+      "evidence_ids": [
+        "EV-SEMI-SKHYNIX-INDIANA-PLAN-2024"
+      ],
+      "scope": "SK hynix West Lafayette project; announcement-era plan, not current operating status",
+      "available_at": "2026-09-26T21:10:37Z",
+      "uncertainty": "SOURCE_REPORT_ONLY_NO_CANONICAL_IDENTITY_OR_RAW_CAPTURE"
+    },
+    {
+      "field_name": "capacity_state",
+      "predecessor_status": "SOURCE_GAP",
+      "successor_status": "POPULATED_REVIEWED_SEED_NOT_ADMITTED",
+      "value": "Manufacturer reports volume production; quantity and spare capacity unknown",
+      "evidence_ids": [
+        "EV-SEMI-MICRON-HBM3E-PRODUCTION-2024"
+      ],
+      "scope": "Micron 24GB 8H HBM3E; no factory-specific output quantity established",
+      "available_at": "2026-09-26T21:10:37Z",
+      "uncertainty": "SOURCE_REPORT_ONLY_NO_CANONICAL_IDENTITY_OR_RAW_CAPTURE"
+    },
+    {
+      "field_name": "product_type",
+      "predecessor_status": "SOURCE_GAP",
+      "successor_status": "POPULATED_REVIEWED_SEED_NOT_ADMITTED",
+      "value": "24GB 8H HBM3E",
+      "evidence_ids": [
+        "EV-SEMI-MICRON-HBM3E-PRODUCTION-2024"
+      ],
+      "scope": "Micron 24GB 8H HBM3E; no factory-specific output quantity established",
+      "available_at": "2026-09-26T21:10:37Z",
+      "uncertainty": "SOURCE_REPORT_ONLY_NO_CANONICAL_IDENTITY_OR_RAW_CAPTURE"
+    },
+    {
+      "field_name": "capacity_state",
+      "predecessor_status": "SOURCE_GAP",
+      "successor_status": "POPULATED_REVIEWED_SEED_NOT_ADMITTED",
+      "value": "Sampling planned; production not established",
+      "evidence_ids": [
+        "EV-SEMI-MICRON-12H-SAMPLING-PLAN-2024"
+      ],
+      "scope": "Micron 36GB 12-high HBM3E; announcement-era forecast",
+      "available_at": "2026-09-26T21:10:37Z",
+      "uncertainty": "SOURCE_REPORT_ONLY_NO_CANONICAL_IDENTITY_OR_RAW_CAPTURE"
+    },
+    {
+      "field_name": "product_type",
+      "predecessor_status": "SOURCE_GAP",
+      "successor_status": "POPULATED_REVIEWED_SEED_NOT_ADMITTED",
+      "value": "36GB 12-high HBM3E",
+      "evidence_ids": [
+        "EV-SEMI-MICRON-12H-SAMPLING-PLAN-2024"
+      ],
+      "scope": "Micron 36GB 12-high HBM3E; announcement-era forecast",
+      "available_at": "2026-09-26T21:10:37Z",
+      "uncertainty": "SOURCE_REPORT_ONLY_NO_CANONICAL_IDENTITY_OR_RAW_CAPTURE"
+    },
+    {
+      "field_name": "process_node",
+      "predecessor_status": "SOURCE_GAP",
+      "successor_status": "POPULATED_REVIEWED_SEED_NOT_ADMITTED",
+      "value": "4nm",
+      "evidence_ids": [
+        "EV-SEMI-TSMC-AZ-FAB1-PLAN-2024"
+      ],
+      "scope": "TSMC Arizona first fab; plan reported April 2024",
+      "available_at": "2026-09-26T21:10:37Z",
+      "uncertainty": "SOURCE_REPORT_ONLY_NO_CANONICAL_IDENTITY_OR_RAW_CAPTURE"
+    },
+    {
+      "field_name": "capacity_state",
+      "predecessor_status": "SOURCE_GAP",
+      "successor_status": "POPULATED_REVIEWED_SEED_NOT_ADMITTED",
+      "value": "Future production plan as reported in April 2024",
+      "evidence_ids": [
+        "EV-SEMI-TSMC-AZ-FAB1-PLAN-2024"
+      ],
+      "scope": "TSMC Arizona first fab; plan reported April 2024",
+      "available_at": "2026-09-26T21:10:37Z",
+      "uncertainty": "SOURCE_REPORT_ONLY_NO_CANONICAL_IDENTITY_OR_RAW_CAPTURE"
+    },
+    {
+      "field_name": "process_node",
+      "predecessor_status": "SOURCE_GAP",
+      "successor_status": "POPULATED_REVIEWED_SEED_NOT_ADMITTED",
+      "value": "2nm and 3nm",
+      "evidence_ids": [
+        "EV-SEMI-TSMC-AZ-FAB2-PLAN-2024"
+      ],
+      "scope": "TSMC Arizona second fab; plan reported April 2024",
+      "available_at": "2026-09-26T21:10:37Z",
+      "uncertainty": "SOURCE_REPORT_ONLY_NO_CANONICAL_IDENTITY_OR_RAW_CAPTURE"
+    },
+    {
+      "field_name": "capacity_state",
+      "predecessor_status": "SOURCE_GAP",
+      "successor_status": "POPULATED_REVIEWED_SEED_NOT_ADMITTED",
+      "value": "Future production plan as reported in April 2024",
+      "evidence_ids": [
+        "EV-SEMI-TSMC-AZ-FAB2-PLAN-2024"
+      ],
+      "scope": "TSMC Arizona second fab; plan reported April 2024",
+      "available_at": "2026-09-26T21:10:37Z",
+      "uncertainty": "SOURCE_REPORT_ONLY_NO_CANONICAL_IDENTITY_OR_RAW_CAPTURE"
+    },
+    {
+      "field_name": "process_node",
+      "predecessor_status": "SOURCE_GAP",
+      "successor_status": "POPULATED_REVIEWED_SEED_NOT_ADMITTED",
+      "value": "2nm or more advanced",
+      "evidence_ids": [
+        "EV-SEMI-TSMC-AZ-FAB3-PLAN-2024"
+      ],
+      "scope": "TSMC Arizona third fab; plan reported April 2024",
+      "available_at": "2026-09-26T21:10:37Z",
+      "uncertainty": "SOURCE_REPORT_ONLY_NO_CANONICAL_IDENTITY_OR_RAW_CAPTURE"
+    },
+    {
+      "field_name": "capacity_state",
+      "predecessor_status": "SOURCE_GAP",
+      "successor_status": "POPULATED_REVIEWED_SEED_NOT_ADMITTED",
+      "value": "Future production plan as reported in April 2024",
+      "evidence_ids": [
+        "EV-SEMI-TSMC-AZ-FAB3-PLAN-2024"
+      ],
+      "scope": "TSMC Arizona third fab; plan reported April 2024",
+      "available_at": "2026-09-26T21:10:37Z",
+      "uncertainty": "SOURCE_REPORT_ONLY_NO_CANONICAL_IDENTITY_OR_RAW_CAPTURE"
+    },
+    {
+      "field_name": "water_dependency_state",
+      "predecessor_status": "SOURCE_GAP",
+      "successor_status": "POPULATED_REVIEWED_SEED_NOT_ADMITTED",
+      "value": "Reclamation design and recycling target; delivered supply unproven",
+      "evidence_ids": [
+        "EV-SEMI-TSMC-AZ-WATER-DESIGN-2024"
+      ],
+      "scope": "TSMC Arizona campus; design goals reported April 2024",
+      "available_at": "2026-09-26T21:10:37Z",
+      "uncertainty": "SOURCE_REPORT_ONLY_NO_CANONICAL_IDENTITY_OR_RAW_CAPTURE"
+    },
+    {
+      "field_name": "packaging_type",
+      "predecessor_status": "SOURCE_GAP",
+      "successor_status": "POPULATED_REVIEWED_SEED_NOT_ADMITTED",
+      "value": "InFO and CoWoS named for joint definition; site capability unproven",
+      "evidence_ids": [
+        "EV-SEMI-AMKOR-TSMC-PEORIA-MOU-2024"
+      ],
+      "scope": "Amkor Peoria and TSMC Phoenix; MOU scope, not commissioned or qualified production",
+      "available_at": "2026-09-26T21:10:37Z",
+      "uncertainty": "SOURCE_REPORT_ONLY_NO_CANONICAL_IDENTITY_OR_RAW_CAPTURE"
+    },
+    {
+      "field_name": "capacity_state",
+      "predecessor_status": "SOURCE_GAP",
+      "successor_status": "POPULATED_REVIEWED_SEED_NOT_ADMITTED",
+      "value": "Planned packaging/test facility under MOU",
+      "evidence_ids": [
+        "EV-SEMI-AMKOR-TSMC-PEORIA-MOU-2024"
+      ],
+      "scope": "Amkor Peoria and TSMC Phoenix; MOU scope, not commissioned or qualified production",
+      "available_at": "2026-09-26T21:10:37Z",
+      "uncertainty": "SOURCE_REPORT_ONLY_NO_CANONICAL_IDENTITY_OR_RAW_CAPTURE"
+    }
+  ],
+  "unresolved_fields": [
+    "entity_id",
+    "facility_id",
+    "facility_owner_id",
+    "geography_id",
+    "product_id",
+    "customer_id",
+    "supplier_id",
+    "source_version_ids",
+    "installed_capacity",
+    "operational_capacity",
+    "available_capacity",
+    "effective_capacity",
+    "reserved_capacity",
+    "booked_capacity",
+    "yield_value",
+    "qualification_complete",
+    "confidence_value"
+  ],
+  "counts": {
+    "registered_sources": 4,
+    "reviewed_evidence_observations": 8,
+    "field_updates": 15,
+    "canonical_entities_minted": 0,
+    "canonical_facilities_minted": 0,
+    "canonical_constraints_formed": 0,
+    "qualified_beneficiaries": 0
+  },
+  "runtime_admitted": false,
+  "strict_original_as_of_ready": false,
+  "required_cases_executed": 0
+}
