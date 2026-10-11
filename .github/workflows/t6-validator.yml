@@ -30,3 +30,60 @@ jobs:
         env:
           PYTHONPATH: src
         run: python -m unittest discover -s tests -t . -v
+
+  integration-signers-windows:
+    if: ${{ github.event_name == 'pull_request' && (github.head_ref == 'nyx/integration-closure-alternative-167-20261010' || github.head_ref == 'nyx/integration-closure-alternative-186-20261010') }}
+    runs-on: windows-latest
+    defaults:
+      run:
+        shell: pwsh
+    env:
+      PYTHONDONTWRITEBYTECODE: '1'
+      PYTHONUTF8: '1'
+    steps:
+      - name: Preserve Git blob bytes on Windows
+        run: |
+          git config --global core.autocrlf false
+          git config --global core.longpaths true
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          persist-credentials: false
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
+        with:
+          python-version: '3.14'
+      - name: Bind exact candidate and portable D workspace
+        run: |
+          if (-not $env:GITHUB_WORKSPACE.StartsWith('D:\', [StringComparison]::OrdinalIgnoreCase)) { throw 'D drive checkout required' }
+          $root = 'D:\NYX_PORTABLE\INTEGRATION_SIGNERS_TEMP'
+          New-Item -ItemType Directory -Force $root | Out-Null
+          "TEMP=$root" | Out-File -Append $env:GITHUB_ENV
+          "TMP=$root" | Out-File -Append $env:GITHUB_ENV
+          git rev-parse HEAD 'HEAD^{tree}'
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          python --version
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          $rows = git ls-files | ForEach-Object { [pscustomobject]@{ path = $_; sha256 = (Get-FileHash -Algorithm SHA256 -LiteralPath $_).Hash.ToLowerInvariant() } }
+          $rows | ConvertTo-Json -Depth 4 | Set-Content (Join-Path $root 'before.json')
+      - name: Run full T6 signer and native admission regressions
+        working-directory: t6-fail-closed-validator
+        env:
+          PYTHONPATH: src
+        run: |
+          python -B -m unittest discover -s tests -t . -v
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Verify tracked source bytes remain exact
+        if: always()
+        run: |
+          $root = 'D:\NYX_PORTABLE\INTEGRATION_SIGNERS_TEMP'
+          $before = Get-Content -Raw -LiteralPath (Join-Path $root 'before.json') | ConvertFrom-Json
+          foreach ($row in $before) {
+            $actual = (Get-FileHash -Algorithm SHA256 -LiteralPath $row.path).Hash.ToLowerInvariant()
+            if ($actual -cne $row.sha256) { throw "Tracked source changed: $($row.path)" }
+          }
+          $status = git status --porcelain
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          if ($status) { throw "Candidate checkout is not clean: $status" }
+          Write-Host 'SOURCE_HASHES_STABLE=TRUE'
+          git rev-parse HEAD 'HEAD^{tree}'
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
