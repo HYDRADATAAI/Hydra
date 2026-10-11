@@ -4,7 +4,8 @@ import json
 import sqlite3
 import unittest
 
-from run_demo import BUILD, build_database
+from run_demo import BUILD, SQL_FILES, build_database
+
 
 class SqlDataQualitySampleTests(unittest.TestCase):
     @classmethod
@@ -13,6 +14,81 @@ class SqlDataQualitySampleTests(unittest.TestCase):
 
     def connection(self):
         return sqlite3.connect(self.db)
+
+    @staticmethod
+    def synthetic_quality_connection():
+        con = sqlite3.connect(":memory:")
+        for sql_file in SQL_FILES:
+            con.executescript(sql_file.read_text(encoding="utf-8"))
+        con.executemany(
+            """
+            INSERT INTO raw_market_events(
+                source_system, source_record_id, symbol, event_time_utc,
+                price, volume, currency, venue
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+            """,
+            [
+                ("SYNTH", "bad-month", "AAA", "2026-99-99T99:99:99Z", 10.0, 1, "USD", "XNAS"),
+                ("SYNTH", "bad-calendar-day", "BBB", "2026-02-30T12:00:00Z", 10.0, 1, "USD", "XNYS"),
+                ("SYNTH", "bad-clock", "HHH", "2026-09-24T25:30:00Z", 10.0, 1, "USD", "XNYS"),
+                ("SYNTH", "valid-leap-day", "CCC", "2024-02-29T12:00:00Z", 10.0, 1, "USD", "XNAS"),
+                ("SYNTH", "text-price", "FFF", "2026-09-24T17:30:00Z", "not-a-price", 1, "USD", "XNAS"),
+                ("SYNTH", "blob-price", "GGG", "2026-09-24T17:30:00Z", b"not-a-price", 1, "USD", "XNYS"),
+                ("SYNTH", "positive-infinity", "DDD", "2026-09-24T17:30:00Z", float("inf"), 1, "USD", "XNAS"),
+                ("SYNTH", "negative-infinity", "HHH", "2026-09-24T17:30:00Z", float("-inf"), 1, "USD", "XNYS"),
+                ("SYNTH", "large-finite", "EEE", "2026-09-24T17:30:00Z", 1e300, 1, "USD", "XNYS"),
+            ],
+        )
+        return con
+
+    def test_timestamps_must_round_trip_as_real_utc_calendar_times(self):
+        con = self.synthetic_quality_connection()
+        try:
+            issues = dict(con.execute(
+                """
+                SELECT r.source_record_id, q.quality_issue
+                FROM raw_market_events r
+                JOIN quality_flags q USING (row_id)
+                """
+            ).fetchall())
+        finally:
+            con.close()
+        self.assertEqual(issues["bad-month"], "invalid_timestamp")
+        self.assertEqual(issues["bad-calendar-day"], "invalid_timestamp")
+        self.assertEqual(issues["bad-clock"], "invalid_timestamp")
+        self.assertIsNone(issues["valid-leap-day"])
+
+    def test_invalid_price_types_and_infinities_are_quarantined(self):
+        con = self.synthetic_quality_connection()
+        try:
+            issues = dict(con.execute(
+                """
+                SELECT r.source_record_id, q.quality_issue
+                FROM raw_market_events r
+                JOIN quality_flags q USING (row_id)
+                """
+            ).fetchall())
+            accepted = {
+                row[0] for row in con.execute(
+                    """
+                    SELECT r.source_record_id
+                    FROM accepted_events e
+                    JOIN raw_market_events r USING (row_id)
+                    """
+                ).fetchall()
+            }
+        finally:
+            con.close()
+        self.assertEqual(issues["text-price"], "invalid_price_type")
+        self.assertEqual(issues["blob-price"], "invalid_price_type")
+        self.assertEqual(issues["positive-infinity"], "non_finite_price")
+        self.assertEqual(issues["negative-infinity"], "non_finite_price")
+        self.assertIsNone(issues["large-finite"])
+        self.assertNotIn("text-price", accepted)
+        self.assertNotIn("blob-price", accepted)
+        self.assertNotIn("positive-infinity", accepted)
+        self.assertNotIn("negative-infinity", accepted)
+        self.assertIn("large-finite", accepted)
 
     def test_expected_accept_and_quarantine_counts(self):
         con = self.connection()
@@ -67,6 +143,7 @@ class SqlDataQualitySampleTests(unittest.TestCase):
         summary = json.loads((BUILD / "quality_summary.json").read_text(encoding="utf-8"))
         self.assertEqual(summary["accepted"], 5)
         self.assertEqual(summary["duplicate_normalized_event"], 1)
+
 
 if __name__ == "__main__":
     unittest.main()
