@@ -97,6 +97,22 @@ class GitHubActionsTokenPermissionsTests(unittest.TestCase):
             any("literal unquoted false" in error for error in errors)
         )
 
+    def test_rejects_duplicate_deploy_if_keys(self):
+        workflow = self._valid_deploy_workflow(
+            job_text=(
+                "  deploy-and-verify:\n"
+                "    if: false\n"
+                "    if: 'false'\n"
+                "    environment: aws-demo\n"
+                "    runs-on: ubuntu-latest\n"
+            )
+        )
+        errors = self.validate_yaml(
+            ".github/workflows/aws-market-data-deploy.yml",
+            workflow,
+        )
+        self.assertTrue(any("duplicate YAML mapping key 'if'" in error for error in errors))
+
     def test_rejects_additional_deploy_triggers(self):
         workflow = self._valid_deploy_workflow(
             trigger_text="workflow_dispatch: {}\n  pull_request: {}\n"

@@ -20,19 +20,48 @@ DEPLOY_ENVIRONMENT = "aws-demo"
 DEPLOY_PERMISSIONS = {"contents": "read", "id-token": "write"}
 
 
-def _mapping_node_value(node: yaml.Node | None, key: str) -> yaml.Node | None:
+def _mapping_node_values(node: yaml.Node | None, key: str) -> list[yaml.Node]:
     if not isinstance(node, yaml.MappingNode):
-        return None
-    for node_key, value in node.value:
-        if isinstance(node_key, yaml.ScalarNode) and node_key.value == key:
-            return value
-    return None
+        return []
+    return [
+        value
+        for node_key, value in node.value
+        if isinstance(node_key, yaml.ScalarNode) and node_key.value == key
+    ]
+
+
+def _duplicate_yaml_keys(node: yaml.Node | None) -> list[tuple[str, int]]:
+    if isinstance(node, yaml.MappingNode):
+        seen: set[str] = set()
+        duplicates: list[tuple[str, int]] = []
+        for key_node, value_node in node.value:
+            if isinstance(key_node, yaml.ScalarNode):
+                key = key_node.value
+                if key in seen:
+                    duplicates.append((key, key_node.start_mark.line + 1))
+                seen.add(key)
+            duplicates.extend(_duplicate_yaml_keys(value_node))
+        return duplicates
+    if isinstance(node, yaml.SequenceNode):
+        return [
+            duplicate
+            for child in node.value
+            for duplicate in _duplicate_yaml_keys(child)
+        ]
+    return []
 
 
 def _has_unquoted_disabled_deploy_condition(document_node: yaml.Node | None) -> bool:
-    jobs_node = _mapping_node_value(document_node, "jobs")
-    deploy_job_node = _mapping_node_value(jobs_node, DEPLOY_JOB)
-    condition_node = _mapping_node_value(deploy_job_node, "if")
+    jobs_nodes = _mapping_node_values(document_node, "jobs")
+    if len(jobs_nodes) != 1:
+        return False
+    deploy_job_nodes = _mapping_node_values(jobs_nodes[0], DEPLOY_JOB)
+    if len(deploy_job_nodes) != 1:
+        return False
+    condition_nodes = _mapping_node_values(deploy_job_nodes[0], "if")
+    if len(condition_nodes) != 1:
+        return False
+    condition_node = condition_nodes[0]
     return (
         isinstance(condition_node, yaml.ScalarNode)
         and condition_node.tag == "tag:yaml.org,2002:bool"
@@ -51,6 +80,10 @@ def validate_workflow(
     is_deploy_workflow = relative_path == DEPLOY_WORKFLOW
     expected = DEPLOY_PERMISSIONS if is_deploy_workflow else BASELINE_PERMISSIONS
     errors: list[str] = []
+    for key, line in _duplicate_yaml_keys(document_node):
+        errors.append(
+            f"{relative_path}: duplicate YAML mapping key {key!r} at line {line}"
+        )
 
     if not isinstance(document, dict):
         return [f"{relative_path}: workflow root must be a mapping"]
