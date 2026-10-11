@@ -36,6 +36,7 @@ class PollPreflightTests(unittest.TestCase):
         policy = BackoffPolicy(max_attempts=5, base_seconds=2, cap_seconds=5)
         self.assertEqual(policy.delay(2, "2"), 2)
         self.assertEqual(policy.delay(2, "99"), 5)
+        self.assertEqual(policy.delay(2, "9" * 5000), 5)
         self.assertEqual(policy.delay(2, "Wed, 21 Oct 2099 07:28:00 GMT"), 5)
         self.assertEqual(policy.delay(2, "Wed, 21 Oct 2015 07:28:00 GMT"), 0)
         for malformed in ("-1", "1.5", "nan", "inf", "٢", "not-a-date"):
