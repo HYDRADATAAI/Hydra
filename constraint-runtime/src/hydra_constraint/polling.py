@@ -219,14 +219,14 @@ class PollRunner:
         try:
             parsed_url=urlsplit(spec.url)
             raw_host=parsed_url.hostname or ""
-            try:
-                host=raw_host.encode("idna").decode("ascii").casefold().rstrip(".")
-            except UnicodeError as exc:
-                raise ValueError("polling URL hostname is not valid IDNA") from exc
         except (AttributeError,TypeError,ValueError) as exc:
             if sec_selector:
                 raise ValueError("SEC polling requires a valid HTTPS SEC URL") from exc
             return
+        try:
+            host=raw_host.encode("idna").decode("ascii").casefold().rstrip(".")
+        except UnicodeError as exc:
+            raise ValueError("polling URL hostname is not valid IDNA") from exc
         is_sec_host=host=="sec.gov" or host.endswith(".sec.gov")
         if not sec_selector and not is_sec_host:
             return
