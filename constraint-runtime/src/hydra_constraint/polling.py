@@ -20,6 +20,13 @@ from urllib.parse import urlsplit
 from .adapters import ADAPTERS
 
 RETRYABLE={429,500,502,503,504}
+DEFAULT_MAX_RESPONSE_BYTES=2_000_000
+
+class ResponseTooLargeError(ValueError):
+    def __init__(self, max_bytes, status=None):
+        self.max_bytes=max_bytes
+        self.status=status
+        super().__init__(f"response exceeds max_bytes={max_bytes}")
 
 def utc_now():
     return datetime.now(timezone.utc).isoformat().replace("+00:00","Z")
@@ -89,23 +96,69 @@ class FixtureTransport:
         self.calls[url]=i+1
         return seq[min(i,len(seq)-1)]
 
+def _require_https_url(url):
+    try:
+        parsed=urlsplit(url)
+        hostname=parsed.hostname
+        parsed.port
+    except (AttributeError,TypeError,ValueError) as exc:
+        raise ValueError("poll source URL must be a valid HTTPS URL") from exc
+    if (
+        parsed.scheme.casefold()!="https"
+        or not hostname
+        or parsed.username is not None
+        or parsed.password is not None
+    ):
+        raise ValueError("poll source URL must be an HTTPS URL with a hostname and no credentials")
+
+
 class _NoRedirectHandler(urllib.request.HTTPRedirectHandler):
     def redirect_request(self, req, fp, code, msg, headers, newurl):
         return None
 
 
+def _read_bounded(stream,max_bytes,status):
+    body=bytearray()
+    while len(body)<=max_bytes:
+        chunk=stream.read(max_bytes+1-len(body))
+        if not chunk:
+            break
+        body.extend(chunk)
+    if len(body)>max_bytes:
+        raise ResponseTooLargeError(max_bytes,status)
+    return bytes(body)
+
+
 class UrllibTransport:
-    def fetch(self,url,headers=None,timeout=20):
+    def __init__(self,max_bytes=DEFAULT_MAX_RESPONSE_BYTES):
+        if not isinstance(max_bytes,int) or isinstance(max_bytes,bool) or max_bytes<=0:
+            raise ValueError("max_bytes must be a positive integer")
+        self.max_bytes=max_bytes
+
+    def fetch(self,url,headers=None,timeout=20,max_bytes=None):
+        if max_bytes is None:
+            max_bytes=self.max_bytes
+        if not isinstance(max_bytes,int) or isinstance(max_bytes,bool) or max_bytes<=0:
+            raise ValueError("max_bytes must be a positive integer")
+        _require_https_url(url)
         req=urllib.request.Request(url,headers=headers or {},method="GET")
         opener=urllib.request.build_opener(_NoRedirectHandler())
         try:
-            with opener.open(req,timeout=timeout) as r:
-                return HttpResponse(url,int(r.status),{k.lower():v for k,v in r.headers.items()},r.read(),utc_now())
-        except urllib.error.HTTPError as e:
+            with opener.open(req,timeout=timeout) as response:
+                status=int(response.status)
+                body=_read_bounded(response,max_bytes,status)
+                return HttpResponse(
+                    url,status,{key.lower():value for key,value in response.headers.items()},
+                    body,utc_now(),
+                )
+        except urllib.error.HTTPError as error:
             try:
-                return HttpResponse(url,int(e.code),{k.lower():v for k,v in (e.headers.items() if e.headers else [])},e.read(),utc_now())
+                status=int(error.code)
+                body=_read_bounded(error,max_bytes,status)
+                headers={key.lower():value for key,value in (error.headers.items() if error.headers else [])}
+                return HttpResponse(url,status,headers,body,utc_now())
             finally:
-                e.close()
+                error.close()
 
 class RecordingSleeper:
     def __init__(self):
@@ -206,9 +259,24 @@ class PollReport:
         return asdict(self)
 
 class PollRunner:
-    def __init__(self,durable,cursors,archive,transport,sleeper=None):
+    def __init__(self,durable,cursors,archive,transport,sleeper=None,max_response_bytes=None):
         self.durable=durable; self.cursors=cursors; self.archive=archive
         self.transport=transport; self.sleeper=sleeper or time
+        if max_response_bytes is None:
+            max_response_bytes=(
+                transport.max_bytes
+                if isinstance(transport,UrllibTransport)
+                else DEFAULT_MAX_RESPONSE_BYTES
+            )
+        if not isinstance(max_response_bytes,int) or isinstance(max_response_bytes,bool) or max_response_bytes<=0:
+            raise ValueError("max_response_bytes must be a positive integer")
+        self.max_response_bytes=max_response_bytes
+
+    def _uses_builtin_urllib_transport(self):
+        return (
+            isinstance(self.transport,UrllibTransport)
+            and type(self.transport).fetch is UrllibTransport.fetch
+        )
 
     def validate_live_spec(self,spec):
         sec_selector=(
@@ -261,15 +329,32 @@ class PollRunner:
 
     def poll(self,spec,cursor_value=None):
         self.validate_live_spec(spec)
+        if self._uses_builtin_urllib_transport():
+            _require_https_url(spec.url)
         before=self.cursors.adapter(spec.name).get("cursor")
         statuses=[]; hashes=[]; delays=[]; response=None; error=None
         for attempt in range(1,spec.backoff.max_attempts+1):
             try:
-                response=self.transport.fetch(spec.url,spec.headers)
+                if self._uses_builtin_urllib_transport():
+                    response=self.transport.fetch(
+                        spec.url,spec.headers,max_bytes=self.max_response_bytes,
+                    )
+                else:
+                    response=self.transport.fetch(spec.url,spec.headers)
+            except ResponseTooLargeError as exc:
+                if exc.status is not None:
+                    statuses.append(exc.status)
+                error=str(exc); response=None
+                break
             except Exception as exc:
                 error=str(exc); response=None
                 if attempt<spec.backoff.max_attempts:
                     delay=spec.backoff.delay(attempt); delays.append(delay); self.sleeper.sleep(delay); continue
+                break
+            if len(response.body)>self.max_response_bytes:
+                statuses.append(response.status)
+                error=str(ResponseTooLargeError(self.max_response_bytes,response.status))
+                response=None
                 break
             statuses.append(response.status)
             hashes.append(self.archive.archive(spec.name,response,attempt))
