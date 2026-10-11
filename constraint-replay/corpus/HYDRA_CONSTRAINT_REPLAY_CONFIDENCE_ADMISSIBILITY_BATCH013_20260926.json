@@ -1,0 +1,35 @@
+{
+  "schema_version": "1.0",
+  "batch_id": "HYDRA_CONSTRAINT_REPLAY_CONFIDENCE_ADMISSIBILITY_BATCH013_20260926",
+  "policy": "Batch 013 reuses the existing confidence semantics unchanged. Qualitative inflation expectations, regulatory policy objectives, legal/economic risk descriptions and observed percentage changes are not historical replay probabilities.",
+  "ordinal_mappings": [],
+  "evidence": [
+    {
+      "evidence_id": "confidence-audit-russia-worldbank-2014-08-11",
+      "case_id": "russia-food-import-embargo-2014",
+      "source_id": "russia-worldbank-2014-08-11-hypothesis",
+      "known_at": "2014-08-11T23:59:59Z",
+      "semantics": "QUALITATIVE_EXPECTATION",
+      "statement": "The World Bank stated that Russia's food-import ban would likely increase short-term inflationary pressure.",
+      "notes": "Likely/inflationary-pressure language is directional expectation evidence, not an explicit numeric probability."
+    },
+    {
+      "evidence_id": "confidence-audit-bis-2022-10-07",
+      "case_id": "bis-semiconductor-controls-2022",
+      "source_id": "bis-2022-10-07-hypothesis",
+      "known_at": "2022-10-07T23:59:59Z",
+      "semantics": "TARGET_OR_OBJECTIVE",
+      "statement": "BIS stated that the October 2022 controls were intended to restrict PRC access to specified advanced-computing and semiconductor-manufacturing capabilities.",
+      "notes": "A regulatory objective is not a probability of achieving the objective."
+    },
+    {
+      "evidence_id": "confidence-audit-rareearth-ustr-2014-03-26",
+      "case_id": "wto-china-rare-earths-resource-dispute-2014-2015",
+      "source_id": "rareearth-ustr-2014-03-26-hypothesis",
+      "known_at": "2014-03-26T23:59:59Z",
+      "semantics": "QUALITATIVE_RISK",
+      "statement": "USTR described China's export restraints as a mechanism that could raise world prices, lower Chinese downstream input costs and distort competition.",
+      "notes": "Could-raise/distortion language is not an explicit probability or a predeclared ordinal confidence mapping."
+    }
+  ]
+}
