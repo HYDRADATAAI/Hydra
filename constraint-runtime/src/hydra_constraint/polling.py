@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field, asdict
 from datetime import datetime, timezone
+from email.utils import parsedate_to_datetime
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 import csv
@@ -45,13 +46,30 @@ class BackoffPolicy:
     max_attempts:int=4
     base_seconds:float=1.0
     cap_seconds:float=30.0
-    def delay(self,attempt:int,retry_after:Optional[str]=None)->float:
+    def delay(
+        self,
+        attempt: int,
+        retry_after: Optional[str] = None,
+        now: Optional[datetime] = None,
+    ) -> float:
         if retry_after:
             try:
-                return min(self.cap_seconds,max(0.0,float(retry_after)))
-            except Exception:
-                pass
-        return min(self.cap_seconds,self.base_seconds*(2**max(0,attempt-1)))
+                return min(self.cap_seconds, max(0.0, float(retry_after)))
+            except (TypeError, ValueError):
+                try:
+                    retry_at = parsedate_to_datetime(retry_after)
+                    if retry_at.tzinfo is None:
+                        retry_at = retry_at.replace(tzinfo=timezone.utc)
+                    current = now or datetime.now(timezone.utc)
+                    if current.tzinfo is None:
+                        current = current.replace(tzinfo=timezone.utc)
+                    return min(
+                        self.cap_seconds,
+                        max(0.0, (retry_at - current).total_seconds()),
+                    )
+                except (TypeError, ValueError, OverflowError):
+                    pass
+        return min(self.cap_seconds, self.base_seconds * (2 ** max(0, attempt - 1)))
 
 @dataclass
 class PollSpec:
