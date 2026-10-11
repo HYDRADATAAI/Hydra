@@ -29,7 +29,8 @@ concurrency:
 
 jobs:
   deploy-and-verify:
-    if: github.ref == 'refs/heads/main'
+    # TEMPORARILY DISABLED: Atomic create-only deployment and per-resource ownership checks are required.
+    if: false
     runs-on: ubuntu-latest
     environment: aws-demo
     env:

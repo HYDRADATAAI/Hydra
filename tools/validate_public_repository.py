@@ -1200,7 +1200,8 @@ def validate_ci_contract(errors: list[str]) -> None:
         "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02",
         "path: aws-market-data-pipeline/build/deployed/deployment_evidence.json",
         "STACK_NAME: ${{ inputs.stack_name }}-${{ github.run_id }}-${{ github.run_attempt }}",
-        "if: github.ref == 'refs/heads/main'",
+        "if: false",
+        "# TEMPORARILY DISABLED: Atomic create-only deployment and per-resource ownership checks are required.",
         "hydra-public-market-pipeline-demo-",
         "Validate deployment target",
         "Refuse to modify an existing stack",
@@ -1227,6 +1228,20 @@ def validate_ci_contract(errors: list[str]) -> None:
     for fragment in deploy_fragments:
         if fragment not in deploy_workflow:
             errors.append(f"aws-deploy workflow contract missing: {fragment}")
+    try:
+        deploy_document = yaml.load(deploy_workflow, Loader=yaml.BaseLoader)
+    except yaml.YAMLError as exc:
+        errors.append(f"unable to parse aws-deploy workflow: {exc}")
+    else:
+        deploy_jobs = (
+            deploy_document.get("jobs") if isinstance(deploy_document, dict) else None
+        )
+        deploy_job_config = (
+            deploy_jobs.get("deploy-and-verify") if isinstance(deploy_jobs, dict) else None
+        )
+        if not isinstance(deploy_job_config, dict) or deploy_job_config.get("if") != "false":
+            errors.append("aws-deploy job must remain disabled with if: false")
+
     if re.search(r"(?m)^  (?:pull_request|push):", deploy_workflow):
         errors.append("aws-deploy workflow must remain manual-only")
 
