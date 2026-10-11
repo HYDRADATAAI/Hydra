@@ -40,7 +40,9 @@ class ReplayReadyCorpusSummary:
     observation_id_count: int
 
 
-def validate_replay_ready_record(record: dict) -> None:
+def validate_replay_ready_record(record: object, *, context: str = "record") -> None:
+    if not isinstance(record, dict):
+        raise CorpusValidationError(f"{context}: record must be an object")
     case_id=record.get("case_id")
     if not isinstance(case_id,str) or not case_id:
         raise CorpusValidationError("case_id required")
@@ -75,6 +77,8 @@ def validate_replay_ready_record(record: dict) -> None:
 
     for i,cut in enumerate(cuts):
         label=f"{case_id}.replay_cuts[{i}]"
+        if not isinstance(cut, dict):
+            raise CorpusValidationError(f"{label}: cut must be an object")
         cut_id=cut.get("cut_id")
         if not isinstance(cut_id,str) or not cut_id or cut_id in cut_ids:
             raise CorpusValidationError(f"{label}: unique cut_id required")
@@ -127,7 +131,7 @@ def load_replay_ready_corpus(path: str | Path) -> list[dict]:
                 record=json.loads(line)
             except json.JSONDecodeError as exc:
                 raise CorpusValidationError(f"line {lineno}: invalid JSON") from exc
-            validate_replay_ready_record(record)
+            validate_replay_ready_record(record, context=f"line {lineno}")
             case_id=record["case_id"]
             if case_id in seen:
                 raise CorpusValidationError(f"duplicate case_id: {case_id}")
