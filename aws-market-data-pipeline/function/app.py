@@ -123,25 +123,35 @@ def _source_objects(
             continue
         if record.get("eventSource") != "aws:s3":
             continue
-        if not str(record.get("eventName", "")).startswith("ObjectCreated:"):
+        event_name = record.get("eventName")
+        if not isinstance(event_name, str) or not event_name.strip():
+            raise ValueError(
+                "S3 source record eventName must be a non-blank string"
+            )
+        if not event_name.startswith("ObjectCreated:"):
             continue
-        s3 = record.get("s3", {})
+        s3 = record.get("s3")
         if not isinstance(s3, dict):
-            continue
-        bucket_data = s3.get("bucket", {})
-        object_data = s3.get("object", {})
-        if not isinstance(bucket_data, dict) or not isinstance(object_data, dict):
-            continue
+            raise ValueError("S3 ObjectCreated record s3 field must be an object")
+        bucket_data = s3.get("bucket")
+        if not isinstance(bucket_data, dict):
+            raise ValueError("S3 ObjectCreated record bucket field must be an object")
+        object_data = s3.get("object")
+        if not isinstance(object_data, dict):
+            raise ValueError("S3 ObjectCreated record object field must be an object")
         bucket = bucket_data.get("name")
+        if not isinstance(bucket, str) or not bucket.strip():
+            raise ValueError("S3 ObjectCreated record bucket name must be a non-blank string")
         key = object_data.get("key")
+        if not isinstance(key, str) or not key:
+            raise ValueError("S3 ObjectCreated record object key must be a non-empty string")
         object_size = object_data.get("size")
         if object_size is not None and (type(object_size) is not int or object_size < 0):
             raise ValueError("S3 event object size must be a non-negative integer")
         version_id = object_data.get("versionId")
         if version_id is not None and (not isinstance(version_id, str) or not version_id):
             raise ValueError("S3 event object versionId must be a non-empty string")
-        if isinstance(bucket, str) and isinstance(key, str):
-            objects.append((bucket, unquote_plus(key), object_size, version_id))
+        objects.append((bucket, unquote_plus(key), object_size, version_id))
     return objects
 
 
