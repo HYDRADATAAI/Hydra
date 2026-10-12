@@ -122,6 +122,16 @@ class CursorStore:
     def has_seen(self,adapter,external_id):
         return bool(external_id) and external_id in set(self.adapter(adapter)["seen_external_ids"])
 
+    def mark_record_seen(self,adapter,external_id):
+        """Persist per-record progress without advancing page cursor or freshness."""
+        if not external_id:
+            return
+        x=self.adapter(adapter)
+        ids=[i for i in x["seen_external_ids"] if i!=external_id]+[external_id]
+        x["seen_external_ids"]=ids[-self.max_seen:]
+        x["last_seen_external_record_id"]=external_id
+        _atomic_json_replace(self.path,self.state)
+
     def mark_success(self,adapter,*,external_id,cursor,polled_at,success_at):
         x=self.adapter(adapter)
         if external_id:
