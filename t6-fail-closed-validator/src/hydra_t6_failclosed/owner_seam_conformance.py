@@ -26,6 +26,8 @@ def _fail(message: str) -> None:
 
 
 def _aware_dt(value: str, label: str) -> datetime:
+    if type(value) is not str:
+        _fail(f"{label}: timezone-aware timestamp required")
     try:
         ts = datetime.fromisoformat(value.replace("Z", "+00:00"))
     except Exception as exc:
