@@ -104,6 +104,9 @@ class FakePage:
         self._response_callback: Any | None = None
         self.closed = False
 
+    def route(self, _pattern: str, _handler: Any) -> None:
+        pass
+
     def on(self, event: str, callback: Any) -> None:
         if event == "response":
             self._response_callback = callback
