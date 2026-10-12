@@ -120,20 +120,48 @@ def _source_objects(
         raise ValueError("event Records must be a list")
     for record in records:
         if not isinstance(record, dict):
+            raise ValueError("event Records items must be objects")
+        event_source = record.get("eventSource")
+        event_name = record.get("eventName")
+        event_created = (
+            isinstance(event_name, str)
+            and event_name.strip().startswith("ObjectCreated")
+        )
+        if event_source != "aws:s3":
+            if event_created:
+                raise ValueError(
+                    "S3 ObjectCreated record eventSource must equal aws:s3"
+                )
             continue
-        if record.get("eventSource") != "aws:s3":
+        if not isinstance(event_name, str) or not event_name.strip():
+            raise ValueError(
+                "S3 source record eventName must be a non-blank string"
+            )
+        if event_name != event_name.strip():
+            raise ValueError("S3 source record eventName must not contain surrounding whitespace")
+        if event_name.startswith("ObjectCreated"):
+            subtype = event_name.removeprefix("ObjectCreated:")
+            if not event_name.startswith("ObjectCreated:") or not subtype or ":" in subtype:
+                raise ValueError(
+                    "S3 ObjectCreated record eventName must include one non-empty subtype"
+                )
+        else:
             continue
-        if not str(record.get("eventName", "")).startswith("ObjectCreated:"):
-            continue
-        s3 = record.get("s3", {})
+        s3 = record.get("s3")
         if not isinstance(s3, dict):
-            continue
-        bucket_data = s3.get("bucket", {})
-        object_data = s3.get("object", {})
-        if not isinstance(bucket_data, dict) or not isinstance(object_data, dict):
-            continue
+            raise ValueError("S3 ObjectCreated record s3 must be an object")
+        bucket_data = s3.get("bucket")
+        object_data = s3.get("object")
+        if not isinstance(bucket_data, dict):
+            raise ValueError("S3 ObjectCreated record bucket must be an object")
+        if not isinstance(object_data, dict):
+            raise ValueError("S3 ObjectCreated record object must be an object")
         bucket = bucket_data.get("name")
         key = object_data.get("key")
+        if not isinstance(bucket, str) or not bucket.strip():
+            raise ValueError("S3 ObjectCreated record bucket name must be a non-blank string")
+        if not isinstance(key, str) or not key:
+            raise ValueError("S3 ObjectCreated record object key must be a non-empty string")
         object_size = object_data.get("size")
         if object_size is not None and (type(object_size) is not int or object_size < 0):
             raise ValueError("S3 event object size must be a non-negative integer")
