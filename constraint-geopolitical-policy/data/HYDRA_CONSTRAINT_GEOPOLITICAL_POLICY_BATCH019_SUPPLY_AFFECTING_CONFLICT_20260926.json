@@ -1,0 +1,73 @@
+{
+  "schema_version": "1.0",
+  "batch_id": "HYDRA_CONSTRAINT_GEOPOLITICAL_POLICY_BATCH019_SUPPLY_AFFECTING_CONFLICT_20260926",
+  "evidence_digest_scope": "sha256(normalized_evidence UTF-8)",
+  "binding_policy": "Taxonomy supplement only. This case closes sourced EventType coverage without entering the frozen Batch 015 replay/classification corpus. Policy and physical validation remain authoritative.",
+  "sources": [
+    {
+      "source_id": "ukraine-conflict-worldbank-2022-04-26",
+      "publisher": "World Bank",
+      "url": "https://www.worldbank.org/en/news/press-release/2022/04/26/food-and-energy-price-shocks-from-ukraine-war",
+      "published_at": "2022-04-26T23:59:59Z",
+      "available_at": "2022-04-26T23:59:59Z",
+      "normalized_evidence": "On 26 April 2022, the World Bank reported that the war in Ukraine had dealt a major shock to commodity markets, altering global patterns of trade, production, and consumption; it said food-commodity price increases involving commodities for which Russia and Ukraine are large producers were the largest since 2008 and forecast wheat prices to rise by more than 40 percent in 2022.",
+      "evidence_digest": "sha256:3a17fc80815eb66340db8569794861cecdc84a72fdedc3b83146e360ce9ea8a1"
+    },
+    {
+      "source_id": "ukraine-conflict-fao-2022-07-05",
+      "publisher": "Food and Agriculture Organization of the United Nations",
+      "url": "https://www.fao.org/newsroom/detail/ukraine-fao-scales-up-efforts-to-save-upcoming-harvest-ensure-export-of-vital-grains/en",
+      "published_at": "2022-07-05T23:59:59Z",
+      "available_at": "2022-07-05T23:59:59Z",
+      "normalized_evidence": "On 5 July 2022, FAO reported that war-related disruption had reduced Ukrainian grain exports far below the normal roughly 6 million tonnes per month, with 322,000 tonnes exported in March, 970,000 in April, 1.2 million in May, and over 1 million in June; FAO also reported only 60.9 million tonnes of storage capacity available versus 75 million tonnes before directly affected areas were considered, and spring-crop planting 19.4 percent below the prior year.",
+      "evidence_digest": "sha256:906ec7bde1c26bd22a660b451253ac289f1286a12d179f2a060b0635f150761c"
+    }
+  ],
+  "cases": [
+    {
+      "case_id": "ukraine-war-agricultural-supply-shock-2022-taxonomy-supplement",
+      "binding_status": "BOUND_MINIMAL_CANONICAL_SUBGRAPH",
+      "events": [
+        {
+          "event_id": "ukraine-war-agricultural-supply-shock-2022-04-26",
+          "event_type": "SUPPLY_AFFECTING_CONFLICT",
+          "known_at": "2022-04-26T23:59:59Z",
+          "effective_at": "2022-02-24T00:00:00Z",
+          "claim_kind": "DOCUMENTED_EFFECT",
+          "source_ids": [
+            "ukraine-conflict-worldbank-2022-04-26"
+          ],
+          "statement": "The World Bank documented the war in Ukraine as a major commodity supply shock that altered trade, production, and consumption patterns and materially affected food commodities for which Ukraine and Russia were large producers.",
+          "relations": [
+            {
+              "kind": "RESOURCE",
+              "entity_id": "resource:ukraine-grain-supply-conflict-2022",
+              "confidence": 1
+            },
+            {
+              "kind": "STRATEGIC_ASSET",
+              "entity_id": "extraction:ukraine-agricultural-production-conflict-2022",
+              "confidence": 1
+            },
+            {
+              "kind": "CONSTRAINT",
+              "entity_id": "bottleneck:ukraine-war-agricultural-supply-shock-2022",
+              "confidence": 1
+            }
+          ]
+        }
+      ],
+      "observations": [
+        {
+          "observation_id": "ukraine-war-agricultural-export-and-production-2022-07-05",
+          "known_at": "2022-07-05T23:59:59Z",
+          "observed_at": "2022-07-05T23:59:59Z",
+          "source_ids": [
+            "ukraine-conflict-fao-2022-07-05"
+          ],
+          "statement": "FAO later quantified severe disruption to Ukrainian agricultural production, storage, and export flows, including monthly grain exports far below the normal rate, reduced available storage capacity, and spring-crop planting 19.4 percent below the prior year."
+        }
+      ]
+    }
+  ]
+}

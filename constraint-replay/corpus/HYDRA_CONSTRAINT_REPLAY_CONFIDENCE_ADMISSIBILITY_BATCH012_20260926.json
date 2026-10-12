@@ -1,0 +1,35 @@
+{
+  "schema_version": "1.0",
+  "batch_id": "HYDRA_CONSTRAINT_REPLAY_CONFIDENCE_ADMISSIBILITY_BATCH012_20260926",
+  "policy": "Batch 012 reuses the existing confidence semantics unchanged. Expected export declines, could-drive manufacturing language, policy targets, investment totals, capacity shares and employment counts are not historical replay probabilities.",
+  "ordinal_mappings": [],
+  "evidence": [
+    {
+      "evidence_id": "confidence-audit-coal-iea-2022-07-28",
+      "case_id": "eu-fifth-package-coal-and-port-restrictions-2022",
+      "source_id": "coal-iea-2022-07-28-hypothesis",
+      "known_at": "2022-07-28T23:59:59Z",
+      "semantics": "QUALITATIVE_EXPECTATION",
+      "statement": "The IEA expected Russia to experience the largest coal-export decline in 2022 under sanctions and the EU import ban while EU buyers shifted toward alternative suppliers.",
+      "notes": "Expected export decline and supplier substitution are directional expectations, not numeric probability evidence."
+    },
+    {
+      "evidence_id": "confidence-audit-45x-doe-2023-05-12",
+      "case_id": "us-section45x-advanced-manufacturing-incentive-2022",
+      "source_id": "45x-doe-2023-05-12-hypothesis",
+      "known_at": "2023-05-12T23:59:59Z",
+      "semantics": "QUALITATIVE_EXPECTATION",
+      "statement": "DOE stated that Section 45X working with complementary domestic-content incentives could drive a boom in domestic manufacturing and expand domestic clean-energy component capacity.",
+      "notes": "Could-drive language and 2030 manufacturing-demand projections are not probabilities."
+    },
+    {
+      "evidence_id": "confidence-audit-battery-iea-2019-05-27",
+      "case_id": "eu-battery-ipcei-state-aid-2019",
+      "source_id": "battery-iea-2019-05-27-hypothesis",
+      "known_at": "2019-05-27T23:59:59Z",
+      "semantics": "QUALITATIVE_EXPECTATION",
+      "statement": "The IEA described policy support and private-sector response as drivers of expanding battery manufacturing capacity and building a European battery value chain.",
+      "notes": "Policy-mechanism expectation is not an explicit probability or predeclared ordinal confidence."
+    }
+  ]
+}

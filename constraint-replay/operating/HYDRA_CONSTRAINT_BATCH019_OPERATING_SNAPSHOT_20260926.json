@@ -1,0 +1,293 @@
+{
+  "authority_boundary": {
+    "capabilities": {
+      "canonical_promotion_authorized": false,
+      "canonical_store_mutation_authorized": false,
+      "external_actions_authorized": false,
+      "model_training_authorized": false,
+      "ranking_authorized": false,
+      "trading_authorized": false
+    },
+    "live_external_actions": false,
+    "t6_status": "DORMANT_NOT_ACTIVATED"
+  },
+  "contract_version": "hydra-constraint-operating-report/v2",
+  "current_state": {
+    "calibrated_case_count": 0,
+    "case_count": 22,
+    "partial_realization_count": 17,
+    "physical_binding_count": 51,
+    "policy_event_count": 31,
+    "policy_observation_count": 9,
+    "replay_cut_count": 82,
+    "source_pair_count": 4,
+    "taxonomy_event_type_count": 18,
+    "taxonomy_sourced_event_type_count": 18,
+    "taxonomy_supplement_case_count": 1,
+    "taxonomy_supplement_event_count": 1,
+    "taxonomy_supplement_observation_count": 1,
+    "taxonomy_supplement_physical_binding_count": 3,
+    "unevaluable_count": 5,
+    "unique_bound_entity_count": 47
+  },
+  "gaps": [
+    {
+      "blocker": "NO_ADMISSIBLE_NUMERIC_HISTORICAL_CONFIDENCE",
+      "dimension": "probabilistic_calibration",
+      "evidence": {
+        "brier_score": null,
+        "calibrated_case_count": 0,
+        "common_blockers": [
+          "NO_PRECOMMITTED_CONFIDENCE_SOURCE",
+          "NO_SOURCE_GROUNDED_CONFIDENCE_VALUE"
+        ],
+        "status": "BLOCKED_NO_ADMISSIBLE_NUMERIC_CONFIDENCE"
+      },
+      "intentional": false,
+      "scope": "CURRENT_22_CASE_CORPUS",
+      "status": "EMPTY"
+    },
+    {
+      "blocker": "NO_LIVE_CURRENT_INGESTION_PROOF_IN_PUBLIC_RUNTIME",
+      "dimension": "live_current_data_ingestion",
+      "evidence": {
+        "historical_source_pairs": 4,
+        "live_ingestion_proof_present": false
+      },
+      "intentional": false,
+      "scope": "PUBLIC_CONSTRAINT_RUNTIME",
+      "status": "MISSING"
+    },
+    {
+      "blocker": "NO_CANONICAL_MUTATION_AUTHORITY",
+      "dimension": "canonical_mutation_runtime",
+      "evidence": {
+        "canonical_promotion_authorized": false,
+        "canonical_store_mutation_authorized": false
+      },
+      "intentional": true,
+      "scope": "PUBLIC_CONSTRAINT_RUNTIME",
+      "status": "MISSING"
+    },
+    {
+      "blocker": "T6_ACTIVATION_NOT_AUTHORIZED",
+      "dimension": "t6_activation",
+      "evidence": {
+        "activation_authority_granted": false,
+        "runtime_binding_created": false,
+        "status": "DORMANT_NOT_ACTIVATED"
+      },
+      "intentional": true,
+      "scope": "PUBLIC_T6_RUNTIME",
+      "status": "MISSING"
+    },
+    {
+      "blocker": "LEGACY_REPORT_PREDATES_BATCH005_TO_BATCH017_STATE",
+      "dimension": "legacy_replay_evaluation_report",
+      "evidence": {
+        "current_classified_case_count": 22,
+        "legacy_claim": "real historical gold corpus not yet populated"
+      },
+      "intentional": false,
+      "scope": "constraint-replay/EVALUATION_REPORT.md",
+      "status": "DUPLICATE_STALE"
+    }
+  ],
+  "mode": "READ_ONLY_CONSTRAINT_OPERATING_V2",
+  "operating_status": "PASS_WITH_EXPLICIT_BLOCKERS",
+  "readiness_dimensions": [
+    {
+      "dimension": "historical_case_classification",
+      "evidence": {
+        "classification_coverage": 1.0,
+        "classified_cases": 22,
+        "partial_realization": 17,
+        "unevaluable": 5
+      },
+      "intentional": false,
+      "scope": "CURRENT_22_CASE_REPLAY_CORPUS",
+      "status": "FULL"
+    },
+    {
+      "dimension": "deterministic_historical_replay_execution",
+      "evidence": {
+        "integrity": {
+          "calibrated_cases_present": 0,
+          "classification_blockers_remaining": 0,
+          "classified_artifact_pins_valid": true,
+          "replay_ready_case_set_equals_classified_case_set": true,
+          "replay_ready_case_set_equals_promotion_case_set": true,
+          "replay_source_bundle_pins_valid": true
+        },
+        "replay_cut_count": 82
+      },
+      "intentional": false,
+      "scope": "BATCH015_FROZEN_RUN",
+      "status": "FULL"
+    },
+    {
+      "dimension": "policy_physical_binding",
+      "evidence": {
+        "all_events_physically_bound": true,
+        "physical_binding_count": 51,
+        "policy_event_count": 31,
+        "unique_bound_entity_count": 47
+      },
+      "intentional": false,
+      "scope": "CURRENT_22_CASE_CORPUS",
+      "status": "FULL"
+    },
+    {
+      "dimension": "read_only_query_access",
+      "evidence": {
+        "multidomain_query": true,
+        "read_only_capabilities": {
+          "canonical_promotion_authorized": false,
+          "canonical_store_mutation_authorized": false,
+          "external_actions_authorized": false,
+          "model_training_authorized": false,
+          "ranking_authorized": false,
+          "trading_authorized": false
+        },
+        "replay_query": true
+      },
+      "intentional": false,
+      "scope": "BATCH016_REPLAY_AND_BATCH017_MULTIDOMAIN",
+      "status": "FULL"
+    },
+    {
+      "dimension": "policy_event_taxonomy_sourced_coverage",
+      "evidence": {
+        "event_type_counts": {
+          "ECONOMICALLY_RELEVANT_DIPLOMATIC_CHANGE": 1,
+          "EMBARGO": 2,
+          "EXPORT_CONTROL": 4,
+          "IMPORT_RESTRICTION": 2,
+          "INCENTIVE": 1,
+          "INDUSTRIAL_POLICY": 1,
+          "INFRASTRUCTURE_POLICY": 4,
+          "NATIONALIZATION": 2,
+          "PORT_RESTRICTION": 1,
+          "REGULATORY_CHANGE": 3,
+          "SANCTION": 1,
+          "SHIPPING_DISRUPTION": 2,
+          "STRATEGIC_RESOURCE_DISPUTE": 1,
+          "SUBSIDY": 1,
+          "SUPPLY_AFFECTING_CONFLICT": 1,
+          "TARIFF": 1,
+          "TERRITORIAL_DISPUTE": 1,
+          "TRADE_DISPUTE": 3
+        },
+        "missing_event_types": [],
+        "sourced_event_type_count": 18,
+        "taxonomy_event_type_count": 18,
+        "taxonomy_supplement_case_id": "ukraine-war-agricultural-supply-shock-2022-taxonomy-supplement",
+        "taxonomy_supplement_event_id": "ukraine-war-agricultural-supply-shock-2022-04-26",
+        "taxonomy_supplement_physical_binding_count": 3,
+        "taxonomy_supplement_replay_case_admitted": false
+      },
+      "intentional": false,
+      "scope": "CURRENT_HISTORICAL_POLICY_CORPUS_PLUS_BATCH019_TAXONOMY_SUPPLEMENT",
+      "status": "FULL"
+    },
+    {
+      "blocker": "NO_ADMISSIBLE_NUMERIC_HISTORICAL_CONFIDENCE",
+      "dimension": "probabilistic_calibration",
+      "evidence": {
+        "brier_score": null,
+        "calibrated_case_count": 0,
+        "common_blockers": [
+          "NO_PRECOMMITTED_CONFIDENCE_SOURCE",
+          "NO_SOURCE_GROUNDED_CONFIDENCE_VALUE"
+        ],
+        "status": "BLOCKED_NO_ADMISSIBLE_NUMERIC_CONFIDENCE"
+      },
+      "intentional": false,
+      "scope": "CURRENT_22_CASE_CORPUS",
+      "status": "EMPTY"
+    },
+    {
+      "blocker": "NO_LIVE_CURRENT_INGESTION_PROOF_IN_PUBLIC_RUNTIME",
+      "dimension": "live_current_data_ingestion",
+      "evidence": {
+        "historical_source_pairs": 4,
+        "live_ingestion_proof_present": false
+      },
+      "intentional": false,
+      "scope": "PUBLIC_CONSTRAINT_RUNTIME",
+      "status": "MISSING"
+    },
+    {
+      "blocker": "NO_CANONICAL_MUTATION_AUTHORITY",
+      "dimension": "canonical_mutation_runtime",
+      "evidence": {
+        "canonical_promotion_authorized": false,
+        "canonical_store_mutation_authorized": false
+      },
+      "intentional": true,
+      "scope": "PUBLIC_CONSTRAINT_RUNTIME",
+      "status": "MISSING"
+    },
+    {
+      "blocker": "T6_ACTIVATION_NOT_AUTHORIZED",
+      "dimension": "t6_activation",
+      "evidence": {
+        "activation_authority_granted": false,
+        "runtime_binding_created": false,
+        "status": "DORMANT_NOT_ACTIVATED"
+      },
+      "intentional": true,
+      "scope": "PUBLIC_T6_RUNTIME",
+      "status": "MISSING"
+    },
+    {
+      "blocker": "LEGACY_REPORT_PREDATES_BATCH005_TO_BATCH017_STATE",
+      "dimension": "legacy_replay_evaluation_report",
+      "evidence": {
+        "current_classified_case_count": 22,
+        "legacy_claim": "real historical gold corpus not yet populated"
+      },
+      "intentional": false,
+      "scope": "constraint-replay/EVALUATION_REPORT.md",
+      "status": "DUPLICATE_STALE"
+    }
+  ],
+  "schema_version": "1.0",
+  "snapshot_digest_sha256": "4e6d3de489457c125d27aa243f983891c0ee988a4b0671b6d496d4c00125fa03",
+  "source_run_digest_sha256": "db28edfea01800cf85dd234edb99d003d0a185ab39f7ba8cd31af416542890f1",
+  "taxonomy_supplement": {
+    "case_id": "ukraine-war-agricultural-supply-shock-2022-taxonomy-supplement",
+    "event_id": "ukraine-war-agricultural-supply-shock-2022-04-26",
+    "event_type": "SUPPLY_AFFECTING_CONFLICT",
+    "observation_id": "ukraine-war-agricultural-export-and-production-2022-07-05",
+    "physical_binding_count": 3,
+    "physical_entity_ids": [
+      "bottleneck:ukraine-war-agricultural-supply-shock-2022",
+      "extraction:ukraine-agricultural-production-conflict-2022",
+      "resource:ukraine-grain-supply-conflict-2022"
+    ],
+    "replay_case_admitted": false
+  },
+  "unevaluable_cases": [
+    {
+      "case_id": "eastern-mediterranean-offshore-drilling-dispute-2019-2020",
+      "reason_code": "UNRESOLVED_LEGAL_TERRITORIAL_RESOURCE_DISPUTE"
+    },
+    {
+      "case_id": "eu-cbam-transitional-phase-2023",
+      "reason_code": "INCOMPLETE_MODELED_ECONOMIC_OUTCOME_WINDOW"
+    },
+    {
+      "case_id": "japan-korea-export-control-relations-2019",
+      "reason_code": "CONFLICTING_OFFICIAL_NORMALIZATION_CHARACTERIZATION"
+    },
+    {
+      "case_id": "us-chips-act-2022",
+      "reason_code": "OPEN_EXPLICIT_HORIZON"
+    },
+    {
+      "case_id": "wto-china-rare-earths-resource-dispute-2014-2015",
+      "reason_code": "CONTESTED_IMPLEMENTATION_COMPLIANCE"
+    }
+  ]
+}

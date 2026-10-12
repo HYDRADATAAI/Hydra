@@ -1,0 +1,279 @@
+{
+  "schema_version": "1.0",
+  "batch_id": "HYDRA_CONSTRAINT_REPLAY_OUTCOME_ENRICHMENT_BATCH010_20260926",
+  "evidence_digest_scope": "sha256(normalized_evidence UTF-8)",
+  "policy": "Batch 010 expands the existing uncalibrated classified-gold path to Section 301 trade actions, China gallium/germanium export controls, and IMO 2020 sulfur regulation. It reuses the same publisher-independence, confidence-admissibility, and outcome-mapping rules.",
+  "sources": [
+    {
+      "source_id": "section301-fed-beige-book-2018-09-12",
+      "role": "HISTORICAL_HYPOTHESIS",
+      "publisher": "Board of Governors of the Federal Reserve System",
+      "url": "https://www.federalreserve.gov/monetarypolicy/beigebook201809.htm",
+      "published_at": "2018-09-12T23:59:59Z",
+      "available_at": "2018-09-12T23:59:59Z",
+      "normalized_evidence": "On 12 September 2018, the Federal Reserve Beige Book reported widespread input-price pressures, said tariffs were contributing to rising input costs mainly for manufacturers, and reported that nearly two-thirds of commenting manufacturing firms had experienced or anticipated price hikes and/or supply disruptions because of tariffs and the threat of tariffs.",
+      "evidence_digest": "sha256:2bbe8a121a6a9b21a6c6dc1d5aac358544664a06a044a7c973a351423fbe7c0d"
+    },
+    {
+      "source_id": "section301-usitc-2023-03-15-effects",
+      "role": "OUTCOME",
+      "publisher": "United States International Trade Commission",
+      "url": "https://www.usitc.gov/press_room/news_release/2023/er0315_63679.htm",
+      "published_at": "2023-03-15T23:59:59Z",
+      "available_at": "2023-03-15T23:59:59Z",
+      "observed_at": "2023-03-15T23:59:59Z",
+      "normalized_evidence": "On 15 March 2023, the U.S. International Trade Commission reported that, on average during 2018-2021, Section 301 tariffs reduced affected imports from China by 13 percent, increased U.S. prices for covered products by 0.2 percent, and increased the value of U.S. production by 0.4 percent; for semiconductors, the estimates were a 72.3 percent import reduction, 4.1 percent price increase, and 6.4 percent production-value increase.",
+      "evidence_digest": "sha256:6ff574fa949a75e3cfdff01ca6d21e83014997b331783b53510196bc0d75ba15"
+    },
+    {
+      "source_id": "gagermanium-iea-2023-07-11-hypothesis",
+      "role": "HISTORICAL_HYPOTHESIS",
+      "publisher": "International Energy Agency",
+      "url": "https://www.iea.org/reports/critical-minerals-market-review-2023/implications",
+      "published_at": "2023-07-11T23:59:59Z",
+      "available_at": "2023-07-11T23:59:59Z",
+      "normalized_evidence": "On 11 July 2023, the International Energy Agency's Critical Minerals Market Review stated that the July export curbs on Chinese gallium and germanium highlighted the significance of niche critical minerals with high supply concentration and illustrated how reliance on a small group of suppliers may disrupt supply chains.",
+      "evidence_digest": "sha256:09f6b088a44716989820dcc0649c03668afdfdb45f6de0d7f157f80e1c7e7355"
+    },
+    {
+      "source_id": "gagermanium-usgs-2024-01-30-gallium",
+      "role": "OUTCOME",
+      "publisher": "U.S. Geological Survey",
+      "url": "https://pubs.usgs.gov/periodicals/mcs2024/mcs2024-gallium.pdf",
+      "published_at": "2024-01-30T23:59:59Z",
+      "available_at": "2024-01-30T23:59:59Z",
+      "observed_at": "2024-01-30T23:59:59Z",
+      "normalized_evidence": "In Mineral Commodity Summaries 2024, posted 30 January 2024, the U.S. Geological Survey reported that China's primary low-purity gallium price rose from 240 dollars per kilogram in June 2023 to 375 dollars per kilogram by October, a 56 percent increase, citing renewed demand and global concern about reduced gallium availability after China implemented export controls.",
+      "evidence_digest": "sha256:30bde4bd37d4c3df2e1627965eb87eeea0c53079d0a551426c99925b5bf03e54"
+    },
+    {
+      "source_id": "gagermanium-usgs-2024-01-30-germanium",
+      "role": "OUTCOME",
+      "publisher": "U.S. Geological Survey",
+      "url": "https://pubs.usgs.gov/periodicals/mcs2024/mcs2024-germanium.pdf",
+      "published_at": "2024-01-30T23:59:59Z",
+      "available_at": "2024-01-30T23:59:59Z",
+      "observed_at": "2024-01-30T23:59:59Z",
+      "normalized_evidence": "In Mineral Commodity Summaries 2024, posted 30 January 2024, the U.S. Geological Survey reported virtually no Chinese germanium metal exports in August and September 2023 after export controls began; full-year germanium metal exports fell 10 percent to 39,400 kilograms from 43,700 kilograms in 2022, while European germanium metal prices rose from 1,150 dollars per kilogram in January to 1,550 dollars per kilogram in October and germanium dioxide rose from 725 to 940 dollars per kilogram.",
+      "evidence_digest": "sha256:0514c914a06e45662bb22a4361d58cce62d8b37af73564cc1c90d94b4ae19a21"
+    },
+    {
+      "source_id": "imo2020-epa-2019-12-11-hypothesis",
+      "role": "HISTORICAL_HYPOTHESIS",
+      "publisher": "U.S. Environmental Protection Agency",
+      "url": "https://19january2021snapshot.epa.gov/newsreleases/us-refiners-deliver-cleaner-marine-diesel-fuel-key-regulatory-change_.html",
+      "published_at": "2019-12-11T23:59:59Z",
+      "available_at": "2019-12-11T23:59:59Z",
+      "normalized_evidence": "On 11 December 2019, the U.S. Environmental Protection Agency stated that the global marine fuel sulfur limit would fall from 35,000 parts per million to 5,000 parts per million on 1 January 2020 and that this reduction was expected to lead to significant health and welfare benefits globally.",
+      "evidence_digest": "sha256:3b950970e6cf3e880b8f966eef976e89fe812285ae927eaae74943f78c82e6de"
+    },
+    {
+      "source_id": "imo2020-imo-2021-01-28-outcome",
+      "role": "OUTCOME",
+      "publisher": "International Maritime Organization",
+      "url": "https://www.imo.org/en/mediacentre/pressbriefings/pages/02-imo-2020.aspx",
+      "published_at": "2021-01-28T23:59:59Z",
+      "available_at": "2021-01-28T23:59:59Z",
+      "observed_at": "2021-01-28T23:59:59Z",
+      "normalized_evidence": "On 28 January 2021, the International Maritime Organization reported that implementation of the 0.50 percent marine-fuel sulfur limit through 2020 had produced a 70 percent cut in total sulfur oxide emissions from shipping and that only 55 cases of compliant fuel being unavailable had been reported in its GISIS system.",
+      "evidence_digest": "sha256:d7ff0b28ac1fcef95edbe7bf863bcf0eadf69b7623f16c5e08e2321021be350c"
+    }
+  ],
+  "cases": [
+    {
+      "case_id": "us-china-section301-multi-stage-trade-dispute-2018",
+      "historical_hypothesis_source_ids": [
+        "section301-fed-beige-book-2018-09-12"
+      ],
+      "outcome_source_ids": [
+        "section301-usitc-2023-03-15-effects"
+      ],
+      "hypothesis_available_at": "2018-09-12T23:59:59Z",
+      "hypothesis_statement": "Federal Reserve contacts reported tariff-driven input-cost pressure and anticipated or already-observed price hikes and supply disruptions as the 2018 trade actions expanded.",
+      "hypothesis_independence_basis": "The Federal Reserve is distinct from the USITC, and the Beige Book evidence predates the later retrospective USITC estimates by more than four years.",
+      "metrics": [
+        {
+          "metric_id": "section301-all-covered-import-effect",
+          "source_id": "section301-usitc-2023-03-15-effects",
+          "observed_at": "2023-03-15T23:59:59Z",
+          "metric": "covered_imports_from_china_effect",
+          "value": -13,
+          "unit": "percent"
+        },
+        {
+          "metric_id": "section301-all-covered-price-effect",
+          "source_id": "section301-usitc-2023-03-15-effects",
+          "observed_at": "2023-03-15T23:59:59Z",
+          "metric": "covered_us_product_price_effect",
+          "value": 0.2,
+          "unit": "percent"
+        },
+        {
+          "metric_id": "section301-all-covered-production-effect",
+          "source_id": "section301-usitc-2023-03-15-effects",
+          "observed_at": "2023-03-15T23:59:59Z",
+          "metric": "covered_us_production_value_effect",
+          "value": 0.4,
+          "unit": "percent"
+        },
+        {
+          "metric_id": "section301-semiconductor-import-effect",
+          "source_id": "section301-usitc-2023-03-15-effects",
+          "observed_at": "2023-03-15T23:59:59Z",
+          "metric": "semiconductor_import_effect",
+          "value": -72.3,
+          "unit": "percent"
+        },
+        {
+          "metric_id": "section301-semiconductor-price-effect",
+          "source_id": "section301-usitc-2023-03-15-effects",
+          "observed_at": "2023-03-15T23:59:59Z",
+          "metric": "semiconductor_us_price_effect",
+          "value": 4.1,
+          "unit": "percent"
+        },
+        {
+          "metric_id": "section301-semiconductor-production-effect",
+          "source_id": "section301-usitc-2023-03-15-effects",
+          "observed_at": "2023-03-15T23:59:59Z",
+          "metric": "semiconductor_us_production_value_effect",
+          "value": 6.4,
+          "unit": "percent"
+        }
+      ]
+    },
+    {
+      "case_id": "china-gallium-germanium-controls-2023",
+      "historical_hypothesis_source_ids": [
+        "gagermanium-iea-2023-07-11-hypothesis"
+      ],
+      "outcome_source_ids": [
+        "gagermanium-usgs-2024-01-30-gallium",
+        "gagermanium-usgs-2024-01-30-germanium"
+      ],
+      "hypothesis_available_at": "2023-07-11T23:59:59Z",
+      "hypothesis_statement": "The IEA identified the newly announced gallium/germanium controls as evidence that highly concentrated niche critical-mineral supply chains could be disrupted by reliance on a small group of suppliers.",
+      "hypothesis_independence_basis": "The IEA is distinct from the U.S. Geological Survey, and its supply-concentration assessment was published before the controls became effective and before the admitted post-control export/price observations.",
+      "metrics": [
+        {
+          "metric_id": "gallium-june-2023-price",
+          "source_id": "gagermanium-usgs-2024-01-30-gallium",
+          "observed_at": "2024-01-30T23:59:59Z",
+          "metric": "china_low_purity_gallium_price_june_2023",
+          "value": 240,
+          "unit": "USD_per_kg"
+        },
+        {
+          "metric_id": "gallium-october-2023-price",
+          "source_id": "gagermanium-usgs-2024-01-30-gallium",
+          "observed_at": "2024-01-30T23:59:59Z",
+          "metric": "china_low_purity_gallium_price_october_2023",
+          "value": 375,
+          "unit": "USD_per_kg"
+        },
+        {
+          "metric_id": "gallium-price-change-june-october",
+          "source_id": "gagermanium-usgs-2024-01-30-gallium",
+          "observed_at": "2024-01-30T23:59:59Z",
+          "metric": "china_low_purity_gallium_price_change_june_october",
+          "value": 56,
+          "unit": "percent"
+        },
+        {
+          "metric_id": "germanium-august-exports",
+          "source_id": "gagermanium-usgs-2024-01-30-germanium",
+          "observed_at": "2024-01-30T23:59:59Z",
+          "metric": "china_germanium_metal_exports_august_2023",
+          "value": 0,
+          "unit": "kg"
+        },
+        {
+          "metric_id": "germanium-september-exports",
+          "source_id": "gagermanium-usgs-2024-01-30-germanium",
+          "observed_at": "2024-01-30T23:59:59Z",
+          "metric": "china_germanium_metal_exports_september_2023",
+          "value": 1,
+          "unit": "kg"
+        },
+        {
+          "metric_id": "germanium-full-year-exports-2023",
+          "source_id": "gagermanium-usgs-2024-01-30-germanium",
+          "observed_at": "2024-01-30T23:59:59Z",
+          "metric": "china_germanium_metal_exports_2023",
+          "value": 39400,
+          "unit": "kg"
+        },
+        {
+          "metric_id": "germanium-full-year-export-change",
+          "source_id": "gagermanium-usgs-2024-01-30-germanium",
+          "observed_at": "2024-01-30T23:59:59Z",
+          "metric": "china_germanium_metal_export_change_2023",
+          "value": -10,
+          "unit": "percent"
+        },
+        {
+          "metric_id": "germanium-metal-january-price",
+          "source_id": "gagermanium-usgs-2024-01-30-germanium",
+          "observed_at": "2024-01-30T23:59:59Z",
+          "metric": "europe_germanium_metal_price_january_2023",
+          "value": 1150,
+          "unit": "USD_per_kg"
+        },
+        {
+          "metric_id": "germanium-metal-october-price",
+          "source_id": "gagermanium-usgs-2024-01-30-germanium",
+          "observed_at": "2024-01-30T23:59:59Z",
+          "metric": "europe_germanium_metal_price_october_2023",
+          "value": 1550,
+          "unit": "USD_per_kg"
+        },
+        {
+          "metric_id": "germanium-dioxide-january-price",
+          "source_id": "gagermanium-usgs-2024-01-30-germanium",
+          "observed_at": "2024-01-30T23:59:59Z",
+          "metric": "europe_germanium_dioxide_price_january_2023",
+          "value": 725,
+          "unit": "USD_per_kg"
+        },
+        {
+          "metric_id": "germanium-dioxide-october-price",
+          "source_id": "gagermanium-usgs-2024-01-30-germanium",
+          "observed_at": "2024-01-30T23:59:59Z",
+          "metric": "europe_germanium_dioxide_price_october_2023",
+          "value": 940,
+          "unit": "USD_per_kg"
+        }
+      ]
+    },
+    {
+      "case_id": "imo-sulphur-2020-regulation",
+      "historical_hypothesis_source_ids": [
+        "imo2020-epa-2019-12-11-hypothesis"
+      ],
+      "outcome_source_ids": [
+        "imo2020-imo-2021-01-28-outcome"
+      ],
+      "hypothesis_available_at": "2019-12-11T23:59:59Z",
+      "hypothesis_statement": "EPA expected the reduction in the global marine-fuel sulfur limit from 35,000 ppm to 5,000 ppm to produce significant health and welfare benefits globally.",
+      "hypothesis_independence_basis": "EPA is distinct from the International Maritime Organization, whose later implementation review supplied the admitted outcome evidence.",
+      "metrics": [
+        {
+          "metric_id": "imo2020-sox-emissions-change",
+          "source_id": "imo2020-imo-2021-01-28-outcome",
+          "observed_at": "2021-01-28T23:59:59Z",
+          "metric": "shipping_total_sulfur_oxide_emissions_change",
+          "value": -70,
+          "unit": "percent"
+        },
+        {
+          "metric_id": "imo2020-fonar-reports-2020",
+          "source_id": "imo2020-imo-2021-01-28-outcome",
+          "observed_at": "2021-01-28T23:59:59Z",
+          "metric": "compliant_fuel_nonavailability_reports",
+          "value": 55,
+          "unit": "reports"
+        }
+      ]
+    }
+  ]
+}

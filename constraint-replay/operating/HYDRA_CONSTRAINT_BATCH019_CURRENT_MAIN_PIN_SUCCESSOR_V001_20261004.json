@@ -1,0 +1,32 @@
+{
+  "schema_version": "hydra-constraint-operating-pin-successor/v1",
+  "scope": "BATCH018_TO_BATCH019_CURRENT_MAIN_REPLAY_PIN_RECONCILIATION",
+  "current_main": "b9c1f3a25a51e1c1263a91031a6e04a9b0311dff",
+  "replay_predecessor_candidate": "34cee6394daa68fec1c29bd13c8e7b642cc99f5d",
+  "predecessor_artifacts_rewritten": false,
+  "acceptance_effect": "NONE",
+  "authority_effect": "NONE",
+  "historical_replay_promoted": false,
+  "t6_activation_promoted": false,
+  "canonical_promotion_authorized": false,
+  "transitions": [
+    {
+      "path": "constraint-replay/runtime/HYDRA_CONSTRAINT_BATCH017_MULTIDOMAIN_READONLY_MANIFEST_20260926.json",
+      "predecessor_git_blob_sha": "a4abaebe68850fc4ece964f32f25af18ae87d086",
+      "successor_git_blob_sha": "fc42afc6bf5af5ea65d8cb65ef79837cf0e55c94",
+      "reason": "Bind Batch018 operating source authority to the already-validated current replay predecessor."
+    },
+    {
+      "path": "constraint-replay/operating/HYDRA_CONSTRAINT_BATCH018_OPERATING_MANIFEST_20260926.json",
+      "predecessor_git_blob_sha": "ffb3c20d17ead6431f1670b11794387bfd5696ac",
+      "successor_git_blob_sha": "610a7237552c4645748927b27cb0e2be06631d37",
+      "reason": "Repin only the Batch017 multidomain-manifest authority input; snapshot and operating implementation pins are unchanged."
+    },
+    {
+      "path": "constraint-replay/operating/HYDRA_CONSTRAINT_BATCH019_OPERATING_MANIFEST_20260926.json",
+      "predecessor_git_blob_sha": "0c01cb72ad4f580c9c9c17444db4b869243e86e7",
+      "successor_git_blob_sha": "48b5a1d3cafa786da2496158cfab6ac3f0c0d080",
+      "reason": "Carry the exact Batch018 manifest successor pin into Batch019 source authority."
+    }
+  ]
+}
