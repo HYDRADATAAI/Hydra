@@ -1,0 +1,78 @@
+{
+  "schema_version": "1.0",
+  "batch_id": "HYDRA_CONSTRAINT_REPLAY_OUTCOME_MAPPING_BATCH014_20260926",
+  "rule_set_id": "POSITIVE_CONSTRAINT_RULESET_V1",
+  "declared_at": "2026-09-26T20:15:00Z",
+  "policy": "Batch 014 reuses POSITIVE_CONSTRAINT_RULESET_V1 unchanged. Contested normalization/legal states and incomplete modeled economic outcome windows map UNEVALUABLE rather than being forced into realized classes.",
+  "cases": [
+    {
+      "case_id": "nord-stream-2-certification-state-2021-2022",
+      "mechanism_observed": true,
+      "direction_consistent": true,
+      "explicit_numeric_target_defined": false,
+      "target_met": null,
+      "explicit_horizon_defined": false,
+      "horizon_met": null,
+      "causal_attribution_clean": false,
+      "outcome_observation_complete": true,
+      "contradiction_open": false,
+      "evidence_source_ids": [
+        "nord-bnetza-2021-11-16-hypothesis",
+        "nord-bmwk-2022-02-22-outcome"
+      ],
+      "rationale": "The certification-block mechanism persisted in the expected direction, but the later halt arose from a separate security-of-supply reassessment rather than solely from the German-law organizational conditions identified in November 2021."
+    },
+    {
+      "case_id": "japan-korea-export-control-relations-2019",
+      "mechanism_observed": true,
+      "direction_consistent": true,
+      "explicit_numeric_target_defined": false,
+      "target_met": null,
+      "explicit_horizon_defined": false,
+      "horizon_met": null,
+      "causal_attribution_clean": false,
+      "outcome_observation_complete": true,
+      "contradiction_open": true,
+      "evidence_source_ids": [
+        "japan-korea-wto-2020-07-29-hypothesis",
+        "japan-korea-motie-2023-03-16-outcome",
+        "japan-korea-meti-2023-03-17-outcome"
+      ],
+      "rationale": "The dispute moved toward normalization and Korea withdrew its WTO complaint, but Korean MOTIE described Japan as suspending the three-item regulations while Japanese METI stated that the measures should not be understood as lifted and white-list status had not yet been restored. HYDRA preserves the conflicting characterization."
+    },
+    {
+      "case_id": "eastern-mediterranean-offshore-drilling-dispute-2019-2020",
+      "mechanism_observed": true,
+      "direction_consistent": true,
+      "explicit_numeric_target_defined": false,
+      "target_met": null,
+      "explicit_horizon_defined": false,
+      "horizon_met": null,
+      "causal_attribution_clean": false,
+      "outcome_observation_complete": true,
+      "contradiction_open": true,
+      "evidence_source_ids": [
+        "eastmed-crs-2019-04-01-hypothesis",
+        "eastmed-council-2023-11-09-outcome"
+      ],
+      "rationale": "Drilling-related tension and restrictive measures persisted, but competing maritime, sovereignty and hydrocarbon-rights claims remained unresolved and the later sanctions renewal does not adjudicate those claims or establish a measurable economic outcome."
+    },
+    {
+      "case_id": "eu-cbam-transitional-phase-2023",
+      "mechanism_observed": true,
+      "direction_consistent": true,
+      "explicit_numeric_target_defined": false,
+      "target_met": null,
+      "explicit_horizon_defined": false,
+      "horizon_met": null,
+      "causal_attribution_clean": false,
+      "outcome_observation_complete": false,
+      "contradiction_open": false,
+      "evidence_source_ids": [
+        "cbam-unctad-2021-07-14-hypothesis",
+        "cbam-ec-2026-01-14-outcome"
+      ],
+      "rationale": "CBAM successfully transitioned from reporting pilot to definitive operation and generated measurable administrative/import volumes, but the admitted January 2026 evidence does not yet resolve UNCTAD's modeled medium-term trade-reallocation, developing-country export and global-emissions effects."
+    }
+  ]
+}
