@@ -30,7 +30,7 @@ class DocumentLinkValidationTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temporary:
             errors = self.validate_markdown(
                 Path(temporary),
-                "[guide]\\n\\n> [guide]: missing.md\\n",
+                "[guide]\n\n> [guide]: missing.md\n",
             )
         self.assertEqual(len(errors), 1)
         self.assertIn("missing.md", errors[0])
@@ -39,7 +39,7 @@ class DocumentLinkValidationTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temporary:
             errors = self.validate_markdown(
                 Path(temporary),
-                "- [guide]\\n  [guide]: missing.md\\n",
+                "- [guide]\n  [guide]: missing.md\n",
             )
         self.assertEqual(len(errors), 1)
         self.assertIn("missing.md", errors[0])
@@ -48,7 +48,7 @@ class DocumentLinkValidationTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temporary:
             errors = self.validate_markdown(
                 Path(temporary),
-                "[guide]\\n[guide]:\\n  missing.md\\n",
+                "[guide]\n[guide]:\n  missing.md\n",
             )
         self.assertEqual(len(errors), 1)
         self.assertIn("missing.md", errors[0])
