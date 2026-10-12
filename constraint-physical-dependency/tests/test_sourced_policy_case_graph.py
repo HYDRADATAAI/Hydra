@@ -73,6 +73,61 @@ class SourcedPolicyCaseGraphTests(unittest.TestCase):
             for path in paths
         ))
 
+    def test_required_source_dates_are_validated(self):
+        cases = (
+            ("retrieved_at missing", "retrieved_at", "missing"),
+            ("retrieved_at null", "retrieved_at", None),
+            ("retrieved_at empty", "retrieved_at", ""),
+            ("retrieved_at malformed", "retrieved_at", "not-a-date"),
+            ("retrieved_at non-string", "retrieved_at", 20260925),
+            ("known_at missing", "known_at", "missing"),
+            ("known_at null", "known_at", None),
+            ("known_at empty", "known_at", ""),
+            ("known_at malformed", "known_at", "not-a-date"),
+            ("known_at non-string", "known_at", 20260925),
+        )
+        for label, field, value in cases:
+            with self.subTest(date=label):
+                bundle=json.loads(DATA_PATH.read_text(encoding="utf-8"))
+                source=bundle["sources"][0]
+                if value == "missing":
+                    source.pop(field)
+                else:
+                    source[field]=value
+                with tempfile.TemporaryDirectory() as td:
+                    path=Path(td)/"invalid-source-date.json"
+                    path.write_text(json.dumps(bundle),encoding="utf-8")
+                    with self.assertRaisesRegex(
+                        SourcedGraphValidationError, field
+                    ):
+                        load_sourced_policy_case_graph(path)
+
+    def test_malformed_optional_published_at_is_rejected(self):
+        bundle=json.loads(DATA_PATH.read_text(encoding="utf-8"))
+        bundle["sources"][0]["published_at"]="not-a-date"
+        with tempfile.TemporaryDirectory() as td:
+            path=Path(td)/"invalid-published-date.json"
+            path.write_text(json.dumps(bundle),encoding="utf-8")
+            with self.assertRaisesRegex(
+                SourcedGraphValidationError, "published_at"
+            ):
+                load_sourced_policy_case_graph(path)
+
+    def test_optional_published_at_may_be_absent_or_null(self):
+        for mode in ("absent", "null"):
+            with self.subTest(mode=mode):
+                bundle=json.loads(DATA_PATH.read_text(encoding="utf-8"))
+                source=bundle["sources"][0]
+                if mode == "absent":
+                    source.pop("published_at")
+                else:
+                    source["published_at"]=None
+                with tempfile.TemporaryDirectory() as td:
+                    path=Path(td)/"optional-published-date.json"
+                    path.write_text(json.dumps(bundle),encoding="utf-8")
+                    graph=load_sourced_policy_case_graph(path)
+                self.assertIn("infrastructure:suez-canal", graph.nodes)
+
     def test_digest_tampering_fails_closed(self):
         bundle=json.loads(DATA_PATH.read_text(encoding="utf-8"))
         bundle["sources"][0]["normalized_evidence"] += " tampered"
