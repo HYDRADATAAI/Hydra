@@ -66,25 +66,25 @@ jobs:
             case "$normalized_file" in
               market-data-pipeline-sample/data/raw/synthetic_market_events.csv|\
               market-data-pipeline-sample/data/raw/synthetic_market_events_day2.csv|\
-              constraint-geopolitical-policy/data/HYDRA_CONSTRAINT_GEOPOLITICAL_POLICY_BATCH002_SOURCED_HISTORICAL_CASES_20260925.json|\
-              constraint-geopolitical-policy/data/HYDRA_CONSTRAINT_GEOPOLITICAL_POLICY_BATCH003_SOURCED_HISTORICAL_CASES_20260925.json|\
-              constraint-geopolitical-policy/data/HYDRA_CONSTRAINT_GEOPOLITICAL_POLICY_BATCH004_SOURCED_HISTORICAL_CASES_20260925.json|\
-              constraint-geopolitical-policy/data/HYDRA_CONSTRAINT_GEOPOLITICAL_POLICY_BATCH005_CONTESTED_REVISION_FIXTURES_20260925.json|\
+              constraint-geopolitical-policy/data/hydra_constraint_geopolitical_policy_batch002_sourced_historical_cases_20260925.json|\
+              constraint-geopolitical-policy/data/hydra_constraint_geopolitical_policy_batch003_sourced_historical_cases_20260925.json|\
+              constraint-geopolitical-policy/data/hydra_constraint_geopolitical_policy_batch004_sourced_historical_cases_20260925.json|\
+              constraint-geopolitical-policy/data/hydra_constraint_geopolitical_policy_batch005_contested_revision_fixtures_20260925.json|\
               constraint-geopolitical-policy/data/historical_case_studies.json|\
               constraint-geopolitical-policy/data/sourced_historical_cases.json|\
-              constraint-physical-dependency/data/HYDRA_CONSTRAINT_PHYSICAL_POLICY_BATCH002_SOURCE_REGISTER_20260925.md|\
-              constraint-physical-dependency/data/HYDRA_CONSTRAINT_PHYSICAL_POLICY_BATCH003_SOURCE_REGISTER_20260925.md|\
-              constraint-physical-dependency/data/HYDRA_CONSTRAINT_PHYSICAL_POLICY_BATCH004_SOURCE_REGISTER_20260925.md|\
-              constraint-physical-dependency/data/HYDRA_CONSTRAINT_PHYSICAL_POLICY_GRAPH_BATCH002_SOURCED_20260925.json|\
-              constraint-physical-dependency/data/HYDRA_CONSTRAINT_PHYSICAL_POLICY_GRAPH_BATCH003_SOURCED_20260925.json|\
-              constraint-physical-dependency/data/HYDRA_CONSTRAINT_PHYSICAL_POLICY_GRAPH_BATCH004_SOURCED_20260925.json|\
-              constraint-physical-dependency/data/SOURCE_REGISTER.md|\
+              constraint-physical-dependency/data/hydra_constraint_physical_policy_batch002_source_register_20260925.md|\
+              constraint-physical-dependency/data/hydra_constraint_physical_policy_batch003_source_register_20260925.md|\
+              constraint-physical-dependency/data/hydra_constraint_physical_policy_batch004_source_register_20260925.md|\
+              constraint-physical-dependency/data/hydra_constraint_physical_policy_graph_batch002_sourced_20260925.json|\
+              constraint-physical-dependency/data/hydra_constraint_physical_policy_graph_batch003_sourced_20260925.json|\
+              constraint-physical-dependency/data/hydra_constraint_physical_policy_graph_batch004_sourced_20260925.json|\
+              constraint-physical-dependency/data/source_register.md|\
               constraint-physical-dependency/data/eia_refinery_regional_capacity_2020_2025.csv|\
               constraint-physical-dependency/data/eia_us_refinery_capacity_2020_2026.csv|\
               constraint-physical-dependency/data/eia_us_refinery_utilization_2020_2025.csv|\
               constraint-physical-dependency/data/historical_physical_dependency.schema.json|\
               constraint-physical-dependency/data/sourced_policy_case_physical_graph.json|\
-              constraint-runtime/canonical/V013_RUNTIME_BINDING.json)
+              constraint-runtime/canonical/v013_runtime_binding.json)
                 private_record=0
                 ;;
             esac
