@@ -8,6 +8,15 @@ on:
       - ".gitignore"
       - "data/**"
       - "raw/**"
+      - "**/data/**"
+      - "**/raw/**"
+      - "**/canonical/**"
+      - "**/vendor/**"
+      - "**/vendors/**"
+      - "**/archives/**"
+      - "**/archive/**"
+      - "**/backups/**"
+      - "**/backup/**"
       - "market-data-pipeline-sample/data/**"
   push:
     branches:
@@ -18,6 +27,15 @@ on:
       - ".gitignore"
       - "data/**"
       - "raw/**"
+      - "**/data/**"
+      - "**/raw/**"
+      - "**/canonical/**"
+      - "**/vendor/**"
+      - "**/vendors/**"
+      - "**/archives/**"
+      - "**/archive/**"
+      - "**/backups/**"
+      - "**/backup/**"
       - "market-data-pipeline-sample/data/**"
 
 permissions:
@@ -35,20 +53,23 @@ jobs:
           set -euo pipefail
           failures=0
           while IFS= read -r -d '' file; do
+            normalized_file=${file,,}
             private_record=0
-            case "$file" in
-              data/*|raw/*|constraint-t1-raw-artifact-store/raw/*|constraint-t1-raw-artifact-store/data/*|constraint-t1-raw-artifact-store/objects/*|constraint-t1-raw-artifact-store/receipts/*|constraint-t1-raw-artifact-store/releases/*)
+            case "$normalized_file" in
+              data/*|*/data/*|raw/*|*/raw/*|canonical/*|*/canonical/*|vendor/*|*/vendor/*|vendors/*|*/vendors/*|archives/*|*/archives/*|archive/*|*/archive/*|backups/*|*/backups/*|backup/*|*/backup/*|constraint-t1-raw-artifact-store/objects/*|constraint-t1-raw-artifact-store/receipts/*|constraint-t1-raw-artifact-store/releases/*)
                 private_record=1
                 ;;
             esac
-            if [[ "$file" == constraint-t1-raw-artifact-store/* && "$file" == *.raw ]]; then
+            if [[ "$normalized_file" == constraint-t1-raw-artifact-store/* && "$normalized_file" == *.raw ]]; then
               private_record=1
             fi
-            if [[ "$file" == "market-data-pipeline-sample/data/raw/synthetic_market_events.csv" ]]; then
-              private_record=0
-            fi
+            case "$normalized_file" in
+              market-data-pipeline-sample/data/raw/synthetic_market_events.csv|market-data-pipeline-sample/data/raw/synthetic_market_events_day2.csv)
+                private_record=0
+                ;;
+            esac
             if [[ "$private_record" -eq 1 ]]; then
-              echo "::error file=$file::Private T1 raw-store records must stay outside public Git."
+              echo "::error::Private T1 raw-store records must stay outside public Git."
               failures=$((failures + 1))
             fi
           done < <(git ls-files -z)
