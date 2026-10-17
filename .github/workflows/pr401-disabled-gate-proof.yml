@@ -1,0 +1,63 @@
+name: PR401 exact-candidate disabled-gate proof
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/pr401-disabled-gate-proof.yml'
+      - 'tools/validation/pr401_disabled_gate_proof.py'
+
+permissions:
+  contents: read
+
+jobs:
+  pr401-disabled-gate:
+    runs-on: windows-latest
+    timeout-minutes: 15
+    steps:
+      - name: Preserve repository blob bytes
+        shell: pwsh
+        run: git config --global core.autocrlf false
+
+      - name: Read the separately bound proof helper
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          repository: HYDRADATAAI/Hydra
+          ref: ${{ github.event.pull_request.head.sha }}
+          path: proof-tools
+          persist-credentials: false
+          sparse-checkout-cone-mode: false
+          sparse-checkout: tools/validation/pr401_disabled_gate_proof.py
+
+      - name: Check out the exact candidate without proof overlays
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          repository: HYDRADATAAI/Hydra
+          ref: 0df7f339e8e665442a95e8f798100f6f23f2e771
+          path: candidate
+          persist-credentials: false
+          fetch-depth: 1
+
+      - name: Set up the required Python lane
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: '3.11'
+
+      - name: Install the exact YAML parser
+        shell: pwsh
+        run: python -m pip install --disable-pip-version-check PyYAML==6.0.2
+
+      - name: Run the full offline proof and capture its receipt
+        shell: pwsh
+        run: |
+          $candidateRoot = (Resolve-Path 'candidate').Path
+          $proofHelper = (Resolve-Path 'proof-tools/tools/validation/pr401_disabled_gate_proof.py').Path
+          $proofLog = Join-Path $env:RUNNER_TEMP 'pr401-disabled-gate-proof.log'
+          & python -I -B $proofHelper `
+            --source-root $candidateRoot `
+            --expected-head '0df7f339e8e665442a95e8f798100f6f23f2e771' `
+            --expected-harness-sha256 'b89e4e30be042497358d435aaaccf7914a82307e819340d76832c9feaacfc7ba' `
+            2>&1 | Tee-Object -FilePath $proofLog
+          $proofExit = $LASTEXITCODE
+          if ($proofExit -ne 0) {
+            throw "PR401 disabled-gate proof failed with exit code $proofExit"
+          }
