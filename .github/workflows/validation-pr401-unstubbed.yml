@@ -1,0 +1,79 @@
+# PROPOSAL ONLY. Not installed, pushed, dispatched or executed.
+# Intended carrier: one draft PR in HYDRADATAAI/Hydra, opened only after approval.
+# Add only this workflow plus the exact harness and profile at the paths below.
+name: PR401 bounded unstubbed validation
+
+on:
+  pull_request:
+    types: [opened]
+    paths:
+      - .github/workflows/validation-pr401-unstubbed.yml
+      - validation/pr401/pr401_unstubbed_harness_draft.py
+      - validation/pr401/pr401_binding_profile.json
+
+permissions:
+  contents: read
+
+jobs:
+  pr401-unstubbed:
+    if: ${{ github.event.pull_request.draft == true && github.event.pull_request.head.repo.full_name == github.repository }}
+    runs-on: windows-latest
+    timeout-minutes: 20
+    defaults:
+      run:
+        shell: pwsh
+    env:
+      PYTHONDONTWRITEBYTECODE: '1'
+      PYTHONUTF8: '1'
+      GIT_OPTIONAL_LOCKS: '0'
+    steps:
+      - name: Preserve committed source bytes
+        run: git config --global core.autocrlf false
+      - name: Check out validation instrumentation
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          path: proof
+          fetch-depth: 1
+          persist-credentials: false
+      - name: Check out exact PR401 source separately
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          repository: HYDRADATAAI/Hydra
+          ref: 0df7f339e8e665442a95e8f798100f6f23f2e771
+          path: candidate
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Bind exact instrumentation digests
+        run: |
+          $proofRoot = Join-Path $env:GITHUB_WORKSPACE 'proof\validation\pr401'
+          $harnessHash = (Get-FileHash -Algorithm SHA256 -LiteralPath (Join-Path $proofRoot 'pr401_unstubbed_harness_draft.py')).Hash.ToLowerInvariant()
+          $profileHash = (Get-FileHash -Algorithm SHA256 -LiteralPath (Join-Path $proofRoot 'pr401_binding_profile.json')).Hash.ToLowerInvariant()
+          if ($harnessHash -cne '60b46802ad0b8321325eb619948c18a2013e5bdc1edbb15765fe73b3e453ce81') { throw 'Unreviewed harness bytes' }
+          if ($profileHash -cne '6ddc1b124b29982f50379884e9bbf69b09096fae68b9caff8c52eb268ca74cf1') { throw 'Unreviewed profile bytes' }
+          "HARNESS_SHA256=$harnessHash"
+          "PROFILE_SHA256=$profileHash"
+      - name: Prepare validation Python
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: '3.11'
+      - name: Prepare pinned YAML dependency before offline proof
+        run: |
+          python -m pip install --disable-pip-version-check PyYAML==6.0.2
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Complete preflight and all four unstubbed cases
+        timeout-minutes: 5
+        run: |
+          $harnessPath = Join-Path $env:GITHUB_WORKSPACE 'proof\validation\pr401\pr401_unstubbed_harness_draft.py'
+          $candidateRoot = Join-Path $env:GITHUB_WORKSPACE 'candidate'
+          $proofLog = Join-Path $env:RUNNER_TEMP 'pr401-unstubbed-proof.log'
+          python -I -B $harnessPath --source-root $candidateRoot --expected-head 0df7f339e8e665442a95e8f798100f6f23f2e771 2>&1 | Tee-Object -FilePath $proofLog
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Retain proof diagnostics
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: pr401-unstubbed-proof-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/pr401-unstubbed-proof.log
+          if-no-files-found: warn
+          retention-days: 14
