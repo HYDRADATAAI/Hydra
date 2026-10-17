@@ -163,9 +163,9 @@ A bounded SQL example lives in [`sql-data-quality-sample/`](sql-data-quality-sam
 
 The sample includes joins, CTEs, `ROW_NUMBER`, `LAG`, windowed averages, grouped quality summaries, and Python-driven regression tests. It is intended as inspectable SQL/data-quality evidence, not as a production database or warehouse.
 
-## AWS deployment-ready vertical slice
+## AWS serverless sample — deployment on hold
 
-A bounded cloud mapping lives in [`aws-market-data-pipeline/`](aws-market-data-pipeline/). Its current status is **deployment-ready / not yet deployed / synthetic / non-live**.
+A bounded cloud mapping lives in [`aws-market-data-pipeline/`](aws-market-data-pipeline/). Its current status is **DEPLOYMENT ON HOLD / NOT DEPLOYED / SYNTHETIC / NON-LIVE**.
 
 `synthetic CSV → private raw S3 → Python 3.11 Lambda → accepted/quarantine S3 prefixes → Glue table → bounded Athena query`
 
@@ -175,9 +175,9 @@ The sample includes:
 - [`processor.py`](aws-market-data-pipeline/function/processor.py), the deterministic transform shared by local replay and Lambda;
 - [`test_processor.py`](aws-market-data-pipeline/tests/test_processor.py), [`test_lambda_handler.py`](aws-market-data-pipeline/tests/test_lambda_handler.py), and [`test_template.py`](aws-market-data-pipeline/tests/test_template.py) for data, adapter, replay, and infrastructure contracts;
 - [credential-free CI](https://github.com/HYDRADATAAI/Hydra/actions/workflows/aws-market-data-pipeline.yml) for local deterministic evidence;
-- a [manual OIDC deploy-and-verify workflow](https://github.com/HYDRADATAAI/Hydra/actions/workflows/aws-market-data-deploy.yml) that compares deployed S3 artifacts byte-for-byte with local replay, runs a bounded Athena query, publishes sanitized evidence, and tears the stack down by default.
+- a [manual OIDC deploy-and-verify workflow](https://github.com/HYDRADATAAI/Hydra/actions/workflows/aws-market-data-deploy.yml) whose deployment job is disabled (`if: false`). If separately authorized and re-enabled after its safety requirements are met, the workflow is intended to compare deployed S3 artifacts byte-for-byte with local replay, run a bounded Athena query, publish sanitized evidence, and tear the stack down by default.
 
-No AWS deployment is claimed until that manual workflow succeeds against a real account. The website should not promote this path as deployed evidence before then.
+Keep the deployment job disabled until atomic create-only deployment, verified ownership of the stack and each bucket before teardown, and no-AWS lifecycle tests satisfy the [deployment hold and re-enable criteria](aws-market-data-pipeline/README.md#ci-and-deployment-gate). No AWS deployment is verified. Public materials must retain the not-deployed status until separately authorized execution produces sanitized evidence.
 
 ## Governed context, retrieval, and structured grounding sample
 
@@ -257,7 +257,7 @@ If you have 60 seconds:
 5. Inspect [`market-data-pipeline-sample/`](market-data-pipeline-sample/) for a runnable ingestion → normalization → provenance → quarantine → deterministic artifact path.
 6. Open its [`operations.py`](market-data-pipeline-sample/src/hydra_market_pipeline/operations.py) and recovery tests for checkpoint, backfill, replay, integrity, SLI, and budget behavior.
 7. Inspect [`sql-data-quality-sample/`](sql-data-quality-sample/) for relational SQL, quality classification, joins, CTEs, and window functions.
-8. Inspect [`aws-market-data-pipeline/`](aws-market-data-pipeline/) for the deployment-ready, not-yet-deployed S3 → Lambda → Glue/Athena mapping.
+8. Inspect [`aws-market-data-pipeline/`](aws-market-data-pipeline/) for the synthetic S3 → Lambda → Glue/Athena mapping with deployment on hold.
 9. Inspect [`governed-intelligence-sample/`](governed-intelligence-sample/) for immutable verified context, hardened accepted-only lexical ranking, separately specified relevance judgments, exact citations, and synthetic structured-claim grounding.
 
 ## Current scope
@@ -273,7 +273,7 @@ The public surfaces do **not** claim:
 - fabricated production metrics;
 - authority that the underlying producers cannot prove.
 
-The AWS sample remains deployment-ready rather than deployed until a real manual run produces sanitized evidence. The governed-intelligence sample stops before model execution. Broader production cloud and ML work stays in the roadmap until it is implemented and inspectable.
+The AWS sample is synthetic, non-live, and not deployed. Its deployment job remains disabled until ownership and lifecycle protections are verified and re-enablement is separately authorized. The governed-intelligence sample stops before model execution. Broader production cloud and ML work stays in the roadmap until it is implemented and inspectable.
 
 ## Links
 
