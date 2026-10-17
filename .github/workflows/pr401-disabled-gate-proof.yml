@@ -16,7 +16,9 @@ jobs:
     steps:
       - name: Preserve repository blob bytes
         shell: pwsh
-        run: git config --global core.autocrlf false
+        run: |
+          git config --global core.autocrlf false
+          git config --global core.longpaths true
 
       - name: Read the separately bound proof helper
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
@@ -33,7 +35,7 @@ jobs:
         with:
           repository: HYDRADATAAI/Hydra
           ref: 0df7f339e8e665442a95e8f798100f6f23f2e771
-          path: candidate
+          path: c
           persist-credentials: false
           fetch-depth: 1
 
@@ -49,7 +51,7 @@ jobs:
       - name: Run the full offline proof and capture its receipt
         shell: pwsh
         run: |
-          $candidateRoot = (Resolve-Path 'candidate').Path
+          $candidateRoot = (Resolve-Path 'c').Path
           $proofHelper = (Resolve-Path 'proof-tools/tools/validation/pr401_disabled_gate_proof.py').Path
           $proofLog = Join-Path $env:RUNNER_TEMP 'pr401-disabled-gate-proof.log'
           & python -I -B $proofHelper `
