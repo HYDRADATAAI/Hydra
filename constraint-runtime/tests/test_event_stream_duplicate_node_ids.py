@@ -37,6 +37,27 @@ class EventStreamDuplicateNodeIdTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "duplicate node_id: N1"):
             ConstraintRuntime.from_dict(graph)
 
+    def test_constructor_rejects_conflicting_duplicate_node_ids(self) -> None:
+        nodes = [
+            Node(node_id="N1", node_class="material", name="First"),
+            Node(node_id="N1", node_class="facility", name="Conflicting duplicate"),
+        ]
+
+        with self.assertRaisesRegex(ValueError, "duplicate node_id: N1"):
+            ConstraintRuntime(nodes, [])
+
+    def test_from_dict_rejects_conflicting_duplicate_node_ids(self) -> None:
+        graph = {
+            "nodes": [
+                {"node_id": "N1", "node_class": "material", "name": "First"},
+                {"node_id": "N1", "node_class": "facility", "name": "Conflicting duplicate"},
+            ],
+            "edges": [],
+        }
+
+        with self.assertRaisesRegex(ValueError, "duplicate node_id: N1"):
+            ConstraintRuntime.from_dict(graph)
+
     def test_target_resolver_rejects_duplicate_graph_ids(self):
         with self.assertRaisesRegex(IngestError, "duplicate node_id: N1"):
             TargetResolver(DUPLICATE_GRAPH)
