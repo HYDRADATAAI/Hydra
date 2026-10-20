@@ -1,0 +1,49 @@
+name: Constraint T1 browser HAR Windows
+
+on:
+  pull_request:
+    paths:
+      - "constraint-t1-raw-artifact-store/**"
+      - "tools/private/**"
+      - "tools/build_constraint_t1_post_capture_public_status.py"
+      - ".github/workflows/constraint-t1-browser-har-windows.yml"
+  push:
+    branches:
+      - main
+    paths:
+      - "constraint-t1-raw-artifact-store/**"
+      - "tools/private/**"
+      - "tools/build_constraint_t1_post_capture_public_status.py"
+      - ".github/workflows/constraint-t1-browser-har-windows.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  windows-capture:
+    runs-on: windows-latest
+    steps:
+      - name: Preserve exact Git bytes
+        shell: powershell
+        run: git config --global core.autocrlf false
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Parse capture runner with Windows PowerShell 5.1
+        shell: powershell
+        run: |
+          $tokens = $null
+          $parseErrors = $null
+          $runner = Join-Path $PWD "tools/private/Invoke-HYDRAConstraintFirstSlicePrivateCapture_V001_20260926.ps1"
+          $null = [System.Management.Automation.Language.Parser]::ParseFile($runner, [ref]$tokens, [ref]$parseErrors)
+          if ($parseErrors.Count -gt 0) {
+            $parseErrors | ForEach-Object { Write-Output $_.Message }
+            throw "Private capture runner failed PowerShell syntax validation"
+          }
+          Write-Output "WINDOWS_CAPTURE_RUNNER_SYNTAX=PASS"
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Test synthetic download-to-custody behavior
+        shell: powershell
+        run: ./tools/private/tests/Test-FirstSliceCaptureResponse.ps1
