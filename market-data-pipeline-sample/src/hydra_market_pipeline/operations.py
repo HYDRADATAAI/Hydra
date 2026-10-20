@@ -7,11 +7,13 @@ import io
 import json
 import os
 import re
+import sys
 from dataclasses import dataclass
 from decimal import Decimal
 from pathlib import Path
 from typing import Mapping
 
+from .atomic import write_atomically
 from .hashing import canonical_json_bytes, object_sha256, sha256_hex
 from .pipeline import (
     RUN_SCHEMA,
@@ -40,6 +42,14 @@ ROOT_PLAN_KEYS = {
     "schema_version",
 }
 INPUT_PLAN_KEYS = {"path", "source_id"}
+PIPELINE_ARTIFACT_FILES = (
+    "manifest.json",
+    "resolved_symbol_aliases.json",
+    "source_snapshot.csv",
+    "normalized_events.csv",
+    "normalized_events.jsonl",
+    "quarantine_records.jsonl",
+)
 
 
 class OperationsError(ValueError):
@@ -174,6 +184,41 @@ def load_backfill_plan(
     )
 
 
+def _contains_unsafe_symlink_component(path: Path) -> bool:
+    parts = path.parts
+    current = Path(parts[0])
+    for part in parts[1:]:
+        current /= part
+        if part == "..":
+            continue
+        resolved = current.resolve(strict=False)
+        normalized = Path(os.path.normpath(os.fspath(current)))
+        if os.path.normcase(os.fspath(resolved)) == os.path.normcase(
+            os.fspath(normalized)
+        ):
+            continue
+
+        macos_aliases = {
+            Path("/var"): Path("/private/var"),
+            Path("/tmp"): Path("/private/tmp"),
+        }
+        is_macos_alias = False
+        if sys.platform == "darwin":
+            for alias, target in macos_aliases.items():
+                try:
+                    relative_path = current.relative_to(alias)
+                except ValueError:
+                    continue
+                expected = Path(os.path.normpath(os.fspath(target / relative_path)))
+                is_macos_alias = os.path.normcase(os.fspath(resolved)) == os.path.normcase(
+                    os.fspath(expected)
+                )
+                break
+        if not is_macos_alias:
+            return True
+    return False
+
+
 def execute_backfill(
     *,
     plan_path: str | Path,
@@ -185,8 +230,13 @@ def execute_backfill(
         raise OperationsError("interrupt_after_new_sources must be at least one")
 
     plan = load_backfill_plan(plan_path=plan_path, aliases_path=aliases_path)
-    output_root = Path(output_dir)
+    output_root = Path(output_dir).absolute()
+    if _contains_unsafe_symlink_component(output_root):
+        raise OperationsError("output directory path must not contain symlinks")
+    output_root = output_root.resolve(strict=False)
     runs_root = output_root / "runs"
+    if _contains_unsafe_symlink_component(runs_root):
+        raise OperationsError("persisted runs directory must not contain symlinks")
     checkpoint_path = output_root / "checkpoint.json"
     manifest_path = output_root / "operations_manifest.json"
     metrics_path = output_root / "metrics.jsonl"
@@ -211,6 +261,7 @@ def execute_backfill(
         if result.aliases_sha256 != plan.aliases_sha256:
             raise OperationsError(f"aliases changed while processing: {item.source_id}")
         run_dir = runs_root / result.pipeline_run_id
+        _verify_run_paths_before_write(run_dir)
         outputs = write_outputs(result, output_dir=run_dir)
         manifest_sha256 = sha256_hex(outputs["manifest"].read_bytes())
         completed[item.source_id] = {
@@ -248,6 +299,8 @@ def execute_backfill(
 
 
 def _load_or_create_checkpoint(path: Path, plan: BackfillPlan) -> dict[str, object]:
+    if path.is_symlink():
+        raise OperationsError("checkpoint must not be a symlink")
     if not path.exists():
         checkpoint: dict[str, object] = {
             "backfill_id": plan.backfill_id,
@@ -274,6 +327,16 @@ def _load_or_create_checkpoint(path: Path, plan: BackfillPlan) -> dict[str, obje
     return checkpoint
 
 
+def _verify_run_paths_before_write(run_dir: Path) -> None:
+    if _contains_unsafe_symlink_component(run_dir):
+        raise OperationsError(f"persisted run directory must not contain symlinks: {run_dir.name}")
+    if run_dir.exists() and not run_dir.is_dir():
+        raise OperationsError(f"persisted run directory is not a directory: {run_dir.name}")
+    for file_name in PIPELINE_ARTIFACT_FILES:
+        if (run_dir / file_name).is_symlink():
+            raise OperationsError(f"persisted run artifact must not be a symlink: {file_name}")
+
+
 def _verify_completed_sources(
     plan: BackfillPlan,
     completed: Mapping[str, object],
@@ -283,6 +346,9 @@ def _verify_completed_sources(
     unexpected = sorted(set(completed) - set(planned))
     if unexpected:
         raise OperationsError(f"checkpoint contains unplanned sources: {unexpected}")
+
+    if _contains_unsafe_symlink_component(runs_root) or not runs_root.is_dir():
+        raise OperationsError("persisted runs directory is missing or invalid")
 
     for source_id, raw_entry in completed.items():
         if not isinstance(raw_entry, dict):
@@ -332,9 +398,11 @@ def _verify_completed_sources(
 
 
 def _verify_pipeline_artifacts(run_dir: Path, checkpoint_entry: Mapping[str, object]) -> None:
+    if _contains_unsafe_symlink_component(run_dir) or not run_dir.is_dir():
+        raise OperationsError(f"persisted run directory is missing or invalid: {run_dir.name}")
     manifest_path = run_dir / "manifest.json"
-    if not manifest_path.is_file():
-        raise OperationsError(f"persisted run manifest is missing: {run_dir.name}")
+    if manifest_path.is_symlink() or not manifest_path.is_file():
+        raise OperationsError(f"persisted run manifest is missing or invalid: {run_dir.name}")
     manifest_bytes = manifest_path.read_bytes()
     if sha256_hex(manifest_bytes) != checkpoint_entry["manifest_sha256"]:
         raise OperationsError(f"persisted run manifest digest mismatch: {run_dir.name}")
@@ -408,8 +476,8 @@ def _verify_pipeline_artifacts(run_dir: Path, checkpoint_entry: Mapping[str, obj
         if not isinstance(descriptor, dict) or descriptor != expected_descriptor:
             raise OperationsError(f"persisted input descriptor mismatch: {name}")
         artifact_path = run_dir / expected_descriptor["file"]
-        if not artifact_path.is_file():
-            raise OperationsError(f"persisted input is missing: {artifact_path.name}")
+        if artifact_path.is_symlink() or not artifact_path.is_file():
+            raise OperationsError(f"persisted input is missing or invalid: {artifact_path.name}")
         artifact_bytes = artifact_path.read_bytes()
         if sha256_hex(artifact_bytes) != expected_descriptor["sha256"]:
             raise OperationsError(f"persisted input digest mismatch: {artifact_path.name}")
@@ -474,8 +542,8 @@ def _verify_pipeline_artifacts(run_dir: Path, checkpoint_entry: Mapping[str, obj
         ):
             raise OperationsError(f"persisted output descriptor is unsafe: {run_dir.name}")
         artifact_path = run_dir / file_name
-        if not artifact_path.is_file():
-            raise OperationsError(f"persisted output is missing: {file_name}")
+        if artifact_path.is_symlink() or not artifact_path.is_file():
+            raise OperationsError(f"persisted output is missing or invalid: {file_name}")
         if sha256_hex(artifact_path.read_bytes()) != expected_sha256:
             raise OperationsError(f"persisted output digest mismatch: {file_name}")
 
@@ -649,6 +717,4 @@ def _write_json_atomic(path: Path, value: object) -> None:
 
 def _write_bytes_atomic(path: Path, payload: bytes) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
-    temporary = path.with_name(f".{path.name}.tmp")
-    temporary.write_bytes(payload)
-    os.replace(temporary, path)
+    write_atomically(path, "wb", lambda handle: handle.write(payload))
