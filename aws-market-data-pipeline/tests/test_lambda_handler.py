@@ -437,6 +437,153 @@ class LambdaHandlerTests(unittest.TestCase):
                 self.assertEqual(glue.partition_calls, [])
                 self.assertNotIn("partition", [kind for kind, _ in operations])
 
+    def test_malformed_s3_object_created_record_rejects_valid_sibling_before_processing(self):
+        source = FIXTURE.read_bytes()
+        valid_record = s3_event(size=len(source))["Records"][0]
+        base_record = {
+            "eventName": "ObjectCreated:Put",
+            "eventSource": "aws:s3",
+        }
+        malformed_payloads = [
+            ("missing s3", {}),
+            ("wrong-type s3", {"s3": []}),
+            ("missing bucket", {"s3": {"object": {}}}),
+            ("wrong-type bucket", {"s3": {"bucket": [], "object": {}}}),
+            (
+                "missing bucket name",
+                {"s3": {"bucket": {}, "object": {}}},
+            ),
+            (
+                "wrong-type bucket name",
+                {"s3": {"bucket": {"name": 42}, "object": {}}},
+            ),
+            (
+                "empty bucket name",
+                {"s3": {"bucket": {"name": ""}, "object": {}}},
+            ),
+            (
+                "whitespace bucket name",
+                {"s3": {"bucket": {"name": "  "}, "object": {}}},
+            ),
+            (
+                "missing object",
+                {"s3": {"bucket": {"name": "raw-bucket"}}},
+            ),
+            (
+                "wrong-type object",
+                {"s3": {"bucket": {"name": "raw-bucket"}, "object": []}},
+            ),
+            (
+                "missing key",
+                {"s3": {"bucket": {"name": "raw-bucket"}, "object": {}}},
+            ),
+            (
+                "wrong-type key",
+                {
+                    "s3": {
+                        "bucket": {"name": "raw-bucket"},
+                        "object": {"key": 42},
+                    }
+                },
+            ),
+            (
+                "empty key",
+                {
+                    "s3": {
+                        "bucket": {"name": "raw-bucket"},
+                        "object": {"key": ""},
+                    }
+                },
+            ),
+        ]
+
+        with patch.dict(os.environ, {"CURATED_BUCKET": "curated"}):
+            for case_name, payload in malformed_payloads:
+                with self.subTest(case=case_name):
+                    malformed_record = {**base_record, **payload}
+                    event = {"Records": [valid_record, malformed_record]}
+                    client = FakeS3(source)
+                    glue = FakeGlue()
+
+                    with self.assertRaisesRegex(
+                        ValueError, "S3 ObjectCreated record"
+                    ):
+                        lambda_handler(
+                            event,
+                            None,
+                            s3_client=client,
+                            glue_client=glue,
+                        )
+
+                    self.assertEqual(client.get_calls, [])
+                    self.assertEqual(client.put_calls, [])
+                    self.assertEqual(glue.partition_calls, [])
+
+    def test_malformed_s3_event_name_rejects_valid_sibling_before_processing(self):
+        source = FIXTURE.read_bytes()
+        valid_record = s3_event(size=len(source))["Records"][0]
+        malformed_records = [
+            {"eventSource": "aws:s3"},
+            {"eventSource": "aws:s3", "eventName": None},
+            {"eventSource": "aws:s3", "eventName": 42},
+            {"eventSource": "aws:s3", "eventName": ""},
+            {"eventSource": "aws:s3", "eventName": "  "},
+        ]
+
+        with patch.dict(os.environ, {"CURATED_BUCKET": "curated"}):
+            for malformed_record in malformed_records:
+                with self.subTest(event_name=malformed_record.get("eventName")):
+                    event = {"Records": [valid_record, malformed_record]}
+                    client = FakeS3(source)
+                    glue = FakeGlue()
+
+                    with self.assertRaisesRegex(
+                        ValueError, "S3 source record eventName"
+                    ):
+                        lambda_handler(
+                            event,
+                            None,
+                            s3_client=client,
+                            glue_client=glue,
+                        )
+
+                    self.assertEqual(client.get_calls, [])
+                    self.assertEqual(client.put_calls, [])
+                    self.assertEqual(glue.partition_calls, [])
+
+    def test_unrelated_and_non_object_created_records_remain_ignored(self):
+        source = FIXTURE.read_bytes()
+        event = s3_event(size=len(source))
+        event["Records"].extend(
+            [
+                {
+                    "eventName": "ObjectCreated:Put",
+                    "eventSource": "aws:sqs",
+                    "s3": [],
+                },
+                {
+                    "eventName": "ObjectRemoved:Delete",
+                    "eventSource": "aws:s3",
+                    "s3": [],
+                },
+            ]
+        )
+        client = FakeS3(source)
+        glue = FakeGlue()
+
+        with patch.dict(os.environ, {"CURATED_BUCKET": "curated"}):
+            result = lambda_handler(
+                event,
+                None,
+                s3_client=client,
+                glue_client=glue,
+            )
+
+        self.assertEqual(result["status"], "PASS")
+        self.assertEqual(len(client.get_calls), 1)
+        self.assertEqual(len(client.put_calls), 3)
+        self.assertEqual(len(glue.partition_calls), 1)
+
     def test_non_s3_event_fails_closed(self):
         with patch.dict(os.environ, {"CURATED_BUCKET": "curated"}):
             with self.assertRaisesRegex(ValueError, "no S3 ObjectCreated records"):
