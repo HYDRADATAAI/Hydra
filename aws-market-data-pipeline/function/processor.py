@@ -102,14 +102,19 @@ def process_csv(source_bytes: bytes) -> ProcessedBatch:
     except UnicodeDecodeError as exc:
         raise ContractError("input CSV must be valid UTF-8") from exc
 
-    reader = csv.DictReader(io.StringIO(text, newline=""))
-    _validate_header(reader.fieldnames)
+    _validate_csv_quote_placement(text)
+    reader = csv.DictReader(io.StringIO(text, newline=""), strict=True)
+    try:
+        fieldnames = reader.fieldnames
+    except csv.Error as exc:
+        raise ContractError(f"input CSV is malformed: {exc}") from exc
+    reader.fieldnames = _validate_header(fieldnames)
 
     accepted: list[dict[str, object]] = []
     quarantined: list[dict[str, object]] = []
     seen_event_ids: set[str] = set()
 
-    for source_row_number, row in enumerate(reader, start=2):
+    for source_row_number, row in enumerate(_iter_csv_rows(reader), start=2):
         if source_row_number > MAX_SOURCE_ROWS + 1:
             raise ContractError(f"input CSV exceeds max_rows={MAX_SOURCE_ROWS}")
         raw_record = {
@@ -229,7 +234,64 @@ def process_csv(source_bytes: bytes) -> ProcessedBatch:
     )
 
 
-def _validate_header(fieldnames: list[str] | None) -> None:
+def _validate_csv_quote_placement(text: str) -> None:
+    """Reject quote characters outside properly quoted CSV fields."""
+    field_start = True
+    in_quotes = False
+    after_quote = False
+    index = 0
+
+    while index < len(text):
+        char = text[index]
+        if in_quotes:
+            if char == '"':
+                if index + 1 < len(text) and text[index + 1] == '"':
+                    index += 2
+                    continue
+                in_quotes = False
+                after_quote = True
+            index += 1
+            continue
+
+        if after_quote:
+            if char == ",":
+                field_start = True
+                after_quote = False
+            elif char in "\r\n":
+                field_start = True
+                after_quote = False
+            else:
+                raise ContractError(
+                    "input CSV is malformed: unexpected character after closing quote"
+                )
+        elif field_start:
+            if char == '"':
+                in_quotes = True
+                field_start = False
+            elif char == ",":
+                field_start = True
+            elif char in "\r\n":
+                field_start = True
+            else:
+                field_start = False
+        else:
+            if char == '"':
+                raise ContractError(
+                    "input CSV is malformed: quote inside an unquoted field"
+                )
+            if char == "," or char in "\r\n":
+                field_start = True
+        index += 1
+
+
+def _iter_csv_rows(reader):
+    try:
+        yield from reader
+    except csv.Error as exc:
+        raise ContractError(f"input CSV is malformed: {exc}") from exc
+
+
+def _validate_header(fieldnames: list[str] | None) -> list[str]:
     if fieldnames is None:
         raise ContractError("input CSV has no header")
     normalized = [field.strip() for field in fieldnames]
@@ -241,6 +303,7 @@ def _validate_header(fieldnames: list[str] | None) -> None:
             "input CSV contract mismatch: "
             f"missing={missing}, extra={extra}, duplicates={duplicates}"
         )
+    return normalized
 
 
 def _parse_event_time(value: str, errors: list[str]) -> datetime | None:
