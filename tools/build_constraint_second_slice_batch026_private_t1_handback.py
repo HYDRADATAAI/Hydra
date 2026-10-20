@@ -47,6 +47,12 @@ def main() -> int:
     queue = queue_doc.get("queue")
     if not isinstance(queue, list) or len(queue) != 41:
         fail("queue must contain exactly 41 capture intents")
+    sys.path.insert(0, str(repo_root / "tools"))
+    from constraint_source_quarantine import QuarantinePolicyError, reject_retired_batch026
+    try:
+        reject_retired_batch026(repo_root, queue, operation="handback generation")
+    except QuarantinePolicyError as exc:
+        fail(str(exc))
 
     sys.path.insert(0, str(repo_root / "constraint-t1-raw-artifact-store" / "src"))
     from hydra_constraint_t1_raw.store import RawArtifactStore, is_ordinary_t2_eligible

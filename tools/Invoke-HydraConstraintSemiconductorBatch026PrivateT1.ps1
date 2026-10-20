@@ -28,6 +28,7 @@ if (-not $RepoRoot) {
 $RepoRoot = [System.IO.Path]::GetFullPath($RepoRoot)
 
 $QueuePath = Join-Path $RepoRoot "docs\constraint\second_slice\semiconductor_advanced_packaging_critical_materials_v1\HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH026_SEMICONDUCTOR_PRIVATE_T1_CAPTURE_QUEUE_V001_20260926.json"
+$QuarantinePath = Join-Path $RepoRoot "docs\constraint\second_slice\semiconductor_advanced_packaging_critical_materials_v1\HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH030_SEMICONDUCTOR_MICRON_SOURCE_QUARANTINE_V001_20260927.json"
 $Materializer = Join-Path $RepoRoot "tools\materialize_constraint_second_slice_batch026_private_t1.py"
 $Verifier = Join-Path $RepoRoot "tools\verify_constraint_second_slice_batch026_private_t1.py"
 $HandbackBuilder = Join-Path $RepoRoot "tools\build_constraint_second_slice_batch026_private_t1_handback.py"
@@ -41,12 +42,39 @@ $queueDoc = Get-Content -LiteralPath $QueuePath -Raw | ConvertFrom-Json
 if ($queueDoc.source_count -ne 41) { Fail "Queue source_count must be 41." }
 if ($queueDoc.queue.Count -ne 41) { Fail "Queue must contain 41 capture intents." }
 
+Require-Path $QuarantinePath "Batch030 Micron quarantine"
+$quarantineDoc = Get-Content -LiteralPath $QuarantinePath -Raw | ConvertFrom-Json
+if ($quarantineDoc.schema_version -ne "hydra-constraint-second-slice-source-quarantine/v1") { Fail "Batch030 quarantine schema drifted." }
+if ($quarantineDoc.record_id -ne "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH030_SEMICONDUCTOR_MICRON_SOURCE_QUARANTINE_V001") { Fail "Batch030 quarantine record drifted." }
+if ($quarantineDoc.slice_id -ne "SEMICONDUCTOR_ADVANCED_PACKAGING_CRITICAL_MATERIALS_V1") { Fail "Batch030 quarantine slice drifted." }
+if ($quarantineDoc.predecessor_artifacts_mutated -ne $false -or $quarantineDoc.retry_authorized -ne $false) { Fail "Batch030 quarantine mutation/retry policy drifted." }
+$expectedQuarantineIds = @(
+    "SRC-SEMI-MICRON-Q2FY25-REMARKS-2025-03-20",
+    "SRC-SEMI-B021-MICRON-Q1FY26-REMARKS-2025-12-17",
+    "SRC-SEMI-B021-MICRON-Q3FY24-REMARKS-2024-06-26",
+    "SRC-SEMI-B021-MICRON-Q3FY25-REMARKS-2025-06-25",
+    "SRC-SEMI-B021-MICRON-Q4FY25-REMARKS-2025-09-23",
+    "SRC-SEMI-B022-GLOBENEWSWIRE-MICRON-HBM3E-2024-02-26",
+    "SRC-SEMI-B022-MICRON-HBM3E-VOLUME-2024-02-26",
+    "SRC-SEMI-B023-MICRON-Q1FY24-REMARKS-2023-12-20",
+    "SRC-SEMI-B023-MICRON-Q2FY26-MARKET-OUTLOOK-2026-03-18"
+)
+$quarantineIds = @($quarantineDoc.quarantined)
+if ($quarantineIds.Count -ne 9 -or @($quarantineIds | Sort-Object -Unique).Count -ne 9) { Fail "Batch030 quarantine must contain exactly 9 unique source IDs." }
+if (@(Compare-Object -ReferenceObject $expectedQuarantineIds -DifferenceObject $quarantineIds -CaseSensitive).Count -ne 0) { Fail "Batch030 quarantine source-ID set drifted." }
+$queueIds = @($queueDoc.queue | ForEach-Object { $_.source_id })
+if (@($expectedQuarantineIds | Where-Object { $_ -cnotin $queueIds }).Count -ne 0) { Fail "Batch026 queue/quarantine membership drifted." }
+
 $origin = ""
 try {
     $origin = (git -C $RepoRoot remote get-url origin 2>$null)
 } catch {}
 if ($origin -and ($origin -notmatch "HYDRADATAAI/Hydra")) {
     Fail ("Repo origin mismatch: " + $origin)
+}
+
+if ($Mode -ne "ContractCheck") {
+    Fail ("SUPERSEDED_BY_BATCH030_QUARANTINE: Batch026 " + $Mode + " is closed; quarantined source IDs=" + ($expectedQuarantineIds -join ","))
 }
 
 if ($Mode -eq "ContractCheck") {
@@ -56,6 +84,7 @@ if ($Mode -eq "ContractCheck") {
     Write-Host "VERIFIER_PRESENT=YES"
     Write-Host "HANDBACK_BUILDER_PRESENT=YES"
     Write-Host "NETWORK_ACQUISITION=NO"
+    Write-Host "BATCH026_OPERATIONAL_MODES=CLOSED"
     exit 0
 }
 

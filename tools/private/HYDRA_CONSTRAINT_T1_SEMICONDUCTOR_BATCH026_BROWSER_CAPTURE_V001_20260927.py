@@ -22,6 +22,92 @@ LOCATOR_OVERLAY_RELATIVE_PATH = Path(
 )
 EXPECTED_SLICE_ID = "SEMICONDUCTOR_ADVANCED_PACKAGING_CRITICAL_MATERIALS_V1"
 EXPECTED_SOURCE_COUNT = 41
+OPERATOR_BLOCKED_SOURCE_IDS = (
+    "SRC-SEMI-MICRON-Q2FY25-REMARKS-2025-03-20",
+    "SRC-SEMI-B021-MICRON-Q1FY26-REMARKS-2025-12-17",
+    "SRC-SEMI-B021-MICRON-Q3FY24-REMARKS-2024-06-26",
+    "SRC-SEMI-B021-MICRON-Q3FY25-REMARKS-2025-06-25",
+    "SRC-SEMI-B021-MICRON-Q4FY25-REMARKS-2025-09-23",
+    "SRC-SEMI-B022-GLOBENEWSWIRE-MICRON-HBM3E-2024-02-26",
+    "SRC-SEMI-B022-MICRON-HBM3E-VOLUME-2024-02-26",
+    "SRC-SEMI-B023-MICRON-Q1FY24-REMARKS-2023-12-20",
+    "SRC-SEMI-B023-MICRON-Q2FY26-MARKET-OUTLOOK-2026-03-18",
+)
+EXPECTED_BLOCKED_SOURCE_COUNT = 9
+EXPECTED_ELIGIBLE_SOURCE_COUNT = EXPECTED_SOURCE_COUNT - EXPECTED_BLOCKED_SOURCE_COUNT
+TSMC_BROWSER_403_FALLBACK_SOURCE_IDS = (
+    "SRC-SEMI-TSMC-Q1-2025-TRANSCRIPT-2025-04-17",
+    "SRC-SEMI-B020-TSMC-Q2-2023-TRANSCRIPT-2023-07-20",
+    "SRC-SEMI-B022-TSMC-2025-ANNUAL-EQUIPMENT-RISK",
+    "SRC-SEMI-B022-TSMC-Q2-2026-TRANSCRIPT-2026-07-16",
+)
+EXPECTED_TSMC_BROWSER_403_FALLBACK_SOURCE_COUNT = 4
+TSMC_LOCATOR_REMEDIATION_KIND = "TSMC_OFFICIAL_LOCATOR_CORRECTION"
+TSMC_LOCATOR_REMEDIATIONS: dict[str, dict[str, Any]] = {
+    "SRC-SEMI-TSMC-Q1-2025-TRANSCRIPT-2025-04-17": {
+        "remediation_kind": TSMC_LOCATOR_REMEDIATION_KIND,
+        "requested_locator": (
+            "https://investor.tsmc.com/schinese/encrypt/files/encrypt_file/reports/"
+            "2025-04/7630274eecc1197a4e3ea6a415f44a47204fe10a/"
+            "TSMC%201Q25%20Transcript.pdf"
+        ),
+        "effective_locator": (
+            "https://investor.tsmc.com/english/encrypt/files/encrypt_file/reports/"
+            "2025-04/7630274eecc1197a4e3ea6a415f44a47204fe10a/"
+            "TSMC%201Q25%20Transcript.pdf"
+        ),
+        "authority_page": "https://investor.tsmc.com/english/quarterly-results/2025/q1",
+        "document_title": "TSMC Q1 2025 Earnings Call",
+        "publication_date": "2025-04-17",
+    },
+    "SRC-SEMI-B020-TSMC-Q2-2023-TRANSCRIPT-2023-07-20": {
+        "remediation_kind": TSMC_LOCATOR_REMEDIATION_KIND,
+        "requested_locator": (
+            "https://investor.tsmc.com/english/encrypt/files/encrypt_file/reports/"
+            "2023-07/7ec677062ca442e429b632ccd6d4f31ad53b1ce7/"
+            "TSMC%202Q23%20Transcript.pdf"
+        ),
+        "effective_locator": (
+            "https://investor.tsmc.com/english/encrypt/files/encrypt_file/reports/"
+            "2023-07/7ec677062ca442e429b632ccd6d4f31ad53b1ce7/"
+            "TSMC%202Q23%20Transcript.pdf"
+        ),
+        "authority_page": "https://investor.tsmc.com/english/quarterly-results/2023/q2",
+        "document_title": "Q2 2023 Taiwan Semiconductor Manufacturing Co Ltd Earnings Call",
+        "publication_date": "2023-07-20",
+    },
+    "SRC-SEMI-B022-TSMC-2025-ANNUAL-EQUIPMENT-RISK": {
+        "remediation_kind": TSMC_LOCATOR_REMEDIATION_KIND,
+        "requested_locator": (
+            "https://investor.tsmc.com/sites/ir/annual-report/2025/"
+            "2025%20Annual%20Report.E.pdf"
+        ),
+        "effective_locator": (
+            "https://investor.tsmc.com/sites/ir/annual-report/2025/"
+            "2025%20TSMC%20Annual%20Report.E.pdf"
+        ),
+        "authority_page": "https://investor.tsmc.com/static/annualReports/2025/english/index.html",
+        "document_title": "TSMC 2025 Annual Report",
+        "publication_date": None,
+    },
+    "SRC-SEMI-B022-TSMC-Q2-2026-TRANSCRIPT-2026-07-16": {
+        "remediation_kind": TSMC_LOCATOR_REMEDIATION_KIND,
+        "requested_locator": (
+            "https://investor.tsmc.com/english/encrypt/files/encrypt_file/reports/"
+            "2026-07/57b65edbfe6e480e74abe202be983ecbde79e934/"
+            "TSMC%202Q26%20Transcript.pdf"
+        ),
+        "effective_locator": (
+            "https://investor.tsmc.com/english/encrypt/files/encrypt_file/reports/"
+            "2026-08/3e494f0c14dd0890f897aa044415e21d93486cc4/"
+            "TSMC%202Q26%20Transcript.pdf"
+        ),
+        "authority_page": "https://investor.tsmc.com/english/quarterly-results/2026/q2",
+        "document_title": "Q2 2026 Taiwan Semiconductor Manufacturing Co Ltd Earnings Call",
+        "publication_date": "2026-07-16",
+    },
+}
+BLOCKED_SOURCE_STATUS = "BLOCKED_BY_OPERATOR"
 SIDECAR_SCHEMA = "hydra-semiconductor-private-capture-sidecar/v1"
 JOURNAL_SCHEMA = "hydra-constraint-semiconductor-batch026-browser-capture-journal/v1"
 
@@ -37,14 +123,6 @@ HTML_BLOCK_MARKERS = (
     b"access denied",
 )
 MAX_PDF_HTTP_REDIRECTS = 10
-TSMC_BROWSER_403_FALLBACK_SOURCE_IDS = (
-    "SRC-SEMI-TSMC-Q1-2025-TRANSCRIPT-2025-04-17",
-    "SRC-SEMI-B020-TSMC-Q2-2023-TRANSCRIPT-2023-07-20",
-    "SRC-SEMI-B022-TSMC-2025-ANNUAL-EQUIPMENT-RISK",
-    "SRC-SEMI-B022-TSMC-Q2-2026-TRANSCRIPT-2026-07-16",
-)
-
-
 
 
 class CaptureError(RuntimeError):
@@ -108,6 +186,60 @@ def load_locator_remediations(doc: Mapping[str, Any]) -> dict[str, dict[str, Any
     return mapping
 
 
+def validate_tsmc_locator_remediation(
+    *,
+    item: Mapping[str, Any],
+    remediation: Mapping[str, Any],
+) -> str:
+    source_id = str(item.get("source_id") or "")
+    expected = TSMC_LOCATOR_REMEDIATIONS.get(source_id)
+    if source_id not in TSMC_BROWSER_403_FALLBACK_SOURCE_IDS or expected is None:
+        raise CaptureError(f"{source_id}: source is not authorized for TSMC locator remediation")
+
+    for field in ("requested_locator", "effective_locator", "authority_page"):
+        value = remediation.get(field)
+        parsed = urlparse(str(value or ""))
+        if parsed.scheme.lower() != "https" or normalize_host(str(value or "")) != "investor.tsmc.com":
+            raise CaptureError(f"{source_id}: TSMC locator remediation {field} is not on the approved official host")
+    if dict(remediation) != expected:
+        raise CaptureError(f"{source_id}: TSMC locator correction is not in the exact authorized mapping")
+    if item.get("source_locator") != expected["requested_locator"]:
+        raise CaptureError(f"{source_id}: registered TSMC source locator mismatch")
+    if item.get("title") != expected["document_title"]:
+        raise CaptureError(f"{source_id}: TSMC locator correction would change document identity")
+    if item.get("publication_date") != expected["publication_date"]:
+        raise CaptureError(f"{source_id}: TSMC locator correction would change publication date")
+    return str(expected["effective_locator"])
+
+
+def resolve_tsmc_effective_locator(
+    *,
+    item: Mapping[str, Any],
+    remediation: Mapping[str, Any],
+) -> str:
+    return validate_tsmc_locator_remediation(item=item, remediation=remediation)
+
+
+def locator_resolution_provenance(
+    *,
+    item: Mapping[str, Any],
+    effective_locator: str,
+    remediation: Mapping[str, Any] | None,
+) -> dict[str, Any] | None:
+    if remediation is None:
+        return None
+    resolved = validate_tsmc_locator_remediation(item=item, remediation=remediation)
+    if effective_locator != resolved:
+        raise CaptureError(f"{item['source_id']}: effective locator differs from its verified TSMC correction")
+    return {
+        "requested_locator": remediation["requested_locator"],
+        "effective_locator": remediation["effective_locator"],
+        "authority_page": remediation["authority_page"],
+        "document_title": remediation["document_title"],
+        "publication_date": remediation["publication_date"],
+    }
+
+
 def validate_effective_locator(
     *,
     item: Mapping[str, Any],
@@ -117,6 +249,11 @@ def validate_effective_locator(
     if remediation is None:
         if locator != item.get("source_locator"):
             raise CaptureError(f"{item['source_id']}: capture locator differs from registered locator")
+        return
+    if remediation.get("remediation_kind") == TSMC_LOCATOR_REMEDIATION_KIND:
+        effective_locator = validate_tsmc_locator_remediation(item=item, remediation=remediation)
+        if locator != effective_locator:
+            raise CaptureError(f"{item['source_id']}: capture locator differs from verified TSMC locator correction")
         return
 
     parsed = urlparse(locator)
@@ -282,6 +419,7 @@ def fetch_pdf_response(
         remaining_seconds = deadline - time.monotonic()
         if remaining_seconds <= 0:
             raise CaptureError(f"PDF raw HTTP request exceeded its {timeout_ms} ms total timeout")
+        reject_forbidden_capture_request(current_url)
         remaining_ms = max(1, int(remaining_seconds * 1000))
         response = request_context.get(
             current_url,
@@ -302,6 +440,11 @@ def fetch_pdf_response(
             raise CaptureError(f"PDF raw HTTP redirect limit exceeded ({MAX_PDF_HTTP_REDIRECTS})")
 
         next_url = urljoin(current_url, location)
+        try:
+            reject_forbidden_capture_request(next_url)
+        except Exception:
+            dispose_api_response(response)
+            raise
         proposed_chain = (*chain, next_url)
         try:
             validate_redirects(
@@ -318,6 +461,256 @@ def fetch_pdf_response(
         chain.append(next_url)
         current_url = next_url
         redirects_followed += 1
+
+
+def validate_body(
+    *,
+    item: Mapping[str, Any],
+    response: Any,
+    body: bytes,
+    policy: str,
+    effective_locator: str,
+    redirect_chain_override: Sequence[str] | None = None,
+) -> tuple[str, tuple[str, ...], str]:
+    source_id = str(item["source_id"])
+    locator = effective_locator
+    expected = str(item["content_type_hint"])
+    chain = (
+        tuple(redirect_chain_override)
+        if redirect_chain_override is not None
+        else redirect_chain(response)
+    )
+    final_url = str(response.url)
+    validate_redirects(exact_locator=locator, response_url=final_url, chain=chain, policy=policy)
+
+    if int(response.status) != 200:
+        raise CaptureError(f"{source_id}: HTTP status {response.status} is not acceptable")
+    if not body:
+        raise CaptureError(f"{source_id}: empty main-document body")
+
+    observed = (response_header_value(response, "content-type") or "").strip().lower()
+    if expected == "application/pdf":
+        if not observed.startswith("application/pdf"):
+            raise CaptureError(f"{source_id}: expected PDF content type, observed {observed!r}")
+        if len(body) < 1024 or not body.startswith(b"%PDF-"):
+            raise CaptureError(f"{source_id}: invalid or suspiciously small PDF body ({len(body)} bytes)")
+        normalized = "application/pdf"
+    elif expected == "text/html":
+        html_like = observed.startswith("text/html") or observed.startswith("application/xhtml+xml")
+        if not html_like:
+            raise CaptureError(f"{source_id}: expected HTML content type, observed {observed!r}")
+        if len(body) < 512:
+            raise CaptureError(f"{source_id}: suspiciously small HTML body ({len(body)} bytes)")
+        lower = body[:2_000_000].lower()
+        if b"<html" not in lower and b"<!doctype html" not in lower:
+            raise CaptureError(f"{source_id}: HTML document marker missing")
+        for marker in HTML_BLOCK_MARKERS:
+            if marker in lower:
+                raise CaptureError(
+                    f"{source_id}: challenge/error/interstitial marker present: "
+                    f"{marker.decode('ascii', errors='replace')}"
+                )
+        normalized = "text/html"
+    else:
+        raise CaptureError(f"{source_id}: unsupported queue content_type_hint {expected!r}")
+
+    return normalized, chain, final_url
+
+
+def validate_queue(queue_doc: Mapping[str, Any]) -> list[dict[str, Any]]:
+    if queue_doc.get("slice_id") != EXPECTED_SLICE_ID:
+        raise CaptureError(f"unexpected queue slice_id: {queue_doc.get('slice_id')!r}")
+    queue = queue_doc.get("queue")
+    if not isinstance(queue, list) or len(queue) != EXPECTED_SOURCE_COUNT:
+        raise CaptureError(f"queue must contain exactly {EXPECTED_SOURCE_COUNT} capture intents")
+
+    source_ids: set[str] = set()
+    versions: set[str] = set()
+    filenames: set[str] = set()
+    normalized: list[dict[str, Any]] = []
+    for index, raw in enumerate(queue):
+        if not isinstance(raw, Mapping):
+            raise CaptureError(f"queue[{index}] must be an object")
+        source_id = raw.get("source_id")
+        source_version_id = raw.get("source_version_id")
+        locator = raw.get("source_locator")
+        filename = raw.get("inbox_filename")
+        if not isinstance(source_id, str) or not source_id:
+            raise CaptureError(f"queue[{index}].source_id missing")
+        if source_id in source_ids:
+            raise CaptureError(f"duplicate source_id: {source_id}")
+        if not isinstance(source_version_id, str) or not source_version_id:
+            raise CaptureError(f"{source_id}: source_version_id missing")
+        if source_version_id in versions:
+            raise CaptureError(f"duplicate source_version_id: {source_version_id}")
+        if not isinstance(locator, str) or not locator.startswith("https://"):
+            raise CaptureError(f"{source_id}: exact HTTPS source_locator required")
+        if not isinstance(filename, str) or not filename:
+            raise CaptureError(f"{source_id}: inbox_filename missing")
+        if Path(filename).name != filename:
+            raise CaptureError(f"{source_id}: inbox_filename must not contain directories")
+        if filename in filenames:
+            raise CaptureError(f"duplicate inbox_filename: {filename}")
+        if raw.get("historical_backdating_authorized") is not False:
+            raise CaptureError(f"{source_id}: historical backdating must remain unauthorized")
+        if raw.get("processing_disposition") != "ELIGIBLE":
+            raise CaptureError(f"{source_id}: queue disposition must remain ELIGIBLE")
+        if raw.get("content_type_hint") not in {"application/pdf", "text/html"}:
+            raise CaptureError(f"{source_id}: unsupported content type hint")
+
+        source_ids.add(source_id)
+        versions.add(source_version_id)
+        filenames.add(filename)
+        normalized.append(dict(raw))
+    return normalized
+
+
+def partition_capture_queue(
+    queue: Sequence[Mapping[str, Any]],
+    blocked_source_ids: Sequence[str] = OPERATOR_BLOCKED_SOURCE_IDS,
+) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
+    if not isinstance(blocked_source_ids, (list, tuple)):
+        raise CaptureError("blocked-source set must be a list or tuple of source IDs")
+    blocked_ids = list(blocked_source_ids)
+    if any(not isinstance(source_id, str) or not source_id or source_id.strip() != source_id for source_id in blocked_ids):
+        raise CaptureError("blocked-source set contains a malformed source ID")
+    if len(set(blocked_ids)) != len(blocked_ids):
+        raise CaptureError("duplicate blocked source ID")
+
+    if len(OPERATOR_BLOCKED_SOURCE_IDS) != EXPECTED_BLOCKED_SOURCE_COUNT:
+        raise CaptureError("configured operator blocked-source count is invalid")
+    if len(set(OPERATOR_BLOCKED_SOURCE_IDS)) != len(OPERATOR_BLOCKED_SOURCE_IDS):
+        raise CaptureError("configured operator blocked-source set contains duplicates")
+    if len(queue) != EXPECTED_SOURCE_COUNT:
+        raise CaptureError(f"canonical queue must retain all {EXPECTED_SOURCE_COUNT} rows before exclusion")
+
+    queue_ids = {str(item["source_id"]) for item in queue}
+    requested_ids = set(blocked_ids)
+    unknown_ids = sorted(requested_ids - queue_ids)
+    if unknown_ids:
+        raise CaptureError(f"unknown blocked source ID(s): {unknown_ids}")
+
+    required_ids = set(OPERATOR_BLOCKED_SOURCE_IDS)
+    missing_ids = sorted(required_ids - requested_ids)
+    unexpected_ids = sorted(requested_ids - required_ids)
+    if missing_ids or unexpected_ids:
+        raise CaptureError(
+            "required blocked-source set mismatch: "
+            f"missing={missing_ids} unexpected={unexpected_ids}"
+        )
+
+    blocked_set = required_ids
+    blocked = [dict(item) for item in queue if item["source_id"] in blocked_set]
+    eligible = [dict(item) for item in queue if item["source_id"] not in blocked_set]
+    if len(blocked) != EXPECTED_BLOCKED_SOURCE_COUNT:
+        raise CaptureError("canonical queue does not contain every required blocked source")
+    if len(eligible) != EXPECTED_ELIGIBLE_SOURCE_COUNT:
+        raise CaptureError("canonical queue eligible-source accounting mismatch")
+    return blocked, eligible
+
+
+def validate_existing_pair(
+    *,
+    item: Mapping[str, Any],
+    capture_path: Path,
+    sidecar_path: Path,
+    remediation: Mapping[str, Any] | None,
+) -> dict[str, Any] | None:
+    file_exists = capture_path.is_file()
+    sidecar_exists = sidecar_path.is_file()
+    if not file_exists and not sidecar_exists:
+        return None
+    if file_exists != sidecar_exists:
+        raise CaptureError(
+            f"{item['source_id']}: partial existing capture pair; remove or repair both "
+            f"{capture_path} and {sidecar_path}"
+        )
+    sidecar = load_json(sidecar_path)
+    required = {
+        "schema_version", "capture_intent_id", "source_id", "source_version_id",
+        "source_locator", "capture_completed_at", "content_type",
+        "processing_disposition", "historical_backdating_authorized",
+    }
+    if set(sidecar) != required:
+        raise CaptureError(f"{item['source_id']}: existing sidecar field set invalid")
+    if sidecar.get("schema_version") != SIDECAR_SCHEMA:
+        raise CaptureError(f"{item['source_id']}: existing sidecar schema invalid")
+    for field in ("capture_intent_id", "source_id", "source_version_id"):
+        if sidecar.get(field) != item.get(field):
+            raise CaptureError(f"{item['source_id']}: existing sidecar {field} mismatch")
+    validate_effective_locator(
+        item=item,
+        locator=str(sidecar.get("source_locator") or ""),
+        remediation=remediation,
+    )
+    if sidecar.get("processing_disposition") != "ELIGIBLE":
+        raise CaptureError(f"{item['source_id']}: existing sidecar disposition invalid")
+    if sidecar.get("historical_backdating_authorized") is not False:
+        raise CaptureError(f"{item['source_id']}: existing sidecar backdating flag invalid")
+    if sidecar.get("content_type") != item.get("content_type_hint"):
+        raise CaptureError(f"{item['source_id']}: existing sidecar content type mismatch")
+    body = capture_path.read_bytes()
+    if not body:
+        raise CaptureError(f"{item['source_id']}: existing capture is empty")
+    if item["content_type_hint"] == "application/pdf" and not body.startswith(b"%PDF-"):
+        raise CaptureError(f"{item['source_id']}: existing PDF signature invalid")
+    if item["content_type_hint"] == "text/html":
+        lower = body[:2_000_000].lower()
+        if b"<html" not in lower and b"<!doctype html" not in lower:
+            raise CaptureError(f"{item['source_id']}: existing HTML marker missing")
+        for marker in HTML_BLOCK_MARKERS:
+            if marker in lower:
+                raise CaptureError(f"{item['source_id']}: existing HTML contains challenge marker")
+    result = {
+        "source_id": item["source_id"],
+        "source_version_id": item["source_version_id"],
+        "registered_source_locator": item["source_locator"],
+        "capture_locator": sidecar["source_locator"],
+        "capture_path": str(capture_path),
+        "sidecar_path": str(sidecar_path),
+        "capture_completed_at": sidecar["capture_completed_at"],
+        "content_type": sidecar["content_type"],
+        "byte_length": len(body),
+        "artifact_sha256": hashlib.sha256(body).hexdigest(),
+        "status": "RESUMED_EXISTING_VALID_PAIR",
+    }
+    if remediation is not None and remediation.get("remediation_kind") == TSMC_LOCATOR_REMEDIATION_KIND:
+        result["locator_resolution"] = locator_resolution_provenance(
+            item=item,
+            effective_locator=sidecar["source_locator"],
+            remediation=remediation,
+        )
+    return result
+
+
+def launch_context(playwright: Any, *, private_root: Path, browser: str, headless: bool) -> tuple[Any, str]:
+    channels = ("chrome", "msedge") if browser == "auto" else (browser,)
+    failures: list[str] = []
+    for channel in channels:
+        profile = private_root / "browser-profile" / f"semiconductor-b026-{channel}"
+        profile.mkdir(parents=True, exist_ok=True)
+        try:
+            context = playwright.chromium.launch_persistent_context(
+                user_data_dir=str(profile),
+                channel=channel,
+                headless=headless,
+                accept_downloads=False,
+                ignore_https_errors=False,
+            )
+            return context, channel
+        except Exception as exc:
+            failures.append(f"{channel}: {exc}")
+    raise CaptureError("unable to launch installed Chrome/Edge through Playwright; " + " | ".join(failures))
+
+
+def is_target_closed_error(exc: BaseException) -> bool:
+    text = f"{type(exc).__name__}: {exc}".lower()
+    return (
+        "targetclosed" in text
+        or "target page, context or browser has been closed" in text
+        or "browser has been closed" in text
+        or "context has been closed" in text
+    )
 
 
 def capture_browser_pdf_response_after_403(
@@ -446,203 +839,33 @@ def capture_browser_pdf_response_after_403(
             pass
 
 
-def validate_body(
-    *,
-    item: Mapping[str, Any],
-    response: Any,
-    body: bytes,
-    policy: str,
-    effective_locator: str,
-    redirect_chain_override: Sequence[str] | None = None,
-) -> tuple[str, tuple[str, ...], str]:
-    source_id = str(item["source_id"])
-    locator = effective_locator
-    expected = str(item["content_type_hint"])
-    chain = (
-        tuple(redirect_chain_override)
-        if redirect_chain_override is not None
-        else redirect_chain(response)
-    )
-    final_url = str(response.url)
-    validate_redirects(exact_locator=locator, response_url=final_url, chain=chain, policy=policy)
+def reject_quarantined_capture_item(item: Mapping[str, Any], capture_locator: str) -> None:
+    """Fail closed for quarantined row identities before capture side effects."""
+    tools_dir = Path(__file__).resolve().parents[1]
+    tools_dir_text = str(tools_dir)
+    if tools_dir_text not in sys.path:
+        sys.path.insert(0, tools_dir_text)
+    from constraint_source_quarantine import QuarantinePolicyError, reject_quarantined_capture_item as enforce_quarantine
 
-    if int(response.status) != 200:
-        raise CaptureError(f"{source_id}: HTTP status {response.status} is not acceptable")
-    if not body:
-        raise CaptureError(f"{source_id}: empty main-document body")
-
-    observed = (response_header_value(response, "content-type") or "").strip().lower()
-    if expected == "application/pdf":
-        if not observed.startswith("application/pdf"):
-            raise CaptureError(f"{source_id}: expected PDF content type, observed {observed!r}")
-        if len(body) < 1024 or not body.startswith(b"%PDF-"):
-            raise CaptureError(f"{source_id}: invalid or suspiciously small PDF body ({len(body)} bytes)")
-        normalized = "application/pdf"
-    elif expected == "text/html":
-        html_like = observed.startswith("text/html") or observed.startswith("application/xhtml+xml")
-        if not html_like:
-            raise CaptureError(f"{source_id}: expected HTML content type, observed {observed!r}")
-        if len(body) < 512:
-            raise CaptureError(f"{source_id}: suspiciously small HTML body ({len(body)} bytes)")
-        lower = body[:2_000_000].lower()
-        if b"<html" not in lower and b"<!doctype html" not in lower:
-            raise CaptureError(f"{source_id}: HTML document marker missing")
-        for marker in HTML_BLOCK_MARKERS:
-            if marker in lower:
-                raise CaptureError(
-                    f"{source_id}: challenge/error/interstitial marker present: "
-                    f"{marker.decode('ascii', errors='replace')}"
-                )
-        normalized = "text/html"
-    else:
-        raise CaptureError(f"{source_id}: unsupported queue content_type_hint {expected!r}")
-
-    return normalized, chain, final_url
+    repo_root = Path(__file__).resolve().parents[2]
+    try:
+        enforce_quarantine(repo_root, item, capture_locator, operation="browser capture")
+    except QuarantinePolicyError as exc:
+        raise CaptureError(str(exc)) from exc
 
 
-def validate_queue(queue_doc: Mapping[str, Any]) -> list[dict[str, Any]]:
-    if queue_doc.get("slice_id") != EXPECTED_SLICE_ID:
-        raise CaptureError(f"unexpected queue slice_id: {queue_doc.get('slice_id')!r}")
-    queue = queue_doc.get("queue")
-    if not isinstance(queue, list) or len(queue) != EXPECTED_SOURCE_COUNT:
-        raise CaptureError(f"queue must contain exactly {EXPECTED_SOURCE_COUNT} capture intents")
+def reject_forbidden_capture_request(locator: str) -> None:
+    """Apply the shared provider and browser-authority policy to each request URL."""
+    tools_dir = Path(__file__).resolve().parents[1]
+    tools_dir_text = str(tools_dir)
+    if tools_dir_text not in sys.path:
+        sys.path.insert(0, tools_dir_text)
+    from constraint_source_quarantine import QuarantinePolicyError, reject_forbidden_capture_locator
 
-    source_ids: set[str] = set()
-    versions: set[str] = set()
-    filenames: set[str] = set()
-    normalized: list[dict[str, Any]] = []
-    for index, raw in enumerate(queue):
-        if not isinstance(raw, Mapping):
-            raise CaptureError(f"queue[{index}] must be an object")
-        source_id = raw.get("source_id")
-        source_version_id = raw.get("source_version_id")
-        locator = raw.get("source_locator")
-        filename = raw.get("inbox_filename")
-        if not isinstance(source_id, str) or not source_id:
-            raise CaptureError(f"queue[{index}].source_id missing")
-        if source_id in source_ids:
-            raise CaptureError(f"duplicate source_id: {source_id}")
-        if not isinstance(source_version_id, str) or not source_version_id:
-            raise CaptureError(f"{source_id}: source_version_id missing")
-        if source_version_id in versions:
-            raise CaptureError(f"duplicate source_version_id: {source_version_id}")
-        if not isinstance(locator, str) or not locator.startswith("https://"):
-            raise CaptureError(f"{source_id}: exact HTTPS source_locator required")
-        if not isinstance(filename, str) or not filename:
-            raise CaptureError(f"{source_id}: inbox_filename missing")
-        if Path(filename).name != filename:
-            raise CaptureError(f"{source_id}: inbox_filename must not contain directories")
-        if filename in filenames:
-            raise CaptureError(f"duplicate inbox_filename: {filename}")
-        if raw.get("historical_backdating_authorized") is not False:
-            raise CaptureError(f"{source_id}: historical backdating must remain unauthorized")
-        if raw.get("processing_disposition") != "ELIGIBLE":
-            raise CaptureError(f"{source_id}: queue disposition must remain ELIGIBLE")
-        if raw.get("content_type_hint") not in {"application/pdf", "text/html"}:
-            raise CaptureError(f"{source_id}: unsupported content type hint")
-
-        source_ids.add(source_id)
-        versions.add(source_version_id)
-        filenames.add(filename)
-        normalized.append(dict(raw))
-    return normalized
-
-
-def validate_existing_pair(
-    *,
-    item: Mapping[str, Any],
-    capture_path: Path,
-    sidecar_path: Path,
-    remediation: Mapping[str, Any] | None,
-) -> dict[str, Any] | None:
-    file_exists = capture_path.is_file()
-    sidecar_exists = sidecar_path.is_file()
-    if not file_exists and not sidecar_exists:
-        return None
-    if file_exists != sidecar_exists:
-        raise CaptureError(
-            f"{item['source_id']}: partial existing capture pair; remove or repair both "
-            f"{capture_path} and {sidecar_path}"
-        )
-    sidecar = load_json(sidecar_path)
-    required = {
-        "schema_version", "capture_intent_id", "source_id", "source_version_id",
-        "source_locator", "capture_completed_at", "content_type",
-        "processing_disposition", "historical_backdating_authorized",
-    }
-    if set(sidecar) != required:
-        raise CaptureError(f"{item['source_id']}: existing sidecar field set invalid")
-    if sidecar.get("schema_version") != SIDECAR_SCHEMA:
-        raise CaptureError(f"{item['source_id']}: existing sidecar schema invalid")
-    for field in ("capture_intent_id", "source_id", "source_version_id"):
-        if sidecar.get(field) != item.get(field):
-            raise CaptureError(f"{item['source_id']}: existing sidecar {field} mismatch")
-    validate_effective_locator(
-        item=item,
-        locator=str(sidecar.get("source_locator") or ""),
-        remediation=remediation,
-    )
-    if sidecar.get("processing_disposition") != "ELIGIBLE":
-        raise CaptureError(f"{item['source_id']}: existing sidecar disposition invalid")
-    if sidecar.get("historical_backdating_authorized") is not False:
-        raise CaptureError(f"{item['source_id']}: existing sidecar backdating flag invalid")
-    if sidecar.get("content_type") != item.get("content_type_hint"):
-        raise CaptureError(f"{item['source_id']}: existing sidecar content type mismatch")
-    body = capture_path.read_bytes()
-    if not body:
-        raise CaptureError(f"{item['source_id']}: existing capture is empty")
-    if item["content_type_hint"] == "application/pdf" and not body.startswith(b"%PDF-"):
-        raise CaptureError(f"{item['source_id']}: existing PDF signature invalid")
-    if item["content_type_hint"] == "text/html":
-        lower = body[:2_000_000].lower()
-        if b"<html" not in lower and b"<!doctype html" not in lower:
-            raise CaptureError(f"{item['source_id']}: existing HTML marker missing")
-        for marker in HTML_BLOCK_MARKERS:
-            if marker in lower:
-                raise CaptureError(f"{item['source_id']}: existing HTML contains challenge marker")
-    return {
-        "source_id": item["source_id"],
-        "source_version_id": item["source_version_id"],
-        "registered_source_locator": item["source_locator"],
-        "capture_locator": sidecar["source_locator"],
-        "capture_path": str(capture_path),
-        "sidecar_path": str(sidecar_path),
-        "capture_completed_at": sidecar["capture_completed_at"],
-        "content_type": sidecar["content_type"],
-        "byte_length": len(body),
-        "artifact_sha256": hashlib.sha256(body).hexdigest(),
-        "status": "RESUMED_EXISTING_VALID_PAIR",
-    }
-
-
-def launch_context(playwright: Any, *, private_root: Path, browser: str, headless: bool) -> tuple[Any, str]:
-    channels = ("chrome", "msedge") if browser == "auto" else (browser,)
-    failures: list[str] = []
-    for channel in channels:
-        profile = private_root / "browser-profile" / f"semiconductor-b026-{channel}"
-        profile.mkdir(parents=True, exist_ok=True)
-        try:
-            context = playwright.chromium.launch_persistent_context(
-                user_data_dir=str(profile),
-                channel=channel,
-                headless=headless,
-                accept_downloads=False,
-                ignore_https_errors=False,
-            )
-            return context, channel
-        except Exception as exc:
-            failures.append(f"{channel}: {exc}")
-    raise CaptureError("unable to launch installed Chrome/Edge through Playwright; " + " | ".join(failures))
-
-
-def is_target_closed_error(exc: BaseException) -> bool:
-    text = f"{type(exc).__name__}: {exc}".lower()
-    return (
-        "targetclosed" in text
-        or "target page, context or browser has been closed" in text
-        or "browser has been closed" in text
-        or "context has been closed" in text
-    )
+    try:
+        reject_forbidden_capture_locator(locator, operation="browser capture request")
+    except QuarantinePolicyError as exc:
+        raise CaptureError(str(exc)) from exc
 
 
 def capture_one(
@@ -656,12 +879,45 @@ def capture_one(
     redirect_policy: str,
     challenge_wait_seconds: int,
     navigation_timeout_seconds: int,
+    locator_remediation: Mapping[str, Any] | None = None,
 ) -> dict[str, Any]:
     source_id = str(item["source_id"])
+    reject_quarantined_capture_item(item, capture_locator)
     locator = str(capture_locator)
+    locator_resolution = locator_resolution_provenance(
+        item=item,
+        effective_locator=locator,
+        remediation=locator_remediation,
+    )
     page = context.new_page()
     responses: list[Any] = []
+    blocked_provider_urls: list[str] = []
     fallback_retry_active = False
+
+    def guard_provider_request(route: Any) -> None:
+        request_url = str(getattr(getattr(route, "request", None), "url", ""))
+        try:
+            reject_forbidden_capture_request(request_url)
+        except CaptureError:
+            blocked_provider_urls.append(request_url)
+            route.abort("blockedbyclient")
+            return
+        route.continue_()
+
+    if not callable(getattr(page, "route", None)):
+        try:
+            page.close()
+        except Exception:
+            pass
+        raise CaptureError("browser page does not support pre-request provider routing")
+    try:
+        page.route("**/*", guard_provider_request)
+    except Exception as exc:
+        try:
+            page.close()
+        except Exception:
+            pass
+        raise CaptureError(f"unable to install pre-request provider guard: {exc}") from exc
 
     def on_response(response: Any) -> None:
         try:
@@ -675,11 +931,43 @@ def capture_one(
 
     page.on("response", on_response)
     navigation_error: Exception | None = None
+    is_pdf = str(item["content_type_hint"]) == "application/pdf"
     try:
-        try:
-            page.goto(locator, wait_until="commit", timeout=max(1, navigation_timeout_seconds) * 1000)
-        except Exception as exc:
-            navigation_error = exc
+        if is_pdf:
+            print(f"PDF_NAV_BEGIN {source_id} -> {locator}", flush=True)
+            main_response: Any | None = None
+            try:
+                main_response = page.goto(
+                    locator,
+                    wait_until="load",
+                    timeout=max(1, navigation_timeout_seconds) * 1000,
+                )
+            except Exception as exc:
+                navigation_error = exc
+            finally:
+                if main_response is not None and all(candidate is not main_response for candidate in responses):
+                    responses.append(main_response)
+                response_status = getattr(main_response, "status", None)
+                print(
+                    f"PDF_NAV_COMPLETE {source_id} -> {locator} "
+                    f"response_status={response_status} navigation_error={navigation_error!s}",
+                    flush=True,
+                )
+            if blocked_provider_urls:
+                raise CaptureError(
+                    "SUPERSEDED_BY_BATCH030_QUARANTINE: blocked forbidden provider request before dispatch: "
+                    f"{blocked_provider_urls[-1]}"
+                )
+        else:
+            try:
+                page.goto(locator, wait_until="commit", timeout=max(1, navigation_timeout_seconds) * 1000)
+            except Exception as exc:
+                navigation_error = exc
+            if blocked_provider_urls:
+                raise CaptureError(
+                    "SUPERSEDED_BY_BATCH030_QUARANTINE: blocked forbidden provider request before dispatch: "
+                    f"{blocked_provider_urls[-1]}"
+                )
 
         deadline = time.monotonic() + max(0, challenge_wait_seconds)
         last_rejection: str | None = None
@@ -694,10 +982,12 @@ def capture_one(
                 api_response: Any | None = None
                 request_chain: tuple[str, ...] | None = None
                 body_override: bytes | None = None
+                fallback_used = False
                 fallback_prior_attempt: dict[str, Any] | None = None
                 browser_fallback_evidence: dict[str, Any] | None = None
                 try:
-                    if str(item["content_type_hint"]) == "application/pdf":
+                    if is_pdf:
+                        print(f"PDF_RAW_REQUEST_BEGIN {source_id} -> {locator}", flush=True)
                         api_response, request_chain = fetch_pdf_response(
                             context=context,
                             exact_locator=locator,
@@ -705,6 +995,13 @@ def capture_one(
                             timeout_milliseconds=max(1, navigation_timeout_seconds) * 1000,
                         )
                         body_response = api_response
+                        print(
+                            f"PDF_RAW_RESPONSE_COMPLETE {source_id} -> {locator} "
+                            f"status={body_response.status} final_url={body_response.url} "
+                            f"redirect_chain={list(request_chain)!r} "
+                            f"content_length={response_header_value(body_response, 'content-length')!r}",
+                            flush=True,
+                        )
                         raw_api_status = int(body_response.status)
                         if (
                             raw_api_status == 403
@@ -738,6 +1035,12 @@ def capture_one(
                                 "initial_navigation_content_length": response_header_value(response, "content-length"),
                                 "initial_navigation_redirect_chain": list(browser_chain),
                             }
+                            print(
+                                f"PDF_BROWSER_403_FALLBACK_BEGIN {source_id} -> {locator} "
+                                f"api_status={raw_api_status} browser_status={browser_status} "
+                                f"browser_url={response.url}",
+                                flush=True,
+                            )
                             fallback_retry_active = True
                             try:
                                 body_response, body_override, response_stage_evidence = (
@@ -753,16 +1056,50 @@ def capture_one(
                                 fallback_retry_active = False
                             browser_fallback_evidence["validated_navigation_response"] = response_stage_evidence
                             request_chain = tuple(response_stage_evidence["redirect_chain"])
+                            fallback_used = True
+                        print(f"PDF_BODY_BEGIN {source_id} -> {locator}", flush=True)
                     body = body_override if body_override is not None else bytes(body_response.body())
-                    content_type, chain, final_url = validate_body(
-                        item=item,
-                        response=body_response,
-                        body=body,
-                        policy=redirect_policy,
-                        effective_locator=locator,
-                        redirect_chain_override=request_chain,
-                    )
+                    if is_pdf:
+                        print(
+                            f"PDF_BODY_COMPLETE {source_id} -> {locator} bytes={len(body)}",
+                            flush=True,
+                        )
+                        print(f"PDF_VALIDATION_BEGIN {source_id} -> {locator}", flush=True)
+                    try:
+                        content_type, chain, final_url = validate_body(
+                            item=item,
+                            response=body_response,
+                            body=body,
+                            policy=redirect_policy,
+                            effective_locator=locator,
+                            redirect_chain_override=request_chain,
+                        )
+                    except Exception as exc:
+                        if is_pdf:
+                            def diagnostic_header(name: str) -> str:
+                                value = response_header_value(body_response, name)
+                                if value is None:
+                                    return "<missing>"
+                                text = str(value).replace("\r", "\\r").replace("\n", "\\n")
+                                return text[:128]
+
+                            print(
+                                f"PDF_VALIDATION_REJECTED {source_id} -> {locator} "
+                                f"response_status={getattr(body_response, 'status', None)!r} "
+                                f"content_type={diagnostic_header('content-type')!r} "
+                                f"content_length={diagnostic_header('content-length')!r} "
+                                f"body_bytes={len(body)} prefix_hex={body[:16].hex()} "
+                                f"reason={str(exc)[:240]!r}",
+                                flush=True,
+                            )
+                        raise
                     response_status = int(body_response.status)
+                    if is_pdf:
+                        print(
+                            f"PDF_VALIDATION_COMPLETE {source_id} -> {locator} "
+                            f"content_type={content_type} status={response_status}",
+                            flush=True,
+                        )
                 except Exception as exc:
                     if api_response is not None:
                         dispose_api_response(api_response)
@@ -778,7 +1115,6 @@ def capture_one(
 
                 if api_response is not None:
                     dispose_api_response(api_response)
-
                 captured_at = utc_timestamp()
                 capture_path.parent.mkdir(parents=True, exist_ok=True)
                 capture_path.write_bytes(body)
@@ -812,7 +1148,9 @@ def capture_one(
                     "final_response_url": final_url,
                     "status": "CAPTURED",
                 }
-                if fallback_prior_attempt is not None:
+                if locator_resolution is not None:
+                    result["locator_resolution"] = locator_resolution
+                if fallback_used:
                     result["capture_transport"] = "BROWSER_NAVIGATION_RESPONSE_FALLBACK"
                     result["prior_failed_acquisition_attempt"] = fallback_prior_attempt
                     result["browser_response_stage_evidence"] = browser_fallback_evidence
@@ -831,7 +1169,6 @@ def capture_one(
             page.close()
         except Exception:
             pass
-
 
 def main() -> int:
     parser = argparse.ArgumentParser(description="HYDRA semiconductor Batch026 private browser capture adapter")
@@ -858,16 +1195,42 @@ def main() -> int:
     inbox_root = assert_outside_repo(Path(args.inbox_root), repo_root, "InboxRoot")
     queue_doc = load_json(repo_root / QUEUE_RELATIVE_PATH)
     queue = validate_queue(queue_doc)
+    sys.path.insert(0, str(repo_root / "tools"))
+    from constraint_source_quarantine import QuarantinePolicyError, reject_retired_batch026
+    try:
+        reject_retired_batch026(repo_root, queue, operation="browser capture")
+    except QuarantinePolicyError as exc:
+        raise CaptureError(str(exc)) from exc
+    blocked_items, eligible_items = partition_capture_queue(
+        queue,
+        blocked_source_ids=OPERATOR_BLOCKED_SOURCE_IDS,
+    )
+    blocked_source_id_set = set(OPERATOR_BLOCKED_SOURCE_IDS)
+    leaked_source_ids = sorted(
+        blocked_source_id_set & {str(item["source_id"]) for item in eligible_items}
+    )
+    if leaked_source_ids:
+        raise CaptureError(
+            f"operator-blocked source leaked into acquisition queue: {leaked_source_ids}"
+        )
     remediation_doc = load_json(repo_root / LOCATOR_OVERLAY_RELATIVE_PATH)
     remediations = load_locator_remediations(remediation_doc)
     queue_ids = {item["source_id"] for item in queue}
     if not set(remediations).issubset(queue_ids):
         raise CaptureError("locator remediation references source outside Batch026 queue")
+    if set(TSMC_LOCATOR_REMEDIATIONS) != set(TSMC_BROWSER_403_FALLBACK_SOURCE_IDS):
+        raise CaptureError("TSMC locator remediation allowlist must match the exact four fallback sources")
+    if set(remediations) & set(TSMC_LOCATOR_REMEDIATIONS):
+        raise CaptureError("Micron and TSMC locator remediation sets must remain disjoint")
+    for item in queue:
+        tsmc_remediation = TSMC_LOCATOR_REMEDIATIONS.get(str(item["source_id"]))
+        if tsmc_remediation is not None:
+            validate_tsmc_locator_remediation(item=item, remediation=tsmc_remediation)
     inbox_root.mkdir(parents=True, exist_ok=True)
 
     journal_path = inbox_root / "HYDRA_CONSTRAINT_SEMI_B026_BROWSER_CAPTURE_JOURNAL_V001.json"
     if args.fresh:
-        for item in queue:
+        for item in eligible_items:
             capture_path = inbox_root / item["inbox_filename"]
             sidecar_path = Path(str(capture_path) + ".capture.json")
             if capture_path.exists():
@@ -878,50 +1241,109 @@ def main() -> int:
             journal_path.unlink()
 
     entries: list[dict[str, Any]] = []
-    pending: list[dict[str, Any]] = []
-    for item in queue:
+    for item in eligible_items:
         capture_path = inbox_root / item["inbox_filename"]
         sidecar_path = Path(str(capture_path) + ".capture.json")
         existing = validate_existing_pair(
             item=item,
             capture_path=capture_path,
             sidecar_path=sidecar_path,
-            remediation=remediations.get(item["source_id"]),
+            remediation=(
+                TSMC_LOCATOR_REMEDIATIONS.get(item["source_id"])
+                or remediations.get(item["source_id"])
+            ),
         )
-        if existing is None:
-            pending.append(item)
-        else:
+        if existing is not None:
             entries.append(existing)
 
-    journal = {
-        "schema_version": JOURNAL_SCHEMA,
-        "slice_id": EXPECTED_SLICE_ID,
-        "queue_record_id": queue_doc["record_id"],
-        "authoritative": False,
-        "network_acquisition_authorized": True,
-        "historical_backdating_authorized": False,
-        "redirect_policy": args.redirect_policy,
-        "expected_source_count": EXPECTED_SOURCE_COUNT,
-        "entries": entries,
-        "complete": len(pending) == 0,
-    }
-    write_json(journal_path, journal)
+    captured_by_id = {entry["source_id"]: entry for entry in entries}
+    attempted_source_ids: list[str] = []
+    failed_sources_by_id: dict[str, dict[str, str]] = {}
+    blocked_sources = [
+        {
+            "ordinal": item["ordinal"],
+            "source_id": item["source_id"],
+            "status": BLOCKED_SOURCE_STATUS,
+            "acquisition_attempted": False,
+        }
+        for item in blocked_items
+    ]
 
-    if not pending:
-        print("HYDRA_CONSTRAINT_SEMICONDUCTOR_BATCH026_BROWSER_CAPTURE=PASS")
-        print("CAPTURED_OR_RESUMED=41")
-        print("PENDING=0")
+    def write_journal() -> dict[str, Any]:
+        ordered_entries = [
+            captured_by_id[item["source_id"]]
+            for item in eligible_items
+            if item["source_id"] in captured_by_id
+        ]
+        failed_sources = [
+            failed_sources_by_id[item["source_id"]]
+            for item in eligible_items
+            if item["source_id"] in failed_sources_by_id
+        ]
+        terminal_ids = set(captured_by_id) | set(failed_sources_by_id)
+        pending_source_ids = [
+            item["source_id"] for item in eligible_items if item["source_id"] not in terminal_ids
+        ]
+        accounting = {
+            "total": len(queue),
+            "blocked_by_operator": len(blocked_items),
+            "eligible": len(eligible_items),
+            "attempted": len(attempted_source_ids),
+            "completed": len(ordered_entries),
+            "failed": len(failed_sources),
+            "pending": len(pending_source_ids),
+        }
+        journal = {
+            "schema_version": JOURNAL_SCHEMA,
+            "slice_id": EXPECTED_SLICE_ID,
+            "queue_record_id": queue_doc["record_id"],
+            "authoritative": False,
+            "network_acquisition_authorized": True,
+            "historical_backdating_authorized": False,
+            "redirect_policy": args.redirect_policy,
+            "expected_source_count": EXPECTED_SOURCE_COUNT,
+            "entries": ordered_entries,
+            "blocked_sources": blocked_sources,
+            "attempted_source_ids": list(attempted_source_ids),
+            "failed_sources": failed_sources,
+            "pending_source_ids": pending_source_ids,
+            "source_accounting": accounting,
+            "complete": len(ordered_entries) == len(queue),
+            "eligible_complete": len(ordered_entries) == len(eligible_items) and not failed_sources,
+            "execution_complete": not pending_source_ids,
+            "updated_at": utc_timestamp(),
+        }
+        write_json(journal_path, journal)
+        return journal
+
+    def print_accounting(journal: Mapping[str, Any]) -> None:
+        accounting = journal["source_accounting"]
+        print(f"TOTAL={accounting['total']}")
+        print(f"BLOCKED_BY_OPERATOR={accounting['blocked_by_operator']}")
+        print(f"ELIGIBLE={accounting['eligible']}")
+        print(f"ATTEMPTED={accounting['attempted']}")
+        print(f"COMPLETED={accounting['completed']}")
+        print(f"FAILED={accounting['failed']}")
+        print(f"PENDING={accounting['pending']}")
+
+    journal = write_journal()
+    print_accounting(journal)
+    print("BLOCKED_SOURCE_IDS=" + ",".join(item["source_id"] for item in blocked_items))
+
+    if not journal["source_accounting"]["pending"]:
+        status = "PASS_WITH_OPERATOR_BLOCKS" if blocked_items else "PASS"
+        print(f"HYDRA_CONSTRAINT_SEMICONDUCTOR_BATCH026_BROWSER_CAPTURE={status}")
+        print(f"CAPTURED_OR_RESUMED={journal['source_accounting']['completed']}")
         print(f"JOURNAL={journal_path}")
-        return 0
+        return 0 if journal["eligible_complete"] else 1
 
     try:
         from playwright.sync_api import sync_playwright
     except Exception as exc:
         raise CaptureError(f"Playwright Python client unavailable: {exc}") from exc
 
+    context = None
     with sync_playwright() as p:
-        context = None
-        browser_channel = ""
         try:
             context, browser_channel = launch_context(
                 p,
@@ -929,29 +1351,44 @@ def main() -> int:
                 browser=args.browser,
                 headless=args.headless,
             )
-            captured_by_id = {entry["source_id"]: entry for entry in entries}
-            for item in queue:
-                if item["source_id"] in captured_by_id:
-                    print(f"RESUME_OK {item['ordinal']:03d}/041 {item['source_id']}")
+            for item in eligible_items:
+                source_id = item["source_id"]
+                if source_id in captured_by_id:
+                    print(f"RESUME_OK {item['ordinal']:03d}/041 {source_id}")
                     continue
 
-                attempts = 0
+                attempted_source_ids.append(source_id)
+                journal = write_journal()
+                failure_message: str | None = None
+                context_unavailable = False
+                restart_attempts = 0
                 while True:
                     capture_path = inbox_root / item["inbox_filename"]
                     sidecar_path = Path(str(capture_path) + ".capture.json")
                     try:
-                        remediation = remediations.get(item["source_id"])
+                        micron_remediation = remediations.get(source_id)
+                        tsmc_remediation = TSMC_LOCATOR_REMEDIATIONS.get(source_id)
+                        remediation = tsmc_remediation or micron_remediation
                         capture_locator = str(item["source_locator"])
-                        if remediation is not None:
+                        if tsmc_remediation is not None:
+                            capture_locator = resolve_tsmc_effective_locator(
+                                item=item,
+                                remediation=tsmc_remediation,
+                            )
+                            print(
+                                f"LOCATOR_REMEDIATED {item['ordinal']:03d}/041 "
+                                f"{source_id} -> {capture_locator}"
+                            )
+                        elif micron_remediation is not None:
                             capture_locator = resolve_remediated_locator(
                                 context=context,
                                 item=item,
-                                remediation=remediation,
+                                remediation=micron_remediation,
                                 navigation_timeout_seconds=args.navigation_timeout_seconds,
                             )
                             print(
                                 f"LOCATOR_REMEDIATED {item['ordinal']:03d}/041 "
-                                f"{item['source_id']} -> {capture_locator}"
+                                f"{source_id} -> {capture_locator}"
                             )
                         row = capture_one(
                             context=context,
@@ -963,49 +1400,49 @@ def main() -> int:
                             redirect_policy=args.redirect_policy,
                             challenge_wait_seconds=args.challenge_wait_seconds,
                             navigation_timeout_seconds=args.navigation_timeout_seconds,
+                            locator_remediation=tsmc_remediation,
                         )
-                        captured_by_id[item["source_id"]] = row
+                        captured_by_id[source_id] = row
                         print(
-                            f"CAPTURE_OK {item['ordinal']:03d}/041 {item['source_id']} "
+                            f"CAPTURE_OK {item['ordinal']:03d}/041 {source_id} "
                             f"bytes={row['byte_length']} sha256={row['artifact_sha256']}"
                         )
                         break
                     except Exception as exc:
-                        if is_target_closed_error(exc) and attempts < max(0, args.browser_restart_retries):
-                            attempts += 1
+                        if is_target_closed_error(exc) and restart_attempts < max(0, args.browser_restart_retries):
+                            restart_attempts += 1
                             try:
                                 context.close()
                             except Exception:
                                 pass
-                            context, browser_channel = launch_context(
-                                p,
-                                private_root=private_root,
-                                browser=args.browser,
-                                headless=args.headless,
-                            )
-                            print(f"BROWSER_RESTART retry={attempts} source={item['source_id']}")
+                            try:
+                                context, browser_channel = launch_context(
+                                    p,
+                                    private_root=private_root,
+                                    browser=args.browser,
+                                    headless=args.headless,
+                                )
+                            except Exception as restart_exc:
+                                failure_message = (
+                                    f"{source_id}: browser restart failed after target closure: {restart_exc}"
+                                )
+                                context_unavailable = True
+                                break
+                            print(f"BROWSER_RESTART retry={restart_attempts} source={source_id}")
                             continue
-                        raise CaptureError(f"{item['source_id']}: capture failed: {exc}") from exc
+                        failure_message = f"{source_id}: capture failed: {exc}"
+                        break
 
-                ordered_entries = [
-                    captured_by_id[q["source_id"]]
-                    for q in queue
-                    if q["source_id"] in captured_by_id
-                ]
-                journal = {
-                    "schema_version": JOURNAL_SCHEMA,
-                    "slice_id": EXPECTED_SLICE_ID,
-                    "queue_record_id": queue_doc["record_id"],
-                    "authoritative": False,
-                    "network_acquisition_authorized": True,
-                    "historical_backdating_authorized": False,
-                    "redirect_policy": args.redirect_policy,
-                    "expected_source_count": EXPECTED_SOURCE_COUNT,
-                    "entries": ordered_entries,
-                    "complete": len(ordered_entries) == EXPECTED_SOURCE_COUNT,
-                    "updated_at": utc_timestamp(),
-                }
-                write_json(journal_path, journal)
+                if failure_message is not None:
+                    failed_sources_by_id[source_id] = {
+                        "source_id": source_id,
+                        "status": "FAILED",
+                        "error": failure_message,
+                    }
+                    print(f"CAPTURE_FAIL {item['ordinal']:03d}/041 {failure_message}")
+                journal = write_journal()
+                if context_unavailable:
+                    break
         finally:
             if context is not None:
                 try:
@@ -1013,14 +1450,19 @@ def main() -> int:
                 except Exception:
                     pass
 
-    final_entries = load_json(journal_path).get("entries", [])
-    if len(final_entries) != EXPECTED_SOURCE_COUNT:
-        raise CaptureError(f"capture incomplete after runner exit: {len(final_entries)}/{EXPECTED_SOURCE_COUNT}")
-
-    print("HYDRA_CONSTRAINT_SEMICONDUCTOR_BATCH026_BROWSER_CAPTURE=PASS")
-    print("CAPTURED_OR_RESUMED=41")
-    print("PENDING=0")
+    journal = load_json(journal_path)
+    print_accounting(journal)
+    accounting = journal["source_accounting"]
+    print(f"CAPTURED_OR_RESUMED={accounting['completed']}")
+    print(f"FAILED_SOURCE_IDS={','.join(row['source_id'] for row in journal['failed_sources'])}")
+    print(f"PENDING_SOURCE_IDS={','.join(journal['pending_source_ids'])}")
     print(f"JOURNAL={journal_path}")
+    if accounting["failed"] or accounting["pending"]:
+        print("HYDRA_CONSTRAINT_SEMICONDUCTOR_BATCH026_BROWSER_CAPTURE=FAIL")
+        return 1
+
+    status = "PASS_WITH_OPERATOR_BLOCKS" if blocked_items else "PASS"
+    print(f"HYDRA_CONSTRAINT_SEMICONDUCTOR_BATCH026_BROWSER_CAPTURE={status}")
     return 0
 
 

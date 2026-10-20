@@ -127,6 +127,9 @@ class FakePage:
         self.goto_calls: list[tuple[str, str, int]] = []
         self.closed = False
 
+    def route(self, _pattern: str, _handler: Any) -> None:
+        pass
+
     def on(self, event: str, callback: Any) -> None:
         if event == "response":
             self.response_callback = callback

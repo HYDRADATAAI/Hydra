@@ -19,6 +19,30 @@ QUEUE_REL = "docs/constraint/second_slice/semiconductor_advanced_packaging_criti
 LOCATOR_OVERLAY_REL = "docs/constraint/second_slice/semiconductor_advanced_packaging_critical_materials_v1/HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH029_SEMICONDUCTOR_MICRON_CAPTURE_LOCATOR_REMEDIATION_V001_20260927.json"
 SIDECAR_SCHEMA = "hydra-semiconductor-private-capture-sidecar/v1"
 ALLOWED_HTML_TYPES = {"text/html", "multipart/related", "application/x-mimearchive"}
+TSMC_EFFECTIVE_LOCATOR_OVERRIDES = {
+    "SRC-SEMI-TSMC-Q1-2025-TRANSCRIPT-2025-04-17": (
+        "https://investor.tsmc.com/schinese/encrypt/files/encrypt_file/reports/"
+        "2025-04/7630274eecc1197a4e3ea6a415f44a47204fe10a/TSMC%201Q25%20Transcript.pdf",
+        "https://investor.tsmc.com/english/encrypt/files/encrypt_file/reports/"
+        "2025-04/7630274eecc1197a4e3ea6a415f44a47204fe10a/TSMC%201Q25%20Transcript.pdf",
+    ),
+    "SRC-SEMI-B020-TSMC-Q2-2023-TRANSCRIPT-2023-07-20": (
+        "https://investor.tsmc.com/english/encrypt/files/encrypt_file/reports/"
+        "2023-07/7ec677062ca442e429b632ccd6d4f31ad53b1ce7/TSMC%202Q23%20Transcript.pdf",
+        "https://investor.tsmc.com/english/encrypt/files/encrypt_file/reports/"
+        "2023-07/7ec677062ca442e429b632ccd6d4f31ad53b1ce7/TSMC%202Q23%20Transcript.pdf",
+    ),
+    "SRC-SEMI-B022-TSMC-2025-ANNUAL-EQUIPMENT-RISK": (
+        "https://investor.tsmc.com/sites/ir/annual-report/2025/2025%20Annual%20Report.E.pdf",
+        "https://investor.tsmc.com/sites/ir/annual-report/2025/2025%20TSMC%20Annual%20Report.E.pdf",
+    ),
+    "SRC-SEMI-B022-TSMC-Q2-2026-TRANSCRIPT-2026-07-16": (
+        "https://investor.tsmc.com/english/encrypt/files/encrypt_file/reports/"
+        "2026-07/57b65edbfe6e480e74abe202be983ecbde79e934/TSMC%202Q26%20Transcript.pdf",
+        "https://investor.tsmc.com/english/encrypt/files/encrypt_file/reports/"
+        "2026-08/3e494f0c14dd0890f897aa044415e21d93486cc4/TSMC%202Q26%20Transcript.pdf",
+    ),
+}
 
 
 def fail(message: str) -> None:
@@ -60,7 +84,14 @@ def load_remediations(path: Path) -> dict[str, dict[str, Any]]:
 
 def locator_allowed(item: dict[str, Any], locator: str, remediation: dict[str, Any] | None) -> bool:
     if remediation is None:
-        return locator == item["source_locator"]
+        if locator == item["source_locator"]:
+            return True
+        override = TSMC_EFFECTIVE_LOCATOR_OVERRIDES.get(item.get("source_id"))
+        return bool(
+            override
+            and item.get("source_locator") == override[0]
+            and locator == override[1]
+        )
     parsed = urlparse(locator)
     return (
         parsed.scheme.lower() == "https"
@@ -131,6 +162,12 @@ def main() -> int:
     queue = queue_doc.get("queue")
     if not isinstance(queue, list) or len(queue) != 41:
         fail("queue must contain exactly 41 capture intents")
+    sys.path.insert(0, str(repo_root / "tools"))
+    from constraint_source_quarantine import QuarantinePolicyError, reject_retired_batch026
+    try:
+        reject_retired_batch026(repo_root, queue, operation="materialization")
+    except QuarantinePolicyError as exc:
+        fail(str(exc))
     remediations = load_remediations(repo_root / LOCATOR_OVERLAY_REL)
 
     missing: list[str] = []
