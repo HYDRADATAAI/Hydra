@@ -1,0 +1,46 @@
+{
+  "schema_version": "1.0",
+  "batch_id": "HYDRA_CONSTRAINT_REPLAY_CALIBRATION_QUEUE_BATCH008_20260926",
+  "policy": "A case may leave the uncalibrated tier only when an admissible historical numeric confidence value is sourced under the Batch 008 confidence semantics. Rewording qualitative expectations or operational commitments as probabilities is prohibited.",
+  "candidates": [
+    {
+      "case_id": "suez-ever-given-2021",
+      "current_stage": "CLASSIFIED_GOLD_UNCALIBRATED",
+      "outcome_class": "PARTIAL_REALIZATION",
+      "audited_confidence_evidence_id": "confidence-audit-suez-spglobal-2021-03-26",
+      "audited_semantics": "QUALITATIVE_EXPECTATION",
+      "admissible_numeric_confidence": false,
+      "remaining_calibration_blockers": [
+        "NO_PRECOMMITTED_CONFIDENCE_SOURCE",
+        "NO_SOURCE_GROUNDED_CONFIDENCE_VALUE"
+      ],
+      "next_search_target": "A contemporaneous, pre-outcome source that explicitly assigns a numeric probability/range to the predicted congestion or freight outcome, or a predeclared ordinal confidence mapping available at that time."
+    },
+    {
+      "case_id": "black-sea-grain-corridor-2022",
+      "current_stage": "CLASSIFIED_GOLD_UNCALIBRATED",
+      "outcome_class": "PARTIAL_REALIZATION",
+      "audited_confidence_evidence_id": "confidence-audit-bsgi-imf-2022-07-26",
+      "audited_semantics": "QUALITATIVE_RISK",
+      "admissible_numeric_confidence": false,
+      "remaining_calibration_blockers": [
+        "NO_PRECOMMITTED_CONFIDENCE_SOURCE",
+        "NO_SOURCE_GROUNDED_CONFIDENCE_VALUE"
+      ],
+      "next_search_target": "A contemporaneous, pre-outcome source that quantifies the probability of logistics relief or food-price pressure reduction; generic risk/could language is insufficient."
+    },
+    {
+      "case_id": "germany-wilhelmshaven-lng-commissioning-2022-2023",
+      "current_stage": "CLASSIFIED_GOLD_UNCALIBRATED",
+      "outcome_class": "PARTIAL_REALIZATION",
+      "audited_confidence_evidence_id": "confidence-audit-wilhelm-bnetza-2022-09-29",
+      "audited_semantics": "OPERATIONAL_COMMITMENT",
+      "admissible_numeric_confidence": false,
+      "remaining_calibration_blockers": [
+        "NO_PRECOMMITTED_CONFIDENCE_SOURCE",
+        "NO_SOURCE_GROUNDED_CONFIDENCE_VALUE"
+      ],
+      "next_search_target": "A contemporaneous probability/forecast distribution for utilization or supply contribution. The 100% unloading-slot commitment is an operating obligation, not a probability."
+    }
+  ]
+}
