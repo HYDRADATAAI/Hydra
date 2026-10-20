@@ -8,8 +8,10 @@ import csv
 import hashlib
 import io
 import json
+import math
 import os
 import tempfile
+import threading
 import time
 import urllib.error
 import urllib.request
@@ -194,9 +196,44 @@ class PollReport:
         return asdict(self)
 
 class PollRunner:
-    def __init__(self,durable,cursors,archive,transport,sleeper=None):
+    def __init__(self,durable,cursors,archive,transport,sleeper=None,clock=None):
         self.durable=durable; self.cursors=cursors; self.archive=archive
         self.transport=transport; self.sleeper=sleeper or time
+        self.clock=clock or time.monotonic
+        self._poll_lock=threading.Lock()
+        self._last_request_at={}
+        self._next_request_at={}
+
+    @staticmethod
+    def _request_interval(spec):
+        if isinstance(spec.max_rps,bool) or not isinstance(spec.max_rps,(int,float)):
+            raise ValueError("max_rps must be finite and greater than zero")
+        try:
+            rate=float(spec.max_rps)
+        except (OverflowError,ValueError):
+            raise ValueError("max_rps must be finite and greater than zero") from None
+        if not math.isfinite(rate) or rate<=0:
+            raise ValueError("max_rps must be finite and greater than zero")
+        interval=1.0/rate
+        if not math.isfinite(interval):
+            raise ValueError("max_rps is too small to pace safely")
+        return interval
+
+    def _pace_request(self,spec,interval):
+        last=self._last_request_at.get(spec.name)
+        now=self.clock()
+        rate_deadline=last+interval if last is not None else now
+        deadline=max(rate_deadline,self._next_request_at.get(spec.name,now))
+        remaining=deadline-now
+        if remaining>0:
+            self.sleeper.sleep(remaining)
+        self._last_request_at[spec.name]=self.clock()
+
+    def _defer_source(self,spec,delay):
+        deadline=self.clock()+delay
+        self._next_request_at[spec.name]=max(
+            deadline,self._next_request_at.get(spec.name,deadline)
+        )
 
     def validate_live_spec(self,spec):
         if spec.source_class=="sec_edgar":
@@ -207,23 +244,35 @@ class PollRunner:
                 raise ValueError("SEC max_rps exceeds fair-access ceiling")
 
     def poll(self,spec,cursor_value=None):
+        interval=self._request_interval(spec)
+        with self._poll_lock:
+            return self._poll_locked(spec,cursor_value,interval)
+
+    def _poll_locked(self,spec,cursor_value,interval):
         before=self.cursors.adapter(spec.name).get("cursor")
         statuses=[]; hashes=[]; delays=[]; response=None; error=None
         for attempt in range(1,spec.backoff.max_attempts+1):
+            self._pace_request(spec,interval)
             try:
                 response=self.transport.fetch(spec.url,spec.headers)
             except Exception as exc:
                 error=str(exc); response=None
+            if response is None:
+                delay=spec.backoff.delay(attempt)
+                self._defer_source(spec,delay)
                 if attempt<spec.backoff.max_attempts:
-                    delay=spec.backoff.delay(attempt); delays.append(delay); self.sleeper.sleep(delay); continue
+                    delays.append(delay); self.sleeper.sleep(delay); continue
                 break
             statuses.append(response.status)
             hashes.append(self.archive.archive(spec.name,response,attempt))
             if response.status==200:
                 break
-            if response.status not in RETRYABLE or attempt>=spec.backoff.max_attempts:
+            if response.status not in RETRYABLE:
                 error=f"HTTP {response.status}"; break
             delay=spec.backoff.delay(attempt,response.headers.get("retry-after"))
+            self._defer_source(spec,delay)
+            if attempt>=spec.backoff.max_attempts:
+                error=f"HTTP {response.status}"; break
             delays.append(delay); self.sleeper.sleep(delay)
 
         if response is None or response.status!=200:
