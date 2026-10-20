@@ -448,5 +448,181 @@ class LambdaHandlerTests(unittest.TestCase):
                 lambda_handler(s3_event(), None, s3_client=FakeS3(FIXTURE.read_bytes()))
 
 
+    def test_non_object_record_rejects_valid_sibling_before_processing(self):
+        source = FIXTURE.read_bytes()
+        valid_record = s3_event(size=len(source))["Records"][0]
+        malformed_records = [None, [], "record", 42]
+
+        with patch.dict(os.environ, {"CURATED_BUCKET": "curated"}):
+            for malformed_record in malformed_records:
+                with self.subTest(record=malformed_record):
+                    client = FakeS3(source)
+                    glue = FakeGlue()
+                    event = {"Records": [valid_record, malformed_record]}
+
+                    with self.assertRaisesRegex(
+                        ValueError, "event Records items must be objects"
+                    ):
+                        lambda_handler(
+                            event,
+                            None,
+                            s3_client=client,
+                            glue_client=glue,
+                        )
+
+                    self.assertEqual(client.get_calls, [])
+                    self.assertEqual(client.put_calls, [])
+                    self.assertEqual(glue.partition_calls, [])
+
+    def test_incomplete_object_created_envelope_rejects_valid_sibling(self):
+        source = FIXTURE.read_bytes()
+        valid_record = s3_event(size=len(source))["Records"][0]
+        malformed_records = [
+            {"eventName": "ObjectCreated:Put"},
+            {"eventSource": "", "eventName": "ObjectCreated:Put"},
+            {"eventSource": None, "eventName": "ObjectCreated:Put"},
+            {"eventSource": 42, "eventName": "ObjectCreated:Put"},
+        ]
+
+        with patch.dict(os.environ, {"CURATED_BUCKET": "curated"}):
+            for malformed_record in malformed_records:
+                with self.subTest(record=malformed_record):
+                    client = FakeS3(source)
+                    glue = FakeGlue()
+                    event = {"Records": [valid_record, malformed_record]}
+
+                    with self.assertRaisesRegex(
+                        ValueError, "S3 ObjectCreated record eventSource"
+                    ):
+                        lambda_handler(
+                            event,
+                            None,
+                            s3_client=client,
+                            glue_client=glue,
+                        )
+
+                    self.assertEqual(client.get_calls, [])
+                    self.assertEqual(client.put_calls, [])
+                    self.assertEqual(glue.partition_calls, [])
+
+    def test_malformed_object_created_s3_shape_rejects_valid_sibling(self):
+        source = FIXTURE.read_bytes()
+        valid_record = s3_event(size=len(source))["Records"][0]
+        malformed_records = [
+            {"eventSource": "aws:s3", "eventName": "ObjectCreated:Put"},
+            {"eventSource": "aws:s3", "eventName": "ObjectCreated:Put", "s3": None},
+            {"eventSource": "aws:s3", "eventName": "ObjectCreated:Put", "s3": []},
+            {"eventSource": "aws:s3", "eventName": "ObjectCreated:Put", "s3": {"bucket": []}},
+            {
+                "eventSource": "aws:s3", "eventName": "ObjectCreated:Put",
+                "s3": {"bucket": {"name": ""}, "object": {"key": "input.csv"}},
+            },
+            {
+                "eventSource": "aws:s3", "eventName": "ObjectCreated:Put",
+                "s3": {"bucket": {"name": "source"}, "object": {"key": ""}},
+            },
+        ]
+
+        with patch.dict(os.environ, {"CURATED_BUCKET": "curated"}):
+            for malformed_record in malformed_records:
+                with self.subTest(record=malformed_record):
+                    client = FakeS3(source)
+                    glue = FakeGlue()
+                    with self.assertRaises(ValueError):
+                        lambda_handler(
+                            {"Records": [valid_record, malformed_record]},
+                            None,
+                            s3_client=client,
+                            glue_client=glue,
+                        )
+                    self.assertEqual(client.get_calls, [])
+                    self.assertEqual(client.put_calls, [])
+                    self.assertEqual(glue.partition_calls, [])
+
+    def test_object_created_event_rejects_non_s3_or_whitespace_source(self):
+        source = FIXTURE.read_bytes()
+        valid_record = s3_event(size=len(source))["Records"][0]
+        malformed_records = [
+            {"eventSource": "aws:s3 ", "eventName": "ObjectCreated:Put"},
+            {"eventSource": "aws:sns", "eventName": "ObjectCreated:Put"},
+            {"eventSource": "aws:s3", "eventName": " ObjectCreated:Put"},
+            {"eventSource": "aws:s3", "eventName": "ObjectCreated:Put "},
+        ]
+
+        with patch.dict(os.environ, {"CURATED_BUCKET": "curated"}):
+            for malformed_record in malformed_records:
+                with self.subTest(record=malformed_record):
+                    client = FakeS3(source)
+                    glue = FakeGlue()
+                    with self.assertRaises(ValueError):
+                        lambda_handler(
+                            {"Records": [valid_record, malformed_record]},
+                            None,
+                            s3_client=client,
+                            glue_client=glue,
+                        )
+                    self.assertEqual(client.get_calls, [])
+                    self.assertEqual(client.put_calls, [])
+                    self.assertEqual(glue.partition_calls, [])
+
+    def test_object_created_event_name_requires_non_empty_subtype(self):
+        source = FIXTURE.read_bytes()
+        valid_record = s3_event(size=len(source))["Records"][0]
+        malformed_records = [
+            {"eventSource": "aws:s3", "eventName": "ObjectCreated"},
+            {"eventSource": "aws:s3", "eventName": "ObjectCreated:"},
+            {"eventSource": "aws:s3", "eventName": "ObjectCreated::Put"},
+        ]
+
+        with patch.dict(os.environ, {"CURATED_BUCKET": "curated"}):
+            for malformed_record in malformed_records:
+                with self.subTest(record=malformed_record):
+                    client = FakeS3(source)
+                    glue = FakeGlue()
+                    with self.assertRaisesRegex(
+                        ValueError, "ObjectCreated record eventName must include"
+                    ):
+                        lambda_handler(
+                            {"Records": [valid_record, malformed_record]},
+                            None,
+                            s3_client=client,
+                            glue_client=glue,
+                        )
+                    self.assertEqual(client.get_calls, [])
+                    self.assertEqual(client.put_calls, [])
+                    self.assertEqual(glue.partition_calls, [])
+
+    def test_malformed_s3_event_name_rejects_valid_sibling_before_processing(self):
+        source = FIXTURE.read_bytes()
+        valid_record = s3_event(size=len(source))["Records"][0]
+        malformed_records = [
+            {"eventSource": "aws:s3"},
+            {"eventSource": "aws:s3", "eventName": None},
+            {"eventSource": "aws:s3", "eventName": 42},
+            {"eventSource": "aws:s3", "eventName": ""},
+            {"eventSource": "aws:s3", "eventName": "  "},
+        ]
+
+        with patch.dict(os.environ, {"CURATED_BUCKET": "curated"}):
+            for malformed_record in malformed_records:
+                with self.subTest(record=malformed_record):
+                    client = FakeS3(source)
+                    glue = FakeGlue()
+                    event = {"Records": [valid_record, malformed_record]}
+
+                    with self.assertRaisesRegex(
+                        ValueError, "S3 source record eventName"
+                    ):
+                        lambda_handler(
+                            event,
+                            None,
+                            s3_client=client,
+                            glue_client=glue,
+                        )
+
+                    self.assertEqual(client.get_calls, [])
+                    self.assertEqual(client.put_calls, [])
+                    self.assertEqual(glue.partition_calls, [])
+
 if __name__ == "__main__":
     unittest.main()
