@@ -126,14 +126,18 @@ def run_pipeline(
     except UnicodeDecodeError as exc:
         raise ContractError("input CSV must be valid UTF-8") from exc
 
-    reader = csv.DictReader(io.StringIO(text, newline=""))
-    _validate_header(reader.fieldnames)
+    reader = csv.DictReader(io.StringIO(text, newline=""), strict=True)
+    try:
+        fieldnames = reader.fieldnames
+    except csv.Error as exc:
+        raise ContractError(f"input CSV is malformed: {exc}") from exc
+    _validate_header(fieldnames)
 
     accepted: list[NormalizedEvent] = []
     quarantined: list[QuarantineRecord] = []
     seen_event_ids: set[str] = set()
 
-    for source_row_number, row in enumerate(reader, start=2):
+    for source_row_number, row in enumerate(_iter_csv_rows(reader), start=2):
         raw_record = {
             column: "" if row.get(column) is None else str(row.get(column))
             for column in REQUIRED_COLUMNS
@@ -227,6 +231,13 @@ def run_pipeline(
         accepted=tuple(sorted(accepted, key=lambda item: item.event_id)),
         quarantined=tuple(sorted(quarantined, key=lambda item: item.source_row_number)),
     )
+
+
+def _iter_csv_rows(reader):
+    try:
+        yield from reader
+    except csv.Error as exc:
+        raise ContractError(f"input CSV is malformed: {exc}") from exc
 
 
 def _validate_header(fieldnames: list[str] | None) -> None:
