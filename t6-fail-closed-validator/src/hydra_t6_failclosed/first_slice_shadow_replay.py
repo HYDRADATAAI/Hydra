@@ -56,10 +56,13 @@ def build_shadow_snapshot(*, as_of: str, claim_registry: Mapping[str, Any],
         return refs
 
     evidence = {}
+    positive_evidence = {}
     for cid, row in claims.items():
-        for field in ("support_evidence_ids", "disconfirming_evidence_ids"):
-            for eid in references(row.get(field, [])):
-                evidence.setdefault(eid, set()).add(cid)
+        for eid in references(row.get("support_evidence_ids", [])):
+            evidence.setdefault(eid, set()).add(cid)
+            positive_evidence.setdefault(eid, set()).add(cid)
+        for eid in references(row.get("disconfirming_evidence_ids", [])):
+            evidence.setdefault(eid, set()).add(cid)
 
     def claims_supported(refs):
         refs = references(refs)
@@ -69,7 +72,7 @@ def build_shadow_snapshot(*, as_of: str, claim_registry: Mapping[str, Any],
         refs = references(refs)
         # Unknown references never count as evidence; empty lineage is not proof.
         return bool(refs) and all(
-            ref in eligible or (ref in evidence and bool(evidence[ref] & eligible))
+            ref in eligible or (ref in positive_evidence and bool(positive_evidence[ref] & eligible))
             for ref in refs
         )
 

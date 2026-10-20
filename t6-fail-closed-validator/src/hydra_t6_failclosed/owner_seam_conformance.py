@@ -131,6 +131,8 @@ def validate_owner_seams(
         _fail("typed beneficiary-confidence universe differs from T6 relationship universe")
 
     known_evidence_ids: set[str] = set()
+    support_evidence_ids: set[str] = set()
+    disconfirming_evidence_ids: set[str] = set()
     claim_available_at: dict[str, datetime] = {}
     for claim in claim_rows:
         cid = claim["claim_id"]
@@ -140,6 +142,10 @@ def validate_owner_seams(
                 if not isinstance(evidence_id, str) or not evidence_id.startswith("EV-"):
                     _fail(f"{cid}.{field}: invalid evidence reference")
                 known_evidence_ids.add(evidence_id)
+                if field == "support_evidence_ids":
+                    support_evidence_ids.add(evidence_id)
+                else:
+                    disconfirming_evidence_ids.add(evidence_id)
 
     candidate_by_id = {row["constraint_candidate_id"]: row for row in candidate_rows}
     overlay_by_id = {row["constraint_candidate_id"]: row for row in overlay_rows}
@@ -173,6 +179,12 @@ def validate_owner_seams(
         for role, values in roles.items():
             for value in _unique_reference_list(values, f"{cid}.{role}"):
                 _known_reference(value, known_evidence_ids, claim_ids, f"{cid}.{role}")
+                if (
+                    role == "constraint_support"
+                    and value in disconfirming_evidence_ids
+                    and value not in support_evidence_ids
+                ):
+                    _fail(f"{cid}.constraint_support: disconfirming-only evidence cannot be positive support")
 
         successor = overlay_by_id[cid]
         overlay_available = _aware_dt(
