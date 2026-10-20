@@ -5,12 +5,38 @@ on:
     paths:
       - "constraint-t1-raw-artifact-store/**"
       - ".github/workflows/constraint-t1-raw-artifact-store.yml"
+      - ".gitignore"
+      - "data/**"
+      - "raw/**"
+      - "**/data/**"
+      - "**/raw/**"
+      - "**/canonical/**"
+      - "**/vendor/**"
+      - "**/vendors/**"
+      - "**/archives/**"
+      - "**/archive/**"
+      - "**/backups/**"
+      - "**/backup/**"
+      - "market-data-pipeline-sample/data/**"
   push:
     branches:
       - main
     paths:
       - "constraint-t1-raw-artifact-store/**"
       - ".github/workflows/constraint-t1-raw-artifact-store.yml"
+      - ".gitignore"
+      - "data/**"
+      - "raw/**"
+      - "**/data/**"
+      - "**/raw/**"
+      - "**/canonical/**"
+      - "**/vendor/**"
+      - "**/vendors/**"
+      - "**/archives/**"
+      - "**/archive/**"
+      - "**/backups/**"
+      - "**/backup/**"
+      - "market-data-pipeline-sample/data/**"
 
 permissions:
   contents: read
@@ -21,6 +47,127 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - name: Reject private T1 records in the public tree
+        shell: bash
+        run: |
+          set -euo pipefail
+          failures=0
+          while IFS= read -r -d '' file; do
+            normalized_file=${file,,}
+            private_record=0
+            case "$normalized_file" in
+              data/*|*/data/*|raw/*|*/raw/*|canonical/*|*/canonical/*|vendor/*|*/vendor/*|vendors/*|*/vendors/*|archives/*|*/archives/*|archive/*|*/archive/*|backups/*|*/backups/*|backup/*|*/backup/*|constraint-t1-raw-artifact-store/objects/*|constraint-t1-raw-artifact-store/receipts/*|constraint-t1-raw-artifact-store/releases/*)
+                private_record=1
+                ;;
+            esac
+            if [[ "$normalized_file" == constraint-t1-raw-artifact-store/* && "$normalized_file" == *.raw ]]; then
+              private_record=1
+            fi
+            allowlisted_path=""
+            expected_blob=""
+            case "$normalized_file" in
+              market-data-pipeline-sample/data/raw/synthetic_market_events.csv)
+                allowlisted_path="market-data-pipeline-sample/data/raw/synthetic_market_events.csv"
+                expected_blob="98dc6fe5984e735ec33eaeb6d236d95295764b75"
+                ;;
+              market-data-pipeline-sample/data/raw/synthetic_market_events_day2.csv)
+                allowlisted_path="market-data-pipeline-sample/data/raw/synthetic_market_events_day2.csv"
+                expected_blob="13b4d585df3bb9bece4c3f409e9040ebeee42ee9"
+                ;;
+              constraint-geopolitical-policy/data/hydra_constraint_geopolitical_policy_batch002_sourced_historical_cases_20260925.json)
+                allowlisted_path="constraint-geopolitical-policy/data/HYDRA_CONSTRAINT_GEOPOLITICAL_POLICY_BATCH002_SOURCED_HISTORICAL_CASES_20260925.json"
+                expected_blob="d6925977e30927190e2c16a48cf7792ab36c63a4"
+                ;;
+              constraint-geopolitical-policy/data/hydra_constraint_geopolitical_policy_batch003_sourced_historical_cases_20260925.json)
+                allowlisted_path="constraint-geopolitical-policy/data/HYDRA_CONSTRAINT_GEOPOLITICAL_POLICY_BATCH003_SOURCED_HISTORICAL_CASES_20260925.json"
+                expected_blob="b1b308498298c142f4506da1215fad99258a3684"
+                ;;
+              constraint-geopolitical-policy/data/hydra_constraint_geopolitical_policy_batch004_sourced_historical_cases_20260925.json)
+                allowlisted_path="constraint-geopolitical-policy/data/HYDRA_CONSTRAINT_GEOPOLITICAL_POLICY_BATCH004_SOURCED_HISTORICAL_CASES_20260925.json"
+                expected_blob="36f1c1a41c2eb3c051b46fe28a44eadb5e01aa78"
+                ;;
+              constraint-geopolitical-policy/data/hydra_constraint_geopolitical_policy_batch005_contested_revision_fixtures_20260925.json)
+                allowlisted_path="constraint-geopolitical-policy/data/HYDRA_CONSTRAINT_GEOPOLITICAL_POLICY_BATCH005_CONTESTED_REVISION_FIXTURES_20260925.json"
+                expected_blob="d5dba41ebe3f4ea7ddf27b498e9eab7fb824d4b1"
+                ;;
+              constraint-geopolitical-policy/data/historical_case_studies.json)
+                allowlisted_path="constraint-geopolitical-policy/data/historical_case_studies.json"
+                expected_blob="9885fbf88e7c36418b27f3a8a384fc0e586274f1"
+                ;;
+              constraint-geopolitical-policy/data/sourced_historical_cases.json)
+                allowlisted_path="constraint-geopolitical-policy/data/sourced_historical_cases.json"
+                expected_blob="0bfa220181fd06bb22b19a956956305c857c9bbc"
+                ;;
+              constraint-physical-dependency/data/hydra_constraint_physical_policy_batch002_source_register_20260925.md)
+                allowlisted_path="constraint-physical-dependency/data/HYDRA_CONSTRAINT_PHYSICAL_POLICY_BATCH002_SOURCE_REGISTER_20260925.md"
+                expected_blob="261dd21e923f867caf7edea0b8e79fcb9c0d97e3"
+                ;;
+              constraint-physical-dependency/data/hydra_constraint_physical_policy_batch003_source_register_20260925.md)
+                allowlisted_path="constraint-physical-dependency/data/HYDRA_CONSTRAINT_PHYSICAL_POLICY_BATCH003_SOURCE_REGISTER_20260925.md"
+                expected_blob="a655ef9f5da138970a0a8a0927d2b347cc91c116"
+                ;;
+              constraint-physical-dependency/data/hydra_constraint_physical_policy_batch004_source_register_20260925.md)
+                allowlisted_path="constraint-physical-dependency/data/HYDRA_CONSTRAINT_PHYSICAL_POLICY_BATCH004_SOURCE_REGISTER_20260925.md"
+                expected_blob="39d5d04212c6379548d0a196b9f3576b6b99b6ed"
+                ;;
+              constraint-physical-dependency/data/hydra_constraint_physical_policy_graph_batch002_sourced_20260925.json)
+                allowlisted_path="constraint-physical-dependency/data/HYDRA_CONSTRAINT_PHYSICAL_POLICY_GRAPH_BATCH002_SOURCED_20260925.json"
+                expected_blob="91ca9ca72c710770c0ce1e9243edb1ff5255d402"
+                ;;
+              constraint-physical-dependency/data/hydra_constraint_physical_policy_graph_batch003_sourced_20260925.json)
+                allowlisted_path="constraint-physical-dependency/data/HYDRA_CONSTRAINT_PHYSICAL_POLICY_GRAPH_BATCH003_SOURCED_20260925.json"
+                expected_blob="adf8ca7749e43c53b7188ca88e9b8e531a538b16"
+                ;;
+              constraint-physical-dependency/data/hydra_constraint_physical_policy_graph_batch004_sourced_20260925.json)
+                allowlisted_path="constraint-physical-dependency/data/HYDRA_CONSTRAINT_PHYSICAL_POLICY_GRAPH_BATCH004_SOURCED_20260925.json"
+                expected_blob="8da40a00c82d14258cb89a5729632ece8a758b2b"
+                ;;
+              constraint-physical-dependency/data/source_register.md)
+                allowlisted_path="constraint-physical-dependency/data/SOURCE_REGISTER.md"
+                expected_blob="200c6e0d0f0f35ff8b865f96da26fe8153fac028"
+                ;;
+              constraint-physical-dependency/data/eia_refinery_regional_capacity_2020_2025.csv)
+                allowlisted_path="constraint-physical-dependency/data/eia_refinery_regional_capacity_2020_2025.csv"
+                expected_blob="a0587e42a24952e633bd7b48e50277c758e3fa34"
+                ;;
+              constraint-physical-dependency/data/eia_us_refinery_capacity_2020_2026.csv)
+                allowlisted_path="constraint-physical-dependency/data/eia_us_refinery_capacity_2020_2026.csv"
+                expected_blob="a988d3f639451bbd30d0cca2f2d32c5bdfa8250c"
+                ;;
+              constraint-physical-dependency/data/eia_us_refinery_utilization_2020_2025.csv)
+                allowlisted_path="constraint-physical-dependency/data/eia_us_refinery_utilization_2020_2025.csv"
+                expected_blob="93fa962f58ba2b943e4a842fef5a830a3d1cc3fa"
+                ;;
+              constraint-physical-dependency/data/historical_physical_dependency.schema.json)
+                allowlisted_path="constraint-physical-dependency/data/historical_physical_dependency.schema.json"
+                expected_blob="3f1ea6da256e0bab3da01d4a2f1b79f37cc56c19"
+                ;;
+              constraint-physical-dependency/data/sourced_policy_case_physical_graph.json)
+                allowlisted_path="constraint-physical-dependency/data/sourced_policy_case_physical_graph.json"
+                expected_blob="9171de886a5dc8814d5377a6936abbf735a4cafb"
+                ;;
+              constraint-runtime/canonical/v013_runtime_binding.json)
+                allowlisted_path="constraint-runtime/canonical/V013_RUNTIME_BINDING.json"
+                expected_blob="c18ff562720e3df6699188c33490469db96f4ebb"
+                ;;
+            esac
+            if [[ -n "$expected_blob" ]]; then
+              if [[ "$file" == "$allowlisted_path" ]] && [[ "$(git rev-parse "HEAD:$file")" == "$expected_blob" ]]; then
+                private_record=0
+              else
+                private_record=1
+              fi
+            fi
+            if [[ "$private_record" -eq 1 ]]; then
+              echo "::error::Private T1 raw-store records must stay outside public Git."
+              failures=$((failures + 1))
+            fi
+          done < <(git ls-files -z)
+          if [[ "$failures" -gt 0 ]]; then
+            echo "T1_PUBLIC_RAW_BOUNDARY=FAIL"
+            exit 1
+          fi
+          echo "T1_PUBLIC_RAW_BOUNDARY=PASS"
       - name: Set up Python
         uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
         with:
