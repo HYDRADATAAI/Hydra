@@ -1,0 +1,60 @@
+{
+  "schema_version": "1.0",
+  "batch_id": "HYDRA_CONSTRAINT_REPLAY_OUTCOME_MAPPING_BATCH012_20260926",
+  "rule_set_id": "POSITIVE_CONSTRAINT_RULESET_V1",
+  "declared_at": "2026-09-26T19:19:00Z",
+  "policy": "Batch 012 reuses POSITIVE_CONSTRAINT_RULESET_V1 unchanged. No case-specific threshold or hindsight success rule is introduced.",
+  "cases": [
+    {
+      "case_id": "eu-fifth-package-coal-and-port-restrictions-2022",
+      "mechanism_observed": true,
+      "direction_consistent": true,
+      "explicit_numeric_target_defined": false,
+      "target_met": null,
+      "explicit_horizon_defined": false,
+      "horizon_met": null,
+      "causal_attribution_clean": false,
+      "outcome_observation_complete": true,
+      "contradiction_open": false,
+      "evidence_source_ids": [
+        "coal-iea-2022-07-28-hypothesis",
+        "coal-eurostat-2025-07-03-outcome"
+      ],
+      "rationale": "Russian hard-coal imports collapsed and supplier diversification occurred in the expected direction, but the case bundle also contains a port-restriction leg and the broader coal-market reallocation reflected multiple sanctions, energy-security and market factors; the evidence therefore supports only partial realization."
+    },
+    {
+      "case_id": "us-section45x-advanced-manufacturing-incentive-2022",
+      "mechanism_observed": true,
+      "direction_consistent": true,
+      "explicit_numeric_target_defined": false,
+      "target_met": null,
+      "explicit_horizon_defined": false,
+      "horizon_met": null,
+      "causal_attribution_clean": false,
+      "outcome_observation_complete": true,
+      "contradiction_open": false,
+      "evidence_source_ids": [
+        "45x-doe-2023-05-12-hypothesis",
+        "45x-treasury-2024-10-24-outcome"
+      ],
+      "rationale": "Large clean-energy manufacturing investment occurred in the expected direction and Treasury identified 45X as a major driver, but DOE's historical mechanism was explicitly described alongside domestic-content and other complementary incentives, so single-policy attribution is not clean."
+    },
+    {
+      "case_id": "eu-battery-ipcei-state-aid-2019",
+      "mechanism_observed": true,
+      "direction_consistent": true,
+      "explicit_numeric_target_defined": false,
+      "target_met": null,
+      "explicit_horizon_defined": false,
+      "horizon_met": null,
+      "causal_attribution_clean": false,
+      "outcome_observation_complete": true,
+      "contradiction_open": false,
+      "evidence_source_ids": [
+        "battery-iea-2019-05-27-hypothesis",
+        "battery-ec-2025-09-16-outcome"
+      ],
+      "rationale": "European battery capacity and direct employment expanded in the expected policy-supported direction, but the later sector outcome reflects demand growth, emissions policy, multiple IPCEIs and other public/private investment rather than the first battery IPCEI alone."
+    }
+  ]
+}
