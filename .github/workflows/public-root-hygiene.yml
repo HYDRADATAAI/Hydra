@@ -40,3 +40,9 @@ jobs:
             exit 1
           fi
           echo "PUBLIC_ROOT_HYGIENE=PASS"
+
+      - name: Test tracked artifact path policy
+        run: python -m unittest discover -s tools -p "test_public_root_hygiene.py" -v
+
+      - name: Reject tracked build-transfer artifacts
+        run: python tools/public_root_hygiene.py
