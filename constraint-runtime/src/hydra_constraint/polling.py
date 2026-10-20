@@ -8,11 +8,14 @@ import csv
 import hashlib
 import io
 import json
+import math
+from collections.abc import Mapping
 import os
 import tempfile
 import time
 import urllib.error
 import urllib.request
+from urllib.parse import urlsplit
 
 from .adapters import ADAPTERS
 
@@ -199,14 +202,52 @@ class PollRunner:
         self.transport=transport; self.sleeper=sleeper or time
 
     def validate_live_spec(self,spec):
-        if spec.source_class=="sec_edgar":
-            ua=spec.headers.get("User-Agent","")
-            if not ua or "REPLACE_" in ua:
-                raise ValueError("SEC live polling requires real User-Agent/contact")
-            if spec.max_rps>10:
-                raise ValueError("SEC max_rps exceeds fair-access ceiling")
+        sec_selector=(
+            str(spec.adapter).casefold()=="sec_edgar"
+            or str(spec.source_class).casefold()=="sec_edgar"
+            or str(spec.parser).casefold()=="sec_json"
+        )
+        try:
+            parsed_url=urlsplit(spec.url)
+            host=(parsed_url.hostname or "").casefold().rstrip(".")
+        except (AttributeError,TypeError,ValueError) as exc:
+            if sec_selector:
+                raise ValueError("SEC polling requires a valid HTTPS SEC URL") from exc
+            return
+        is_sec_host=host=="sec.gov" or host.endswith(".sec.gov")
+        if not sec_selector and not is_sec_host:
+            return
+        if (spec.adapter,spec.source_class,spec.parser)!=("sec_edgar","sec_edgar","sec_json"):
+            raise ValueError("SEC polling requires matching sec_edgar adapter/source_class and sec_json parser")
+        try:
+            port=parsed_url.port
+        except ValueError as exc:
+            raise ValueError("SEC polling requires a valid HTTPS SEC URL") from exc
+        if (parsed_url.scheme.casefold()!="https" or not is_sec_host or port not in (None,443)
+                or parsed_url.username is not None or parsed_url.password is not None):
+            raise ValueError("SEC polling requires an HTTPS URL on sec.gov or a subdomain")
+        if not isinstance(spec.headers,Mapping):
+            raise ValueError("SEC polling headers must be a mapping with one User-Agent")
+        user_agent_values=[
+            value for key,value in spec.headers.items()
+            if str(key).casefold()=="user-agent"
+        ]
+        if len(user_agent_values)!=1 or not isinstance(user_agent_values[0],str):
+            raise ValueError("SEC live polling requires exactly one User-Agent header")
+        user_agent=user_agent_values[0].strip()
+        if not user_agent or "REPLACE_" in user_agent.upper() or "\r" in user_agent or "\n" in user_agent:
+            raise ValueError("SEC live polling requires a non-empty, non-placeholder User-Agent")
+        if isinstance(spec.max_rps,bool):
+            raise ValueError("SEC max_rps must be a finite number above zero and at or below 10")
+        try:
+            max_rps=float(spec.max_rps)
+        except (TypeError,ValueError,OverflowError) as exc:
+            raise ValueError("SEC max_rps must be a finite number above zero and at or below 10") from exc
+        if not math.isfinite(max_rps) or max_rps<=0 or max_rps>10:
+            raise ValueError("SEC max_rps must be a finite number above zero and at or below 10")
 
     def poll(self,spec,cursor_value=None):
+        self.validate_live_spec(spec)
         before=self.cursors.adapter(spec.name).get("cursor")
         statuses=[]; hashes=[]; delays=[]; response=None; error=None
         for attempt in range(1,spec.backoff.max_attempts+1):
