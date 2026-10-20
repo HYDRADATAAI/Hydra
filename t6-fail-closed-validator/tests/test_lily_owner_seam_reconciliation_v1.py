@@ -1,10 +1,12 @@
 from __future__ import annotations
 
 import copy
-import hashlib
 import json
+import os
+import sys
 import unittest
 from pathlib import Path
+from unittest.mock import patch
 
 from hydra_t6_failclosed.owner_seam_conformance import (
     OwnerSeamConformanceError,
@@ -14,6 +16,8 @@ from hydra_t6_failclosed.owner_seam_conformance import (
 
 ROOT = Path(__file__).resolve().parents[2]
 SLICE = ROOT / "docs" / "constraint" / "first_slice" / "ai_data_center_power_infrastructure_v1"
+sys.path.insert(0, str(ROOT / "tools"))
+from validate_constraint_lily_owner_seams import git_blob_sha as wrapper_git_blob_sha
 
 FILES = {
     "typed_confidence": SLICE / "HYDRA_CONSTRAINT_THREAD6_SUCCESSOR_BATCH015_AI_DATA_CENTER_POWER_INFRASTRUCTURE_TYPED_CONFIDENCE_OVERLAY_V001_20260925.json",
@@ -29,10 +33,6 @@ FILES = {
 def load(path: Path):
     return json.loads(path.read_text(encoding="utf-8"))
 
-
-def git_blob_sha(path: Path) -> str:
-    data = path.read_bytes()
-    return hashlib.sha1(b"blob " + str(len(data)).encode("ascii") + b"\0" + data).hexdigest()
 
 
 class LilyOwnerSeamReconciliationTests(unittest.TestCase):
@@ -66,8 +66,23 @@ class LilyOwnerSeamReconciliationTests(unittest.TestCase):
 
     def test_overlay_pins_exact_unchanged_batch010_candidate_blob(self):
         pin = self.docs["overlay"]["predecessor"]["git_blob_sha"]
-        self.assertEqual(pin, git_blob_sha(FILES["candidates"]))
+        self.assertEqual(pin, wrapper_git_blob_sha(FILES["candidates"]))
         self.assertEqual("NONE", self.docs["overlay"]["predecessor"]["mutation"])
+
+    def test_wrapper_hash_cleans_crlf_and_rejects_content_tamper(self):
+        path = FILES["candidates"]
+        pin = self.docs["overlay"]["predecessor"]["git_blob_sha"]
+        lf = path.read_bytes().replace(b"\r\n", b"\n")
+        crlf = lf.replace(b"\n", b"\r\n")
+        git_config = {
+            "GIT_CONFIG_COUNT": "1",
+            "GIT_CONFIG_KEY_0": "core.autocrlf",
+            "GIT_CONFIG_VALUE_0": "true",
+        }
+        with patch.dict(os.environ, git_config), patch.object(Path, "read_bytes", return_value=crlf):
+            self.assertEqual(pin, wrapper_git_blob_sha(path))
+        with patch.dict(os.environ, git_config), patch.object(Path, "read_bytes", return_value=crlf + b"tampered"):
+            self.assertNotEqual(pin, wrapper_git_blob_sha(path))
 
     def test_t5_cannot_mint_canonical_constraint_id(self):
         docs = self.mutated()

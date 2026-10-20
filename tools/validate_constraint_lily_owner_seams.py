@@ -1,7 +1,7 @@
 from __future__ import annotations
 
-import hashlib
 import json
+import subprocess
 import sys
 from pathlib import Path
 
@@ -32,7 +32,13 @@ def load(path: Path):
 
 def git_blob_sha(path: Path) -> str:
     data = path.read_bytes()
-    return hashlib.sha1(b"blob " + str(len(data)).encode("ascii") + b"\0" + data).hexdigest()
+    relative = path.relative_to(ROOT).as_posix()
+    result = subprocess.check_output(
+        ["git", "hash-object", f"--path={relative}", "--stdin"],
+        input=data,
+        cwd=ROOT,
+    )
+    return result.decode("ascii").strip()
 
 
 def main() -> int:
@@ -53,7 +59,7 @@ def main() -> int:
             batch13_beneficiary_overlay=docs["batch13"],
             batch16_strict_gate=docs["batch16"],
         )
-    except (OSError, KeyError, json.JSONDecodeError, OwnerSeamConformanceError) as exc:
+    except (OSError, KeyError, json.JSONDecodeError, subprocess.CalledProcessError, OwnerSeamConformanceError) as exc:
         print("CONSTRAINT_LILY_OWNER_SEAM_CONFORMANCE=FAIL")
         print(f"ERROR={exc}")
         return 1
