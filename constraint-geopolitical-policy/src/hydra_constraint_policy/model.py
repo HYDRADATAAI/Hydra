@@ -156,6 +156,8 @@ class HistoricalEvent:
 
 def eligible_as_of(events: Iterable[HistoricalEvent], as_of: datetime) -> list[HistoricalEvent]:
     """Return only evidence genuinely available by as_of; deterministic ordering."""
+    if as_of.tzinfo is None or as_of.utcoffset() is None:
+        raise ValidationError("as_of must be timezone-aware")
     eligible: list[HistoricalEvent] = []
     for event in events:
         event.validate()
