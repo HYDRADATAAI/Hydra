@@ -1,0 +1,35 @@
+{
+  "schema_version": "1.0",
+  "batch_id": "HYDRA_CONSTRAINT_REPLAY_CONFIDENCE_ADMISSIBILITY_BATCH009_20260926",
+  "policy": "Batch 009 applies the same confidence semantics as Batch 008. Qualitative expectations, risks, policy scope percentages, and directional forecasts are not numeric replay probabilities.",
+  "ordinal_mappings": [],
+  "evidence": [
+    {
+      "evidence_id": "confidence-audit-section232-fed-2018-04-18",
+      "case_id": "us-section232-steel-tariff-2018",
+      "source_id": "section232-fed-beige-book-2018-04-18",
+      "known_at": "2018-04-18T23:59:59Z",
+      "semantics": "QUALITATIVE_EXPECTATION",
+      "statement": "Federal Reserve Beige Book contacts generally anticipated further steel and building-material price increases after tariff-related price increases were already being reported.",
+      "notes": "Anticipated/further price increases is directional expectation language, not an explicit probability or predeclared ordinal confidence."
+    },
+    {
+      "evidence_id": "confidence-audit-eu-russian-oil-iea-2022-06-15",
+      "case_id": "eu-russian-oil-import-restrictions-2022",
+      "source_id": "eu-russian-oil-iea-2022-06-15-hypothesis",
+      "known_at": "2022-06-15T23:59:59Z",
+      "semantics": "QUALITATIVE_EXPECTATION",
+      "statement": "The IEA expected tighter sanctions and the planned EU embargo to reduce Russian supply availability and potentially tighten the oil market.",
+      "notes": "The 90 percent figure described the policy scope of the EU import ban, not a 90 percent probability of the forecast outcome."
+    },
+    {
+      "evidence_id": "confidence-audit-panama-imf-2023-11-15",
+      "case_id": "panama-canal-drought-transit-policy-2023",
+      "source_id": "panama-imf-2023-11-15-hypothesis",
+      "known_at": "2023-11-15T23:59:59Z",
+      "semantics": "QUALITATIVE_EXPECTATION",
+      "statement": "IMF staff expected Panama Canal drought restrictions to hamper trade for months while describing planned operational transit reductions.",
+      "notes": "The projected 18 ships per day is an operating-severity forecast, not a probability that disruption would occur."
+    }
+  ]
+}

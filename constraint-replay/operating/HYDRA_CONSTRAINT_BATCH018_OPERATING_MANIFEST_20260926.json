@@ -1,0 +1,74 @@
+{
+  "schema_version": "1.0",
+  "batch_id": "HYDRA_CONSTRAINT_OPERATING_BATCH018_20260926",
+  "contract_version": "hydra-constraint-operating-report/v1",
+  "mode": "READ_ONLY_CONSTRAINT_OPERATING",
+  "source_run_digest_sha256": "db28edfea01800cf85dd234edb99d003d0a185ab39f7ba8cd31af416542890f1",
+  "implementation": {
+    "module": {
+      "path": "constraint-replay/src/hydra_constraint_replay/operating.py",
+      "git_blob_sha": "147458d7988f41daacb231d7d84db319b8477e63"
+    },
+    "cli": {
+      "path": "constraint-replay/scripts/report_HYDRA_CONSTRAINT_BATCH018_operating_20260926.py",
+      "git_blob_sha": "8ac6bf90e4cd90ecf2d267fdc3d797d2f50a6972"
+    }
+  },
+  "source_authority": {
+    "multidomain_manifest": {
+      "path": "constraint-replay/runtime/HYDRA_CONSTRAINT_BATCH017_MULTIDOMAIN_READONLY_MANIFEST_20260926.json",
+      "git_blob_sha": "fc42afc6bf5af5ea65d8cb65ef79837cf0e55c94"
+    },
+    "legacy_evaluation_report": {
+      "path": "constraint-replay/EVALUATION_REPORT.md",
+      "git_blob_sha": "4121ba8edd3ae783059d7f122e455902340e6a39",
+      "classification": "DUPLICATE_STALE"
+    }
+  },
+  "expected": {
+    "case_count": 22,
+    "replay_cut_count": 82,
+    "policy_event_count": 31,
+    "policy_observation_count": 9,
+    "physical_binding_count": 51,
+    "unique_bound_entity_count": 47,
+    "source_pair_count": 4,
+    "partial_realization_count": 17,
+    "unevaluable_count": 5,
+    "calibrated_case_count": 0,
+    "taxonomy_event_type_count": 18,
+    "sourced_event_type_count": 17,
+    "missing_event_types": [
+      "SUPPLY_AFFECTING_CONFLICT"
+    ],
+    "readiness_status_counts": {
+      "FULL": 4,
+      "THIN": 1,
+      "EMPTY": 1,
+      "MISSING": 3,
+      "DUPLICATE_STALE": 1
+    }
+  },
+  "read_only_capabilities": {
+    "canonical_promotion_authorized": false,
+    "canonical_store_mutation_authorized": false,
+    "external_actions_authorized": false,
+    "model_training_authorized": false,
+    "ranking_authorized": false,
+    "trading_authorized": false
+  },
+  "t6_boundary": {
+    "status": "DORMANT_NOT_ACTIVATED",
+    "runtime_binding_created": false,
+    "activation_authority_granted": false
+  },
+  "snapshot_output": {
+    "path": "constraint-replay/operating/HYDRA_CONSTRAINT_BATCH018_OPERATING_SNAPSHOT_20260926.json",
+    "git_blob_sha": "8d2e4ce22ac972cc825866de845acab752d5a064",
+    "snapshot_digest_sha256": "6d767e34f1f644ae5e4716d907c887425fdce0c15fbf521af530d5e50f0891b0"
+  },
+  "ci_contract": {
+    "path": ".github/workflows/constraint-operating-report.yml",
+    "git_blob_sha": "f1c4984b6d56ef91df95f97d16cdc7fecd53078c"
+  }
+}

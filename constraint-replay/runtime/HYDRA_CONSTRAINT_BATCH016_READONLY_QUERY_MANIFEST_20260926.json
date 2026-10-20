@@ -1,0 +1,71 @@
+{
+  "schema_version": "1.0",
+  "batch_id": "HYDRA_CONSTRAINT_READONLY_QUERY_BATCH016_20260926",
+  "contract_version": "hydra-constraint-readonly-query/v1",
+  "mode": "READ_ONLY_HISTORICAL_REPLAY",
+  "source_run_digest_sha256": "db28edfea01800cf85dd234edb99d003d0a185ab39f7ba8cd31af416542890f1",
+  "implementation": {
+    "module": {
+      "path": "constraint-replay/src/hydra_constraint_replay/query.py",
+      "git_blob_sha": "eb5f5983ad73ac4dc904f117ed764d7ebad7b7c0"
+    },
+    "cli": {
+      "path": "constraint-replay/scripts/query_HYDRA_CONSTRAINT_BATCH016_readonly_replay_20260926.py",
+      "git_blob_sha": "8915031755743f643981ff8e13eb27af46e98ec7"
+    },
+    "package_export": {
+      "path": "constraint-replay/src/hydra_constraint_replay/__init__.py",
+      "git_blob_sha": "993b3346c26bd3eaee22229fbff9e53c724937d3"
+    }
+  },
+  "contracts": [
+    {
+      "path": "constraint-replay/contracts/HYDRA_CONSTRAINT_READONLY_QUERY_REQUEST_V001_20260926.schema.json",
+      "git_blob_sha": "35cb65ce014c6cf6aa744a653aea9e2bf10602f6"
+    },
+    {
+      "path": "constraint-replay/contracts/HYDRA_CONSTRAINT_READONLY_QUERY_RESPONSE_V001_20260926.schema.json",
+      "git_blob_sha": "b9b3c8432e8cf2b3980d64139c77edd500f3a62c"
+    }
+  ],
+  "authority_inputs": [
+    {
+      "path": "constraint-replay/runs/HYDRA_CONSTRAINT_BATCH015_CLASSIFIED_REPLAY_E2E_RUN_20260926.json",
+      "git_blob_sha": "67fc5fb5883fb4ca510eee5a8c908c298d1b5bc9"
+    },
+    {
+      "path": "constraint-replay/runs/HYDRA_CONSTRAINT_BATCH015_CLASSIFIED_REPLAY_E2E_MANIFEST_20260926.json",
+      "git_blob_sha": "7d2deb998e8c3362cea861f48909b78c1c00a42d"
+    }
+  ],
+  "operations": [
+    "summary",
+    "integrity",
+    "case",
+    "list_cases"
+  ],
+  "read_only_capabilities": {
+    "canonical_promotion_authorized": false,
+    "canonical_store_mutation_authorized": false,
+    "external_actions_authorized": false,
+    "model_training_authorized": false,
+    "ranking_authorized": false,
+    "trading_authorized": false
+  },
+  "expected": {
+    "case_count": 22,
+    "partial_realization_count": 17,
+    "unevaluable_count": 5,
+    "calibrated_case_count": 0,
+    "replay_cut_count": 82
+  },
+  "t6_boundary": {
+    "t6_fail_closed_validator_status": "DORMANT_NOT_ACTIVATED",
+    "query_surface_activates_t6": false,
+    "query_surface_registers_runtime_binding": false
+  },
+  "acceptance": {
+    "path": "constraint-replay/runtime/HYDRA_CONSTRAINT_BATCH016_READONLY_QUERY_ACCEPTANCE_20260926.json",
+    "git_blob_sha": "da881c229116528b7be0a7416f1671a48fa89e32"
+  }
+}
