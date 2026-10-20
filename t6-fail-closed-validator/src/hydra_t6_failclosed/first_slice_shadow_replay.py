@@ -12,6 +12,8 @@ from typing import Any, Mapping
 
 
 def _dt(value: str) -> datetime:
+    if type(value) is not str:
+        raise ValueError("valid timezone-aware timestamp required")
     try:
         result = datetime.fromisoformat(value.replace("Z", "+00:00"))
     except (AttributeError, TypeError, ValueError) as exc:
